@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -144,6 +145,19 @@ namespace Raven.Server.Documents.Queries.Dynamic
 
                 var definition = map.CreateAutoIndexDefinition();
                 index = await _indexStore.CreateIndex(definition, RaftIdGenerator.NewId());
+                if (index == null)
+                {
+                    var error = $"Failed to create an auto index {definition.Name}";
+                    var record = Database.ReadDatabaseRecord();
+                    if (record != null)
+                    {
+                        var autoIndexNames = string.Join(", ", record.AutoIndexes.Select(x => x.Key));
+                        error += $", database record existing auto index names: {autoIndexNames}";
+                    }
+
+                    throw new InvalidOperationException(error);
+                }
+
                 hasCreatedAutoIndex = true;
 
                 if (query.WaitForNonStaleResultsTimeout.HasValue == false)
