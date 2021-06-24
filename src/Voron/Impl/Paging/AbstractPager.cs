@@ -636,6 +636,8 @@ namespace Voron.Impl.Paging
 
         public virtual void DiscardWholeFile()
         {
+            return;
+
             long size = 0;
             void* baseAddress = null;
             var pagerState = PagerState;
