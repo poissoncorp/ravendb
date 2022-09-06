@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using System.Threading;
+﻿using System.Threading;
 using McMaster.Extensions.CommandLineUtils;
 using Raven.Server.Commercial;
 
@@ -13,6 +12,7 @@ internal class CreateSetupPackageParameters
     public string Mode;
     public string CertificatePath;
     public string CertPassword;
+    public string HelmValuesOutputPath;
     public SetupProgressAndResult Progress;
     public CancellationToken CancellationToken;
 }
