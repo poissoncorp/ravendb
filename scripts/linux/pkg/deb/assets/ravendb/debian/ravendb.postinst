@@ -6,12 +6,12 @@ case "$1" in
     configure)
         useradd_uid=""
         useradd_gid=""
-        if [ -n "$RAVEN_UserID" ]; then
-            useradd_uid="--uid $RAVEN_UserID"
+        if [ -n "$RAVEN_USER_ID" ]; then
+            useradd_uid="--uid $RAVEN_USER_ID"
         fi
 
-        if [ -n "$RAVEN_GroupID" ]; then
-            useradd_gid="--gid $RAVEN_GroupID"
+        if [ -n "$RAVEN_GROUP_ID" ]; then
+            useradd_gid="--gid $RAVEN_GROUP_ID"
         fi
 
         adduser --disabled-login --disabled-password --system --home /var/empty --no-create-home --quiet "$useradd_uid" "$useradd_gid" --group ravendb
