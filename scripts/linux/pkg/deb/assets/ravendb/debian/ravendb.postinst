@@ -4,9 +4,17 @@ set -e
 
 case "$1" in
     configure)
-        
-        adduser --disabled-login --disabled-password --system --home /var/empty --no-create-home --quiet --group ravendb
+        useradd_uid=""
+        useradd_gid=""
+        if [ -n "$RAVEN_UserID" ]; then
+            useradd_uid="--uid $RAVEN_UserID"
+        fi
 
+        if [ -n "$RAVEN_GroupID" ]; then
+            useradd_gid="--gid $RAVEN_GroupID"
+        fi
+
+        adduser --disabled-login --disabled-password --system --home /var/empty --no-create-home --quiet "$useradd_uid" "$useradd_gid" --group ravendb
         ldconfig
     ;;
 
