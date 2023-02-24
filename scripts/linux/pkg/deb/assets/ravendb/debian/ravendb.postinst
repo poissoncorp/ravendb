@@ -19,7 +19,6 @@ case "$1" in
         else
             adduser --disabled-login --disabled-password --system --home /var/empty --no-create-home --quiet --group ravendb
         fi
-        
         ldconfig
     ;;
 
