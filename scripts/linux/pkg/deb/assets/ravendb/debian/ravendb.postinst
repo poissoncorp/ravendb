@@ -4,21 +4,19 @@ set -e
 
 case "$1" in
     configure)
+        GID=999
+        UID=999
+
         if [[ -n "$RAVEN_GROUP_ID" && $RAVEN_GROUP_ID -ge 1000 ]]; then
-            groupadd --gid $RAVEN_GROUP_ID ravendb
-        else
-            groupadd ravendb
+            GID="$RAVEN_GROUP_ID"
         fi
+        groupadd --gid "$GID" ravendb
         
         if [[ -n "$RAVEN_USER_ID" && "$RAVEN_USER_ID" -ge 1000 ]]; then
-            if [[ -n "$RAVEN_GROUP_ID" && RAVEN_GROUP_ID -ge 1000 ]]; then
-                adduser --disabled-login --disabled-password --system --home /var/empty --no-create-home --quiet --uid $RAVEN_USER_ID --gid $RAVEN_GROUP_ID --group ravendb
-            else
-                adduser --disabled-login --disabled-password --system --home /var/empty --no-create-home --quiet --uid $RAVEN_USER_ID --group ravendb
-            fi
-        else
-            adduser --disabled-login --disabled-password --system --home /var/empty --no-create-home --quiet --group ravendb
+            UID="$RAVEN_USER_ID"
         fi
+        adduser --disabled-login --disabled-password --system --home /var/empty --no-create-home --quiet --uid "$UID" --gid "$GID" ravendb
+
         ldconfig
     ;;
 
