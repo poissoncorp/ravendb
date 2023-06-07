@@ -5,6 +5,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Raven.Client;
 using Raven.Client.Documents.Operations;
 using Raven.Client.Exceptions.Documents.Patching;
 using Raven.Server.Documents;
@@ -195,7 +196,25 @@ namespace Raven.Server.SqlMigration
                         
                         var embeddedArrayWithLinks = (DynamicJsonArray)refInfo.EmbeddedReferenceKeyDataProvider.Provide(specialColumns);
                         value[refInfo.PropertyName + "Ids"] = embeddedArrayWithLinks;
-                        
+
+                        if (specialColumns[refInfo.PropertyName] == null)
+                        {
+                            var embeddedSpecialColumnValues = new DynamicJsonValue();
+
+                            var i = 0;
+                            foreach (var item in embeddedArrayWithLinks)
+                            {
+                                embeddedSpecialColumnValues[item.ToString()] = arrayWithEmbeddedObjects.SpecialColumnsValues[i];
+                                i++;
+                            }
+
+                            specialColumns[refInfo.PropertyName] = embeddedSpecialColumnValues;
+                        }
+                        else
+                        {
+                            
+                        }
+
                         if (refInfo.ChildReferences != null)
                         {
                             var idx = 0;
@@ -204,7 +223,7 @@ namespace Raven.Server.SqlMigration
                                 string innerAttachmentPrefix = GenerateAttachmentKey(attachmentNamePrefix, refInfo.PropertyName, idx.ToString());
                                 FillDocumentFields(arrayItem, arrayWithEmbeddedObjects.SpecialColumnsValues[idx], refInfo.ChildReferences, innerAttachmentPrefix,
                                     attachments);
-
+                                PutSqlKeysIntoEmbeddedDocMetadata(arrayItem, refInfo);
                                 foreach (var kvp in arrayWithEmbeddedObjects.Attachments[idx])
                                 {
                                     attachments[GenerateAttachmentKey(innerAttachmentPrefix, kvp.Key)] = kvp.Value;
@@ -221,8 +240,11 @@ namespace Raven.Server.SqlMigration
 
                         var embeddedObjectLinkValue = (string)refInfo.EmbeddedReferenceKeyDataProvider.Provide(specialColumns);
                         if (value[refInfo.PropertyName] != null && value[refInfo.PropertyName] is DynamicJsonValue)
+                        {
                             ((DynamicJsonValue)value[refInfo.PropertyName])[refInfo.PropertyName + "Id"] = embeddedObjectLinkValue;
-                        
+                            PutSqlKeysIntoEmbeddedDocMetadata((DynamicJsonValue)value[refInfo.PropertyName], refInfo);
+                        }
+                            
                         if (embeddedObjectValue != null)
                         {
                             var innerAttachmentPrefix = GenerateAttachmentKey(attachmentNamePrefix, refInfo.PropertyName);
@@ -249,6 +271,11 @@ namespace Raven.Server.SqlMigration
                         break;
                 }
             }
+        }
+
+        private void PutSqlKeysIntoEmbeddedDocMetadata(DynamicJsonValue document, ReferenceInformation refInfo)
+        {
+            document[Constants.Documents.Metadata.Key] = new DynamicJsonValue{["@sql-keys"] = refInfo.TargetSpecialColumnsNames};
         }
 
         private string GenerateAttachmentKey(params string[] tokens)
@@ -611,7 +638,7 @@ namespace Raven.Server.SqlMigration
                     objectProperties.Add(ExtractFromReader(reader, refInfo.TargetDocumentColumns));
                     attachments.Add(ExtractAttachments(reader, refInfo.TargetAttachmentColumns));
                     
-                    if (refInfo.ChildReferences != null)
+                    //if (refInfo.ChildReferences != null)
                     {
                         // fill only when used
                         specialProperties.Add(ExtractFromReader(reader, refInfo.TargetSpecialColumnsNames));    
