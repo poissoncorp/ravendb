@@ -454,23 +454,27 @@ namespace Raven.Server.ServerWide
                     case nameof(AddElasticSearchEtlCommand):
                     case nameof(AddQueueEtlCommand):
                     case nameof(AddQueueSinkCommand):
+                    case nameof(AddSnowflakeEtlCommand):
                     case nameof(UpdateRavenEtlCommand):
                     case nameof(UpdateSqlEtlCommand):
                     case nameof(UpdateOlapEtlCommand):
                     case nameof(UpdateElasticSearchEtlCommand):
                     case nameof(UpdateQueueEtlCommand):
                     case nameof(UpdateQueueSinkCommand):
+                    case nameof(UpdateSnowflakeEtlCommand):
                     case nameof(DeleteOngoingTaskCommand):
                     case nameof(PutRavenConnectionStringCommand):
                     case nameof(PutSqlConnectionStringCommand):
                     case nameof(PutOlapConnectionStringCommand):
                     case nameof(PutElasticSearchConnectionStringCommand):
                     case nameof(PutQueueConnectionStringCommand):
+                    case nameof(PutSnowflakeConnectionStringCommand):
                     case nameof(RemoveRavenConnectionStringCommand):
                     case nameof(RemoveSqlConnectionStringCommand):
                     case nameof(RemoveOlapConnectionStringCommand):
                     case nameof(RemoveElasticSearchConnectionStringCommand):
                     case nameof(RemoveQueueConnectionStringCommand):
+                    case nameof(RemoveSnowflakeConnectionStringCommand):
                     case nameof(UpdatePullReplicationAsHubCommand):
                     case nameof(UpdatePullReplicationAsSinkCommand):
                     case nameof(EditDatabaseClientConfigurationCommand):
@@ -1746,6 +1750,7 @@ namespace Raven.Server.ServerWide
             nameof(DatabaseRecord.OlapEtls),
             nameof(DatabaseRecord.ElasticSearchEtls),
             nameof(DatabaseRecord.QueueEtls),
+            nameof(DatabaseRecord.SnowflakeEtls),
             nameof(DatabaseRecord.QueueSinks)
         };
 
@@ -2768,6 +2773,7 @@ namespace Raven.Server.ServerWide
                 case nameof(AddOlapEtlCommand):
                 case nameof(AddQueueEtlCommand):
                 case nameof(AddQueueSinkCommand):
+                case nameof(AddSnowflakeEtlCommand):
                 case nameof(AddRavenEtlCommand):
                 case nameof(AddSqlEtlCommand):
                 case nameof(DeleteIndexCommand):
@@ -2791,11 +2797,13 @@ namespace Raven.Server.ServerWide
                 case nameof(PutIndexHistoryCommand):
                 case nameof(PutOlapConnectionStringCommand):
                 case nameof(PutQueueConnectionStringCommand):
+                case nameof(PutSnowflakeConnectionStringCommand):
                 case nameof(PutRavenConnectionStringCommand):
                 case nameof(PutSqlConnectionStringCommand):
                 case nameof(RemoveElasticSearchConnectionStringCommand):
                 case nameof(RemoveOlapConnectionStringCommand):
                 case nameof(RemoveQueueConnectionStringCommand):
+                case nameof(RemoveSnowflakeConnectionStringCommand):
                 case nameof(RemoveRavenConnectionStringCommand):
                 case nameof(RemoveSqlConnectionStringCommand):
                 case nameof(SetIndexLockCommand):
@@ -2807,6 +2815,7 @@ namespace Raven.Server.ServerWide
                 case nameof(UpdatePeriodicBackupCommand):
                 case nameof(UpdateQueueEtlCommand):
                 case nameof(UpdateQueueSinkCommand):
+                case nameof(UpdateSnowflakeEtlCommand):
                 case nameof(UpdateRavenEtlCommand):
                 case nameof(UpdateSqlEtlCommand):
                 case nameof(StartBucketMigrationCommand):
