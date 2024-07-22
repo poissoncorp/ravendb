@@ -1075,6 +1075,7 @@ namespace Raven.Server.Commercial
             var olapEtlCount = 0;
             var elasticSearchEtlCount = 0;
             var queueEtlCount = 0;
+            var snowflakeEtlCount = 0;
             var snapshotBackupsCount = 0;
             var cloudBackupsCount = 0;
             var encryptedBackupsCount = 0;
@@ -1143,6 +1144,10 @@ namespace Raven.Server.Commercial
                     if (databaseRecord.QueueEtls != null &&
                         databaseRecord.QueueEtls.Count > 0)
                         queueEtlCount++;
+                    
+                    if (databaseRecord.SnowflakeEtls != null &&
+                        databaseRecord.SnowflakeEtls.Count > 0)
+                        snowflakeEtlCount++;
 
                     var backupTypes = GetBackupTypes(databaseRecord.PeriodicBackups);
                     if (backupTypes.HasSnapshotBackup)
@@ -1226,6 +1231,12 @@ namespace Raven.Server.Commercial
             {
                 var message = GenerateDetails(queueEtlCount, "Queue ETL");
                 throw GenerateLicenseLimit(LimitType.QueueEtl, message);
+            }
+            
+            if (snowflakeEtlCount > 0 && newLicenseStatus.HasSnowflakeEtl == false)
+            {
+                var message = GenerateDetails(snowflakeEtlCount, "Snowflake ETL");
+                throw GenerateLicenseLimit(LimitType.SnowflakeEtl, message);
             }
 
             if (snapshotBackupsCount > 0 && newLicenseStatus.HasSnapshotBackups == false)
@@ -1576,6 +1587,18 @@ namespace Raven.Server.Commercial
 
             const string message = "Your current license doesn't include the Queue ETL feature";
             throw GenerateLicenseLimit(LimitType.QueueEtl, message);
+        }
+        
+        public void AssertCanAddSnowflakeEtl()
+        {
+            if (IsValid(out var licenseLimit) == false)
+                throw licenseLimit;
+
+            if (LicenseStatus.HasSnowflakeEtl)
+                return;
+
+            const string message = "Your current license doesn't include the Snowflake ETL feature";
+            throw GenerateLicenseLimit(LimitType.SnowflakeEtl, message);
         }
 
         public void AssertCanAddConcurrentDataSubscriptions()
