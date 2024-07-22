@@ -534,6 +534,7 @@ namespace Raven.Server.Documents
             OlapEtl,
             ElasticSearchEtl,
             QueueEtl,
+            SnowflakeEtl,
             Backup,
             PullReplicationAsHub,
             PullReplicationAsSink,
