@@ -330,6 +330,7 @@ namespace Raven.Server.Commercial
                 [nameof(HasConcurrentDataSubscriptions)] = HasConcurrentDataSubscriptions,
                 [nameof(HasElasticSearchEtl)] = HasElasticSearchEtl,
                 [nameof(HasQueueEtl)] = HasQueueEtl,
+                [nameof(HasSnowflakeEtl)] = HasSnowflakeEtl,
                 [nameof(HasPowerBI)] = HasPowerBI,
                 [nameof(HasPostgreSqlIntegration)] = HasPostgreSqlIntegration,
                 [nameof(HasServerWideBackups)] = HasServerWideBackups,
