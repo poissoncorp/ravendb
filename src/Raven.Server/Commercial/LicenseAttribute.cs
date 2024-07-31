@@ -38,7 +38,6 @@ public enum LicenseAttribute
     PostgreSqlIntegration,
     CanBeActivatedUntil,
     QueueEtl,
-    SnowflakeEtl,
     ServerWideBackups,
     ServerWideExternalReplications,
     ServerWideCustomSorters,
@@ -69,4 +68,5 @@ public enum LicenseAttribute
     MaxNumberOfCustomAnalyzersPerDatabase,
     MaxNumberOfCustomAnalyzersPerCluster,
     SubscriptionExpiration
+    SnowflakeEtl,
 }
