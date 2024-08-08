@@ -533,7 +533,7 @@ namespace TypingsGenerator
             // ongoing tasks - SQL ETL
             scripter.AddType(typeof(OngoingTaskSqlEtl));
             scripter.AddType(typeof(SqlEtlConfiguration));
-            scripter.AddType(typeof(TestRelationalEtlScript<SqlConnectionString, SqlEtlConfiguration>));
+            scripter.AddType(typeof(TestRelationalDatabaseEtlScript<SqlConnectionString, SqlEtlConfiguration>));
             scripter.AddType(typeof(SqlEtlTable));
             scripter.AddType(typeof(RelationalDatabaseEtlTestScriptResult));
 
@@ -566,7 +566,7 @@ namespace TypingsGenerator
             // ongoing tasks - Snowflake ETL
             scripter.AddType(typeof(OngoingTaskSnowflakeEtl));
             scripter.AddType(typeof(SnowflakeEtlConfiguration));
-            scripter.AddType(typeof(TestRelationalEtlScript<SnowflakeConnectionString, SnowflakeEtlConfiguration>));
+            scripter.AddType(typeof(TestRelationalDatabaseEtlScript<SnowflakeConnectionString, SnowflakeEtlConfiguration>));
             scripter.AddType(typeof(SnowflakeEtlTable));
 
             // connection strings
