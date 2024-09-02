@@ -1594,7 +1594,6 @@ namespace Raven.Server.Commercial
             if (IsValid(out var licenseLimit) == false)
                 throw licenseLimit;
 
-            //todo: if (LicenseStatus.HasSnowflakeEtl)
             if(true)
                 return;
 
