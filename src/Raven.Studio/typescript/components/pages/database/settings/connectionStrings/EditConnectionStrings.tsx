@@ -22,6 +22,7 @@ import { useAppSelector } from "components/store";
 import LicenseRestrictedBadge, { LicenseBadgeText } from "components/common/LicenseRestrictedBadge";
 import { components, OptionProps } from "react-select";
 import AzureQueueStorageConnectionString from "components/pages/database/settings/connectionStrings/editForms/AzureQueueStorageConnectionString";
+import SnowflakeConnectionString from "components/pages/database/settings/connectionStrings/editForms/SnowflakeConnectionString";
 
 export interface EditConnectionStringsProps {
     initialConnection?: Connection;
@@ -135,6 +136,8 @@ function getEditConnectionStringComponent(type: StudioEtlType): (props: EditConn
             return RavenConnectionString;
         case "Sql":
             return SqlConnectionString;
+        case "Snowflake":
+            return SnowflakeConnectionString;
         case "Olap":
             return OlapConnectionString;
         case "ElasticSearch":
@@ -205,6 +208,13 @@ function getAvailableConnectionStringsOptions(features: ConnectionStringsLicense
             icon: "azure-queue-storage-etl",
             licenseRequired: "Enterprise",
             isDisabled: !features.hasQueueEtl,
+        },
+        {
+            value: "Snowflake",
+            label: "Snowflake",
+            icon: "snowflake",
+            licenseRequired: "Enterprise",
+            isDisabled: !features.hasSnowflakeEtl,
         },
     ];
 }
