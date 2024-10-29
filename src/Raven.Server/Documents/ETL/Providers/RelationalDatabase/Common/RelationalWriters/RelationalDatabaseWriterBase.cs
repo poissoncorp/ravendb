@@ -13,12 +13,13 @@ using Raven.Client.Documents.Operations.ETL;
 using Raven.Client.Extensions.Streams;
 using Raven.Client.Util;
 using Raven.Server.Documents.ETL.Providers.RelationalDatabase.Common.Metrics;
-using Raven.Server.Documents.ETL.Providers.RelationalDatabase.Snowflake.RelationalWriters;
 using Raven.Server.Documents.ETL.Providers.RelationalDatabase.SQL;
+using Raven.Server.Logging;
 using Raven.Server.NotificationCenter.Notifications.Details;
 using Sparrow;
 using Sparrow.Json;
 using Sparrow.Logging;
+using Sparrow.Server.Logging;
 using DbProviderFactories = System.Data.Common.DbProviderFactories;
 
 namespace Raven.Server.Documents.ETL.Providers.RelationalDatabase.Common.RelationalWriters;
@@ -27,7 +28,7 @@ public abstract class RelationalDatabaseWriterBase<TRelationalConnectionString, 
     where TRelationalConnectionString : ConnectionString
     where TRelationalEtlConfiguration : EtlConfiguration<TRelationalConnectionString>
 {
-    protected readonly Logger Logger;
+    protected readonly RavenLogger Logger;
     protected readonly DocumentDatabase Database;
     private readonly DbCommandBuilder _commandBuilder;
     protected readonly DbProviderFactory ProviderFactory;
@@ -52,9 +53,7 @@ public abstract class RelationalDatabaseWriterBase<TRelationalConnectionString, 
         Configuration = configuration;
         _connection = ProviderFactory.CreateConnection();
         _commandBuilder = GetInitializedCommandBuilder();
-        Logger = LoggingSource.Instance
-            .GetLogger<
-                RelationalDatabaseWriterBase<TRelationalConnectionString, TRelationalEtlConfiguration>>(Database.Name);
+        Logger = RavenLogManager.Instance.GetLoggerForDatabase<RelationalDatabaseWriterBase<TRelationalConnectionString, TRelationalEtlConfiguration>>(Database.Name);
 
         var connectionString = GetConnectionString(configuration);
         _connection.ConnectionString = connectionString;
