@@ -74,16 +74,15 @@
   </ItemGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Hl7.Fhir.R4" Version="5.10.3" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
-    <PackageReference Include="NodaTime" Version="3.1.12" />
-    <PackageReference Include="Spatial4n" Version="0.4.1.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
+    <PackageReference Include="Hl7.Fhir.R4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="NodaTime" />
+    <PackageReference Include="Spatial4n" />
+    <PackageReference Include="xunit.runner.visualstudio">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="xunit" Version="2.9.2" />
-    <DotNetCliToolReference Include="dotnet-xunit" Version="2.4.0-beta.1.build10001" />
+    <PackageReference Include="xunit" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Data\RavenDB_17185\memInfo.txt" />

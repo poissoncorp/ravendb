@@ -43,13 +43,13 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Mono.Posix.NETStandard" Version="1.0.0" />
-    <PackageReference Include="NLog" Version="5.3.4" />
-    <PackageReference Include="Raven.CodeAnalysis" Version="1.0.11">
+    <PackageReference Include="Mono.Posix.NETStandard" />
+    <PackageReference Include="NLog" />
+    <PackageReference Include="Raven.CodeAnalysis">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Raven.Pal" Version="6.2.22" />
-    <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="8.0.1" />
+    <PackageReference Include="Raven.Pal" />
+    <PackageReference Include="System.Diagnostics.PerformanceCounter" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Sparrow\Sparrow.csproj" />
