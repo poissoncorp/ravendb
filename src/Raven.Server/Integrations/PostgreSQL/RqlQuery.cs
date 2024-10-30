@@ -33,13 +33,20 @@ namespace Raven.Server.Integrations.PostgreSQL
 
         ~RqlQuery()
         {
-            if(Logger.IsOperationsEnabled)
-                Logger.Operations($"Query '{QueryString}' wasn't disposed properly.{Environment.NewLine}" +
-                                $"Query was run: {_queryWasRun}{Environment.NewLine}" +
-                                $"Are transactions still opened: {_queryOperationContext.AreTransactionsOpened()}{Environment.NewLine}");
-            Dispose();
+            try
+            {
+                if(Logger.IsOperationsEnabled)
+                    Logger.Operations($"Query '{QueryString ?? "null"}' wasn't disposed properly.{Environment.NewLine}" +
+                                      $"Query was run: {_queryWasRun}{Environment.NewLine}" +
+                                      $"Are transactions still opened: {_queryOperationContext?.AreTransactionsOpened() ?? false}{Environment.NewLine}");
+                Dispose();
+            }
+            catch (Exception)
+            {
+                // ignored - making sure we won't throw from finalizer crashing the process
+            }
         }
-        
+
         public RqlQuery(string queryString, int[] parametersDataTypes, DocumentDatabase documentDatabase, int? limit = null) : base(queryString, parametersDataTypes)
         {
             DocumentDatabase = documentDatabase;
