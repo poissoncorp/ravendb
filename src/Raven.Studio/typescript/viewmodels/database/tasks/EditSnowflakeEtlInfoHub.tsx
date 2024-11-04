@@ -67,7 +67,7 @@ export function EditSnowflakeEtlInfoHub() {
                         </li>
                         <li>A connection string specifying the Snowflake storage destination,
                             <br/>
-                            where "<i>Account</i>", "<i>Database</i>", and "<i>Schema</i>" are mandatory parameters.
+                            where &quot;<i>Account</i>&quot;, &quot;<i>Database</i>&quot;, and &quot;<i>Schema</i>&quot; are mandatory parameters.
                         </li>
                         <li>A responsible node to handle this task can be set.</li>
                     </ul>

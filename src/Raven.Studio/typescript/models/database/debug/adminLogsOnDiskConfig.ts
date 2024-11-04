@@ -1,5 +1,4 @@
 /// <reference path="../../../../typings/tsd.d.ts"/>
-import genUtils = require("common/generalUtils");
 
 class adminLogsOnDiskConfig {
     selectedLogMode = ko.observable<TODO>();
