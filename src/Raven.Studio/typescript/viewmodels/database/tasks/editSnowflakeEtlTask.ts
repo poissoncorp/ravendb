@@ -17,7 +17,6 @@ import viewHelpers = require("common/helpers/view/viewHelpers");
 import documentMetadata = require("models/database/documents/documentMetadata");
 import getDocumentsMetadataByIDPrefixCommand = require("commands/database/documents/getDocumentsMetadataByIDPrefixCommand");
 import getDocumentWithMetadataCommand = require("commands/database/documents/getDocumentWithMetadataCommand");
-import popoverUtils = require("common/popoverUtils");
 import { highlight, languages } from "prismjs";
 import shardViewModelBase from "viewmodels/shardViewModelBase";
 import licenseModel from "models/auth/licenseModel";
