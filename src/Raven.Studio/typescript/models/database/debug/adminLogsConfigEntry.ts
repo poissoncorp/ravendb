@@ -2,7 +2,7 @@
 
 type logEntryMode = "include" | "exclude";
 
-
+// TODO - remove this
 
 class adminLogsConfigEntry {
     headerName = ko.observable<adminLogsHeaderType>("Source");

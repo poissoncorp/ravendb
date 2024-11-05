@@ -67,7 +67,7 @@ export default class MockDatabasesService extends AutoMockService<DatabasesServi
     }
 
     withoutRefreshConfiguration() {
-        return this.mockResolvedValue(this.mocks.getRefreshConfiguration, () => null, undefined);
+        return this.mockResolvedValue(this.mocks.getRefreshConfiguration, null, undefined);
     }
 
     withExpirationConfiguration(dto?: RefreshConfiguration) {
@@ -79,7 +79,7 @@ export default class MockDatabasesService extends AutoMockService<DatabasesServi
     }
 
     withoutExpirationConfiguration() {
-        return this.mockResolvedValue(this.mocks.getExpirationConfiguration, () => null, undefined);
+        return this.mockResolvedValue(this.mocks.getExpirationConfiguration, null, undefined);
     }
 
     withTombstonesState(dto?: TombstonesStateOnWire) {

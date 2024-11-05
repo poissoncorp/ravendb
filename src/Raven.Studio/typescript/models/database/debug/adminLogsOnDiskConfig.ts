@@ -1,5 +1,6 @@
 /// <reference path="../../../../typings/tsd.d.ts"/>
 
+// TODO - remove this
 class adminLogsOnDiskConfig {
     selectedLogMode = ko.observable<TODO>();
 

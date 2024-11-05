@@ -23,11 +23,11 @@ export interface DocumentRevisionsState {
     originalConfigs: EntityState<DocumentRevisionsConfig, string>;
 }
 
-const configsAdapter = createEntityAdapter<DocumentRevisionsConfig, string>({
+export const configsAdapter = createEntityAdapter<DocumentRevisionsConfig, string>({
     selectId: (config) => config.Name,
 });
 
-const configsSelectors = configsAdapter.getSelectors();
+export const configsSelectors = configsAdapter.getSelectors();
 
 const initialState: DocumentRevisionsState = {
     loadStatus: "idle",
@@ -158,15 +158,18 @@ export const documentRevisionsSlice = createSlice({
     },
 });
 
-const fetchConfigs = createAsyncThunk(documentRevisionsSlice.name + "/fetchConfigs", async (databaseName: string) => {
-    const config = await services.databasesService.getRevisionsConfiguration(databaseName);
-    const conflictsConfig = await services.databasesService.getRevisionsForConflictsConfiguration(databaseName);
+export const fetchConfigs = createAsyncThunk(
+    documentRevisionsSlice.name + "/fetchConfigs",
+    async (databaseName: string) => {
+        const config = await services.databasesService.getRevisionsConfiguration(databaseName);
+        const conflictsConfig = await services.databasesService.getRevisionsForConflictsConfiguration(databaseName);
 
-    return {
-        config,
-        conflictsConfig,
-    };
-});
+        return {
+            config,
+            conflictsConfig,
+        };
+    }
+);
 
 export const documentRevisionsActions = {
     ...documentRevisionsSlice.actions,

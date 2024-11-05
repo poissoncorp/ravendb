@@ -3,6 +3,9 @@ import { SelectOption } from "components/common/select/Select";
 import { loadableData } from "components/models/common";
 import { StoryFn } from "@storybook/react";
 import { sortBy } from "common/typeUtils";
+import { ColumnDef } from "@tanstack/react-table";
+import { CellJsonPreviewWrapper } from "components/common/virtualTable/cells/CellJsonPreview";
+import { virtualTableUtils } from "components/common/virtualTable/utils/virtualTableUtils";
 
 export function withPreventDefault(action: (...args: any[]) => void): MouseEventHandler<HTMLElement> {
     return (e: MouseEvent<HTMLElement>) => {
@@ -126,3 +129,32 @@ export type OmitIndexSignature<T> = {
 };
 
 export type StringWithAutocomplete<T> = T | (string & NonNullable<unknown>);
+
+export const allLogLevels = exhaustiveStringTuple<Sparrow.Logging.LogLevel>()(
+    "Off",
+    "Trace",
+    "Debug",
+    "Info",
+    "Warn",
+    "Error",
+    "Fatal"
+);
+
+export const allLogFilterActions = exhaustiveStringTuple<Sparrow.Logging.LogFilterAction>()(
+    "Ignore",
+    "IgnoreFinal",
+    "Log",
+    "LogFinal",
+    "Neutral"
+);
+export const logLevelOptions: SelectOption<Sparrow.Logging.LogLevel>[] = allLogLevels.map((level) => ({
+    label: level,
+    value: level,
+}));
+
+export const logFilterActionOptions: SelectOption<Sparrow.Logging.LogFilterAction>[] = allLogFilterActions.map(
+    (action) => ({
+        label: action,
+        value: action,
+    })
+);

@@ -313,13 +313,13 @@ class adminLogs extends viewModelBase {
     }
     
     loadLogsConfig() {
-        return new getAdminLogsConfigurationCommand().execute()
-            .done(result => this.onDiskConfiguration(new adminLogsOnDiskConfig(result)));
+        // return new getAdminLogsConfigurationCommand().execute()
+        //     .done(result => this.onDiskConfiguration(new adminLogsOnDiskConfig(result)));
     }
     
     loadTrafficWatchConfig() {
-        return new getTrafficWatchConfigurationCommand().execute()
-            .done(result => this.trafficWatchConfiguration(new trafficWatchConfiguration(result)))
+        // return new getTrafficWatchConfigurationCommand().execute()
+        //     .done(result => this.trafficWatchConfiguration(new trafficWatchConfiguration(result)))
     }
 
     loadEventListenerConfiguration() {
@@ -331,15 +331,15 @@ class adminLogs extends viewModelBase {
         this.onDiskConfiguration().selectedLogMode(newMode);
 
         // First must get updated with current server settings
-        new getAdminLogsConfigurationCommand().execute()
-            .done((result) => {
-                const config = new adminLogsOnDiskConfig(result);
-                config.selectedLogMode(newMode);
+        // new getAdminLogsConfigurationCommand().execute()
+        //     .done((result) => {
+        //         const config = new adminLogsOnDiskConfig(result);
+        //         config.selectedLogMode(newMode);
             
-                // Set the new mode
-                new saveAdminLogsConfigurationCommand(config).execute()
-                    .always(this.loadLogsConfig);
-        });
+        //         // Set the new mode
+        //         new saveAdminLogsConfigurationCommand(config).execute()
+        //             .always(this.loadLogsConfig);
+        // });
     }
     
     filterAndAppendLogEntries(fromFilterChange: boolean) {
@@ -468,7 +468,7 @@ class adminLogs extends viewModelBase {
     
     connectWebSocket() {
         eventsCollector.default.reportEvent("admin-logs", "connect");
-        const ws = new adminLogsWebSocketClient(this.configuration(), data => this.onData(data));
+        const ws = new adminLogsWebSocketClient(data => this.onData(JSON.stringify(data)));
         this.liveClient(ws);
 
         this.liveClient().isConnected.subscribe((opened) => {
