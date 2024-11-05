@@ -5,6 +5,7 @@ import { LazyLoad } from "components/common/LazyLoad";
 import { RichPanel, RichPanelDetails, RichPanelHeader } from "components/common/RichPanel";
 import Select, { SelectOption } from "components/common/select/Select";
 import SizeGetter from "components/common/SizeGetter";
+import { useEventsCollector } from "components/hooks/useEventsCollector";
 import { useServices } from "components/hooks/useServices";
 import AdminLogsVirtualList from "components/pages/resources/manageServer/adminLogs/bits/AdminLogsVirtualList";
 import AdminLogsDiskDownloadModal from "components/pages/resources/manageServer/adminLogs/disk/AdminLogsDiskDownloadModal";
@@ -25,6 +26,7 @@ import { Button, Col, Input, Row } from "reactstrap";
 
 export default function AdminLogs() {
     const dispatch = useAppDispatch();
+    const eventsCollector = useEventsCollector();
     const { manageServerService } = useServices();
 
     const filteredLogs = useAppSelector(adminLogsSelectors.filteredLogs);
@@ -119,7 +121,10 @@ export default function AdminLogs() {
                                     type="button"
                                     color="danger"
                                     outline
-                                    onClick={() => dispatch(adminLogsActions.logsSet([]))}
+                                    onClick={() => {
+                                        eventsCollector.reportEvent("admin-logs", "clear");
+                                        dispatch(adminLogsActions.logsSet([]));
+                                    }}
                                 >
                                     <Icon icon="cancel" />
                                     Clear
@@ -133,7 +138,15 @@ export default function AdminLogs() {
                                     <Icon icon={isMonitorTail ? "pause" : "check"} />
                                     Monitor (tail -f)
                                 </Button>
-                                <Button type="button" color="light" outline onClick={exportToFile}>
+                                <Button
+                                    type="button"
+                                    color="light"
+                                    outline
+                                    onClick={() => {
+                                        eventsCollector.reportEvent("admin-logs", "export");
+                                        exportToFile();
+                                    }}
+                                >
                                     <Icon icon="export" />
                                     Export
                                 </Button>
