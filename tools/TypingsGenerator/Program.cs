@@ -587,6 +587,7 @@ namespace TypingsGenerator
             // admin logs
             scripter.AddType(typeof(LogLevel));
             scripter.AddType(typeof(SetLogsConfigurationOperation.Parameters));
+            scripter.AddType(typeof(GetLogsConfigurationResult));
             scripter.AddType(typeof(PutTrafficWatchConfigurationOperation.Parameters));
             scripter.AddType(typeof(EventListenerToLog.EventListenerConfiguration));
 

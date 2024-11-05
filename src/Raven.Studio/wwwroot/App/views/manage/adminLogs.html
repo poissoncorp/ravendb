@@ -92,7 +92,7 @@
                                 </div>
                                 <div class="flex-vertical">
                                     <label class="small-label margin-bottom-xxs">Log Mode</label>
-                                    <div class="dropdown">
+                                    <!-- <div class="dropdown">
                                         <button type="button" class="btn btn-sm dropdown-toggle" data-toggle="dropdown" title="Set logs mode" id="selectedLogMode">
                                             <span data-bind="text: selectedLogMode"></span>&nbsp;&nbsp;
                                             <span class="caret"></span>
@@ -102,7 +102,7 @@
                                             <li class="divider"></li>
                                             <li><a data-bind="click: _.partial($root.setAdminLogMode, 'None')" href="#">None</a></li>
                                         </ul>
-                                    </div>
+                                    </div> -->
                                 </div>
                                 <div class="flex-horizontal gap-3">
                                     <div class="flex-vertical">
@@ -210,11 +210,11 @@
             </div>
             <small class="margin-left margin-left-sm">
                 <label>Log Level:</label>
-                <strong data-bind="text: onDiskConfiguration().selectedLogMode"></strong>
+                <!-- <strong data-bind="text: onDiskConfiguration().selectedLogMode"></strong>
                 <small class="text-warning bg-warning margin-left margin-left-sm padding padding-sm" data-bind="visible: onDiskConfiguration().selectedLogMode() === 'None'">
                     <i class="icon-warning"></i>
                     <span>No log messages are being written to disk</span>
-                </small>
+                </small> -->
             </small>
         </div>
         </div>

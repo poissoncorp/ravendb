@@ -396,11 +396,20 @@ select {
 //Override bootstrap 5.3 CSS custom properties theming errors
 .accordion-button {
     &::after {
-        content: "\f117" !important;
+        content: "\f169" !important;
         font-family: "icomoon" !important;
         text-align: center;
     }
 }
+
+.license-accordion {
+    .accordion-button {
+        &::after {
+            content: "\f167" !important;
+        }
+    }
+}
+
 .btn-close {
     &::after {
         content: "\f117" !important;

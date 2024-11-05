@@ -1,7 +1,7 @@
 /// <reference path="../../../../typings/tsd.d.ts"/>
 
 import adminLogsConfigEntry = require("models/database/debug/adminLogsConfigEntry");
-
+// TODO - remove this
 class adminLogsConfig {
     entries = ko.observableArray<adminLogsConfigEntry>([]);
     maxEntries = ko.observable<number>();
