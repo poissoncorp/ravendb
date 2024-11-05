@@ -2,6 +2,7 @@ import { createListenerMiddleware } from "@reduxjs/toolkit";
 import { adminLogsActions } from "./adminLogsSlice";
 import { AppListenerEffectApi } from "components/store";
 import adminLogsWebSocketClient from "common/adminLogsWebSocketClient";
+import eventsCollector from "common/eventsCollector";
 
 export const adminLogsMiddleware = createListenerMiddleware();
 
@@ -26,6 +27,8 @@ adminLogsMiddleware.startListening({
 adminLogsMiddleware.startListening({
     actionCreator: adminLogsActions.liveClientStopped,
     effect: () => {
+        eventsCollector.default.reportEvent("admin-logs", "connect");
+
         liveClient?.dispose();
         liveClient = null;
     },
