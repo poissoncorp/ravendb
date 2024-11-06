@@ -54,18 +54,30 @@ class clusterDebug extends viewModelBase {
     connections: KnockoutComputed<Raven.Server.Rachis.RaftDebugView.PeerConnection[]>;
     chokedCluster: KnockoutComputed<boolean>;
     
+    private nextIndexToFetch = ko.observable<number>();
+    private totalCount = ko.observable<number>();
+    
     constructor() {
         super();
         
         this.bindToCurrentInstance("refresh", "customInlinePreview", "deleteLogEntry", "openInstallationDetails", "openCriticalError", "showConnectionDetails");
-        
+
+        this.queueLength = ko.pureComputed(() => {
+            const log = this.clusterLog();
+            if (!log || log.Log.Logs.length === 0) {
+                return 0;
+            }
+
+            return log.Log.LastLogEntryIndex - log.Log.CommitIndex;
+        });
+
         this.chokedCluster = ko.pureComputed(() => {
             const log = this.clusterLog();
             if (!log) {
                 return false;
             }
             
-            const queueSizeCheck = log.Log.Logs.length >= 5;
+            const queueSizeCheck = this.queueLength() >= 5;
             const lastCommit = moment.utc(log.Log.LastCommitedTime);
             const lastCommitAgoInMs = moment.utc().diff(lastCommit);
             const lastCommitCheck = lastCommitAgoInMs >= 2 * 60 * 1_000; // 2 minutes
@@ -147,15 +159,7 @@ class clusterDebug extends viewModelBase {
             return log.Role === "Follower" && (log as FollowerDebugView).Phase === "Snapshot";
         });
         
-        this.queueLength = ko.pureComputed(() => {
-            const log = this.clusterLog();
-            if (!log || log.Log.Logs.length === 0) {
-                return 0;
-            }
-            
-            return log.Log.LastLogEntryIndex - log.Log.CommitIndex;
-        });
-        
+       
         this.progress = ko.pureComputed(() => {
             const log = this.clusterLog();
             if (!log) {
@@ -166,7 +170,7 @@ class clusterDebug extends viewModelBase {
             const last = log.Log.LastLogEntryIndex;
 
             if (!first && !last) {
-                return 0;
+                return 100;
             }
             
             const logLength = last - first + 1;
@@ -207,25 +211,62 @@ class clusterDebug extends viewModelBase {
     compositionComplete(): void {
         super.compositionComplete();
         
-        const fetcher = () => {
+        const fetcher = (skip: number) => {
             const log = this.clusterLog().Log;
             const data = log.Logs;
+            
+            if (skip === 0) {
+                // we have preloaded data
+                const logLength = log.Logs.length;
+                const hasMore = logLength !== log.TotalEntries;
+                const total = hasMore ? logLength + 1 : logLength;
+                
+                this.nextIndexToFetch(log.Logs.length ? log.Logs[log.Logs.length - 1].Index - 1 : 0);
+                this.totalCount(data.length);
+              
+                return $.when({
+                    totalResultCount: total,
+                    items: data.map(x => {
+                        return {
+                            ...x,
+                            Status: clusterDebug.mapStatus(x, log.CommitIndex)
+                        }
+                    })
+                } as pagedResult<LogEntry>);
+            } else {
+                const chuckSize = 1001;
+                return new getClusterLogCommand(this.nextIndexToFetch(), chuckSize)
+                    .execute()
+                    .then(data => {
+                        const hasMore = data.Log.Logs.length === chuckSize;
+                        if (hasMore) {
+                            // truncate last item
+                            const lastItem = data.Log.Logs.pop();
+                            this.nextIndexToFetch(lastItem.Index);
+                        }
+                        
+                        this.totalCount(this.totalCount() + data.Log.Logs.length);
 
-            return $.when({
-                totalResultCount: data.length,
-                items: data.map(x => {
-                    return {
-                        ...x,
-                        Status: clusterDebug.mapStatus(x, log.CommitIndex)
-                    }
-                })
-            } as pagedResult<LogEntry>);
+                        const total = this.totalCount() + (hasMore ? 1 : 0);
+                        
+                        return {
+                            totalResultCount: total,
+                            items: data.Log.Logs.map(x => {
+                                return {
+                                    ...x,
+                                    Status: clusterDebug.mapStatus(x, log.CommitIndex)
+                                }
+                            })
+                        } as pagedResult<LogEntry>;
+                    });
+            }
         };
 
         const previewColumn = new actionColumn<LogEntry>(this.gridController(),
             log => this.customInlinePreview(log), "Preview", `<i class="icon-preview"></i>`, "75px",
             {
                 title: () => 'Show item preview',
+                extraClass: item => item.SizeInBytes === 0 ? "invisible" : ""
             });
 
         const grid = this.gridController();
@@ -257,8 +298,8 @@ class clusterDebug extends viewModelBase {
                     `<i class="icon-trash"></i>`,
                     "35px",
                     {
-                        extraClass: () => 'file-trash btn-danger',
                         title: () => 'Delete Log Entry',
+                        extraClass: item => item.Index <= this.clusterLog().Log.CommitIndex ? "file-trash btn-danger invisible" : "file-trash btn-danger"
                     })
             ]
         );
@@ -299,10 +340,11 @@ class clusterDebug extends viewModelBase {
     }
     
     private fetchClusterLog() {
-        return new getClusterLogCommand()
+        return new getClusterLogCommand(undefined, 1024) 
             .execute()
             .done(log => {
                 this.clusterLog(log);
+                this.nextIndexToFetch(null);
             });
     }
 

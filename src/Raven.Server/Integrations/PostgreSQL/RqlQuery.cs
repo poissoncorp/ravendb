@@ -35,13 +35,20 @@ namespace Raven.Server.Integrations.PostgreSQL
 
         ~RqlQuery()
         {
-            if(Logger.IsWarnEnabled)
-                Logger.Warn($"Query '{QueryString}' wasn't disposed properly.{Environment.NewLine}" +
+            try
+            {
+                if (Logger.IsWarnEnabled)
+                    Logger.Warn($"Query '{QueryString}' wasn't disposed properly.{Environment.NewLine}" +
                                 $"Query was run: {_queryWasRun}{Environment.NewLine}" +
                                 $"Are transactions still opened: {_queryOperationContext.AreTransactionsOpened()}{Environment.NewLine}");
-            Dispose();
+                Dispose();
+            }
+            catch
+            {
+                // ignored - making sure we won't throw from finalizer crashing the process
+            }
         }
-        
+
         public RqlQuery(string queryString, int[] parametersDataTypes, DocumentDatabase documentDatabase, int? limit = null) : base(queryString, parametersDataTypes)
         {
             DocumentDatabase = documentDatabase;
@@ -111,25 +118,25 @@ namespace Raven.Server.Integrations.PostgreSQL
                 Columns[Constants.Documents.Indexing.Fields.DocumentIdFieldName] = new PgColumn(Constants.Documents.Indexing.Fields.DocumentIdFieldName, (short)Columns.Count, PgText.Default, resultsFormat);
 
             BlittableJsonReaderObject.PropertyDetails prop = default;
-            
+
             // If there's a null value in a particular column of the record, don't write null type to the schema.
             // Instead, iterate over results trying to find a record with the value filled in this column.
             // Keep 'unchecked type' columns names in the list below. 
             var uncheckedTypePropertiesNames = samples[0].Data.GetPropertyNames().ToList();
-            
+
             // Skip metadata() column, so it will be added later to json() column
             uncheckedTypePropertiesNames.Remove(Constants.Documents.Metadata.Key);
-            
+
             // Fulfill the 'Columns' to prevent losing the order later.
             // Assign them null type (PgJson.Default) at the start.
             foreach (var property in uncheckedTypePropertiesNames.ToArray())
                 Columns.TryAdd(property, new PgColumn(property, (short)Columns.Count, PgJson.Default, resultsFormat));
-            
+
             // Go through results - we'll try to find all properties types.
             for (int sampleIndex = 0; sampleIndex < samples.Count && sampleIndex < 1000; sampleIndex++)
             {
                 Document sample = samples[sampleIndex];
-                
+
                 // Iterate over the columns which type hasn't been figured out yet
                 var uncheckedTypePropertiesNamesCopy = uncheckedTypePropertiesNames.ToArray();
                 foreach (var propertyName in uncheckedTypePropertiesNamesCopy)
@@ -140,12 +147,12 @@ namespace Raven.Server.Integrations.PostgreSQL
                     // If the document does not have this property, there is nothing to do.
                     if (propIndex == -1)
                         continue;
-                    
+
                     sample.Data.GetPropertyByIndex(propIndex, ref prop);
-                    
+
                     if (prop.Value == null)
                         continue;  // nothing to do here.
-                
+
                     var bjt = prop.Token & BlittableJsonReaderBase.TypesMask;
                     PgType pgType = bjt switch
                     {
@@ -288,7 +295,7 @@ namespace Raven.Server.Integrations.PostgreSQL
                             row[pgColumn.ColumnIndex] = value;
 
                             HandleSpecialColumnsIfNeeded(columnName, prop, prop.Value, ref row);
-                            
+
                             jsonResult.Modifications.Remove(columnName);
                         }
 
@@ -317,7 +324,7 @@ namespace Raven.Server.Integrations.PostgreSQL
             {
                 ReleaseQueryResources();
             }
-            
+
         }
 
         protected virtual void HandleSpecialColumnsIfNeeded(string columnName, BlittableJsonReaderObject.PropertyDetails property, object value, ref ReadOnlyMemory<byte>?[] row)
@@ -344,7 +351,7 @@ namespace Raven.Server.Integrations.PostgreSQL
                 case (BlittableJsonToken.CompressedString, PgTypeOIDs.TimestampTz):
                 case (BlittableJsonToken.CompressedString, PgTypeOIDs.Interval):
                     {
-                        if (((string)value).Length != 0 
+                        if (((string)value).Length != 0
                             && TypeConverter.TryConvertStringValue((string)value, out var obj))
                             return pgColumn.PgType.ToBytes(obj, pgColumn.FormatCode);
                         break;
@@ -354,26 +361,26 @@ namespace Raven.Server.Integrations.PostgreSQL
                 case (BlittableJsonToken.String, PgTypeOIDs.TimestampTz):
                 case (BlittableJsonToken.String, PgTypeOIDs.Interval):
                     {
-                        if (((LazyStringValue)value).Length != 0 
+                        if (((LazyStringValue)value).Length != 0
                             && TypeConverter.TryConvertStringValue((LazyStringValue)value, out object obj))
                         {
                             // Check for mismatch between column type and our data type
                             if (obj is DateTime dt)
                             {
-                                if (dt.Kind == DateTimeKind.Utc 
+                                if (dt.Kind == DateTimeKind.Utc
                                     && pgColumn.PgType is not PgTimestampTz)
                                     break;
 
-                                if (dt.Kind != DateTimeKind.Utc 
+                                if (dt.Kind != DateTimeKind.Utc
                                     && pgColumn.PgType is not PgTimestamp)
                                     break;
                             }
 
-                            if (obj is DateTimeOffset 
+                            if (obj is DateTimeOffset
                                 && pgColumn.PgType is not PgTimestampTz)
                                 break;
 
-                            if (obj is TimeSpan 
+                            if (obj is TimeSpan
                                 && pgColumn.PgType is not PgInterval)
                                 break;
 
@@ -398,7 +405,7 @@ namespace Raven.Server.Integrations.PostgreSQL
             _queryOperationContext = null;
             _result = null;
         }
-        
+
         public override void Dispose()
         {
             GC.SuppressFinalize(this);

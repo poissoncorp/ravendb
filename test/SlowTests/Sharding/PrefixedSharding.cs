@@ -49,7 +49,7 @@ public class PrefixedSharding : ClusterTestBase
                     {
                         // range for 'eu/' is : 
                         // shard 0 : [1M, 2M]
-                        Prefix = "eu/", 
+                        Prefix = "eu/",
                         Shards = [0]
                     },
                     new PrefixedShardingSetting
@@ -57,7 +57,7 @@ public class PrefixedSharding : ClusterTestBase
                         // range for 'asia/' is :
                         // shard 1 : [2M, 2.5M]
                         // shard 2 : [2.5M, 3M]
-                        Prefix = "asia/", 
+                        Prefix = "asia/",
                         Shards = [1, 2]
                     }
                 ];
@@ -182,7 +182,7 @@ public class PrefixedSharding : ClusterTestBase
             Prefix = "users/",
             Shards = [0]
         }));
-          
+
         Assert.Throws<RavenException>(() =>
         {
             using var newStore = Sharding.GetDocumentStore(new Options
@@ -201,7 +201,7 @@ public class PrefixedSharding : ClusterTestBase
                 }
             });
         });
-          
+
 
     }
 
@@ -217,7 +217,7 @@ public class PrefixedSharding : ClusterTestBase
                 [
                     new PrefixedShardingSetting
                     {
-                        Prefix = "eu/", 
+                        Prefix = "eu/",
                         Shards = [0]
                     }
                 ];
@@ -259,12 +259,12 @@ public class PrefixedSharding : ClusterTestBase
                 [
                     new PrefixedShardingSetting
                     {
-                        Prefix = "asia/", 
+                        Prefix = "asia/",
                         Shards = [0]
                     },
                     new PrefixedShardingSetting
                     {
-                        Prefix = "eu/", 
+                        Prefix = "eu/",
                         Shards = [1, 2]
                     }
                 ];
@@ -301,7 +301,7 @@ public class PrefixedSharding : ClusterTestBase
                 [
                     new PrefixedShardingSetting
                     {
-                        Prefix = "eu/", 
+                        Prefix = "eu/",
                         Shards = [0]
                     }
                 ];
@@ -360,7 +360,7 @@ public class PrefixedSharding : ClusterTestBase
                 [
                     new PrefixedShardingSetting
                     {
-                        Prefix = "eu/", 
+                        Prefix = "eu/",
                         Shards = [0, 1]
                     }
                 ];
@@ -402,12 +402,12 @@ public class PrefixedSharding : ClusterTestBase
                 [
                     new PrefixedShardingSetting
                     {
-                        Prefix = "eu/", 
+                        Prefix = "eu/",
                         Shards = [0, 1]
                     },
                     new PrefixedShardingSetting
                     {
-                        Prefix = "us/", 
+                        Prefix = "us/",
                         Shards = [1, 2]
                     }
                 ];
@@ -424,7 +424,7 @@ public class PrefixedSharding : ClusterTestBase
 
             await session.SaveChangesAsync();
         }
-        
+
         var record = await store.Maintenance.Server.SendAsync(new GetDatabaseRecordOperation(store.Database));
         var shardingConfiguration = record.Sharding;
         Assert.Equal(7, shardingConfiguration.BucketRanges.Count);
@@ -465,17 +465,17 @@ public class PrefixedSharding : ClusterTestBase
                 [
                     new PrefixedShardingSetting
                     {
-                        Prefix = "users/", 
+                        Prefix = "users/",
                         Shards = [0]
                     },
                     new PrefixedShardingSetting
                     {
-                        Prefix = "orders/", 
+                        Prefix = "orders/",
                         Shards = [1]
                     },
                     new PrefixedShardingSetting
                     {
-                        Prefix = "employees/", 
+                        Prefix = "employees/",
                         Shards = [2]
                     }
                 ];
@@ -556,7 +556,7 @@ public class PrefixedSharding : ClusterTestBase
         // restore the database with a different name
         var restoredDatabaseName = $"restored_database-{Guid.NewGuid()}";
         using (Sharding.Backup.ReadOnly(backupPath))
-        using (Backup.RestoreDatabase(store, new RestoreBackupConfiguration 
+        using (Backup.RestoreDatabase(store, new RestoreBackupConfiguration
         {
             DatabaseName = restoredDatabaseName,
             ShardRestoreSettings = settings
@@ -663,12 +663,12 @@ public class PrefixedSharding : ClusterTestBase
                 [
                     new PrefixedShardingSetting
                     {
-                        Prefix = "Users/", 
+                        Prefix = "Users/",
                         Shards = [0]
                     },
                     new PrefixedShardingSetting
                     {
-                        Prefix = "Orders/", 
+                        Prefix = "Orders/",
                         Shards = [1]
                     }
                 ];
@@ -751,7 +751,7 @@ public class PrefixedSharding : ClusterTestBase
                     {
                         // range for 'eu/' is : 
                         // shard 0 : [1M, 2M]
-                        Prefix = "eu/", 
+                        Prefix = "eu/",
                         Shards = [0]
                     },
 
@@ -760,7 +760,7 @@ public class PrefixedSharding : ClusterTestBase
                         // range for 'asia/' is :
                         // shard 1 : [2M, 2.5M]
                         // shard 2 : [2.5M, 3M]
-                        Prefix = "asia/", 
+                        Prefix = "asia/",
                         Shards = [1, 2]
                     }
                 ];
@@ -801,12 +801,12 @@ public class PrefixedSharding : ClusterTestBase
                 [
                     new PrefixedShardingSetting
                     {
-                        Prefix = "eu/", 
+                        Prefix = "eu/",
                         Shards = [0, 1]
                     },
                     new PrefixedShardingSetting
                     {
-                        Prefix = "us/", 
+                        Prefix = "us/",
                         Shards = [1, 2]
                     }
                 ];
@@ -827,7 +827,7 @@ public class PrefixedSharding : ClusterTestBase
         var shardingConfiguration = await Sharding.GetShardingConfigurationAsync(store);
         var bucketRanges = shardingConfiguration.BucketRanges;
         Assert.Equal(7, bucketRanges.Count);
-        
+
         Assert.Equal(ShardHelper.NumberOfBuckets, shardingConfiguration.BucketRanges[3].BucketRangeStart);
         Assert.Equal(ShardHelper.NumberOfBuckets * 1.5, shardingConfiguration.BucketRanges[4].BucketRangeStart);
         Assert.Equal(ShardHelper.NumberOfBuckets * 2, shardingConfiguration.BucketRanges[5].BucketRangeStart);
@@ -860,11 +860,12 @@ public class PrefixedSharding : ClusterTestBase
         // attempt to remove shard #1 from 'us/' setting should throw
         // we cannot remove shard #1 because there are bucket ranges mapped to shard #1 for this prefix
 
-        await Assert.ThrowsAsync<RavenException>(async () => 
+        await Assert.ThrowsAsync<RavenException>(async () =>
             await store.Maintenance.SendAsync(
             new UpdatePrefixedShardingSettingOperation(new PrefixedShardingSetting
             {
-                Prefix = "us/", Shards = [2]
+                Prefix = "us/",
+                Shards = [2]
             })));
 
     }
@@ -881,17 +882,17 @@ public class PrefixedSharding : ClusterTestBase
                 [
                     new PrefixedShardingSetting
                     {
-                        Prefix = "users/", 
+                        Prefix = "users/",
                         Shards = [0]
                     },
                     new PrefixedShardingSetting
                     {
-                        Prefix = "users/us/utah/", 
+                        Prefix = "users/us/utah/",
                         Shards = [1]
                     },
                     new PrefixedShardingSetting
                     {
-                        Prefix = "users/us/", 
+                        Prefix = "users/us/",
                         Shards = [2]
                     }
                 ];
@@ -962,7 +963,7 @@ public class PrefixedSharding : ClusterTestBase
         Assert.Equal("users/", shardingConfiguration.Prefixed[3].Prefix);
 
         Assert.Equal(ShardHelper.NumberOfBuckets, shardingConfiguration.Prefixed[0].BucketRangeStart);
-        
+
         // new prefix should be added at the end of BucketRanges
         Assert.Equal(ShardHelper.NumberOfBuckets * 4, shardingConfiguration.Prefixed[1].BucketRangeStart);
 
@@ -1032,25 +1033,25 @@ public class PrefixedSharding : ClusterTestBase
                 [
                     new PrefixedShardingSetting
                     {
-                        Prefix = "users/", 
+                        Prefix = "users/",
                         Shards = [0]
                     },
 
                     new PrefixedShardingSetting
                     {
-                        Prefix = "users/eu/", 
+                        Prefix = "users/eu/",
                         Shards = [0]
                     },
 
                     new PrefixedShardingSetting
                     {
-                        Prefix = "users/asia/", 
+                        Prefix = "users/asia/",
                         Shards = [2]
                     },
 
                     new PrefixedShardingSetting
                     {
-                        Prefix = "users/africa/", 
+                        Prefix = "users/africa/",
                         Shards = [2]
                     }
                 ];
@@ -1127,12 +1128,12 @@ public class PrefixedSharding : ClusterTestBase
                 [
                     new PrefixedShardingSetting
                     {
-                        Prefix = "Users/", 
+                        Prefix = "Users/",
                         Shards = [0, 1]
                     },
                     new PrefixedShardingSetting
                     {
-                        Prefix = "Companies/", 
+                        Prefix = "Companies/",
                         Shards = [0, 1, 2]
                     }
                 ];
@@ -1195,7 +1196,7 @@ public class PrefixedSharding : ClusterTestBase
 
         var task = store.Maintenance.SendAsync(new UpdatePrefixedShardingSettingOperation(new PrefixedShardingSetting()
         {
-            Prefix = "Products/", 
+            Prefix = "Products/",
             Shards = new List<int>() { 1 }
         }));
         await Assert.ThrowsAsync<RavenException>(async () => await task);
@@ -1213,17 +1214,17 @@ public class PrefixedSharding : ClusterTestBase
             [
                 new PrefixedShardingSetting
                 {
-                    Prefix = "users/", 
+                    Prefix = "users/",
                     Shards = [0]
                 },
                 new PrefixedShardingSetting
                 {
-                    Prefix = "users/us/utah/", 
+                    Prefix = "users/us/utah/",
                     Shards = [1]
                 },
                 new PrefixedShardingSetting
                 {
-                    Prefix = "users/us/", 
+                    Prefix = "users/us/",
                     Shards = [2]
                 }
             ];
@@ -1339,7 +1340,7 @@ public class PrefixedSharding : ClusterTestBase
                         // bucket range for 'users/' is : 
                         // shard 0 : [1M, 1.5M]
                         // shard 1 : [1.5M, 2M]
-                        Prefix = "users/", 
+                        Prefix = "users/",
                         Shards = [0, 1]
                     }
                 ];
@@ -1422,7 +1423,7 @@ public class PrefixedSharding : ClusterTestBase
             [
                 new PrefixedShardingSetting
                 {
-                    Prefix = "foo/", 
+                    Prefix = "foo/",
                     Shards = [0]
                 }
             ];
@@ -1492,7 +1493,7 @@ public class PrefixedSharding : ClusterTestBase
             // first we need to add the new shard to the prefix setting
             await store.Maintenance.SendAsync(new UpdatePrefixedShardingSettingOperation(new PrefixedShardingSetting
             {
-                Prefix = "foo/", 
+                Prefix = "foo/",
                 Shards = [0, newShardNumber]
             }));
 
@@ -1511,7 +1512,7 @@ public class PrefixedSharding : ClusterTestBase
             // check bucket ranges
             var sharding = await Sharding.GetShardingConfigurationAsync(store);
             Assert.Equal(5, sharding.BucketRanges.Count);
-            Assert.Equal(ShardHelper.NumberOfBuckets ,sharding.BucketRanges[2].BucketRangeStart);
+            Assert.Equal(ShardHelper.NumberOfBuckets, sharding.BucketRanges[2].BucketRangeStart);
             Assert.Equal(bucket, sharding.BucketRanges[3].BucketRangeStart);
             Assert.Equal(bucket + 1, sharding.BucketRanges[4].BucketRangeStart);
 
@@ -1548,7 +1549,7 @@ public class PrefixedSharding : ClusterTestBase
                 [
                     new PrefixedShardingSetting
                     {
-                        Prefix = "users/", 
+                        Prefix = "users/",
                         Shards = [0, 1]
                     }
                 ];
@@ -1556,11 +1557,11 @@ public class PrefixedSharding : ClusterTestBase
         });
 
         var shardingConfig = await Sharding.GetShardingConfigurationAsync(store);
-        var bucket =  Sharding.GetBucket(shardingConfig, "users/1");
+        var bucket = Sharding.GetBucket(shardingConfig, "users/1");
 
         // shard #2 is not a part of Prefixed['users/'].Shards 
-        await Assert.ThrowsAsync<RachisApplyException>(async ()=> 
-            await Server.ServerStore.Sharding.StartBucketMigration(store.Database, bucket, toShard : 2, prefix: "users/", RaftIdGenerator.NewId()));
+        await Assert.ThrowsAsync<RachisApplyException>(async () =>
+            await Server.ServerStore.Sharding.StartBucketMigration(store.Database, bucket, toShard: 2, prefix: "users/", RaftIdGenerator.NewId()));
     }
 
     [RavenFact(RavenTestCategory.Sharding)]
@@ -1614,7 +1615,7 @@ public class PrefixedSharding : ClusterTestBase
         int bucket, shardNumber;
         var record = await store.Maintenance.Server.SendAsync(new GetDatabaseRecordOperation(store.Database));
         using (var allocator = new ByteStringContext(SharedMultipleUseFlag.None))
-            (shardNumber, bucket) =  ShardHelper.GetShardNumberAndBucketFor(record.Sharding, allocator, bigBucketId);
+            (shardNumber, bucket) = ShardHelper.GetShardNumberAndBucketFor(record.Sharding, allocator, bigBucketId);
 
         var shard = await GetDocumentDatabaseInstanceFor(store, ShardHelper.ToShardName(store.Database, shardNumber));
 
@@ -1629,7 +1630,7 @@ public class PrefixedSharding : ClusterTestBase
         // add shard #2 to prefix setting
         await store.Maintenance.SendAsync(new UpdatePrefixedShardingSettingOperation(new PrefixedShardingSetting
         {
-            Prefix = "users/", 
+            Prefix = "users/",
             Shards = [0, 1, 2]
         }));
 
@@ -1821,7 +1822,7 @@ public class PrefixedSharding : ClusterTestBase
             [
                 new PrefixedShardingSetting
                 {
-                    Prefix = "users/", 
+                    Prefix = "users/",
                     Shards = [0, 1]
                 }
             ];
@@ -1858,7 +1859,7 @@ public class PrefixedSharding : ClusterTestBase
         // add shard #2 to 'users/' prefix setting
         await store.Maintenance.SendAsync(new UpdatePrefixedShardingSettingOperation(new PrefixedShardingSetting
         {
-            Prefix = "users/", 
+            Prefix = "users/",
             Shards = [0, 1, 2]
         }));
 
@@ -2153,30 +2154,30 @@ public class PrefixedSharding : ClusterTestBase
     {
         var backupPath = NewDataPath(suffix: "_BackupFolder");
 
-        using (var store1 = Sharding.GetDocumentStore(new Options() 
+        using (var store1 = Sharding.GetDocumentStore(new Options()
         {
-           ModifyDatabaseRecord = record =>
-           {
-               record.Sharding ??= new();
-               record.Sharding.Prefixed = [new PrefixedShardingSetting
+            ModifyDatabaseRecord = record =>
+            {
+                record.Sharding ??= new();
+                record.Sharding.Prefixed = [new PrefixedShardingSetting
                {
-                   Prefix = "Users/", 
+                   Prefix = "Users/",
                    Shards = [0, 1]
                }];
 
-           }
+            }
         }))
         using (var store2 = Sharding.GetDocumentStore(new Options()
         {
-           ModifyDatabaseRecord = record =>
-           {
-               record.Sharding ??= new();
-               record.Sharding.Prefixed = [new PrefixedShardingSetting
+            ModifyDatabaseRecord = record =>
+            {
+                record.Sharding ??= new();
+                record.Sharding.Prefixed = [new PrefixedShardingSetting
                {
                    Prefix = "Users/",
                    Shards = [1 , 2]
                }];
-           }
+            }
         }))
         {
             var shardNumToDocIds = new Dictionary<int, List<string>>();
@@ -2327,7 +2328,7 @@ public class PrefixedSharding : ClusterTestBase
         {
             record.Sharding.Prefixed = [new PrefixedShardingSetting
             {
-                Prefix = "users/", 
+                Prefix = "users/",
                 Shards = [0, 1]
             }];
         };
@@ -2366,7 +2367,7 @@ public class PrefixedSharding : ClusterTestBase
             // add shard #2 to prefix setting and move one bucket to the new shard
             await store.Maintenance.SendAsync(new UpdatePrefixedShardingSettingOperation(new PrefixedShardingSetting
             {
-                Prefix = "users/", 
+                Prefix = "users/",
                 Shards = [0, 1, 2]
             }));
 
@@ -2390,7 +2391,7 @@ public class PrefixedSharding : ClusterTestBase
                 Assert.Equal(1, count);
             }
 
-            await Sharding.Backup.RunBackupAsync(store.Database, backupTaskId, isFullBackup: false, cluster.Nodes);
+            await Sharding.Backup.RunBackupAsync(store, backupTaskId, isFullBackup: false);
             Assert.True(WaitHandle.WaitAll(waitHandles, TimeSpan.FromMinutes(1)));
 
             var dirs = Directory.GetDirectories(backupPath);
@@ -2413,7 +2414,7 @@ public class PrefixedSharding : ClusterTestBase
                 DatabaseName = restoredDatabaseName,
                 ShardRestoreSettings = settings
             }, timeout: TimeSpan.FromSeconds(60)))
-            { 
+            {
                 var dbRec = await store.Maintenance.Server.SendAsync(new GetDatabaseRecordOperation(restoredDatabaseName));
                 Assert.Equal(3, dbRec.Sharding.Shards.Count);
 

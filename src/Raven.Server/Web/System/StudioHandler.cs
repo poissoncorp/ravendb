@@ -23,6 +23,7 @@ using Raven.Client;
 using Raven.Client.Extensions;
 using Raven.Server.Commercial;
 using Raven.Server.Routing;
+using Raven.Server.ServerWide;
 using Sparrow.Collections;
 using Sparrow.Threading;
 using Sparrow.Utils;
@@ -164,10 +165,10 @@ namespace Raven.Server.Web.System
             var feature = HttpContext.Features.Get<IHttpAuthenticationFeature>() as RavenServer.AuthenticateConnection;
             var authStatus = feature?.Status;
 
-            if (authStatus == RavenServer.AuthenticationStatus.ClusterAdmin ||
-                authStatus == RavenServer.AuthenticationStatus.Operator ||
-                authStatus == RavenServer.AuthenticationStatus.Allowed ||
-                authStatus == RavenServer.AuthenticationStatus.TwoFactorAuthFromInvalidLimit)
+            if (authStatus is RavenServer.AuthenticationStatus.ClusterAdmin
+                or RavenServer.AuthenticationStatus.Operator
+                or RavenServer.AuthenticationStatus.Allowed
+                or RavenServer.AuthenticationStatus.TwoFactorAuthFromInvalidLimit)
             {
                 // if we detect invalid limit to redirect to studio anyway 
                 // studio then checks 2fa status and redirects to 2fa if needed
@@ -177,10 +178,22 @@ namespace Raven.Server.Web.System
                 return Task.CompletedTask;
             }
 
-            var error = GetStringQueryString("err");
+            var aeAsString = GetStringQueryString("ae", required: false);
+            var aoAsString = GetStringQueryString("ao", required: false);
+            var rtAsString = GetStringQueryString("rt", required: false);
+
+            if (Enum.TryParse<RavenServer.AuthenticationStatus>(aeAsString, ignoreCase: true, out var authenticationStatus) == false)
+                authenticationStatus = RavenServer.AuthenticationStatus.None;
+            if (Enum.TryParse<AuthorizationStatus>(aoAsString, ignoreCase: true, out var authorizationStatus) == false)
+                authorizationStatus = AuthorizationStatus.UnauthenticatedClients;
+            if (Enum.TryParse<ResourceType>(aeAsString, ignoreCase: true, out var resourceType) == false)
+                resourceType = ResourceType.Server;
+
+            var message = RequestRouter.GetFailedAuthorizationMessage(HttpContext, resourceType, database: null, feature?.Certificate, authenticationStatus, authorizationStatus, out _);
+
             HttpContext.Response.Headers[Constants.Headers.ContentType] = "text/html; charset=utf-8";
             SetupSecurityHeaders();
-            return HttpContext.Response.WriteAsync(HtmlUtil.RenderStudioAuthErrorPage(error));
+            return HttpContext.Response.WriteAsync(HtmlUtil.RenderStudioAuthErrorPage(message));
         }
 
         [RavenAction("/eula/index.html", "GET", AuthorizationStatus.UnauthenticatedClients)]

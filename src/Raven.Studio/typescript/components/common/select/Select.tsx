@@ -58,7 +58,7 @@ export function OptionWithIcon(props: OptionProps<SelectOptionWithIcon>) {
     const { data } = props;
 
     return (
-        <div style={{ cursor: "default" }}>
+        <div className="cursor-pointer">
             <components.Option {...props}>
                 {data.icon && <Icon icon={data.icon} color={data.iconColor} />}
                 {data.label}
