@@ -121,10 +121,16 @@ public abstract partial class RachisConsensus
         var range = GetLogEntriesRange(context);
         var commitIndex = GetLastCommitIndex(context);
 
-        if (fromIndex.HasValue == false)
+        if (range.Max == 0) // no logs in the table
         {
-            fromIndex = range.Max > 0 ? range.Max : commitIndex;
+            range.Max = commitIndex;
+            range.Min = commitIndex;
         }
+        
+        fromIndex ??= range.Max;
+
+        var totalEntries = range.Max - range.Min + 1;
+        totalEntries = Math.Max(totalEntries, LogHistory.NumberOfEntries(context));
 
         return new LogSummary
         {
@@ -135,6 +141,7 @@ public abstract partial class RachisConsensus
             LastLogEntryIndex = range.Max,
             LastAppendedTime = LastAppended,
             LastCommitedTime = LastCommitted,
+            TotalEntries = totalEntries,
             CriticalError = GetUnrecoverableClusterError(),
             Logs = GetLogEntries(context, fromIndex.Value, take, detailed),
         };
@@ -152,10 +159,13 @@ public abstract partial class RachisConsensus
         {
             foreach (var value in table.SeekBackwardByPrimaryKey(key, 0))
             {
+                var entry = RachisDebugLogEntry.CreateFromLog(context, value);
+                if (entry.Index > fromIndex)
+                    break;
+
                 if (take-- <= 0)
                     yield break;
 
-                var entry = RachisDebugLogEntry.CreateFromLog(context, value);
                 if (detailed == false)
                 {
                     entry.Entry.Dispose();
@@ -168,10 +178,14 @@ public abstract partial class RachisConsensus
 
             foreach (var value in LogHistory.GetHistoryLogs(context, fromIndex))
             {
+                var entry = RachisLogHistory.CreateFromHistory(value);
+                if (entry.Index > fromIndex)
+                    yield break;
+
                 if (take-- <= 0)
                     yield break;
 
-                yield return RachisLogHistory.CreateFromHistory(value);
+                yield return entry;
             }
         }
     }
@@ -250,9 +264,6 @@ public abstract partial class RachisConsensus
                 SizeInBytes = size,
                 Flags = *(RachisEntryFlags*)value.Reader.Read(3, out size)
             };
-
-            if (entry.Flags != RachisEntryFlags.StateMachineCommand) 
-                return entry;
 
             entry.Entry.TryGet(nameof(CommandBase.Type), out string commandType);
             entry.CommandType = commandType;

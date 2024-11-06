@@ -1,12 +1,7 @@
-import { Icon } from "components/common/Icon";
+﻿import { Icon } from "components/common/Icon";
 import React, { useState } from "react";
 import { Button, InputGroup, Label, Modal, ModalBody, ModalFooter } from "reactstrap";
-import Select, {
-    OptionWithIcon,
-    SelectOption,
-    SelectOptionWithIcon,
-    SingleValueWithIcon,
-} from "components/common/select/Select";
+import Select, { SelectOptionWithIcon, SingleValueWithIcon } from "components/common/select/Select";
 import { Connection, EditConnectionStringFormProps } from "./connectionStringsTypes";
 import RavenConnectionString from "./editForms/RavenConnectionString";
 import { useDispatch } from "react-redux";
@@ -22,9 +17,10 @@ import { useServices } from "components/hooks/useServices";
 import { useAsyncCallback } from "react-async-hook";
 import { mapConnectionStringToDto } from "./store/connectionStringsMapsToDto";
 import useConnectionStringsLicense, { ConnectionStringsLicenseFeatures } from "./useConnectionStringsLicense";
-import assertUnreachable from "components/utils/assertUnreachable";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
 import { useAppSelector } from "components/store";
+import LicenseRestrictedBadge, { LicenseBadgeText } from "components/common/LicenseRestrictedBadge";
+import { components, OptionProps } from "react-select";
 import AzureQueueStorageConnectionString from "components/pages/database/settings/connectionStrings/editForms/AzureQueueStorageConnectionString";
 import SnowflakeConnectionString from "components/pages/database/settings/connectionStrings/editForms/SnowflakeConnectionString";
 
@@ -86,13 +82,13 @@ export default function EditConnectionStrings(props: EditConnectionStringsProps)
                     <InputGroup className="gap-1 flex-wrap flex-column">
                         <Select
                             options={availableConnectionStringsOptions}
-                            value={connectionStringsOptions.find((x) => x.value === connectionStringType)}
+                            value={availableConnectionStringsOptions.find((x) => x.value === connectionStringType)}
                             onChange={(x: SelectOptionWithIcon<StudioEtlType>) => setConnectionStringType(x.value)}
                             placeholder="Select a connection string type"
                             isSearchable={false}
                             isDisabled={!isForNewConnection}
                             components={{
-                                Option: OptionWithIcon,
+                                Option: OptionWithIconAndBadge,
                                 SingleValue: SingleValueWithIcon,
                             }}
                         />
@@ -134,43 +130,6 @@ export default function EditConnectionStrings(props: EditConnectionStringsProps)
     );
 }
 
-const connectionStringsOptions: SelectOptionWithIcon<StudioEtlType>[] = [
-    { value: "Raven", label: "RavenDB", icon: "raven" },
-    { value: "Sql", label: "SQL", icon: "table" },
-    { value: "Snowflake", label: "Snowflake", icon: "snowflake" },
-    { value: "Olap", label: "OLAP", icon: "olap" },
-    { value: "ElasticSearch", label: "ElasticSearch", icon: "elasticsearch" },
-    { value: "Kafka", label: "Kafka", icon: "kafka" },
-    { value: "RabbitMQ", label: "RabbitMQ", icon: "rabbitmq" },
-    { value: "AzureQueueStorage", label: "Azure Queue Storage", icon: "azure" },
-];
-
-function getAvailableConnectionStringsOptions(
-    features: ConnectionStringsLicenseFeatures
-): SelectOption<StudioEtlType>[] {
-    return connectionStringsOptions.filter((item) => {
-        const type = item.value;
-        switch (type) {
-            case "Raven":
-                return features.hasRavenEtl;
-            case "Sql":
-                return features.hasSqlEtl;
-            case "Snowflake":
-                return features.hasSnowflakeEtl;
-            case "Olap":
-                return features.hasOlapEtl;
-            case "ElasticSearch":
-                return features.hasElasticSearchEtl;
-            case "Kafka":
-            case "RabbitMQ":
-            case "AzureQueueStorage":
-                return features.hasQueueEtl;
-            default:
-                return assertUnreachable(type);
-        }
-    });
-}
-
 function getEditConnectionStringComponent(type: StudioEtlType): (props: EditConnectionStringFormProps) => JSX.Element {
     switch (type) {
         case "Raven":
@@ -192,4 +151,84 @@ function getEditConnectionStringComponent(type: StudioEtlType): (props: EditConn
         default:
             return null;
     }
+}
+
+interface ConnectionStringOption extends SelectOptionWithIcon<StudioEtlType> {
+    isDisabled: boolean;
+    licenseRequired: LicenseBadgeText;
+}
+
+function getAvailableConnectionStringsOptions(features: ConnectionStringsLicenseFeatures): ConnectionStringOption[] {
+    return [
+        {
+            value: "Raven",
+            label: "RavenDB",
+            icon: "raven",
+            licenseRequired: "Professional +",
+            isDisabled: !features.hasRavenEtl,
+        },
+        {
+            value: "Sql",
+            label: "SQL",
+            icon: "table",
+            licenseRequired: "Professional +",
+            isDisabled: !features.hasSqlEtl,
+        },
+        {
+            value: "Snowflake",
+            label: "Snowflake",
+            icon: "snowflake",
+            licenseRequired: "Enterprise",
+            isDisabled: !features.hasSnowflakeEtl,
+        },
+        {
+            value: "Olap",
+            label: "OLAP",
+            icon: "olap",
+            licenseRequired: "Enterprise",
+            isDisabled: !features.hasOlapEtl,
+        },
+        {
+            value: "ElasticSearch",
+            label: "ElasticSearch",
+            icon: "elasticsearch",
+            licenseRequired: "Enterprise",
+            isDisabled: !features.hasElasticSearchEtl,
+        },
+        {
+            value: "Kafka",
+            label: "Kafka",
+            icon: "kafka",
+            licenseRequired: "Enterprise",
+            isDisabled: !features.hasQueueEtl,
+        },
+        {
+            value: "RabbitMQ",
+            label: "RabbitMQ",
+            icon: "rabbitmq",
+            licenseRequired: "Enterprise",
+            isDisabled: !features.hasQueueEtl,
+        },
+        {
+            value: "AzureQueueStorage",
+            label: "Azure Queue Storage",
+            icon: "azure-queue-storage-etl",
+            licenseRequired: "Enterprise",
+            isDisabled: !features.hasQueueEtl,
+        },
+    ];
+}
+
+function OptionWithIconAndBadge(props: OptionProps<ConnectionStringOption>) {
+    const { data, isDisabled } = props;
+
+    return (
+        <div className="cursor-pointer">
+            <components.Option {...props}>
+                {data.icon && <Icon icon={data.icon} color={data.iconColor} />}
+                <span>{data.label}</span>
+                {isDisabled ? <LicenseRestrictedBadge licenseRequired={data.licenseRequired} /> : ""}
+            </components.Option>
+        </div>
+    );
 }

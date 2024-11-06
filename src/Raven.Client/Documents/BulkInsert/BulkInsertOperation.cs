@@ -124,7 +124,7 @@ namespace Raven.Client.Documents.BulkInsert
         private readonly WeakReferencingTimer _timer;
 
         private readonly SemaphoreSlim _streamLock;
-        private readonly TimeSpan _heartbeatCheckInterval = TimeSpan.FromSeconds(StreamWithTimeout.DefaultReadTimeout.TotalSeconds / 3);
+        private readonly TimeSpan _heartbeatCheckInterval = TimeSpan.FromSeconds(StreamWithTimeout.DefaultReadTimeout.TotalSeconds / 4);
 
         public event EventHandler<BulkInsertOnProgressEventArgs> OnProgress
         {
@@ -167,7 +167,7 @@ namespace Raven.Client.Documents.BulkInsert
             _streamLock = new SemaphoreSlim(1, 1);
 
             if (_options.ForTestingPurposes?.OverrideHeartbeatCheckInterval > 0)
-                _heartbeatCheckInterval = TimeSpan.FromMilliseconds(_options.ForTestingPurposes.OverrideHeartbeatCheckInterval / 3);
+                _heartbeatCheckInterval = TimeSpan.FromMilliseconds(_options.ForTestingPurposes.OverrideHeartbeatCheckInterval / 4);
 
             _timer = new WeakReferencingTimer(HandleHeartbeat,
                 this,
@@ -667,7 +667,7 @@ namespace Raven.Client.Documents.BulkInsert
 
         private async Task FlushIfNeeded(bool force = false)
         {
-            force =  force || IsHeartbeatIntervalExceeded();
+            force = force || IsHeartbeatIntervalExceeded();
             await _writer.FlushIfNeeded(force).ConfigureAwait(false);
         }
 
