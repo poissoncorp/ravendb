@@ -3,9 +3,6 @@ import { SelectOption } from "components/common/select/Select";
 import { loadableData } from "components/models/common";
 import { StoryFn } from "@storybook/react";
 import { sortBy } from "common/typeUtils";
-import { ColumnDef } from "@tanstack/react-table";
-import { CellJsonPreviewWrapper } from "components/common/virtualTable/cells/CellJsonPreview";
-import { virtualTableUtils } from "components/common/virtualTable/utils/virtualTableUtils";
 
 export function withPreventDefault(action: (...args: any[]) => void): MouseEventHandler<HTMLElement> {
     return (e: MouseEvent<HTMLElement>) => {
