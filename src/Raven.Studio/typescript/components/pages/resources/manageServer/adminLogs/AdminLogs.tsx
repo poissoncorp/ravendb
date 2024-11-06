@@ -75,7 +75,7 @@ export default function AdminLogs() {
 
         fileDownloader.downloadAsJson(
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            filteredLogs.map(({ _meta: ignored, ...log }) => log),
+            filteredLogs.map(({ _meta: ignored, ...logWithoutMeta }) => logWithoutMeta),
             fileName
         );
     };
