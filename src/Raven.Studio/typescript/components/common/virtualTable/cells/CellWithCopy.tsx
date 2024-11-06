@@ -4,7 +4,6 @@ import Code from "components/common/Code";
 import { Icon } from "components/common/Icon";
 import { PopoverWithHover } from "components/common/PopoverWithHover";
 import CellValue from "components/common/virtualTable/cells/CellValue";
-import { TextColor } from "components/models/common";
 import { PropsWithChildren, useState } from "react";
 import { Button } from "reactstrap";
 

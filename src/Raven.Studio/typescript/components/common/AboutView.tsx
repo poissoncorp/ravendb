@@ -77,7 +77,7 @@ const AboutViewFloating = (props: AboutViewProps) => {
 };
 
 interface AccordionItemWrapperProps {
-    icon?: IconName;
+    icon: IconName;
     color: TextColor;
     heading: string;
     description: string;
@@ -95,7 +95,7 @@ const AccordionItemWrapper = (props: AccordionItemWrapperProps) => {
     return (
         <AccordionItem className={classNames("license-accordion", `box-shadow-${color}`, "panel-bg-1", className)}>
             <AccordionHeader targetId={targetId}>
-                {icon && <Icon icon={icon} color={color} className="tab-icon me-3" />}
+                <Icon icon={icon} color={color} className="tab-icon me-3" />
                 <div className="vstack gap-1">
                     <div className="hstack flex-wrap gap-1">
                         <h4 className="m-0">{heading}</h4>
