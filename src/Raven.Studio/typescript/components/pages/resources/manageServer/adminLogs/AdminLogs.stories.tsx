@@ -13,9 +13,11 @@ export const AdminLogsStory: StoryObj = {
     name: "Admin Logs",
     render: () => {
         const { manageServerService } = mockServices;
-        const { databases } = mockStore;
+        const { databases, adminLogs } = mockStore;
 
         databases.withActiveDatabase();
+        adminLogs.with_logs();
+
         manageServerService.withAdminLogsConfiguration();
         manageServerService.withEventListenerConfiguration();
         manageServerService.withTrafficWatchConfiguration();
