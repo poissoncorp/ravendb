@@ -7,6 +7,7 @@ import { databaseSelectors } from "components/common/shell/databaseSliceSelector
 import { licenseSelectors } from "components/common/shell/licenseSlice";
 import { useDirtyFlag } from "components/hooks/useDirtyFlag";
 import { useServices } from "components/hooks/useServices";
+import AdminLogsPersistInfoIcon from "components/pages/resources/manageServer/adminLogs/bits/AdminLogsPersistInfoIcon";
 
 import {
     adminLogsSelectors,
@@ -24,7 +25,6 @@ import {
     FormGroup,
     Button,
     InputGroup,
-    UncontrolledTooltip,
     Label,
 } from "reactstrap";
 import * as yup from "yup";
@@ -274,10 +274,7 @@ export default function AdminLogsConfigTrafficWatch({ targetId }: { targetId: st
                             <FormGroup>
                                 <FormSwitch control={control} name="isPersist">
                                     Save this configuration in <code>settings.json</code>
-                                    <Icon icon="info" color="info" margin="ms-1" id="persist-info" />
-                                    <UncontrolledTooltip target="persist-info">
-                                        If not saved, above settings will reset after a server restart
-                                    </UncontrolledTooltip>
+                                    <AdminLogsPersistInfoIcon />
                                 </FormSwitch>
                             </FormGroup>
                         )}

@@ -9,7 +9,6 @@ import {
     Label,
     Row,
     Table,
-    UncontrolledTooltip,
 } from "reactstrap";
 import * as yup from "yup";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
@@ -28,6 +27,7 @@ import {
 } from "components/pages/resources/manageServer/adminLogs/store/adminLogsSlice";
 import { useAppDispatch, useAppSelector } from "components/store";
 import { licenseSelectors } from "components/common/shell/licenseSlice";
+import AdminLogsPersistInfoIcon from "components/pages/resources/manageServer/adminLogs/bits/AdminLogsPersistInfoIcon";
 
 export default function AdminLogsConfigLogs({ targetId }: { targetId: string }) {
     const dispatch = useAppDispatch();
@@ -70,13 +70,8 @@ export default function AdminLogsConfigLogs({ targetId }: { targetId: string }) 
                                 <FormSelect control={control} name="minLevel" options={logLevelOptions} />
                                 {!isCloud && (
                                     <FormCheckbox control={control} name="isPersist">
-                                        <span>
-                                            Save level in <code>settings.json</code>
-                                            <Icon icon="info" color="info" margin="ms-1" id="persist-info" />
-                                            <UncontrolledTooltip target="persist-info">
-                                                If not saved, above settings will reset after a server restart
-                                            </UncontrolledTooltip>
-                                        </span>
+                                        Save level in <code>settings.json</code>
+                                        <AdminLogsPersistInfoIcon />
                                     </FormCheckbox>
                                 )}
                             </FormGroup>
