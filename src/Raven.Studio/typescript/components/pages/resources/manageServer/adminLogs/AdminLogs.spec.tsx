@@ -14,6 +14,10 @@ describe("AdminLogs", () => {
             configurable: true,
             value: 500,
         });
+        Object.defineProperty(HTMLElement.prototype, "scrollTo", {
+            configurable: true,
+            value: () => {},
+        });
     });
 
     it("can render", async () => {

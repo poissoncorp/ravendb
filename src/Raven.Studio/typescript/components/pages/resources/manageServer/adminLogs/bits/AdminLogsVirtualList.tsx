@@ -32,8 +32,8 @@ export default function AdminLogsVirtualList(props: { availableHeightInPx: numbe
 
     // Scroll to bottom if logs are updated and isMonitorTail is true
     useEffect(() => {
-        if (isMonitorTail) {
-            listRef.current?.scrollTo(0, listRef.current?.scrollHeight);
+        if (isMonitorTail && listRef.current) {
+            listRef.current.scrollTo(0, listRef.current?.scrollHeight);
         }
     }, [filteredLogs.length, isMonitorTail]);
 

@@ -185,7 +185,7 @@ function getManageServerMenuItem() {
         new separatorMenuItem('Debug'),
         new leafMenuItem({
             route: 'admin/settings/adminLogs',
-            moduleId: require("viewmodels/manage/adminLogs"),
+            moduleId: bridgeToReact(AdminLogs, "nonShardedView"),
             title: 'Admin Logs',
             nav: true,
             css: 'icon-admin-logs',
@@ -197,15 +197,6 @@ function getManageServerMenuItem() {
                     { name: "Download logs" },
                 ],
             },
-        }),
-        new leafMenuItem({
-            route: 'admin/settings/adminLogsReact',
-            moduleId: bridgeToReact(AdminLogs, "nonShardedView"),
-            title: 'Admin Logs (React)',
-            nav: true,
-            css: 'icon-admin-logs',
-            dynamicHash: () => "#admin/settings/adminLogsReact",
-            requiredAccess: "Operator",
         }),
         new leafMenuItem({
             route: 'admin/settings/trafficWatch',
