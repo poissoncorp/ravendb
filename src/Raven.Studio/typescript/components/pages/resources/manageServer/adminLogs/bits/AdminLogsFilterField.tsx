@@ -4,7 +4,7 @@ import { AdminLogsConfigLogsFormData } from "components/pages/resources/manageSe
 import { AdminLogsViewSettingsFormData } from "components/pages/resources/manageServer/adminLogs/viewSettings/AdminLogsViewSettingsModal";
 import { logLevelOptions, logFilterActionOptions } from "components/utils/common";
 import { Control } from "react-hook-form";
-import { Row, Col, FormGroup, Label, Button } from "reactstrap";
+import { Row, Col, FormGroup, Label, Button, UncontrolledPopover } from "reactstrap";
 
 interface AdminLogsFilterFieldProps {
     control: Control<AdminLogsViewSettingsFormData | AdminLogsConfigLogsFormData>;
@@ -36,7 +36,21 @@ export default function AdminLogsFilterField({ control, idx, remove }: AdminLogs
                 </Col>
             </Row>
             <FormGroup className="flex-grow-1">
-                <Label>Condition</Label>
+                <Label className="d-flex">
+                    Condition
+                    <div id="condition-tooltip">
+                        <Icon icon="info" color="info" margin="ms-1" />
+                    </div>
+                    <UncontrolledPopover target="condition-tooltip" trigger="hover" className="bs5">
+                        <div className="p-3">
+                            More info here:
+                            <br />
+                            <a href="https://github.com/NLog/NLog/wiki/When-filter#conditions" target="_blank">
+                                github.com/NLog/NLog/wiki/When-filter#conditions
+                            </a>
+                        </div>
+                    </UncontrolledPopover>
+                </Label>
                 <FormInput
                     control={control}
                     name={`filters.${idx}.condition`}

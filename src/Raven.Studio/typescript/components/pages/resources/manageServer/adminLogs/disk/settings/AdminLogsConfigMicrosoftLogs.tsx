@@ -1,11 +1,11 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import ButtonWithSpinner from "components/common/ButtonWithSpinner";
 import { FormSelect, FormCheckbox } from "components/common/Form";
-import { Icon } from "components/common/Icon";
 import { licenseSelectors } from "components/common/shell/licenseSlice";
 import { useDirtyFlag } from "components/hooks/useDirtyFlag";
 import { useServices } from "components/hooks/useServices";
 import AdminLogsConfigTableValue from "components/pages/resources/manageServer/adminLogs/bits/AdminLogsConfigTableValue";
+import AdminLogsPersistInfoIcon from "components/pages/resources/manageServer/adminLogs/bits/AdminLogsPersistInfoIcon";
 import {
     adminLogsActions,
     adminLogsSelectors,
@@ -13,16 +13,7 @@ import {
 import { useAppDispatch, useAppSelector } from "components/store";
 import { logLevelOptions, tryHandleSubmit } from "components/utils/common";
 import { SubmitHandler, useForm } from "react-hook-form";
-import {
-    AccordionBody,
-    AccordionHeader,
-    AccordionItem,
-    Form,
-    FormGroup,
-    Label,
-    Table,
-    UncontrolledTooltip,
-} from "reactstrap";
+import { AccordionBody, AccordionHeader, AccordionItem, Form, FormGroup, Label, Table } from "reactstrap";
 import * as yup from "yup";
 
 type MicrosoftLogsConfig = Raven.Client.ServerWide.Operations.Logs.GetLogsConfigurationResult["MicrosoftLogs"];
@@ -65,13 +56,8 @@ export default function AdminLogsConfigMicrosoftLogs({ targetId }: AdminLogsConf
                         <FormSelect control={control} name="minLevel" options={logLevelOptions} />
                         {!isCloud && (
                             <FormCheckbox control={control} name="isPersist">
-                                <span>
-                                    Save level in <code>settings.json</code>
-                                    <Icon icon="info" color="info" margin="ms-1" id="persist-info" />
-                                    <UncontrolledTooltip target="persist-info">
-                                        If not saved, above settings will reset after a server restart
-                                    </UncontrolledTooltip>
-                                </span>
+                                Save level in <code>settings.json</code>
+                                <AdminLogsPersistInfoIcon />
                             </FormCheckbox>
                         )}
                     </FormGroup>

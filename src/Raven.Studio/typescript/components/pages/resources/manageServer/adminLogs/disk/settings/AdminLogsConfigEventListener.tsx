@@ -4,7 +4,6 @@ import {
     AccordionBody,
     Form,
     Collapse,
-    UncontrolledTooltip,
     FormGroup,
     Label,
     InputGroup,
@@ -18,7 +17,6 @@ import { exhaustiveStringTuple, tryHandleSubmit } from "components/utils/common"
 import { useServices } from "components/hooks/useServices";
 import ButtonWithSpinner from "components/common/ButtonWithSpinner";
 import { FormCheckbox, FormInput, FormSelect, FormSwitch } from "components/common/Form";
-import { Icon } from "components/common/Icon";
 import * as yup from "yup";
 import {
     adminLogsActions,
@@ -27,6 +25,7 @@ import {
 import { useAppDispatch, useAppSelector } from "components/store";
 import { useDirtyFlag } from "components/hooks/useDirtyFlag";
 import { licenseSelectors } from "components/common/shell/licenseSlice";
+import AdminLogsPersistInfoIcon from "components/pages/resources/manageServer/adminLogs/bits/AdminLogsPersistInfoIcon";
 
 type EventListenerConfiguration = Raven.Server.EventListener.EventListenerToLog.EventListenerConfiguration;
 
@@ -126,13 +125,8 @@ export default function AdminLogsConfigEventListener({ targetId }: { targetId: s
                         </Row>
                         {!isCloud && (
                             <FormCheckbox control={control} name="isPersist">
-                                <span>
-                                    Save this configuration in <code>settings.json</code>
-                                    <Icon icon="info" color="info" margin="ms-1" id="persist-info" />
-                                    <UncontrolledTooltip target="persist-info">
-                                        If not saved, above settings will reset after a server restart
-                                    </UncontrolledTooltip>
-                                </span>
+                                Save this configuration in <code>settings.json</code>
+                                <AdminLogsPersistInfoIcon />
                             </FormCheckbox>
                         )}
                     </Collapse>
