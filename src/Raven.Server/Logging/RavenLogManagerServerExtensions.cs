@@ -90,6 +90,12 @@ internal static class RavenLogManagerServerExtensions
         }
     };
 
+    static RavenLogManagerServerExtensions()
+    {
+        PipeRule.SetLoggingLevels(LogLevel.Trace, LogLevel.Fatal);
+        AdminLogsRule.SetLoggingLevels(LogLevel.Trace, LogLevel.Fatal);
+    }
+
 #if !RVN
     private static readonly ConcurrentDictionary<string, RavenAuditLogger> AuditLoggers = new(StringComparer.OrdinalIgnoreCase);
 #endif

@@ -41,12 +41,6 @@ public class AbstractTarget : TargetWithLayout
         {
             lock (Locker)
             {
-                var defaultRule = RavenLogManagerServerExtensions.DefaultRule;
-                var minLevel = defaultRule.Levels.FirstOrDefault() ?? LogLevel.Trace;
-                var maxLevel = defaultRule.Levels.LastOrDefault() ?? LogLevel.Fatal;
-
-                loggingRule.SetLoggingLevels(minLevel, maxLevel);
-
                 var configuration = LogManager.Configuration;
 
                 Debug.Assert(configuration != null, "configuration != null");
@@ -105,8 +99,6 @@ public class AbstractTarget : TargetWithLayout
 
             lock (Locker)
             {
-                _loggingRule.DisableLoggingForLevels(LogLevel.Trace, LogLevel.Fatal);
-
                 var configuration = LogManager.Configuration;
 
                 Debug.Assert(configuration != null, "configuration != null");
