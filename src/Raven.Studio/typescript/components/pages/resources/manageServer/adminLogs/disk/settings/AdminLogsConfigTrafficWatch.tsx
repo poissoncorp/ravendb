@@ -335,7 +335,15 @@ const schema = yup.object({
     isFilterByCertificateThumbprint: yup.boolean(),
     certificateThumbprints: yup
         .array()
-        .of(yup.object({ value: yup.string().required() }))
+        .of(
+            yup.object({
+                value: yup.string().when(["isEnabled", "isFilterByCertificateThumbprint"], {
+                    is: (isEnabled: boolean, isFilterByCertificateThumbprint: boolean) =>
+                        isEnabled && isFilterByCertificateThumbprint,
+                    then: (schema) => schema.required(),
+                }),
+            })
+        )
         .when(["isEnabled", "isFilterByCertificateThumbprint"], {
             is: (isEnabled: boolean, isFilterByCertificateThumbprint: boolean) =>
                 isEnabled && isFilterByCertificateThumbprint,
@@ -344,29 +352,26 @@ const schema = yup.object({
     minimumRequestSizeInBytes: yup
         .number()
         .integer()
-        .min(0)
         .nullable()
         .when("isEnabled", {
             is: true,
-            then: (schema) => schema.required(),
+            then: (schema) => schema.min(0).required(),
         }),
     minimumRequestDurationInMs: yup
         .number()
         .integer()
-        .min(0)
         .nullable()
         .when("isEnabled", {
             is: true,
-            then: (schema) => schema.required(),
+            then: (schema) => schema.min(0).required(),
         }),
     minimumResponseSizeInBytes: yup
         .number()
         .integer()
-        .min(0)
         .nullable()
         .when("isEnabled", {
             is: true,
-            then: (schema) => schema.required(),
+            then: (schema) => schema.min(0).required(),
         }),
     isPersist: yup.boolean(),
 });

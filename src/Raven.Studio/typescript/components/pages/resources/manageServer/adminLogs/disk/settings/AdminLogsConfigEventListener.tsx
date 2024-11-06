@@ -159,34 +159,31 @@ const schema = yup.object({
         .of(yup.string<Raven.Server.EventListener.EventType>())
         .when("isEnabled", {
             is: true,
-            then: (schema) => schema.required(),
+            then: (schema) => schema.min(1).required(),
         }),
     minimumDurationInMs: yup
         .number()
         .integer()
-        .min(0)
         .nullable()
         .when("isEnabled", {
             is: true,
-            then: (schema) => schema.required(),
+            then: (schema) => schema.min(0).required(),
         }),
     allocationsLoggingCount: yup
         .number()
         .integer()
-        .min(0)
         .nullable()
         .when("isEnabled", {
             is: true,
-            then: (schema) => schema.required(),
+            then: (schema) => schema.min(0).required(),
         }),
     allocationsLoggingIntervalInMs: yup
         .number()
         .integer()
-        .min(0)
         .nullable()
         .when("isEnabled", {
             is: true,
-            then: (schema) => schema.required(),
+            then: (schema) => schema.min(0).required(),
         }),
     isPersist: yup.boolean(),
 });
