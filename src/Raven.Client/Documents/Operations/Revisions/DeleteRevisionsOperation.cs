@@ -18,11 +18,13 @@ namespace Raven.Client.Documents.Operations.Revisions
         private readonly Parameters _parameters;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DeleteRevisionsOperation"/> class.
+        /// Initializes a new instance of the <see cref="DeleteRevisionsOperation"/> class.<br/>
         /// This operation allows deletion of revisions.
         /// </summary>
+
         /// <remarks>
-        /// This is an <c>Admin</c> to operation.
+        /// This is an <c>Admin</c> operation.<br/>
+        /// To learn how to force revision creation, see:<br/><inheritdoc cref="DocumentationUrls.Session.Revisions.ForceRevisionCreation"/>
         /// </remarks>
 
         /// <param name="documentIds">
@@ -33,8 +35,7 @@ namespace Raven.Client.Documents.Operations.Revisions
         /// </exception>
 
         /// <param name="removeForceCreatedRevisions">
-        /// Indicates whether to include force-created revisions in the deletion 
-        /// (Can find more info <see href="https://ravendb.net/docs/article-page/6.0/csharp/document-extensions/revisions/overview#force-revision-creation">here</see>).
+        /// Indicates whether to include force-created revisions in the deletion.
         /// Default is <c>false</c>.
         /// </param>
 
@@ -50,11 +51,13 @@ namespace Raven.Client.Documents.Operations.Revisions
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DeleteRevisionsOperation"/> class.
+        /// Initializes a new instance of the <see cref="DeleteRevisionsOperation"/> class.<br/>
         /// This operation allows deletion of revisions.
         /// </summary>
+
         /// <remarks>
-        /// This is an <c>Admin</c> to operation.
+        /// This is an <c>Admin</c> operation.<br/>
+        /// To learn how to force revision creation, see:<br/><inheritdoc cref="DocumentationUrls.Session.Revisions.ForceRevisionCreation"/>
         /// </remarks>
 
         /// <param name="documentId">
@@ -65,8 +68,7 @@ namespace Raven.Client.Documents.Operations.Revisions
         /// </exception>
 
         /// <param name="removeForceCreatedRevisions">
-        /// Indicates whether to include force-created revisions in the deletion 
-        /// (Can find more info <see href="https://ravendb.net/docs/article-page/6.0/csharp/document-extensions/revisions/overview#force-revision-creation">here</see>).
+        /// Indicates whether to include force-created revisions in the deletion.
         /// Default is <c>false</c>.
         /// </param>
 
@@ -82,11 +84,13 @@ namespace Raven.Client.Documents.Operations.Revisions
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DeleteRevisionsOperation"/> class.
+        /// Initializes a new instance of the <see cref="DeleteRevisionsOperation"/> class.<br/>
         /// This operation allows deletion of revisions.
         /// </summary>
+
         /// <remarks>
-        /// This is an <c>Admin</c> to operation.
+        /// This is an <c>Admin</c> operation.<br/>
+        /// To learn how to force revision creation, see:<br/><inheritdoc cref="DocumentationUrls.Session.Revisions.ForceRevisionCreation"/>
         /// </remarks>
 
         /// <param name="documentIds">
@@ -97,10 +101,10 @@ namespace Raven.Client.Documents.Operations.Revisions
         /// </exception>
 
         /// <param name="from">
-        /// The start of the date range for the revisions to delete.
+        /// The start of the date range (in UTC) for the revisions to delete.
         /// </param>
         /// <param name="to">
-        /// The end of the date range for the revisions to delete. 
+        /// The end of the date range (in UTC) for the revisions to delete. 
         /// </param>
         /// <exception cref="ArgumentException">
         /// Throws an <see cref="ArgumentException"/> if <paramref name="to"/> is before <paramref name="from"/>.
@@ -108,7 +112,6 @@ namespace Raven.Client.Documents.Operations.Revisions
 
         /// <param name="removeForceCreatedRevisions">
         /// Indicates whether to include force-created revisions in the deletion.
-        /// (Can find more info <see href="https://ravendb.net/docs/article-page/6.0/csharp/document-extensions/revisions/overview#force-revision-creation">here</see>).
         /// Default is <c>false</c>.
         /// </param>
 
@@ -126,11 +129,13 @@ namespace Raven.Client.Documents.Operations.Revisions
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DeleteRevisionsOperation"/> class.
+        /// Initializes a new instance of the <see cref="DeleteRevisionsOperation"/> class.<br/>
         /// This operation allows deletion of revisions.
         /// </summary>
+
         /// <remarks>
-        /// This is an <c>Admin</c> to operation.
+        /// This is an <c>Admin</c> operation.<br/>
+        /// To learn how to force revision creation, see:<br/><inheritdoc cref="DocumentationUrls.Session.Revisions.ForceRevisionCreation"/>
         /// </remarks>
 
         /// <param name="documentId">
@@ -141,18 +146,17 @@ namespace Raven.Client.Documents.Operations.Revisions
         /// </exception>
 
         /// <param name="from">
-        /// The start of the date range for the revisions to delete.
+        /// The start of the date range (in UTC) for the revisions to delete.
         /// </param>
         /// <param name="to">
-        /// The end of the date range for the revisions to delete. 
+        /// The end of the date range (in UTC) for the revisions to delete. 
         /// </param>
         /// <exception cref="ArgumentException">
         /// Throws an <see cref="ArgumentException"/> if <paramref name="to"/> is before <paramref name="from"/>.
         /// </exception>
 
         /// <param name="removeForceCreatedRevisions">
-        /// Indicates whether to include force-created revisions in the deletion 
-        /// (Can find more info <see href="https://ravendb.net/docs/article-page/6.0/csharp/document-extensions/revisions/overview#force-revision-creation">here</see>).
+        /// Indicates whether to include force-created revisions in the deletion. 
         /// Default is <c>false</c>.
         /// </param>
 
@@ -170,11 +174,13 @@ namespace Raven.Client.Documents.Operations.Revisions
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DeleteRevisionsOperation"/> class.
+        /// Initializes a new instance of the <see cref="DeleteRevisionsOperation"/> class.<br/>
         /// This operation allows deletion of revisions.
         /// </summary>
+
         /// <remarks>
-        /// This is an <c>Admin</c> to operation.
+        /// This is an <c>Admin</c> operation.<br/>
+        /// To learn how to force revision creation, see:<br/><inheritdoc cref="DocumentationUrls.Session.Revisions.ForceRevisionCreation"/>
         /// </remarks>
 
         /// <param name="documentId">
@@ -185,15 +191,14 @@ namespace Raven.Client.Documents.Operations.Revisions
         /// </exception>
 
         /// <param name="revisionsChangeVectors">
-        /// A list of change vectors corresponding to the revisions that the user wishes to delete.
+        /// A list of change vectors corresponding to the revisions you want to delete.
         /// </param>
         /// <exception cref="ArgumentNullException">
         /// Thrown when the <paramref name="revisionsChangeVectors"/> parameter is null or empty.
         /// </exception>
 
         /// <param name="removeForceCreatedRevisions">
-        /// Indicates whether to include force-created revisions in the deletion 
-        /// (Can find more info <see href="https://ravendb.net/docs/article-page/6.0/csharp/document-extensions/revisions/overview#force-revision-creation">here</see>).
+        /// Indicates whether to include force-created revisions in the deletion. 
         /// Default is <c>false</c>.
         /// </param>
 
@@ -241,7 +246,7 @@ namespace Raven.Client.Documents.Operations.Revisions
                 if (RevisionsChangeVectors.IsNullOrEmpty())
                 {
                     if (From.HasValue && To.HasValue && From >= To)
-                        throw new ArgumentException($"{nameof(From)}, {nameof(To)}", "'After' must be greater then 'Before'.");
+                        throw new ArgumentException($"{nameof(From)}, {nameof(To)}", "'To' must be greater than 'From'.");
                 }
                 else
                 {

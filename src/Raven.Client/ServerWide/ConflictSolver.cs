@@ -56,7 +56,7 @@ namespace Raven.Client.ServerWide
     public sealed class ScriptResolver
     {
         public string Script { get; set; }
-        public DateTime LastModifiedTime { get; } = DateTime.UtcNow;
+        public DateTime LastModifiedTime { get; private set; } = DateTime.UtcNow;
 
         public object ToJson()
         {
