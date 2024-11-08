@@ -79,7 +79,6 @@ export default function AdminLogsViewSettingsModal() {
                             type="button"
                             color="info"
                             className="w-fit-content"
-                            outline
                             onClick={() =>
                                 filterFieldArray.append({
                                     minLevel: null,

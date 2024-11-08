@@ -79,7 +79,7 @@ export default function AdminLogsConfigTrafficWatch({ targetId }: { targetId: st
     };
 
     return (
-        <AccordionItem className="p-1 bg-black rounded-3">
+        <AccordionItem className="p-1 rounded-3">
             <AccordionHeader targetId={targetId}>Traffic watch</AccordionHeader>
             <AccordionBody accordionId={targetId}>
                 <Form onSubmit={handleSubmit(handleSave)} key={targetId}>

@@ -68,40 +68,36 @@ export default function AdminLogsDiskDownloadModal() {
                     <Row>
                         <Col>
                             <FormGroup>
-                                <FormSwitch control={control} name="isUsingMinimumDate">
+                                <FormDatePicker
+                                    control={control}
+                                    name="startDate"
+                                    placeholderText="Select start date"
+                                    addon="local"
+                                    showTimeSelect
+                                    maxDate={endDate}
+                                    disabled={isUsingMinimumDate}
+                                    title={isUsingMaximumDate && "Minimum end date will be used"}
+                                />
+                                <FormSwitch control={control} name="isUsingMinimumDate" className="mt-1">
                                     Use minimum start date
                                 </FormSwitch>
-                                <Collapse isOpen={!isUsingMinimumDate}>
-                                    <FormGroup>
-                                        <FormDatePicker
-                                            control={control}
-                                            name="startDate"
-                                            placeholderText="Select start date"
-                                            addon="local"
-                                            showTimeSelect
-                                            maxDate={endDate}
-                                        />
-                                    </FormGroup>
-                                </Collapse>
                             </FormGroup>
                         </Col>
                         <Col>
                             <FormGroup>
-                                <FormSwitch control={control} name="isUsingMaximumDate">
+                                <FormDatePicker
+                                    control={control}
+                                    name="endDate"
+                                    placeholderText="Select end date"
+                                    addon="local"
+                                    showTimeSelect
+                                    minDate={startDate}
+                                    disabled={isUsingMaximumDate}
+                                    title={isUsingMaximumDate && "Maximum end date will be used"}
+                                />
+                                <FormSwitch control={control} name="isUsingMaximumDate" className="mt-1">
                                     Use maximum end date
                                 </FormSwitch>
-                                <Collapse isOpen={!isUsingMaximumDate}>
-                                    <FormGroup>
-                                        <FormDatePicker
-                                            control={control}
-                                            name="endDate"
-                                            placeholderText="Select end date"
-                                            addon="local"
-                                            showTimeSelect
-                                            minDate={startDate}
-                                        />
-                                    </FormGroup>
-                                </Collapse>
                             </FormGroup>
                         </Col>
                     </Row>

@@ -46,7 +46,7 @@ export default function AdminLogsConfigMicrosoftLogs({ targetId }: AdminLogsConf
     };
 
     return (
-        <AccordionItem className="p-1 bg-black rounded-3">
+        <AccordionItem className="p-1 rounded-3">
             <AccordionHeader targetId={targetId}>Microsoft logs</AccordionHeader>
             <AccordionBody accordionId={targetId}>
                 <h5 className="text-center text-muted text-uppercase">Writable</h5>
@@ -55,7 +55,7 @@ export default function AdminLogsConfigMicrosoftLogs({ targetId }: AdminLogsConf
                         <Label>Current Minimum Level</Label>
                         <FormSelect control={control} name="minLevel" options={logLevelOptions} />
                         {!isCloud && (
-                            <FormCheckbox control={control} name="isPersist">
+                            <FormCheckbox control={control} name="isPersist" className="mt-1">
                                 Save level in <code>settings.json</code>
                                 <AdminLogsPersistInfoIcon />
                             </FormCheckbox>

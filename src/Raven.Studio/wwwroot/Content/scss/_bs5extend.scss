@@ -396,17 +396,9 @@ select {
 //Override bootstrap 5.3 CSS custom properties theming errors
 .accordion-button {
     &::after {
-        content: "\f169" !important;
+        content: "chevron-down" !important;
         font-family: "icomoon" !important;
         text-align: center;
-    }
-}
-
-.license-accordion {
-    .accordion-button {
-        &::after {
-            content: "\f167" !important;
-        }
     }
 }
 
@@ -436,12 +428,6 @@ select {
             .react-select__indicator {
                 padding: 0;
             }
-            [class$="-indicatorContainer"] {
-                color: var(--border-color-light);
-                &:hover {
-                    color: var(--border-color);
-                }
-            }
         }
         .react-select__menu {
             text-align: left;
@@ -459,6 +445,13 @@ select {
             border-top-right-radius: 0;
             border-bottom-right-radius: 0;
         }
+    }
+}
+
+[class$="-indicatorContainer"] {
+    color: var(--border-color-light) !important;
+    &:hover {
+        color: var(--border-color) !important;
     }
 }
 

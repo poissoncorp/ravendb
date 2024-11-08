@@ -40,7 +40,7 @@ export default function AdminLogsDiskSettingsModal() {
                 <Accordion
                     open={open ?? ""}
                     toggle={toggleAccordion}
-                    className="bs5 about-view-accordion overflow-scroll"
+                    className="bs5 overflow-scroll vstack gap-1"
                     style={{ maxHeight: "500px" }}
                 >
                     <AdminLogsConfigLogs targetId="logs" />
