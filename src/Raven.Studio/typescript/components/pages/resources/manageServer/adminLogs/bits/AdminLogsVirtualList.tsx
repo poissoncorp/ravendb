@@ -57,13 +57,19 @@ export default function AdminLogsVirtualList(props: { availableHeightInPx: numbe
                                 padding: "2px 0px",
                             }}
                         >
-                            <div style={{ borderLeft: `4px solid ${getTextColor(log.Level)}` }}>
+                            <div
+                                style={{
+                                    borderLeft: `4px solid ${getTextColor(log.Level)}`,
+                                    backgroundColor: `var(--panel-bg-1)`,
+                                }}
+                            >
                                 <div
                                     key={log.Date}
                                     className="d-flex align-items-center cursor-pointer text-truncate"
                                     onClick={() => dispatch(adminLogsActions.isLogExpandedToggled(log))}
+                                    style={{ padding: `4.3px` }}
                                 >
-                                    <div style={{ margin: "0 2px" }}>
+                                    <div style={{ margin: "0 4.3px 0 0" }}>
                                         <Icon
                                             icon={log._meta.isExpanded ? "chevron-down" : "chevron-right"}
                                             className="fs-6"
@@ -87,7 +93,7 @@ export default function AdminLogsVirtualList(props: { availableHeightInPx: numbe
                                         code={log.Message}
                                         elementToCopy={log.Message}
                                         language="plaintext"
-                                        codeClassName="wrapped"
+                                        codeClassName="wrapped pe-4"
                                     />
                                     <div className="p-2">
                                         <Table size="sm" className="m-0">
@@ -116,22 +122,21 @@ export default function AdminLogsVirtualList(props: { availableHeightInPx: numbe
     );
 }
 
-// TODO @mateuszbartosik
 function getTextColor(level: AdminLogsMessage["Level"]): string {
     switch (level) {
         case "DEBUG":
-            return "#7bd85d";
+            return "var(--bs-success)";
         case "INFO":
-            return "#2f9ef3";
+            return "var(--bs-info)";
         case "WARN":
-            return "#f0b362";
+            return "var(--bs-warning)";
         case "ERROR":
-            return "#f06582";
+            return "var(--bs-orange)";
         case "FATAL":
-            return "#bd0009";
+            return "var(--bs-danger)";
         case "OFF":
         case "TRACE":
-            return "#c5c8d4";
+            return "var(--panel-bg-3)";
         default:
             return assertUnreachable(level);
     }

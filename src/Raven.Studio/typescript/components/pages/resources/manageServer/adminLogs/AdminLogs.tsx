@@ -2,7 +2,6 @@ import fileDownloader from "common/fileDownloader";
 import ButtonWithSpinner from "components/common/ButtonWithSpinner";
 import { Icon } from "components/common/Icon";
 import { LazyLoad } from "components/common/LazyLoad";
-import { RichPanel, RichPanelDetails, RichPanelHeader } from "components/common/RichPanel";
 import Select, { SelectOption } from "components/common/select/Select";
 import SizeGetter from "components/common/SizeGetter";
 import { useEventsCollector } from "components/hooks/useEventsCollector";
@@ -22,7 +21,7 @@ import { logLevelOptions } from "components/utils/common";
 import moment from "moment";
 import { useEffect } from "react";
 import { StylesConfig } from "react-select";
-import { Button, Col, Input, Row } from "reactstrap";
+import { Button, Card, CardBody, CardHeader, Col, Input, Row } from "reactstrap";
 
 export default function AdminLogs() {
     const dispatch = useAppDispatch();
@@ -81,15 +80,15 @@ export default function AdminLogs() {
     };
 
     return (
-        <div className="content-padding vstack gap-2 h-100">
-            <Row className="gap-sm-1 gap-md-0">
-                <Col md={7} sm={12}>
-                    <RichPanel color="secondary">
-                        <RichPanelHeader className="text-white d-flex justify-content-between">
-                            <span>
+        <div className="content-padding vstack gap-3 h-100">
+            <div className="hstack flex-wrap gap-1">
+                <div className="flex-grow-1">
+                    <Card>
+                        <CardHeader className="d-flex justify-content-between">
+                            <h4 className="mb-0">
                                 <Icon icon="client" />
                                 Logs on this view
-                            </span>
+                            </h4>
                             <div className="d-flex align-items-center">
                                 <Icon icon="logs" addon="arrow-filled-up" />
                                 Level:{" "}
@@ -101,17 +100,16 @@ export default function AdminLogs() {
                                     options={logLevelOptions}
                                     isLoading={configsLoadStatus === "loading"}
                                     isDisabled={configsLoadStatus !== "success"}
-                                    className="ms-1 fs-6"
+                                    className="ms-1"
                                     styles={levelSelectStyles}
                                 />
                             </div>
-                        </RichPanelHeader>
-                        <RichPanelDetails>
+                        </CardHeader>
+                        <CardBody>
                             <div className="d-flex gap-2 flex-wrap">
                                 <Button
                                     type="button"
                                     color={isPaused ? "success" : "warning"}
-                                    outline
                                     onClick={() => dispatch(adminLogsActions.isPausedToggled())}
                                 >
                                     <Icon icon={isPaused ? "play" : "pause"} />
@@ -120,7 +118,6 @@ export default function AdminLogs() {
                                 <Button
                                     type="button"
                                     color="danger"
-                                    outline
                                     onClick={() => {
                                         eventsCollector.reportEvent("admin-logs", "clear");
                                         dispatch(adminLogsActions.logsSet([]));
@@ -131,8 +128,7 @@ export default function AdminLogs() {
                                 </Button>
                                 <Button
                                     type="button"
-                                    color="light"
-                                    outline
+                                    color={isMonitorTail ? "secondary" : "info"}
                                     onClick={() => dispatch(adminLogsActions.isMonitorTailToggled())}
                                 >
                                     <Icon icon={isMonitorTail ? "pause" : "check"} />
@@ -140,8 +136,7 @@ export default function AdminLogs() {
                                 </Button>
                                 <Button
                                     type="button"
-                                    color="light"
-                                    outline
+                                    color="secondary"
                                     onClick={() => {
                                         eventsCollector.reportEvent("admin-logs", "export");
                                         exportToFile();
@@ -152,8 +147,7 @@ export default function AdminLogs() {
                                 </Button>
                                 <ButtonWithSpinner
                                     type="button"
-                                    color="light"
-                                    outline
+                                    color="secondary"
                                     onClick={() => dispatch(adminLogsActions.isViewSettingOpenToggled())}
                                     isSpinning={configsLoadStatus === "loading"}
                                     icon="settings"
@@ -163,16 +157,16 @@ export default function AdminLogs() {
                                 </ButtonWithSpinner>
                                 {isViewSettingOpen && <AdminLogsViewSettingsModal />}
                             </div>
-                        </RichPanelDetails>
-                    </RichPanel>
-                </Col>
-                <Col md={5} sm={12}>
-                    <RichPanel color="secondary">
-                        <RichPanelHeader className="text-white d-flex justify-content-between">
-                            <span>
+                        </CardBody>
+                    </Card>
+                </div>
+                <div className="flex-grow-1">
+                    <Card>
+                        <CardHeader className="d-flex justify-content-between">
+                            <h4 className="mb-0">
                                 <Icon icon="drive" />
                                 Logs on disk
-                            </span>
+                            </h4>
                             <div className="d-flex align-items-center">
                                 <Icon icon="logs" addon="arrow-filled-up" />
                                 Level:{" "}
@@ -184,13 +178,12 @@ export default function AdminLogs() {
                                     configs?.adminLogsConfig?.Logs?.CurrentMinLevel
                                 )}
                             </div>
-                        </RichPanelHeader>
-                        <RichPanelDetails>
+                        </CardHeader>
+                        <CardBody>
                             <div className="d-flex gap-2 flex-wrap">
                                 <Button
                                     type="button"
-                                    color="light"
-                                    outline
+                                    color="secondary"
                                     onClick={() => dispatch(adminLogsActions.isDownloadDiskLogsOpenToggled())}
                                 >
                                     <Icon icon="download" />
@@ -199,8 +192,7 @@ export default function AdminLogs() {
                                 {isDownloadDiskLogsOpen && <AdminLogsDiskDownloadModal />}
                                 <ButtonWithSpinner
                                     type="button"
-                                    color="light"
-                                    outline
+                                    color="secondary"
                                     onClick={() => dispatch(adminLogsActions.isDiscSettingOpenToggled())}
                                     icon="settings"
                                     isSpinning={configsLoadStatus === "loading"}
@@ -210,10 +202,10 @@ export default function AdminLogs() {
                                 </ButtonWithSpinner>
                                 {isDiscSettingOpen && <AdminLogsDiskSettingsModal />}
                             </div>
-                        </RichPanelDetails>
-                    </RichPanel>
-                </Col>
-            </Row>
+                        </CardBody>
+                    </Card>
+                </div>
+            </div>
             <div className="d-flex gap-2">
                 <div className="clearable-input flex-grow-1">
                     <Input
@@ -233,8 +225,8 @@ export default function AdminLogs() {
                 </div>
                 <Button
                     type="button"
-                    color="link"
-                    size="xs"
+                    color="secondary"
+                    outline
                     onClick={() => dispatch(adminLogsActions.isAllExpandedToggled())}
                 >
                     <Icon icon={isAllExpanded ? "collapse-vertical" : "expand-vertical"} />
@@ -242,8 +234,8 @@ export default function AdminLogs() {
                 </Button>
                 <Button
                     type="button"
-                    color="link"
-                    size="xs"
+                    color="secondary"
+                    outline
                     onClick={() => dispatch(adminLogsActions.isDisplaySettingsOpenToggled())}
                 >
                     <Icon icon="settings" />
@@ -266,7 +258,12 @@ const levelSelectStyles: StylesConfig = {
         ...base,
         minHeight: 22,
         height: 22,
-        minWidth: 60,
+        lineHeight: 1,
+        minWidth: "fit-content",
+    }),
+    input: (base) => ({
+        ...base,
+        margin: 0,
     }),
     placeholder: (base) => ({
         ...base,
@@ -274,9 +271,32 @@ const levelSelectStyles: StylesConfig = {
     }),
     singleValue: (base) => ({
         ...base,
-        height: 22,
+        height: 14,
     }),
     indicatorsContainer: () => ({
+        padding: 0,
+        paddingRight: 3,
+    }),
+    dropdownIndicator: (base) => ({
+        ...base,
+        padding: 0,
+        paddingRight: 3,
+        paddingBottom: 3,
+    }),
+    clearIndicator: (base) => ({
+        ...base,
+        padding: 0,
+    }),
+    menu: (base) => ({
+        ...base,
+        width: "fit-content",
+    }),
+    menuList: (base) => ({
+        ...base,
+        width: "fit-content",
+    }),
+    loadingIndicator: (base) => ({
+        ...base,
         display: "none",
     }),
 };

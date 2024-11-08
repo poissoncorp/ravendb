@@ -7,7 +7,7 @@ export default function AdminLogsConfigAuditLogs({ targetId }: { targetId: strin
     const config = useAppSelector(adminLogsSelectors.configs).adminLogsConfig.AuditLogs;
 
     return (
-        <AccordionItem className="p-1 bg-black rounded-3">
+        <AccordionItem className="p-1 rounded-3">
             <AccordionHeader targetId={targetId}>Audit logs</AccordionHeader>
             <AccordionBody accordionId={targetId}>
                 <h5 className="text-center text-muted text-uppercase">Read-only</h5>

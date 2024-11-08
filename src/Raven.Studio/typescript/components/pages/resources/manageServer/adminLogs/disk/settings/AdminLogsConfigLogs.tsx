@@ -58,7 +58,7 @@ export default function AdminLogsConfigLogs({ targetId }: { targetId: string }) 
     };
 
     return (
-        <AccordionItem className="p-1 bg-black rounded-3">
+        <AccordionItem className="p-1 rounded-3">
             <AccordionHeader targetId={targetId}>Logs</AccordionHeader>
             <AccordionBody accordionId={targetId}>
                 <h5 className="text-center text-muted text-uppercase">Writable</h5>
@@ -69,7 +69,7 @@ export default function AdminLogsConfigLogs({ targetId }: { targetId: string }) 
                                 <Label>Current Minimum Level</Label>
                                 <FormSelect control={control} name="minLevel" options={logLevelOptions} />
                                 {!isCloud && (
-                                    <FormCheckbox control={control} name="isPersist">
+                                    <FormCheckbox control={control} name="isPersist" className="mt-1">
                                         Save level in <code>settings.json</code>
                                         <AdminLogsPersistInfoIcon />
                                     </FormCheckbox>
@@ -103,7 +103,6 @@ export default function AdminLogsConfigLogs({ targetId }: { targetId: string }) 
                             type="button"
                             color="info"
                             className="w-fit-content"
-                            outline
                             onClick={() =>
                                 filterFieldArray.append({
                                     minLevel: null,

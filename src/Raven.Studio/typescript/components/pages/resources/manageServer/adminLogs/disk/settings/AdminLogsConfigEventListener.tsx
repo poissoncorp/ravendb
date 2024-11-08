@@ -55,7 +55,7 @@ export default function AdminLogsConfigEventListener({ targetId }: { targetId: s
     };
 
     return (
-        <AccordionItem className="p-1 bg-black rounded-3">
+        <AccordionItem className="p-1 rounded-3">
             <AccordionHeader targetId={targetId}>Event listener</AccordionHeader>
             <AccordionBody accordionId={targetId}>
                 <Form onSubmit={handleSubmit(handleSave)} key={targetId}>

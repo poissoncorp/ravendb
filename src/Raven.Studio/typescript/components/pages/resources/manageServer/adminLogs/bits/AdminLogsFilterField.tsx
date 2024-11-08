@@ -4,7 +4,7 @@ import { AdminLogsConfigLogsFormData } from "components/pages/resources/manageSe
 import { AdminLogsViewSettingsFormData } from "components/pages/resources/manageServer/adminLogs/viewSettings/AdminLogsViewSettingsModal";
 import { logLevelOptions, logFilterActionOptions } from "components/utils/common";
 import { Control } from "react-hook-form";
-import { Row, Col, FormGroup, Label, Button, UncontrolledPopover } from "reactstrap";
+import { Row, Col, FormGroup, Label, Button, UncontrolledPopover, Card, InputGroup } from "reactstrap";
 
 interface AdminLogsFilterFieldProps {
     control: Control<AdminLogsViewSettingsFormData | AdminLogsConfigLogsFormData>;
@@ -14,7 +14,7 @@ interface AdminLogsFilterFieldProps {
 
 export default function AdminLogsFilterField({ control, idx, remove }: AdminLogsFilterFieldProps) {
     return (
-        <div className="p-1 bg-faded-info rounded">
+        <Card color="faded-info" className="p-3 rounded">
             <Row>
                 <Col md={4}>
                     <FormGroup className="flex-grow-1">
@@ -35,7 +35,7 @@ export default function AdminLogsFilterField({ control, idx, remove }: AdminLogs
                     </FormGroup>
                 </Col>
             </Row>
-            <FormGroup className="flex-grow-1">
+            <div className="flex-grow-1 mb-0">
                 <Label className="d-flex">
                     Condition
                     <div id="condition-tooltip">
@@ -51,17 +51,18 @@ export default function AdminLogsFilterField({ control, idx, remove }: AdminLogs
                         </div>
                     </UncontrolledPopover>
                 </Label>
-                <FormInput
-                    control={control}
-                    name={`filters.${idx}.condition`}
-                    type="text"
-                    addon={
-                        <Button type="button" color="link" className="text-danger" onClick={remove}>
-                            <Icon icon="trash" margin="m-0" />
-                        </Button>
-                    }
-                />
-            </FormGroup>
-        </div>
+                <InputGroup>
+                    <FormInput
+                        control={control}
+                        name={`filters.${idx}.condition`}
+                        type="text"
+                        className="border-top-right-radius-none border-bottom-right-radius-none"
+                    />
+                    <Button type="button" color="danger" onClick={remove}>
+                        <Icon icon="trash" margin="m-0" />
+                    </Button>
+                </InputGroup>
+            </div>
+        </Card>
     );
 }

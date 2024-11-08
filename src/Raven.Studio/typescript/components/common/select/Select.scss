@@ -26,10 +26,10 @@
                 color: bs5variables.$text-color-var;
             }
             .react-select__multi-value {
-                background-color: bs5variables.$panel-bg-2-var;
+                background-color: bs5variables.$panel-header-bg-var;
 
                 .react-select__multi-value__remove {
-                    background-color: bs5variables.$panel-bg-2-var;
+                    background-color: bs5variables.$panel-header-bg-var;
 
                     &:hover {
                         background-color: bs5variables.$panel-bg-3-var;
