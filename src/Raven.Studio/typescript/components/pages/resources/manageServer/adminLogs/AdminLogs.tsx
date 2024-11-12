@@ -21,7 +21,7 @@ import { logLevelOptions } from "components/utils/common";
 import moment from "moment";
 import { useEffect } from "react";
 import { StylesConfig } from "react-select";
-import { Button, Card, CardBody, CardHeader, Col, Input, Row } from "reactstrap";
+import { Button, Card, CardBody, CardHeader, Input } from "reactstrap";
 
 export default function AdminLogs() {
     const dispatch = useAppDispatch();
