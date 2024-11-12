@@ -5,7 +5,7 @@ import { Icon } from "components/common/Icon";
 import { adminLogsActions } from "components/pages/resources/manageServer/adminLogs/store/adminLogsSlice";
 import { useAppDispatch } from "components/store";
 import { SubmitHandler, useForm, useWatch } from "react-hook-form";
-import { Button, CloseButton, Col, Collapse, Form, FormGroup, Modal, ModalBody, Row } from "reactstrap";
+import { Button, CloseButton, Col, Form, FormGroup, Modal, ModalBody, Row } from "reactstrap";
 import * as yup from "yup";
 import endpoints from "endpoints";
 import { useAppUrls } from "components/hooks/useAppUrls";
