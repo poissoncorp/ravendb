@@ -619,11 +619,6 @@ $filtering-input-bg: $toggle-bg !default;
     padding-right: $gutter-sm;
 }
 
-.hover-filter {
-    filter: $hover-filter-var;
-    transition: $global-easing-in-out;
-}
-
 .list-group-item {
     &.disabled {
         cursor: unset;
