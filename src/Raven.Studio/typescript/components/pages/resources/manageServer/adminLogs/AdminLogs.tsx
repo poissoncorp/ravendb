@@ -91,7 +91,7 @@ export default function AdminLogs() {
                             </h4>
                             <div className="d-flex align-items-center">
                                 <Icon icon="logs" addon="arrow-filled-up" />
-                                Level:{" "}
+                                Min level:{" "}
                                 <Select
                                     value={logLevelOptions.find(
                                         (x) => x.value === configs?.adminLogsConfig?.AdminLogs?.CurrentMinLevel
@@ -169,7 +169,7 @@ export default function AdminLogs() {
                             </h4>
                             <div className="d-flex align-items-center">
                                 <Icon icon="logs" addon="arrow-filled-up" />
-                                Level:{" "}
+                                Min level:{" "}
                                 {configsLoadStatus === "loading" ? (
                                     <LazyLoad active>
                                         <div>?????</div>

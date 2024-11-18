@@ -9,7 +9,7 @@ import {
 import { useAppDispatch, useAppSelector } from "components/store";
 import assertUnreachable from "components/utils/assertUnreachable";
 import { useRef, useEffect } from "react";
-import { Collapse, Table } from "reactstrap";
+import { Table } from "reactstrap";
 
 export default function AdminLogsVirtualList(props: { availableHeightInPx: number }) {
     const dispatch = useAppDispatch();
@@ -48,6 +48,7 @@ export default function AdminLogsVirtualList(props: { availableHeightInPx: numbe
                             key={virtualRow.key}
                             data-index={virtualRow.index}
                             ref={virtualizer.measureElement}
+                            className="hover-filter"
                             style={{
                                 position: "absolute",
                                 top: 0,
@@ -55,6 +56,7 @@ export default function AdminLogsVirtualList(props: { availableHeightInPx: numbe
                                 width: "100%",
                                 transform: `translateY(${virtualRow.start}px)`,
                                 padding: "2px 0px",
+                                transition: "unset",
                             }}
                         >
                             <div
@@ -88,31 +90,33 @@ export default function AdminLogsVirtualList(props: { availableHeightInPx: numbe
                                         <LogItemTitleFieldValue value={log.Message} />
                                     </span>
                                 </div>
-                                <Collapse isOpen={log._meta.isExpanded} className="vstack gap-2 p-2">
-                                    <Code
-                                        code={log.Message}
-                                        elementToCopy={log.Message}
-                                        language="plaintext"
-                                        codeClassName="wrapped pe-4"
-                                    />
-                                    <div className="p-2">
-                                        <Table size="sm" className="m-0">
-                                            <tbody>
-                                                {Object.keys(log)
-                                                    .filter(
-                                                        (key: keyof AdminLogsMessage) =>
-                                                            key !== "_meta" && key !== "Message"
-                                                    )
-                                                    .map((key: keyof AdminLogsMessage) => (
-                                                        <tr key={key}>
-                                                            <td>{getFormattedFieldName(key)}</td>
-                                                            <td>{String(log[key] ?? "-")}</td>
-                                                        </tr>
-                                                    ))}
-                                            </tbody>
-                                        </Table>
+                                {log._meta.isExpanded && (
+                                    <div className="vstack gap-2 p-2">
+                                        <Code
+                                            code={log.Message}
+                                            elementToCopy={log.Message}
+                                            language="plaintext"
+                                            codeClassName="wrapped pe-4"
+                                        />
+                                        <div className="p-2">
+                                            <Table size="sm" className="m-0">
+                                                <tbody>
+                                                    {Object.keys(log)
+                                                        .filter(
+                                                            (key: keyof AdminLogsMessage) =>
+                                                                key !== "_meta" && key !== "Message"
+                                                        )
+                                                        .map((key: keyof AdminLogsMessage) => (
+                                                            <tr key={key}>
+                                                                <td>{getFormattedFieldName(key)}</td>
+                                                                <td>{String(log[key] ?? "-")}</td>
+                                                            </tr>
+                                                        ))}
+                                                </tbody>
+                                            </Table>
+                                        </div>
                                     </div>
-                                </Collapse>
+                                )}
                             </div>
                         </div>
                     );
