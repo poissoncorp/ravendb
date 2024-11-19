@@ -105,7 +105,12 @@ const getColumnDefs = (
             cell: ({ getValue }) => (
                 <CellDocumentValue value={getValue<string>()} databaseName={databaseName} hasHyperlinkForIds />
             ),
-            size: sizeProvider(30),
+            size: sizeProvider(25),
+        },
+        {
+            accessorKey: "Collection",
+            cell: CellWithCopyWrapper,
+            size: sizeProvider(15),
         },
         {
             accessorKey: "Etag",
@@ -116,13 +121,13 @@ const getColumnDefs = (
             header: "Change Vector",
             accessorKey: "ChangeVector",
             cell: CellWithCopyWrapper,
-            size: sizeProvider(25),
+            size: sizeProvider(20),
         },
         {
             header: "Last Modified",
             accessorKey: "LastModified",
             cell: CellWithCopyWrapper,
-            size: sizeProvider(25),
+            size: sizeProvider(20),
         },
     ];
 

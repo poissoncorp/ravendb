@@ -4,6 +4,7 @@ import endpoints = require("endpoints");
 export interface RevisionsPreviewResultItem {
     Id: string;
     Etag: string;
+    Collection: string;
     LastModified: string;
     ChangeVector: string;
     Flags: string;
