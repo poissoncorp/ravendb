@@ -5,7 +5,14 @@ import document from "models/database/documents/document";
 import { useDocumentColumnsProvider } from "./columnProviders/useDocumentColumnsProvider";
 import { mockStore } from "test/mocks/store/MockStore";
 import { useMemo, useState } from "react";
-import { useReactTable, getCoreRowModel, getSortedRowModel, ColumnDef } from "@tanstack/react-table";
+import {
+    useReactTable,
+    getCoreRowModel,
+    getSortedRowModel,
+    ColumnDef,
+    getFilteredRowModel,
+    ColumnFiltersState,
+} from "@tanstack/react-table";
 import TableDisplaySettings from "./commonComponents/columnsSelect/TableDisplaySettings";
 import { FlexGrow } from "components/common/FlexGrow";
 import { CellValueWrapper } from "./cells/CellValue";
@@ -68,6 +75,8 @@ function VirtualTableExample() {
     const [rowSelection, setRowSelection] = useState({});
     const [columnVisibility, setColumnVisibility] = useState<Record<string, boolean>>(initialColumnVisibility);
 
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+
     const table = useReactTable({
         data: queryCommandResult.items,
         columns: columnDefs,
@@ -75,9 +84,12 @@ function VirtualTableExample() {
         state: {
             rowSelection,
             columnVisibility,
+            columnFilters,
         },
+        onColumnFiltersChange: setColumnFilters,
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
         onRowSelectionChange: setRowSelection,
         onColumnVisibilityChange: setColumnVisibility,
     });
@@ -92,6 +104,8 @@ function VirtualTableExample() {
             <hr />
             <h5>Selected Items:</h5>
             <pre>{JSON.stringify(rowSelection, null, 2)}</pre>
+            <h5>Column filter:</h5>
+            <pre>{JSON.stringify(columnFilters, null, 2)}</pre>
         </div>
     );
 }
@@ -125,6 +139,7 @@ function VirtualTableWithTokenExample() {
     const table = useReactTable({
         defaultColumn: {
             enableSorting: false,
+            enableColumnFilter: false,
         },
         columns: itemColumnDefs,
         data: dataArray,

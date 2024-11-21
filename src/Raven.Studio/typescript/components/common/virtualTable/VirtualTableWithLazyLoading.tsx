@@ -2,7 +2,7 @@ import "./VirtualTable.scss";
 import { flexRender } from "@tanstack/react-table";
 import { ClassNameProps } from "components/models/common";
 import { virtualTableConstants } from "components/common/virtualTable/utils/virtualTableConstants";
-import VirtualTableBodyWrapper, { VirtualTableBodyWrapperProps } from "./bits/VirtualTableBodyWrapper";
+import VirtualTableBodyWrapper, { VirtualTableBodyWrapperProps } from "./partials/VirtualTableBodyWrapper";
 import classNames from "classnames";
 
 // Use it along with useVirtualTableWithLazyLoading hook
@@ -15,12 +15,13 @@ export interface VirtualTableWithLazyLoadingProps<T> extends VirtualTableBodyWra
 export default function VirtualTableWithLazyLoading<T>(props: VirtualTableWithLazyLoadingProps<T> & ClassNameProps) {
     const { tableContainerRef, table, className, heightInPx, isLoading, bodyHeightInPx, getRowPositionY } = props;
 
-    // Disable sorting by default for lazy loading
+    // Disable sort and filter by default for lazy loading
     table.setOptions((prev) => ({
         ...prev,
         defaultColumn: {
             ...prev.defaultColumn,
             enableSorting: false,
+            enableColumnFilter: false,
         },
     }));
 

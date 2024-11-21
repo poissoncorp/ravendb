@@ -14,7 +14,7 @@ import { EditConflictResolutionSyntaxModal } from "components/pages/database/set
 import { useAppDispatch, useAppSelector } from "components/store";
 import { collectionsTrackerSelectors } from "components/common/shell/collectionsTrackerSlice";
 import useBoolean from "hooks/useBoolean";
-import useId from "hooks/useId";
+import useUniqueId from "components/hooks/useUniqueId";
 import genUtils from "common/generalUtils";
 import {
     ConflictResolutionCollectionConfig,
@@ -54,13 +54,13 @@ export default function ConflictResolutionConfigPanel({ initialConfig }: Conflic
 
     const { value: isSyntaxModalOpen, toggle: toggleIsSyntaxModalOpen } = useBoolean(false);
 
-    const scriptPanelId = useId("scriptPanel");
-    const unsavedChangesId = useId("unsavedChanges");
+    const scriptPanelId = useUniqueId("scriptPanel");
+    const unsavedChangesId = useUniqueId("unsavedChanges");
     const configId = initialConfig.id;
 
     const save: SubmitHandler<FormData> = (formData) => {
         dispatch(
-            conflictResolutionActions.saveEdit({
+            conflictResolutionActions.editSaved({
                 id: configId,
                 newConfig: {
                     name: formData.collectionName,
@@ -178,7 +178,7 @@ function PanelActions({
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
 
     const discard = () => {
-        dispatch(conflictResolutionActions.discardEdit(configId));
+        dispatch(conflictResolutionActions.editDiscarded(configId));
         reset();
     };
 
@@ -201,7 +201,7 @@ function PanelActions({
                         type="button"
                         color="secondary"
                         title="Edit this script"
-                        onClick={() => dispatch(conflictResolutionActions.edit(configId))}
+                        onClick={() => dispatch(conflictResolutionActions.edited(configId))}
                     >
                         <Icon icon="edit" margin="m-0" />
                     </Button>
@@ -209,7 +209,7 @@ function PanelActions({
                         type="button"
                         color="danger"
                         title="Delete this script"
-                        onClick={() => dispatch(conflictResolutionActions.delete(configId))}
+                        onClick={() => dispatch(conflictResolutionActions.deleted(configId))}
                     >
                         <Icon icon="trash" margin="m-0" />
                     </Button>
@@ -224,7 +224,7 @@ function PanelActions({
                 type="button"
                 color="secondary"
                 title="Hide this script"
-                onClick={() => dispatch(conflictResolutionActions.discardEdit(configId))}
+                onClick={() => dispatch(conflictResolutionActions.editDiscarded(configId))}
             >
                 <Icon icon="preview-off" margin="m-0" />
             </Button>
@@ -235,7 +235,7 @@ function PanelActions({
                 type="button"
                 color="secondary"
                 title="Show this script"
-                onClick={() => dispatch(conflictResolutionActions.edit(configId))}
+                onClick={() => dispatch(conflictResolutionActions.edited(configId))}
             >
                 <Icon icon="preview" margin="m-0" />
             </Button>

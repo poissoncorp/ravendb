@@ -1,5 +1,5 @@
 import { Icon } from "components/common/Icon";
-import useId from "components/hooks/useId";
+import useUniqueId from "components/hooks/useUniqueId";
 import { IndexSharedInfo } from "components/models/indexes";
 import IndexUtils from "components/utils/IndexUtils";
 import React from "react";
@@ -16,9 +16,9 @@ export default function IndexToMigrateTitle({ index, disabledReason }: IndexToMi
     const name = "Name" in index ? index.Name : index.name;
     const type = "Type" in index ? index.Type : index.type;
 
-    const indexDisabledReasonTooltipId = useId("indexDisabledReasonId-");
-    const indexLanguageTooltipId = useId("indexLanguageTooltipId-");
-    const indexTypeTooltipId = useId("indexTypeTooltipId-");
+    const indexDisabledReasonTooltipId = useUniqueId("indexDisabledReasonId-");
+    const indexLanguageTooltipId = useUniqueId("indexLanguageTooltipId-");
+    const indexTypeTooltipId = useUniqueId("indexTypeTooltipId-");
 
     return (
         <>

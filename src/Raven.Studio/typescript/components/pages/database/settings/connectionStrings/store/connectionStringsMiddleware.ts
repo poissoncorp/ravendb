@@ -6,7 +6,7 @@ import appUrl from "common/appUrl";
 export const connectionStringsUpdateUrlMiddleware = createListenerMiddleware();
 
 connectionStringsUpdateUrlMiddleware.startListening({
-    actionCreator: connectionStringsActions.openEditConnectionModal,
+    actionCreator: connectionStringsActions.editConnectionModalOpened,
     effect: (action) => {
         const url = appUrl.forConnectionStrings(
             activeDatabase.default.database(),
@@ -19,7 +19,7 @@ connectionStringsUpdateUrlMiddleware.startListening({
 });
 
 connectionStringsUpdateUrlMiddleware.startListening({
-    actionCreator: connectionStringsActions.closeEditConnectionModal,
+    actionCreator: connectionStringsActions.editConnectionModalClosed,
     effect: () => {
         const url = appUrl.forCurrentDatabase().connectionStrings();
         history.pushState(null, null, url);

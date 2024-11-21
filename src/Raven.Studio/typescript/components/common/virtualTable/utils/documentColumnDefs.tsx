@@ -48,4 +48,6 @@ export const columnDocumentFlags: ColumnDef<document> = {
             </span>
         );
     },
+    enableSorting: false,
+    enableColumnFilter: false,
 };

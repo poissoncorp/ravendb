@@ -9,6 +9,10 @@ using Sparrow.Logging;
 
 namespace Raven.Client.ServerWide.Operations.Logs
 {
+    /// <summary>
+    /// Allows to set logs configuration.
+    /// </summary>
+    /// <inheritdoc cref="DocumentationUrls.Configuration.LogsConfiguration"/>
     public sealed class SetLogsConfigurationOperation : IServerOperation
     {
         private readonly Parameters _parameters;

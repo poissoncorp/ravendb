@@ -216,24 +216,45 @@ internal static class DocumentationUrls
         {
             internal static class Analyzers
             {
-                /// <remarks><seealso href="https://ravendb.net/docs/article-page/6.0/Csharp/indexes/using-analyzers#creating-custom-analyzers"/></remarks>
+                /// <remarks><seealso href="https://ravendb.net/docs/article-page/6.2/Csharp/indexes/using-analyzers#creating-custom-analyzers"/></remarks>
                 public static string CustomAnalyzers => nameof(CustomAnalyzers);
             }
             
             internal static class Sorters
             {
-                /// <remarks><seealso href="https://ravendb.net/docs/article-page/6.0/Csharp/client-api/operations/maintenance/sorters/put-sorter#put-custom-sorter"/></remarks>
+                /// <remarks><seealso href="https://ravendb.net/docs/article-page/6.2/Csharp/client-api/operations/maintenance/sorters/put-sorter#put-custom-sorter"/></remarks>
                 public static string CustomSorters = nameof(CustomSorters);
             }
 
-            ///<remarks><seealso href="https://ravendb.net/docs/article-page/6.0/csharp/client-api/operations/maintenance/clean-change-vector"/></remarks>
+            ///<remarks><seealso href="https://ravendb.net/docs/article-page/6.2/csharp/client-api/operations/maintenance/clean-change-vector"/></remarks>
             public static string UpdateUnusedDatabasesOperation = nameof(UpdateUnusedDatabasesOperation);
             
-            ///<remarks><seealso href="https://ravendb.net/docs/article-page/6.0/Csharp/client-api/operations/maintenance/indexes/set-index-lock"/></remarks>
+            ///<remarks><seealso href="https://ravendb.net/docs/article-page/6.2/Csharp/client-api/operations/maintenance/indexes/set-index-lock"/></remarks>
             public static string SetDatabasesLockOperation = nameof(SetDatabasesLockOperation);  
             
-            ///<remarks><seealso href="https://ravendb.net/docs/article-page/6.0/Csharp/client-api/operations/server-wide/toggle-dynamic-database-distribution"/></remarks>
+            ///<remarks><seealso href="https://ravendb.net/docs/article-page/6.2/Csharp/client-api/operations/server-wide/toggle-dynamic-database-distribution"/></remarks>
             public static string SetDatabaseDynamicDistributionOperation = nameof(SetDatabaseDynamicDistributionOperation);
+
+            /// <remarks><seealso href="https://ravendb.net/docs/article-page/6.2/csharp/client-api/operations/server-wide/certificates/put-client-certificate"/></remarks>
+            public static string PutClientCertificateOperation = nameof(PutClientCertificateOperation);
+
+            /// <remarks><seealso href="https://ravendb.net/docs/article-page/6.2/csharp/client-api/operations/server-wide/certificates/delete-certificate"/></remarks>
+            public static string DeleteCertificateOperation = nameof(DeleteCertificateOperation);
+
+            /// <remarks><seealso href="https://ravendb.net/docs/article-page/6.2/csharp/client-api/operations/server-wide/configuration/put-serverwide-client-configuration"/></remarks>
+            public static string PutServerWideClientConfiguration = nameof(PutServerWideClientConfiguration);
+
+            /// <remarks><seealso href="https://ravendb.net/docs/article-page/6.2/Csharp/client-api/operations/server-wide/reorder-database-members"/></remarks>
+            public static string ReorderDatabaseMembersOperation = nameof(ReorderDatabaseMembersOperation);
         }
+    }
+
+    internal static class Configuration
+    {
+        /// <remarks><seealso href="https://ravendb.net/docs/article-page/6.2/csharp/server/configuration/logs-configuration"/></remarks>
+        public static string LogsConfiguration = nameof(LogsConfiguration);
+
+        /// <remarks><seealso href="https://ravendb.net/docs/article-page/6.2/csharp/server/configuration/traffic-watch-configuration"/></remarks>
+        public static string TrafficWatchConfiguration = nameof(TrafficWatchConfiguration);
     }
 }

@@ -70,7 +70,7 @@ export default function ConnectionStrings(props: ConnectionStringsUrlParameters)
                             <div id={addNewButtonId} style={{ width: "fit-content" }}>
                                 <Button
                                     color="primary"
-                                    onClick={() => dispatch(connectionStringsActions.openAddNewConnectionModal())}
+                                    onClick={() => dispatch(connectionStringsActions.newConnectionModalOpened())}
                                     title="Add new connection string"
                                     disabled={hasNoneInLicense}
                                 >

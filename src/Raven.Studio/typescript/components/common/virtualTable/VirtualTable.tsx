@@ -1,9 +1,9 @@
 import "./VirtualTable.scss";
 import { useRef } from "react";
-import { flexRender } from "@tanstack/react-table";
+import { FilterFn, flexRender } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { ClassNameProps } from "components/models/common";
-import VirtualTableBodyWrapper, { VirtualTableBodyWrapperProps } from "./bits/VirtualTableBodyWrapper";
+import VirtualTableBodyWrapper, { VirtualTableBodyWrapperProps } from "./partials/VirtualTableBodyWrapper";
 import { virtualTableConstants } from "components/common/virtualTable/utils/virtualTableConstants";
 import classNames from "classnames";
 
@@ -23,6 +23,19 @@ export default function VirtualTable<T>(props: VirtualTableProps<T> & ClassNameP
 
     const innerTableContainerRef = useRef<HTMLDivElement>(null);
     const tableContainerRef = props.tableContainerRef ?? innerTableContainerRef;
+
+    // Set default filter function
+    table.setOptions((prev) => ({
+        ...prev,
+        defaultColumn: {
+            filterFn: "stringifyIncludes" as any, // custom filter function
+            ...prev.defaultColumn,
+        },
+        filterFns: {
+            stringifyIncludes: stringifyIncludesFilter,
+            ...prev.filterFns,
+        },
+    }));
 
     const { rows } = table.getRowModel();
 
@@ -77,3 +90,16 @@ export default function VirtualTable<T>(props: VirtualTableProps<T> & ClassNameP
         </VirtualTableBodyWrapper>
     );
 }
+
+// Allows filtering by object content
+const stringifyIncludesFilter: FilterFn<any> = (row, columnId, value: string): boolean => {
+    const cellValue = row.getValue(columnId);
+
+    if (cellValue === undefined) {
+        return false;
+    }
+
+    const cellStringValue = JSON.stringify(row.getValue(columnId)).toLowerCase();
+
+    return cellStringValue.includes(value.toLowerCase());
+};

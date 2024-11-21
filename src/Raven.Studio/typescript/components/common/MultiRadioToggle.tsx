@@ -1,6 +1,6 @@
 ﻿import React from "react";
 import "./Toggles.scss";
-import useId from "hooks/useId";
+import useUniqueId from "components/hooks/useUniqueId";
 import classNames from "classnames";
 import { InputItem } from "components/models/common";
 
@@ -19,7 +19,7 @@ export function MultiRadioToggle<T extends string | number = string>({
     className,
     label,
 }: MultiRadioToggleProps<T>) {
-    const uniqueId = useId("multi-radio-toggle");
+    const uniqueId = useUniqueId("multi-radio-toggle");
 
     return (
         <div className={classNames("multi-toggle", className)}>

@@ -7,7 +7,7 @@ import { useAppSelector } from "components/store";
 import { licenseSelectors } from "components/common/shell/licenseSlice";
 import licenseModel from "models/auth/licenseModel";
 import { AsyncState } from "react-async-hook";
-import useId from "hooks/useId";
+import useUniqueId from "components/hooks/useUniqueId";
 
 interface SupportSummaryProps {
     asyncCheckLicenseServerConnectivity: AsyncState<ConnectivityStatus>;
@@ -19,7 +19,7 @@ export function SupportSummary(props: SupportSummaryProps) {
     const isCloud = useAppSelector(licenseSelectors.statusValue("IsCloud"));
     const support = useAppSelector(licenseSelectors.support);
     const supportType = licenseModel.supportLabelProvider(license, support);
-    const uniqueId = useId("supportConnectivityException");
+    const uniqueId = useUniqueId("supportConnectivityException");
     const { asyncCheckLicenseServerConnectivity } = props;
     const isPaidSupport = ["Professional", "Production", "Partial"].includes(supportType);
 

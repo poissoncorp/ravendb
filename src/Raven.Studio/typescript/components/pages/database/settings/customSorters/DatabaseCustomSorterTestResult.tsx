@@ -1,4 +1,10 @@
-import { useReactTable, getCoreRowModel, getSortedRowModel, ColumnDef } from "@tanstack/react-table";
+import {
+    useReactTable,
+    getCoreRowModel,
+    getSortedRowModel,
+    ColumnDef,
+    getFilteredRowModel,
+} from "@tanstack/react-table";
 import SizeGetter from "components/common/SizeGetter";
 import { CellWithCopyWrapper } from "components/common/virtualTable/cells/CellWithCopy";
 import { useDocumentColumnsProvider } from "components/common/virtualTable/columnProviders/useDocumentColumnsProvider";
@@ -57,6 +63,7 @@ function DatabaseCustomSorterTestResultWithSize({
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
         onColumnVisibilityChange: setColumnVisibility,
+        getFilteredRowModel: getFilteredRowModel(),
     });
 
     const diagnosticsTable = useReactTable({
@@ -65,6 +72,7 @@ function DatabaseCustomSorterTestResultWithSize({
         columnResizeMode: "onChange",
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
     });
 
     return (

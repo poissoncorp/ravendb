@@ -11,6 +11,7 @@ export const columnPreview: ColumnDef<unknown> = {
     minSize: 64,
     enableSorting: false,
     enableHiding: false,
+    enableColumnFilter: false,
 };
 
 todo("Feature", "Damian", "Selecting many rows when holding shift");
@@ -44,4 +45,5 @@ export const columnCheckbox: ColumnDef<unknown> = {
     minSize: 38,
     enableSorting: false,
     enableHiding: false,
+    enableColumnFilter: false,
 };

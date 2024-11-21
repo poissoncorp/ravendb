@@ -1,6 +1,6 @@
 ﻿import React, { ChangeEvent, ReactNode, useEffect, useRef } from "react";
 import { Input, InputProps, Label } from "reactstrap";
-import useId from "hooks/useId";
+import useUniqueId from "components/hooks/useUniqueId";
 import classNames from "classnames";
 
 import "./Checkbox.scss";
@@ -33,7 +33,7 @@ export function Checkbox(props: CheckboxProps) {
         ...rest
     } = props;
 
-    const defaultId = useId("checkbox");
+    const defaultId = useUniqueId("checkbox");
     const inputEl = useRef<HTMLInputElement>();
 
     const inputId = id ?? defaultId;
@@ -67,7 +67,7 @@ export function Checkbox(props: CheckboxProps) {
 
 export function Switch(props: CheckboxProps) {
     const { selected, toggleSelection, children, color, size, reverse, className, disabled, id, ...rest } = props;
-    const defaultId = useId("switch");
+    const defaultId = useUniqueId("switch");
 
     const inputId = id ?? defaultId;
     const checkboxClass = reverse ? `form-check-reverse` : "form-check";
@@ -95,7 +95,7 @@ export function Switch(props: CheckboxProps) {
 
 export function Radio(props: CheckboxProps) {
     const { selected, toggleSelection, children, color, size, reverse, className, disabled, id, ...rest } = props;
-    const defaultId = useId("radio");
+    const defaultId = useUniqueId("radio");
 
     const inputId = id ?? defaultId;
     const checkboxClass = reverse ? `form-check-reverse` : "form-check";

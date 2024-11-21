@@ -101,7 +101,7 @@ export default function ConflictResolution() {
                                                 size="sm"
                                                 className="rounded-pill"
                                                 title="Add a new Conflicts Resolution script"
-                                                onClick={() => dispatch(conflictResolutionActions.add())}
+                                                onClick={() => dispatch(conflictResolutionActions.added())}
                                             >
                                                 <Icon icon="plus" />
                                                 Add new
@@ -128,7 +128,7 @@ export default function ConflictResolution() {
                                     color="primary"
                                     selected={isResolveToLatest}
                                     toggleSelection={() =>
-                                        dispatch(conflictResolutionActions.toggleIsResolveToLatest())
+                                        dispatch(conflictResolutionActions.isResolveToLatestToggled())
                                     }
                                     disabled={!hasDatabaseAdminAccess}
                                 >

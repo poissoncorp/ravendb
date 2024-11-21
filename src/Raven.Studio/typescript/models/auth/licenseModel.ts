@@ -70,7 +70,7 @@ class licenseModel {
         return {
             formattedDate: expiration.format(dateFormat),
             timeClass: expiredClass,
-            relativeTime: duration + " ago"
+            relativeTime: duration
         }
        
     }

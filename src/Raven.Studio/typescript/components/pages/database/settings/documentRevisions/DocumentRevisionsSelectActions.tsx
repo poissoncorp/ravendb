@@ -25,7 +25,7 @@ export default function DocumentRevisionsSelectActions() {
 
     const toggleAll = () => {
         reportEvent("revisions", "toggle-select-all");
-        dispatch(documentRevisionsActions.toggleAllSelectedConfigNames());
+        dispatch(documentRevisionsActions.allSelectedConfigNamesToggled());
     };
 
     return (
@@ -58,14 +58,14 @@ export default function DocumentRevisionsSelectActions() {
                             <DropdownMenu>
                                 <DropdownItem
                                     title="Enable"
-                                    onClick={() => dispatch(documentRevisionsActions.enableSelectedConfigs())}
+                                    onClick={() => dispatch(documentRevisionsActions.selectedConfigsEnabled())}
                                 >
                                     <Icon icon="play" color="success" />
                                     <span>Enable</span>
                                 </DropdownItem>
                                 <DropdownItem
                                     title="Disable"
-                                    onClick={() => dispatch(documentRevisionsActions.disableSelectedConfigs())}
+                                    onClick={() => dispatch(documentRevisionsActions.selectedConfigsDisabled())}
                                 >
                                     <Icon icon="stop" color="danger" />
                                     <span>Disable</span>
@@ -75,14 +75,14 @@ export default function DocumentRevisionsSelectActions() {
 
                         <Button
                             color="danger"
-                            onClick={() => dispatch(documentRevisionsActions.deleteSelectedConfigs())}
+                            onClick={() => dispatch(documentRevisionsActions.selectedConfigsDeleted())}
                             className="rounded-pill flex-grow-0"
                         >
                             <Icon icon="trash" /> Delete
                         </Button>
                     </ButtonGroup>
                     <Button
-                        onClick={() => dispatch(documentRevisionsActions.toggleAllSelectedConfigNames())}
+                        onClick={() => dispatch(documentRevisionsActions.allSelectedConfigNamesToggled())}
                         color="link"
                     >
                         Cancel

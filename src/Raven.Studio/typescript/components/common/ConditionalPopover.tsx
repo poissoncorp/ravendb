@@ -1,6 +1,6 @@
 import React, { ReactNode, PropsWithChildren } from "react";
 import { PopoverBody, UncontrolledPopover } from "reactstrap";
-import useId from "hooks/useId";
+import useUniqueId from "components/hooks/useUniqueId";
 import { Placement } from "@popperjs/core";
 
 interface Condition {
@@ -16,7 +16,7 @@ interface ConditionalPopoverProps extends Required<PropsWithChildren> {
 export function ConditionalPopover(props: ConditionalPopoverProps) {
     const { children, popoverPlacement } = props;
 
-    const containerId = useId("conditional-popover-");
+    const containerId = useUniqueId("conditional-popover-");
 
     const conditions = Array.isArray(props.conditions) ? props.conditions : [props.conditions];
     const message = conditions.find((x) => x.isActive)?.message;

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Form, Col, Button, Card, Row, Spinner, InputGroup, UncontrolledPopover } from "reactstrap";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { FormCheckbox, FormInput, FormSelect, FormSwitch } from "components/common/Form";
 import {
     ClientConfigurationFormData,
@@ -11,7 +11,7 @@ import { useAsyncCallback } from "react-async-hook";
 import { LoadingView } from "components/common/LoadingView";
 import { LoadError } from "components/common/LoadError";
 import ClientConfigurationUtils from "components/common/clientConfiguration/ClientConfigurationUtils";
-import useClientConfigurationFormController from "components/common/clientConfiguration/useClientConfigurationFormController";
+import useClientConfigurationFormSideEffects from "components/common/clientConfiguration/useClientConfigurationFormSideEffects";
 import { tryHandleSubmit } from "components/utils/common";
 import { Icon } from "components/common/Icon";
 import { useDirtyFlag } from "components/hooks/useDirtyFlag";
@@ -29,7 +29,7 @@ export default function ClientGlobalConfiguration() {
     const { manageServerService } = useServices();
     const asyncGetGlobalClientConfiguration = useAsyncCallback(manageServerService.getGlobalClientConfiguration);
 
-    const { handleSubmit, control, formState, setValue, reset } = useForm<ClientConfigurationFormData>({
+    const { handleSubmit, control, formState, setValue, reset, watch } = useForm<ClientConfigurationFormData>({
         resolver: clientConfigurationYupResolver,
         mode: "all",
         defaultValues: async () =>
@@ -39,7 +39,9 @@ export default function ClientGlobalConfiguration() {
     const loadBalancingDocsLink = useRavenLink({ hash: "GYJ8JA" });
     const clientConfigurationDocsLink = useRavenLink({ hash: "TS7SGF" });
 
-    const formValues = useClientConfigurationFormController(control, setValue, true);
+    const formValues = useWatch({ control });
+
+    useClientConfigurationFormSideEffects(watch, setValue, true);
 
     useEffect(() => {
         if (formState.isSubmitSuccessful) {

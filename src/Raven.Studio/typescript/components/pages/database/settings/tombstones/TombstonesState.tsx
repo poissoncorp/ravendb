@@ -13,7 +13,7 @@ import VirtualTable from "components/common/virtualTable/VirtualTable";
 import { useTombstonesStateColumns } from "components/pages/database/settings/tombstones/useTombstonesStateColumns";
 import { LazyLoad } from "components/common/LazyLoad";
 import { PropsWithChildren } from "react";
-import { getCoreRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table";
+import { getCoreRowModel, getFilteredRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table";
 import SizeGetter from "components/common/SizeGetter";
 
 interface TombstonesStateProps {
@@ -51,6 +51,7 @@ function TombstonesStateWithSize({ location, width }: TombstonesStateWithSizePro
         columnResizeMode: "onChange",
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
     });
 
     const subscriptionsTable = useReactTable({
@@ -59,6 +60,7 @@ function TombstonesStateWithSize({ location, width }: TombstonesStateWithSizePro
         columnResizeMode: "onChange",
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
     });
 
     const confirm = useConfirm();

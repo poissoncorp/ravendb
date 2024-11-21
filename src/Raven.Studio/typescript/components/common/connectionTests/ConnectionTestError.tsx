@@ -3,14 +3,14 @@ import generalUtils from "common/generalUtils";
 import Code from "components/common/Code";
 import { AccordionBody, AccordionHeader, AccordionItem, UncontrolledAccordion } from "reactstrap";
 import { Icon } from "components/common/Icon";
-import useId from "hooks/useId";
+import useUniqueId from "components/hooks/useUniqueId";
 
 interface ConnectionTestErrorProps {
     message: string;
 }
 
 export default function ConnectionTestError({ message }: ConnectionTestErrorProps) {
-    const connectionErrorAccordionId = useId("connectionErrorAccordion");
+    const connectionErrorAccordionId = useUniqueId("connectionErrorAccordion");
 
     if (!message) {
         return null;

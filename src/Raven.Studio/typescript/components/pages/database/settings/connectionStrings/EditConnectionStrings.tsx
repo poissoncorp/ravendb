@@ -48,17 +48,17 @@ export default function EditConnectionStrings(props: EditConnectionStringsProps)
             await asyncSave.execute(mapConnectionStringToDto(newConnection));
 
             if (isForNewConnection) {
-                dispatch(connectionStringsActions.addConnection(newConnection));
+                dispatch(connectionStringsActions.connectionAdded(newConnection));
             } else {
                 dispatch(
-                    connectionStringsActions.editConnection({
+                    connectionStringsActions.connectionEdited({
                         oldName: initialConnection.name,
                         newConnection,
                     })
                 );
             }
 
-            dispatch(connectionStringsActions.closeEditConnectionModal());
+            dispatch(connectionStringsActions.editConnectionModalClosed());
         });
     };
 
@@ -107,7 +107,7 @@ export default function EditConnectionStrings(props: EditConnectionStringsProps)
                     type="button"
                     color="link"
                     className="link-muted"
-                    onClick={() => dispatch(connectionStringsActions.closeEditConnectionModal())}
+                    onClick={() => dispatch(connectionStringsActions.editConnectionModalClosed())}
                     title="Cancel"
                 >
                     Cancel

@@ -234,7 +234,7 @@ export const statisticsViewSlice = createSlice({
     initialState,
     name: "statistics",
     reducers: {
-        initForDatabase: {
+        databaseInitiated: {
             reducer: (
                 state,
                 action: PayloadAction<{ databaseName: string; locations: databaseLocationSpecifier[] }>
@@ -278,10 +278,10 @@ export const statisticsViewSlice = createSlice({
                 };
             },
         },
-        showDetails: (state) => {
+        detailsShown: (state) => {
             state.ui.detailsVisible = true;
         },
-        hideDetails: (state) => {
+        detailsHided: (state) => {
             state.ui.detailsVisible = false;
         },
         refreshStarted: (state) => {
@@ -293,7 +293,7 @@ export const statisticsViewSlice = createSlice({
     },
 });
 
-const { initForDatabase, refreshStarted, refreshFinished } = statisticsViewSlice.actions;
+const { databaseInitiated: initForDatabase, refreshStarted, refreshFinished } = statisticsViewSlice.actions;
 
 export const initView = (db: DatabaseSharedInfo) => async (dispatch: AppDispatch, getState: () => RootState) => {
     const firstTime =
@@ -312,9 +312,9 @@ export const toggleDetails = () => async (dispatch: AppDispatch, getState: () =>
     const visible = state.statistics.ui.detailsVisible;
 
     if (visible) {
-        dispatch(statisticsViewSlice.actions.hideDetails());
+        dispatch(statisticsViewSlice.actions.detailsHided());
     } else {
-        dispatch(statisticsViewSlice.actions.showDetails());
+        dispatch(statisticsViewSlice.actions.detailsShown());
 
         if (needsDetailsRefresh(state)) {
             const dbStatsTask = dispatch(fetchAllDetailedDatabaseStats());

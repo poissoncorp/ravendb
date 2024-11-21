@@ -32,7 +32,7 @@ import { Badge, Collapse, Input, UncontrolledTooltip } from "reactstrap";
 import { Icon } from "components/common/Icon";
 import { useAppSelector } from "components/store";
 import { clusterSelectors } from "components/common/shell/clusterSlice";
-import useId from "hooks/useId";
+import useUniqueId from "components/hooks/useUniqueId";
 import activeDatabaseTracker = require("common/shell/activeDatabaseTracker");
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
 import { accessManagerSelectors } from "components/common/shell/accessManagerSliceSelectors";
@@ -251,7 +251,7 @@ export function PeriodicBackupPanel(props: PeriodicBackupPanelProps) {
 
     const { detailsVisible, toggleDetails, onEdit } = useTasksOperations(editUrl, props);
 
-    const statusDropdownId = useId("statusDropdown");
+    const statusDropdownId = useUniqueId("statusDropdown");
 
     return (
         <RichPanel>

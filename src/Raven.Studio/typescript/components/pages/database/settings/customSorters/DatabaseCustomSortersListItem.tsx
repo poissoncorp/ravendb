@@ -14,7 +14,7 @@ import { accessManagerSelectors } from "components/common/shell/accessManagerSli
 import { throttledUpdateLicenseLimitsUsage } from "components/common/shell/setup";
 import useBoolean from "components/hooks/useBoolean";
 import { useDirtyFlag } from "components/hooks/useDirtyFlag";
-import useId from "components/hooks/useId";
+import useUniqueId from "components/hooks/useUniqueId";
 import { useServices } from "components/hooks/useServices";
 import {
     CustomSorterFormData,
@@ -58,7 +58,7 @@ export default function DatabaseCustomSortersListItem(props: DatabaseCustomSorte
 
     const [nameToConfirmDelete, setNameToConfirmDelete] = useState<string>(null);
 
-    const tooltipId = useId("override-info");
+    const tooltipId = useUniqueId("override-info");
 
     const { databasesService } = useServices();
 

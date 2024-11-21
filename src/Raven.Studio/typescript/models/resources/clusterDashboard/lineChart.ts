@@ -1,9 +1,14 @@
 /// <reference path="../../../../typings/tsd.d.ts"/>
 
 import d3 = require("d3");
+import moment = require("moment");
+import { clusterDashboardChart } from "models/resources/clusterDashboard/clusterDashboardChart";
+import Update = d3.selection.Update;
+import Line = d3.svg.Line;
 import { range } from "common/typeUtils";
 
-interface chartItemData {
+
+export interface chartItemData {
     x: Date;
     y: number;
 }
@@ -13,7 +18,7 @@ export interface chartData {
     ranges: chartItemRange[];
 }
 
-interface chartItemRange {
+export interface chartItemRange {
     finished: boolean;
     parent: chartData;
     values: chartItemData[];
@@ -26,11 +31,13 @@ type chartOpts = {
     yMaxProvider?: (data: chartData[]) => number | null;
     useSeparateYScales?: boolean;
     topPaddingProvider?: (key: string) => number;
-    tooltipProvider?: (date: Date|null) => string;
-    onMouseMove?: (date: Date|null) => void;
+    bottomPaddingProvider?: () => number;
+    tooltipProvider?: (unalignedDate: ClusterWidgetUnalignedDate|null) => string;
+    onClick?: () => void;
+    onMouseMove?: (date: ClusterWidgetUnalignedDate|null) => void;
 }
 
-export class lineChart {
+export class lineChart<TPayload extends { Date: string }> implements clusterDashboardChart<TPayload> {
     
     static readonly defaultTopPadding = 5;
     static readonly timeFormat = "h:mm:ss A";
@@ -38,29 +45,28 @@ export class lineChart {
     private width: number;
     private height: number;
     
-    private minDate: Date = null;
-    private maxDate: Date = null;
-    private data: chartData[] = [];
+    private minDate: ClusterWidgetUnalignedDate = null;
+    private maxDate: ClusterWidgetUnalignedDate = null;
+    protected data: chartData[] = [];
     private opts: chartOpts;
     
-    private svg: d3.Selection<void>;
+    protected svg: d3.Selection<void>;
     private pointer: d3.Selection<void>;
-    private lastXPosition: number = null;
     private tooltip: d3.Selection<void>;
-    private mouseOver = false;
     
-    private xScale: d3.time.Scale<number, number>;
+    protected xScale: d3.time.Scale<number, number>;
     
     private readonly containerSelector: string | EventTarget;
-    private highlightVisible = false;
+    protected highlightDate: Date;
+    private readonly dataProvider: (payload: TPayload) => number;
     
-    constructor(containerSelector: string | EventTarget, opts?: chartOpts) {
+    constructor(containerSelector: string | EventTarget, dataProvider: (payload: TPayload) => number, opts?: chartOpts) {
         this.opts = opts || {} as any;
+        this.dataProvider = dataProvider;
         this.containerSelector = containerSelector;
         
-        if (!this.opts.topPaddingProvider) {
-            this.opts.topPaddingProvider = () => lineChart.defaultTopPadding;
-        }
+        this.opts.topPaddingProvider ??= () => lineChart.defaultTopPadding;
+        this.opts.bottomPaddingProvider ??= () => 0;
         
         const container = d3.select(containerSelector as string);
         
@@ -145,33 +151,40 @@ export class lineChart {
         this.drawGrid(gridContainer);
     }
     
-    highlightTime(date: Date|null) {
+    highlightTime(date: ClusterWidgetAlignedDate|null) {
         if (date) {
-            const xToHighlight = this.xScale(date);
-            
-            if (!this.highlightVisible) {
+            const xToHighlight = Math.round(this.xScale(date));
+            if (xToHighlight != null) {
+                if (!this.highlightDate) {
+                    this.pointer
+                        .transition()
+                        .duration(200)
+                        .style("stroke-opacity", 1);
+                }
+                this.highlightDate = date;
+
                 this.pointer
-                    .transition()
-                    .duration(200)
-                    .style("stroke-opacity", 1);
-                this.highlightVisible = true;
+                    .attr("x1", xToHighlight - 0.5)
+                    .attr("x2", xToHighlight - 0.5);
+                
+                return;
             }
-            
-            this.pointer
-                .attr("x1", xToHighlight + 0.5)
-                .attr("x2", xToHighlight + 0.5);
-        } else {
-            this.highlightVisible = false;
-            this.pointer
-                .transition()
-                .duration(100)
-                .style("stroke-opacity", 0);
-        }
+        } 
+        
+        // remove highlight - no date or no snap
+        this.pointer
+            .transition()
+            .duration(100)
+            .style("stroke-opacity", 0);
+        this.highlightDate = null;
     }
     
     private setupValuesPreview() {
         const withTooltip = !!this.opts.tooltipProvider;
         this.svg
+            .on("click.tip", () => {
+                this.opts?.onClick();
+            })
             .on("mousemove.tip", () => {
                 if (this.xScale) {
                     const node = this.svg.node();
@@ -186,13 +199,11 @@ export class lineChart {
                 }
             })
             .on("mouseenter.tip", () => {
-                this.mouseOver = true;
                 if (withTooltip) {
                     this.showTooltip();
                 }
             })
             .on("mouseleave.tip", () => {
-                this.mouseOver = false;
                 if (withTooltip) {
                     this.hideTooltip();
                 }
@@ -209,19 +220,13 @@ export class lineChart {
             .style("opacity", 1);
     }
     
-    updateTooltip(passive = false) {
-        let xToUse: number;
-        if (passive) {
-            // just update contents
-            xToUse = this.lastXPosition;
-        } else {
-            xToUse = d3.mouse(this.svg.node())[0];
-            this.tooltip.style('display', undefined);
-        }
+    updateTooltip() {
+        const xToUse = d3.mouse(this.svg.node())[0];
+        this.tooltip.style('display', undefined);
         
         if (!_.isNull(xToUse) && this.minDate) {
-            const data = this.findClosestData(xToUse);
-            const html = this.opts.tooltipProvider(data) || "";
+            const date = this.findDate(xToUse);
+            const html = this.opts.tooltipProvider(date) || "";
             
             if (html) {
                 this.tooltip.html(html);
@@ -231,25 +236,21 @@ export class lineChart {
             }
         }
         
-        if (!passive) {
-            this.lastXPosition = xToUse;
-
-            const container = d3.select(".cluster-dashboard-container").node();
-            const globalLocation = d3.mouse(container);
-            const [x, y] = globalLocation;
-            
-            const tooltipWidth = $(this.tooltip.node()).width();
-            const containerWidth = $(container).innerWidth();
-            
-            const tooltipX = Math.min(x + 10, containerWidth - tooltipWidth);
-            
-            this.tooltip
-                .style("left", tooltipX + "px")
-                .style("top", (y + 10) + "px")
-        }
+        const container = d3.select(".cluster-dashboard-container").node();
+        const globalLocation = d3.mouse(container);
+        const [x, y] = globalLocation;
+        
+        const tooltipWidth = $(this.tooltip.node()).width();
+        const containerWidth = $(container).innerWidth();
+        
+        const tooltipX = Math.min(x + 10, containerWidth - tooltipWidth);
+        
+        this.tooltip
+            .style("left", tooltipX + "px")
+            .style("top", (y + 10) + "px")
     }
     
-    private findClosestData(xToUse: number): Date {
+    private findDate(xToUse: number): Date {
         // noinspection JSSuspiciousNameCombination
         const hoverTime = this.xScale.invert(xToUse);
         return hoverTime.getTime() >= this.minDate.getTime() ? hoverTime : null; 
@@ -260,34 +261,35 @@ export class lineChart {
             .duration(250)
             .style("opacity", 0)
             .each('end', () => this.tooltip.style('display', 'none'));
-
-        this.lastXPosition = null;
     }
     
-    onData(time: Date, data: { key: string, value: number }[]) {
+    onHeartbeat(date: ClusterWidgetUnalignedDate) {
+        this.maxDate = date;
+    }
+    
+    onData(key: string, payload: TPayload) {
+        const transformed = this.dataProvider(payload);
+        if (typeof transformed === "undefined") {
+            return;
+        }
+        const date = moment.utc(payload.Date).toDate();
+        this.onDataInternal(date, key, transformed);
+        
+    }
+    private onDataInternal(time: ClusterWidgetUnalignedDate, key: string, value: number) {
         if (!this.minDate) {
             this.minDate = time;
         }
         this.maxDate = time;
-        
-        data.forEach(dataItem => {
-            const dataRange = this.getOrCreateRange(dataItem.key);
 
-            dataRange.values.push({
-                x: time,
-                y: dataItem.value
-            });
+        const dataRange = this.getOrCreateRange(key);
+
+        dataRange.values.push({
+            x: time,
+            y: value
         });
         
         this.maybeTrimData();
-        
-        if (this.lastXPosition && this.opts.onMouseMove) {
-            // noinspection JSSuspiciousNameCombination
-            const hoverTime = this.xScale.invert(this.lastXPosition);
-            this.opts.onMouseMove(hoverTime);
-        }
-        
-        this.updateTooltip(true);
     }
     
     private getOrCreateChartData(key: string): chartData {
@@ -325,7 +327,7 @@ export class lineChart {
         return newRange;
     }
     
-    recordNoData(time: Date, key: string) {
+    recordNoData(time: ClusterWidgetUnalignedDate, key: string) {
         const dataEntry = this.data.find(x => x.id === key);
         if (dataEntry?.ranges.length) {
             const lastRange = dataEntry.ranges[dataEntry.ranges.length - 1];
@@ -363,61 +365,61 @@ export class lineChart {
         }
     }
     
-    private createLineFunctions(): Map<string, d3.svg.Line<chartItemData>> {
+    private createLineFunctions(): Map<string, { line : d3.svg.Line<chartItemData>; scale: d3.scale.Linear<number, number> }> {
         if (!this.data.length) {
-            return new Map<string, d3.svg.Line<chartItemData>>();
+            return new Map<string, { line : d3.svg.Line<chartItemData>; scale: d3.scale.Linear<number, number> }>();
         }
         
         const timePerPixel = 500;
         const maxTime = this.maxDate;
         const minTime = new Date(maxTime.getTime() - this.width * timePerPixel);
 
-        const result = new Map<string, d3.svg.Line<chartItemData>>();
+        const result = new Map<string, { line : d3.svg.Line<chartItemData>; scale: d3.scale.Linear<number, number> }>();
 
         this.xScale = d3.time.scale()
             .range([0, this.width])
             .domain([minTime, maxTime]);
         
-        const yScaleCreator = (maxValue: number, topPadding: number) => {
+        const yScaleCreator = (maxValue: number, topPadding: number, bottomPadding: number) => {
             if (!maxValue) {
                 maxValue = 1;
             }
             return d3.scale.linear()
-                .range([topPadding != null ? topPadding : lineChart.defaultTopPadding, this.height])
+                .range([topPadding != null ? topPadding : lineChart.defaultTopPadding, this.height - (bottomPadding ?? 0)])
                 .domain([maxValue, 0]);
         };
         
         if (this.opts.yMaxProvider != null) {
-            const yScale = yScaleCreator(this.opts.yMaxProvider(this.data), this.opts.topPaddingProvider(null));
+            const yScale = yScaleCreator(this.opts.yMaxProvider(this.data), this.opts.topPaddingProvider(null), this.opts.bottomPaddingProvider());
 
             const lineFunction = d3.svg.line<chartItemData>()
                 .x(x => this.xScale(x.x))
                 .y(x => yScale(x.y));
             
             this.data.forEach(data => {
-                result.set(data.id, lineFunction);
+                result.set(data.id, { line: lineFunction, scale: yScale });
             });
         } else if (this.opts.useSeparateYScales) {
             this.data.forEach(data => {
                 const yMax = d3.max(data.ranges.filter(range => range.values.length).map(range => d3.max(range.values.map(values => values.y))));
-                const yScale = yScaleCreator(yMax, this.opts.topPaddingProvider(data.id));
+                const yScale = yScaleCreator(yMax, this.opts.topPaddingProvider(data.id), this.opts.bottomPaddingProvider());
 
                 const lineFunction = d3.svg.line<chartItemData>()
                     .x(x => this.xScale(x.x))
                     .y(x => yScale(x.y));
                 
-                result.set(data.id, lineFunction);
+                result.set(data.id, { line: lineFunction, scale: yScale });
             });
         } else {
             const yMax = d3.max(this.data.map(data => d3.max(data.ranges.filter(range => range.values.length).map(range => d3.max(range.values.map(values => values.y))))));
-            const yScale = yScaleCreator(yMax, this.opts.topPaddingProvider(null));
+            const yScale = yScaleCreator(yMax, this.opts.topPaddingProvider(null), this.opts.bottomPaddingProvider());
 
             const lineFunction = d3.svg.line<chartItemData>()
                 .x(x => this.xScale(x.x))
                 .y(x => yScale(x.y));
 
             this.data.forEach(data => {
-                result.set(data.id, lineFunction);
+                result.set(data.id, { line: lineFunction, scale: yScale });
             });
         }
      
@@ -441,6 +443,30 @@ export class lineChart {
         
         const lineFunctions = this.createLineFunctions();
         
+        this.drawLines(lineFunctions, series);
+        
+        if (this.opts.fillArea) {
+            const fills = series.selectAll(".fill")
+                .data<chartItemRange>(x => x.ranges);
+            
+            fills
+                .exit()
+                .remove();
+            
+            fills.enter()
+                .append("path")
+                .classed("fill", true);
+            
+            fills
+                .attr("d", d => lineFunctions.get(d.parent.id).line(lineChart.closedPath(this.applyFill(d))));
+        }
+
+        if (this.highlightDate) {
+            this.highlightTime(this.highlightDate);
+        }
+    }
+    
+    protected drawLines(lineFunctions: Map<string, { line : d3.svg.Line<chartItemData>; scale: d3.scale.Linear<number, number> }>, series: Update<chartData>) {
         const lines = series.selectAll(".line")
             .data<chartItemRange>(x => x.ranges);
 
@@ -453,25 +479,10 @@ export class lineChart {
             .attr("class", "line")
 
         lines
-            .attr("d", d => lineFunctions.get(d.parent.id)(this.applyFill(d)));
-        
-        if (this.opts.fillArea) {
-            const fills = series.selectAll(".fill")
-                .data<chartItemRange>(x => x.ranges);
-            
-            fills
-                .exit()
-                .remove();
-            
-            fills.enter()
-                .append("path");
-            
-            fills
-                .attr("d", d => lineFunctions.get(d.parent.id)(lineChart.closedPath(this.applyFill(d))));
-        }
+            .attr("d", d => lineFunctions.get(d.parent.id).line(this.applyFill(d)));
     }
     
-    private applyFill(range: chartItemRange) {
+    protected applyFill(range: chartItemRange) {
         const items = range.values;
         if (!this.opts.fillData || range.finished) {
             return items;

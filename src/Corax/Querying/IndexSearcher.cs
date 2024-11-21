@@ -205,7 +205,7 @@ public sealed unsafe partial class IndexSearcher : IDisposable
         for (int i = 0; i < tokensSpan.Length; i++)
         {
             var token = bufferSpan.Slice(tokensSpan[i].Offset, (int)tokensSpan[i].Length);
-            _ = Indexing.IndexWriter.CreateNormalizedTerm(Allocator, token, out var value);
+            Indexing.IndexWriter.CreateNormalizedTerm(Allocator, token, out var value);
             terms.Add(value);
         }
 
@@ -254,13 +254,6 @@ public sealed unsafe partial class IndexSearcher : IDisposable
         return encodedTerm;
     }
 
-    public void ApplyAnalyzer(string originalTerm, int fieldId, out Slice value)
-    {
-        using (Slice.From(Allocator, originalTerm, ByteStringType.Immutable, out var originalTermSliced))
-        {
-            ApplyAnalyzer(originalTermSliced, fieldId, out value);
-        }
-    }
 
     public void ApplyAnalyzer(in FieldMetadata binding, Analyzer analyzer, ReadOnlySpan<byte> originalTerm, out Slice value)
     {
@@ -283,39 +276,6 @@ public sealed unsafe partial class IndexSearcher : IDisposable
         AnalyzeTerm(analyzer, originalTerm, out value);
     }
 
-    internal ByteStringContext<ByteStringMemoryCache>.InternalScope ApplyAnalyzer(ReadOnlySpan<byte> originalTerm, int fieldId, out Slice value)
-    {
-        Analyzer analyzer = null;
-        IndexFieldBinding binding = null;
-
-        if (fieldId == Constants.IndexWriter.DynamicField)
-        {
-            analyzer = _fieldMapping.DefaultAnalyzer;
-        }
-        else if (_fieldMapping.TryGetByFieldId(fieldId, out binding) == false
-                 || binding.FieldIndexingMode is FieldIndexingMode.Exact
-                 || binding.Analyzer is null)
-        {
-            var disposable = Allocator.AllocateDirect(originalTerm.Length, ByteStringType.Mutable, out var originalTermSliced);
-            originalTerm.CopyTo(new Span<byte>(originalTermSliced.Ptr, originalTerm.Length));
-
-            value = new Slice(originalTermSliced);
-            return disposable;
-        }
-
-        analyzer ??= binding.FieldIndexingMode is FieldIndexingMode.Search
-            ? Analyzer.CreateLowercaseAnalyzer(this.Allocator) // lowercase only when search is used in non-full-text-search match 
-            : binding.Analyzer!;
-
-        return AnalyzeTerm(analyzer, originalTerm, out value);
-    }
-
-    [SkipLocalsInit]
-    internal ByteStringContext<ByteStringMemoryCache>.InternalScope ApplyAnalyzer(Slice originalTerm, int fieldId, out Slice value)
-    {
-        return ApplyAnalyzer(originalTerm.AsSpan(), fieldId, out value);
-    }
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private ByteStringContext<ByteStringMemoryCache>.InternalScope AnalyzeTerm(Analyzer analyzer, ReadOnlySpan<byte> originalTerm, out Slice value)
     {
@@ -332,6 +292,7 @@ public sealed unsafe partial class IndexSearcher : IDisposable
         analyzer.Execute(originalTerm, ref bufferSpan, ref tokensSpan);
         if (tokensSpan.Length != 1)
             throw new NotSupportedException($"Analyzer turned term: {Encoding.UTF8.GetString(originalTerm)} into multiple terms ({tokensSpan.Length}), which is not allowed in this case.");
+        
         var disposable = Indexing.IndexWriter.CreateNormalizedTerm(Allocator, bufferSpan, out value);
 
         Analyzer.TokensPool.Return(tokens);
@@ -340,8 +301,9 @@ public sealed unsafe partial class IndexSearcher : IDisposable
         return disposable;
     }
     
-    public AllEntriesMatch AllEntries() => new AllEntriesMatch(this, _transaction);
-   public TermMatch EmptyMatch() => TermMatch.CreateEmpty(this, Allocator);
+    public AllEntriesMatch AllEntries() => new(this, _transaction);
+    
+    public TermMatch EmptyMatch() => TermMatch.CreateEmpty(this, Allocator);
 
    public long GetDictionaryIdFor(Slice field)
    {

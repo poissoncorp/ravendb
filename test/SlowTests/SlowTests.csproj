@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <RuntimeFrameworkVersion>8.0.10</RuntimeFrameworkVersion>
+    <RuntimeFrameworkVersion>8.0.11</RuntimeFrameworkVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AssemblyName>SlowTests</AssemblyName>
     <PackageId>SlowTests</PackageId>
@@ -111,6 +111,8 @@
     <EmbeddedResource Include="Data\RavenDB_22703\RavenDB_22703.ravendb-snapshot" />
     <None Remove="Data\RavenDB_22937\RavenDB_22937.ravendb-snapshot" />
     <EmbeddedResource Include="Data\RavenDB_22937\RavenDB_22937.ravendb-snapshot" />
+    <None Remove="Data\RavenDB_22999\RavenDB-22999.ravendb-snapshot" />
+    <EmbeddedResource Include="Data\RavenDB_22999\RavenDB-22999.ravendb-snapshot" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Data\non-leaf-page-seq-id-large-values-2.txt" />
