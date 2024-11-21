@@ -40,19 +40,19 @@ export const documentRevisionsSlice = createSlice({
     name: "documentRevisions",
     initialState,
     reducers: {
-        addConfig: (state, { payload }: PayloadAction<DocumentRevisionsConfig>) => {
+        configAdded: (state, { payload }: PayloadAction<DocumentRevisionsConfig>) => {
             configsAdapter.addOne(state.configs, payload);
         },
-        editConfig: (state, { payload }: PayloadAction<DocumentRevisionsConfig>) => {
+        configEdited: (state, { payload }: PayloadAction<DocumentRevisionsConfig>) => {
             configsAdapter.updateOne(state.configs, {
                 id: payload.Name,
                 changes: { ...payload },
             });
         },
-        deleteConfig: (state, { payload: name }: PayloadAction<DocumentRevisionsConfigName>) => {
+        configDeleted: (state, { payload: name }: PayloadAction<DocumentRevisionsConfigName>) => {
             configsAdapter.removeOne(state.configs, name);
         },
-        toggleConfigState: (state, { payload: name }: PayloadAction<DocumentRevisionsConfigName>) => {
+        configStateToggled: (state, { payload: name }: PayloadAction<DocumentRevisionsConfigName>) => {
             const disabled = configsSelectors.selectById(state.configs, name).Disabled;
 
             configsAdapter.updateOne(state.configs, {
@@ -62,28 +62,28 @@ export const documentRevisionsSlice = createSlice({
                 },
             });
         },
-        toggleAllSelectedConfigNames: (state) => {
+        allSelectedConfigNamesToggled: (state) => {
             if (state.selectedConfigNames.length === 0) {
                 state.selectedConfigNames = configsSelectors.selectIds(state.configs) as DocumentRevisionsConfigName[];
             } else {
                 state.selectedConfigNames = [];
             }
         },
-        toggleSelectedConfigName: (state, { payload: name }: PayloadAction<DocumentRevisionsConfigName>) => {
+        selectedConfigNameToggled: (state, { payload: name }: PayloadAction<DocumentRevisionsConfigName>) => {
             if (state.selectedConfigNames.includes(name)) {
                 state.selectedConfigNames = state.selectedConfigNames.filter((selectedName) => selectedName !== name);
             } else {
                 state.selectedConfigNames.push(name);
             }
         },
-        deleteSelectedConfigs: (state) => {
+        selectedConfigsDeleted: (state) => {
             configsAdapter.removeMany(
                 state.configs,
                 state.selectedConfigNames.filter((name) => name !== documentRevisionsConfigNames.defaultConflicts)
             );
             state.selectedConfigNames = [];
         },
-        disableSelectedConfigs: (state) => {
+        selectedConfigsDisabled: (state) => {
             configsAdapter.updateMany(
                 state.configs,
                 state.selectedConfigNames.map((name) => ({
@@ -94,7 +94,7 @@ export const documentRevisionsSlice = createSlice({
                 }))
             );
         },
-        enableSelectedConfigs: (state) => {
+        selectedConfigsEnabled: (state) => {
             configsAdapter.updateMany(
                 state.configs,
                 state.selectedConfigNames.map((name) => ({
@@ -105,7 +105,7 @@ export const documentRevisionsSlice = createSlice({
                 }))
             );
         },
-        saveConfigs: (state) => {
+        configsSaved: (state) => {
             configsAdapter.setAll(state.originalConfigs, configsSelectors.selectAll(state.configs));
         },
         reset: () => initialState,

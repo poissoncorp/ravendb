@@ -6,6 +6,7 @@ using Raven.Server.ServerWide.Context;
 using Sparrow.Binary;
 using Sparrow.Json;
 using Sparrow.Server;
+using Sparrow.Server.Logging;
 using Sparrow.Server.Utils;
 using Voron;
 using Voron.Data.Tables;
@@ -45,7 +46,7 @@ namespace Raven.Server.Documents.TimeSeries
             TimeSeriesStatsSchema.DefineKey(new TableSchema.IndexDef
             {
                 StartIndex = (int)StatsColumns.Key,
-                Count = 1, 
+                Count = 1,
                 Name = TimeSeriesStatsKey,
                 IsGlobal = true
             });
@@ -60,7 +61,7 @@ namespace Raven.Server.Documents.TimeSeries
             {
                 // policy, separator, start
                 StartIndex = (int)StatsColumns.PolicyName,
-                Count = 2, 
+                Count = 2,
                 Name = StartTimeIndex
             });
         }
@@ -74,7 +75,7 @@ namespace Raven.Server.Documents.TimeSeries
         private Table GetOrCreateTable(Transaction tx, CollectionName collection)
         {
             var tableName = collection.GetTableName(CollectionTableType.TimeSeriesStats); // TODO: cache the collection and pass Slice
-            
+
             if (tx.IsWriteTransaction)
                 TimeSeriesStatsSchema.Create(tx, tableName, 16);
 
@@ -133,7 +134,7 @@ namespace Raven.Server.Documents.TimeSeries
             end = DateTime.MinValue;
             name = slicer.NameSlice;
 
-            if (table.ReadByKey(slicer.StatsKey, out var tvr) == false) 
+            if (table.ReadByKey(slicer.StatsKey, out var tvr) == false)
                 return null;
 
             count = DocumentsStorage.TableValueToLong((int)StatsColumns.Count, ref tvr);
@@ -170,7 +171,7 @@ namespace Raven.Server.Documents.TimeSeries
                     HandleLiveSegment();
                 }
 
-                if (liveEntries == 0) 
+                if (liveEntries == 0)
                 {
                     if (TryHandleDeadSegment() == false)
                     {
@@ -216,7 +217,7 @@ namespace Raven.Server.Documents.TimeSeries
                 {
                     var reader = _timeSeriesStorage.GetReader(context, slicer.DocId, slicer.Name, start, DateTime.MaxValue);
                     var last = reader.Last();
-               
+
                     var lastValueInCurrentSegment = reader.ReadBaselineAsDateTime() == baseline;
                     end = lastValueInCurrentSegment ? lastTimestamp : last.Timestamp;
                 }
@@ -394,13 +395,13 @@ namespace Raven.Server.Documents.TimeSeries
             }
         }
 
-        public IEnumerable<Slice> GetTimeSeriesByPolicyFromStartDate(DocumentsOperationContext context, CollectionName collection, string policy, DateTime start, long take)
+        public IEnumerable<Slice> GetTimeSeriesByPolicyFromStartDate(DocumentsOperationContext context, CollectionName collection, string policy, DateTime start, long take, RavenLogger logger)
         {
             var table = GetOrCreateTable(context.Transaction.InnerTransaction, collection);
             if (table == null)
                 yield break;
 
-            using (CombinePolicyNameAndTicks(context, policy.ToLowerInvariant(), start.Ticks, out var key,out var policySlice))
+            using (CombinePolicyNameAndTicks(context, policy.ToLowerInvariant(), start.Ticks, out var key, out var policySlice))
             {
                 foreach (var result in table.SeekBackwardFrom(TimeSeriesStatsSchema.Indexes[StartTimeIndex], policySlice, key))
                 {
@@ -408,10 +409,15 @@ namespace Raven.Server.Documents.TimeSeries
                     if (stats.Count == 0)
                         continue;
 
-                    DocumentsStorage.TableValueToSlice(context, (int)StatsColumns.Key, ref result.Result.Reader, out var slice);
                     var currentStart = new DateTime(Bits.SwapBytes(DocumentsStorage.TableValueToLong((int)StatsColumns.Start, ref result.Result.Reader)));
                     if (currentStart > start)
+                    {
+                        if (logger.IsInfoEnabled)
+                            logger.Info($"Finished collecting time-series for retention. Stopped fetching at start-time {currentStart} while retention time was {start} (time-series key: `{result.Key}`).");
+
                         yield break;
+                    }
+                    DocumentsStorage.TableValueToSlice(context, (int)StatsColumns.Key, ref result.Result.Reader, out var slice);
 
                     yield return slice;
 

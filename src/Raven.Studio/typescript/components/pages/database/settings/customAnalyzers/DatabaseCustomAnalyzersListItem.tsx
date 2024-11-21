@@ -9,7 +9,7 @@ import { accessManagerSelectors } from "components/common/shell/accessManagerSli
 import { useAppSelector } from "components/store";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
 import useBoolean from "hooks/useBoolean";
-import useId from "hooks/useId";
+import useUniqueId from "components/hooks/useUniqueId";
 import { useServices } from "hooks/useServices";
 import { useAsyncCallback, UseAsyncReturn } from "react-async-hook";
 import { throttledUpdateLicenseLimitsUsage } from "components/common/shell/setup";
@@ -53,7 +53,7 @@ export default function DatabaseCustomAnalyzersListItem(props: DatabaseCustomAna
 
     const [nameToConfirmDelete, setNameToConfirmDelete] = useState<string>(null);
 
-    const tooltipId = useId("override-info");
+    const tooltipId = useUniqueId("override-info");
 
     const { databasesService } = useServices();
 

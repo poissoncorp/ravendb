@@ -10,7 +10,6 @@ import EditRevision, {
     EditRevisionTaskType,
 } from "components/pages/database/settings/documentRevisions/EditRevision";
 import EnforceConfiguration from "components/pages/database/settings/documentRevisions/EnforceConfiguration";
-import { todo } from "common/developmentHelper";
 import { LoadingView } from "components/common/LoadingView";
 import { DocumentRevisionsConfig, documentRevisionsActions } from "./store/documentRevisionsSlice";
 import { documentRevisionsSelectors } from "./store/documentRevisionsSliceSelectors";
@@ -45,8 +44,6 @@ interface EditRevisionData {
     toggle: () => void;
     config?: DocumentRevisionsConfig;
 }
-
-todo("Feature", "Damian", "Add the Revert revisions view");
 
 export default function DocumentRevisions() {
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
@@ -120,7 +117,7 @@ export default function DocumentRevisions() {
         await Promise.all(promises);
         messagePublisher.reportSuccess("Revisions configuration has been saved");
 
-        dispatch(documentRevisionsActions.saveConfigs());
+        dispatch(documentRevisionsActions.configsSaved());
     });
 
     const asyncEnforceRevisionsConfiguration = useAsyncCallback(
@@ -246,7 +243,7 @@ export default function DocumentRevisions() {
                                                             taskType: "new",
                                                             configType: "defaultDocument",
                                                             onConfirm: (config) =>
-                                                                dispatch(documentRevisionsActions.addConfig(config)),
+                                                                dispatch(documentRevisionsActions.configAdded(config)),
                                                         })
                                                     }
                                                     disabled={!canSetupDefaultRevisionsConfiguration}
@@ -274,18 +271,18 @@ export default function DocumentRevisions() {
                                     config={defaultDocumentsConfig}
                                     onToggle={() =>
                                         dispatch(
-                                            documentRevisionsActions.toggleConfigState(defaultDocumentsConfig.Name)
+                                            documentRevisionsActions.configStateToggled(defaultDocumentsConfig.Name)
                                         )
                                     }
                                     onDelete={() =>
-                                        dispatch(documentRevisionsActions.deleteConfig(defaultDocumentsConfig.Name))
+                                        dispatch(documentRevisionsActions.configDeleted(defaultDocumentsConfig.Name))
                                     }
                                     onEdit={() =>
                                         onEditRevision({
                                             taskType: "edit",
                                             configType: "defaultDocument",
                                             onConfirm: (config) =>
-                                                dispatch(documentRevisionsActions.editConfig(config)),
+                                                dispatch(documentRevisionsActions.configEdited(config)),
                                             config: defaultDocumentsConfig,
                                         })
                                     }
@@ -294,13 +291,13 @@ export default function DocumentRevisions() {
                             <DocumentRevisionsConfigPanel
                                 config={defaultConflictsConfig}
                                 onToggle={() =>
-                                    dispatch(documentRevisionsActions.toggleConfigState(defaultConflictsConfig.Name))
+                                    dispatch(documentRevisionsActions.configStateToggled(defaultConflictsConfig.Name))
                                 }
                                 onEdit={() =>
                                     onEditRevision({
                                         taskType: "edit",
                                         configType: "defaultConflicts",
-                                        onConfirm: (config) => dispatch(documentRevisionsActions.editConfig(config)),
+                                        onConfirm: (config) => dispatch(documentRevisionsActions.configEdited(config)),
                                         config: defaultConflictsConfig,
                                     })
                                 }
@@ -320,7 +317,7 @@ export default function DocumentRevisions() {
                                                     taskType: "new",
                                                     configType: "collectionSpecific",
                                                     onConfirm: (config) =>
-                                                        dispatch(documentRevisionsActions.addConfig(config)),
+                                                        dispatch(documentRevisionsActions.configAdded(config)),
                                                 })
                                             }
                                         >
@@ -339,15 +336,15 @@ export default function DocumentRevisions() {
                                         key={config.Name}
                                         config={config}
                                         onToggle={() =>
-                                            dispatch(documentRevisionsActions.toggleConfigState(config.Name))
+                                            dispatch(documentRevisionsActions.configStateToggled(config.Name))
                                         }
-                                        onDelete={() => dispatch(documentRevisionsActions.deleteConfig(config.Name))}
+                                        onDelete={() => dispatch(documentRevisionsActions.configDeleted(config.Name))}
                                         onEdit={() =>
                                             onEditRevision({
                                                 taskType: "edit",
                                                 configType: "collectionSpecific",
                                                 onConfirm: (config) =>
-                                                    dispatch(documentRevisionsActions.editConfig(config)),
+                                                    dispatch(documentRevisionsActions.configEdited(config)),
                                                 config,
                                             })
                                         }

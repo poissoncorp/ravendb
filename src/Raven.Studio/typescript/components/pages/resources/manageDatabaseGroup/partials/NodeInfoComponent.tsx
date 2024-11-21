@@ -7,7 +7,7 @@ import {
     UncontrolledDropdown,
     UncontrolledTooltip,
 } from "reactstrap";
-import useId from "hooks/useId";
+import useUniqueId from "components/hooks/useUniqueId";
 import { useDraggableItem } from "hooks/useDraggableItem";
 import { DatabaseSharedInfo, NodeInfo } from "components/models/databases";
 import appUrl from "common/appUrl";
@@ -103,7 +103,7 @@ interface NodeInfoComponentProps {
 export function NodeInfoComponent(props: NodeInfoComponentProps) {
     const { node, db, deleteFromGroup } = props;
 
-    const deleteLockId = useId("delete-lock");
+    const deleteLockId = useUniqueId("delete-lock");
     const isOperatorOrAbove = useAppSelector(accessManagerSelectors.isOperatorOrAbove);
 
     const canPromote = isOperatorOrAbove && node.type === "Promotable";
@@ -178,7 +178,7 @@ interface ShardInfoComponentProps {
 export function ShardInfoComponent(props: ShardInfoComponentProps) {
     const { node, deleteFromGroup, db } = props;
 
-    const deleteLockId = useId("delete-lock");
+    const deleteLockId = useUniqueId("delete-lock");
     const isOperatorOrAbove = useAppSelector(accessManagerSelectors.isOperatorOrAbove);
 
     const canDelete = db.lockMode === "Unlock";

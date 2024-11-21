@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Raven.Client.Documents.Indexes;
 using Raven.Client.ServerWide;
+using Raven.Server.Rachis;
 using Raven.Server.Utils;
 using Sparrow.Json.Parsing;
 
@@ -40,19 +41,39 @@ namespace Raven.Server.ServerWide.Commands.Indexes
 
         public override void UpdateDatabaseRecord(DatabaseRecord record, long etag)
         {
-
             if (Static != null)
             {
+                var indexValidator = new PutIndexCommand.StaticIndexNameValidator(record);
+
                 foreach (var definition in Static)
-                    record.AddIndex(definition, Source, CreatedAt, etag, RevisionsToKeep, DefaultStaticDeploymentMode ?? IndexDeploymentMode.Parallel);
+                {
+                    indexValidator.Validate(definition);
+
+                    try
+                    {
+                        record.AddIndex(definition, Source, CreatedAt, etag, RevisionsToKeep, DefaultStaticDeploymentMode ?? IndexDeploymentMode.Parallel);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new RachisApplyException($"Failed to update index '{definition.Name}'", e);
+                    }
+                }
             }
 
             if (Auto != null)
             {
                 foreach (var definition in Auto)
-                    record.AddIndex(definition, CreatedAt, etag, DefaultAutoDeploymentMode ?? IndexDeploymentMode.Parallel);
+                {
+                    try
+                    {
+                        record.AddIndex(definition, CreatedAt, etag, DefaultAutoDeploymentMode ?? IndexDeploymentMode.Parallel);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new RachisApplyException($"Failed to update index '{definition.Name}'", e);
+                    }
+                }
             }
-
         }
 
         public override void FillJson(DynamicJsonValue json)

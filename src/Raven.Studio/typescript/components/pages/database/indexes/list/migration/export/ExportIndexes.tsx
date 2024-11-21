@@ -43,7 +43,7 @@ export function ExportIndexes(props: ExportIndexesProps) {
 
     const databaseOptions: SelectOption[] = availableDatabaseNames.map((x) => ({ label: x, value: x }));
 
-    const { control, formState, handleSubmit, setValue } = useForm<FormData>({
+    const { control, formState, handleSubmit, setValue, watch } = useForm<FormData>({
         defaultValues: {
             databaseName: "",
             exportMode: availableDatabaseNames.length > 0 ? "database" : "file",
@@ -79,10 +79,16 @@ export function ExportIndexes(props: ExportIndexesProps) {
         };
     }, [databaseName, exportMode, hasDatabaseAdminAccess, indexes, selectedNames]);
 
-    // Clear state on mode change
+    // Clear database name on mode change
     useEffect(() => {
-        setValue("databaseName", "");
-    }, [exportMode, setValue]);
+        const { unsubscribe } = watch((_, { name }) => {
+            if (name === "exportMode") {
+                setValue("databaseName", "");
+            }
+        });
+
+        return () => unsubscribe();
+    }, [watch, setValue]);
 
     const { indexesService } = useServices();
 

@@ -3,12 +3,12 @@ import { Button, Card, CardBody, Col, Row } from "reactstrap";
 import { AboutViewHeading } from "components/common/AboutView";
 import ButtonWithSpinner from "components/common/ButtonWithSpinner";
 import { CounterBadge } from "components/common/CounterBadge";
-import UsedId from "components/pages/database/settings/unusedDatabaseIds/bits/UsedId";
-import UnusedDatabaseIdsAboutView from "components/pages/database/settings/unusedDatabaseIds/bits/UnusedDatabaseIdsAboutView";
+import UsedId from "components/pages/database/settings/unusedDatabaseIds/partials/UsedId";
+import UnusedDatabaseIdsAboutView from "components/pages/database/settings/unusedDatabaseIds/partials/UnusedDatabaseIdsAboutView";
 import { LazyLoad } from "components/common/LazyLoad";
-import UnusedIdsForm from "components/pages/database/settings/unusedDatabaseIds/bits/UnusedIdsForm";
+import UnusedIdsForm from "components/pages/database/settings/unusedDatabaseIds/partials/UnusedIdsForm";
 import { useUnusedDatabaseIds } from "components/pages/database/settings/unusedDatabaseIds/useUnusedDatabaseIds";
-import PotentialUnusedIdList from "components/pages/database/settings/unusedDatabaseIds/bits/PotentialUnusedIdList";
+import PotentialUnusedIdList from "components/pages/database/settings/unusedDatabaseIds/partials/PotentialUnusedIdList";
 import "./UnusedDatabaseIds.scss";
 import RichAlert from "components/common/RichAlert";
 

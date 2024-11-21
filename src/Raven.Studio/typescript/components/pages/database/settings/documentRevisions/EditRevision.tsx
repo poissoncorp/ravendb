@@ -1,8 +1,7 @@
 ﻿import { Icon } from "components/common/Icon";
-import React from "react";
 import { Button, Form, InputGroup, Label, Modal, ModalBody, ModalFooter } from "reactstrap";
 import { FormDurationPicker, FormInput, FormSelectCreatable, FormSwitch } from "components/common/Form";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler, useForm, useWatch } from "react-hook-form";
 import {
     EditDocumentRevisionsCollectionConfig,
     documentRevisionsCollectionConfigYupResolver,
@@ -16,7 +15,6 @@ import {
     documentRevisionsConfigNames,
 } from "./store/documentRevisionsSlice";
 import { documentRevisionsSelectors } from "./store/documentRevisionsSliceSelectors";
-import useEditRevisionFormController from "./useEditRevisionFormController";
 import IconName from "typings/server/icons";
 import { useAppSelector } from "components/store";
 import { SelectOption } from "components/common/select/Select";
@@ -26,6 +24,7 @@ import generalUtils from "common/generalUtils";
 import { licenseSelectors } from "components/common/shell/licenseSlice";
 import moment from "moment";
 import RichAlert from "components/common/RichAlert";
+import useEditRevisionFormSideEffects from "components/pages/database/settings/documentRevisions/useEditRevisionFormSideEffects";
 
 const revisionsDelta = 100;
 const revisionsByAgeDelta = 604800; // 7 days
@@ -61,7 +60,7 @@ export default function EditRevision(props: EditRevisionProps) {
             value: name,
         }));
 
-    const { control, formState, setValue, handleSubmit } = useForm<EditDocumentRevisionsCollectionConfig>({
+    const { control, formState, setValue, handleSubmit, watch } = useForm<EditDocumentRevisionsCollectionConfig>({
         resolver: isForNewCollection
             ? documentRevisionsCollectionConfigYupResolver
             : documentRevisionsConfigYupResolver,
@@ -69,7 +68,9 @@ export default function EditRevision(props: EditRevisionProps) {
         defaultValues: getInitialValues(config, revisionsToKeepLimit),
     });
 
-    const formValues = useEditRevisionFormController(control, setValue);
+    useEditRevisionFormSideEffects(watch, setValue);
+
+    const formValues = useWatch({ control });
     useDirtyFlag(formState.isDirty);
 
     const onSubmit: SubmitHandler<EditDocumentRevisionsCollectionConfig> = (formData) => {

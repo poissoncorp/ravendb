@@ -5,7 +5,6 @@ import { useServices } from "hooks/useServices";
 import { ongoingTasksReducer, ongoingTasksReducerInitializer } from "../ongoingTasks/OngoingTasksReducer";
 import useInterval from "hooks/useInterval";
 import useTimeout from "hooks/useTimeout";
-import clusterTopologyManager from "common/shell/clusterTopologyManager";
 import { OngoingTaskInfo, OngoingTaskPeriodicBackupInfo } from "components/models/tasks";
 import { BaseOngoingTaskPanelProps, taskKey, useOngoingTasksOperations } from "../shared/shared";
 import router from "plugins/router";
@@ -28,6 +27,7 @@ import { useRavenLink } from "components/hooks/useRavenLink";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
 import DatabaseUtils from "components/utils/DatabaseUtils";
 import { accessManagerSelectors } from "components/common/shell/accessManagerSliceSelectors";
+import { clusterSelectors } from "components/common/shell/clusterSlice";
 
 interface manualBackupListModel {
     backupType: Raven.Client.Documents.Operations.Backups.BackupType;
@@ -224,16 +224,19 @@ export function BackupsPage() {
 
     useTimeout(loadMissing, 3_000);
 
-    useEffect(() => {
-        const nodeTag = clusterTopologyManager.default.localNodeTag();
-        const initialLocation = DatabaseUtils.getFirstLocation(db, nodeTag);
+    const localNodeTag = useAppSelector(clusterSelectors.localNodeTag);
+    const initialLocation = DatabaseUtils.getFirstLocation(db, localNodeTag);
 
+    useEffect(() => {
         // noinspection JSIgnoredPromiseFromCall
-        fetchTasks(initialLocation);
+        fetchTasks({
+            nodeTag: initialLocation.nodeTag,
+            shardNumber: initialLocation.shardNumber,
+        });
 
         // noinspection JSIgnoredPromiseFromCall
         fetchManualBackup();
-    }, [fetchManualBackup, fetchTasks, db]);
+    }, [fetchManualBackup, fetchTasks, initialLocation.nodeTag, initialLocation.shardNumber]);
 
     const canNavigateToServerWideTasks = isClusterAdminOrClusterNode;
     const serverWideTasksUrl = appUrl.forServerWideTasks();

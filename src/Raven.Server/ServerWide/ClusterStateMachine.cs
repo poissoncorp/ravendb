@@ -21,6 +21,7 @@ using Raven.Client.Documents.Queries.Sorting;
 using Raven.Client.Exceptions;
 using Raven.Client.Exceptions.Commercial;
 using Raven.Client.Exceptions.Database;
+using Raven.Client.Exceptions.Documents.Indexes;
 using Raven.Client.Exceptions.Documents.Subscriptions;
 using Raven.Client.Exceptions.Security;
 using Raven.Client.Http;
@@ -947,7 +948,8 @@ namespace Raven.Server.ServerWide
                    e is DatabaseDoesNotExistException ||
                    e is AuthorizationException ||
                    e is CompareExchangeKeyTooBigException ||
-                   e is LicenseLimitException;
+                   e is LicenseLimitException ||
+                   e is IndexCreationException;
         }
 
         private void ClusterStateCleanUp(ClusterOperationContext context, BlittableJsonReaderObject cmd, long index)
@@ -2794,6 +2796,7 @@ namespace Raven.Server.ServerWide
                 case nameof(PutDatabaseStudioConfigurationCommand):
                 case nameof(PutElasticSearchConnectionStringCommand):
                 case nameof(PutIndexCommand):
+                case nameof(PutIndexesCommand):
                 case nameof(PutIndexHistoryCommand):
                 case nameof(PutOlapConnectionStringCommand):
                 case nameof(PutQueueConnectionStringCommand):

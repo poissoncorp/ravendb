@@ -34,7 +34,7 @@ export default function ConnectionStringsPanels({ connections, connectionsType }
                             className="rounded-pill"
                             title="Add new credentials"
                             onClick={() =>
-                                dispatch(connectionStringsActions.openAddNewConnectionOfTypeModal(connectionsType))
+                                dispatch(connectionStringsActions.newConnectionOfTypeModalOpened(connectionsType))
                             }
                         >
                             <Icon icon="plus" />

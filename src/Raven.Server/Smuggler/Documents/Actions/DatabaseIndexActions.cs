@@ -39,7 +39,7 @@ public sealed class DatabaseIndexActions : IIndexActions
 
         if (_batch != null)
         {
-            await _batch.AddIndexAsync(indexDefinition, _source, _time.GetUtcNow(), RaftIdGenerator.DontCareId, _configuration.Indexing.HistoryRevisionsNumber);
+            await _batch.AddIndexAsync(indexDefinition, _source, _time.GetUtcNow(), RaftIdGenerator.DontCareId);
             await _batch.SaveIfNeeded();
             return;
         }
@@ -60,7 +60,7 @@ public sealed class DatabaseIndexActions : IIndexActions
 
         if (_batch != null)
         {
-            await _batch.AddIndexAsync(indexDefinition, _source, _time.GetUtcNow(), RaftIdGenerator.DontCareId, _configuration.Indexing.HistoryRevisionsNumber);
+            await _batch.AddIndexAsync(indexDefinition, _source, _time.GetUtcNow(), RaftIdGenerator.DontCareId);
             await _batch.SaveIfNeeded();
             return;
         }

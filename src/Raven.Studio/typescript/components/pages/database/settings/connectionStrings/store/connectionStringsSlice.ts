@@ -61,19 +61,19 @@ export const connectionStringsSlice = createSlice({
         urlParametersLoaded: (state, { payload: urlParameters }: PayloadAction<ConnectionStringsUrlParameters>) => {
             state.urlParameters = urlParameters;
         },
-        openAddNewConnectionModal: (state) => {
+        newConnectionModalOpened: (state) => {
             state.initialEditConnection = { type: null };
         },
-        openAddNewConnectionOfTypeModal: (state, { payload: type }: PayloadAction<StudioEtlType>) => {
+        newConnectionOfTypeModalOpened: (state, { payload: type }: PayloadAction<StudioEtlType>) => {
             state.initialEditConnection = { type };
         },
-        openEditConnectionModal: (state, { payload: connection }: PayloadAction<Connection>) => {
+        editConnectionModalOpened: (state, { payload: connection }: PayloadAction<Connection>) => {
             state.initialEditConnection = connection;
         },
-        closeEditConnectionModal: (state) => {
+        editConnectionModalClosed: (state) => {
             state.initialEditConnection = null;
         },
-        addConnection: (state, { payload: connection }: PayloadAction<Connection>) => {
+        connectionAdded: (state, { payload: connection }: PayloadAction<Connection>) => {
             const newConnection: Connection = {
                 ...connection,
                 usedByTasks: connection.usedByTasks ?? [],
@@ -81,14 +81,14 @@ export const connectionStringsSlice = createSlice({
 
             state.connections[connection.type].push(newConnection);
         },
-        editConnection: (state, { payload }: PayloadAction<{ oldName: string; newConnection: Connection }>) => {
+        connectionEdited: (state, { payload }: PayloadAction<{ oldName: string; newConnection: Connection }>) => {
             const type = payload.newConnection.type;
 
             state.connections[type] = state.connections[type].map((x) =>
                 x.name === payload.oldName ? payload.newConnection : x
             );
         },
-        deleteConnection: (state, { payload }: PayloadAction<Connection>) => {
+        connectionDeleted: (state, { payload }: PayloadAction<Connection>) => {
             state.connections[payload.type] = state.connections[payload.type].filter((x) => x.name !== payload.name);
         },
         reset: () => initialState,

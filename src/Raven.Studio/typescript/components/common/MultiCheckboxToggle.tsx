@@ -1,5 +1,5 @@
 ﻿import React from "react";
-import useId from "hooks/useId";
+import useUniqueId from "components/hooks/useUniqueId";
 import classNames from "classnames";
 import useBoolean from "components/hooks/useBoolean";
 import { InputItem, InputItemLimit } from "components/models/common";
@@ -28,7 +28,7 @@ export function MultiCheckboxToggle<T extends string | number = string>({
     className,
     label,
 }: MultiCheckboxToggleProps<T>) {
-    const uniqueId = useId("multi-checkbox-toggle");
+    const uniqueId = useUniqueId("multi-checkbox-toggle");
 
     const {
         value: selectAllEnabled,

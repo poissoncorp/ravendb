@@ -1,7 +1,7 @@
 ﻿import React, { useCallback } from "react";
 import { Button, Input, Label } from "reactstrap";
 import { UncontrolledButtonWithDropdownPanel } from "components/common/DropdownPanel";
-import useId from "hooks/useId";
+import useUniqueId from "components/hooks/useUniqueId";
 import useBoolean from "hooks/useBoolean";
 import { useServices } from "hooks/useServices";
 import { NodeGroup } from "components/pages/resources/manageDatabaseGroup/partials/NodeGroup";
@@ -49,7 +49,7 @@ export function ManageDatabaseGroupPage() {
         db.isDynamicNodesDistribution
     );
 
-    const settingsUniqueId = useId("settings");
+    const settingsUniqueId = useUniqueId("settings");
 
     const addNewShard = useCallback(() => {
         const addShardView = new addNewShardToDatabaseGroup(db.name);

@@ -62,10 +62,10 @@ export function useDocumentColumnsProvider(props: UseDocumentColumnsProviderProp
 
                 return {
                     header: "@id",
-                    accessorFn: (x) => x,
+                    accessorFn: (x) => x?.getId(),
                     cell: ({ getValue }) => (
                         <CellDocumentValue
-                            value={getValue<document>().getId()}
+                            value={getValue()}
                             databaseName={databaseName}
                             hasHyperlinkForIds={hasHyperlinkForIds}
                         />

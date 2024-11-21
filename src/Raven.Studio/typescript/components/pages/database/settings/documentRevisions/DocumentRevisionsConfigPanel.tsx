@@ -70,7 +70,7 @@ export default function DocumentRevisionsConfigPanel(props: DocumentRevisionsCon
                                 <Checkbox
                                     selected={isSelected}
                                     toggleSelection={() =>
-                                        dispatch(documentRevisionsActions.toggleSelectedConfigName(config.Name))
+                                        dispatch(documentRevisionsActions.selectedConfigNameToggled(config.Name))
                                     }
                                 />
                             </RichPanelSelect>

@@ -1,5 +1,5 @@
 import { Icon } from "components/common/Icon";
-import useId from "components/hooks/useId";
+import useId from "components/hooks/useUniqueId";
 import { UncontrolledPopover } from "reactstrap";
 
 export default function AdminLogsPersistInfoIcon() {

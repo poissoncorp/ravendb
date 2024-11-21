@@ -97,7 +97,7 @@ namespace Raven.Client.Http
                 if (HttpClientFactory.CanCacheHttpClient)
                     _cachedHttpClient = httpClient;
 
-                    return httpClient;
+                return httpClient;
             }
         }
 
@@ -244,7 +244,7 @@ namespace Raven.Client.Http
                 _cachedHttpClient = null;
 
             return removed;
-            }
+        }
 
         private HttpClientCacheKey GetHttpClientCacheKey()
         {
@@ -256,7 +256,7 @@ namespace Raven.Client.Http
             TimeSpan? httpPooledConnectionIdleTimeout = null;
 #endif
 
-            return new HttpClientCacheKey(Certificate, Conventions.UseHttpDecompression, Conventions.HasExplicitlySetDecompressionUsage, httpPooledConnectionLifetime, httpPooledConnectionIdleTimeout, GlobalHttpClientTimeout, Conventions.HttpClientType);
+            return new HttpClientCacheKey(Certificate, Conventions.UseHttpDecompression, Conventions.HasExplicitlySetDecompressionUsage, httpPooledConnectionLifetime, httpPooledConnectionIdleTimeout, GlobalHttpClientTimeout, Conventions.HttpClientType, Conventions.ConfigureHttpMessageHandler);
         }
 
         private static bool ShouldRemoveHttpClient(SocketException exception)

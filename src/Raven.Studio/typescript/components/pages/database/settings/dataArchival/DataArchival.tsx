@@ -14,7 +14,6 @@ import { tryHandleSubmit } from "components/utils/common";
 import messagePublisher from "common/messagePublisher";
 import { LoadingView } from "components/common/LoadingView";
 import { LoadError } from "components/common/LoadError";
-import { todo } from "common/developmentHelper";
 import { AboutViewAnchored, AboutViewHeading, AccordionItemWrapper } from "components/common/AboutView";
 import ButtonWithSpinner from "components/common/ButtonWithSpinner";
 import { FormInput, FormSwitch } from "components/common/Form";
@@ -40,7 +39,7 @@ export default function DataArchival() {
     const asyncGetDataArchivalConfiguration = useAsyncCallback<DataArchivalFormData>(async () =>
         mapToFormData(await databasesService.getDataArchivalConfiguration(databaseName))
     );
-    const { handleSubmit, control, formState, reset, setValue } = useForm<DataArchivalFormData>({
+    const { handleSubmit, control, formState, reset, setValue, watch } = useForm<DataArchivalFormData>({
         resolver: dataArchivalYupResolver,
         mode: "all",
         defaultValues: asyncGetDataArchivalConfiguration.execute,
@@ -60,13 +59,17 @@ export default function DataArchival() {
     });
 
     useEffect(() => {
-        if (!formValues.isArchiveFrequencyEnabled && formValues.archiveFrequency !== null) {
-            setValue("archiveFrequency", null, { shouldValidate: true });
-        }
-        if (!formValues.isDataArchivalEnabled && formValues.isArchiveFrequencyEnabled) {
-            setValue("isArchiveFrequencyEnabled", false, { shouldValidate: true });
-        }
-    }, [formValues.isDataArchivalEnabled, formValues.isArchiveFrequencyEnabled, formValues.archiveFrequency, setValue]);
+        const { unsubscribe } = watch((values, { name }) => {
+            if (name === "isDataArchivalEnabled" && !values.isDataArchivalEnabled) {
+                setValue("isArchiveFrequencyEnabled", false, { shouldValidate: true });
+            }
+            if (name === "isArchiveFrequencyEnabled" && !values.isArchiveFrequencyEnabled) {
+                setValue("archiveFrequency", null, { shouldValidate: true });
+            }
+        });
+
+        return () => unsubscribe();
+    }, [watch, setValue]);
 
     const onSave: SubmitHandler<DataArchivalFormData> = async (formData) => {
         return tryHandleSubmit(async () => {
@@ -93,8 +96,6 @@ export default function DataArchival() {
     if (asyncGetDataArchivalConfiguration.status === "error") {
         return <LoadError error="Unable to load data archival" refresh={asyncGetDataArchivalConfiguration.execute} />;
     }
-
-    todo("Feature", "Damian", "Render you do not have permission to this view");
 
     return (
         <div className="content-margin">

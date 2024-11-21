@@ -44,6 +44,7 @@ export function withBootstrap5(Story: StoryFn) {
     return (
         <React.Fragment key="bs5">
             <div
+                id="page-host"
                 className="bs5"
                 style={{ padding: "30px", minHeight: "100vh", display: "flex", flexDirection: "column" }}
             >

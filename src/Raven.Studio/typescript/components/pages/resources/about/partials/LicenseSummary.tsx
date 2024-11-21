@@ -15,7 +15,7 @@ import { useServices } from "hooks/useServices";
 import forceLicenseUpdateCommand from "commands/licensing/forceLicenseUpdateCommand";
 import licenseModel from "models/auth/licenseModel";
 import useConfirm from "components/common/ConfirmDialog";
-import useId from "hooks/useId";
+import useUniqueId from "components/hooks/useUniqueId";
 import { accessManagerSelectors } from "components/common/shell/accessManagerSliceSelectors";
 
 interface LicenseSummaryProps {
@@ -95,7 +95,7 @@ function ConnectivityStatusComponent(props: {
     refresh: () => void;
 }) {
     const { status, refresh, refreshing } = props;
-    const uniqueId = useId("licenseConnectivityException");
+    const uniqueId = useUniqueId("licenseConnectivityException");
 
     if (status.loading) {
         return (

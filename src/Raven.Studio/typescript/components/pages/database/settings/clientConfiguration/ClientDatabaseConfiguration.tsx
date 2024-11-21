@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from "react";
 import { Form, Col, Button, Row, Spinner, Input, InputGroup, UncontrolledPopover, Card } from "reactstrap";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler, useForm, useWatch } from "react-hook-form";
 import { FormCheckbox, FormInput, FormRadioToggleWithIcon, FormSelect, FormSwitch } from "components/common/Form";
 import { useServices } from "components/hooks/useServices";
 import { useAsync, useAsyncCallback } from "react-async-hook";
@@ -13,7 +13,7 @@ import {
 import { Icon } from "components/common/Icon";
 import appUrl = require("common/appUrl");
 import ClientConfigurationUtils from "components/common/clientConfiguration/ClientConfigurationUtils";
-import useClientConfigurationFormController from "components/common/clientConfiguration/useClientConfigurationFormController";
+import useClientConfigurationFormSideEffects from "components/common/clientConfiguration/useClientConfigurationFormSideEffects";
 import { tryHandleSubmit } from "components/utils/common";
 import classNames from "classnames";
 import { RadioToggleWithIconInputItem } from "components/common/RadioToggle";
@@ -38,7 +38,7 @@ export default function ClientDatabaseConfiguration() {
 
     const isClusterAdminOrClusterNode = useAppSelector(accessManagerSelectors.isClusterAdminOrClusterNode);
 
-    const { handleSubmit, control, formState, setValue, reset } = useForm<ClientConfigurationFormData>({
+    const { handleSubmit, control, formState, watch, reset, setValue } = useForm<ClientConfigurationFormData>({
         resolver: clientConfigurationYupResolver,
         mode: "all",
         defaultValues: async () =>
@@ -70,12 +70,13 @@ export default function ClientDatabaseConfiguration() {
         return ClientConfigurationUtils.mapToFormData(globalConfigResult, true);
     }, [asyncGetClientGlobalConfiguration.result]);
 
-    const formValues = useClientConfigurationFormController(
-        control,
-        setValue,
+    const formValues = useWatch({ control: control });
+
+    const isShouldOverride =
         (asyncGetClientGlobalConfiguration.status === "success" && !globalConfig) ||
-            asyncGetClientGlobalConfiguration.status === "error"
-    );
+        asyncGetClientGlobalConfiguration.status === "error";
+
+    useClientConfigurationFormSideEffects(watch, setValue, isShouldOverride);
 
     useEffect(() => {
         if (formState.isSubmitSuccessful) {

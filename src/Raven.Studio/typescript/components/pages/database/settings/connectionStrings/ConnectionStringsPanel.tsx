@@ -17,7 +17,7 @@ import { useServices } from "components/hooks/useServices";
 import { connectionStringsActions } from "./store/connectionStringsSlice";
 import { useDispatch } from "react-redux";
 import useConfirm from "components/common/ConfirmDialog";
-import useId from "components/hooks/useId";
+import useUniqueId from "components/hooks/useUniqueId";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
 
 interface ConnectionStringsPanelProps {
@@ -31,7 +31,7 @@ export default function ConnectionStringsPanel(props: ConnectionStringsPanelProp
     const dispatch = useDispatch();
     const { tasksService } = useServices();
 
-    const deleteButtonId = useId("delete");
+    const deleteButtonId = useUniqueId("delete");
     const isDeleteDisabled = connection.usedByTasks?.length > 0;
 
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
@@ -39,7 +39,7 @@ export default function ConnectionStringsPanel(props: ConnectionStringsPanelProp
 
     const asyncDelete = useAsyncCallback(async () => {
         await tasksService.deleteConnectionString(databaseName, getDtoEtlType(connection.type), connection.name);
-        dispatch(connectionStringsActions.deleteConnection(connection));
+        dispatch(connectionStringsActions.connectionDeleted(connection));
     });
 
     const onDelete = async () => {
@@ -71,7 +71,7 @@ export default function ConnectionStringsPanel(props: ConnectionStringsPanelProp
                             <Button
                                 color="secondary"
                                 title="Edit connection string"
-                                onClick={() => dispatch(connectionStringsActions.openEditConnectionModal(connection))}
+                                onClick={() => dispatch(connectionStringsActions.editConnectionModalOpened(connection))}
                             >
                                 <Icon icon="edit" margin="m-0" />
                             </Button>

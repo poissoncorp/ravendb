@@ -8,6 +8,13 @@
     }
 }
 
+@gc-info-gen0: @color-1;
+@gc-info-gen1: @color-4;
+@gc-info-gen2: @color-2-3;
+@gc-info-loh: @color-2;
+@gc-info-pinned: @color-4-3;
+
+
 .cluster-dashboard-container {
     width: 100%;
     padding-bottom: @gutter;
@@ -388,7 +395,81 @@
                                 margin: 0 @gutter-xs/2;
                                 order: 1;
                                 min-width: 65px;
-                                transition: .2s color;
+                            }
+
+                            .rect {
+                                display: inline-block;
+                                width: 15px;
+                                height: 15px;
+                                margin-left: 3px;
+                            }
+                            &.gen-0 {
+                                .details-item-value {
+                                    color: @gc-info-gen0;
+                                }
+                                .rect {
+                                    background-color: @gc-info-gen0;
+                                }
+                            }
+                            &.gen-1 {
+                                .details-item-value {
+                                    color: @gc-info-gen1;
+                                }
+                                .rect {
+                                    background-color: @gc-info-gen1;
+                                }
+                            }
+                            &.gen-2 {
+                                .details-item-value {
+                                    color: @gc-info-gen2;
+                                }
+                                .rect {
+                                    background-color: @gc-info-gen2;
+                                }
+                            }
+                            &.loh {
+                                .details-item-value {
+                                    color: @gc-info-loh;
+                                }
+                                .rect {
+                                    background-color: @gc-info-loh;
+                                }
+                            }
+                            &.pinned {
+                                .details-item-value {
+                                    color: @gc-info-pinned;
+                                }
+                                .rect {
+                                    background-color: @gc-info-pinned;
+                                }
+                            }
+                        }
+                    }
+                    
+                    &.no-data {
+                        .gen-0 {
+                            .details-item-value {
+                                color: @text-muted !important;
+                            }
+                        }
+                        .gen-1 {
+                            .details-item-value {
+                                color: @text-muted !important;
+                            }
+                        }
+                        .gen-2 {
+                            .details-item-value {
+                                color: @text-muted !important;
+                            }
+                        }
+                        .loh {
+                            .details-item-value {
+                                color: @text-muted !important;
+                            }
+                        }
+                        .pinned {
+                            .details-item-value {
+                                color: @text-muted !important;
                             }
                         }
                     }
@@ -511,25 +592,97 @@
             .graph-container {
                 height: 100px;
                 overflow: hidden;
+                
 
                 .grid-line {
                     stroke: @hr-border;
                     stroke-width: 1px;
                 }
 
-                .line {
+                .line, .dashes {
                     fill: none;
                     stroke-width: 2;
                     stroke: var(--node-color);
                 }
 
                 .fill {
-                    fill-opacity: 0.3;
+                    fill-opacity: 0.2;
+                    fill: var(--node-color);
                     stroke: none;
+                }
+                
+                &.gc-size-line-chart {
+                    .line {
+                        stroke-width: 4;
+                    }
+                    .serie {
+                        .dashes {
+                            stroke-dasharray: 4 4;
+                            stroke-width: 1;
+                            fill: none;
+                        }
+                    }
+                    
+                    .fill {
+                        fill-opacity: 0.1;
+                    }
+                    .gc-info-gen0 {
+                        .line, .dashes {
+                            stroke: @gc-info-gen0;
+                        }
+                        .fill, .gc-event {
+                            fill: @gc-info-gen0;
+                        }
+                    }
+                    .gc-info-gen1 {
+                        .line, .dashes {
+                            stroke: @gc-info-gen1;
+                        }
+                        .fill, .gc-event {
+                            fill: @gc-info-gen1;
+                        }
+                    }
+                    .gc-info-gen2 {
+                        .line, .dashes {
+                            stroke: @gc-info-gen2;    
+                        }
+                        .fill, .gc-event {
+                            fill: @gc-info-gen2;
+                        }
+                    }
+                    .gc-info-pinned {
+                        .line, .dashes {
+                            stroke: @gc-info-pinned;
+                        }
+                        .fill, .gc-event {
+                            fill: @gc-info-pinned;
+                        }
+                    }
+                    .gc-info-loh {
+                        .line, .dashes {
+                            stroke: @gc-info-loh;
+                        }
+                        .fill, .gc-event {
+                            fill: @gc-info-loh;
+                        }
+                    }
                 }
 
                 &.graph-container-sm {
                     height: 70px;
+                }
+            }
+            
+            .gc-pause-bubble-chart {
+                .point {
+                    fill: var(--node-color);
+                    fill-opacity: 0.7;
+                    text {
+                        text-anchor: middle;
+                        pointer-events: none;
+                        font-size: 12px;
+                        fill: white;
+                    }
                 }
             }
         }
@@ -556,14 +709,18 @@
                     flex-shrink: 0;
                     transform: scale(.9);
                 }
-
-                .node-value {
-                    flex-grow: 0 !important;
-                }
             }
 
             .details-list {
                 display: none;
+            }
+        }
+
+        &.property-fixed {
+            .nodes-container {
+                .nodes-item {
+                    transform: scale(0.9);
+                }
             }
         }
     }
@@ -929,6 +1086,17 @@
 
 @btn-default-dimension: 36px;
 
+.gc-info-widget {
+    .pin-container {
+        transition: opacity 0.5s cubic-bezier(0.4, 1.6, 0.6, 1);
+        opacity: 0;
+        
+        &.active {
+            opacity: 1;
+        }
+    }
+}
+
 .add-widget {
     position: fixed;
     bottom: 31px + 36px + @gutter-sm + @gutter-sm; // height of the footer + help icon + 2*gutter-sm
@@ -1028,7 +1196,7 @@
         .connection-outgoing, .connection-incoming {
             .connection {
                 stroke: @brand-danger !important;  
-                stroke-dasharray: 8px !important;
+                stroke-dasharray: 4px 2px !important;
             }
 
             .arrow {

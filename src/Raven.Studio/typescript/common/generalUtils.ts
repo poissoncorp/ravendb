@@ -187,7 +187,7 @@ class genUtils {
             return duration; 
         }
         
-        return `${futureTime ? "in" : ""} ${duration} ${!futureTime ? "ago" : ""}`;
+        return `${futureTime ? "in " : ""}${duration}${!futureTime ? " ago" : ""}`;
     }
 
     static formatMillis(input: number) {

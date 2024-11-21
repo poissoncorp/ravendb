@@ -68,11 +68,11 @@ export const conflictResolutionSlice = createSlice({
     name: "conflictResolution",
     initialState,
     reducers: {
-        toggleIsResolveToLatest: (state) => {
+        isResolveToLatestToggled: (state) => {
             state.config.isResolveToLatest = !state.config.isResolveToLatest;
             state.isDirty = true;
         },
-        add: (state) => {
+        added: (state) => {
             collectionConfigsAdapter.addOne(state.config.collectionConfigs, {
                 id: _.uniqueId(),
                 name: "",
@@ -83,7 +83,7 @@ export const conflictResolutionSlice = createSlice({
                 isEdited: false,
             });
         },
-        edit: (state, { payload: id }: { payload: string }) => {
+        edited: (state, { payload: id }: { payload: string }) => {
             collectionConfigsAdapter.updateOne(state.config.collectionConfigs, {
                 id,
                 changes: {
@@ -91,7 +91,7 @@ export const conflictResolutionSlice = createSlice({
                 },
             });
         },
-        discardEdit: (state, { payload: id }: { payload: string }) => {
+        editDiscarded: (state, { payload: id }: { payload: string }) => {
             const collection = collectionConfigsSelectors.selectById(state.config.collectionConfigs, id);
 
             if (collection.isNewUnsaved) {
@@ -105,7 +105,7 @@ export const conflictResolutionSlice = createSlice({
                 });
             }
         },
-        saveEdit: (
+        editSaved: (
             state,
             {
                 payload,
@@ -131,7 +131,7 @@ export const conflictResolutionSlice = createSlice({
             setAll(state, action.payload);
             state.isDirty = false;
         },
-        delete: (state, { payload: id }: { payload: string }) => {
+        deleted: (state, { payload: id }: { payload: string }) => {
             collectionConfigsAdapter.removeOne(state.config.collectionConfigs, id);
             state.isDirty = true;
         },

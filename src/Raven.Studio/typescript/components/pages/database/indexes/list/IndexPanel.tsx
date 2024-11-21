@@ -35,7 +35,7 @@ import {
     UncontrolledTooltip,
 } from "reactstrap";
 import assertUnreachable from "components/utils/assertUnreachable";
-import useId from "hooks/useId";
+import useUniqueId from "components/hooks/useUniqueId";
 import useBoolean from "hooks/useBoolean";
 import { Icon } from "components/common/Icon";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
@@ -188,7 +188,7 @@ export function IndexPanelInternal(props: IndexPanelProps, ref: ForwardedRef<HTM
     const priorityButtonColor = getPriorityColor(index);
     const lockButtonColor = getLockColor(index);
 
-    const reduceOutputId = useId("reduce-output-id");
+    const reduceOutputId = useUniqueId("reduce-output-id");
 
     return (
         <>
