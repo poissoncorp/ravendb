@@ -37,8 +37,8 @@ export function MultiRadioToggle<T extends string | number = string>({
                         <label htmlFor={uniqueId + inputItem.value}>
                             <span>
                                 {inputItem.label}
-                                {inputItem.count >= 0 && (
-                                    <span className="multi-toggle-item-count">{inputItem.count}</span>
+                                {inputItem.count != null && (
+                                    <span className="multi-toggle-item-count">{inputItem.count.toLocaleString()}</span>
                                 )}
                             </span>
                         </label>

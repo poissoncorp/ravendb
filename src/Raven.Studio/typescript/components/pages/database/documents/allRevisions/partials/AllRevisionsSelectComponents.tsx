@@ -13,7 +13,7 @@ export function OptionWithCount(props: OptionProps<SelectOptionWithCount>) {
         <div className="cursor-pointer">
             <components.Option {...props}>
                 {data.label}
-                {data.count != null && <Badge className="ms-1">{data.count}</Badge>}
+                {data.count != null && <Badge className="ms-1">{data.count.toLocaleString()}</Badge>}
             </components.Option>
         </div>
     );
@@ -25,7 +25,7 @@ export function SingleValueWithCount({ children, ...props }: SingleValueProps<Se
     return (
         <components.SingleValue {...props}>
             {children}
-            {data.count != null && <Badge className="ms-1">{data.count}</Badge>}
+            {data.count != null && <Badge className="ms-1">{data.count.toLocaleString()}</Badge>}
         </components.SingleValue>
     );
 }

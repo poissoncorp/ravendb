@@ -1,6 +1,5 @@
 import SizeGetter from "components/common/SizeGetter";
 import { Label } from "reactstrap";
-import Select from "components/common/select/Select";
 import RichAlert from "components/common/RichAlert";
 import SelectCreatable from "components/common/select/SelectCreatable";
 import AllRevisionsWithSize from "components/pages/database/documents/allRevisions/partials/AllRevisionsWithSize";
@@ -21,6 +20,7 @@ import { useAppSelector } from "components/store";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
 import messagePublisher from "common/messagePublisher";
 import { AllRevisionsFetcherRef } from "components/pages/database/documents/allRevisions/common/allRevisionsTypes";
+import { MultiRadioToggle } from "components/common/MultiRadioToggle";
 
 type RevisionType = Raven.Server.Documents.Revisions.RevisionsStorage.RevisionType;
 
@@ -82,17 +82,15 @@ export default function AllRevisions() {
                         </ButtonWithSpinner>
                     </div>
                 </div>
-                <div style={{ minWidth: 150 }}>
+                <div>
                     <Label className="small-label">Type</Label>
-                    <Select
-                        options={type.options}
-                        isLoading={type.isLoading}
-                        value={type.options.find((x) => x.value === type.value)}
-                        onChange={(x: SelectOptionWithCount<RevisionType>) => type.setValue(x.value)}
-                        components={{ Option: OptionWithCount, SingleValue: SingleValueWithCount }}
+                    <MultiRadioToggle<RevisionType>
+                        inputItems={type.options}
+                        selectedItem={type.value}
+                        setSelectedItem={type.setValue}
                     />
                 </div>
-                <div style={{ minWidth: 150 }}>
+                <div>
                     <Label className="small-label">Collection</Label>
                     <SelectCreatable
                         options={collection.options}

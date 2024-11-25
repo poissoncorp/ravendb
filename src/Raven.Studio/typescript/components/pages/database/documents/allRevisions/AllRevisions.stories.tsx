@@ -13,6 +13,7 @@ export const AllRevisionsStory: StoryObj = {
     name: "All Revisions",
     render: () => {
         mockStore.databases.withActiveDatabase();
+        mockStore.collectionsTracker.with_Collections();
         mockServices.databasesService.withRevisionsPreview();
 
         return (

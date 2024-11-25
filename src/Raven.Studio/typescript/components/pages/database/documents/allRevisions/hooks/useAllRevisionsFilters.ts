@@ -2,6 +2,7 @@ import { SelectOption } from "components/common/select/Select";
 import { collectionsTrackerSelectors } from "components/common/shell/collectionsTrackerSlice";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
 import { useServices } from "components/hooks/useServices";
+import { InputItem } from "components/models/common";
 import { SelectOptionWithCount } from "components/pages/database/documents/allRevisions/partials/AllRevisionsSelectComponents";
 import { useAppSelector } from "components/store";
 import { exhaustiveStringTuple } from "components/utils/common";
@@ -19,12 +20,19 @@ export default function useAllRevisionsFilters() {
     const [selectedType, setSelectedType] = useState<RevisionType>("All");
     const [selectedCollectionName, setSelectedCollectionName] = useState("");
 
+    const [persistedTypeOptions, setPersistedTypeOptions] = useState<InputItem<RevisionType>[]>(
+        allRevisionTypes.map((type) => ({
+            value: type,
+            label: type,
+        }))
+    );
+
     const asyncGetTypeOptions = useAsyncDebounce(
         async (selectedCollectionName: string) => {
-            const options: SelectOptionWithCount<RevisionType>[] = [];
+            const options: InputItem<RevisionType>[] = [];
 
-            for (const type of exhaustiveStringTuple<RevisionType>()("All", "Regular", "Deleted")) {
-                const baseOption: SelectOption<RevisionType> = { value: type, label: type };
+            for (const type of allRevisionTypes) {
+                const baseOption: InputItem<RevisionType> = { value: type, label: type };
 
                 if (!selectedCollectionName) {
                     const previewResult = await databasesService.getRevisionsPreview({
@@ -43,9 +51,22 @@ export default function useAllRevisionsFilters() {
 
             return options;
         },
-        [selectedCollectionName]
+        [selectedCollectionName],
+        500,
+        {
+            onSuccess: (options) => {
+                setPersistedTypeOptions(options);
+            },
+        }
     );
-    const typeOptions = asyncGetTypeOptions.result ?? [];
+
+    const [persistedCollectionOptions, setPersistedCollectionOptions] = useState<SelectOptionWithCount[]>(
+        allCollectionNames.map((collectionName) => ({
+            value: collectionName,
+            label: collectionName,
+            count: null,
+        }))
+    );
 
     const asyncGetCollectionOptions = useAsyncDebounce(
         async (selectedType: RevisionType) => {
@@ -71,22 +92,29 @@ export default function useAllRevisionsFilters() {
 
             return options;
         },
-        [selectedType]
+        [selectedType],
+        500,
+        {
+            onSuccess: (options) => {
+                setPersistedCollectionOptions(options);
+            },
+        }
     );
-    const collectionOptions = asyncGetCollectionOptions.result ?? [];
 
     return {
         type: {
-            options: typeOptions,
+            options: persistedTypeOptions,
             isLoading: asyncGetTypeOptions.loading,
             value: selectedType,
             setValue: setSelectedType,
         },
         collection: {
-            options: collectionOptions,
+            options: persistedCollectionOptions,
             isLoading: asyncGetCollectionOptions.loading,
             value: selectedCollectionName,
             setValue: setSelectedCollectionName,
         },
     };
 }
+
+const allRevisionTypes = exhaustiveStringTuple<RevisionType>()("All", "Regular", "Deleted");
