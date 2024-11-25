@@ -46,6 +46,7 @@ export default function AllRevisionsTableSharded({
     const table = useReactTable({
         defaultColumn: {
             enableSorting: false,
+            enableColumnFilter: false,
         },
         state: {
             rowSelection,

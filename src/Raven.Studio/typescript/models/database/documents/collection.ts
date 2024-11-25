@@ -7,7 +7,6 @@ class collection {
     static readonly hiloCollectionName = "@hilo";
 
     documentCount: KnockoutObservable<number> = ko.observable(0);
-    revisionsCount: KnockoutObservable<number> = ko.observable(0); // TODO kalczur
     lastDocumentChangeVector = ko.observable<string>();
     name: string;
     sizeClass: KnockoutComputed<string>;

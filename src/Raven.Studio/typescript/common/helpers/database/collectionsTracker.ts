@@ -4,6 +4,7 @@ import database = require("models/resources/database");
 import getCollectionsStatsCommand = require("commands/database/documents/getCollectionsStatsCommand");
 import collectionsStats = require("models/database/documents/collectionsStats");
 import generalUtils = require("common/generalUtils");
+import getRevisionsPreviewCommand from "commands/database/documents/getRevisionsPreviewCommand";
 
 class collectionsTracker {
 
@@ -38,9 +39,16 @@ class collectionsTracker {
         return this.loadStatsTask;
     }
 
-    configureRevisions(db: database) {
+    async configureRevisions(db: database) {
         if (db.hasRevisionsConfiguration()) {
-            this.allRevisions(new collection(collection.allRevisionsCollectionName));
+            const revisionsPreview = await new getRevisionsPreviewCommand({
+                databaseName: db.name,
+                start: 0,
+                pageSize: 0,
+                type: "All",
+            }).execute();
+
+            this.allRevisions(new collection(collection.allRevisionsCollectionName, revisionsPreview.totalResultCount));
         } else {
             this.allRevisions(null);
         }
@@ -50,7 +58,6 @@ class collectionsTracker {
         const collections = collectionsStats.collections.filter(x => x.documentCount());
         
         collections.sort((a, b) => this.sortAlphaNumericCollection(a.name, b.name));
-
         const allDocsCollection = collection.createAllDocumentsCollection(collectionsStats.numberOfDocuments());
         this.collections([allDocsCollection].concat(collections));
 
@@ -80,6 +87,8 @@ class collectionsTracker {
         // update all collections
         const allDocs = this.collections().find(x => x.isAllDocuments);
         allDocs.documentCount(totalCount);
+        
+        this.allRevisions().documentCount(notification.CountOfRevisions);
 
         removedCollections.forEach(c => {
             const toRemove = this.collections().find(x => x.name.toLocaleLowerCase() === c.Name.toLocaleLowerCase());

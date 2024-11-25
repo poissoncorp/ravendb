@@ -21,11 +21,12 @@ import { databaseSelectors } from "components/common/shell/databaseSliceSelector
 import messagePublisher from "common/messagePublisher";
 import { AllRevisionsFetcherRef } from "components/pages/database/documents/allRevisions/common/allRevisionsTypes";
 import { MultiRadioToggle } from "components/common/MultiRadioToggle";
+import collectionsTracker from "common/helpers/database/collectionsTracker";
 
 type RevisionType = Raven.Server.Documents.Revisions.RevisionsStorage.RevisionType;
 
 export default function AllRevisions() {
-    const { type, collection } = useAllRevisionsFilters();
+    const { type, collection, reload: reloadOptions } = useAllRevisionsFilters();
     const [selectedRows, setSelectedRows] = useState<RevisionsPreviewResultItem[]>([]);
 
     const fetcherRef = useRef<AllRevisionsFetcherRef>(null);
@@ -44,7 +45,15 @@ export default function AllRevisions() {
                 RemoveForceCreatedRevisions: false,
             });
         }
+
         messagePublisher.reportSuccess(`Successfully removed ${selectedRows.length} revisions`);
+        await reloadOptions();
+
+        collectionsTracker.default
+            .getAllRevisionsCollection()
+            .documentCount(
+                collectionsTracker.default.getAllRevisionsCollection().documentCount() - selectedRows.length
+            );
     });
 
     const handleRemoveConfirmation = async () => {

@@ -51,6 +51,7 @@ export default function AllRevisionsTableSmallSample({
     const table = useReactTable({
         defaultColumn: {
             enableSorting: false,
+            enableColumnFilter: false,
         },
         state: {
             rowSelection,

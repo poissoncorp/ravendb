@@ -6,7 +6,7 @@ import { InputItem } from "components/models/common";
 import { SelectOptionWithCount } from "components/pages/database/documents/allRevisions/partials/AllRevisionsSelectComponents";
 import { useAppSelector } from "components/store";
 import { exhaustiveStringTuple } from "components/utils/common";
-import { useAsyncDebounce } from "components/utils/hooks/useAsyncDebounce";
+import { useAsyncDebounce } from "components/hooks/useAsyncDebounce";
 import { useState } from "react";
 
 type RevisionType = Raven.Server.Documents.Revisions.RevisionsStorage.RevisionType;
@@ -113,6 +113,10 @@ export default function useAllRevisionsFilters() {
             isLoading: asyncGetCollectionOptions.loading,
             value: selectedCollectionName,
             setValue: setSelectedCollectionName,
+        },
+        reload: async () => {
+            await asyncGetTypeOptions.execute(selectedCollectionName);
+            await asyncGetCollectionOptions.execute(selectedType);
         },
     };
 }
