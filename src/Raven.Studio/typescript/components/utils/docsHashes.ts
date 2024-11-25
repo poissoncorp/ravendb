@@ -2,7 +2,6 @@ import { StringWithAutocomplete } from "components/utils/common";
 
 export const docsHashes: Record<string, StringWithAutocomplete<"MISSING_DOCS">> = {
     "databases/documents": "H6XJDZ",
-    "databases/documents/revisions/bin": "T4Y76K",
     "databases/patch(/:recentPatchHash)": "VXSYQ7",
     "databases/query/index(/:indexNameOrRecentQueryIndex)": "83ETX5",
     "databases/edit": "XZZG2L",

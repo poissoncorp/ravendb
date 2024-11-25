@@ -3,7 +3,7 @@ import { RootState } from "components/store";
 
 const collectionNames = {
     allDocuments: "All Documents",
-    revisionsBin: "Revisions Bin",
+    allRevisions: "All Revisions",
     hilo: "@hilo",
     empty: "@empty",
 } as const;

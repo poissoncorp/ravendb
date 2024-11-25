@@ -33,15 +33,6 @@ function getDocumentsMenuItem(appUrls: computedAppUrls) {
                 alternativeTitles: ["Revisions"]
             }
         }),
-        new leafMenuItem({
-            route: "databases/documents/revisions/bin",
-            moduleId: require("viewmodels/database/documents/revisionsBin"),
-            shardingMode: "allShards",
-            title: "Revisions Bin",
-            nav: false,
-            css: "icon-revisions-bin",
-            dynamicHash: appUrls.revisionsBin,
-        }),
         new collectionMenuItem(),
         new leafMenuItem({
             route: "databases/patch(/:recentPatchHash)",

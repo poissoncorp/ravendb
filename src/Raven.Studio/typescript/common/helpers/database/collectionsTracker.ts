@@ -13,7 +13,6 @@ class collectionsTracker {
 
     collections = ko.observableArray<collection>();
 
-    revisionsBin = ko.observable<collection>();
     allRevisions = ko.observable<collection>();
 
     conflictsCount = ko.observable<number>();
@@ -41,10 +40,8 @@ class collectionsTracker {
 
     configureRevisions(db: database) {
         if (db.hasRevisionsConfiguration()) {
-            this.revisionsBin(new collection(collection.revisionsBinCollectionName));
             this.allRevisions(new collection(collection.allRevisionsCollectionName));
         } else {
-            this.revisionsBin(null);
             this.allRevisions(null);
         }
     }
@@ -109,10 +106,6 @@ class collectionsTracker {
         return this.collections()
             .filter(x => !x.isAllDocuments)
             .map(x => x.name);
-    }
-
-    getRevisionsBinCollection() {
-        return this.revisionsBin();
     }
 
     getAllRevisionsCollection() {

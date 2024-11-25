@@ -529,10 +529,6 @@ class shell extends viewModelBase {
         return appUrl.forDocuments(coll.name, this.activeDatabase());
     }
 
-    urlForRevisionsBin() {
-        return appUrl.forRevisionsBin(this.activeDatabase());
-    }
-
     urlForAllRevisions() {
         return appUrl.forAllRevisions(this.activeDatabase());
     }

@@ -389,6 +389,7 @@ namespace TypingsGenerator
             scripter.AddType(typeof(EnforceRevisionsConfigurationOperation.Parameters));
             scripter.AddType(typeof(EnforceConfigurationResult));
             scripter.AddType(typeof(GetRevisionsCountOperation.DocumentRevisionsCount));
+            scripter.AddType(typeof(RevisionsStorage.RevisionType));
 
             // cluster dashboard
             scripter.AddType(typeof(WidgetRequest));

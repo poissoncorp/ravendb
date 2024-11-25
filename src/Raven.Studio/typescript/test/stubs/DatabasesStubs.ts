@@ -968,6 +968,7 @@ return docs[0];`,
             items: [
                 {
                     ChangeVector: "A:2568-F9I6Egqwm0Kz+K0oFVIR9Q",
+                    Collection: "Docs",
                     Id: "doc/1-A",
                     Etag: "2568",
                     Flags: "HasRevisions",
@@ -976,6 +977,7 @@ return docs[0];`,
                 },
                 {
                     ChangeVector: "A:2569-F9I6Egqwm0Kz+K0oFVIR9Q",
+                    Collection: "Docs",
                     Id: "doc/2-A",
                     Etag: "2569",
                     Flags: "HasRevisions",

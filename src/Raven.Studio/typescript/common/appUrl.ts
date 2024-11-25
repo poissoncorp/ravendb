@@ -31,7 +31,6 @@ class appUrl {
         studioConfiguration: ko.pureComputed(() => appUrl.forStudioConfiguration(appUrl.currentDatabase())),
         documents: ko.pureComputed(() => appUrl.forDocuments(null, appUrl.currentDatabase())),
         allRevisions: ko.pureComputed(() => appUrl.forAllRevisions(appUrl.currentDatabase())),
-        revisionsBin: ko.pureComputed(() => appUrl.forRevisionsBin(appUrl.currentDatabase())),
         conflicts: ko.pureComputed(() => appUrl.forConflicts(appUrl.currentDatabase())),
         identities: ko.pureComputed(() => appUrl.forIdentities(appUrl.currentDatabase())),
         cmpXchg: ko.pureComputed(() => appUrl.forCmpXchg(appUrl.currentDatabase())),
@@ -285,7 +284,7 @@ class appUrl {
         return "#databases/ts/edit?" + databaseUrlPart + docIdUrlPart + tsNameUrlPart;
     }
 
-    static forViewDocumentAtRevision(id: string, revisionChangeVector: string, db: database): string {
+    static forViewDocumentAtRevision(id: string, revisionChangeVector: string, db: database | string): string {
         const databaseUrlPart = appUrl.getEncodedDbPart(db);
         const revisionPart = "&revision=" + encodeURIComponent(revisionChangeVector);
         const docIdUrlPart = "&id=" + encodeURIComponent(id);
@@ -455,11 +454,6 @@ class appUrl {
     static forAllRevisions(db: database): string {
         const databasePart = appUrl.getEncodedDbPart(db);
         return "#databases/documents/revisions/all?" + databasePart;
-    }
-
-    static forRevisionsBin(db: database): string {
-        const databasePart = appUrl.getEncodedDbPart(db);
-        return "#databases/documents/revisions/bin?" + databasePart;
     }
 
     static forDocumentsByDatabaseName(collection: string, dbName: string): string {

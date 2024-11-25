@@ -18,9 +18,6 @@ class collectionMenuItem implements menuItem {
             }
             
             if (item instanceof leafMenuItem) {
-                if (item.route === "databases/documents/revisions/bin" && coll.isRevisionsBin) {
-                    return true;
-                }
                 if (item.route === "databases/documents/revisions/all" && coll.isAllRevisions) {
                     return true;
                 }

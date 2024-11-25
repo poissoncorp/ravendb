@@ -4,10 +4,10 @@ import { Collection } from "components/common/shell/collectionsTrackerSlice";
 class collection {
     static readonly allDocumentsCollectionName = "All Documents";
     static readonly allRevisionsCollectionName = "All Revisions";
-    static readonly revisionsBinCollectionName = "Revisions Bin";
     static readonly hiloCollectionName = "@hilo";
 
     documentCount: KnockoutObservable<number> = ko.observable(0);
+    revisionsCount: KnockoutObservable<number> = ko.observable(0); // TODO kalczur
     lastDocumentChangeVector = ko.observable<string>();
     name: string;
     sizeClass: KnockoutComputed<string>;
@@ -45,10 +45,6 @@ class collection {
 
     get isAllRevisions() {
         return this.name === collection.allRevisionsCollectionName;
-    }
-    
-    get isRevisionsBin() {
-        return this.name === collection.revisionsBinCollectionName;
     }
 
     get collectionNameForQuery() {

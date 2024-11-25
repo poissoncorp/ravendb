@@ -11,38 +11,47 @@ export interface RevisionsPreviewResultItem {
     ShardNumber: number;
 }
 
-export default class getRevisionsPreviewCommand extends commandBase {
-    private readonly databaseName: string;
-    private readonly start: number;
-    private readonly pageSize: number;
-    private readonly continuationToken?: string;
+interface Options {
+    databaseName: string;
+    start: number;
+    pageSize: number;
+    continuationToken?: string;
+    type?: Raven.Server.Documents.Revisions.RevisionsStorage.RevisionType;
+    collection?: string;
+}
 
-    constructor(databaseName: string, start: number, pageSize: number, continuationToken?: string) {
+export default class getRevisionsPreviewCommand extends commandBase {
+    private readonly options: Options;
+
+    constructor(options: Options) {
         super();
-        this.databaseName = databaseName;
-        this.start = start;
-        this.pageSize = pageSize;
-        this.continuationToken = continuationToken;
+        this.options = options;
     }
 
     execute(): JQueryPromise<pagedResultWithToken<RevisionsPreviewResultItem>> {
         const url = endpoints.databases.studioCollections.studioRevisionsPreview + this.urlEncodeArgs(this.getArgsToUse());
 
-        return this.query(url, null, this.databaseName, this.resultsSelector).fail((response: JQueryXHR) => {
+        return this.query(url, null, this.options.databaseName, this.resultsSelector).fail((response: JQueryXHR) => {
             this.reportError("Failed to get revisions preview", response.responseText, response.statusText);
         });
     }
 
     private getArgsToUse() {
-        if (this.continuationToken) {
+        const { start, pageSize, continuationToken, type, collection } = this.options;
+        
+        if (continuationToken) {
             return {
-                continuationToken: this.continuationToken
+                continuationToken,
+                type,
+                collection
             };
         }
 
         return {
-            start: this.start,
-            pageSize: this.pageSize
+            start,
+            pageSize,
+            type,
+            collection
         };
     }
 

@@ -64,6 +64,7 @@ import saveCustomAnalyzerCommand from "commands/database/settings/saveCustomAnal
 import getDocumentsPreviewCommand = require("commands/database/documents/getDocumentsPreviewCommand");
 import getDocumentsMetadataByIDPrefixCommand = require("commands/database/documents/getDocumentsMetadataByIDPrefixCommand");
 import getRevisionsPreviewCommand from "commands/database/documents/getRevisionsPreviewCommand";
+import deleteRevisionsForDocumentsCommand = require("commands/database/documents/deleteRevisionsForDocumentsCommand");
 
 export default class DatabasesService {
     async setLockMode(databaseNames: string[], newLockMode: DatabaseLockMode) {
@@ -299,5 +300,9 @@ export default class DatabasesService {
 
     async getRevisionsPreview(...args: ConstructorParameters<typeof getRevisionsPreviewCommand>) {
         return new getRevisionsPreviewCommand(...args).execute();
+    }
+
+    async deleteRevisionsForDocuments(...args: ConstructorParameters<typeof deleteRevisionsForDocumentsCommand>) {
+        return new deleteRevisionsForDocumentsCommand(...args).execute();
     }
 }
