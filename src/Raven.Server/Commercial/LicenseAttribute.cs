@@ -1,4 +1,4 @@
-namespace Raven.Server.Commercial;
+﻿namespace Raven.Server.Commercial;
 
 public enum LicenseAttribute
 {
@@ -15,7 +15,7 @@ public enum LicenseAttribute
     SnapshotBackup,
     CloudBackup,
     DynamicNodesDistribution,
-    ExternalReplication, 
+    ExternalReplication,
     DelayedExternalReplication,
     RavenEtl,
     SqlEtl,
@@ -67,5 +67,6 @@ public enum LicenseAttribute
     MaxNumberOfCustomSortersPerCluster,
     MaxNumberOfCustomAnalyzersPerDatabase,
     MaxNumberOfCustomAnalyzersPerCluster,
+    SubscriptionExpiration,
     SnowflakeEtl,
 }

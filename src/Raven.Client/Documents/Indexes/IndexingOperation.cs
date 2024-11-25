@@ -50,6 +50,7 @@ namespace Raven.Client.Documents.Indexes
         internal static class Storage
         {
             public const string Commit = "Storage/Commit";
+            public const string UpdateReferences = "Storage/UpdateReferences";
         }
 
         internal static class Reduce

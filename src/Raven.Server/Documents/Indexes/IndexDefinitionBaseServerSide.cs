@@ -159,6 +159,8 @@ namespace Raven.Server.Documents.Indexes
 
             public const long ProperlyParseThreeDigitsMillisecondsDates = 52_002; // RavenDB-17711
 
+            public const long Base54Version = 54_000;
+
             public const long EngineTypeStored = 54_000; // introducing Corax, added engine type to the index storage
 
             public const long GuaranteedOrderOfPropertiesInMapReduceIndexes_Legacy = 54_001; // RavenDB-17312
@@ -166,6 +168,8 @@ namespace Raven.Server.Documents.Indexes
             public const long GuaranteedOrderOfGroupByFieldsInMapReduceIndexes = 54_002; // RavenDB-17312 - version 54_001 had an issue so we had to fix it and bump version again
 
             private const long TimeTicksSupportInJavaScriptIndexes_54 = 54_003; // RavenDB-19625
+
+            private const long LowerCasedReferences_54 = 54_004; // RavenDB-23100
 
             public const long Base60Version = 60_000;
 
@@ -178,6 +182,7 @@ namespace Raven.Server.Documents.Indexes
             public const long JavaScriptProperlyHandleDynamicFieldsIndexFields = 60_004; // RavenDB-22363
             public const long UseNonExistingPostingList_60 = 60_005; // RavenDB-22703
             public const long CoraxSearchWildcardAdjustment_60 = 60_006; // RavenDB-22937
+            private const long LowerCasedReferences_60 = 60_007; // RavenDB-23100
 
             public const long Base62Version = 61_000;
 
@@ -186,11 +191,27 @@ namespace Raven.Server.Documents.Indexes
             public const long UseNonExistingPostingList_61 = 61_002; // RavenDB-22703
             public const long CoraxSearchWildcardAdjustment_61 = 61_003; // RavenDB-22937
             public const long CoraxUnicodeAnalyzers_62 = 62_004; // RavenDB-22999
+            private const long LowerCasedReferences_62 = 62_005; // RavenDB-23100
 
             /// <summary>
             /// Remember to bump this
             /// </summary>
-            public const long CurrentVersion = CoraxUnicodeAnalyzers_62;
+            public const long CurrentVersion = LowerCasedReferences_62;
+
+            public static bool IsLowerCasedReferencesSupported(long indexVersion)
+            {
+                if (indexVersion >= Base62Version)
+                {
+                    return indexVersion >= LowerCasedReferences_62;
+                }
+
+                if (indexVersion >= Base60Version)
+                {
+                    return indexVersion >= LowerCasedReferences_60;
+                }
+
+                return indexVersion >= LowerCasedReferences_54;
+            }
 
             public static bool IsTimeTicksInJavaScriptIndexesSupported(long indexVersion)
             {

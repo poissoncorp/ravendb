@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
@@ -366,11 +367,25 @@ namespace Raven.Server.Documents.Indexes.MapReduce.Static
 
             workers.Add(new CleanupDocumentsForMapReduce(this, DocumentDatabase.DocumentsStorage, _indexStorage, Configuration, MapReduceWorkContext));
 
+            Debug.Assert(SourceType == IndexSourceType.Documents);
+
             if (_compiled.CollectionsWithCompareExchangeReferences.Count > 0)
-                workers.Add(_handleCompareExchangeReferences = new HandleCompareExchangeReferences(this, _compiled.CollectionsWithCompareExchangeReferences, DocumentDatabase.DocumentsStorage, _indexStorage, Configuration));
+            {
+                _handleCompareExchangeReferences = IndexDefinitionBaseServerSide.IndexVersion.IsLowerCasedReferencesSupported(Definition.Version)
+                    ? new HandleCompareExchangeReferences(this, _compiled.CollectionsWithCompareExchangeReferences, DocumentDatabase.DocumentsStorage, _indexStorage, Configuration)
+                    : new HandleNotNormalizedCompareExchangeReferences(this, _compiled.CollectionsWithCompareExchangeReferences, DocumentDatabase.DocumentsStorage, _indexStorage, Configuration);
+
+                workers.Add(_handleCompareExchangeReferences);
+            }
 
             if (_referencedCollections.Count > 0)
-                workers.Add(_handleReferences = new HandleDocumentReferences(this, _compiled.ReferencedCollections, DocumentDatabase.DocumentsStorage, _indexStorage, Configuration));
+            {
+                _handleReferences = IndexDefinitionBaseServerSide.IndexVersion.IsLowerCasedReferencesSupported(Definition.Version)
+                    ? new HandleDocumentReferences(this, _compiled.ReferencedCollections, DocumentDatabase.DocumentsStorage, _indexStorage, Configuration)
+                    : new HandleNotNormalizedDocumentReferences(this, _compiled.ReferencedCollections, DocumentDatabase.DocumentsStorage, _indexStorage, Configuration);
+
+                workers.Add(_handleReferences);
+            }
 
             workers.Add(new MapDocuments(this, DocumentDatabase.DocumentsStorage, _indexStorage, MapReduceWorkContext, Configuration));
             workers.Add(new ReduceMapResultsOfStaticIndex(this, _compiled.Reduce, Definition, _indexStorage, DocumentDatabase.Metrics, MapReduceWorkContext));

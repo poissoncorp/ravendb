@@ -128,6 +128,8 @@ namespace Raven.Server.Commercial
 
         public DateTime? Expiration => GetValue<DateTime?>(LicenseAttribute.Expiration);
 
+        public DateTime? SubscriptionExpiration => GetValue<DateTime?>(LicenseAttribute.SubscriptionExpiration) ?? Expiration;
+
         public int MaxMemory => GetValue<int?>(LicenseAttribute.Memory) ?? 6;
 
         public int MaxCores => GetValue<int?>(LicenseAttribute.Cores) ?? 3;
@@ -296,6 +298,7 @@ namespace Raven.Server.Commercial
                 [nameof(Type)] = Type.ToString(),
                 [nameof(Version)] = Version?.ToString(),
                 [nameof(Expiration)] = Expiration,
+                [nameof(SubscriptionExpiration)] = SubscriptionExpiration,
                 [nameof(MaxMemory)] = MaxMemory,
                 [nameof(MaxCores)] = MaxCores,
                 [nameof(MaxCoresPerNode)] = MaxCoresPerNode,
