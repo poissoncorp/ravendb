@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using Raven.Client.Documents.Indexes;
 using Raven.Server.Config.Categories;
 using Raven.Server.Documents.Indexes.Persistence;
 using Raven.Server.Documents.Indexes.Static;
@@ -29,17 +30,19 @@ namespace Raven.Server.Documents.Indexes.Workers
         {
         }
 
-        protected override unsafe IndexItem GetItem(DocumentsOperationContext databaseContext, Slice key)
+        protected override IndexItem GetItem(DocumentsOperationContext databaseContext, Slice key)
         {
-            using (DocumentIdWorker.GetLower(databaseContext.Allocator, key.Content.Ptr, key.Size, out var loweredKey))
-            {
-                // when there is conflict, we need to apply same behavior as if the document would not exist
-                var doc = _documentsStorage.Get(databaseContext, loweredKey, throwOnConflict: false);
-                if (doc == null)
-                    return default;
+            return GetDocumentItem(databaseContext, key);
+        }
 
-                return new DocumentIndexItem(doc.Id, doc.LowerId, doc.Etag, doc.LastModified, doc.Data.Size, doc, doc.Flags);
-            }
+        public static IndexItem GetDocumentItem(DocumentsOperationContext databaseContext, Slice key)
+        {
+            // when there is conflict, we need to apply same behavior as if the document would not exist
+            var doc = databaseContext.DocumentDatabase.DocumentsStorage.Get(databaseContext, key, throwOnConflict: false);
+            if (doc == null)
+                return default;
+
+            return new DocumentIndexItem(doc.Id, doc.LowerId, doc.Etag, doc.LastModified, doc.Data.Size, doc, doc.Flags);
         }
 
         public override void HandleDelete(Tombstone tombstone, string collection, Lazy<IndexWriteOperationBase> writer, TransactionOperationContext indexContext, IndexingStatsScope stats)
@@ -47,6 +50,7 @@ namespace Raven.Server.Documents.Indexes.Workers
             var tx = indexContext.Transaction.InnerTransaction;
 
             using (Slice.External(tx.Allocator, tombstone.LowerId, out Slice tombstoneKeySlice))
+            using (stats.For(IndexingOperation.Storage.UpdateReferences))
                 _referencesStorage.RemoveReferences(tombstoneKeySlice, collection, null, indexContext.Transaction);
         }
     }
@@ -177,7 +181,7 @@ namespace Raven.Server.Documents.Indexes.Workers
 
                             while (keepRunning)
                             {
-                                UpdateReferences(indexContext, collection);
+                                UpdateReferences(collection, stats, queryContext, indexContext);
 
                                 RenewTransactionIfNeeded(queryContext, batchContinuationResult, indexed, ref readTransaction);
 
@@ -226,7 +230,7 @@ namespace Raven.Server.Documents.Indexes.Workers
                                             continue;
                                         }
 
-                                        var items = GetItemsFromCollectionThatReference(queryContext, indexContext, collection, referencedItem, lastIndexedEtag, indexed, referenceState);
+                                        var items = GetItemsFromCollectionThatReference(queryContext, indexContext, collection, referencedItem, lastIndexedEtag, indexed, referenceState, stats);
 
                                         var numberOfReferencedItemLoad = 0;
 
@@ -327,6 +331,8 @@ namespace Raven.Server.Documents.Indexes.Workers
                                 }
                             }
 
+                            DeleteReferences(collection, stats, queryContext.Documents, indexContext);
+
                             if (lastReferenceEtag == lastEtag)
                             {
                                 // the last referenced etag hasn't changed
@@ -378,7 +384,7 @@ namespace Raven.Server.Documents.Indexes.Workers
             return (moreWorkFound, batchContinuationResult);
         }
 
-        private void UpdateReferences(TransactionOperationContext indexContext, string collection)
+        private void UpdateReferences(string collection, IndexingStatsScope stats, QueryOperationContext queryContext, TransactionOperationContext indexContext)
         {
             // References were found during handling references
             // (HandleReferences is the first worker that is running so those references were found here).
@@ -389,16 +395,20 @@ namespace Raven.Server.Documents.Indexes.Workers
             if (CurrentIndexingScope.Current.ReferencesByCollection != null &&
                 CurrentIndexingScope.Current.ReferencesByCollection.TryGetValue(collection, out var values))
             {
-                _indexStorage.ReferencesForDocuments.WriteReferencesForSingleCollection(collection, values, indexContext.Transaction);
+                using (stats.For(IndexingOperation.Storage.UpdateReferences))
+                    _indexStorage.ReferencesForDocuments.WriteReferencesForSingleCollection(collection, values, indexContext.Transaction);
                 values.Clear();
             }
 
             if (CurrentIndexingScope.Current.ReferencesByCollectionForCompareExchange != null &&
                 CurrentIndexingScope.Current.ReferencesByCollectionForCompareExchange.TryGetValue(collection, out values))
             {
-                _indexStorage.ReferencesForCompareExchange.WriteReferencesForSingleCollection(collection, values, indexContext.Transaction);
+                using (stats.For(IndexingOperation.Storage.UpdateReferences))
+                    _indexStorage.ReferencesForCompareExchange.WriteReferencesForSingleCollection(collection, values, indexContext.Transaction);
                 values.Clear();
             }
+
+            DeleteReferences(collection, stats, queryContext.Documents, indexContext);
         }
 
         private static void RenewTransactionIfNeeded(QueryOperationContext queryContext, Index.CanContinueBatchResult batchContinuationResult, HashSet<Slice> indexed, ref IDisposable readTransaction)
@@ -422,9 +432,10 @@ namespace Raven.Server.Documents.Indexes.Workers
         }
 
         private IEnumerable<IndexItem> GetItemsFromCollectionThatReference(QueryOperationContext queryContext, TransactionOperationContext indexContext,
-            string collection, Reference referencedItem, long lastIndexedEtag, HashSet<Slice> indexed, ReferenceState referenceState)
+            string collection, Reference referencedItem, long lastIndexedEtag, HashSet<Slice> indexed, ReferenceState referenceState, IndexingStatsScope stats)
         {
             var lastProcessedItemId = referenceState?.GetLastProcessedItemId(referencedItem);
+
             foreach (var key in _referencesStorage.GetItemKeysFromCollectionThatReference(collection, referencedItem.Key, indexContext.Transaction, lastProcessedItemId))
             {
                 // we check if we already indexed the document BEFORE we fetch it from the disk.
@@ -500,6 +511,10 @@ namespace Raven.Server.Documents.Indexes.Workers
         }
 
         protected abstract IndexItem GetItem(DocumentsOperationContext databaseContext, Slice key);
+
+        protected virtual void DeleteReferences(string collection, IndexingStatsScope stats, DocumentsOperationContext databaseContext, TransactionOperationContext indexContext)
+        {
+        }
 
         public abstract void HandleDelete(Tombstone tombstone, string collection, Lazy<IndexWriteOperationBase> writer, TransactionOperationContext indexContext, IndexingStatsScope stats);
 
