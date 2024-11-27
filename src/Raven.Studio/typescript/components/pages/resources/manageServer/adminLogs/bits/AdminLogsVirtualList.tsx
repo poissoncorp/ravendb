@@ -30,16 +30,18 @@ export default function AdminLogsVirtualList(props: { availableHeightInPx: numbe
         getItemKey: (index) => filteredLogs[index]._meta.id,
     });
 
-    // Scroll to bottom if logs are updated and isMonitorTail is true
+    const totalSizeInPx = virtualizer.getTotalSize();
+
+    // Scroll to bottom if isMonitorTail is true
     useEffect(() => {
         if (isMonitorTail && listRef.current) {
-            listRef.current.scrollTo(0, listRef.current?.scrollHeight);
+            listRef.current.scrollTo(0, totalSizeInPx);
         }
-    }, [filteredLogs.length, isMonitorTail]);
+    }, [isMonitorTail, listRef, totalSizeInPx]);
 
     return (
         <div ref={listRef} style={{ overflow: "auto", height: props.availableHeightInPx }}>
-            <div style={{ height: `${virtualizer.getTotalSize()}px`, position: "relative" }}>
+            <div style={{ height: `${totalSizeInPx}px`, position: "relative" }}>
                 {virtualizer.getVirtualItems().map((virtualRow) => {
                     const log = filteredLogs[virtualRow.index];
 
@@ -68,7 +70,12 @@ export default function AdminLogsVirtualList(props: { availableHeightInPx: numbe
                                 <div
                                     key={log.Date}
                                     className="d-flex align-items-center cursor-pointer text-truncate"
-                                    onClick={() => dispatch(adminLogsActions.isLogExpandedToggled(log))}
+                                    onClick={() => {
+                                        if (!log._meta.isExpanded && isMonitorTail) {
+                                            dispatch(adminLogsActions.isMonitorTailToggled());
+                                        }
+                                        dispatch(adminLogsActions.isLogExpandedToggled(log));
+                                    }}
                                     style={{ padding: `4.3px` }}
                                 >
                                     <div style={{ margin: "0 4.3px 0 0" }}>
@@ -79,15 +86,7 @@ export default function AdminLogsVirtualList(props: { availableHeightInPx: numbe
                                         />
                                     </div>
                                     <span className="text-truncate">
-                                        <LogItemTitleFieldValue value={log.Date} />
-                                        <LogItemSeparator />
-                                        <LogItemTitleFieldValue value={log.Level} />
-                                        <LogItemSeparator />
-                                        <LogItemTitleFieldValue value={log.Component} />
-                                        <LogItemSeparator />
-                                        <LogItemTitleFieldValue value={log.Resource} />
-                                        <LogItemSeparator />
-                                        <LogItemTitleFieldValue value={log.Message} />
+                                        {log.Date} | {log.Level} | {log.Resource} | {log.Component} | {log.Message}
                                     </span>
                                 </div>
                                 {log._meta.isExpanded && (
@@ -144,68 +143,6 @@ function getTextColor(level: AdminLogsMessage["Level"]): string {
         default:
             return assertUnreachable(level);
     }
-}
-
-function LogItemSeparator() {
-    return <span style={{ margin: "0px 3px" }}>|</span>;
-}
-
-function LogItemTitleFieldValue({ value = "" }: { value: string }) {
-    const filter = useAppSelector(adminLogsSelectors.filter);
-
-    const matchedIndices = getMatchedIndices(value, filter);
-    const characters = value.split("");
-
-    return (
-        <span>
-            {characters.map((char, index) => (
-                <Char key={index} char={char} index={index} matchedIndices={matchedIndices} />
-            ))}
-        </span>
-    );
-}
-
-function getMatchedIndices(value: string, filter: string): number[] {
-    if (!filter) {
-        return [];
-    }
-
-    const filterLower = filter.toLowerCase();
-    const valueLower = value.toLowerCase();
-
-    let currentIndex = 0;
-    const indices: number[] = [];
-
-    while (currentIndex < valueLower.length) {
-        const matchIndex = valueLower.indexOf(filterLower, currentIndex);
-        if (matchIndex === -1) {
-            break;
-        }
-
-        for (let i = 0; i < filterLower.length; i++) {
-            indices.push(matchIndex + i);
-        }
-
-        currentIndex = matchIndex + 1;
-    }
-
-    return indices;
-}
-
-interface CharProps {
-    char: string;
-    index: number;
-    matchedIndices: number[];
-}
-
-function Char({ char, index, matchedIndices }: CharProps) {
-    const isHighlighted = matchedIndices.includes(index);
-
-    if (isHighlighted) {
-        return <mark className="bg-faded-warning p-0">{char}</mark>;
-    }
-
-    return char;
 }
 
 function getFormattedFieldName(fieldName: keyof AdminLogsMessage): string {
