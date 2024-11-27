@@ -12,6 +12,7 @@ interface computedAppUrls {
     studioConfiguration: KnockoutComputed<string>;
     documents: KnockoutComputed<string>;
     allRevisions: KnockoutComputed<string>;
+    revisionsBin: KnockoutComputed<string>;
     conflicts: KnockoutComputed<string>;
     patch: KnockoutComputed<string>;
     cmpXchg: KnockoutComputed<string>;

@@ -70,6 +70,15 @@
             </a>
             <!-- /ko -->
         </li>
+        <li>
+            <!-- ko with: $root.collectionsTracker.getRevisionsBinCollection() -->
+            <a data-bind="click: $parent.menu.navigate.bind($parent.menu), attr: { href: $root.urlForRevisionsBin() }, 
+                          css: { 'active': $parent.item.isOpen($parent.menu.activeItem, $data) }">
+                <i class="icon-revisions-bin"></i>
+                <span>Revisions Bin</span>
+            </a>
+            <!-- /ko -->
+        </li>
         <hr data-bind="visible: $root.collectionsTracker.collections().length > 1" />
         <h3 data-bind="visible: $root.collectionsTracker.collections().length > 1, attr: { title: $root.collectionsCountText() + ' collections'}">
             Collections (<span data-bind="text: $root.collectionsCountText"></span>)
