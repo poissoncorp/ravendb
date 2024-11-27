@@ -68,10 +68,13 @@ export const adminLogsSlice = createSlice({
         logsSet: (state, action: PayloadAction<AdminLogsMessage[]>) => {
             state.logs = action.payload;
         },
-        logsAppended: (state, action: PayloadAction<Omit<AdminLogsMessage, "_meta">>) => {
+        logsManyAppended: (state, action: PayloadAction<Omit<AdminLogsMessage, "_meta">[]>) => {
             let newLogs: AdminLogsMessage[] = [
                 ...state.logs,
-                { ...action.payload, _meta: { id: _.uniqueId(), isExpanded: state.isAllExpanded } },
+                ...action.payload.map((message) => ({
+                    ...message,
+                    _meta: { id: _.uniqueId(), isExpanded: state.isAllExpanded },
+                })),
             ];
 
             if (newLogs.length > state.maxLogsCount) {

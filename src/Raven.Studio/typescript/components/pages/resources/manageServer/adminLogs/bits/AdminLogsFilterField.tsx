@@ -1,7 +1,7 @@
 import { FormSelect, FormInput } from "components/common/Form";
 import { Icon } from "components/common/Icon";
 import { AdminLogsConfigLogsFormData } from "components/pages/resources/manageServer/adminLogs/disk/settings/AdminLogsConfigLogs";
-import { AdminLogsViewSettingsFormData } from "components/pages/resources/manageServer/adminLogs/viewSettings/AdminLogsViewSettingsModal";
+import { AdminLogsViewSettingsFormData } from "components/pages/resources/manageServer/adminLogs/view/AdminLogsViewSettingsModal";
 import { logLevelOptions, logFilterActionOptions } from "components/utils/common";
 import { Control } from "react-hook-form";
 import { Row, Col, FormGroup, Label, Button, UncontrolledPopover, Card, InputGroup } from "reactstrap";

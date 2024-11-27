@@ -1,5 +1,5 @@
 import { createListenerMiddleware } from "@reduxjs/toolkit";
-import { adminLogsActions } from "./adminLogsSlice";
+import { adminLogsActions, AdminLogsMessage } from "./adminLogsSlice";
 import { AppListenerEffectApi } from "components/store";
 import adminLogsWebSocketClient from "common/adminLogsWebSocketClient";
 import eventsCollector from "common/eventsCollector";
@@ -7,6 +7,7 @@ import eventsCollector from "common/eventsCollector";
 export const adminLogsMiddleware = createListenerMiddleware();
 
 let liveClient: adminLogsWebSocketClient = null;
+let pushLogsBatchesInterval: NodeJS.Timeout = null;
 
 adminLogsMiddleware.startListening({
     actionCreator: adminLogsActions.isPausedToggled,
@@ -14,12 +15,9 @@ adminLogsMiddleware.startListening({
         const state = listenerApi.getState();
 
         if (state.adminLogs.isPaused) {
-            liveClient?.dispose();
-            liveClient = null;
+            listenerApi.dispatch(adminLogsActions.liveClientStopped());
         } else if (!liveClient) {
-            liveClient = new adminLogsWebSocketClient((message) =>
-                listenerApi.dispatch(adminLogsActions.logsAppended(message))
-            );
+            listenerApi.dispatch(adminLogsActions.liveClientStarted());
         }
     },
 });
@@ -27,10 +25,10 @@ adminLogsMiddleware.startListening({
 adminLogsMiddleware.startListening({
     actionCreator: adminLogsActions.liveClientStopped,
     effect: () => {
-        eventsCollector.default.reportEvent("admin-logs", "connect");
-
         liveClient?.dispose();
         liveClient = null;
+        clearInterval(pushLogsBatchesInterval);
+        pushLogsBatchesInterval = null;
     },
 });
 
@@ -41,9 +39,20 @@ adminLogsMiddleware.startListening({
             return;
         }
 
-        liveClient = new adminLogsWebSocketClient((message) =>
-            listenerApi.dispatch(adminLogsActions.logsAppended(message))
-        );
+        eventsCollector.default.reportEvent("admin-logs", "connect");
+
+        let logsBatch: Omit<AdminLogsMessage, "_meta">[] = [];
+
+        pushLogsBatchesInterval = setInterval(() => {
+            if (logsBatch.length === 0) {
+                return;
+            }
+
+            listenerApi.dispatch(adminLogsActions.logsManyAppended(logsBatch));
+            logsBatch = [];
+        }, 500);
+
+        liveClient = new adminLogsWebSocketClient((message) => logsBatch.push(message));
     },
 });
 

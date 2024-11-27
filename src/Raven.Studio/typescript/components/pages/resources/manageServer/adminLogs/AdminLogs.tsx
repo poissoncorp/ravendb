@@ -1,4 +1,3 @@
-import fileDownloader from "common/fileDownloader";
 import ButtonWithSpinner from "components/common/ButtonWithSpinner";
 import { Icon } from "components/common/Icon";
 import { LazyLoad } from "components/common/LazyLoad";
@@ -15,10 +14,10 @@ import {
     adminLogsActions,
     adminLogsSelectors,
 } from "components/pages/resources/manageServer/adminLogs/store/adminLogsSlice";
-import AdminLogsViewSettingsModal from "components/pages/resources/manageServer/adminLogs/viewSettings/AdminLogsViewSettingsModal";
+import AdminLogsExportButton from "components/pages/resources/manageServer/adminLogs/view/AdminLogsExportButton";
+import AdminLogsViewSettingsModal from "components/pages/resources/manageServer/adminLogs/view/AdminLogsViewSettingsModal";
 import { useAppDispatch, useAppSelector } from "components/store";
 import { logLevelOptions } from "components/utils/common";
-import moment from "moment";
 import { useEffect } from "react";
 import { StylesConfig } from "react-select";
 import { Button, Card, CardBody, CardHeader, Input } from "reactstrap";
@@ -28,7 +27,6 @@ export default function AdminLogs() {
     const eventsCollector = useEventsCollector();
     const { manageServerService } = useServices();
 
-    const filteredLogs = useAppSelector(adminLogsSelectors.filteredLogs);
     const isPaused = useAppSelector(adminLogsSelectors.isPaused);
     const isMonitorTail = useAppSelector(adminLogsSelectors.isMonitorTail);
     const isDiscSettingOpen = useAppSelector(adminLogsSelectors.isDiscSettingOpen);
@@ -66,17 +64,9 @@ export default function AdminLogs() {
                 LogFilterDefaultAction: configs.adminLogsConfig.AdminLogs.CurrentLogFilterDefaultAction,
             },
         });
+        dispatch(adminLogsActions.liveClientStopped());
+        dispatch(adminLogsActions.liveClientStarted());
         await dispatch(adminLogsActions.fetchConfigs());
-    };
-
-    const exportToFile = () => {
-        const fileName = "admin-log-" + moment().format("YYYY-MM-DD HH-mm") + ".json";
-
-        fileDownloader.downloadAsJson(
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            filteredLogs.map(({ _meta: ignored, ...logWithoutMeta }) => logWithoutMeta),
-            fileName
-        );
     };
 
     return (
@@ -134,17 +124,7 @@ export default function AdminLogs() {
                                     <Icon icon={isMonitorTail ? "pause" : "check"} />
                                     Monitor (tail -f)
                                 </Button>
-                                <Button
-                                    type="button"
-                                    color="secondary"
-                                    onClick={() => {
-                                        eventsCollector.reportEvent("admin-logs", "export");
-                                        exportToFile();
-                                    }}
-                                >
-                                    <Icon icon="export" />
-                                    Export
-                                </Button>
+                                <AdminLogsExportButton />
                                 <ButtonWithSpinner
                                     type="button"
                                     color="secondary"
