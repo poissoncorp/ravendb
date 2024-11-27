@@ -14,7 +14,7 @@ export interface RevisionsPreviewResultItem {
     };
 }
 
-interface Options {
+interface Parameters {
     databaseName: string;
     start: number;
     pageSize: number;
@@ -24,23 +24,23 @@ interface Options {
 }
 
 export default class getRevisionsPreviewCommand extends commandBase {
-    private readonly options: Options;
+    private readonly parameters: Parameters;
 
-    constructor(options: Options) {
+    constructor(parameters: Parameters) {
         super();
-        this.options = options;
+        this.parameters = parameters;
     }
 
     execute(): JQueryPromise<pagedResultWithToken<RevisionsPreviewResultItem>> {
         const url = endpoints.databases.studioCollections.studioRevisionsPreview + this.urlEncodeArgs(this.getArgsToUse());
 
-        return this.query(url, null, this.options.databaseName, this.resultsSelector).fail((response: JQueryXHR) => {
+        return this.query(url, null, this.parameters.databaseName, this.resultsSelector).fail((response: JQueryXHR) => {
             this.reportError("Failed to get revisions preview", response.responseText, response.statusText);
         });
     }
 
     private getArgsToUse() {
-        const { start, pageSize, continuationToken, type, collection } = this.options;
+        const { start, pageSize, continuationToken, type, collection } = this.parameters;
         
         if (continuationToken) {
             return {

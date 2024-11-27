@@ -212,11 +212,11 @@ export function useStudioSearchAsyncRegister(props: UseStudioSearchAsyncRegister
         {
             onSuccess: (results) => {
                 // When previous and current results are empty do nothing
-                if (results?.length === 0 && lastDocumentsCount === 0) {
+                if (results.length === 0 && lastDocumentsCount === 0) {
                     return;
                 }
 
-                setLastDocumentsCount(results?.length ?? 0);
+                setLastDocumentsCount(results.length ?? 0);
 
                 const mappedResults = results.map((x) => x["@metadata"]["@id"]);
 
@@ -233,6 +233,49 @@ export function useStudioSearchAsyncRegister(props: UseStudioSearchAsyncRegister
             },
             onError() {
                 register("document", []);
+            },
+        }
+    );
+
+    const [lastRevisionsCount, setLastRevisionsCount] = useState(0);
+
+    // Register revisions
+    useAsyncDebounce(
+        async (searchQuery, activeDatabaseName) => {
+            if (!activeDatabaseName || !searchQuery) {
+                return {
+                    Results: [],
+                };
+            }
+
+            return databasesService.getRevisionsIds(activeDatabaseName, searchQuery, 10);
+        },
+        [searchQuery, activeDatabaseName],
+        500,
+        {
+            onSuccess: (results) => {
+                // When previous and current results are empty do nothing
+                if (results.Results.length === 0 && lastRevisionsCount === 0) {
+                    return;
+                }
+
+                setLastRevisionsCount(results.Results.length);
+
+                const mappedResults = results.Results.map((x) => x.Id);
+
+                register(
+                    "revision",
+                    mappedResults.map((result) => ({
+                        type: "revision",
+                        icon: "revisions",
+                        text: result,
+                        onSelected: (e) => goToDocument(result, e),
+                        subText: null,
+                    }))
+                );
+            },
+            onError() {
+                register("revision", []);
             },
         }
     );
