@@ -12,7 +12,7 @@ const getColumnDefs = (
     isSharded: boolean,
     tableBodyWidth: number
 ): ColumnDef<RevisionsPreviewResultItem>[] => {
-    const sizeProvider = virtualTableUtils.getCellSizeProvider(tableBodyWidth);
+    const sizeProvider = virtualTableUtils.getCellSizeProvider(tableBodyWidth - checkboxWidth);
 
     const columns: ColumnDef<RevisionsPreviewResultItem>[] = [
         {
@@ -28,8 +28,8 @@ const getColumnDefs = (
                     />
                 );
             },
-            size: 38,
-            minSize: 38,
+            size: checkboxWidth,
+            minSize: checkboxWidth,
             enableSorting: false,
             enableHiding: false,
         },
@@ -69,7 +69,7 @@ const getColumnDefs = (
             header: "Change Vector",
             accessorKey: "ChangeVector",
             cell: CellWithCopyWrapper,
-            size: sizeProvider(15),
+            size: sizeProvider(isSharded ? 20 : 25),
         },
         {
             header: "Last Modified",
@@ -134,6 +134,8 @@ const getColumnDefs = (
 
     return columns;
 };
+
+const checkboxWidth = 38;
 
 export const allRevisionsUtils = {
     getColumnDefs,
