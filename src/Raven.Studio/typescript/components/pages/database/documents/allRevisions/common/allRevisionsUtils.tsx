@@ -10,23 +10,32 @@ import { virtualTableUtils } from "components/common/virtualTable/utils/virtualT
 const getColumnDefs = (
     databaseName: string,
     isSharded: boolean,
-    tableBodyWidth: number
+    tableBodyWidth: number,
+    rowSelection: RevisionsPreviewResultItem[],
+    setRowSelection: (rows: RevisionsPreviewResultItem[]) => void
 ): ColumnDef<RevisionsPreviewResultItem>[] => {
     const sizeProvider = virtualTableUtils.getCellSizeProvider(tableBodyWidth - checkboxWidth);
+
+    const getIsSelected = (row: RevisionsPreviewResultItem) => {
+        return !!rowSelection.find((x) => x._meta.uniqueId === row._meta.uniqueId);
+    };
+
+    const toggleSelection = (row: RevisionsPreviewResultItem) => {
+        if (getIsSelected(row)) {
+            setRowSelection(rowSelection.filter((x) => x._meta.uniqueId !== row._meta.uniqueId));
+        } else {
+            setRowSelection([...rowSelection, row]);
+        }
+    };
 
     const columns: ColumnDef<RevisionsPreviewResultItem>[] = [
         {
             id: "Checkbox",
             header: "",
             accessorFn: (x) => x,
-            cell: ({ row }) => {
-                return (
-                    <Checkbox
-                        selected={row.getIsSelected()}
-                        toggleSelection={row.getToggleSelectedHandler()}
-                        disabled={!row.getCanSelect()}
-                    />
-                );
+            cell: ({ getValue }) => {
+                const value = getValue<RevisionsPreviewResultItem>();
+                return <Checkbox selected={getIsSelected(value)} toggleSelection={() => toggleSelection(value)} />;
             },
             size: checkboxWidth,
             minSize: checkboxWidth,

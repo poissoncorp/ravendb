@@ -12,6 +12,7 @@ export default function AllRevisionsWithSize({
     selectedType,
     selectedCollectionName,
     fetcherRef,
+    selectedRows,
     setSelectedRows,
 }: AllRevisionsTableProps) {
     const isSharded = useAppSelector(databaseSelectors.activeDatabase)?.isSharded;
@@ -21,8 +22,9 @@ export default function AllRevisionsWithSize({
         height,
         selectedType,
         selectedCollectionName,
-        setSelectedRows,
         fetcherRef,
+        selectedRows,
+        setSelectedRows,
     };
 
     if (selectedType !== "All" && selectedCollectionName) {

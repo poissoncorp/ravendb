@@ -5,7 +5,6 @@ import VirtualTableWithLazyLoading from "components/common/virtualTable/VirtualT
 import { useServices } from "components/hooks/useServices";
 import { AllRevisionsTableProps } from "components/pages/database/documents/allRevisions/common/allRevisionsTypes";
 import { allRevisionsUtils } from "components/pages/database/documents/allRevisions/common/allRevisionsUtils";
-import useAllRevisionsRowSelection from "components/pages/database/documents/allRevisions/hooks/useAllRevisionsRowSelection";
 import { useAppSelector } from "components/store";
 import { useImperativeHandle, useMemo } from "react";
 
@@ -15,6 +14,7 @@ export default function AllRevisionsTableNonSharded({
     selectedType,
     selectedCollectionName,
     fetcherRef,
+    selectedRows,
     setSelectedRows,
 }: AllRevisionsTableProps) {
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
@@ -35,14 +35,13 @@ export default function AllRevisionsTableNonSharded({
         dependencies: [databaseName, selectedType, selectedCollectionName],
     });
 
-    const columns = useMemo(() => allRevisionsUtils.getColumnDefs(databaseName, false, width), [databaseName, width]);
-    const { rowSelection, setRowSelection } = useAllRevisionsRowSelection({ dataPreview, setSelectedRows });
+    const columns = useMemo(
+        () => allRevisionsUtils.getColumnDefs(databaseName, false, width, selectedRows, setSelectedRows),
+        [databaseName, width, selectedRows, setSelectedRows]
+    );
 
     useImperativeHandle(fetcherRef, () => ({
-        reload: async () => {
-            await reload();
-            setRowSelection([]);
-        },
+        reload,
     }));
 
     const table = useReactTable({
@@ -50,14 +49,10 @@ export default function AllRevisionsTableNonSharded({
             enableSorting: false,
             enableColumnFilter: false,
         },
-        state: {
-            rowSelection,
-        },
         columns,
         data: dataPreview,
         columnResizeMode: "onChange",
         getCoreRowModel: getCoreRowModel(),
-        onRowSelectionChange: setRowSelection,
     });
 
     return <VirtualTableWithLazyLoading {...componentProps} table={table} heightInPx={height} />;

@@ -4,7 +4,6 @@ import VirtualTable from "components/common/virtualTable/VirtualTable";
 import { useServices } from "components/hooks/useServices";
 import { AllRevisionsTableProps } from "components/pages/database/documents/allRevisions/common/allRevisionsTypes";
 import { allRevisionsUtils } from "components/pages/database/documents/allRevisions/common/allRevisionsUtils";
-import useAllRevisionsRowSelection from "components/pages/database/documents/allRevisions/hooks/useAllRevisionsRowSelection";
 import { useAppSelector } from "components/store";
 import { useImperativeHandle, useMemo } from "react";
 import { useAsync } from "react-async-hook";
@@ -15,6 +14,7 @@ export default function AllRevisionsTableSmallSample({
     selectedType,
     selectedCollectionName,
     fetcherRef,
+    selectedRows,
     setSelectedRows,
 }: AllRevisionsTableProps) {
     const db = useAppSelector(databaseSelectors.activeDatabase);
@@ -33,19 +33,14 @@ export default function AllRevisionsTableSmallSample({
     );
 
     const columns = useMemo(
-        () => allRevisionsUtils.getColumnDefs(db.name, db.isSharded, width),
-        [db.name, db.isSharded, width]
+        () => allRevisionsUtils.getColumnDefs(db.name, db.isSharded, width, selectedRows, setSelectedRows),
+        [db.name, db.isSharded, width, selectedRows, setSelectedRows]
     );
 
     const data = useMemo(() => asyncGetRevisionsPreview.result?.items ?? [], [asyncGetRevisionsPreview.result]);
 
-    const { rowSelection, setRowSelection } = useAllRevisionsRowSelection({ dataPreview: data, setSelectedRows });
-
     useImperativeHandle(fetcherRef, () => ({
-        reload: async () => {
-            await asyncGetRevisionsPreview.execute();
-            setRowSelection([]);
-        },
+        reload: asyncGetRevisionsPreview.execute,
     }));
 
     const table = useReactTable({
@@ -53,14 +48,10 @@ export default function AllRevisionsTableSmallSample({
             enableSorting: false,
             enableColumnFilter: false,
         },
-        state: {
-            rowSelection,
-        },
         columns,
         data,
         columnResizeMode: "onChange",
         getCoreRowModel: getCoreRowModel(),
-        onRowSelectionChange: setRowSelection,
     });
 
     return <VirtualTable table={table} heightInPx={height} />;

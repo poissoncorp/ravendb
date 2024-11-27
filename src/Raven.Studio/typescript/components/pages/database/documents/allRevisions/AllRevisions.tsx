@@ -11,7 +11,7 @@ import {
 } from "components/pages/database/documents/allRevisions/partials/AllRevisionsSelectComponents";
 import useAllRevisionsFilters from "components/pages/database/documents/allRevisions/hooks/useAllRevisionsFilters";
 import { RevisionsPreviewResultItem } from "commands/database/documents/getRevisionsPreviewCommand";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useConfirm from "components/common/ConfirmDialog";
 import { useAsyncCallback } from "react-async-hook";
 import ButtonWithSpinner from "components/common/ButtonWithSpinner";
@@ -35,6 +35,11 @@ export default function AllRevisions() {
     const { databasesService } = useServices();
     const activeDatabaseName = useAppSelector(databaseSelectors.activeDatabaseName);
 
+    // Reset selected rows when filters change
+    useEffect(() => {
+        setSelectedRows([]);
+    }, [type.value, collection.value]);
+
     const asyncRemoveRevisions = useAsyncCallback(async () => {
         const uniqueIds = Array.from(new Set(selectedRows.map((x) => x.Id)));
 
@@ -47,6 +52,7 @@ export default function AllRevisions() {
         }
 
         messagePublisher.reportSuccess(`Successfully removed ${selectedRows.length} revisions`);
+        setSelectedRows([]);
         await reloadOptions();
 
         collectionsTracker.default
@@ -128,6 +134,7 @@ export default function AllRevisions() {
                         selectedType={type.value}
                         selectedCollectionName={collection.value}
                         fetcherRef={fetcherRef}
+                        selectedRows={selectedRows}
                         setSelectedRows={setSelectedRows}
                     />
                 )}

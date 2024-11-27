@@ -9,6 +9,9 @@ export interface RevisionsPreviewResultItem {
     ChangeVector: string;
     Flags: string;
     ShardNumber: number;
+    _meta: {
+        uniqueId: string;
+    };
 }
 
 interface Options {
@@ -57,7 +60,12 @@ export default class getRevisionsPreviewCommand extends commandBase {
 
     private resultsSelector(dto: resultsWithCountAndToken<RevisionsPreviewResultItem>): pagedResultWithToken<RevisionsPreviewResultItem> {
         return {
-            items: dto.Results,
+            items: dto.Results.map((x) => ({
+                ...x,
+                _meta: {
+                    uniqueId: _.uniqueId(),
+                },
+            })),
             totalResultCount: dto.TotalResults,
             continuationToken: dto.ContinuationToken,
         };

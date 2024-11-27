@@ -14,6 +14,7 @@ export interface AllRevisionsFetcherRef {
 export interface AllRevisionsTableProps extends AllRevisionsWithSizeProps {
     selectedType: RevisionType;
     selectedCollectionName: string;
-    setSelectedRows: (rows: RevisionsPreviewResultItem[]) => void;
     fetcherRef: React.RefObject<AllRevisionsFetcherRef>;
+    selectedRows: RevisionsPreviewResultItem[];
+    setSelectedRows: (rows: RevisionsPreviewResultItem[]) => void;
 }
