@@ -22,6 +22,9 @@ import messagePublisher from "common/messagePublisher";
 import { AllRevisionsFetcherRef } from "components/pages/database/documents/allRevisions/common/allRevisionsTypes";
 import { MultiRadioToggle } from "components/common/MultiRadioToggle";
 import collectionsTracker from "common/helpers/database/collectionsTracker";
+import { FlexGrow } from "components/common/FlexGrow";
+import { HStack } from "components/common/utilities/HStack";
+import { VStack } from "components/common/utilities/VStack";
 
 type RevisionType = Raven.Server.Documents.Revisions.RevisionsStorage.RevisionType;
 
@@ -81,50 +84,48 @@ export default function AllRevisions() {
     };
 
     return (
-        <div className="content-padding vstack gap-2">
-            <div className="d-flex gap-2 align-items-end">
-                <div>
-                    <Label className="small-label">Selected</Label>
+        <VStack className="content-padding" gap={2}>
+            <VStack>
+                <ButtonWithSpinner
+                    color="danger"
+                    onClick={handleRemoveConfirmation}
+                    disabled={selectedRows.length === 0}
+                    isSpinning={asyncRemoveRevisions.loading}
+                    icon="trash"
+                    className="w-fit-content rounded-pill"
+                >
+                    Remove {selectedRows.length != 0 && selectedRows.length} revisions
+                </ButtonWithSpinner>
+                <HStack gap={2} className="my-3">
                     <div>
-                        <ButtonWithSpinner
-                            color="danger"
-                            onClick={handleRemoveConfirmation}
-                            disabled={selectedRows.length === 0}
-                            isSpinning={asyncRemoveRevisions.loading}
-                            icon="trash"
-                        >
-                            Remove
-                        </ButtonWithSpinner>
+                        <Label className="small-label">Filter by collection</Label>
+                        <SelectCreatable
+                            options={collection.options}
+                            isLoading={collection.isLoading}
+                            placeholder="Select collection"
+                            value={collection.options.find((x) => x.value === collection.value)}
+                            onChange={(x: SelectOptionWithCount<string>) => collection.setValue(x?.value ?? "")}
+                            isClearable
+                            components={{ Option: OptionWithCount, SingleValue: SingleValueWithCount }}
+                        />
                     </div>
-                </div>
-                <div>
-                    <Label className="small-label">Type</Label>
-                    <MultiRadioToggle<RevisionType>
-                        inputItems={type.options}
-                        selectedItem={type.value}
-                        setSelectedItem={type.setValue}
-                    />
-                </div>
-                <div>
-                    <Label className="small-label">Collection</Label>
-                    <SelectCreatable
-                        options={collection.options}
-                        isLoading={collection.isLoading}
-                        placeholder="Select collection..."
-                        value={collection.options.find((x) => x.value === collection.value)}
-                        onChange={(x: SelectOptionWithCount<string>) => collection.setValue(x?.value ?? "")}
-                        isClearable
-                        components={{ Option: OptionWithCount, SingleValue: SingleValueWithCount }}
-                    />
-                </div>
-                {type.value !== "All" && collection.value && (
-                    <RichAlert variant="warning">
-                        The table contains only part of the results. When the selected revision type is other than
-                        &quot;All&quot; and a collection is selected, only the first {allRevisionsUtils.smallSampleSize}{" "}
-                        results are visible.
-                    </RichAlert>
-                )}
-            </div>
+                    <div>
+                        <Label className="small-label">Filter by type</Label>
+                        <MultiRadioToggle<RevisionType>
+                            inputItems={type.options}
+                            selectedItem={type.value}
+                            setSelectedItem={type.setValue}
+                        />
+                    </div>
+                </HStack>
+            </VStack>
+            {type.value !== "All" && collection.value && (
+                <RichAlert variant="warning">
+                    The table contains only part of the results. When the selected revision type is other than
+                    &quot;All&quot; and a collection is selected, only the first {allRevisionsUtils.smallSampleSize}{" "}
+                    results are visible.
+                </RichAlert>
+            )}
             <SizeGetter
                 isHeighRequired
                 render={({ width, height }) => (
@@ -139,6 +140,6 @@ export default function AllRevisions() {
                     />
                 )}
             />
-        </div>
+        </VStack>
     );
 }
