@@ -28,6 +28,7 @@ $prefix: "bs-";
     --license-professional: #{$color-4-2};
     --license-enterprise: #{$color-5};
 
+    --#{$prefix}dropdown-item-border-radius: #{$border-radius};
     --#{$prefix}border-radius-md: #{$border-radius-md}; //fix missing size in bootstrap 5.3
 
     @each $key, $value in $theme-colors {

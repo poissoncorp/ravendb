@@ -940,33 +940,33 @@ $navbar-dark-brand-hover-color: $navbar-dark-active-color !default;
 
 // scss-docs-start dropdown-variables
 $dropdown-min-width: 0rem !default;
-$dropdown-padding-x: 0 !default;
-$dropdown-padding-y: 0.5rem !default;
+$dropdown-padding-x: $gutter-xxs !default;
+$dropdown-padding-y: $gutter-xxs !default;
 $dropdown-spacer: 0.125rem !default;
 $dropdown-font-size: $font-size-base !default;
 $dropdown-color: $text-color-var !default;
-$dropdown-bg: $panel-bg-1 !default;
-$dropdown-border-color: $border-color-light !default;
-$dropdown-border-radius: var(--#{$prefix}border-radius) !default;
+$dropdown-bg: $panel-bg-1-var !default;
+$dropdown-border-color: $border-color-light-var !default;
+$dropdown-border-radius: #{$gutter-xs} !default;
 $dropdown-border-width: var(--#{$prefix}border-width) !default;
 $dropdown-inner-border-radius: calc(
     #{$dropdown-border-radius} - #{$dropdown-border-width}
 ) !default; // stylelint-disable-line function-disallowed-list
 $dropdown-divider-bg: $dropdown-border-color !default;
-$dropdown-divider-margin-y: $spacer * 0.5 !default;
+$dropdown-divider-margin-y: #{$gutter-xxs} !default;
 $dropdown-box-shadow: var(--#{$prefix}box-shadow) !default;
 
 $dropdown-link-color: $text-color-var !default;
 $dropdown-link-hover-color: $dropdown-link-color !default;
-$dropdown-link-hover-bg: $panel-bg-3-var !default;
+$dropdown-link-hover-bg: $panel-bg-2-var !default;
 
 $dropdown-link-active-color: $component-active-color !default;
-$dropdown-link-active-bg: $component-active-bg !default;
+$dropdown-link-active-bg: $panel-bg-3-var !default;
 
 $dropdown-link-disabled-color: var(--#{$prefix}tertiary-color) !default;
 
 $dropdown-item-padding-y: $gutter-xxs !default;
-$dropdown-item-padding-x: $gutter-sm !default;
+$dropdown-item-padding-x: $gutter-xs !default;
 
 $dropdown-header-color: $text-muted-var !default;
 $dropdown-header-padding-x: $dropdown-item-padding-x !default;
