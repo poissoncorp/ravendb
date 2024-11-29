@@ -1,22 +1,14 @@
 ﻿import React, { PropsWithChildren } from "react";
 import classNames from "classnames";
-
-interface GapConfig {
-    [breakpoint: string]: 1 | 2 | 3 | 4 | 5 | 6 | 7;
-}
+import { Gap, getGapClasses } from "components/common/utilities/stackCommon";
 
 export interface HStackProps {
     className?: string;
-    gap?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | GapConfig;
+    gap?: Gap;
 }
 
 export function HStack({ className, children, gap }: PropsWithChildren<HStackProps>) {
-    const gapClasses =
-        typeof gap === "object"
-            ? Object.entries(gap).map(([bp, val]) => `gap-${bp}-${val}`)
-            : gap
-              ? [`gap-${gap}`]
-              : [];
+    const gapClasses = getGapClasses(gap);
 
     return <div className={classNames("hstack flex-wrap", className, ...gapClasses)}>{children}</div>;
 }
