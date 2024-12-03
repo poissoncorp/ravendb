@@ -8,7 +8,7 @@ import {
 } from "components/pages/resources/manageServer/adminLogs/store/adminLogsSlice";
 import { useAppDispatch, useAppSelector } from "components/store";
 import assertUnreachable from "components/utils/assertUnreachable";
-import { useRef, useEffect } from "react";
+import { useRef, useLayoutEffect } from "react";
 import { Table } from "reactstrap";
 
 export default function AdminLogsVirtualList(props: { availableHeightInPx: number }) {
@@ -19,8 +19,10 @@ export default function AdminLogsVirtualList(props: { availableHeightInPx: numbe
 
     const listRef = useRef<HTMLDivElement>(null);
 
+    const filteredLogsLength = filteredLogs.length;
+
     const virtualizer = useVirtualizer({
-        count: filteredLogs.length,
+        count: filteredLogsLength,
         estimateSize: () => 22,
         getScrollElement: () => listRef.current,
         overscan: 5,
@@ -30,18 +32,16 @@ export default function AdminLogsVirtualList(props: { availableHeightInPx: numbe
         getItemKey: (index) => filteredLogs[index]._meta.id,
     });
 
-    const totalSizeInPx = virtualizer.getTotalSize();
-
     // Scroll to bottom if isMonitorTail is true
-    useEffect(() => {
-        if (isMonitorTail && listRef.current) {
-            listRef.current.scrollTo(0, totalSizeInPx);
+    useLayoutEffect(() => {
+        if (isMonitorTail) {
+            virtualizer.scrollToIndex(filteredLogsLength - 1);
         }
-    }, [isMonitorTail, listRef, totalSizeInPx]);
+    }, [isMonitorTail, virtualizer, filteredLogsLength]);
 
     return (
         <div ref={listRef} style={{ overflow: "auto", height: props.availableHeightInPx }}>
-            <div style={{ height: `${totalSizeInPx}px`, position: "relative" }}>
+            <div style={{ height: `${virtualizer.getTotalSize()}px`, position: "relative" }}>
                 {virtualizer.getVirtualItems().map((virtualRow) => {
                     const log = filteredLogs[virtualRow.index];
 
