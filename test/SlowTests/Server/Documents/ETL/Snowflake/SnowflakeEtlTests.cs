@@ -1134,7 +1134,7 @@ loadToOrders(orderData);
         }
     }
     
-    [RequiresSnowflakeRetryFact(delayBetweenRetriesMs: 1000)]
+    [RavenRetryFact(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
     public void Should_stop_batch_if_size_limit_exceeded_RavenDB_12800()
     {
         using (var store = GetDocumentStore(new Options { ModifyDatabaseRecord = x => x.Settings[RavenConfiguration.GetKey(c => c.Etl.MaxBatchSize)] = "5" }))
