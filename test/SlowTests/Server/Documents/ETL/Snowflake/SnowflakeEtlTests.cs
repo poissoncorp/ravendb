@@ -209,7 +209,7 @@ loadToRegions({
         CreateSnowflakeTable(connectionString, "create or replace TABLE ORDERS (\n\tID STRING,\n\tNAME STRING,\n\tPIC BINARY\n);");
     }
     
-    [RequiresSnowflakeFact]
+    [RavenFact(RavenTestCategory.Etl, SnowflakeRequired = true, NightlyBuildRequired = true)]
     public async Task CanUseSnowflakeEtl()
     {
         using (var store = GetDocumentStore())
@@ -255,7 +255,7 @@ loadToRegions({
         }
     }
     
-    [RequiresSnowflakeFact]
+    [RavenFact(RavenTestCategory.Etl, SnowflakeRequired = true, NightlyBuildRequired = true)]
     public async Task CanUseSnowflakeEtlForArrayData()
     {
         using (var store = GetDocumentStore())
@@ -1191,7 +1191,7 @@ loadToOrders(orderData);
         }
     }
     
-    [RequiresSnowflakeFact]
+    [RavenFact(RavenTestCategory.Etl, SnowflakeRequired = true, NightlyBuildRequired = true)]
     public async Task CanLoadSingleAttachment()
     {
         using (var store = GetDocumentStore())
@@ -1246,7 +1246,7 @@ loadToOrders(orderData);
     }
 
 
-    [RequiresSnowflakeFact]
+    [RavenFact(RavenTestCategory.Etl, SnowflakeRequired = true, NightlyBuildRequired = true)]
     public async Task CanDelete()
     {
         using (var store = GetDocumentStore(Options.ForMode(RavenDatabaseMode.Single)))
@@ -1287,7 +1287,7 @@ loadToOrders(orderData);
         }
     }
     
-    [RequiresSnowflakeFact]
+    [RavenFact(RavenTestCategory.Etl, SnowflakeRequired = true, NightlyBuildRequired = true)]
     public async Task ShouldImportTask()
     {
         using (var srcStore = GetDocumentStore())
@@ -1324,7 +1324,7 @@ loadToOrders(orderData);
         }
     }
 
-    [RequiresSnowflakeFact]
+    [RavenFact(RavenTestCategory.Etl, SnowflakeRequired = true, NightlyBuildRequired = true)]
     public void SnowflakeConnectionStringAuditJsonShouldnNotContainCredentials()
     {
         SnowflakeConnectionString cs = new() { ConnectionString = "secret", Name = "Test" };
