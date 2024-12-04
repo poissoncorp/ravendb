@@ -281,7 +281,7 @@ loadToRegions({
     }
     
     
-    [RequiresSnowflakeRetryTheory(delayBetweenRetriesMs: 1000)]
+    [RavenRetryTheory(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
     [InlineData(RavenDatabaseMode.Single)]
     [InlineData(RavenDatabaseMode.Sharded)]
     public async Task ShouldHandleCaseMismatchBetweenTableDefinitionAndLoadTo(RavenDatabaseMode databaseMode)
@@ -332,7 +332,7 @@ loadToOrDerS(orderData); // note 'OrDerS' here vs 'Orders' defined in the config
     }
     
     
-    [RequiresSnowflakeRetryTheory(delayBetweenRetriesMs: 1000)]
+    [RavenRetryTheory(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
     [InlineData(RavenDatabaseMode.Single)]
     [InlineData(RavenDatabaseMode.Sharded)]
     public async Task NullPropagation(RavenDatabaseMode databaseMode)
@@ -376,7 +376,7 @@ loadToOrders(orderData);");
         }
     }
     
-    [RequiresSnowflakeRetryTheory(delayBetweenRetriesMs: 1000)]
+    [RavenRetryTheory(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
     [InlineData(RavenDatabaseMode.Single)]
     [InlineData(RavenDatabaseMode.Sharded)]
     public async Task NullPropagation_WithExplicitNull(RavenDatabaseMode databaseMode)
@@ -428,7 +428,7 @@ loadToOrders(orderData);");
         }
     }
     
-    [RequiresMsSqlRetryTheory(delayBetweenRetriesMs: 1000)]
+    [RavenRetryTheory(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
     [InlineData(RavenDatabaseMode.Single)]
     [InlineData(RavenDatabaseMode.Sharded)]
     public async Task RavenDB_3341(RavenDatabaseMode databaseMode)
@@ -467,7 +467,7 @@ loadToOrders(orderData);");
         }
     }
     
-    [RequiresMsSqlRetryTheory(delayBetweenRetriesMs: 1000)]
+    [RavenRetryTheory(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
     [InlineData(RavenDatabaseMode.Single)]
     [InlineData(RavenDatabaseMode.Sharded)]
     public async Task CanUpdateToBeNoItemsInChildTable(RavenDatabaseMode databaseMode)
@@ -514,7 +514,7 @@ loadToOrders(orderData);");
     }
     
     
-    [RequiresMsSqlRetryTheory(delayBetweenRetriesMs: 1000)]
+    [RavenRetryTheory(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
     [InlineData(RavenDatabaseMode.Single)]
     [InlineData(RavenDatabaseMode.Sharded)]
     public async Task RavenDB_3172(RavenDatabaseMode databaseMode)
@@ -561,7 +561,7 @@ loadToOrders(orderData);");
         }
     }
     
-    [RequiresMsSqlRetryTheory(delayBetweenRetriesMs: 1000)]
+    [RavenRetryTheory(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
     [InlineData(RavenDatabaseMode.Single)]
     [InlineData(RavenDatabaseMode.Sharded)]
     public async Task WillLog(RavenDatabaseMode databaseMode)
@@ -634,7 +634,7 @@ var nameArr = this.StepName.split('.'); loadToOrders({});");
     }
     
     
-    [RequiresMsSqlRetryTheory(delayBetweenRetriesMs: 1000)]
+    [RavenRetryTheory(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
     [InlineData(RavenDatabaseMode.Single, true)]
     [InlineData(RavenDatabaseMode.Single, false)]
     [InlineData(RavenDatabaseMode.Sharded, true)]
@@ -719,7 +719,7 @@ var nameArr = this.StepName.split('.'); loadToOrders({});");
     }
     
     
-    [RequiresMsSqlRetryTheory(delayBetweenRetriesMs: 1000)]
+    [RavenRetryTheory(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
     [InlineData(RavenDatabaseMode.Single)]
     [InlineData(RavenDatabaseMode.Sharded)]
     public async Task VarcharAndNVarcharFunctionsArentAvailable(RavenDatabaseMode databaseMode)
@@ -813,7 +813,7 @@ output(result);
         }
     }
     
-    [RequiresMsSqlRetryTheory(delayBetweenRetriesMs: 1000)]
+    [RavenRetryTheory(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
     [InlineData(RavenDatabaseMode.Single, true)]
     [InlineData(RavenDatabaseMode.Single, false)]
     [InlineData(RavenDatabaseMode.Sharded, true)]
@@ -892,7 +892,7 @@ output(result);
         }
     }
 
-    [RequiresMsSqlRetryTheory(delayBetweenRetriesMs: 1000)]
+    [RavenRetryTheory(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
     [InlineData(RavenDatabaseMode.Single)]
     [InlineData(RavenDatabaseMode.Sharded)]
     public async Task Should_not_error_if_attachment_doesnt_exist(RavenDatabaseMode databaseMode)
@@ -961,7 +961,7 @@ loadToOrders(orderData);
         }
     }
     
-    [RequiresMsSqlRetryTheory(delayBetweenRetriesMs: 1000)]
+    [RavenRetryTheory(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
     [InlineData(RavenDatabaseMode.Single)]
     [InlineData(RavenDatabaseMode.Sharded)]
     public async Task LoadingMultipleAttachments(RavenDatabaseMode databaseMode)
@@ -1032,7 +1032,7 @@ for (var i = 0; i < attachments.length; i++)
     }
 
 
-    [RequiresMsSqlRetryTheory(delayBetweenRetriesMs: 1000)]
+    [RavenRetryTheory(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
     [InlineData(RavenDatabaseMode.Single)]
     [InlineData(RavenDatabaseMode.Sharded)]
     public async Task CanSkipSettingFieldIfAttachmentDoesntExist(RavenDatabaseMode databaseMode)
@@ -1085,7 +1085,7 @@ loadToOrders(orderData);
         }
     }
     
-    [RequiresMsSqlRetryTheory(delayBetweenRetriesMs: 1000)]
+    [RavenRetryTheory(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
     [InlineData(RavenDatabaseMode.Single)]
     [InlineData(RavenDatabaseMode.Sharded)]
     public async Task LoadingFromMultipleCollections(RavenDatabaseMode databaseMode)
