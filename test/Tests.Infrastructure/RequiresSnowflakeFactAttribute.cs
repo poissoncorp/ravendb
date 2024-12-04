@@ -19,4 +19,29 @@ public class RequiresSnowflakeFactAttribute : FactAttribute
         if (SnowflakeConnectionString.Instance.CanConnect == false)
             Skip = "Test requires Snowflake database";
     }
+    
+    internal static bool ShouldSkip(out string skipMessage)
+    {
+        if (RavenTestHelper.SkipIntegrationTests)
+        {
+            skipMessage = RavenTestHelper.SkipIntegrationMessage;
+            return true;
+        }
+
+        if (RavenTestHelper.IsRunningOnCI)
+        {
+            skipMessage = null;
+            return false;
+        }
+
+        if (MsSqlConnectionString.Instance.CanConnect)
+        {
+            skipMessage = null;
+            return false;
+        }
+
+        skipMessage = "Test requires Snowflake database";
+        return true;
+
+    }
 }
