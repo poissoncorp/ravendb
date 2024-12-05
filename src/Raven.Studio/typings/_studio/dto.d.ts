@@ -1057,4 +1057,4 @@ type GetConnectionStringsResult = Omit<Raven.Client.Documents.Operations.Connect
 }
 
 type AzureQueueStorageAuthenticationType = "connectionString" | "entraId" | "passwordless";
-type AmazonSqsAuthenticationType = "basic" | "emulator" | "passwordless";
+type AmazonSqsAuthenticationType = "basic" | "passwordless";
