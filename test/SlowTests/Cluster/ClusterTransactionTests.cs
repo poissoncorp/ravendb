@@ -30,6 +30,7 @@ using Raven.Server.Rachis;
 using Raven.Server.ServerWide.Commands;
 using Raven.Server.ServerWide.Context;
 using Raven.Tests.Core.Utils.Entities;
+using Sparrow;
 using Sparrow.Server;
 using Tests.Infrastructure;
 using Xunit;
@@ -88,10 +89,10 @@ namespace SlowTests.Cluster
                     TransactionMode = TransactionMode.ClusterWide
                 }))
                 {
-                    session.Advanced.ClusterTransaction.CreateCompareExchangeValue("usernames/ayende", new byte[256 * 1024]);
+                    session.Advanced.ClusterTransaction.CreateCompareExchangeValue("usernames/ayende", new byte[2 * 256 * 1024]);
                     await session.StoreAsync(user3, "foo/bar");
                     var ex = await Assert.ThrowsAsync<RavenException>(() => session.SaveChangesAsync());
-                    Assert.Contains("The command 'ClusterTransactionCommand' size of 1.5 MBytes exceed the max allowed size", ex.Message);
+                    Assert.Contains("The command 'ClusterTransactionCommand' size of 3 MBytes exceed the max allowed size", ex.Message);
                 }
 
                 using (var session = leaderStore.OpenAsyncSession(new SessionOptions
@@ -2265,6 +2266,48 @@ select incl(c)"
                     _ = await session.LoadAsync<User>(id);
                     Assert.Equal(0, ((ClusterTransactionOperationsBase)session.Advanced.ClusterTransaction).NumberOfTrackedCompareExchangeValues);
                 }
+            }
+        }
+
+        [RavenTheory(RavenTestCategory.ClusterTransactions | RavenTestCategory.ClientApi)]
+        [RavenData(DatabaseMode = RavenDatabaseMode.Single)]
+        public async Task ClusterWideTrx_WhenExecutedBatchExceedsSpaceLimit_ShouldStoreAllDocumentsSuccessfully(Options options)
+        {
+            int count = 256;
+
+            using var store = GetDocumentStore(options);
+
+            var database = await GetDatabase(store.Database);
+            var guidSize = Guid.NewGuid().ToString().Length;
+            var value = (int)(2*database._maxTransactionSize.GetValue(SizeUnit.Bytes)/guidSize/count); //To ensure that the total size of the batch exceeds the space limit for cluster transactions.
+
+            var manualResetEvent = new ManualResetEvent(false);
+            var handCommandTask = database.TxMerger.Enqueue(new TestCommand(manualResetEvent, TimeSpan.FromSeconds(15)));
+            var tasks = Task.WhenAll(Enumerable.Range(0, count).Select(async i =>
+            {
+                using (var session = store.OpenAsyncSession(new SessionOptions { TransactionMode = TransactionMode.ClusterWide }))
+                {
+                    await session.StoreAsync(new TestObj { Prop = string.Join("", Enumerable.Range(0, value).Select(_ => Guid.NewGuid().ToString())) }, $"TestObjs/{i}");
+                    await session.SaveChangesAsync();
+                }
+            }));
+
+            using (Server.ServerStore.ContextPool.AllocateOperationContext(out TransactionOperationContext context))
+            {
+                await AssertWaitForTrueAsync(() =>
+                {
+                    using (context.OpenReadTransaction())
+                        return Task.FromResult(count <= ClusterTransactionCommand.ReadCommandsBatch(context, store.Database, 0, take:long.MaxValue).Count());
+                });
+            }
+
+            manualResetEvent.Set();
+            await handCommandTask;
+            await tasks;
+
+            using (var session = store.OpenAsyncSession())
+            {
+                Assert.Equal(count, await session.Query<TestObj>().CountAsync());
             }
         }
     }

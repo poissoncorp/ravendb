@@ -90,6 +90,14 @@ namespace Raven.Server.Web.Authentication
                     throw new InvalidOperationException($"Cannot generate the client certificate '{certificate.Name}' with 'Cluster Admin' security clearance because the current client certificate being used has a lower clearance: {clientCertDef.SecurityClearance}");
                 }
 
+                if (RavenLogManager.Instance.IsAuditEnabled)
+                {
+                    var permissions = FormatPermissions(certificate);
+
+                    LogAuditFor("Certificates", "GENERATE", 
+                        $"Certificate {certificate?.Name}. Security Clearance: {certificate?.SecurityClearance}. Permissions: {permissions}. TwoFactor: {string.IsNullOrEmpty(twoFactorAuthenticationKey)}");
+                }
+                
                 byte[] certs = null;
                 await ServerStore.Operations.AddLocalOperation(
                         operationId.Value,
@@ -222,12 +230,10 @@ namespace Raven.Server.Web.Authentication
 
                 if (AuditLogger.IsAuditEnabled)
                 {
-                    var permissions = certificate?.Permissions != null
-                        ? Environment.NewLine + string.Join(Environment.NewLine, certificate.Permissions.Select(kvp => kvp.Key + ": " + kvp.Value.ToString()))
-                        : string.Empty;
+                    var permissions = FormatPermissions(certificate);
                     LogAuditFor("Certificates",
                         "ADD",
-                        $"New certificate {certificate?.Name} ['{certificate?.Thumbprint}']. Security Clearance: {certificate?.SecurityClearance}. Permissions:{permissions}.");
+                        $"New certificate {certificate?.Name} ['{certificate?.Thumbprint}']. Security Clearance: {certificate?.SecurityClearance}. Permissions:{permissions}. TwoFactor: {string.IsNullOrEmpty(twoFactorAuthenticationKey)}");
                 }
 
                 try
@@ -241,6 +247,14 @@ namespace Raven.Server.Web.Authentication
 
                 NoContentStatus(HttpStatusCode.Created);
             }
+        }
+
+        private string FormatPermissions(CertificateDefinition certificate)
+        {
+            return certificate?.Permissions != null
+                ? Environment.NewLine + string.Join(Environment.NewLine, certificate.Permissions.Select(kvp => kvp.Key + ": " + kvp.Value.ToString()))
+                : string.Empty;
+            ;
         }
 
         public static async Task PutCertificateCollectionInCluster(CertificateDefinition certDef, byte[] certBytes, string password, ServerStore serverStore,
@@ -358,6 +372,14 @@ namespace Raven.Server.Web.Authentication
                 {
                     if (cert.Value.TryGet(nameof(CertificateDefinition.NotAfter), out DateTime notAfter) && DateTime.UtcNow > notAfter)
                         keysToDelete.Add(cert.Key);
+                }
+                
+                if (RavenLogManager.Instance.IsAuditEnabled)
+                {
+                    foreach (string keyToDelete in keysToDelete)
+                    {
+                        LogAuditFor("Certificates", "DELETE", $"Certificate '{keyToDelete}'.");
+                    }
                 }
 
                 await DeleteInternal(keysToDelete, GetRaftRequestIdFromQuery());
@@ -753,6 +775,14 @@ namespace Raven.Server.Web.Authentication
                     ServerStore.Cluster.DeleteLocalState(ctx, newCertificate.Thumbprint);
                 }
 
+                if (RavenLogManager.Instance.IsAuditEnabled)
+                {
+                    var permissions = FormatPermissions(newCertificate);
+
+                    LogAuditFor("Certificates", "CHANGE", 
+                        $"Certificate {newCertificate?.Name}. Security Clearance: {newCertificate?.SecurityClearance}. Permissions: {permissions}. TwoFactor: {string.IsNullOrEmpty(twoFactorAuthenticationKey)}");
+                }
+
                 var cmd = new PutCertificateCommand(newCertificate.Thumbprint,
                     new CertificateDefinition
                     {
@@ -975,6 +1005,11 @@ namespace Raven.Server.Web.Authentication
                 if (Server.Certificate.Certificate == null)
                     throw new InvalidOperationException("Cannot force renew this Let's Encrypt server certificate. The server certificate is not loaded.");
 
+                if (RavenLogManager.Instance.IsAuditEnabled)
+                {
+                    LogAuditFor("Certificates", "RENEW", "Server certificate");
+                }
+                
                 try
                 {
                     var success = Server.RefreshClusterCertificate(true, GetRaftRequestIdFromQuery());

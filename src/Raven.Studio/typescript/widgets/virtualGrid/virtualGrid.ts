@@ -340,13 +340,19 @@ class virtualGrid<T extends object> {
             const [safeSkip, safeTake] = this.makeSkipAndTakeSafe(skip, take);
 
             if (safeTake > 0) {
-                this.isLoading(true);
+                const resetAndLoadingTimeout = setTimeout(() => {
+                    this.virtualRows.forEach(r => r.reset());
+                    this.isLoading(true);
+                }, 50);
 
                 const fetcherTask = this.settings.fetcher(safeSkip, safeTake);
                 const requestGeneration = this.generation;
                 
                 const fetcherPostprocessor = () => {
                     fetcherTask
+                        .always(() => {
+                            clearTimeout(resetAndLoadingTimeout);
+                        })
                         .then((results: pagedResult<T>) => {
                             if (requestGeneration === this.generation) {
                                 this.chunkFetched(results, safeSkip, safeTake);
@@ -738,7 +744,6 @@ class virtualGrid<T extends object> {
             this.$viewportElement.scrollTop(0);
             this.columns([]);
         }
-        this.virtualRows.forEach(r => r.reset());
         this.inIncludeSelectionMode = true;
         this.selectionDiff = [];
         this.syncSelectAll();
