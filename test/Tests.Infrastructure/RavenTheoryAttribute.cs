@@ -46,7 +46,7 @@ public class RavenTheoryAttribute : TheoryAttribute, ITraitAttribute
         if (azureRequired && AzureRetryTheoryAttribute.ShouldSkip(out skip))
             return skip;
 
-        if (snowflakeRequired && RequiresSnowflakeFactAttribute.ShouldSkip(out skip))
+        if (snowflakeRequired && SnowflakeHelper.ShouldSkip(out skip))
             return skip;
         
         return null;
