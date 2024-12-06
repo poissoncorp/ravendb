@@ -27,7 +27,7 @@ export default function CreateDatabaseRegularStepReplicationAndSharding() {
         hash: "VKF52P",
     });
 
-    const { control, setValue } = useFormContext<CreateDatabaseRegularFormData>();
+    const { control, setValue, watch } = useFormContext<CreateDatabaseRegularFormData>();
     const {
         basicInfoStep: { isEncrypted },
         replicationAndShardingStep: { isSharded, shardsCount, replicationFactor, isManualReplication },
@@ -48,6 +48,17 @@ export default function CreateDatabaseRegularStepReplicationAndSharding() {
     const isNotBootstrapped = nodeTagsCount === 0;
     const isManualReplicationRequiredForEncryption =
         createDatabaseRegularDataUtils.getIsManualReplicationRequiredForEncryption(nodeTagsCount, isEncrypted);
+
+    // Disable prefixes for shards when sharding is disabled
+    useEffect(() => {
+        const { unsubscribe } = watch((values, { name }) => {
+            if (name === "replicationAndShardingStep.isSharded" && !values.replicationAndShardingStep.isSharded) {
+                setValue("replicationAndShardingStep.isPrefixesForShards", false, { shouldValidate: true });
+            }
+        });
+
+        return () => unsubscribe();
+    }, [setValue, watch]);
 
     useEffect(() => {
         if (isSharded && replicationFactor > maxReplicationFactorForSharding) {

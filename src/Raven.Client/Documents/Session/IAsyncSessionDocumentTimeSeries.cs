@@ -87,7 +87,9 @@ namespace Raven.Client.Documents.Session
     ///     Advanced async Incremental TimeSeries session operations
     /// </summary>
     public interface IAsyncSessionDocumentIncrementalTimeSeries :
-        ISessionDocumentIncrementTimeSeriesBase
+        IAsyncTimeSeriesStreamingBase<TimeSeriesEntry>,
+        ISessionDocumentIncrementTimeSeriesBase,
+        ISessionDocumentDeleteTimeSeriesBase
     {
         /// <inheritdoc cref="IAsyncSessionDocumentTimeSeries.GetAsync"/>
         Task<TimeSeriesEntry[]> GetAsync(DateTime? from = null, DateTime? to = null, int start = 0, int pageSize = int.MaxValue,

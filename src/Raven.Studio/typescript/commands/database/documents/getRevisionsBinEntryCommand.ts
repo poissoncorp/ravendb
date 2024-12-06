@@ -35,7 +35,7 @@ class getRevisionsBinEntryCommand extends commandBase {
         }
 
         return {
-            skip: this.skip,
+            start: this.skip,
             pageSize: this.take
         };
     }

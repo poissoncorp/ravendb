@@ -90,6 +90,8 @@ namespace Raven.Server.Documents
         private readonly RavenLogger _logger;
         private readonly string _name;
 
+        private static readonly Slice FixCountersLastKeySlice;
+
         // this is only modified by write transactions under lock
         // no need to use thread safe ops
         private long _lastEtag;
@@ -105,6 +107,8 @@ namespace Raven.Server.Documents
                 Slice.From(ctx, "GlobalTree", ByteStringType.Immutable, out GlobalTreeSlice);
                 Slice.From(ctx, "GlobalChangeVector", ByteStringType.Immutable, out GlobalChangeVectorSlice);
                 Slice.From(ctx, "GlobalFullChangeVector", ByteStringType.Immutable, out GlobalFullChangeVectorSlice);
+                Slice.From(ctx, "FixCountersLastKeySlice", ByteStringType.Immutable, out FixCountersLastKeySlice);
+
             }
         }
 
@@ -640,6 +644,26 @@ namespace Raven.Server.Documents
             var tree = context.Transaction.InnerTransaction.CreateTree(GlobalTreeSlice);
             using (Slice.External(context.Allocator, (byte*)&index, sizeof(long), out Slice indexSlice))
                 tree.Add(LastCompletedClusterTransactionIndexSlice, indexSlice);
+        }
+
+        public static string ReadLastFixedCounterKey(Transaction tx)
+        {
+            if (tx == null)
+                throw new InvalidOperationException("No active transaction found in the context, and at least read transaction is needed");
+            var tree = tx.ReadTree(GlobalTreeSlice);
+            var val = tree.Read(FixCountersLastKeySlice);
+            if (val == null)
+                return null;
+            return Encodings.Utf8.GetString(val.Reader.Base, val.Reader.Length);
+        }
+
+        public void SetLastFixedCounterKey(DocumentsOperationContext context, string lastKey)
+        {
+            var tree = context.Transaction.InnerTransaction.ReadTree(GlobalTreeSlice);
+            using (Slice.From(context.Allocator, lastKey, out var slice))
+            {
+                tree.Add(FixCountersLastKeySlice, slice);
+            }
         }
 
         public IEnumerable<Document> GetDocumentsStartingWith(DocumentsOperationContext context, string idPrefix, string startAfterId,
