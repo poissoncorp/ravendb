@@ -91,7 +91,9 @@ class collectionsTracker {
         const allDocs = this.collections().find(x => x.isAllDocuments);
         allDocs.documentCount(totalCount);
         
-        this.allRevisions().documentCount(notification.CountOfRevisions);
+        if (this.allRevisions()) {
+            this.allRevisions().documentCount(notification.CountOfRevisions);
+        }
 
         removedCollections.forEach(c => {
             const toRemove = this.collections().find(x => x.name.toLocaleLowerCase() === c.Name.toLocaleLowerCase());
