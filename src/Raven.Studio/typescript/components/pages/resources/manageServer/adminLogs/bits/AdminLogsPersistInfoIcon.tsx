@@ -1,9 +1,9 @@
 import { Icon } from "components/common/Icon";
-import useId from "components/hooks/useId";
+import useUniqueId from "components/hooks/useUniqueId";
 import { UncontrolledPopover } from "reactstrap";
 
 export default function AdminLogsPersistInfoIcon() {
-    const id = useId("persist-info-");
+    const id = useUniqueId("persist-info-");
 
     return (
         <>
