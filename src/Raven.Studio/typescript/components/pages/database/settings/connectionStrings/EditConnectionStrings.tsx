@@ -216,6 +216,13 @@ function getAvailableConnectionStringsOptions(features: ConnectionStringsLicense
             licenseRequired: "Enterprise",
             isDisabled: !features.hasQueueEtl,
         },
+        {
+            value: "Snowflake",
+            label: "Snowflake",
+            icon: "snowflake",
+            licenseRequired: "Enterprise",
+            isDisabled: !features.hasSnowflakeEtl,
+        },
     ];
 }
 
