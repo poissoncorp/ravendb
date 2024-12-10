@@ -408,6 +408,8 @@ const allIconNames = exhaustiveStringTuple<IconName>()(
     "shuffle",
     "skip",
     "snapshot-backup",
+    "snowflake-etl",
+    "snowflake",
     "sortby",
     "sparkles",
     "spatial-map-view",
