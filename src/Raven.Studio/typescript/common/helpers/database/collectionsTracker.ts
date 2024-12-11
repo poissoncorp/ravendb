@@ -41,20 +41,15 @@ class collectionsTracker {
     }
 
     async configureRevisions(db: database) {
-        if (db.hasRevisionsConfiguration()) {
-            const revisionsPreview = await new getRevisionsPreviewCommand({
-                databaseName: db.name,
-                start: 0,
-                pageSize: 0,
-                type: "All",
-            }).execute();
+        const revisionsPreview = await new getRevisionsPreviewCommand({
+            databaseName: db.name,
+            start: 0,
+            pageSize: 0,
+            type: "All",
+        }).execute();
 
-            this.allRevisions(new collection(collection.allRevisionsCollectionName, revisionsPreview.totalResultCount));
-            this.revisionsBin(new collection(collection.revisionsBinCollectionName));
-        } else {
-            this.allRevisions(null);
-            this.revisionsBin(null);
-        }
+        this.allRevisions(new collection(collection.allRevisionsCollectionName, revisionsPreview.totalResultCount));
+        this.revisionsBin(new collection(collection.revisionsBinCollectionName));
     }
 
     private collectionsLoaded(collectionsStats: collectionsStats) {
