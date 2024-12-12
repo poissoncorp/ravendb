@@ -460,7 +460,7 @@ class appUrl {
         return "#databases/documents/revisions/all?" + databasePart;
     }
 
-    static forRevisionsBin(db: database): string {
+    static forRevisionsBin(db: database | string): string {
         const databasePart = appUrl.getEncodedDbPart(db);
         return "#databases/documents/revisions/bin?" + databasePart;
     }
