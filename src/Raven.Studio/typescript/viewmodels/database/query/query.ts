@@ -344,8 +344,9 @@ class query extends shardViewModelBase {
     private initObservables(): void {
         this.queriedIndex = ko.pureComputed(() => {
             const stats = this.queryStats();
-            if (!stats)
+            if (!stats) {
                 return null;
+            }
 
             return stats.IndexName;
         });
@@ -363,8 +364,9 @@ class query extends shardViewModelBase {
         this.queriedIndexDescription = ko.pureComputed(() => {
             const indexName = this.queriedIndex();
 
-            if (!indexName)
+            if (!indexName) {
                 return "";
+            }
                     
             if (indexName === "AllDocs") {
                 return "All Documents";
@@ -381,8 +383,9 @@ class query extends shardViewModelBase {
 
         this.hasEditableIndex = ko.pureComputed(() => {
             const indexName = this.queriedIndex();
-            if (!indexName)
+            if (!indexName) {
                 return false;
+            }
 
             return !indexName.startsWith(queryUtil.DynamicPrefix) &&
                 indexName !== queryUtil.AllDocs;
@@ -416,8 +419,9 @@ class query extends shardViewModelBase {
         
         this.isCollectionQuery = ko.pureComputed(() => {
             const indexName = this.queriedIndex();
-            if (!indexName)
+            if (!indexName) {
                 return false;
+            }
 
             if (!indexName.startsWith("collection/")) {
                 return false;
@@ -434,8 +438,9 @@ class query extends shardViewModelBase {
         
         this.isAutoIndex = ko.pureComputed(() => {
             const indexName = this.queriedIndex();
-            if (!indexName)
+            if (!indexName) {
                 return false;
+            }
             
             return indexName.toLocaleLowerCase().startsWith(queryUtil.AutoPrefix);
         });
@@ -668,11 +673,12 @@ class query extends shardViewModelBase {
             enableInlinePreview: false
         });
 
-        if (!this.queryFetcher())
+        if (!this.queryFetcher()) {
             this.queryFetcher(() => $.when({
                 items: [] as document[],
                 totalResultCount: 0
             }));
+        }
         
         this.explanationsFetcher(() => {
            const allExplanations = this.explanationsCache;

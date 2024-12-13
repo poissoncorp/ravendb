@@ -13,12 +13,14 @@ class docsIdsBasedOnQueryFetcher {
     }
     
     fetch(documentIdPrefix: string, query: string): JQueryPromise<string[]> {
-        if (!query)
+        if (!query) {
             query = "from @all_docs";
+        }
 
         let wherelessQueryText = indexInfoQueryExtractor.extract(query);
-        if (!wherelessQueryText)
+        if (!wherelessQueryText) {
             wherelessQueryText = "from @all_docs";
+        }
         
         const criteria = new queryCriteria();
         criteria.queryText(`${wherelessQueryText} where startsWith(id(), '${this.escape(documentIdPrefix)}')`);
@@ -64,8 +66,9 @@ from 'Roder'
     private static IndexInfoQueryPartRegex = /from\s+(index)?\s*(('[^']+'|"[^"]+")|[\S]+)/mi;
     
     static extract(query: string) {
-        if (!query)
+        if (!query) {
             return '';
+        }
 
         const m = query.match(indexInfoQueryExtractor.IndexInfoQueryPartRegex);
         return m ? m[0] : null;

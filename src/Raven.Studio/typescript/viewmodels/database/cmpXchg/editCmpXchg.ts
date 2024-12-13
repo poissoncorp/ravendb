@@ -142,8 +142,9 @@ class editorInfo {
         } catch (e) {
             this.focusOnEditor();
             
-            if (dto == undefined)
+            if (dto == undefined) {
                 throw(`${this.type} content is not a legal JSON expression`);
+            }
         }
         
         return dto;

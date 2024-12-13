@@ -1175,10 +1175,14 @@ namespace Raven.Server.Documents
                     return null;
                 }
 
-                var info = table.GetInfoFor(tvr.Id);
-
-                return (tvr.Size, info.AllocatedSize, info.IsCompressed);
+                return GetMetrics(table, tvr);
             }
+        }
+
+        public static (int ActualSize, int AllocatedSize, bool IsCompressed) GetMetrics(Table table, TableValueReader tvr)
+        {
+            var info = table.GetInfoFor(tvr.Id);
+            return (tvr.Size, info.AllocatedSize, info.IsCompressed);
         }
 
         public bool GetTableValueReaderForDocument(DocumentsOperationContext context, Slice lowerId, bool throwOnConflict, out TableValueReader tvr)

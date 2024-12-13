@@ -25,7 +25,12 @@ module.exports = {
     "@typescript-eslint/prefer-namespace-keyword": "off",
     "@typescript-eslint/no-unused-vars": "warn",
     "react/react-in-jsx-scope": "off",
-    "local-rules/no-reactstrap-alert": "warn"
+    "local-rules/no-reactstrap-alert": "warn",
+    "curly": "warn",
+    "react/jsx-curly-brace-presence": [
+      'warn',
+      { props: 'never', children: 'never' },
+    ],
   },
   "settings": {
     "react": {

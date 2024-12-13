@@ -1642,10 +1642,10 @@ select out()
                             {
                                 p1,
                                 p2,
-                                p3,
+                                p3
                             }
-                        },
-                    },
+                        }
+                    }
                 };
 
                 await AssertWaitForValueAsync(async () =>
@@ -1672,7 +1672,7 @@ select out()
                 await store.Maintenance.SendAsync(new ConfigureTimeSeriesOperation(config));
                 
                 await TimeSeries.WaitForPolicyRunnerAsync(database);
-                await TimeSeries.VerifyPolicyExecutionAsync(store, config.Collections["Users"],12);
+                await TimeSeries.VerifyPolicyExecutionAsync(store, config.Collections["Users"],12, timeout: 30000);
 
                 var rawAndRoll = GetSum(store, now);
                 Assert.Equal(raw, rawAndRoll);

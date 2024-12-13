@@ -4,7 +4,6 @@ import d3 = require("d3");
 import moment = require("moment");
 import { clusterDashboardChart } from "models/resources/clusterDashboard/clusterDashboardChart";
 import Update = d3.selection.Update;
-import Line = d3.svg.Line;
 import { range } from "common/typeUtils";
 
 

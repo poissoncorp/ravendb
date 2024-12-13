@@ -294,6 +294,7 @@ namespace Raven.Server.Documents.Handlers.Debugging
 
             var memInfo = MemoryInformation.GetMemoryInformationUsingOneTimeSmapsReader();
             long managedMemoryInBytes = AbstractLowMemoryMonitor.GetManagedMemoryInBytes();
+            var gcInfo = GC.GetGCMemoryInfo(GCKind.Any);
             long totalUnmanagedAllocations = NativeMemory.TotalAllocatedMemory;
             var encryptionBuffers = EncryptionBuffersPool.Instance.GetStats();
             var dirtyMemoryState = MemoryInformation.GetDirtyMemoryState();
@@ -325,6 +326,7 @@ namespace Raven.Server.Documents.Handlers.Debugging
                 [nameof(MemoryInfo.PhysicalMemory)] = memInfo.TotalPhysicalMemory.ToString(),
                 [nameof(MemoryInfo.WorkingSet)] = memInfo.WorkingSet.ToString(),
                 [nameof(MemoryInfo.ManagedAllocations)] = Size.Humane(managedMemoryInBytes),
+                [nameof(MemoryInfo.ManagedHeapsAfterLastGC)] = ManagedHeapsInfo(gcInfo),
                 [nameof(MemoryInfo.UnmanagedAllocations)] = Size.Humane(totalUnmanagedAllocations),
                 [nameof(MemoryInfo.LuceneManagedAllocationsForTermCache)] = Size.Humane(NativeMemory.TotalLuceneManagedAllocationsForTermCache),
                 [nameof(MemoryInfo.LuceneUnmanagedAllocationsForSorting)] = Size.Humane(NativeMemory.TotalLuceneUnmanagedAllocationsForSorting),
@@ -358,6 +360,48 @@ namespace Raven.Server.Documents.Handlers.Debugging
             writer.WriteEndArray();
 
             writer.WriteEndObject();
+
+            static DynamicJsonValue ManagedHeapsInfo(GCMemoryInfo info)
+            {
+                if (info.Index == 0)
+                    return null;
+
+                var gen0 = info.GenerationInfo[0];
+                var gen1 = info.GenerationInfo[1];
+                var gen2 = info.GenerationInfo[2];
+                var loh = info.GenerationInfo[3];
+                var poh = info.GenerationInfo[4];
+
+                return new DynamicJsonValue()
+                {
+                    ["TotalSize"] = Size.Humane(info.HeapSizeBytes),
+                    ["Gen0"] = new DynamicJsonValue()
+                    {
+                        ["Size"] = Size.Humane(gen0.SizeAfterBytes),
+                        ["Fragmentation"] = Size.Humane(gen0.FragmentationAfterBytes),
+                    },
+                    ["Gen1"] = new DynamicJsonValue()
+                    {
+                        ["Size"] = Size.Humane(gen1.SizeAfterBytes),
+                        ["Fragmentation"] = Size.Humane(gen1.FragmentationAfterBytes),
+                    },
+                    ["Gen2"] = new DynamicJsonValue()
+                    {
+                        ["Size"] = Size.Humane(gen2.SizeAfterBytes),
+                        ["Fragmentation"] = Size.Humane(gen2.FragmentationAfterBytes),
+                    },
+                    ["LOH"] = new DynamicJsonValue()
+                    {
+                        ["Size"] = Size.Humane(loh.SizeAfterBytes),
+                        ["Fragmentation"] = Size.Humane(loh.FragmentationAfterBytes),
+                    },
+                    ["POH"] = new DynamicJsonValue()
+                    {
+                        ["Size"] = Size.Humane(poh.SizeAfterBytes),
+                        ["Fragmentation"] = Size.Humane(poh.FragmentationAfterBytes),
+                    },
+                };
+            }
         }
 
         private static void WriteThreads<TWriter>(bool includeThreads, TWriter writer, JsonOperationContext context)
@@ -532,6 +576,7 @@ namespace Raven.Server.Documents.Handlers.Debugging
 
             public string Remarks { get; set; }
             public string ManagedAllocations { get; set; }
+            public DynamicJsonValue ManagedHeapsAfterLastGC { get; set; }
             public string UnmanagedAllocations { get; set; }
             public string LuceneManagedAllocationsForTermCache { get; set; }
             public string LuceneUnmanagedAllocationsForSorting { get; set; }

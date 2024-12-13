@@ -180,7 +180,7 @@ export function ImportIndexes(props: ImportIndexesProps) {
             toggle={toggle}
             size="lg"
             wrapClassName="bs5"
-            contentClassName={`modal-border bulge-primary`}
+            contentClassName="modal-border bulge-primary"
             centered
         >
             <Form control={control} onSubmit={handleSubmit(handleImport)}>

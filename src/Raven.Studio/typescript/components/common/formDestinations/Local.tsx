@@ -114,9 +114,7 @@ function PathInfo({
                                             Free space: <strong>{location.FreeSpaceHumane}</strong>{" "}
                                             {location.TotalSpaceHumane && (
                                                 <span>
-                                                    {"(Total: "}
-                                                    <strong>{location.TotalSpaceHumane}</strong>
-                                                    {")"}
+                                                    (Total:<strong>{location.TotalSpaceHumane}</strong>)
                                                 </span>
                                             )}
                                         </span>

@@ -7,12 +7,23 @@ using Sparrow.Json;
 
 namespace Raven.Client.Documents.Operations.OngoingTasks
 {
+    /// <summary>
+    /// Operation to retrieve detailed information about a specific ongoing task.
+    /// Ongoing tasks include various types of tasks such as replication, ETL, backup, and subscriptions.
+    /// </summary>
     public sealed class GetOngoingTaskInfoOperation : IMaintenanceOperation<OngoingTask>
     {
         private readonly string _taskName;
         private readonly long _taskId;
         private readonly OngoingTaskType _type;
 
+        /// <inheritdoc cref="GetOngoingTaskInfoOperation"/>
+        /// <param name="taskId">The unique identifier of the ongoing task to retrieve information for.</param>
+        /// <param name="type">The type of the ongoing task, such as replication, ETL, or backup.</param>
+        /// <exception cref="ArgumentException">
+        /// Thrown if the specified task type is <see cref="OngoingTaskType.PullReplicationAsHub"/>, which is not supported.
+        /// Use <see cref="GetPullReplicationTasksInfoOperation"/> for pull replication hub tasks instead.
+        /// </exception>
         public GetOngoingTaskInfoOperation(long taskId, OngoingTaskType type)
         {
             _taskId = taskId;
@@ -24,6 +35,9 @@ namespace Raven.Client.Documents.Operations.OngoingTasks
             }
         }
 
+        /// <inheritdoc cref="GetOngoingTaskInfoOperation"/>
+        /// <param name="taskName">The name of the ongoing task to retrieve information for.</param>
+        /// <param name="type">The type of the ongoing task, such as replication, ETL, or backup.</param>
         public GetOngoingTaskInfoOperation(string taskName, OngoingTaskType type)
         {
             _taskName = taskName;

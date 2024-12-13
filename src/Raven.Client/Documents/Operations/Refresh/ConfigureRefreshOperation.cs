@@ -9,10 +9,26 @@ using Sparrow.Json;
 
 namespace Raven.Client.Documents.Operations.Refresh
 {
+    /// <summary>
+    /// Operation to configure the refresh task.
+    /// By enabling and configuring refresh task, the database automatically refreshes documents
+    /// at a specified interval, based on the provided configuration parameters.
+    /// </summary>
     public sealed class ConfigureRefreshOperation : IMaintenanceOperation<ConfigureRefreshOperationResult>
     {
         private readonly RefreshConfiguration _configuration;
 
+        /// <inheritdoc cref="ConfigureRefreshOperation"/>
+        /// <param name="configuration">
+        /// The <see cref="RefreshConfiguration"/> object containing the refresh settings to apply.
+        /// This configuration includes:
+        /// <list type="bullet">
+        /// <item><description>The interval time for refreshing documents (<see cref="RefreshConfiguration.RefreshFrequencyInSec"/>).</description></item>
+        /// <item><description>The maximum number of documents to process during each refresh cycle (<see cref="RefreshConfiguration.MaxItemsToProcess"/>).</description></item>
+        /// <item><description>A flag indicating whether the refresh operation is enabled or disabled.</description></item>
+        /// </list>
+        /// </param>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="configuration"/> is null.</exception>
         public ConfigureRefreshOperation(RefreshConfiguration configuration)
         {
             _configuration = configuration;

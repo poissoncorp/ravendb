@@ -89,8 +89,9 @@ class queryUtil {
     }
 
     static replaceSelectAndIncludeWithFetchAllStoredFields(query: string) {
-        if (!query)
+        if (!query) {
             throw new Error("Query is required.");
+        }
         
         const parsedRql = parseRql(query);
 

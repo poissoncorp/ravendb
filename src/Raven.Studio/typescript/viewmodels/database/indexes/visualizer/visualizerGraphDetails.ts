@@ -16,7 +16,9 @@ abstract class reduceValuesFormatter {
         let first = true;
 
         valuesMap.forEach((value, key) => {
-            if (!first) output += ", ";
+            if (!first) {
+                output += ", ";
+            }
             first = false;
 
             output += key + ": " + reduceValuesFormatter.formatValue(data[key]);
@@ -283,9 +285,15 @@ class leafPageItem extends pageItem {
             if (entry.Source) {
                 hasAnySource = true;
 
-                if (i > 0) entiresToTake[i - 1] = 1;
+                if (i > 0) {
+                    entiresToTake[i - 1] = 1;
+                }
+                
                 entiresToTake[i] = 1;
-                if (i < entries.length - 1) entiresToTake[i + 1] = 1;
+
+                if (i < entries.length - 1) {
+                    entiresToTake[i + 1] = 1;
+                }
             }
         }
 

@@ -42,8 +42,9 @@ class assignCores extends dialogViewModelBase {
     }
 
     save() {
-        if (!this.isValid(this.validationGroup))
+        if (!this.isValid(this.validationGroup)) {
             return;
+        }
 
         eventsCollector.default.reportEvent("assign-cores", "save");
         

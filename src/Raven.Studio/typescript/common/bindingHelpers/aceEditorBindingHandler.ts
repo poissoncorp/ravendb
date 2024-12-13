@@ -46,8 +46,9 @@ class aceEditorBindingHandler {
             const mode = editor.session.getMode();
             if (mode.prefixRegexps) {
                 mode.prefixRegexps.forEach(function (prefixRegex: RegExp) {
-                    if (!prefix && prefixRegex)
+                    if (!prefix && prefixRegex) {
                         prefix = this.retrievePrecedingIdentifier(line, pos.column, prefixRegex);
+                    }
                 }.bind(this));
 
                 return prefix;

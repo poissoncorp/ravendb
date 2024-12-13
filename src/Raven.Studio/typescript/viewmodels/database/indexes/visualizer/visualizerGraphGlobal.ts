@@ -37,8 +37,9 @@ abstract class abstractPageItem {
 
     // Return the X offset from where to start drawing the first incoming line to the pageItem
     getGlobalTargetConnectionPointXOffset(): number {
-        if (this.incomingLinesCount === 1)
+        if (this.incomingLinesCount === 1) {
             return 0;
+        }
 
         const segmentSize = 4;
         let xOffset = Math.floor(this.incomingLinesCount / 2) * segmentSize;

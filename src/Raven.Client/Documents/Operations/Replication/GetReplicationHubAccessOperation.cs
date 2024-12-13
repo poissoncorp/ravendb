@@ -7,12 +7,21 @@ using Sparrow.Json;
 
 namespace Raven.Client.Documents.Operations.Replication
 {
+    /// <summary>
+    /// Operation to retrieve access details for a specific replication hub task.
+    /// This operation provides a paginated list of detailed access information, including the nodes or sinks
+    /// that are authorized to access the specified replication hub.
+    /// </summary>
     public sealed class GetReplicationHubAccessOperation : IMaintenanceOperation<DetailedReplicationHubAccess[]>
     {
         private readonly string _hubName;
         private readonly int _start;
         private readonly int _pageSize;
 
+        /// <inheritdoc cref="GetReplicationHubAccessOperation"/>
+        /// <param name="hubName">The name of the replication hub task for which access details are retrieved.</param>
+        /// <param name="start">The starting point for pagination (default is 0).</param>
+        /// <param name="pageSize">The maximum number of records to return per page (default is 25).</param>
         public GetReplicationHubAccessOperation(string hubName, int start = 0, int pageSize = 25)
         {
             _hubName = hubName;

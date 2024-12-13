@@ -21,7 +21,7 @@ export default function DeleteCustomSorterConfirm(props: DeleteCustomSorterConfi
     const iconName: IconName = isServerWide ? "server-wide-custom-sorters" : "custom-sorters";
 
     return (
-        <Modal isOpen toggle={toggle} wrapClassName="bs5" centered contentClassName={"modal-border bulge-danger"}>
+        <Modal isOpen toggle={toggle} wrapClassName="bs5" centered contentClassName="modal-border bulge-danger">
             <ModalBody className="vstack gap-4 position-relative">
                 <div className="text-center">
                     <Icon icon={iconName} color="danger" className="fs-1" margin="m-0" />
@@ -44,7 +44,7 @@ export default function DeleteCustomSorterConfirm(props: DeleteCustomSorterConfi
                 </Button>
                 <Button color="danger" onClick={onSubmit} className="rounded-pill">
                     <Icon icon="trash" />
-                    {"Delete"}
+                    Delete
                 </Button>
             </ModalFooter>
         </Modal>

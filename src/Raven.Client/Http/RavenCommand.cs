@@ -173,7 +173,7 @@ namespace Raven.Client.Http
                     await using (var stream = new StreamWithTimeout(responseStream))
                     {
                         var json = await context.ReadForMemoryAsync(stream, "response/object").ConfigureAwait(false);
-                        if (cache != null) //precaution
+                        if (cache != null && CanCache)
                         {
                             CacheResponse(cache, url, response, json);
                         }

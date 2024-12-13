@@ -9,10 +9,19 @@ using Sparrow.Json;
 
 namespace Raven.Client.Documents.Operations.Revisions
 {
+    /// <summary>
+    /// Operation to configure document revision settings.
+    /// </summary>
     public sealed class ConfigureRevisionsOperation : IMaintenanceOperation<ConfigureRevisionsOperationResult>
     {
         private readonly RevisionsConfiguration _configuration;
 
+        /// <inheritdoc cref="ConfigureRevisionsOperation"/>
+        /// <param name="configuration">
+        /// The <see cref="RevisionsConfiguration"/> object containing the revision settings to apply.
+        /// This includes specific settings for individual collections or default settings for all collections
+        /// as defined in <see cref="RevisionsCollectionConfiguration"/>.
+        /// </param>
         public ConfigureRevisionsOperation(RevisionsConfiguration configuration)
         {
             _configuration = configuration;

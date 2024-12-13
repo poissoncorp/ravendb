@@ -285,8 +285,9 @@ class editSubscriptionTask extends shardViewModelBase {
     private validate(): boolean {
         let valid = true;
 
-        if (!this.isValid(this.editedSubscription().validationGroup))
+        if (!this.isValid(this.editedSubscription().validationGroup)) {
             valid = false;
+        }
 
         return valid;
     }
@@ -405,7 +406,9 @@ class editSubscriptionTask extends shardViewModelBase {
             if (this.isValid(this.editedSubscription().validationGroup)) {
                 this.enableTestArea(true);
                 this.runTest();
-            } else return;
+            } else {
+                return;
+            }
         } else {
             // 2. Test area is open and we want to close it
             this.enableTestArea(false);

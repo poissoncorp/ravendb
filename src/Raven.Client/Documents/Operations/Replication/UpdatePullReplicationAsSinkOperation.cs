@@ -12,10 +12,23 @@ using Sparrow.Json.Parsing;
 
 namespace Raven.Client.Documents.Operations.Replication
 {
+    /// <summary>
+    /// Operation to update the configuration of a pull replication task as a sink.
+    /// Pull replication as a sink allows a database to pull data from a source (hub) database in another cluster or server.
+    /// </summary>
     public sealed class UpdatePullReplicationAsSinkOperation : IMaintenanceOperation<ModifyOngoingTaskResult>
     {
         private readonly PullReplicationAsSink _pullReplication;
 
+        /// <inheritdoc cref="UpdatePullReplicationAsSinkOperation"/>
+        /// <param name="pullReplication">
+        /// The <see cref="PullReplicationAsSink"/> object containing the updated configuration for the pull replication sink task.
+        /// This configuration includes details such as the source database, connection strings, allowed paths for data flow 
+        /// between the sink and hub, and an optional private key for a certificate used in secure communication.
+        /// </param>
+        /// <exception cref="AuthorizationException">
+        /// Thrown if the provided certificate does not include a private key but is required for secure replication.
+        /// </exception>
         public UpdatePullReplicationAsSinkOperation(PullReplicationAsSink pullReplication)
         {
             _pullReplication = pullReplication;

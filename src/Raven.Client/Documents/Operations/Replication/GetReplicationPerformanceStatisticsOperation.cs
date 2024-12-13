@@ -6,6 +6,11 @@ using Sparrow.Json;
 
 namespace Raven.Client.Documents.Operations.Replication
 {
+    /// <summary>
+    /// Operation to retrieve replication performance statistics.
+    /// This operation provides detailed metrics and performance data about the replication processes,
+    /// which can help diagnose issues and monitor the replication behavior.
+    /// </summary>
     public sealed class GetReplicationPerformanceStatisticsOperation : IMaintenanceOperation<ReplicationPerformance>
     {
         public RavenCommand<ReplicationPerformance> GetCommand(DocumentConventions conventions, JsonOperationContext context)

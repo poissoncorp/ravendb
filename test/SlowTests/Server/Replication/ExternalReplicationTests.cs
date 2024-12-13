@@ -6,7 +6,7 @@ using Raven.Client.Documents;
 using Raven.Client.Documents.Operations.ConnectionStrings;
 using Raven.Client.Documents.Operations.ETL;
 using Raven.Client.Documents.Operations.Replication;
-using Raven.Client.ServerWide;
+using Raven.Client.ServerWide.Operations;
 using Raven.Server;
 using Raven.Server.Documents.Replication.Stats;
 using Raven.Tests.Core.Utils.Entities;
@@ -86,11 +86,7 @@ namespace SlowTests.Server.Replication
         {
             var database = GetDatabaseName();
             var cluster = await CreateRaftCluster(3);
-
-            var modifyDatabaseRecord = options.ModifyDatabaseRecord;
-            var record = new DatabaseRecord(database);
-            modifyDatabaseRecord?.Invoke(record);
-            await CreateDatabaseInCluster(record, 3, cluster.Leader.WebUrl);
+            await CreateDatabaseInClusterForMode(database, 3, cluster, options.DatabaseMode);
 
             using (var store1 = new DocumentStore
             {
@@ -142,7 +138,7 @@ namespace SlowTests.Server.Replication
                                                                     perf.Type == LiveReplicationPerformanceCollector.ReplicationPerformanceType.IncomingInternal);
                 var outgoingCount = stats.Count(performanceStats => performanceStats is LiveReplicationPerformanceCollector.OutgoingPerformanceStats perf &&
                                                                    perf.Type == LiveReplicationPerformanceCollector.ReplicationPerformanceType.OutgoingInternal);
-                Assert.True(stats.Count == 4, $"Expected: 4, actual: {stats.Count}. Exiting stats: Incoming internal handlers count: {incomingCount}. Outgoing internal handles count: {outgoingCount}");
+                Assert.True(stats.Count == 4, GetFailureMessage());
                 Assert.Equal(2, incomingCount);
                 Assert.Equal(2, outgoingCount);
 
@@ -151,6 +147,20 @@ namespace SlowTests.Server.Replication
                     Assert.True(WaitForDocument(store1, documentId));
                     Assert.True(WaitForDocument(store2, documentId));
                     Assert.True(WaitForDocument(store3, documentId));
+                }
+
+                string GetFailureMessage()
+                {
+                    var databaseMembers = store1.Maintenance.Server.Send(new GetDatabaseRecordOperation(db.Name)).Topology.Members;
+                    var clusterMembers = cluster.Leader.ServerStore.GetClusterTopology().Members.Keys.ToList();
+
+                    return $"Failure encountered for database '{db.Name}'.{Environment.NewLine}" +
+                           $"Expected stats count: 4, but actual stats count: {stats.Count}.{Environment.NewLine}" +
+                           $"Current stats:{Environment.NewLine}" +
+                           $"- Incoming internal handlers count: {incomingCount}{Environment.NewLine}" +
+                           $"- Outgoing internal handlers count: {outgoingCount}{Environment.NewLine}" +
+                           $"Database member nodes: [{string.Join(", ", databaseMembers)}]{Environment.NewLine}" +
+                           $"Cluster member nodes: [{string.Join(", ", clusterMembers)}]";
                 }
             }
         }

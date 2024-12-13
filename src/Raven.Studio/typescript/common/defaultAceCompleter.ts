@@ -12,8 +12,9 @@ class defaultAceCompleter {
             let matches: autoCompleteWordList[] = [];
             defaultCompleters.forEach(completer => {
                 completer.getCompletions(editor, session, pos, prefix, (localErrors: any[], localResults: autoCompleteWordList[]) => {
-                    if (!localErrors && localResults)
+                    if (!localErrors && localResults) {
                         matches = matches.concat(localResults);
+                    }
 
                     remaingCount--;
 

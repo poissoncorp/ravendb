@@ -20,7 +20,7 @@ export default function DatabaseRecordAboutView() {
                         The Database Record stores all settings and configurations for the database and is consistently
                         updated. Each node in the cluster maintains an up-to-date copy of this document.
                     </li>
-                    <li className={"margin-top-sm"}>
+                    <li className="margin-top-sm">
                         Editing the Database Record is strongly discouraged.
                         <br />
                         Changes may lead to unintended consequences, including the loss of the entire database and its

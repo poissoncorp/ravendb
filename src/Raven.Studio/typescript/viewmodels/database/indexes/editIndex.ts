@@ -964,8 +964,9 @@ class editIndex extends shardViewModelBase {
 
         const editedIndex = this.editedIndex();
 
-        if (!this.isValid(editedIndex.validationGroup))
+        if (!this.isValid(editedIndex.validationGroup)) {
             valid = false;
+        }
 
         editedIndex.maps().forEach(map => {
             if (!this.isValid(map.validationGroup)) {
@@ -1268,12 +1269,14 @@ class editIndex extends shardViewModelBase {
 
             // todo: calculate dropup menu according to location in view port..
 
-            if (field.isDefaultFieldOptions() && this.editedIndex().fields().length)
+            if (field.isDefaultFieldOptions() && this.editedIndex().fields().length) {
                 return false; // both default + a field is showing
+            }
 
-            if (!field.isDefaultFieldOptions() && placeInList < this.editedIndex().fields().length - 1)
+            if (!field.isDefaultFieldOptions() && placeInList < this.editedIndex().fields().length - 1) {
                 return false; // field is not the last one
-
+            }
+            
             return true;
         });
     }

@@ -53,10 +53,12 @@ class timeSeries extends shardViewModelBase {
         this.selectionState = ko.pureComputed<checkbox>(() => {
             const selectedCount = this.selectedItems().length;
             const totalCount = this.perCollectionConfigurations().length;
-            if (totalCount && selectedCount === totalCount)
+            if (totalCount && selectedCount === totalCount) {
                 return "checked";
-            if (selectedCount > 0)
+            }
+            if (selectedCount > 0) {
                 return "some_checked";
+            }
             return "unchecked";
         });
     }

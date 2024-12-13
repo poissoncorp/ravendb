@@ -5,27 +5,67 @@ using Sparrow.Json.Parsing;
 
 namespace Raven.Client.Documents.Operations.Replication
 {
+    /// <summary>
+    /// The definition of a pull replication task.
+    /// This defines the settings and behavior for pulling data between replication hubs and sinks.
+    /// </summary>
     public sealed class PullReplicationDefinition : IDynamicJsonValueConvertible
     {
+        /// <summary>
+        /// The delay duration for replication. Data will not be replicated until the specified delay has passed.
+        /// </summary>
         public TimeSpan DelayReplicationFor;
+
+        /// <summary>
+        /// A value indicating whether the pull replication task is disabled.
+        /// </summary>
         public bool Disabled;
 
+        /// <summary>
+        /// The mentor node responsible for the pull replication task.
+        /// </summary>
         public string MentorNode;
 
+        /// <summary>
+        /// A value indicating whether the pull replication task should remain pinned to the mentor node.
+        /// </summary>
         public bool PinToMentorNode;
 
+        /// <summary>
+        /// The mode of pull replication, determining the direction of data flow between hubs and sinks.
+        /// Defaults to <see cref="PullReplicationMode.HubToSink"/>.
+        /// </summary>
         public PullReplicationMode Mode = PullReplicationMode.HubToSink;
 
+        /// <summary>
+        /// The name of the pull replication task.
+        /// </summary>
         public string Name;
+
+        /// <summary>
+        /// The unique identifier of the pull replication task.
+        /// </summary>
         public long TaskId;
 
+        /// <summary>
+        /// A value indicating whether filtering is enabled for the pull replication task.
+        /// </summary>
         public bool WithFiltering;
+
+        /// <summary>
+        /// The mode to prevent deletions during replication.
+        /// </summary>
         public PreventDeletionsMode PreventDeletionsMode { get; set; }
 
+        /// <inheritdoc cref="PullReplicationDefinition"/>
         public PullReplicationDefinition()
         {
         }
 
+        /// <inheritdoc cref="PullReplicationDefinition"/>
+        /// <param name="name">The name of the pull replication task.</param>
+        /// <param name="delay">The delay duration for replication.</param>
+        /// <param name="mentor">The mentor node for the pull replication task. Optional.</param>
         public PullReplicationDefinition(string name, TimeSpan delay = default, string mentor = null)
         {
             Name = name;

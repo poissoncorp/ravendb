@@ -1,6 +1,6 @@
 import assertUnreachable from "./assertUnreachable";
 import IndexLockMode = Raven.Client.Documents.Indexes.IndexLockMode;
-import { IndexNodeInfoDetails, IndexSharedInfo, IndexStatus } from "../models/indexes";
+import { IndexNodeInfo, IndexNodeInfoDetails, IndexSharedInfo, IndexStatus } from "../models/indexes";
 import collection from "models/database/documents/collection";
 import IndexRunningStatus = Raven.Client.Documents.Indexes.IndexRunningStatus;
 import IconName from "typings/server/icons";
@@ -132,6 +132,10 @@ export default class IndexUtils {
 
     static hasAnyFaultyNode(index: IndexSharedInfo) {
         return index.nodesInfo.some((x) => x.details?.faulty);
+    }
+
+    static getFaultyNodeInfo(index: IndexSharedInfo, nodeTag: string): IndexNodeInfo {
+        return index.nodesInfo.find((x) => x.details?.faulty && x.location.nodeTag === nodeTag);
     }
 
     static isErrorState(index: IndexNodeInfoDetails) {

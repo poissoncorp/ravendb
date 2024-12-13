@@ -16,8 +16,9 @@ class ftpSettings extends backupSettings {
 
     isLoadingFile = ko.observable<boolean>();
     isFtps = ko.pureComputed(() => {
-        if (!this.url())
+        if (!this.url()) {
             return false;
+        }
 
         return this.url().toLowerCase().startsWith("ftps://");
     });
@@ -61,8 +62,9 @@ class ftpSettings extends backupSettings {
             validation: [
                 {
                     validator: (url: string) => {
-                        if (!url)
+                        if (!url) {
                             return false;
+                        }
 
                         const urlLower = url.toLowerCase();
                         if (urlLower.includes("://") && !urlLower.startsWith("ftp://") && !urlLower.startsWith("ftps://")) {
