@@ -15,8 +15,10 @@ class collectionsStats  {
 
         for (const key in statsDto.Collections) {
             // eslint-disable-next-line no-prototype-builtins
-            if (!statsDto.Collections.hasOwnProperty(key))
+            if (!statsDto.Collections.hasOwnProperty(key)) {
                 continue;
+            }
+            
             this.collections.push(new collection(key, statsDto.Collections[key]));
         }
     }

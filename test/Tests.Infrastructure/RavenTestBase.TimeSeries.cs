@@ -23,7 +23,8 @@ namespace FastTests
                 _parent = parent ?? throw new ArgumentNullException(nameof(parent));
             }
 
-            internal async Task VerifyPolicyExecutionAsync(DocumentStore store, TimeSeriesCollectionConfiguration configuration, int retentionNumberOfDays, string rawName = "Heartrate", List<TimeSeriesPolicy> policies = null)
+            internal async Task VerifyPolicyExecutionAsync(DocumentStore store, TimeSeriesCollectionConfiguration configuration,
+                int retentionNumberOfDays, string rawName = "Heartrate", List<TimeSeriesPolicy> policies = null, int timeout = 15000)
             {
                 var raw = configuration.RawPolicy;
                 configuration.ValidateAndInitialize();
@@ -58,11 +59,15 @@ namespace FastTests
                             Assert.NotNull(ts);
                             var expected = ((TimeSpan)retentionTime).TotalMinutes / ((TimeSpan)policy.AggregationTime).TotalMinutes;
                             if ((int)expected != ts.Count && Math.Ceiling(expected) != ts.Count)
-                                Assert.Fail($"Expected {expected}, but got {ts.Count}");
+                            {
+                                Assert.Fail($"Policy '{policy.Name}' failed. Expected {expected}, but got {ts.Count} " +
+                                                   $"(Math.Ceiling(expected) result: {Math.Ceiling(expected)}).{Environment.NewLine}" +
+                                                   $"Existing timestamps: {string.Join(", ", ts.Select(t => t.Timestamp))}.");
+                            }
                         }
                     }
                     return true;
-                }, true);
+                }, true, timeout);
             }
 
             public async Task WaitForPolicyRunnerAsync(DocumentDatabase database)

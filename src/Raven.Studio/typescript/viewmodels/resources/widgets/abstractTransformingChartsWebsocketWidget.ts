@@ -131,6 +131,7 @@ abstract class abstractTransformingChartsWebsocketWidget<
         });
     }
     
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     protected canAppendToChart(chart: clusterDashboardChart<TChartData>, nodeTag: string, item: TChartData) {
         return true;
     }

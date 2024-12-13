@@ -11,10 +11,19 @@ using Sparrow.Json.Parsing;
 
 namespace Raven.Client.Documents.Operations.Replication
 {
+    /// <summary>
+    /// Operation to update the configuration of an external replication task.
+    /// External replication allows data to be replicated from the current database to another database in a different cluster.
+    /// </summary>
     public sealed class UpdateExternalReplicationOperation : IMaintenanceOperation<ModifyOngoingTaskResult>
     {
         private readonly ExternalReplication _newWatcher;
 
+        /// <inheritdoc cref="UpdateExternalReplicationOperation"/>
+        /// <param name="newWatcher">
+        /// The <see cref="ExternalReplication"/> object containing the updated configuration for the external replication task.
+        /// This includes details such as destination database, connection strings, and other replication settings.
+        /// </param>
         public UpdateExternalReplicationOperation(ExternalReplication newWatcher)
         {
             _newWatcher = newWatcher;

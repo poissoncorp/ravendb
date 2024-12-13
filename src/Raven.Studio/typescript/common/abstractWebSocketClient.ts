@@ -48,8 +48,9 @@ abstract class abstractWebSocketClient<T> {
 
     private connect(action: () => void, recoveringFromWebsocketFailure = false) {
         if (this.disposed) {
-            if (this.connectToWebSocketTask)
+            if (this.connectToWebSocketTask) {
                 this.connectToWebSocketTask.resolve();
+            }
             return;
         }
         if (!recoveringFromWebsocketFailure) {

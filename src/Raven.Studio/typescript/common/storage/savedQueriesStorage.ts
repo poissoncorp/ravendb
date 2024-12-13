@@ -41,8 +41,9 @@ class savedQueriesStorage {
     static removeRecentQueryByQueryText(db: database, queryText: string) {
         const localStorageName = savedQueriesStorage.getLocalStorageKey(db.name);
         const savedQueriesFromLocalStorage: storedQueryDto[] = this.getSavedQueriesFromLocalStorage(localStorageName);
-        if (savedQueriesFromLocalStorage == null)
+        if (savedQueriesFromLocalStorage == null) {
             return;
+        }
 
         const newSavedQueries = savedQueriesFromLocalStorage.filter((query: storedQueryDto) => query.queryText !== queryText);
         localStorage.setObject(localStorageName, newSavedQueries);
@@ -51,8 +52,9 @@ class savedQueriesStorage {
     static removeSavedQueryByHash(db: database, hash: number) {
         const localStorageName = savedQueriesStorage.getLocalStorageKey(db.name);
         const savedQueriesFromLocalStorage: storedQueryDto[] = this.getSavedQueriesFromLocalStorage(localStorageName);
-        if (savedQueriesFromLocalStorage == null)
+        if (savedQueriesFromLocalStorage == null) {
             return;
+        }
 
         const newSavedQueries = savedQueriesFromLocalStorage.filter((dto: storedQueryDto) => dto.hash !== hash);
         localStorage.setObject(localStorageName, newSavedQueries);

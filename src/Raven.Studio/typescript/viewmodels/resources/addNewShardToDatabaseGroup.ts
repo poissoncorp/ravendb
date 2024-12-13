@@ -45,10 +45,12 @@ class addNewShardToDatabaseGroup extends dialogViewModelBase {
             const clusterNodes = this.clusterNodes;
             const selectedCount = this.nodes().length;
 
-            if (clusterNodes.length && selectedCount === clusterNodes.length)
+            if (clusterNodes.length && selectedCount === clusterNodes.length) {
                 return "checked";
-            if (selectedCount > 0)
+            }
+            if (selectedCount > 0) {
                 return "some_checked";
+            }
             return "unchecked";
         });
         

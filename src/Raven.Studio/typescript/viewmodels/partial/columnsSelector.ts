@@ -178,8 +178,9 @@ class columnsSelector<T extends object> {
             const allVisibleColumns = this.allVisibleColumns();
             const checkedCount = allVisibleColumns.filter(x => x.visible()).length;
 
-            if (allVisibleColumns.length && checkedCount === allVisibleColumns.length)
+            if (allVisibleColumns.length && checkedCount === allVisibleColumns.length) {
                 return "checked";
+            }
 
             return checkedCount > 0 ? "some_checked" : "unchecked";
         });

@@ -10,10 +10,24 @@ using Sparrow.Json.Parsing;
 
 namespace Raven.Client.Documents.Operations.TimeSeries
 {
+    /// <summary>
+    /// Operation to configure value names for a time series in a specific collection.
+    /// </summary>
     public sealed class ConfigureTimeSeriesValueNamesOperation : IMaintenanceOperation<ConfigureTimeSeriesOperationResult>
     {
         private readonly Parameters _parameters;
 
+        /// <inheritdoc cref="ConfigureTimeSeriesValueNamesOperation"/>
+        /// <param name="parameters">
+        /// The parameters for configuring value names, including the collection name, time series name, 
+        /// and the new value names to set.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        /// Thrown if <paramref name="parameters"/> is null.
+        /// </exception>
+        /// <exception cref="ArgumentException">
+        /// Thrown if the provided parameters are invalid (e.g., missing required fields).
+        /// </exception>
         public ConfigureTimeSeriesValueNamesOperation(Parameters parameters)
         {
             _parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
@@ -65,11 +79,31 @@ namespace Raven.Client.Documents.Operations.TimeSeries
             public string RaftUniqueRequestId { get; } = RaftIdGenerator.NewId();
         }
 
+        /// <summary>
+        /// Encapsulates the parameters needed for configuring value names for a time series in a specific collection.
+        /// </summary>
         public sealed class Parameters : IDynamicJson
         {
+            /// <summary>
+            /// The name of the collection where the time series resides.
+            /// </summary>
             public string Collection;
+
+            /// <summary>
+            /// The name of the time series to configure.
+            /// </summary>
             public string TimeSeries;
+
+            /// <summary>
+            /// The list of value names to associate with the time series.
+            /// </summary>
             public string[] ValueNames;
+
+            /// <summary>
+            /// Indicates whether to update an existing configuration for the specified time series in the collection.
+            /// If set to <c>false</c> and a configuration already exists for this time series in the collection, 
+            /// an exception will be thrown.
+            /// </summary>
             public bool Update;
 
             internal void Validate()

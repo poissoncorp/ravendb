@@ -185,7 +185,7 @@ namespace Raven.Server.ServerWide.Maintenance
 
                     var sharding = rawRecord.Sharding;
                     var currentMigration = sharding?.BucketMigrations.SingleOrDefault(pair => pair.Value.IsActive).Value;
-                    
+
                     //create mock database report for the sharded db for the cluster observer topology update
                     if (rawRecord.IsSharded && sharding.Orchestrator.Topology.RelevantFor(_server.NodeTag))
                     {
@@ -253,7 +253,6 @@ namespace Raven.Server.ServerWide.Maintenance
                         var dbInstance = dbTask.Result;
                         var currentHash = dbInstance.GetEnvironmentsHash();
                         report.EnvironmentsHash = currentHash;
-                        FillClusterTransactionInfo(ctx, dbInstance, report);
 
                         var documentsStorage = dbInstance.DocumentsStorage;
                         var indexStorage = dbInstance.IndexStore;
@@ -270,6 +269,7 @@ namespace Raven.Server.ServerWide.Maintenance
                         {
                             var now = dbInstance.Time.GetUtcNow();
                             FillReplicationInfo(dbInstance, report);
+                            FillClusterInfo(ctx, report, dbInstance);
 
                             if (rawRecord.IsSharded)
                             {
@@ -285,7 +285,7 @@ namespace Raven.Server.ServerWide.Maintenance
                                     using (context.OpenReadTransaction())
                                     {
                                         bucketReport.LastChangeVector = shardedInstance.ShardedDocumentsStorage.GetMergedChangeVectorInBucket(context, currentMigration.Bucket);
-                                       
+
                                         var stats = ShardedDocumentsStorage.GetBucketStatisticsFor(context, currentMigration.Bucket);
                                         if (stats != null)
                                         {
@@ -346,11 +346,11 @@ namespace Raven.Server.ServerWide.Maintenance
             return result;
         }
 
-        private void FillClusterTransactionInfo(ClusterOperationContext ctx, DocumentDatabase dbInstance, DatabaseStatusReport report)
+        private void FillClusterInfo(ClusterOperationContext ctx, DatabaseStatusReport report, DocumentDatabase dbInstance)
         {
+            report.LastClusterWideTransactionRaftIndex = dbInstance.ClusterWideTransactionIndexWaiter.LastIndex;
             report.LastCompareExchangeIndex = dbInstance.CompareExchangeStorage.GetLastCompareExchangeIndex(ctx);
             report.LastCompletedClusterTransaction = dbInstance.LastCompletedClusterTransaction;
-            report.LastClusterWideTransactionRaftIndex = dbInstance.ClusterWideTransactionIndexWaiter.LastIndex;
         }
 
         private static void FillIndexInfo(Index index, QueryOperationContext context, DateTime now, DatabaseStatusReport report)

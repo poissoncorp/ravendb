@@ -16,7 +16,7 @@
         "prettier-fix": "prettier --write .",
         "lint": "eslint typescript/**/*.{tsx,ts}",
         "lint-fix": "eslint typescript/**/*.{tsx,ts} --fix",
-        "storybook": "storybook dev -p 6006",
+        "storybook": "npm run fix-packages && storybook dev -p 6006",
         "build-storybook": "storybook build"
     },
     "private": true,

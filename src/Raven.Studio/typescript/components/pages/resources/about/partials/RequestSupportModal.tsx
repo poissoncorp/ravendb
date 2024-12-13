@@ -24,7 +24,7 @@ export function RequestSupportModal(props: RequestSupportModalProps) {
             wrapClassName="bs5"
             centered
             size="lg"
-            contentClassName={`modal-border bulge-primary`}
+            contentClassName="modal-border bulge-primary"
         >
             <ModalBody className="vstack gap-4 position-relative">
                 <div className="text-center">

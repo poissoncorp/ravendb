@@ -385,8 +385,9 @@ class genUtils {
     
     static sortAlphaNumeric(a: string, b: string, mode: sortMode = "asc"): number {
         const result = genUtils.sortAlphaNumericInternal(a, b);
-        if (result === 0)
+        if (result === 0) {
             return 0;
+        }
 
         return mode === "asc" ? result : -result;
     }
@@ -579,7 +580,10 @@ class genUtils {
 
     static hashCode(input: string) {
         let hash = 0;
-        if (input.length === 0) return hash;
+        if (input.length === 0) {
+            return hash;
+        }
+        
         for (let i = 0; i < input.length; i++) {
             const char = input.charCodeAt(i);
             hash = ((hash << 5) - hash) + char;

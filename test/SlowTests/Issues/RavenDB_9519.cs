@@ -43,8 +43,8 @@ namespace SlowTests.Issues
                     cv = session.Advanced.GetChangeVectorFor(_testCompany);
                 }
 
-                using var client = new HttpClient().WithConventions(store.Conventions);
-                var stream = await client.GetStreamAsync($"{store.Urls[0]}/databases/{store.Database}/streams/queries?query={query}&format=csv");
+                var client = store.GetRequestExecutor().HttpClient;
+                await using var stream = await client.GetStreamAsync($"{store.Urls[0]}/databases/{store.Database}/streams/queries?query={query}&format=csv");
 
                 using (var commands = store.Commands())
                 {
@@ -92,18 +92,17 @@ namespace SlowTests.Issues
         public async Task ExportingAndImportingCsvUsingQueryFromDocumentShouldWork(Options options)
         {
             var query = "From%20companies";
-            Stream stream;
             using (var storeSharded = GetDocumentStore(options))
             {
                 using (var session = storeSharded.OpenSession())
                 {
                     session.Store(_testCompany, "companies/1");
-                    session.Store(new {Query = query}, "queries/1");
+                    session.Store(new { Query = query }, "queries/1");
                     session.SaveChanges();
                 }
 
-                using var client = new HttpClient().WithConventions(storeSharded.Conventions);
-                stream = await client.GetStreamAsync($"{storeSharded.Urls[0]}/databases/{storeSharded.Database}/streams/queries?fromDocument=queries%2F1&format=csv");
+                var client = storeSharded.GetRequestExecutor().HttpClient;
+                await using var stream = await client.GetStreamAsync($"{storeSharded.Urls[0]}/databases/{storeSharded.Database}/streams/queries?fromDocument=queries%2F1&format=csv");
 
                 using (var store = GetDocumentStore())
                 {
@@ -142,8 +141,8 @@ namespace SlowTests.Issues
                     session.SaveChanges();
                 }
 
-                using var client = new HttpClient().WithConventions(store.Conventions);
-                var stream = await client.GetStreamAsync($"{store.Urls[0]}/databases/{store.Database}/streams/queries?fromDocument=queries%2F1&format=csv");
+                var client = store.GetRequestExecutor().HttpClient;
+                await using var stream = await client.GetStreamAsync($"{store.Urls[0]}/databases/{store.Database}/streams/queries?fromDocument=queries%2F1&format=csv");
 
                 using (var commands = store.Commands())
                 {

@@ -242,35 +242,43 @@ class editPeriodicBackupTask extends shardViewModelBase {
 
         const groupTocheck = this.configuration().validationGroup;
         
-        if (!this.isValid(groupTocheck))
+        if (!this.isValid(groupTocheck)) {
             valid = false;
+        }
         
-        if (!this.isValid(this.configuration().encryptionSettings().validationGroup()))
+        if (!this.isValid(this.configuration().encryptionSettings().validationGroup())) {
             valid = false;
+        }
 
         const localSettings = this.configuration().localSettings();
-        if (localSettings.enabled() && !this.isValid(localSettings.effectiveValidationGroup()))
+        if (localSettings.enabled() && !this.isValid(localSettings.effectiveValidationGroup())) {
             valid = false;
+        }
         
         const s3Settings = this.configuration().s3Settings();
-        if (s3Settings.enabled() && !this.isValid(s3Settings.effectiveValidationGroup()))
+        if (s3Settings.enabled() && !this.isValid(s3Settings.effectiveValidationGroup())) {
             valid = false;
+        }
         
         const azureSettings = this.configuration().azureSettings();
-        if (azureSettings.enabled() && !this.isValid(azureSettings.effectiveValidationGroup()))
+        if (azureSettings.enabled() && !this.isValid(azureSettings.effectiveValidationGroup())) {
             valid = false;
+        }
         
         const googleCloudSettings = this.configuration().googleCloudSettings();
-        if (googleCloudSettings.enabled() && !this.isValid(googleCloudSettings.effectiveValidationGroup()))
+        if (googleCloudSettings.enabled() && !this.isValid(googleCloudSettings.effectiveValidationGroup())) {
             valid = false;
+        }
         
         const glacierSettings = this.configuration().glacierSettings();
-        if (glacierSettings.enabled() && !this.isValid(glacierSettings.effectiveValidationGroup()))
+        if (glacierSettings.enabled() && !this.isValid(glacierSettings.effectiveValidationGroup())) {
             valid = false;
+        }
         
         const ftpSettings = this.configuration().ftpSettings();
-        if (ftpSettings.enabled() && !this.isValid(ftpSettings.effectiveValidationGroup()))
+        if (ftpSettings.enabled() && !this.isValid(ftpSettings.effectiveValidationGroup())) {
             valid = false;
+        }
 
         return valid;
     }

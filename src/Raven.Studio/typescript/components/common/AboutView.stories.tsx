@@ -51,7 +51,7 @@ const FloatingButton = ({ isCloud, licenseType, isEnabled, isIsv }: FloatingButt
                         <AboutViewHeading title="Section title" icon="zombie" licenseBadgeText="Professional +" />
                         default open: {isEnabled ? "true" : "false"} / feature available: {isEnabled ? "true" : "false"}
                     </Col>
-                    <Col sm={"auto"}>
+                    <Col sm="auto">
                         <AboutViewFloating defaultOpen={isEnabled ? null : "licensing"}>
                             <AccordionItemWrapper
                                 icon="zombie"

@@ -45,11 +45,15 @@ export function StepsExample() {
     };
 
     const nextStep = () => {
-        if (!isLastStep) setCurrentStep(currentStep + 1);
+        if (!isLastStep) {
+            setCurrentStep(currentStep + 1);
+        }
     };
 
     const prevStep = () => {
-        if (!isFirstStep) setCurrentStep(currentStep - 1);
+        if (!isFirstStep) {
+            setCurrentStep(currentStep - 1);
+        }
     };
 
     return (

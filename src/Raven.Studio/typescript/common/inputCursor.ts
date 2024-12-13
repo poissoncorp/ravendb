@@ -3,7 +3,9 @@
 class inputCursor {
     static setPosition($input: JQuery, position: number): void {
         const input = $input[0];
-        if (!input) return;
+        if (!input) {
+            return;
+        }
 
         if ('createTextRange' in input) {
             const textRange = (<any>input)['createTextRange']();
@@ -18,7 +20,10 @@ class inputCursor {
 
     static getPosition($input: JQuery): number {
         const input = $input[0];
-        if (!input) return null;
+        if (!input) {
+            return null;
+        }
+        
         let cursorPosition = 0;
         if ('selectionStart' in input) {
             // Normal browsers

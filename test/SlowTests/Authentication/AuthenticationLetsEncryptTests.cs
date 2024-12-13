@@ -35,6 +35,7 @@ using Xunit.Abstractions;
 using Raven.Client.ServerWide.Operations.Certificates;
 using Raven.Server.ServerWide.Context;
 using Raven.Client.Exceptions;
+using System.Runtime.CompilerServices;
 
 namespace SlowTests.Authentication
 {
@@ -43,13 +44,13 @@ namespace SlowTests.Authentication
         public AuthenticationLetsEncryptTests(ITestOutputHelper output) : base(output)
         {
         }
-        
+
         [RavenIntegrationRetryFact(delayBetweenRetriesMs: 1000)]
         public async Task CanGetPebbleCertificate()
         {
             var acmeUrl = Environment.GetEnvironmentVariable("RAVEN_PEBBLE_URL") ?? string.Empty;
             Assert.NotEmpty(acmeUrl);
-            
+
             RemoveAcmeCache(acmeUrl);
 
             SetupLocalServer();
@@ -64,7 +65,7 @@ namespace SlowTests.Authentication
         public async Task CanGetLetsEncryptCertificateAndRenewIt()
         {
             var acmeUrl = "https://acme-staging-v02.api.letsencrypt.org/directory";
-            
+
             SetupLocalServer();
             SetupInfo setupInfo = await SetupClusterInfo(acmeUrl);
 
@@ -82,7 +83,7 @@ namespace SlowTests.Authentication
 
                 var cluster = Server.ServerStore.Cluster.GetCertificateThumbprintsFromCluster(context).ToList();
                 Assert.Equal(0, cluster.Count);
-        }
+            }
         }
 
         [RavenIntegrationRetryFact(delayBetweenRetriesMs: 1000)]
@@ -105,7 +106,7 @@ namespace SlowTests.Authentication
         public async Task ReplaceCertificateWithPrivateKey()
         {
             var acmeUrl = "https://acme-staging-v02.api.letsencrypt.org/directory";
-            
+
             SetupLocalServer();
             SetupInfo setupInfo = await SetupClusterInfo(acmeUrl);
 
@@ -179,7 +180,7 @@ namespace SlowTests.Authentication
         private async Task<X509Certificate2> GetCertificateFromLetsEncrypt(SetupInfo setupInfo, string acmeUrl)
         {
             X509Certificate2 serverCert;
-            using (var store = GetDocumentStore())
+            using (var store = GetDocumentStoreForServerOnly())
             using (var commands = store.Commands())
             using (Server.ServerStore.ContextPool.AllocateOperationContext(out JsonOperationContext context))
             {
@@ -243,7 +244,7 @@ namespace SlowTests.Authentication
             // It only works because in the TestBase ctor we do:
             // RequestExecutor.ServerCertificateCustomValidationCallback += (msg, cert, chain, errors) => true;
 
-            using (var store = GetDocumentStore(new Options { AdminCertificate = serverCert, ClientCertificate = serverCert }))
+            using (var store = GetDocumentStoreForServerOnly(serverCert))
             using (var commands = store.Commands())
             using (Server.ServerStore.ContextPool.AllocateOperationContext(out JsonOperationContext context))
             {
@@ -253,8 +254,10 @@ namespace SlowTests.Authentication
                 Server.Time.UtcDateTime = () => DateTime.UtcNow.AddDays(80);
 
                 var mre = new AsyncManualResetEvent();
+                var clusterReplacementConfirmed = new AsyncManualResetEvent();
 
                 Server.ServerCertificateChanged += (sender, args) => mre.Set();
+                Server.ServerStore.ForTestingPurposesOnly().OnConfirmCertificateReplacedValueChanged += clusterReplacementConfirmed.Set;
 
                 var command = new ForceRenewCertCommand(store.Conventions, context);
 
@@ -278,6 +281,9 @@ namespace SlowTests.Authentication
                 Assert.True(result, "Refresh task didn't complete. Waited too long for the cluster cert to be replaced");
 
                 Assert.NotEqual(firstServerCertThumbprint, Server.Certificate.Certificate.Thumbprint);
+
+                var r = await clusterReplacementConfirmed.WaitAsync(TimeSpan.FromMinutes(2));
+                Assert.True(r, "missing ConfirmServerCertificateReplacedCommand");
             }
         }
 
@@ -293,7 +299,7 @@ namespace SlowTests.Authentication
             await Server.ServerStore.EnsureNotPassiveAsync();
             var license = Server.ServerStore.LoadLicense();
 
-            using (var store = GetDocumentStore())
+            using (var store = GetDocumentStoreForServerOnly())
             using (var commands = store.Commands())
             using (Server.ServerStore.ContextPool.AllocateOperationContext(out JsonOperationContext context))
             {
@@ -414,7 +420,7 @@ namespace SlowTests.Authentication
             File.Copy(defaultSettingsPath, settingPath, true);
 
             UseNewLocalServer(customConfigPath: settingPath);
-            
+
             Server.Configuration.Core.AcmeUrl = acmeStagingUrl;
             Server.ServerStore.Configuration.Core.SetupMode = SetupMode.Initial;
 
@@ -530,6 +536,17 @@ namespace SlowTests.Authentication
 
             var cluster = await CreateRaftClusterInternalAsync(clutserSize, customSettingsList: customSettings, leaderIndex: 0, useSsl: true);
             return (cluster.Leader, cluster.Nodes, serverCert);
+        }
+
+        private DocumentStore GetDocumentStoreForServerOnly(X509Certificate2 certificate = null, [CallerMemberName] string caller = null)
+        {
+            return GetDocumentStore(new Options
+            {
+                CreateDatabase = false,
+                DeleteDatabaseOnDispose = false,
+                AdminCertificate = certificate,
+                ClientCertificate = certificate
+            }, caller);
         }
     }
 }

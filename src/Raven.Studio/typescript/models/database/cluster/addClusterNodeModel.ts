@@ -16,8 +16,9 @@ class addClusterNodeModel {
     constructor() {
         this.useAvailableCores.subscribe(newValue => {
             this.maxUtilizedCores.clearError();
-            if (!newValue)
+            if (!newValue) {
                 return;
+            }
         });
 
         this.initValidation();

@@ -43,6 +43,7 @@ import { useAppSelector } from "components/store";
 import { accessManagerSelectors } from "components/common/shell/accessManagerSliceSelectors";
 import ResetIndexesButton from "components/pages/database/indexes/list/partials/ResetIndexesButton";
 import { ExportIndexes } from "components/pages/database/indexes/list/migration/export/ExportIndexes";
+import { clusterSelectors } from "components/common/shell/clusterSlice";
 
 export interface IndexPanelProps {
     index: IndexSharedInfo;
@@ -94,11 +95,13 @@ export function IndexPanelInternal(props: IndexPanelProps, ref: ForwardedRef<HTM
 
     const hasDatabaseWriteAccess = useAppSelector(accessManagerSelectors.getHasDatabaseWriteAccess)();
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
+    const localNodeTag = useAppSelector(clusterSelectors.localNodeTag);
 
     const { value: panelCollapsed, toggle: togglePanelCollapsed } = useBoolean(true);
 
     const isReplacement = IndexUtils.isSideBySide(index);
-    const isFaulty = IndexUtils.hasAnyFaultyNode(index);
+    const isAnyFaulty = IndexUtils.hasAnyFaultyNode(index);
+    const localFaultyNodeInfo = IndexUtils.getFaultyNodeInfo(index, localNodeTag);
 
     const eventsCollector = useEventsCollector();
 
@@ -364,8 +367,8 @@ export function IndexPanelInternal(props: IndexPanelProps, ref: ForwardedRef<HTM
                             )}
                         </ButtonGroup>
 
-                        {isFaulty && (
-                            <Button onClick={() => openFaulty(index.nodesInfo[0].location)}>Open faulty index</Button>
+                        {localFaultyNodeInfo && (
+                            <Button onClick={() => openFaulty(localFaultyNodeInfo.location)}>Open faulty index</Button>
                         )}
                         {!IndexUtils.isAutoIndex(index) && (
                             <>
@@ -464,7 +467,7 @@ export function IndexPanelInternal(props: IndexPanelProps, ref: ForwardedRef<HTM
                             )}
                         </RichPanelDetailItem>
                     )}
-                    <RichPanelDetailItem className={isFaulty ? "text-danger" : ""}>
+                    <RichPanelDetailItem className={isAnyFaulty ? "text-danger" : ""}>
                         <Icon icon={IndexUtils.indexTypeIcon(index.type)} />
                         {IndexUtils.formatType(index.type)}
                     </RichPanelDetailItem>
@@ -474,7 +477,7 @@ export function IndexPanelInternal(props: IndexPanelProps, ref: ForwardedRef<HTM
                         {index.searchEngine}
                     </RichPanelDetailItem>
 
-                    {!isFaulty && (
+                    {!isAnyFaulty && (
                         <InlineDetails
                             index={index}
                             toggleLocationDetails={togglePanelCollapsed}

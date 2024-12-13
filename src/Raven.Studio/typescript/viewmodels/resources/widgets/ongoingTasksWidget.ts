@@ -336,8 +336,9 @@ class ongoingTasksWidget extends websocketBasedWidget<Raven.Server.Dashboard.Clu
         data.Items.forEach(x => {
             for (const key in x) {
                 // eslint-disable-next-line no-prototype-builtins
-                if (!x.hasOwnProperty(key))
+                if (!x.hasOwnProperty(key)) {
                     continue;
+                }
 
                 const value = (x as any)[key];
                 

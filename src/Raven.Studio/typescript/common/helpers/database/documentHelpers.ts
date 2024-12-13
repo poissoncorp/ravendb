@@ -205,12 +205,14 @@ class documentHelpers {
 
         for (const prop in firstDocument) {
             // eslint-disable-next-line no-prototype-builtins
-            if (firstDocument.hasOwnProperty(prop) === false)
+            if (firstDocument.hasOwnProperty(prop) === false) {
                 continue;
+            }
 
             const defaultValue = documentHelpers.findSchemaDefaultValue(objects, prop);
-            if (typeof (defaultValue) === "undefined")
+            if (typeof (defaultValue) === "undefined") {
                 continue;
+            }
 
             if (isArray) {
                 result.push(defaultValue);

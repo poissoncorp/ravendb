@@ -10,14 +10,23 @@ using Sparrow.Json;
 
 namespace Raven.Client.ServerWide.Operations.DocumentsCompression
 {
+    /// <summary>
+    /// Operation to update the documents compression configuration.
+    /// </summary>
     public sealed class UpdateDocumentsCompressionConfigurationOperation : IMaintenanceOperation<DocumentCompressionConfigurationResult>
     {
         private readonly DocumentsCompressionConfiguration _documentsCompressionConfiguration;
 
+        /// <inheritdoc cref="UpdateDocumentsCompressionConfigurationOperation"/>
+        /// <param name="configuration">
+        /// The <see cref="DocumentsCompressionConfiguration"/> object containing the new compression settings to apply.
+        /// </param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="configuration"/> is null.</exception>
         public UpdateDocumentsCompressionConfigurationOperation(DocumentsCompressionConfiguration configuration)
         {
             _documentsCompressionConfiguration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
+
         public RavenCommand<DocumentCompressionConfigurationResult> GetCommand(DocumentConventions conventions, JsonOperationContext context)
         {
             return new UpdateDocumentCompressionConfigurationCommand(conventions, _documentsCompressionConfiguration);

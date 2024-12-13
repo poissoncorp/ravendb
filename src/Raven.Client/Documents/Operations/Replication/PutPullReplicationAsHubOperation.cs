@@ -10,10 +10,18 @@ using Sparrow.Json;
 
 namespace Raven.Client.Documents.Operations.Replication
 {
+    /// <summary>
+    /// Operation to create a pull replication task as a hub.
+    /// A pull replication hub allows data to be pulled by sink nodes in other clusters or databases.
+    /// Additionally, it can be configured to receive data from sink nodes.
+    /// </summary>
     public sealed class PutPullReplicationAsHubOperation : IMaintenanceOperation<ModifyOngoingTaskResult>
     {
         private readonly PullReplicationDefinition _pullReplicationDefinition;
 
+        /// <inheritdoc cref="PutPullReplicationAsHubOperation"/>
+        /// <param name="name">The name of the pull replication hub task.</param>
+        /// <exception cref="ArgumentException">Thrown if <paramref name="name"/> is null or empty.</exception>
         public PutPullReplicationAsHubOperation(string name)
         {
             if (string.IsNullOrEmpty(name))
@@ -24,6 +32,9 @@ namespace Raven.Client.Documents.Operations.Replication
             _pullReplicationDefinition = new PullReplicationDefinition(name);
         }
 
+        /// <inheritdoc cref="PutPullReplicationAsHubOperation"/>
+        /// <param name="pullReplicationDefinition">The pull replication hub definition to apply.</param>
+        /// <exception cref="ArgumentException">Thrown if the <see cref="PullReplicationDefinition.Name"/> is null or empty.</exception>
         public PutPullReplicationAsHubOperation(PullReplicationDefinition pullReplicationDefinition)
         {
             if (string.IsNullOrEmpty(pullReplicationDefinition.Name))

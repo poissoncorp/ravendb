@@ -101,19 +101,28 @@ function Carousel2(args: any) {
     const [animating, setAnimating] = useState(false);
 
     const next = () => {
-        if (animating) return;
+        if (animating) {
+            return;
+        }
+
         const nextIndex = activeIndex === items.length - 1 ? 0 : activeIndex + 1;
         setActiveIndex(nextIndex);
     };
 
     const previous = () => {
-        if (animating) return;
+        if (animating) {
+            return;
+        }
+
         const nextIndex = activeIndex === 0 ? items.length - 1 : activeIndex - 1;
         setActiveIndex(nextIndex);
     };
 
     const goToIndex = (newIndex: any) => {
-        if (animating) return;
+        if (animating) {
+            return;
+        }
+
         setActiveIndex(newIndex);
     };
 

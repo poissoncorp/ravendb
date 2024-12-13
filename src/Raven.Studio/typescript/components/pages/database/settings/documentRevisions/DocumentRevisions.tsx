@@ -192,7 +192,7 @@ export default function DocumentRevisions() {
                                         <FlexGrow />
 
                                         <UncontrolledTooltip target="revertCollections">
-                                            {"Revert documents to their revisions at a specific point in time"}
+                                            Revert documents to their revisions at a specific point in time
                                         </UncontrolledTooltip>
                                         <a
                                             id="revertCollections"

@@ -2,25 +2,14 @@
 
 namespace Raven.Client.Documents.Commands;
 
-internal sealed class DocumentSizeDetails : IDynamicJson
+internal sealed class DocumentSizeDetails : SizeDetails
 {
     public string DocId { get; set; }
-    public int ActualSize { get; set; }
-    public string HumaneActualSize { get; set; }
-    public int AllocatedSize { get; set; }
-    public string HumaneAllocatedSize { get; set; }
-    public bool IsCompressed { get; set; }
 
-    public DynamicJsonValue ToJson()
+    public override DynamicJsonValue ToJson()
     {
-        return new DynamicJsonValue
-        {
-            [nameof(DocId)] = DocId,
-            [nameof(ActualSize)] = ActualSize,
-            [nameof(HumaneActualSize)] = HumaneActualSize,
-            [nameof(AllocatedSize)] = AllocatedSize,
-            [nameof(HumaneAllocatedSize)] = HumaneAllocatedSize,
-            [nameof(IsCompressed)] = IsCompressed
-        };
+        var json = base.ToJson();
+        json[nameof(DocId)] = DocId;
+        return json;
     }
 }

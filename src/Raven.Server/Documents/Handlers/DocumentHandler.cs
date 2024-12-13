@@ -92,6 +92,7 @@ namespace Raven.Server.Documents.Handlers
                 await processor.ExecuteAsync().ConfigureAwait(false);
             }
         }
+
     }
 
     public sealed class MergedPutCommand : MergedTransactionCommand<DocumentsOperationContext, DocumentsTransaction>, IDisposable

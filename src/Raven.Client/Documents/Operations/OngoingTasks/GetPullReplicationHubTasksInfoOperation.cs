@@ -7,10 +7,18 @@ using Sparrow.Json;
 
 namespace Raven.Client.Documents.Operations.OngoingTasks
 {
+    /// <summary>
+    /// Operation to retrieve information about a specific pull replication task.
+    /// The information includes the pull replication hub definition and the current connections associated with the task.
+    /// </summary>
     public sealed class GetPullReplicationTasksInfoOperation : IMaintenanceOperation<PullReplicationDefinitionAndCurrentConnections>
     {
         private readonly long _taskId;
 
+        /// <inheritdoc cref="GetPullReplicationTasksInfoOperation"/>
+        /// <param name="taskId">
+        /// The unique identifier of the pull replication task to retrieve information for.
+        /// </param>
         public GetPullReplicationTasksInfoOperation(long taskId)
         {
             _taskId = taskId;

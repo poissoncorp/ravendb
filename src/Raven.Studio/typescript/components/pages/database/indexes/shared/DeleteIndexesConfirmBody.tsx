@@ -38,9 +38,8 @@ export default function DeleteIndexesConfirmBody({
                                 <strong>{x.indexName}</strong>
                                 {x.reduceOutputCollection && (
                                     <small className="ms-1">
-                                        {"("}Reduce Results Collections: {x.reduceOutputCollection}
-                                        {x.referenceCollection && `, ${x.referenceCollection}`}
-                                        {")"}
+                                        (Reduce Results Collections: {x.reduceOutputCollection}
+                                        {x.referenceCollection && `, ${x.referenceCollection}`})
                                     </small>
                                 )}
                             </li>

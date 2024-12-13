@@ -63,3 +63,13 @@ studioSettings.default.configureLoaders(mockJQueryPromise, mockJQueryPromise, mo
 Storage.prototype.getObject = jest.fn(() => null);
 
 global.define = function() {};
+
+Object.defineProperty(HTMLElement.prototype, "scrollWidth", {
+    configurable: true,
+    value: 500,
+});
+
+Object.defineProperty(HTMLElement.prototype, "scrollHeight", {
+    configurable: true,
+    value: 500,
+});

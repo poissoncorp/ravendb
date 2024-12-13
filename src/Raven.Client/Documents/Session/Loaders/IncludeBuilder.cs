@@ -113,6 +113,14 @@ namespace Raven.Client.Documents.Session.Loaders
 
         /// <inheritdoc cref="IncludeTimeSeries(string, TimeSeriesRangeType, int)"/> 
         TBuilder IncludeAllTimeSeries(TimeSeriesRangeType type, int count);
+
+        /// <summary>
+        /// Includes all time series of the entity, optionally filtered by a specific time range.
+        /// </summary>
+        /// <param name="from">The start date and time for the range to include. Can be <c>null</c> for no lower bound.</param>
+        /// <param name="to">The end date and time for the range to include. Can be <c>null</c> for no upper bound.</param>
+        /// <returns>An instance of the builder for method chaining.</returns>
+        TBuilder IncludeAllTimeSeries(DateTime? from = null, DateTime? to = null);
     }
 
     /// <summary>
@@ -610,6 +618,13 @@ namespace Raven.Client.Documents.Session.Loaders
         }
 
         /// <inheritdoc />
+        IIncludeBuilder<T> IAbstractTimeSeriesIncludeBuilder<T, IIncludeBuilder<T>>.IncludeAllTimeSeries(DateTime? from, DateTime? to)
+        {
+            IncludeTimeSeriesFromTo(string.Empty, Constants.TimeSeries.All, from, to);
+            return this;
+        }
+
+        /// <inheritdoc />
         IQueryIncludeBuilder<T> IAbstractTimeSeriesIncludeBuilder<T, IQueryIncludeBuilder<T>>.IncludeTimeSeries(string name, TimeSeriesRangeType type, TimeValue time)
         {
             IncludeTimeSeriesByRangeTypeAndTime(string.Empty, name, type, time);
@@ -652,6 +667,13 @@ namespace Raven.Client.Documents.Session.Loaders
         }
 
         /// <inheritdoc />
+        IQueryIncludeBuilder<T> IAbstractTimeSeriesIncludeBuilder<T, IQueryIncludeBuilder<T>>.IncludeAllTimeSeries(DateTime? from, DateTime? to)
+        {
+            IncludeTimeSeriesFromTo(string.Empty, Constants.TimeSeries.All, from, to);
+            return this;
+        }
+
+        /// <inheritdoc />
         ISubscriptionIncludeBuilder<T> IAbstractTimeSeriesIncludeBuilder<T, ISubscriptionIncludeBuilder<T>>.IncludeTimeSeries(string name, TimeSeriesRangeType type, TimeValue time)
         {
             IncludeTimeSeriesByRangeTypeAndTime(string.Empty, name, type, time);
@@ -690,6 +712,12 @@ namespace Raven.Client.Documents.Session.Loaders
         ISubscriptionIncludeBuilder<T> IAbstractTimeSeriesIncludeBuilder<T, ISubscriptionIncludeBuilder<T>>.IncludeAllTimeSeries(TimeSeriesRangeType type, int count)
         {
             IncludeTimeSeriesByRangeTypeAndCount(string.Empty, Constants.TimeSeries.All, type, count);
+            return this;
+        }
+
+        ISubscriptionIncludeBuilder<T> IAbstractTimeSeriesIncludeBuilder<T, ISubscriptionIncludeBuilder<T>>.IncludeAllTimeSeries(DateTime? from, DateTime? to)
+        {
+            IncludeTimeSeriesFromTo(string.Empty, Constants.TimeSeries.All, from, to);
             return this;
         }
 

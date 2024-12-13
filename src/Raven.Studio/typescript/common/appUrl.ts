@@ -446,8 +446,9 @@ class appUrl {
     }
 
     static forDocuments(collectionName: string, db: database | string): string {
-        if (collectionName === "All Documents")
+        if (collectionName === "All Documents"){
             collectionName = null;
+        }
 
         const collectionPart = collectionName ? "collection=" + encodeURIComponent(collectionName) : "";
         

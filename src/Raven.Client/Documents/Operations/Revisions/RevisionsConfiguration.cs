@@ -12,10 +12,22 @@ using Sparrow.Json.Parsing;
 
 namespace Raven.Client.Documents.Operations.Revisions
 {
+    /// <summary>
+    /// Represents the configuration for document revisions.
+    /// Revisions allow tracking and preserving historical versions of documents.
+    /// This configuration includes default revision settings and collection-specific configurations.
+    /// </summary>
     public sealed class RevisionsConfiguration : IFillFromBlittableJson
     {
+        /// <summary>
+        /// The default revisions configuration to be applied when no collection-specific configuration exists.
+        /// </summary>
         public RevisionsCollectionConfiguration Default { get; set; }
 
+        /// <summary>
+        /// The collection-specific revisions configurations.
+        /// Each key represents a collection name, and the value is its associated configuration.
+        /// </summary>
         public Dictionary<string, RevisionsCollectionConfiguration> Collections { get; set; }
 
         public bool Equals(RevisionsConfiguration other)

@@ -609,22 +609,48 @@ namespace Raven.Client.ServerWide
         HardDelete
     }
 
+    /// <summary>
+    /// Represents the configuration for compressing documents.
+    /// This configuration includes options for compressing specific collections, all collections, and document revisions.
+    /// </summary>
     public sealed class DocumentsCompressionConfiguration : IDynamicJson
     {
+        /// <summary>
+        /// The collections for which document compression is enabled.
+        /// </summary>
         public string[] Collections { get; set; }
+
+        /// <summary>
+        /// A value indicating whether all collections in the database should be compressed.
+        /// If <c>true</c>, the <see cref="Collections"/> property is ignored.
+        /// </summary>
         public bool CompressAllCollections { get; set; }
+
+        /// <summary>
+        /// A value indicating whether document revisions should be compressed.
+        /// </summary>
         public bool CompressRevisions { get; set; }
 
+        /// <inheritdoc cref="DocumentsCompressionConfiguration"/>
         public DocumentsCompressionConfiguration()
         {
         }
 
+        /// <inheritdoc cref="DocumentsCompressionConfiguration"/>
+        /// <param name="compressRevisions">Specifies whether document revisions should be compressed.</param>
+        /// <param name="collections">The collections for which compression should be enabled.</param>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="collections"/> is null.</exception>
         public DocumentsCompressionConfiguration(bool compressRevisions, params string[] collections)
         {
             Collections = collections ?? throw new ArgumentNullException(nameof(collections));
             CompressRevisions = compressRevisions;
         }
 
+        /// <inheritdoc cref="DocumentsCompressionConfiguration"/>
+        /// <param name="compressRevisions">Specifies whether document revisions should be compressed.</param>
+        /// <param name="compressAllCollections">Specifies whether all collections should be compressed.</param>
+        /// <param name="collections">The collections for which compression should be enabled.</param>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="collections"/> is null.</exception>
         public DocumentsCompressionConfiguration(bool compressRevisions, bool compressAllCollections, params string[] collections)
         {
             Collections = collections ?? throw new ArgumentNullException(nameof(collections));

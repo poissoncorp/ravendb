@@ -5,8 +5,9 @@ import generalUtils = require("common/generalUtils");
 class validationHelpers {
 
     static addDocumentIdValidation(field: KnockoutObservable<string>, db: database, onlyIf?: () => boolean) {
-        if (!onlyIf)
+        if (!onlyIf) {
             onlyIf = () => true;
+        }
         
         const verifyDocuments = (val: string, params: any, callback: (currentValue: string, result: boolean) => void) => {
             new verifyDocumentsIDsCommand([val], db)

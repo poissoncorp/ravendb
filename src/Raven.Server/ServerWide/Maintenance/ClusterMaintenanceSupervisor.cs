@@ -405,8 +405,9 @@ namespace Raven.Server.ServerWide.Maintenance
 
                     previous.LastSentEtag = dbReport.LastSentEtag;
                     previous.LastCompareExchangeIndex = dbReport.LastCompareExchangeIndex;
-                    previous.LastCompletedClusterTransaction = dbReport.LastCompletedClusterTransaction;
                     previous.LastClusterWideTransactionRaftIndex = dbReport.LastClusterWideTransactionRaftIndex;
+                    previous.LastCompletedClusterTransaction = dbReport.LastCompletedClusterTransaction;
+
                     previous.UpTime = dbReport.UpTime;
                     nodeReport.Report[dbName] = previous;
                 }
@@ -538,7 +539,7 @@ namespace Raven.Server.ServerWide.Maintenance
                     DestinationServerId = info.ServerId,
                     LicensedFeatures = new LicensedFeatures
                     {
-                        DataCompression = compressionSupport && _parent.ServerStore.LicenseManager.LicenseStatus.HasTcpDataCompression &&_parent.ServerStore.Configuration.Server.DisableTcpCompression == false
+                        DataCompression = compressionSupport && _parent.ServerStore.LicenseManager.LicenseStatus.HasTcpDataCompression && _parent.ServerStore.Configuration.Server.DisableTcpCompression == false
                     }
                 };
                 return await TcpNegotiation.NegotiateProtocolVersionAsync(context, stream, parameters);

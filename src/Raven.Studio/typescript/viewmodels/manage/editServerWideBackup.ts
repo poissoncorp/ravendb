@@ -232,38 +232,47 @@ class editServerWideBackup extends viewModelBase {
     private validate(): boolean {
         let valid = true;
 
-        if (!this.isValid(this.editedTask().validationGroup))
+        if (!this.isValid(this.editedTask().validationGroup)) {
             valid = false;
+        }
         
-        if (!this.isValid(this.editedTask().serverWideValidationGroup))
+        if (!this.isValid(this.editedTask().serverWideValidationGroup)) {
             valid = false;
+        }
 
-        if (!this.isValid(this.editedTask().encryptionSettings().validationGroup()))
+        if (!this.isValid(this.editedTask().encryptionSettings().validationGroup())) {
             valid = false;
+        }
 
         const localSettings = this.editedTask().localSettings();
-        if (localSettings.enabled() && !this.isValid(localSettings.effectiveValidationGroup()))
+        if (localSettings.enabled() && !this.isValid(localSettings.effectiveValidationGroup())) {
             valid = false;
+        }
 
         const s3Settings = this.editedTask().s3Settings();
-        if (s3Settings.enabled() && !this.isValid(s3Settings.effectiveValidationGroup()))
+        if (s3Settings.enabled() && !this.isValid(s3Settings.effectiveValidationGroup())) {
             valid = false;
+        }
 
         const azureSettings = this.editedTask().azureSettings();
-        if (azureSettings.enabled() && !this.isValid(azureSettings.effectiveValidationGroup()))
+        if (azureSettings.enabled() && !this.isValid(azureSettings.effectiveValidationGroup())) {
             valid = false;
+        }
 
         const googleCloudSettings = this.editedTask().googleCloudSettings();
-        if (googleCloudSettings.enabled() && !this.isValid(googleCloudSettings.effectiveValidationGroup()))
+        if (googleCloudSettings.enabled() && !this.isValid(googleCloudSettings.effectiveValidationGroup())) {
             valid = false;
+        }
 
         const glacierSettings = this.editedTask().glacierSettings();
-        if (glacierSettings.enabled() && !this.isValid(glacierSettings.effectiveValidationGroup()))
+        if (glacierSettings.enabled() && !this.isValid(glacierSettings.effectiveValidationGroup())) {
             valid = false;
+        }
 
         const ftpSettings = this.editedTask().ftpSettings();
-        if (ftpSettings.enabled() && !this.isValid(ftpSettings.effectiveValidationGroup()))
+        if (ftpSettings.enabled() && !this.isValid(ftpSettings.effectiveValidationGroup())) {
             valid = false;
+        }
         
         return valid;
     }
