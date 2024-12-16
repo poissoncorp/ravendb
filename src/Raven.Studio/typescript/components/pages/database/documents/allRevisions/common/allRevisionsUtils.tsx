@@ -3,9 +3,11 @@ import classNames from "classnames";
 import { RevisionsPreviewResultItem } from "commands/database/documents/getRevisionsPreviewCommand";
 import appUrl from "common/appUrl";
 import { Checkbox } from "components/common/Checkbox";
+import { ConditionalPopover } from "components/common/ConditionalPopover";
 import { Icon } from "components/common/Icon";
 import { CellWithCopy, CellWithCopyWrapper } from "components/common/virtualTable/cells/CellWithCopy";
 import { virtualTableUtils } from "components/common/virtualTable/utils/virtualTableUtils";
+import { useAppUrls } from "components/hooks/useAppUrls";
 
 const getColumnDefs = (
     databaseName: string,
@@ -16,27 +18,18 @@ const getColumnDefs = (
 ): ColumnDef<RevisionsPreviewResultItem>[] => {
     const sizeProvider = virtualTableUtils.getCellSizeProvider(tableBodyWidth - checkboxWidth);
 
-    const getIsSelected = (row: RevisionsPreviewResultItem) => {
-        return !!rowSelection.find((x) => x._meta.uniqueId === row._meta.uniqueId);
-    };
-
-    const toggleSelection = (row: RevisionsPreviewResultItem) => {
-        if (getIsSelected(row)) {
-            setRowSelection(rowSelection.filter((x) => x._meta.uniqueId !== row._meta.uniqueId));
-        } else {
-            setRowSelection([...rowSelection, row]);
-        }
-    };
-
     const columns: ColumnDef<RevisionsPreviewResultItem>[] = [
         {
             id: "Checkbox",
             header: "",
             accessorFn: (x) => x,
-            cell: ({ getValue }) => {
-                const value = getValue<RevisionsPreviewResultItem>();
-                return <Checkbox selected={getIsSelected(value)} toggleSelection={() => toggleSelection(value)} />;
-            },
+            cell: ({ getValue }) => (
+                <CheckboxCell
+                    rowSelection={rowSelection}
+                    setRowSelection={setRowSelection}
+                    rowValue={getValue<RevisionsPreviewResultItem>()}
+                />
+            ),
             size: checkboxWidth,
             minSize: checkboxWidth,
             enableSorting: false,
@@ -143,6 +136,52 @@ const getColumnDefs = (
 
     return columns;
 };
+
+interface CheckboxCellProps {
+    rowValue: RevisionsPreviewResultItem;
+    rowSelection: RevisionsPreviewResultItem[];
+    setRowSelection: (rows: RevisionsPreviewResultItem[]) => void;
+}
+
+function CheckboxCell({ rowValue, rowSelection, setRowSelection }: CheckboxCellProps) {
+    const { forCurrentDatabase } = useAppUrls();
+
+    const isDeleteRevision = rowValue.Flags.includes("DeleteRevision");
+
+    const isSelected = !!rowSelection.find((x) => isEqualRevision(x, rowValue));
+
+    const toggleSelection = () => {
+        if (isSelected) {
+            setRowSelection(rowSelection.filter((x) => !isEqualRevision(x, rowValue)));
+        } else {
+            setRowSelection([...rowSelection, rowValue]);
+        }
+    };
+
+    return (
+        <ConditionalPopover
+            conditions={{
+                isActive: isDeleteRevision,
+                message: (
+                    <div className="text-center">
+                        A delete revision can only be deleted from the
+                        <br />
+                        <a href={forCurrentDatabase.revisionsBin()} target="_blank">
+                            Revisions Bin view
+                        </a>
+                    </div>
+                ),
+            }}
+            popoverPlacement="top"
+        >
+            <Checkbox selected={isSelected} toggleSelection={toggleSelection} disabled={isDeleteRevision} />
+        </ConditionalPopover>
+    );
+}
+
+function isEqualRevision(a: RevisionsPreviewResultItem, b: RevisionsPreviewResultItem) {
+    return a.Id === b.Id && a.ChangeVector === b.ChangeVector;
+}
 
 const checkboxWidth = 38;
 
