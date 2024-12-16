@@ -6,6 +6,7 @@ import ReactSelect, {
     components,
     MultiValueProps,
     InputProps,
+    StylesConfig,
 } from "react-select";
 import { Icon } from "../Icon";
 import "./Select.scss";
@@ -38,18 +39,26 @@ export type SelectOptionWithWarning<T extends SelectValue = string> = SelectOpti
 export type SelectOptionWithIconAndSeparator<T extends SelectValue = string> = SelectOptionWithIcon<T> &
     SelectOptionSeparator;
 
+interface SelectProps<Option, IsMulti extends boolean = false, Group extends GroupBase<Option> = GroupBase<Option>>
+    extends ComponentProps<typeof ReactSelect<Option, IsMulti, Group>> {
+    isRoundedPill?: boolean;
+}
+
 export default function Select<
     Option,
     IsMulti extends boolean = false,
     Group extends GroupBase<Option> = GroupBase<Option>,
->(props: ComponentProps<typeof ReactSelect<Option, IsMulti, Group>>) {
-    const { className, ...rest } = props;
+>({ isRoundedPill, className, styles = {}, ...rest }: SelectProps<Option, IsMulti, Group>) {
+    if (isRoundedPill) {
+        applyRoundedPillStyle(styles);
+    }
 
     return (
         <ReactSelect
+            styles={styles}
             {...rest}
-            className={classNames("bs5", "react-select-container", className)}
             classNamePrefix="react-select"
+            className={classNames("bs5 react-select-container", { "rounded-pill": isRoundedPill }, className)}
         />
     );
 }
@@ -115,4 +124,11 @@ export function MultiValueLabelWithIcon({ children, ...props }: MultiValueProps<
 // https://github.com/JedWatson/react-select/issues/3068
 export function InputNotHidden({ ...props }: InputProps) {
     return <components.Input {...props} isHidden={false} />;
+}
+
+export function applyRoundedPillStyle(styles: StylesConfig) {
+    styles.control = (base) => ({
+        ...base,
+        borderRadius: "50rem",
+    });
 }
