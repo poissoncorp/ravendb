@@ -30,7 +30,7 @@ export function RichAlert({ className, variant, children, icon, iconAddon, title
             ) : (
                 <Icon icon={renderAlertIcon} addon={iconAddon} margin="m-0" className="title-icon fs-3" />
             )}
-            <div>{children}</div>
+            <div className="w-100">{children}</div>
         </Alert>
     );
 }

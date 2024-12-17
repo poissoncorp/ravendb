@@ -17,8 +17,8 @@ export function DetailedDatabaseStats() {
     const perNodeStats = useAppSelector(statisticsViewSelectors.allDatabaseDetails);
     const copyChangeVector = (formattedChangeVector: changeVectorItem[]) => {
         copyToClipboard.copy(
-            formattedChangeVector.map((cv) => cv.fullFormat).join("\r\n"),
-            "Copied error message to clipboard"
+            formattedChangeVector.map((cv) => cv.fullFormat).join(", "),
+            "Change Vector has been copied to clipboard"
         );
     };
 
