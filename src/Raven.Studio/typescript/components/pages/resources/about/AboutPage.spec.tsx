@@ -33,6 +33,7 @@ describe("AboutPage", function () {
             expect(screen.queryByText(selectors.registerLicense)).toBeInTheDocument();
             expect(screen.queryByText(selectors.forceUpdate)).not.toBeInTheDocument();
             expect(screen.queryByText(selectors.replaceLicense)).not.toBeInTheDocument();
+            expect(screen.queryByRole("link", { name: selectors.developerLicenseLink })).toBeInTheDocument();
         });
 
         it("enterprise", async () => {
@@ -46,6 +47,7 @@ describe("AboutPage", function () {
             expect(screen.queryByText(selectors.registerLicense)).not.toBeInTheDocument();
             expect(screen.queryByText(selectors.forceUpdate)).toBeInTheDocument();
             expect(screen.queryByText(selectors.replaceLicense)).toBeInTheDocument();
+            expect(screen.queryByRole("link", { name: selectors.developerLicenseLink })).not.toBeInTheDocument();
         });
 
         it("professional", async () => {
@@ -59,6 +61,7 @@ describe("AboutPage", function () {
             expect(screen.queryByText(selectors.registerLicense)).not.toBeInTheDocument();
             expect(screen.queryByText(selectors.forceUpdate)).toBeInTheDocument();
             expect(screen.queryByText(selectors.replaceLicense)).toBeInTheDocument();
+            expect(screen.queryByRole("link", { name: selectors.developerLicenseLink })).toBeInTheDocument();
         });
 
         it("community", async () => {
@@ -72,6 +75,7 @@ describe("AboutPage", function () {
             expect(screen.queryByText(selectors.registerLicense)).not.toBeInTheDocument();
             expect(screen.queryByText(selectors.forceUpdate)).toBeInTheDocument();
             expect(screen.queryByText(selectors.replaceLicense)).toBeInTheDocument();
+            expect(screen.queryByRole("link", { name: selectors.developerLicenseLink })).toBeInTheDocument();
         });
 
         it("essential", async () => {
@@ -85,6 +89,7 @@ describe("AboutPage", function () {
             expect(screen.queryByText(selectors.registerLicense)).not.toBeInTheDocument();
             expect(screen.queryByText(selectors.forceUpdate)).toBeInTheDocument();
             expect(screen.queryByText(selectors.replaceLicense)).toBeInTheDocument();
+            expect(screen.queryByRole("link", { name: selectors.developerLicenseLink })).toBeInTheDocument();
         });
 
         it("developer", async () => {
@@ -98,6 +103,7 @@ describe("AboutPage", function () {
             expect(screen.queryByText(selectors.registerLicense)).not.toBeInTheDocument();
             expect(screen.queryByText(selectors.forceUpdate)).toBeInTheDocument();
             expect(screen.queryByText(selectors.replaceLicense)).toBeInTheDocument();
+            expect(screen.queryByRole("link", { name: selectors.developerLicenseLink })).not.toBeInTheDocument();
         });
     });
 
@@ -228,6 +234,7 @@ const selectors = {
     registerLicense: /Register license/,
     forceUpdate: /Force Update/,
     replaceLicense: "Replace",
+    developerLicenseLink: /Developer license/,
 
     support: {
         supportPlanTab: /Support plan/,
