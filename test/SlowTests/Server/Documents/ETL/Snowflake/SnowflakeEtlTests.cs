@@ -210,7 +210,7 @@ loadToRegions({
         CreateSnowflakeTable(connectionString, "create or replace TABLE ORDERS (\n\tID STRING,\n\tNAME STRING,\n\tPIC BINARY\n);");
     }
     
-    [RavenRetryFact(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
+    [RavenMultiplatformFact(RavenTestCategory.Etl, RavenPlatform.Windows, RavenArchitecture.X64,  SnowflakeRequired = true, NightlyBuildRequired = true)]
     public async Task CanUseSnowflakeEtl()
     {
         using (var store = GetDocumentStore())
@@ -256,7 +256,7 @@ loadToRegions({
         }
     }
     
-    [RavenRetryFact(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
+    [RavenMultiplatformFact(RavenTestCategory.Etl, RavenPlatform.Windows, RavenArchitecture.X64,  SnowflakeRequired = true, NightlyBuildRequired = true)]
     public async Task CanUseSnowflakeEtlForArrayData()
     {
         using (var store = GetDocumentStore())
@@ -282,7 +282,7 @@ loadToRegions({
     }
     
     
-    [RavenRetryTheory(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
+    [RavenMultiplatformTheory(RavenTestCategory.Etl, RavenPlatform.Windows, RavenArchitecture.X64,  SnowflakeRequired = true, NightlyBuildRequired = true)]
     [InlineData(RavenDatabaseMode.Single)]
     [InlineData(RavenDatabaseMode.Sharded)]
     public async Task ShouldHandleCaseMismatchBetweenTableDefinitionAndLoadTo(RavenDatabaseMode databaseMode)
@@ -333,7 +333,7 @@ loadToOrDerS(orderData); // note 'OrDerS' here vs 'Orders' defined in the config
     }
     
     
-    [RavenRetryTheory(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
+    [RavenMultiplatformTheory(RavenTestCategory.Etl, RavenPlatform.Windows, RavenArchitecture.X64,  SnowflakeRequired = true, NightlyBuildRequired = true)]
     [InlineData(RavenDatabaseMode.Single)]
     [InlineData(RavenDatabaseMode.Sharded)]
     public async Task NullPropagation(RavenDatabaseMode databaseMode)
@@ -377,7 +377,7 @@ loadToOrders(orderData);");
         }
     }
     
-    [RavenRetryTheory(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
+    [RavenMultiplatformTheory(RavenTestCategory.Etl, RavenPlatform.Windows, RavenArchitecture.X64,  SnowflakeRequired = true, NightlyBuildRequired = true)]
     [InlineData(RavenDatabaseMode.Single)]
     [InlineData(RavenDatabaseMode.Sharded)]
     public async Task NullPropagation_WithExplicitNull(RavenDatabaseMode databaseMode)
@@ -429,7 +429,7 @@ loadToOrders(orderData);");
         }
     }
     
-    [RavenRetryTheory(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
+    [RavenMultiplatformTheory(RavenTestCategory.Etl, RavenPlatform.Windows, RavenArchitecture.X64,  SnowflakeRequired = true, NightlyBuildRequired = true)]
     [InlineData(RavenDatabaseMode.Single)]
     [InlineData(RavenDatabaseMode.Sharded)]
     public async Task RavenDB_3341(RavenDatabaseMode databaseMode)
@@ -468,7 +468,7 @@ loadToOrders(orderData);");
         }
     }
     
-    [RavenRetryTheory(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
+    [RavenMultiplatformTheory(RavenTestCategory.Etl, RavenPlatform.Windows, RavenArchitecture.X64,  SnowflakeRequired = true, NightlyBuildRequired = true)]
     [InlineData(RavenDatabaseMode.Single)]
     [InlineData(RavenDatabaseMode.Sharded)]
     public async Task CanUpdateToBeNoItemsInChildTable(RavenDatabaseMode databaseMode)
@@ -515,7 +515,7 @@ loadToOrders(orderData);");
     }
     
     
-    [RavenRetryTheory(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
+    [RavenMultiplatformTheory(RavenTestCategory.Etl, RavenPlatform.Windows, RavenArchitecture.X64,  SnowflakeRequired = true, NightlyBuildRequired = true)]
     [InlineData(RavenDatabaseMode.Single)]
     [InlineData(RavenDatabaseMode.Sharded)]
     public async Task RavenDB_3172(RavenDatabaseMode databaseMode)
@@ -562,7 +562,7 @@ loadToOrders(orderData);");
         }
     }
     
-    [RavenRetryTheory(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
+    [RavenMultiplatformTheory(RavenTestCategory.Etl, RavenPlatform.Windows, RavenArchitecture.X64,  SnowflakeRequired = true, NightlyBuildRequired = true)]
     [InlineData(RavenDatabaseMode.Single)]
     [InlineData(RavenDatabaseMode.Sharded)]
     public async Task WillLog(RavenDatabaseMode databaseMode)
@@ -635,7 +635,7 @@ var nameArr = this.StepName.split('.'); loadToOrders({});");
     }
     
     
-    [RavenRetryTheory(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
+    [RavenMultiplatformTheory(RavenTestCategory.Etl, RavenPlatform.Windows, RavenArchitecture.X64,  SnowflakeRequired = true, NightlyBuildRequired = true)]
     [InlineData(RavenDatabaseMode.Single, true)]
     [InlineData(RavenDatabaseMode.Single, false)]
     [InlineData(RavenDatabaseMode.Sharded, true)]
@@ -720,7 +720,7 @@ var nameArr = this.StepName.split('.'); loadToOrders({});");
     }
     
     
-    [RavenRetryTheory(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
+    [RavenMultiplatformTheory(RavenTestCategory.Etl, RavenPlatform.Windows, RavenArchitecture.X64,  SnowflakeRequired = true, NightlyBuildRequired = true)]
     [InlineData(RavenDatabaseMode.Single)]
     [InlineData(RavenDatabaseMode.Sharded)]
     public async Task VarcharAndNVarcharFunctionsArentAvailable(RavenDatabaseMode databaseMode)
@@ -814,7 +814,7 @@ output(result);
         }
     }
     
-    [RavenRetryTheory(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
+    [RavenMultiplatformTheory(RavenTestCategory.Etl, RavenPlatform.Windows, RavenArchitecture.X64,  SnowflakeRequired = true, NightlyBuildRequired = true)]
     [InlineData(RavenDatabaseMode.Single, true)]
     [InlineData(RavenDatabaseMode.Single, false)]
     [InlineData(RavenDatabaseMode.Sharded, true)]
@@ -893,7 +893,7 @@ output(result);
         }
     }
 
-    [RavenRetryTheory(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
+    [RavenMultiplatformTheory(RavenTestCategory.Etl, RavenPlatform.Windows, RavenArchitecture.X64,  SnowflakeRequired = true, NightlyBuildRequired = true)]
     [InlineData(RavenDatabaseMode.Single)]
     [InlineData(RavenDatabaseMode.Sharded)]
     public async Task Should_not_error_if_attachment_doesnt_exist(RavenDatabaseMode databaseMode)
@@ -962,7 +962,7 @@ loadToOrders(orderData);
         }
     }
     
-    [RavenRetryTheory(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
+    [RavenMultiplatformTheory(RavenTestCategory.Etl, RavenPlatform.Windows, RavenArchitecture.X64,  SnowflakeRequired = true, NightlyBuildRequired = true)]
     [InlineData(RavenDatabaseMode.Single)]
     [InlineData(RavenDatabaseMode.Sharded)]
     public async Task LoadingMultipleAttachments(RavenDatabaseMode databaseMode)
@@ -1033,7 +1033,7 @@ for (var i = 0; i < attachments.length; i++)
     }
 
 
-    [RavenRetryTheory(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
+    [RavenMultiplatformTheory(RavenTestCategory.Etl, RavenPlatform.Windows, RavenArchitecture.X64,  SnowflakeRequired = true, NightlyBuildRequired = true)]
     [InlineData(RavenDatabaseMode.Single)]
     [InlineData(RavenDatabaseMode.Sharded)]
     public async Task CanSkipSettingFieldIfAttachmentDoesntExist(RavenDatabaseMode databaseMode)
@@ -1086,7 +1086,7 @@ loadToOrders(orderData);
         }
     }
     
-    [RavenRetryTheory(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
+    [RavenMultiplatformTheory(RavenTestCategory.Etl, RavenPlatform.Windows, RavenArchitecture.X64,  SnowflakeRequired = true, NightlyBuildRequired = true)]
     [InlineData(RavenDatabaseMode.Single)]
     [InlineData(RavenDatabaseMode.Sharded)]
     public async Task LoadingFromMultipleCollections(RavenDatabaseMode databaseMode)
@@ -1135,7 +1135,7 @@ loadToOrders(orderData);
         }
     }
     
-    [RavenRetryFact(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
+    [RavenMultiplatformFact(RavenTestCategory.Etl, RavenPlatform.Windows, RavenArchitecture.X64,  SnowflakeRequired = true, NightlyBuildRequired = true)]
     public void Should_stop_batch_if_size_limit_exceeded_RavenDB_12800()
     {
         using (var store = GetDocumentStore(new Options { ModifyDatabaseRecord = x => x.Settings[RavenConfiguration.GetKey(c => c.Etl.MaxBatchSize)] = "5" }))
@@ -1192,7 +1192,7 @@ loadToOrders(orderData);
         }
     }
     
-    [RavenRetryFact(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
+    [RavenMultiplatformFact(RavenTestCategory.Etl, RavenPlatform.Windows, RavenArchitecture.X64,  SnowflakeRequired = true, NightlyBuildRequired = true)]
     public async Task CanLoadSingleAttachment()
     {
         using (var store = GetDocumentStore())
@@ -1247,7 +1247,7 @@ loadToOrders(orderData);
     }
 
 
-    [RavenRetryFact(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
+    [RavenMultiplatformFact(RavenTestCategory.Etl, RavenPlatform.Windows, RavenArchitecture.X64,  SnowflakeRequired = true, NightlyBuildRequired = true)]
     public async Task CanDelete()
     {
         using (var store = GetDocumentStore(Options.ForMode(RavenDatabaseMode.Single)))
@@ -1288,7 +1288,7 @@ loadToOrders(orderData);
         }
     }
     
-    [RavenRetryFact(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
+    [RavenMultiplatformFact(RavenTestCategory.Etl, RavenPlatform.Windows, RavenArchitecture.X64,  SnowflakeRequired = true, NightlyBuildRequired = true)]
     public async Task ShouldImportTask()
     {
         using (var srcStore = GetDocumentStore())
@@ -1325,7 +1325,7 @@ loadToOrders(orderData);
         }
     }
 
-    [RavenRetryFact(RavenTestCategory.Etl, delayBetweenRetriesMs: 1000, SnowflakeRequired = true, NightlyBuildRequired = true)]
+    [RavenMultiplatformFact(RavenTestCategory.Etl, RavenPlatform.Windows, RavenArchitecture.X64,  SnowflakeRequired = true, NightlyBuildRequired = true)]
     public void SnowflakeConnectionStringAuditJsonShouldnNotContainCredentials()
     {
         SnowflakeConnectionString cs = new() { ConnectionString = "secret", Name = "Test" };
