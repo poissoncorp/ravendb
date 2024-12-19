@@ -65,13 +65,14 @@ loadToRegions({
     Territories: {Type: 'Array', Value: this.Territories}
 });
 ";
-    
+
+    private const string SnowflakeRoleForTestsName = "RAVENDB_TEST_ADMIN";
     
     private static DisposableAction WithSnowflakeDatabase(out string connectionString, out string databaseName, out string schemaName)
     {
         databaseName = "snowflake_test_" + Guid.NewGuid();
         schemaName = "snowflake_test_" + Guid.NewGuid();
-        var rawConnectionString = TestSnowflakeConnectionString.Instance.VerifiedConnectionString.Value;
+        var rawConnectionString = $"{TestSnowflakeConnectionString.Instance.VerifiedConnectionString.Value}ROLE={SnowflakeRoleForTestsName};"; 
         
         if(string.IsNullOrEmpty(rawConnectionString))
             throw new InvalidOperationException("The connection string for Snowflake db is null");
