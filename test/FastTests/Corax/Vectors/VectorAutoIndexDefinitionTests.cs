@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Raven.Client;
+using Raven.Client.Documents.Indexes;
 using Raven.Client.Documents.Indexes.Vector;
 using Raven.Server.Documents.Queries;
 using Raven.Server.Documents.Queries.Dynamic;
@@ -51,15 +52,11 @@ public class VectorAutoIndexDefinitionTests(ITestOutputHelper output) : NoDispos
         Assert.True(vectorOptions is AutoVectorOptions { SourceFieldName: "Name" });
     }
 
-
-    
-
     [RavenFact(RavenTestCategory.Vector | RavenTestCategory.Indexes)]
     public void ExtendingIndexWithVectorField()
     {
-        _sut = DynamicQueryMapping.CreateInternal(new IndexQueryServerSide("FROM Users WHERE Name = 'Placeholder'"));
+        _sut = DynamicQueryMapping.Create(new IndexQueryServerSide("FROM Users WHERE Name = 'Placeholder'"), SearchEngineType.Lucene);
         var existingDefinition = _sut.CreateAutoIndexDefinition();
-
         
         (string fieldEmbeddingName, VectorEmbeddingType sourceType, VectorEmbeddingType destinationType)[] fields = {
             (Constants.VectorSearch.EmbeddingText, VectorEmbeddingType.Text, VectorEmbeddingType.Single), 
@@ -76,7 +73,7 @@ public class VectorAutoIndexDefinitionTests(ITestOutputHelper output) : NoDispos
         {
             var currentField = fields[i];
             var innerName = currentField.fieldEmbeddingName is null ? "Name" : $"{currentField.fieldEmbeddingName}(Name)";
-            _sut = DynamicQueryMapping.CreateInternal(new IndexQueryServerSide($"FROM Users WHERE vector.search({innerName}, 'test')"));
+            _sut = DynamicQueryMapping.Create(new IndexQueryServerSide($"FROM Users WHERE vector.search({innerName}, 'test')"), SearchEngineType.Lucene);
             _sut.ExtendMappingBasedOn(existingDefinition);
             var def = _sut.CreateAutoIndexDefinition();
             Assert.Equal(def.IndexFields.Count, i + 2); // i => i +1 + Name (from above)
@@ -93,6 +90,6 @@ public class VectorAutoIndexDefinitionTests(ITestOutputHelper output) : NoDispos
 
     private void CreateDynamicMapping(string query)
     {
-        _sut = DynamicQueryMapping.CreateInternal(new IndexQueryServerSide(query));
+        _sut = DynamicQueryMapping.Create(new IndexQueryServerSide(query), SearchEngineType.Lucene);
     }
 }
