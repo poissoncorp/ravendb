@@ -1205,10 +1205,14 @@ namespace Raven.Server.Documents.Revisions
                     throw new ArgumentOutOfRangeException(nameof(type), $"Unsupported revision type: {type}");
             }
 
-            var enumerator = new TransactionForgetAboutTableValueHolderStorageIdEnumerator(revisions.GetEnumerator(), context);
-
-            foreach (var tvh in enumerator)
+            TableValueHolder prevTvh = null;
+            foreach (var tvh in revisions)
             {
+                if (prevTvh != null)
+                    context.Transaction.InnerTransaction.ForgetAbout(prevTvh.Reader.Id);
+
+                prevTvh = tvh;
+
                 if (type == RevisionType.Deleted)
                 {
                     var etag = TableValueToEtag((int)RevisionsTable.DeletedEtag, ref tvh.Reader);
@@ -1238,10 +1242,14 @@ namespace Raven.Server.Documents.Revisions
             if (table == null || take == 0)
                 yield break;
 
-            var enumerator = new TransactionForgetAboutTableValueHolderStorageIdEnumerator(table.SeekBackwardFromLast(RevisionsSchema.FixedSizeIndexes[CollectionRevisionsEtagsSlice], skip).GetEnumerator(), context);
-
-            foreach (var tvh in enumerator)
+            TableValueHolder prevTvh = null;
+            foreach (var tvh in table.SeekBackwardFromLast(RevisionsSchema.FixedSizeIndexes[CollectionRevisionsEtagsSlice], skip))
             {
+                if (prevTvh != null)
+                    context.Transaction.InnerTransaction.ForgetAbout(prevTvh.Reader.Id);
+
+                prevTvh = tvh;
+
                 var tvr = tvh.Reader;
                 var revision = TableValueToRevision(context, ref tvr, DocumentFields.Id | DocumentFields.ChangeVector);
 
@@ -1266,7 +1274,6 @@ namespace Raven.Server.Documents.Revisions
                 take--;
                 if (take <= 0)
                     yield break;
-
             }
         }
 

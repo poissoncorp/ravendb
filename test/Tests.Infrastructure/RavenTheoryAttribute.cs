@@ -28,7 +28,7 @@ public class RavenTheoryAttribute : TheoryAttribute, ITraitAttribute
     {
         get
         {
-            return ShouldSkip(_skip, _category, licenseRequired: LicenseRequired, nightlyBuildRequired: NightlyBuildRequired, s3Required: S3Required, azureRequired: AzureRequired, snowflakeRequired: SnowflakeRequired);
+            return ShouldSkip(_skip, Category, licenseRequired: LicenseRequired, nightlyBuildRequired: NightlyBuildRequired, s3Required: S3Required, azureRequired: AzureRequired, snowflakeRequired: SnowflakeRequired);
         }
 
         set => _skip = value;

@@ -20,7 +20,7 @@ import { useAppSelector } from "components/store";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
 import messagePublisher from "common/messagePublisher";
 import { AllRevisionsFetcherRef } from "components/pages/database/documents/allRevisions/common/allRevisionsTypes";
-import { MultiRadioToggle } from "components/common/MultiRadioToggle";
+import { MultiRadioToggle } from "components/common/toggles/MultiRadioToggle";
 import collectionsTracker from "common/helpers/database/collectionsTracker";
 import { HStack } from "components/common/utilities/HStack";
 import { VStack } from "components/common/utilities/VStack";

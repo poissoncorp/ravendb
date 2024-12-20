@@ -32,7 +32,7 @@ public class RavenFactAttribute : FactAttribute, ITraitAttribute
     {
         get
         {
-            return ShouldSkip(_skip, _category, licenseRequired: LicenseRequired, nightlyBuildRequired: NightlyBuildRequired, msSqlRequired: MsSqlRequired, elasticSearchRequired: ElasticSearchRequired, azureQueueStorageRequired: AzureQueueStorageRequired, snowflakeRequired: SnowflakeRequired, amazonSqsRequired: AmazonSqsRequired);
+            return ShouldSkip(_skip, Category, licenseRequired: LicenseRequired, nightlyBuildRequired: NightlyBuildRequired, msSqlRequired: MsSqlRequired, elasticSearchRequired: ElasticSearchRequired, azureQueueStorageRequired: AzureQueueStorageRequired, snowflakeRequired: SnowflakeRequired, amazonSqsRequired: AmazonSqsRequired);
         }
 
         set => _skip = value;

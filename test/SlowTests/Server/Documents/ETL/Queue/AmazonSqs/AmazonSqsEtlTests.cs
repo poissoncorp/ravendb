@@ -63,7 +63,7 @@ public class AmazonSqsEtlTests : AmazonSqsEtlTestBase
             Assert.Equal(order.TotalCost, 10);
         }
     }
-    
+
     [RavenFact(RavenTestCategory.Etl, AmazonSqsRequired = true)]
     public void SimpleScriptToFifoQueue()
     {
@@ -84,9 +84,9 @@ public class AmazonSqsEtlTests : AmazonSqsEtlTestBase
             var config = SetupQueueEtlToAmazonSqsOnline(store,
                 @$"loadTo('users.fifo', this)", new[] { "users" },
                 new[] { new EtlQueue { Name = "users.fifo" } }, skipAutomaticQueueDeclaration: true);
-            
+
             var etlDone = Etl.WaitForEtlToComplete(store);
-            
+
             using (var session = store.OpenSession())
             {
                 session.Store(new User()
@@ -101,10 +101,10 @@ public class AmazonSqsEtlTests : AmazonSqsEtlTestBase
                 });
                 session.SaveChanges();
             }
-            
+
             AssertEtlDone(etlDone, TimeSpan.FromMinutes(1), store.Database, config);
 
-            
+
             var queueUrl = AsyncHelpers.RunSync(() => queueClient.GetQueueUrlAsync("users.fifo")).QueueUrl;
             var messagesReadResult = AsyncHelpers.RunSync(() => queueClient.ReceiveMessageAsync(new ReceiveMessageRequest
             {
@@ -116,12 +116,12 @@ public class AmazonSqsEtlTests : AmazonSqsEtlTestBase
 
             Assert.NotNull(userData1);
             Assert.Equal("John Doe", userData1.Name);
-            
+
             Assert.NotNull(userData2);
             Assert.Equal("Test", userData2.Name);
         }
     }
-    
+
     [RavenFact(RavenTestCategory.Etl, AmazonSqsRequired = true)]
     public async Task Simple_script_large_message_error_expected()
     {
@@ -130,7 +130,7 @@ public class AmazonSqsEtlTests : AmazonSqsEtlTestBase
             var config = SetupQueueEtlToAmazonSqsOnline(store,
                 @$"loadToUsers(this)", new[] { "users" },
                 new[] { new EtlQueue { Name = $"users" } });
-            
+
             using (var session = store.OpenSession())
             {
                 session.Store(new User()
@@ -145,20 +145,15 @@ public class AmazonSqsEtlTests : AmazonSqsEtlTestBase
                 });
                 session.SaveChanges();
             }
-            
-            var alert = await AssertWaitForNotNullAsync(() =>
-            {
-                Etl.TryGetLoadError(store.Database, config, out var error);
 
-                return Task.FromResult(error);
-            }, timeout: (int)TimeSpan.FromMinutes(1).TotalMilliseconds);
+            var alert = await AssertWaitForNotNullAsync(() => Etl.TryGetLoadErrorAsync(store.Database, config), timeout: (int)TimeSpan.FromMinutes(1).TotalMilliseconds);
 
             Assert.Contains(
                 "MessageTooLong",
                 alert.Error);
         }
     }
-    
+
     [RavenFact(RavenTestCategory.Etl, AmazonSqsRequired = true)]
     public async Task Simple_script_queue_not_exist_error_expected()
     {
@@ -167,7 +162,7 @@ public class AmazonSqsEtlTests : AmazonSqsEtlTestBase
             var config = SetupQueueEtlToAmazonSqsOnline(store,
                 @$"loadToUsers(this)", new[] { "users" },
                 new[] { new EtlQueue { Name = $"users" } }, skipAutomaticQueueDeclaration: true);
-            
+
             using (var session = store.OpenSession())
             {
                 session.Store(new User()
@@ -182,20 +177,15 @@ public class AmazonSqsEtlTests : AmazonSqsEtlTestBase
                 });
                 session.SaveChanges();
             }
-            
-            var alert = await AssertWaitForNotNullAsync(() =>
-            {
-                Etl.TryGetLoadError(store.Database, config, out var error);
 
-                return Task.FromResult(error);
-            }, timeout: (int)TimeSpan.FromMinutes(1).TotalMilliseconds);
+            var alert = await AssertWaitForNotNullAsync(() => Etl.TryGetLoadErrorAsync(store.Database, config), timeout: (int)TimeSpan.FromMinutes(1).TotalMilliseconds);
 
             Assert.Contains(
                 "QueueDoesNotExist",
                 alert.Error);
         }
     }
-    
+
     [RavenFact(RavenTestCategory.Etl, AmazonSqsRequired = true)]
     public void Error_if_script_does_not_contain_any_loadTo_method()
     {
@@ -231,7 +221,7 @@ public class AmazonSqsEtlTests : AmazonSqsEtlTestBase
         Assert.Equal("No `loadTo<QueueName>()` method call found in 'test' script", errors[0]);
     }
 
-    
+
     [RavenFact(RavenTestCategory.Etl, AmazonSqsRequired = true)]
     public void ShardedAmazonSqsEtlNotSupported()
     {
@@ -245,7 +235,7 @@ public class AmazonSqsEtlTests : AmazonSqsEtlTestBase
         }
     }
 
-    
+
     [RavenFact(RavenTestCategory.Etl, AmazonSqsRequired = true)]
     public void TestAreHeadersPresent()
     {
@@ -283,7 +273,7 @@ public class AmazonSqsEtlTests : AmazonSqsEtlTestBase
         }
     }
 
-    
+
     [RavenFact(RavenTestCategory.Etl, AmazonSqsRequired = true)]
     public void SimpleScriptWithManyDocuments()
     {
@@ -306,7 +296,9 @@ public class AmazonSqsEtlTests : AmazonSqsEtlTestBase
                 {
                     order.OrderLines.Add(new OrderLine
                     {
-                        Cost = j + 1, Product = "foos/" + j, Quantity = (i * j) % 10
+                        Cost = j + 1,
+                        Product = "foos/" + j,
+                        Quantity = (i * j) % 10
                     });
                 }
 
@@ -317,7 +309,7 @@ public class AmazonSqsEtlTests : AmazonSqsEtlTestBase
         }
 
         AssertEtlDone(etlDone, TimeSpan.FromMinutes(1), store.Database, config);
-        
+
         IAmazonSQS queueClient = CreateQueueClient();
         var queueUrl = AsyncHelpers.RunSync(() => queueClient.GetQueueUrlAsync(OrdersQueueName)).QueueUrl;
         var messagesReadResult = AsyncHelpers.RunSync(() => queueClient.ReceiveMessageAsync(new ReceiveMessageRequest()
@@ -338,7 +330,7 @@ public class AmazonSqsEtlTests : AmazonSqsEtlTestBase
         }
     }
 
-    
+
     [RavenFact(RavenTestCategory.Etl, AmazonSqsRequired = true)]
     public void Error_if_script_is_empty()
     {
@@ -368,7 +360,7 @@ public class AmazonSqsEtlTests : AmazonSqsEtlTestBase
         Assert.Equal("Script 'test' must not be empty", errors[0]);
     }
 
-    
+
     [RavenFact(RavenTestCategory.Etl, AmazonSqsRequired = true)]
     public async Task CanTestScript()
     {
@@ -442,7 +434,7 @@ public class AmazonSqsEtlTests : AmazonSqsEtlTestBase
         }
     }
 
-    
+
     [RavenFact(RavenTestCategory.Etl, AmazonSqsRequired = true)]
     public void ShouldDeleteDocumentsAfterProcessing()
     {
@@ -478,122 +470,122 @@ public class AmazonSqsEtlTests : AmazonSqsEtlTestBase
         }
     }
 
-     
-     [RavenFact(RavenTestCategory.Etl, AmazonSqsRequired = true)]
-     public async Task ShouldImportTask()
-     {
-         using (var srcStore = GetDocumentStore())
-         using (var dstStore = GetDocumentStore())
-         {
-             var config = SetupQueueEtlToAmazonSqsOnline(srcStore,
-                 DefaultScript, DefaultCollections,
-                 new List<EtlQueue>() { new() { Name = "Orders", DeleteProcessedDocuments = true } });
 
-             var exportFile = GetTempFileName();
+    [RavenFact(RavenTestCategory.Etl, AmazonSqsRequired = true)]
+    public async Task ShouldImportTask()
+    {
+        using (var srcStore = GetDocumentStore())
+        using (var dstStore = GetDocumentStore())
+        {
+            var config = SetupQueueEtlToAmazonSqsOnline(srcStore,
+                DefaultScript, DefaultCollections,
+                new List<EtlQueue>() { new() { Name = "Orders", DeleteProcessedDocuments = true } });
 
-             var exportOperation = await srcStore.Smuggler.ExportAsync(new DatabaseSmugglerExportOptions(), exportFile);
-             await exportOperation.WaitForCompletionAsync(TimeSpan.FromMinutes(1));
+            var exportFile = GetTempFileName();
 
-             var operation = await dstStore.Smuggler.ImportAsync(new DatabaseSmugglerImportOptions(), exportFile);
-             await operation.WaitForCompletionAsync(TimeSpan.FromMinutes(1));
+            var exportOperation = await srcStore.Smuggler.ExportAsync(new DatabaseSmugglerExportOptions(), exportFile);
+            await exportOperation.WaitForCompletionAsync(TimeSpan.FromMinutes(1));
 
-             var destinationRecord =
-                 await dstStore.Maintenance.Server.SendAsync(new GetDatabaseRecordOperation(dstStore.Database));
-             Assert.Equal(1, destinationRecord.QueueConnectionStrings.Count);
-             Assert.Equal(1, destinationRecord.QueueEtls.Count);
+            var operation = await dstStore.Smuggler.ImportAsync(new DatabaseSmugglerImportOptions(), exportFile);
+            await operation.WaitForCompletionAsync(TimeSpan.FromMinutes(1));
 
-             Assert.Equal(QueueBrokerType.AmazonSqs, destinationRecord.QueueEtls[0].BrokerType);
-             Assert.Equal(DefaultScript, destinationRecord.QueueEtls[0].Transforms[0].Script);
-             Assert.Equal(DefaultCollections, destinationRecord.QueueEtls[0].Transforms[0].Collections);
+            var destinationRecord =
+                await dstStore.Maintenance.Server.SendAsync(new GetDatabaseRecordOperation(dstStore.Database));
+            Assert.Equal(1, destinationRecord.QueueConnectionStrings.Count);
+            Assert.Equal(1, destinationRecord.QueueEtls.Count);
 
-             Assert.Equal(1, destinationRecord.QueueEtls[0].Queues.Count);
-             Assert.Equal("Orders", destinationRecord.QueueEtls[0].Queues[0].Name);
-             Assert.True(destinationRecord.QueueEtls[0].Queues[0].DeleteProcessedDocuments);
-         }
-     }
+            Assert.Equal(QueueBrokerType.AmazonSqs, destinationRecord.QueueEtls[0].BrokerType);
+            Assert.Equal(DefaultScript, destinationRecord.QueueEtls[0].Transforms[0].Script);
+            Assert.Equal(DefaultCollections, destinationRecord.QueueEtls[0].Transforms[0].Collections);
 
-     [RavenFact(RavenTestCategory.BackupExportImport | RavenTestCategory.Sharding | RavenTestCategory.Etl, AmazonSqsRequired = true)]
-     public async Task ShouldSkipUnsupportedFeaturesInShardingOnImport_AmazonSqsEtl()
-     {
-         using (var srcStore = GetDocumentStore())
-         using (var dstStore = Sharding.GetDocumentStore())
-         {
-             var config = SetupQueueEtlToAmazonSqsOnline(srcStore,
-                 DefaultScript, DefaultCollections,
-                 new List<EtlQueue>() { new() { Name = "Orders", DeleteProcessedDocuments = true } });
+            Assert.Equal(1, destinationRecord.QueueEtls[0].Queues.Count);
+            Assert.Equal("Orders", destinationRecord.QueueEtls[0].Queues[0].Name);
+            Assert.True(destinationRecord.QueueEtls[0].Queues[0].DeleteProcessedDocuments);
+        }
+    }
 
-             var record = await srcStore.Maintenance.Server.SendAsync(new GetDatabaseRecordOperation(srcStore.Database));
+    [RavenFact(RavenTestCategory.BackupExportImport | RavenTestCategory.Sharding | RavenTestCategory.Etl, AmazonSqsRequired = true)]
+    public async Task ShouldSkipUnsupportedFeaturesInShardingOnImport_AmazonSqsEtl()
+    {
+        using (var srcStore = GetDocumentStore())
+        using (var dstStore = Sharding.GetDocumentStore())
+        {
+            var config = SetupQueueEtlToAmazonSqsOnline(srcStore,
+                DefaultScript, DefaultCollections,
+                new List<EtlQueue>() { new() { Name = "Orders", DeleteProcessedDocuments = true } });
 
-             Assert.NotNull(record.QueueEtls);
-             Assert.Equal(1, record.QueueEtls.Count);
+            var record = await srcStore.Maintenance.Server.SendAsync(new GetDatabaseRecordOperation(srcStore.Database));
 
-             var exportFile = GetTempFileName();
+            Assert.NotNull(record.QueueEtls);
+            Assert.Equal(1, record.QueueEtls.Count);
 
-             var exportOperation = await srcStore.Smuggler.ExportAsync(new DatabaseSmugglerExportOptions(), exportFile);
-             await exportOperation.WaitForCompletionAsync(TimeSpan.FromMinutes(1));
+            var exportFile = GetTempFileName();
 
-             var operation = await dstStore.Smuggler.ImportAsync(new DatabaseSmugglerImportOptions(), exportFile);
-             await operation.WaitForCompletionAsync(TimeSpan.FromMinutes(1));
+            var exportOperation = await srcStore.Smuggler.ExportAsync(new DatabaseSmugglerExportOptions(), exportFile);
+            await exportOperation.WaitForCompletionAsync(TimeSpan.FromMinutes(1));
 
-             record = await dstStore.Maintenance.Server.SendAsync(new GetDatabaseRecordOperation(dstStore.Database));
+            var operation = await dstStore.Smuggler.ImportAsync(new DatabaseSmugglerImportOptions(), exportFile);
+            await operation.WaitForCompletionAsync(TimeSpan.FromMinutes(1));
 
-             Assert.Empty(record.QueueEtls);
-         }
-     }
+            record = await dstStore.Maintenance.Server.SendAsync(new GetDatabaseRecordOperation(dstStore.Database));
 
-     
-     [RavenFact(RavenTestCategory.Etl, AmazonSqsRequired = true)]
-     public void ProperUrlFromHttpConnectionString()
-     {
-         var config = new QueueEtlConfiguration
-         {
-             Name = "test",
-             ConnectionStringName = "test",
-             BrokerType = QueueBrokerType.AmazonSqs,
-             Transforms = { new Transformation { Name = "test", Collections = { "Orders" }, Script = @"" } }
-         };
+            Assert.Empty(record.QueueEtls);
+        }
+    }
 
-         config.Initialize(new QueueConnectionString
-         {
-             Name = "Foo",
-             BrokerType = QueueBrokerType.AmazonSqs,
-             AmazonSqsConnectionSettings = 
-                 new AmazonSqsConnectionSettings
-                 {
-                     UseEmulator = true,
-                 }
-         });
 
-         var queueUrl = config.Connection.AmazonSqsConnectionSettings.GetQueueUrl();
-         Assert.Equal(queueUrl, Environment.GetEnvironmentVariable(AmazonSqsConnectionSettings.EmulatorUrlEnvironmentVariable));
-     }
+    [RavenFact(RavenTestCategory.Etl, AmazonSqsRequired = true)]
+    public void ProperUrlFromHttpConnectionString()
+    {
+        var config = new QueueEtlConfiguration
+        {
+            Name = "test",
+            ConnectionStringName = "test",
+            BrokerType = QueueBrokerType.AmazonSqs,
+            Transforms = { new Transformation { Name = "test", Collections = { "Orders" }, Script = @"" } }
+        };
 
-     
-     [RavenFact(RavenTestCategory.Etl, AmazonSqsRequired = true)]
-     public void ProperUrlFromHttpsConnectionString()
-     {
-         var config = new QueueEtlConfiguration
-         {
-             Name = "test",
-             ConnectionStringName = "test",
-             BrokerType = QueueBrokerType.AmazonSqs,
-             Transforms = { new Transformation { Name = "test", Collections = { "Orders" }, Script = @"" } }
-         };
+        config.Initialize(new QueueConnectionString
+        {
+            Name = "Foo",
+            BrokerType = QueueBrokerType.AmazonSqs,
+            AmazonSqsConnectionSettings =
+                new AmazonSqsConnectionSettings
+                {
+                    UseEmulator = true,
+                }
+        });
 
-         config.Initialize(new QueueConnectionString
-         {
-             Name = "Foo",
-             BrokerType = QueueBrokerType.AmazonSqs,
-             AmazonSqsConnectionSettings = 
-                 new AmazonSqsConnectionSettings
-                 {
-                     Passwordless = true
-                 }
-         });
+        var queueUrl = config.Connection.AmazonSqsConnectionSettings.GetQueueUrl();
+        Assert.Equal(queueUrl, Environment.GetEnvironmentVariable(AmazonSqsConnectionSettings.EmulatorUrlEnvironmentVariable));
+    }
 
-         var queueUrl = config.Connection.AmazonSqsConnectionSettings.GetQueueUrl();
-         Assert.Equal(queueUrl, "https://queue.amazonaws.com/");
-     }
+
+    [RavenFact(RavenTestCategory.Etl, AmazonSqsRequired = true)]
+    public void ProperUrlFromHttpsConnectionString()
+    {
+        var config = new QueueEtlConfiguration
+        {
+            Name = "test",
+            ConnectionStringName = "test",
+            BrokerType = QueueBrokerType.AmazonSqs,
+            Transforms = { new Transformation { Name = "test", Collections = { "Orders" }, Script = @"" } }
+        };
+
+        config.Initialize(new QueueConnectionString
+        {
+            Name = "Foo",
+            BrokerType = QueueBrokerType.AmazonSqs,
+            AmazonSqsConnectionSettings =
+                new AmazonSqsConnectionSettings
+                {
+                    Passwordless = true
+                }
+        });
+
+        var queueUrl = config.Connection.AmazonSqsConnectionSettings.GetQueueUrl();
+        Assert.Equal(queueUrl, "https://queue.amazonaws.com/");
+    }
 
     private class Order
     {
