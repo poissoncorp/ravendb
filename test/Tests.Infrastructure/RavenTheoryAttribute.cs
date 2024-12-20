@@ -7,11 +7,11 @@ namespace Tests.Infrastructure;
 public class RavenTheoryAttribute : TheoryAttribute, ITraitAttribute
 {
     private string _skip;
-    private readonly RavenTestCategory _category;
+    public readonly RavenTestCategory Category;
 
     public RavenTheoryAttribute(RavenTestCategory category)
     {
-        _category = category;
+        Category = category;
     }
 
     public bool LicenseRequired { get; set; }

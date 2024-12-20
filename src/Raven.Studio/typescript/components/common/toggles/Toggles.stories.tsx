@@ -1,5 +1,5 @@
 ﻿import { InputItem } from "components/models/common";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Card } from "reactstrap";
 import { withBootstrap5, withStorybookContexts } from "test/storybookTestUtils";
 import { MultiCheckboxToggle } from "./MultiCheckboxToggle";
@@ -14,6 +14,7 @@ export default {
 export function Toggles() {
     const [radioSelectedItem, setRadioSelectedItem] = useState<string>(null);
     const [checkboxWithoutAllSelectedItems, setCheckboxWithoutAllSelectedItems] = useState<string[]>([]);
+    const [checkboxWithPopovers, setCheckboxWithPopovers] = useState<string[]>([]);
     const [checkboxWithAllSelectedItems, setCheckboxWithAllSelectedItems] = useState<string[]>([]);
     const [checkboxWithAllSelectedAndCustomLabelItems, setCheckboxWithAllSelectedAndCustomLabelItems] = useState<
         string[]
@@ -35,23 +36,6 @@ export function Toggles() {
 
     const [radioToggleSelectedValue, setRadioToggleSelectedValue] = useState(leftRadioToggleItem.value);
 
-    const radioList: InputItem[] = [
-        { value: "1hour", label: "1 Hour" },
-        { value: "6hours", label: "6 hours" },
-        { value: "12hours", label: "12 hours" },
-        { value: "1day", label: "1 day" },
-    ];
-
-    const checkboxList: InputItem[] = [
-        { value: "normal", label: "Normal" },
-        { value: "error", label: "Error/Faulty", count: 3 },
-        { value: "stale", label: "Stale" },
-        { value: "rolling", label: "Rolling deployment", count: 1 },
-        { value: "idle", label: "Idle", count: 0 },
-        { value: "local", label: "Local", verticalSeparatorLine: true },
-        { value: "remote", label: "Remote" },
-    ];
-
     return (
         <Card>
             <div className="ps-4 pt-4">
@@ -69,6 +53,13 @@ export function Toggles() {
                 label="Multi Radio Toggle"
                 selectedItem={radioSelectedItem}
                 setSelectedItem={(x) => setRadioSelectedItem(x)}
+            />
+            <MultiCheckboxToggle
+                className="p-4"
+                inputItems={checkboxWithPopoverList}
+                label="Multi Checkbox Toggle without popovers"
+                selectedItems={checkboxWithPopovers}
+                setSelectedItems={(x) => setCheckboxWithPopovers(x)}
             />
             <MultiCheckboxToggle
                 className="p-4"
@@ -108,3 +99,26 @@ export function Toggles() {
         </Card>
     );
 }
+
+const radioList: InputItem[] = [
+    { value: "1hour", label: "1 Hour" },
+    { value: "6hours", label: "6 hours" },
+    { value: "12hours", label: "12 hours" },
+    { value: "1day", label: "1 day" },
+];
+
+const checkboxList: InputItem[] = [
+    { value: "normal", label: "Normal" },
+    { value: "error", label: "Error/Faulty", count: 3 },
+    { value: "stale", label: "Stale" },
+    { value: "rolling", label: "Rolling deployment", count: 1 },
+    { value: "idle", label: "Idle", count: 0 },
+    { value: "local", label: "Local", verticalSeparatorLine: true },
+    { value: "remote", label: "Remote" },
+];
+
+const checkboxWithPopoverList: InputItem[] = [
+    { value: "normal", label: "Normal", popover: "Popover for normal" },
+    { value: "error", label: "Error/Faulty", popover: "Popover for error" },
+    { value: "stale", label: "Stale", popover: "Popover for stale" },
+];

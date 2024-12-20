@@ -6,11 +6,12 @@ namespace Tests.Infrastructure;
 [TraitDiscoverer("Tests.Infrastructure.XunitExtensions.RavenTraitDiscoverer", "Tests.Infrastructure")]
 public class RavenFactAttribute : FactAttribute, ITraitAttribute
 {
+    public readonly RavenTestCategory Category;
     private string _skip;
-    private readonly RavenTestCategory _category;
+
     public RavenFactAttribute(RavenTestCategory category)
     {
-        _category = category;
+        Category = category;
     }
 
     public bool LicenseRequired { get; set; }

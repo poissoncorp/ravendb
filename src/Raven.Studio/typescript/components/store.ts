@@ -1,7 +1,7 @@
 ﻿import { configureStore, createListenerMiddleware, ListenerEffectAPI } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import { statisticsViewSlice } from "components/pages/database/status/statistics/store/statisticsViewSlice";
-import { BaseThunkAPI } from "@reduxjs/toolkit/dist/createAsyncThunk";
+import { GetThunkAPI } from "@reduxjs/toolkit";
 import { databasesSlice } from "components/common/shell/databasesSlice";
 import { services } from "hooks/useServices";
 import { accessManagerSlice } from "components/common/shell/accessManagerSlice";
@@ -67,7 +67,12 @@ export type AppThunk<T = void> = (
     getServices: () => typeof services
 ) => T;
 
-export type AppThunkApi = BaseThunkAPI<RootState, any, AppDispatch>;
+export type AppThunkApi = GetThunkAPI<{
+    state: RootState;
+    dispatch: AppDispatch;
+    extra: () => typeof services;
+    rejectValue: unknown;
+}>;
 export type AppListenerEffectApi = ListenerEffectAPI<RootState, AppDispatch, any>;
 
 export default store;

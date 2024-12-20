@@ -4,7 +4,7 @@ import { IndexStatus, IndexFilterCriteria, IndexType, IndexGroupBy, IndexSortBy 
 import { Button, Input, PopoverBody, UncontrolledPopover } from "reactstrap";
 import { produce } from "immer";
 import { Icon } from "components/common/Icon";
-import { MultiCheckboxToggle } from "components/common/MultiCheckboxToggle";
+import { MultiCheckboxToggle } from "components/common/toggles/MultiCheckboxToggle";
 import { InputItem, SortDirection } from "components/models/common";
 import { Switch } from "components/common/Checkbox";
 import { SortDropdown, SortDropdownRadioList, sortItem } from "components/common/SortDropdown";

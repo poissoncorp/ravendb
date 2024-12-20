@@ -109,6 +109,8 @@ namespace FastTests
 
             IgnoreProcessorAffinityChanges(ignore: true);
             RavenLogManager.Set(RavenNLogLogManager.Instance);
+            LicenseManager.IgnoreCompressionLicenseLimit = true;
+
             //RequestExecutor.HttpClientFactory = RavenServerHttpClientFactory.Instance;
             LicenseManager.AddLicenseStatusToLicenseLimitsException = true;
             RachisStateMachine.EnableDebugLongCommit = true;

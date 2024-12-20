@@ -3,7 +3,7 @@ import { Collapse, Row, Col, Button } from "reactstrap";
 import { EmptySet } from "./EmptySet";
 import { FlexGrow } from "./FlexGrow";
 import { FormRadioToggleWithIcon, FormSelect, FormSelectCreatable } from "./Form";
-import { RadioToggleWithIconInputItem } from "./RadioToggle";
+import { RadioToggleWithIconInputItem } from "./toggles/RadioToggle";
 import { Icon } from "./Icon";
 import { SelectOption } from "./select/Select";
 import { FieldPath, FieldValues, Control } from "react-hook-form";

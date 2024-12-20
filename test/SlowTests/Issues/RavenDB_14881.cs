@@ -7,6 +7,7 @@ using Raven.Client.Documents.Operations.Revisions;
 using Raven.Client.ServerWide;
 using Raven.Tests.Core.Utils.Entities;
 using Sparrow.Platform;
+using Tests.Infrastructure;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -19,7 +20,7 @@ namespace SlowTests.Issues
         {
         }
 
-        [Theory]
+        [RavenTheory(RavenTestCategory.Compression)]
         [InlineData(true)]
         [InlineData(false)]
         public async Task can_get_detailed_collection_statistics(bool compressed)

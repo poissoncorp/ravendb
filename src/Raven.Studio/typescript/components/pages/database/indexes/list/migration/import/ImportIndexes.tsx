@@ -5,7 +5,7 @@ import { EmptySet } from "components/common/EmptySet";
 import FileDropzone from "components/common/FileDropzone";
 import { FormRadioToggleWithIcon, FormSelect } from "components/common/Form";
 import { Icon } from "components/common/Icon";
-import { RadioToggleWithIconInputItem } from "components/common/RadioToggle";
+import { RadioToggleWithIconInputItem } from "components/common/toggles/RadioToggle";
 import { SelectOption } from "components/common/select/Select";
 import { accessManagerSelectors } from "components/common/shell/accessManagerSliceSelectors";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";

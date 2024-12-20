@@ -5,7 +5,7 @@ import { useDrop } from "react-dnd";
 import { NodeInfo } from "components/models/databases";
 import { DatabaseGroup, DatabaseGroupList } from "components/common/DatabaseGroup";
 import { Icon } from "components/common/Icon";
-import { RadioToggleWithIcon, RadioToggleWithIconInputItem } from "components/common/RadioToggle";
+import { RadioToggleWithIcon, RadioToggleWithIconInputItem } from "components/common/toggles/RadioToggle";
 import ButtonWithSpinner from "components/common/ButtonWithSpinner";
 
 interface ReorderNodesControlsProps {

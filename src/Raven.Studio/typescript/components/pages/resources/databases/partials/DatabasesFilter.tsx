@@ -2,7 +2,7 @@
 import { DatabaseFilterByStateOption, DatabaseFilterCriteria } from "components/models/databases";
 import { Button, Input } from "reactstrap";
 import { useAppSelector } from "components/store";
-import { MultiCheckboxToggle } from "components/common/MultiCheckboxToggle";
+import { MultiCheckboxToggle } from "components/common/toggles/MultiCheckboxToggle";
 import { InputItem } from "components/models/common";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
 import { databasesViewSelectors } from "components/pages/resources/databases/store/databasesViewSelectors";

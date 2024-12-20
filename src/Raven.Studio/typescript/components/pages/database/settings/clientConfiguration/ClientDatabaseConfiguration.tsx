@@ -16,7 +16,7 @@ import ClientConfigurationUtils from "components/common/clientConfiguration/Clie
 import useClientConfigurationFormSideEffects from "components/common/clientConfiguration/useClientConfigurationFormSideEffects";
 import { tryHandleSubmit } from "components/utils/common";
 import classNames from "classnames";
-import { RadioToggleWithIconInputItem } from "components/common/RadioToggle";
+import { RadioToggleWithIconInputItem } from "components/common/toggles/RadioToggle";
 import { useDirtyFlag } from "components/hooks/useDirtyFlag";
 import { AboutViewAnchored, AboutViewHeading, AccordionItemWrapper } from "components/common/AboutView";
 import { useAppSelector } from "components/store";
