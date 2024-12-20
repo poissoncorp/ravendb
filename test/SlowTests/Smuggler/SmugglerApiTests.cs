@@ -85,7 +85,8 @@ namespace SlowTests.Smuggler
                 }
             }
         }
-        [Fact]
+
+        [RavenFact(RavenTestCategory.Smuggler | RavenTestCategory.Compression)]
         public async Task CanExportAndImportDocumentCompressionConfiguration()
         {
             var file = GetTempFileName();

@@ -4,7 +4,7 @@ import { Checkbox, CheckboxProps, Radio, Switch } from "components/common/Checkb
 import { Control, ControllerProps, FieldPath, FieldValues, useController } from "react-hook-form";
 import { Button, Input, InputGroup, InputGroupText, InputProps } from "reactstrap";
 import { InputType } from "reactstrap/types/lib/Input";
-import { RadioToggleWithIcon } from "./RadioToggle";
+import { RadioToggleWithIcon } from "./toggles/RadioToggle";
 import AceEditor, { AceEditorProps } from "./AceEditor";
 import classNames from "classnames";
 import DurationPicker, { DurationPickerProps } from "./DurationPicker";

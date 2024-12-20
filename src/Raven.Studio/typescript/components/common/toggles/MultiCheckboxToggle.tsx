@@ -1,11 +1,11 @@
-﻿import React from "react";
+﻿import "./Toggles.scss";
 import useUniqueId from "components/hooks/useUniqueId";
 import classNames from "classnames";
 import useBoolean from "components/hooks/useBoolean";
-import { InputItem, InputItemLimit } from "components/models/common";
-import "./Toggles.scss";
-import { Icon } from "./Icon";
-import { Button, UncontrolledPopover } from "reactstrap";
+import { InputItem } from "components/models/common";
+import { Icon } from "../Icon";
+import { Button } from "reactstrap";
+import ToggleItemLabel from "components/common/toggles/partials/ToggleItemLabel";
 
 interface MultiCheckboxToggleProps<T extends string | number = string> {
     inputItems: InputItem<T>[];
@@ -31,17 +31,17 @@ export function MultiCheckboxToggle<T extends string | number = string>({
     const uniqueId = useUniqueId("multi-checkbox-toggle");
 
     const {
-        value: selectAllEnabled,
-        toggle: toggleSelectAllEnabled,
-        setFalse: setSelectAllEnabledFalse,
-        setTrue: setSelectAllEnabledTrue,
+        value: isSelectedAll,
+        toggle: toggleIsSelectAll,
+        setFalse: setIsSelectAllFalse,
+        setTrue: setIsSelectAllTrue,
     } = useBoolean(!!selectAll && selectedItems.length === 0);
 
     const toggleItem = (toggleValue: boolean, inputItemValue: T) => {
         if (toggleValue) {
-            if (selectAllEnabled) {
+            if (isSelectedAll) {
                 setSelectedItems([inputItemValue]);
-                setSelectAllEnabledFalse();
+                setIsSelectAllFalse();
             } else {
                 setSelectedItems([...selectedItems, inputItemValue]);
             }
@@ -49,14 +49,14 @@ export function MultiCheckboxToggle<T extends string | number = string>({
             const filteredSelectedItems = selectedItems.filter((x) => x !== inputItemValue);
 
             if (selectAll && filteredSelectedItems.length === 0) {
-                setSelectAllEnabledTrue();
+                setIsSelectAllTrue();
             }
             setSelectedItems(filteredSelectedItems);
         }
     };
 
     const onChangeSelectAll = () => {
-        toggleSelectAllEnabled();
+        toggleIsSelectAll();
         setSelectedItems(inputItems.map((x) => x.value));
     };
 
@@ -67,7 +67,7 @@ export function MultiCheckboxToggle<T extends string | number = string>({
                 {selectAll && (
                     <>
                         <Button
-                            className={classNames("multi-toggle-button", { "clear-selected": !selectAllEnabled })}
+                            className={classNames("multi-toggle-button", { "clear-selected": !isSelectedAll })}
                             size="sm"
                             onClick={onChangeSelectAll}
                             title="Toggle all"
@@ -87,53 +87,48 @@ export function MultiCheckboxToggle<T extends string | number = string>({
                     </>
                 )}
                 {inputItems.map((inputItem) => (
-                    <div key={uniqueId + inputItem.value} className="flex-horizontal">
-                        {inputItem.verticalSeparatorLine && <div className="vr" />}
-                        <div className="multi-toggle-item">
-                            <input
-                                id={uniqueId + inputItem.value}
-                                type="checkbox"
-                                name={uniqueId + inputItem.value}
-                                checked={!selectAllEnabled && selectedItems.includes(inputItem.value)}
-                                onChange={(x) => toggleItem(x.currentTarget.checked, inputItem.value)}
-                            />
-                            <label htmlFor={uniqueId + inputItem.value}>
-                                <span>{inputItem.label}</span>
-                                {inputItem.count !== null && inputItem.limit ? (
-                                    <LimitBadge
-                                        target={uniqueId + inputItem.value}
-                                        count={inputItem.count}
-                                        limit={inputItem.limit}
-                                    />
-                                ) : (
-                                    <span className="multi-toggle-item-count">{inputItem.count}</span>
-                                )}
-                            </label>
-                        </div>
-                    </div>
+                    <Item
+                        key={uniqueId + inputItem.value}
+                        id={uniqueId + inputItem.value}
+                        inputItem={inputItem}
+                        selectAllEnabled={isSelectedAll}
+                        selectedItems={selectedItems}
+                        toggleItem={toggleItem}
+                    />
                 ))}
             </div>
         </div>
     );
 }
 
-interface LimitBadgeProps {
-    target: string;
-    count: number;
-    limit: InputItemLimit;
+interface ItemProps<T extends string | number = string> {
+    id: string;
+    inputItem: InputItem<T>;
+    selectAllEnabled?: boolean;
+    selectedItems: T[];
+    toggleItem: (toggleValue: boolean, inputItemValue: T) => void;
 }
 
-function LimitBadge({ target, count, limit }: LimitBadgeProps) {
+function Item<T extends string | number = string>({
+    id,
+    inputItem,
+    selectAllEnabled,
+    selectedItems,
+    toggleItem,
+}: ItemProps<T>) {
     return (
-        <>
-            <span className={`multi-toggle-item-count text-dark bg-${limit.badgeColor ?? "warning"}`}>
-                {count} / {limit.value}
-            </span>
-            {limit.message && (
-                <UncontrolledPopover target={target} trigger="hover" placement="top" className="bs5">
-                    <div className="p-2">{limit.message}</div>
-                </UncontrolledPopover>
-            )}
-        </>
+        <div className="flex-horizontal">
+            {inputItem.verticalSeparatorLine && <div className="vr" />}
+            <div className="multi-toggle-item">
+                <input
+                    id={id}
+                    type="checkbox"
+                    name={id}
+                    checked={!selectAllEnabled && selectedItems.includes(inputItem.value)}
+                    onChange={(x) => toggleItem(x.currentTarget.checked, inputItem.value)}
+                />
+                <ToggleItemLabel id={id} inputItem={inputItem} />
+            </div>
+        </div>
     );
 }

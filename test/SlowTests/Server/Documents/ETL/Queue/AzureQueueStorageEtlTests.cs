@@ -61,7 +61,7 @@ public class AzureQueueStorageEtlTests : AzureQueueStorageEtlTestBase
             Assert.Equal(order.TotalCost, 10);
         }
     }
-    
+
     [RavenFact(RavenTestCategory.Etl, AzureQueueStorageRequired = true)]
     public async Task Simple_script_large_message_error_expected()
     {
@@ -70,7 +70,7 @@ public class AzureQueueStorageEtlTests : AzureQueueStorageEtlTestBase
             var config = SetupQueueEtlToAzureQueueStorageOnline(store,
                 @$"loadToUsers(this)", new[] { "users" },
                 new[] { new EtlQueue { Name = $"users" } });
-            
+
             using (var session = store.OpenSession())
             {
                 session.Store(new User()
@@ -80,13 +80,8 @@ public class AzureQueueStorageEtlTests : AzureQueueStorageEtlTestBase
                 });
                 session.SaveChanges();
             }
-            
-            var alert = await AssertWaitForNotNullAsync(() =>
-            {
-                Etl.TryGetLoadError(store.Database, config, out var error);
 
-                return Task.FromResult(error);
-            }, timeout: (int)TimeSpan.FromMinutes(1).TotalMilliseconds);
+            var alert = await AssertWaitForNotNullAsync(() => Etl.TryGetLoadErrorAsync(store.Database, config), timeout: (int)TimeSpan.FromMinutes(1).TotalMilliseconds);
 
             Assert.Contains(
                 "The request body is too large and exceeds",
@@ -197,7 +192,9 @@ public class AzureQueueStorageEtlTests : AzureQueueStorageEtlTestBase
                 {
                     order.OrderLines.Add(new OrderLine
                     {
-                        Cost = j + 1, Product = "foos/" + j, Quantity = (i * j) % 10
+                        Cost = j + 1,
+                        Product = "foos/" + j,
+                        Quantity = (i * j) % 10
                     });
                 }
 
@@ -420,7 +417,7 @@ public class AzureQueueStorageEtlTests : AzureQueueStorageEtlTestBase
             Assert.Empty(record.QueueEtls);
         }
     }
-    
+
     [RavenFact(RavenTestCategory.Etl, AzureQueueStorageRequired = true)]
     public void ProperUrlFromHttpConnectionString()
     {
@@ -443,7 +440,7 @@ public class AzureQueueStorageEtlTests : AzureQueueStorageEtlTestBase
         var storageUrl = config.Connection.AzureQueueStorageConnectionSettings.GetStorageUrl();
         Assert.Equal(storageUrl, "http://127.0.0.1:10001/devstoreaccount1");
     }
-    
+
     [RavenFact(RavenTestCategory.Etl, AzureQueueStorageRequired = true)]
     public void ProperUrlFromHttpsConnectionString()
     {

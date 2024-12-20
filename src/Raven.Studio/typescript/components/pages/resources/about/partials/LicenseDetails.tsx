@@ -1,7 +1,7 @@
 ﻿import { Button, Col, Input, Row, Table } from "reactstrap";
 import { Icon } from "components/common/Icon";
 import React, { useState } from "react";
-import { RadioToggleWithIcon, RadioToggleWithIconInputItem } from "components/common/RadioToggle";
+import { RadioToggleWithIcon, RadioToggleWithIconInputItem } from "components/common/toggles/RadioToggle";
 import classNames from "classnames";
 import { aboutPageUrls } from "components/pages/resources/about/partials/common";
 import { useAppSelector } from "components/store";

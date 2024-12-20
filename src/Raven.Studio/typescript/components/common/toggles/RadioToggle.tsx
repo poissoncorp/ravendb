@@ -1,6 +1,6 @@
 import React, { ReactNode, useEffect } from "react";
 import classNames from "classnames";
-import { Icon } from "./Icon";
+import { Icon } from "../Icon";
 import IconName from "typings/server/icons";
 import "./Toggles.scss";
 

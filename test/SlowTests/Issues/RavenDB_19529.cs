@@ -77,12 +77,12 @@ public class RavenDB_19529 : ReplicationTestBase
         const string documentToDeleteId = "users/2-A";
 
         using (var server = GetNewServer(new ServerCreationOptions
-                    {
-                        CustomSettings = new Dictionary<string, string>
-                        {
-                            [RavenConfiguration.GetKey(x => x.Databases.CompressAllCollectionsDefault)] = true.ToString(),
-                        }
-                    }))
+        {
+            CustomSettings = new Dictionary<string, string>
+            {
+                [RavenConfiguration.GetKey(x => x.Databases.CompressAllCollectionsDefault)] = true.ToString(),
+            }
+        }))
         using (var store = GetDocumentStore(new Options { Server = server, RunInMemory = false }))
         {
             using (var session = store.OpenAsyncSession())
@@ -174,12 +174,12 @@ public class RavenDB_19529 : ReplicationTestBase
 
         using (var storeSrc = GetDocumentStore())
         using (var storeDst = GetDocumentStore(new Options
-               {
-                   ModifyDatabaseRecord = record =>
-                   {
-                       record.ConflictSolverConfig = new ConflictSolver { ResolveToLatest = false, ResolveByCollection = new Dictionary<string, ScriptResolver>() };
-                   }
-               }))
+        {
+            ModifyDatabaseRecord = record =>
+            {
+                record.ConflictSolverConfig = new ConflictSolver { ResolveToLatest = false, ResolveByCollection = new Dictionary<string, ScriptResolver>() };
+            }
+        }))
         {
             storeDst.Maintenance.Send(new UpdateDocumentsCompressionConfigurationOperation(new DocumentsCompressionConfiguration { CompressAllCollections = true }));
 
@@ -237,12 +237,12 @@ public class RavenDB_19529 : ReplicationTestBase
         const string documentToDeleteId = "users/2-A";
 
         using (var server = GetNewServer(new ServerCreationOptions
-               {
-                   CustomSettings = new Dictionary<string, string>
-                   {
-                       [RavenConfiguration.GetKey(x => x.Databases.CompressAllCollectionsDefault)] = true.ToString(),
-                   }
-               }))
+        {
+            CustomSettings = new Dictionary<string, string>
+            {
+                [RavenConfiguration.GetKey(x => x.Databases.CompressAllCollectionsDefault)] = true.ToString(),
+            }
+        }))
         using (var store = GetDocumentStore(new Options { Server = server, RunInMemory = false }))
         {
             using (var session = store.OpenAsyncSession())
@@ -362,19 +362,19 @@ public class RavenDB_19529 : ReplicationTestBase
         const string documentToConflictId = "users/2-A";
 
         using (var storeSrc = GetDocumentStore(new Options
-               {
-                   ModifyDatabaseRecord = record =>
-                   {
-                       record.ConflictSolverConfig = new ConflictSolver { ResolveToLatest = false, ResolveByCollection = new Dictionary<string, ScriptResolver>() };
-                   }
-               }))
+        {
+            ModifyDatabaseRecord = record =>
+            {
+                record.ConflictSolverConfig = new ConflictSolver { ResolveToLatest = false, ResolveByCollection = new Dictionary<string, ScriptResolver>() };
+            }
+        }))
         using (var storeDst = GetDocumentStore(new Options
-               {
-                   ModifyDatabaseRecord = record =>
-                   {
-                       record.ConflictSolverConfig = new ConflictSolver { ResolveToLatest = false, ResolveByCollection = new Dictionary<string, ScriptResolver>() };
-                   }
-               }))
+        {
+            ModifyDatabaseRecord = record =>
+            {
+                record.ConflictSolverConfig = new ConflictSolver { ResolveToLatest = false, ResolveByCollection = new Dictionary<string, ScriptResolver>() };
+            }
+        }))
         {
             storeDst.Maintenance.Send(new UpdateDocumentsCompressionConfigurationOperation(new DocumentsCompressionConfiguration { CompressAllCollections = true }));
 

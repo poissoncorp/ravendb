@@ -4,7 +4,7 @@ import pluralizeHelpers from "common/helpers/text/pluralizeHelpers";
 import ButtonWithSpinner from "components/common/ButtonWithSpinner";
 import { FormRadioToggleWithIcon, FormSelect } from "components/common/Form";
 import { Icon } from "components/common/Icon";
-import { RadioToggleWithIconInputItem } from "components/common/RadioToggle";
+import { RadioToggleWithIconInputItem } from "components/common/toggles/RadioToggle";
 import { SelectOption } from "components/common/select/Select";
 import { accessManagerSelectors } from "components/common/shell/accessManagerSliceSelectors";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";

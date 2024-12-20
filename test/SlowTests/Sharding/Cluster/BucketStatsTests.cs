@@ -658,7 +658,7 @@ namespace SlowTests.Sharding.Cluster
             }
         }
 
-        [RavenFact(RavenTestCategory.Sharding, Skip = "RavenDB-19530 : bucket stats counts the RawSize of the value instead of the CompressedSize")]
+        [RavenFact(RavenTestCategory.Sharding | RavenTestCategory.Compression, Skip = "RavenDB-19530 : bucket stats counts the RawSize of the value instead of the CompressedSize")]
         public async Task BucketStatsWithDocumentsCompression()
         {
             const string id = "companies/1";

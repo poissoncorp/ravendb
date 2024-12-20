@@ -1155,9 +1155,12 @@ namespace Raven.Client.Documents.Session
         public IRavenQueryable<T> ToQueryable()
         {
             var type = typeof(T);
-            var queryStatistics = new QueryStatistics();
+            var queryStatistics = new QueryStatistics()
+            {
+                RequestedByUser = QueryStats.RequestedByUser
+            };
             var highlightings = new LinqQueryHighlightings();
-
+            
             var ravenQueryInspector = new RavenQueryInspector<T>();
             var ravenQueryProvider = new RavenQueryProvider<T>(
                 CreateDocumentQueryInternal<T>(), // clone

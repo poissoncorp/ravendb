@@ -52,7 +52,7 @@ namespace SlowTests.Server.Documents.Expiration
             await ExpirationHelper.SetupExpiration(store, Server.ServerStore, config);
         }
 
-        [RavenTheory(RavenTestCategory.ExpirationRefresh)]
+        [RavenTheory(RavenTestCategory.ExpirationRefresh | RavenTestCategory.Compression)]
         [InlineData([true])]
         [InlineData([false])]
         public async Task CanAddEntityWithExpiry_ThenReadItBeforeItExpires_ButWillNotBeAbleToReadItAfterExpiry(bool compressed)
@@ -129,7 +129,7 @@ namespace SlowTests.Server.Documents.Expiration
             }
         }
 
-        [RavenTheory(RavenTestCategory.ExpirationRefresh)]
+        [RavenTheory(RavenTestCategory.ExpirationRefresh | RavenTestCategory.Compression)]
         [InlineData(true, 10)]
         [InlineData(false, 10)]
         [InlineData(true, 100)]
@@ -186,7 +186,8 @@ namespace SlowTests.Server.Documents.Expiration
             }
         }
 
-        [RavenTheory(RavenTestCategory.ExpirationRefresh)]
+        
+        [RavenTheory(RavenTestCategory.ExpirationRefresh | RavenTestCategory.Compression)]
         [InlineData([true])]
         [InlineData([false])]
         public async Task CanAddEntityWithExpiry_BeforeActivatingExpirtaion_WillNotBeAbleToReadItAfterExpiry(bool compressed)
@@ -229,7 +230,8 @@ namespace SlowTests.Server.Documents.Expiration
             }
         }
 
-        [RavenTheory(RavenTestCategory.ExpirationRefresh)]
+        
+        [RavenTheory(RavenTestCategory.ExpirationRefresh | RavenTestCategory.Compression)]
         [InlineData([true])]
         [InlineData([false])]
         public async Task CanSetupExpirationAndRefresh(bool compressed)
@@ -281,7 +283,7 @@ namespace SlowTests.Server.Documents.Expiration
             }
         }
         
-        [RavenTheory(RavenTestCategory.ExpirationRefresh)]
+        [RavenTheory(RavenTestCategory.ExpirationRefresh | RavenTestCategory.Compression)]
         [InlineData([true])]
         [InlineData([false])]
         public async Task CanRefreshFromClusterTransaction(bool compressed)
@@ -335,7 +337,7 @@ namespace SlowTests.Server.Documents.Expiration
             }
         }
 
-        [RavenTheory(RavenTestCategory.ExpirationRefresh)]
+        [RavenTheory(RavenTestCategory.ExpirationRefresh | RavenTestCategory.Compression)]
         [InlineData([true])]
         [InlineData([false])]
         public async Task ThrowsIfUsingWrongExpiresOrRefresh(bool compressed)
@@ -379,7 +381,7 @@ namespace SlowTests.Server.Documents.Expiration
             }
         }
 
-        [RavenTheory(RavenTestCategory.ExpirationRefresh)]
+        [RavenTheory(RavenTestCategory.ExpirationRefresh | RavenTestCategory.Compression)]
         [RavenData(true, DatabaseMode = RavenDatabaseMode.All)]
         [RavenData(false, DatabaseMode = RavenDatabaseMode.All)]
         public async Task CanPostAndGetDocumentsExpiration(Options options, bool compressed)
@@ -410,7 +412,7 @@ namespace SlowTests.Server.Documents.Expiration
             }
         }
 
-        [RavenTheory(RavenTestCategory.ExpirationRefresh | RavenTestCategory.Sharding)]
+        [RavenTheory(RavenTestCategory.ExpirationRefresh | RavenTestCategory.Sharding | RavenTestCategory.Compression)]
         [InlineData(true)]
         [InlineData(false)]
         public async Task ShouldDeleteExpiredDocumentsForSharding(bool compressed)
@@ -442,7 +444,6 @@ namespace SlowTests.Server.Documents.Expiration
                     record.DocumentsCompression = new DocumentsCompressionConfiguration { CompressAllCollections = true, };
                 }
             };
-
             using (var store = GetDocumentStore(options))
             {
                 foreach (var dateTimeFormat in utcFormats)
@@ -532,7 +533,7 @@ namespace SlowTests.Server.Documents.Expiration
             }
         }
 
-        [RavenTheory(RavenTestCategory.ExpirationRefresh | RavenTestCategory.Configuration)]
+        [RavenTheory(RavenTestCategory.ExpirationRefresh | RavenTestCategory.Configuration | RavenTestCategory.Compression)]
         [RavenData(10, true, DatabaseMode = RavenDatabaseMode.All)]
         [RavenData(10, false, DatabaseMode = RavenDatabaseMode.All)]
         [RavenData(5, true, DatabaseMode = RavenDatabaseMode.All)]
@@ -628,7 +629,7 @@ namespace SlowTests.Server.Documents.Expiration
             }
         }
 
-        [RavenTheory(RavenTestCategory.ExpirationRefresh | RavenTestCategory.Configuration)]
+        [RavenTheory(RavenTestCategory.ExpirationRefresh | RavenTestCategory.Configuration | RavenTestCategory.Compression)]
         [RavenData(true, DatabaseMode = RavenDatabaseMode.All)]
         [RavenData(false, DatabaseMode = RavenDatabaseMode.All)]
         public async Task RefreshWithMaxItemsToProcessConfiguredShouldWork(Options options, bool compressed)

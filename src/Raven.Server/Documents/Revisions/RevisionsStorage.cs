@@ -1137,7 +1137,6 @@ namespace Raven.Server.Documents.Revisions
 
                     if (state.ShouldDelete(revision) == false)
                     {
-                        context.Transaction.ForgetAbout(revision);
                         revision.Dispose();
                         result.Skip++;
                         continue;
@@ -1166,8 +1165,6 @@ namespace Raven.Server.Documents.Revisions
                 {
                     if (revision.Flags.Contain(DocumentFlags.Conflicted) || revision.Flags.Contain(DocumentFlags.Resolved))
                         conflictCount++;
-
-                    context.Transaction.ForgetAbout(revision);
                 }
             }
 
@@ -1208,10 +1205,14 @@ namespace Raven.Server.Documents.Revisions
                     throw new ArgumentOutOfRangeException(nameof(type), $"Unsupported revision type: {type}");
             }
 
-            var enumerator = new TransactionForgetAboutTableValueHolderStorageIdEnumerator(revisions.GetEnumerator(), context);
-
-            foreach (var tvh in enumerator)
+            TableValueHolder prevTvh = null;
+            foreach (var tvh in revisions)
             {
+                if (prevTvh != null)
+                    context.Transaction.InnerTransaction.ForgetAbout(prevTvh.Reader.Id);
+
+                prevTvh = tvh;
+
                 if (type == RevisionType.Deleted)
                 {
                     var etag = TableValueToEtag((int)RevisionsTable.DeletedEtag, ref tvh.Reader);
@@ -1241,10 +1242,14 @@ namespace Raven.Server.Documents.Revisions
             if (table == null || take == 0)
                 yield break;
 
-            var enumerator = new TransactionForgetAboutTableValueHolderStorageIdEnumerator(table.SeekBackwardFromLast(RevisionsSchema.FixedSizeIndexes[CollectionRevisionsEtagsSlice], skip).GetEnumerator(), context);
-
-            foreach (var tvh in enumerator)
+            TableValueHolder prevTvh = null;
+            foreach (var tvh in table.SeekBackwardFromLast(RevisionsSchema.FixedSizeIndexes[CollectionRevisionsEtagsSlice], skip))
             {
+                if (prevTvh != null)
+                    context.Transaction.InnerTransaction.ForgetAbout(prevTvh.Reader.Id);
+
+                prevTvh = tvh;
+
                 var tvr = tvh.Reader;
                 var revision = TableValueToRevision(context, ref tvr, DocumentFields.Id | DocumentFields.ChangeVector);
 
@@ -1269,7 +1274,6 @@ namespace Raven.Server.Documents.Revisions
                 take--;
                 if (take <= 0)
                     yield break;
-
             }
         }
 
@@ -1333,7 +1337,6 @@ namespace Raven.Server.Documents.Revisions
 
                     if (shouldSkip != null && shouldSkip.Invoke(revision))
                     {
-                        context.Transaction.ForgetAbout(revision);
                         revision.Dispose();
                         result.Skip++;
                         continue;
@@ -2815,11 +2818,11 @@ namespace Raven.Server.Documents.Revisions
             }
         }
 
-        internal static unsafe Document TableValueToRevision(JsonOperationContext context, ref TableValueReader tvr, DocumentFields fields = DocumentFields.All)
+        internal static unsafe Document TableValueToRevision(DocumentsOperationContext context, ref TableValueReader tvr, DocumentFields fields = DocumentFields.All)
         {
             if (fields == DocumentFields.All)
             {
-                return new Document
+                return new Document(context, tvr.Id)
                 {
                     StorageId = tvr.Id,
                     LowerId = TableValueToString(context, (int)RevisionsTable.LowerId, ref tvr),
@@ -2836,9 +2839,9 @@ namespace Raven.Server.Documents.Revisions
             return ParseRevisionPartial(context, ref tvr, fields);
         }
 
-        private static unsafe Document ParseRevisionPartial(JsonOperationContext context, ref TableValueReader tvr, DocumentFields fields)
+        private static unsafe Document ParseRevisionPartial(DocumentsOperationContext context, ref TableValueReader tvr, DocumentFields fields)
         {
-            var result = new Document();
+            var result = new Document(context, tvr.Id);
 
             if (fields.Contain(DocumentFields.LowerId))
                 result.LowerId = TableValueToString(context, (int)RevisionsTable.LowerId, ref tvr);

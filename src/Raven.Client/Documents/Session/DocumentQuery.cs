@@ -1142,7 +1142,10 @@ namespace Raven.Client.Documents.Session
         {
             var type = typeof(T);
 
-            var queryStatistics = new QueryStatistics();
+            var queryStatistics = new QueryStatistics()
+            {
+                RequestedByUser = QueryStats.RequestedByUser
+            };
             var highlightings = new LinqQueryHighlightings();
 
             var ravenQueryInspector = new RavenQueryInspector<T>();

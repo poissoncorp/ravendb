@@ -235,9 +235,9 @@ namespace FastTests
                 });
             }
 
-            public bool TryGetLoadError<T>(string databaseName, EtlConfiguration<T> config, out EtlErrorInfo error) where T : ConnectionString
+            public async Task<EtlErrorInfo> TryGetLoadErrorAsync<T>(string databaseName, EtlConfiguration<T> config) where T : ConnectionString
             {
-                var database = _parent.GetDatabase(databaseName).Result;
+                var database = await _parent.GetDatabase(databaseName);
 
                 string tag;
 
@@ -259,27 +259,16 @@ namespace FastTests
                 var loadAlert = database.NotificationCenter.EtlNotifications.GetAlert<EtlErrorsDetails>(tag, $"{config.Name}/{config.Transforms.First().Name}", AlertType.Etl_LoadError);
 
                 if (loadAlert is null)
-                {
-                    error = null;
-                    return false;
-                }
+                    return null;
 
                 var details = (EtlErrorsDetails)loadAlert.Details;
 
-                if (details.Errors.Count != 0)
-                {
-                    error = details.Errors.First();
-
-                    return true;
-                }
-
-                error = null;
-                return false;
+                return details.Errors.Count != 0 ? details.Errors.First() : null;
             }
 
-            public bool TryGetTransformationError<T>(string databaseName, EtlConfiguration<T> config, out EtlErrorInfo error) where T : ConnectionString
+            public async Task<EtlErrorInfo> TryGetTransformationErrorAsync<T>(string databaseName, EtlConfiguration<T> config) where T : ConnectionString
             {
-                var database = _parent.GetDatabase(databaseName).Result;
+                var database = await _parent.GetDatabase(databaseName);
 
                 string tag;
 
@@ -301,22 +290,11 @@ namespace FastTests
                 var loadAlert = database.NotificationCenter.EtlNotifications.GetAlert<EtlErrorsDetails>(tag, $"{config.Name}/{config.Transforms.First().Name}", AlertType.Etl_TransformationError);
                 
                 if (loadAlert is null)
-                {
-                    error = null;
-                    return false;
-                }
+                    return null;
 
                 var details = (EtlErrorsDetails)loadAlert.Details;
 
-                if (details.Errors.Count != 0)
-                {
-                    error = details.Errors.First();
-
-                    return true;
-                }
-
-                error = null;
-                return false;
+                return details.Errors.Count != 0 ? details.Errors.First() : null;
             }
 
             public async Task<DocumentDatabase> GetDatabaseFor(IDocumentStore store, string docId)

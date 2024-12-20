@@ -40,7 +40,8 @@
             "bootstrap",
             "eonasdan-bootstrap-datetimepicker",
             "leaflet",
-            "leaflet.markercluster"
+            "leaflet.markercluster",
+            "node"
         ],
         "paths": {
             "Favico": [

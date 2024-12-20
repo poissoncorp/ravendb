@@ -469,9 +469,6 @@ namespace Raven.Server.Documents.Indexes.Workers
 
                 void DisposeItem()
                 {
-                    if (item.Item is Document doc)
-                        queryContext.Documents.Transaction.ForgetAbout(doc);
-
                     item.Dispose();
                 }
             }

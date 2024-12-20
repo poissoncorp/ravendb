@@ -41,12 +41,16 @@ export interface InputItemLimit {
     message?: ReactNode | ReactNode[];
 }
 
+import { Placement } from "@popperjs/core";
+
 export interface InputItem<T extends string | number = string> {
     label: string;
     value: T;
     count?: number;
     limit?: InputItemLimit;
     verticalSeparatorLine?: boolean;
+    popover?: ReactNode | ReactNode[];
+    popoverPlacement?: Placement;
 }
 
 export type SortDirection = "asc" | "desc";
