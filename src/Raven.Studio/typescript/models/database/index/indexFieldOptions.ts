@@ -2,6 +2,7 @@
 import spatialOptions = require("models/database/index/spatialOptions");
 import vectorOptions = require("models/database/index/vectorOptions");
 import jsonUtil = require("common/jsonUtil");
+import { isNil } from "lodash";
 
 function labelMatcher<T>(labels: Array<valueAndLabelItem<T, string>>): (arg: T) => string {
     return(arg) => labels.find(x => x.value === arg).label;
@@ -197,6 +198,8 @@ class indexFieldOptions {
            this.theAnalyzerThatWasDefinedWithoutIndexing(this.analyzer());
            this.indexing("Search (implied)");
         }
+
+        this.hasVectorOptions(!isNil(dto.Vector));
         
         this.storage(dto.Storage);
         
@@ -209,7 +212,7 @@ class indexFieldOptions {
         } else {
             this.spatial(spatialOptions.empty());
         }
-        
+
         if (this.hasVectorOptions()) {
             this.vector(new vectorOptions(dto.Vector));
         } else {
@@ -219,8 +222,8 @@ class indexFieldOptions {
         this.computeAnalyzer();
         this.computeFullTextSearch();
         this.computeHighlighting();
-        
-        _.bindAll(this, "toggleAdvancedOptions");
+
+        _.bindAll(this, "toggleAdvancedOptions", "toggleVectorFields");
 
         this.initObservables();
         this.initValidation();
@@ -344,7 +347,8 @@ class indexFieldOptions {
             this.suggestions,
             this.termVector,
             this.hasSpatialOptions,
-            this.spatial().dirtyFlag().isDirty
+            this.spatial().dirtyFlag().isDirty,
+            this.vector().dirtyFlag().isDirty,
         ], false, jsonUtil.newLineNormalizingHashFunction);
 
         this.parent.subscribe(() => {
@@ -547,6 +551,10 @@ class indexFieldOptions {
 
     toggleAdvancedOptions() {
         this.showAdvancedOptions(!this.showAdvancedOptions());
+    }
+
+    toggleVectorFields() {
+        this.hasVectorOptions(!this.hasVectorOptions());
     }
 
     isDefaultOptions(): boolean {
