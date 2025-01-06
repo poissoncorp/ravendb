@@ -795,6 +795,10 @@ class genUtils {
         return !isDevBuildNumber(latestVersion.BuildNumber) && latestVersion.BuildNumber > serverVersion.BuildVersion;
     }
 
+    static normalizeString(value: string) {
+        return value.toLowerCase().trim();
+    }
+
     static getSingleRoute(route: string | string[]): string {
         if (!route) {
             return null;

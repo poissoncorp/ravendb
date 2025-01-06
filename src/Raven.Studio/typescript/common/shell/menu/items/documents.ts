@@ -2,6 +2,7 @@
 import leafMenuItem = require("common/shell/menu/leafMenuItem");
 import collectionMenuItem = require("common/shell/menu/collectionMenuItem");
 import collectionsTracker = require("common/helpers/database/collectionsTracker");
+import DocumentIdentities from "components/pages/database/documents/identities/DocumentIdentities";
 import AllRevisions from "components/pages/database/documents/allRevisions/AllRevisions";
 import { bridgeToReact } from "common/reactUtils";
 
@@ -92,7 +93,7 @@ function getDocumentsMenuItem(appUrls: computedAppUrls) {
         }),
         new leafMenuItem({
             route: "databases/identities",
-            moduleId: require("viewmodels/database/identities/identities"),
+            moduleId: bridgeToReact(DocumentIdentities, "nonShardedView"),
             shardingMode: "allShards",
             title: "Identities",
             nav: true,

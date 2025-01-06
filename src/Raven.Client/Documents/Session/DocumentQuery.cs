@@ -1191,5 +1191,11 @@ namespace Raven.Client.Documents.Session
         {
             throw new NotSupportedException("Cannot create an async LINQ query from DocumentQuery, you need to use AsyncDocumentQuery for that");
         }
+
+        internal void Load(List<LoadToken> list)
+        {
+            LoadTokens ??= new List<LoadToken>();
+            LoadTokens.AddRange(list);
+        }
     }
 }

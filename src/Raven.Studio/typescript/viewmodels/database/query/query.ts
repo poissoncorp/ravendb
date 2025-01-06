@@ -584,7 +584,7 @@ class query extends shardViewModelBase {
         
         this.updateHelpLink('KCIMJK');
 
-        this.disableAutoIndexCreation(activeDatabaseTracker.default.settings().disableAutoIndexCreation.getValue());
+        this.fetchStudioConfiguration().done((settings) => this.disableAutoIndexCreation(settings.disableAutoIndexCreation.getValue()));
         
         const db = this.db;
         
@@ -900,6 +900,10 @@ class query extends shardViewModelBase {
             this.criteria().queryText(lastQueryThatWasNotExecuted);
             query.lastQueryNotExecuted.set(this.db.name, "");
         }
+    }
+
+    private fetchStudioConfiguration() {
+        return activeDatabaseTracker.default.settings().load();
     }
 
     private fetchAllIndexes(db: database): JQueryPromise<any> {

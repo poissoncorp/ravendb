@@ -10,11 +10,11 @@ class getGlobalClientConfigurationCommand extends commandBase {
         this.query<Raven.Client.Documents.Operations.Configuration.ClientConfiguration>(url, null)
             .done(dto => loadTask.resolve(dto))
             .fail((response: JQueryXHR) => {
-                if (response.status !== 404) {
+                if (response.status === 404) {
+                    loadTask.resolve(null);
+                } else {
                     this.reportError(`Failed to load client configuration`, response.responseText, response.statusText);
                     loadTask.reject(response);
-                } else {
-                    loadTask.resolve(null);
                 }
             });
         

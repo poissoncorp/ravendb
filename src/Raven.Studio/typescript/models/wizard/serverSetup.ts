@@ -204,7 +204,7 @@ class serverSetup {
                 if (setupAddress === "0.0.0.0") {
                     host = document.location.hostname;
                 } else {
-                    host = setupAddress;
+                    host = ipEntry.formatIpAddress(setupAddress);
                 }
 
                 return `http://${host}:${port}`;

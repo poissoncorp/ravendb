@@ -276,15 +276,17 @@ class nodes extends setupStep {
 
         const ipText = ownCerts ? "IP Address or Hostname that should already be associated with DNS name in certificate." :
                                   "IP Address or Hostname that will be associated with the DNS Name.";
-        
-        const ipAddressInfo = ipText + "<br/>" +
-            "For example:<br/>" +
-            "<ul>" +
-            "  <li>10.0.0.84</li>" +
-            "  <li>127.0.0.1</li>" +
-            "  <li>localhost</li>" +
-            "  <li>john-pc</li>" +
-            "</ul>";
+
+        const ipAddressInfo = `
+                    ${ipText}<br/>
+            For example:<br/>
+            <ul>
+              <li>10.0.0.84</li>
+              <li>127.0.0.1</li>
+              <li>localhost</li>
+              <li>john-pc</li>
+            </ul>
+            `;
 
         popoverUtils.longWithHover($("#ip-address-info"), {
             content: `<small>${genUtils.escapeHtml(ipAddressInfo)}</small>`,
@@ -294,7 +296,7 @@ class nodes extends setupStep {
 
         popoverUtils.longWithHover($("#ip-address-info-with-warning"), {
             // This will be displayed only in 'Lets Encrypt' flow 
-            content: `<small>${genUtils.escapeHtml(ipAddressInfo)} <strong>Note:</strong> If Hostname is used then an external ip must also be provided.</small>`,
+            content: `<small>${ipAddressInfo} <strong>Note:</strong> If Hostname is used then an external ip must also be provided.</small>`,
             placement: "top",
             html: true
         });

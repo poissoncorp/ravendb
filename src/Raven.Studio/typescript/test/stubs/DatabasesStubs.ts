@@ -982,6 +982,18 @@ return docs[0];`,
         ];
     }
 
+    static getIdentities(length = 2): Record<string, number> {
+        const object: Record<string, number> = {};
+        for (let i = 1; i <= length; i++) {
+            const identity = {
+                [`key${i}`]: i * 1000,
+            };
+
+            Object.assign(object, identity);
+        }
+        return object;
+    }
+
     static revisionsPreview(): pagedResultWithToken<RevisionsPreviewResultItem> {
         return {
             items: [
