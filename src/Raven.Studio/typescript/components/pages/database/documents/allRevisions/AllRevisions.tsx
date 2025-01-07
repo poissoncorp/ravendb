@@ -43,27 +43,34 @@ export default function AllRevisions() {
         setSelectedRows([]);
     }, [type.value, collection.value]);
 
-    const asyncRemoveRevisions = useAsyncCallback(async () => {
-        const uniqueIds = Array.from(new Set(selectedRows.map((x) => x.Id)));
+    const asyncRemoveRevisions = useAsyncCallback(
+        async () => {
+            const uniqueIds = Array.from(new Set(selectedRows.map((x) => x.Id)));
 
-        for (const id of uniqueIds) {
-            await databasesService.deleteRevisionsForDocuments(activeDatabaseName, {
-                DocumentIds: [id],
-                RevisionsChangeVectors: selectedRows.filter((x) => x.Id === id).map((x) => x.ChangeVector),
-                RemoveForceCreatedRevisions: false,
-            });
+            for (const id of uniqueIds) {
+                await databasesService.deleteRevisionsForDocuments(activeDatabaseName, {
+                    DocumentIds: [id],
+                    RevisionsChangeVectors: selectedRows.filter((x) => x.Id === id).map((x) => x.ChangeVector),
+                    RemoveForceCreatedRevisions: false,
+                });
+            }
+
+            messagePublisher.reportSuccess(`Successfully removed ${selectedRows.length} revisions`);
+            setSelectedRows([]);
+            await reloadOptions();
+
+            collectionsTracker.default
+                .getAllRevisionsCollection()
+                .documentCount(
+                    collectionsTracker.default.getAllRevisionsCollection().documentCount() - selectedRows.length
+                );
+        },
+        {
+            onError() {
+                messagePublisher.reportError("Failed to remove selected revisions");
+            },
         }
-
-        messagePublisher.reportSuccess(`Successfully removed ${selectedRows.length} revisions`);
-        setSelectedRows([]);
-        await reloadOptions();
-
-        collectionsTracker.default
-            .getAllRevisionsCollection()
-            .documentCount(
-                collectionsTracker.default.getAllRevisionsCollection().documentCount() - selectedRows.length
-            );
-    });
+    );
 
     const handleRemoveConfirmation = async () => {
         const isConfirmed = await confirm({
