@@ -217,7 +217,7 @@ class patch extends shardViewModelBase {
 
         this.loadLastQuery();
 
-        this.disableAutoIndexCreation(activeDatabaseTracker.default.settings().disableAutoIndexCreation.getValue());
+        this.fetchStudioConfiguration().done((settings) => this.disableAutoIndexCreation(settings.disableAutoIndexCreation.getValue()));
         
         return $.when<any>(this.fetchIndexNames(this.db), this.savedPatches.loadAll(this.db));
     }
@@ -478,6 +478,10 @@ class patch extends shardViewModelBase {
                         });
                 }
             });
+    }
+
+    private fetchStudioConfiguration() {
+        return activeDatabaseTracker.default.settings().load();
     }
 
     private fetchIndexNames(db: database): JQueryPromise<any> {

@@ -22,7 +22,7 @@ export default function VirtualTableBodyWrapper<T>({
     heightInPx,
     children,
 }: PropsWithChildren<VirtualTableBodyWrapperProps<T>> & ClassNameProps) {
-    const tableHeightInPx = heightInPx - virtualTableConstants.paddingInPx;
+    const tableHeightInPx = heightInPx - virtualTableConstants.paddingInPx - virtualTableConstants.headerHeightInPx;
 
     return (
         <div className={classNames("virtual-table", className)}>

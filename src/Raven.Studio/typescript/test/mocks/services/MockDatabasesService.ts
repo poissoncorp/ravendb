@@ -180,6 +180,10 @@ export default class MockDatabasesService extends AutoMockService<DatabasesServi
         );
     }
 
+    withIdentities(dto?: MockedValue<Record<string, number>>) {
+        return this.mockResolvedValue(this.mocks.getIdentities, dto, DatabasesStubs.getIdentities(5));
+    }
+
     withRevisionsPreview(dto?: MockedValue<pagedResultWithToken<RevisionsPreviewResultItem>>) {
         return this.mockResolvedValue(this.mocks.getRevisionsPreview, dto, DatabasesStubs.revisionsPreview());
     }

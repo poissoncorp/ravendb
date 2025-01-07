@@ -75,7 +75,7 @@ export const decorators = [
         
         return (
             <Provider store={store}>
-                <div>
+                <div className="h-100">
                     {Story()}
                 </div>
             </Provider>

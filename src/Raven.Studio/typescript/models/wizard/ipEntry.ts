@@ -55,6 +55,14 @@ class ipEntry {
        entry.ip(ip);
        return entry;
    }
+    
+    static formatIpAddress(ip: string): string {
+        const address = genUtils.getAddressInfo(ip);
+        if (address.Type === "ipv6" && !ip.startsWith("[") && !ip.endsWith("]")) {
+            return `[${ip}]`;
+        }
+        return ip;
+    }
 }
 
 export = ipEntry;
