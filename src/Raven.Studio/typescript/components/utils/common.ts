@@ -128,23 +128,23 @@ export type OmitIndexSignature<T> = {
 export type StringWithAutocomplete<T> = T | (string & NonNullable<unknown>);
 
 export const allLogLevels = exhaustiveStringTuple<Sparrow.Logging.LogLevel>()(
-    "Off",
     "Trace",
     "Debug",
     "Info",
     "Warn",
     "Error",
-    "Fatal"
+    "Fatal",
+    "Off"
 );
 
 export const logLevelRelevances: Record<Sparrow.Logging.LogLevel, number> = {
-    Off: 0,
-    Trace: 1,
-    Debug: 2,
-    Info: 3,
-    Warn: 4,
-    Error: 5,
-    Fatal: 6,
+    Trace: 0,
+    Debug: 1,
+    Info: 2,
+    Warn: 3,
+    Error: 4,
+    Fatal: 5,
+    Off: 6,
 };
 
 export const allLogFilterActions = exhaustiveStringTuple<Sparrow.Logging.LogFilterAction>()(
