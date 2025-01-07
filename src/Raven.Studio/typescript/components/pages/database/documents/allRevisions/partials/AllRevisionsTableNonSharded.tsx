@@ -4,9 +4,9 @@ import { useVirtualTableWithLazyLoading } from "components/common/virtualTable/h
 import VirtualTableWithLazyLoading from "components/common/virtualTable/VirtualTableWithLazyLoading";
 import { useServices } from "components/hooks/useServices";
 import { AllRevisionsTableProps } from "components/pages/database/documents/allRevisions/common/allRevisionsTypes";
-import { allRevisionsUtils } from "components/pages/database/documents/allRevisions/common/allRevisionsUtils";
+import { useAllRevisionsColumns } from "components/pages/database/documents/allRevisions/hooks/useAllRevisionsColumns";
 import { useAppSelector } from "components/store";
-import { useImperativeHandle, useMemo } from "react";
+import { useImperativeHandle } from "react";
 
 export default function AllRevisionsTableNonSharded({
     width,
@@ -35,10 +35,7 @@ export default function AllRevisionsTableNonSharded({
         dependencies: [databaseName, selectedType, selectedCollectionName],
     });
 
-    const columns = useMemo(
-        () => allRevisionsUtils.getColumnDefs(databaseName, false, width, selectedRows, setSelectedRows),
-        [databaseName, width, selectedRows, setSelectedRows]
-    );
+    const columns = useAllRevisionsColumns(databaseName, false, width, selectedRows, setSelectedRows);
 
     useImperativeHandle(fetcherRef, () => ({
         reload,

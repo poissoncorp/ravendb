@@ -4,6 +4,7 @@ import VirtualTable from "components/common/virtualTable/VirtualTable";
 import { useServices } from "components/hooks/useServices";
 import { AllRevisionsTableProps } from "components/pages/database/documents/allRevisions/common/allRevisionsTypes";
 import { allRevisionsUtils } from "components/pages/database/documents/allRevisions/common/allRevisionsUtils";
+import { useAllRevisionsColumns } from "components/pages/database/documents/allRevisions/hooks/useAllRevisionsColumns";
 import { useAppSelector } from "components/store";
 import { useImperativeHandle, useMemo } from "react";
 import { useAsync } from "react-async-hook";
@@ -32,10 +33,7 @@ export default function AllRevisionsTableSmallSample({
         [db.name, selectedType, selectedCollectionName, allRevisionsUtils.smallSampleSize]
     );
 
-    const columns = useMemo(
-        () => allRevisionsUtils.getColumnDefs(db.name, db.isSharded, width, selectedRows, setSelectedRows),
-        [db.name, db.isSharded, width, selectedRows, setSelectedRows]
-    );
+    const columns = useAllRevisionsColumns(db.name, db.isSharded, width, selectedRows, setSelectedRows);
 
     const data = useMemo(() => asyncGetRevisionsPreview.result?.items ?? [], [asyncGetRevisionsPreview.result]);
 

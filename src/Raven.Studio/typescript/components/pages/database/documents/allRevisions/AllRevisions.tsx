@@ -25,6 +25,9 @@ import collectionsTracker from "common/helpers/database/collectionsTracker";
 import { HStack } from "components/common/utilities/HStack";
 import { VStack } from "components/common/utilities/VStack";
 import AllRevisionsAboutView from "components/pages/database/documents/allRevisions/partials/AllRevisionsAboutView";
+import { accessManagerSelectors } from "components/common/shell/accessManagerSliceSelectors";
+import { FlexGrow } from "components/common/FlexGrow";
+import classNames from "classnames";
 
 type RevisionType = Raven.Server.Documents.Revisions.RevisionsStorage.RevisionType;
 
@@ -37,6 +40,8 @@ export default function AllRevisions() {
     const confirm = useConfirm();
     const { databasesService } = useServices();
     const activeDatabaseName = useAppSelector(databaseSelectors.activeDatabaseName);
+
+    const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
 
     // Reset selected rows when filters change
     useEffect(() => {
@@ -99,20 +104,22 @@ export default function AllRevisions() {
     return (
         <VStack className="content-padding" gap={2}>
             <VStack>
-                <HStack className="justify-content-between">
-                    <ButtonWithSpinner
-                        color="danger"
-                        onClick={handleRemoveConfirmation}
-                        disabled={selectedRows.length === 0}
-                        isSpinning={asyncRemoveRevisions.loading}
-                        icon="trash"
-                        className="w-fit-content rounded-pill"
-                    >
-                        Remove {selectedRows.length != 0 && selectedRows.length} revisions
-                    </ButtonWithSpinner>
-                    <AllRevisionsAboutView />
-                </HStack>
-                <HStack gap={2} className="my-3">
+                {hasDatabaseAdminAccess && (
+                    <HStack className="justify-content-between">
+                        <ButtonWithSpinner
+                            color="danger"
+                            onClick={handleRemoveConfirmation}
+                            disabled={selectedRows.length === 0}
+                            isSpinning={asyncRemoveRevisions.loading}
+                            icon="trash"
+                            className="w-fit-content rounded-pill"
+                        >
+                            Remove {selectedRows.length != 0 && selectedRows.length} revisions
+                        </ButtonWithSpinner>
+                        <AllRevisionsAboutView />
+                    </HStack>
+                )}
+                <HStack gap={2} className={classNames({ "my-3": hasDatabaseAdminAccess })}>
                     <div>
                         <Label className="small-label">Filter by collection</Label>
                         <SelectCreatable
@@ -134,6 +141,12 @@ export default function AllRevisions() {
                             setSelectedItem={type.setValue}
                         />
                     </div>
+                    {!hasDatabaseAdminAccess && (
+                        <>
+                            <FlexGrow />
+                            <AllRevisionsAboutView />
+                        </>
+                    )}
                 </HStack>
             </VStack>
             {type.value !== "All" && collection.value && (

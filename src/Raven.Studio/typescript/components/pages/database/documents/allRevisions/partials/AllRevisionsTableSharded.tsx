@@ -4,9 +4,9 @@ import { useVirtualTableWithToken } from "components/common/virtualTable/hooks/u
 import VirtualTable from "components/common/virtualTable/VirtualTable";
 import { useServices } from "components/hooks/useServices";
 import { AllRevisionsTableProps } from "components/pages/database/documents/allRevisions/common/allRevisionsTypes";
-import { allRevisionsUtils } from "components/pages/database/documents/allRevisions/common/allRevisionsUtils";
+import { useAllRevisionsColumns } from "components/pages/database/documents/allRevisions/hooks/useAllRevisionsColumns";
 import { useAppSelector } from "components/store";
-import { useImperativeHandle, useMemo } from "react";
+import { useImperativeHandle } from "react";
 
 export default function AllRevisionsTableSharded({
     width,
@@ -33,10 +33,7 @@ export default function AllRevisionsTableSharded({
         dependencies: [databaseName, selectedType, selectedCollectionName],
     });
 
-    const columns = useMemo(
-        () => allRevisionsUtils.getColumnDefs(databaseName, true, width, selectedRows, setSelectedRows),
-        [databaseName, width, selectedRows, setSelectedRows]
-    );
+    const columns = useAllRevisionsColumns(databaseName, true, width, selectedRows, setSelectedRows);
 
     useImperativeHandle(fetcherRef, () => ({
         reload,
