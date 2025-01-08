@@ -2,7 +2,6 @@
 import spatialOptions = require("models/database/index/spatialOptions");
 import vectorOptions = require("models/database/index/vectorOptions");
 import jsonUtil = require("common/jsonUtil");
-import { isNil } from "lodash";
 
 function labelMatcher<T>(labels: Array<valueAndLabelItem<T, string>>): (arg: T) => string {
     return(arg) => labels.find(x => x.value === arg).label;
@@ -199,8 +198,8 @@ class indexFieldOptions {
            this.indexing("Search (implied)");
         }
 
-        this.hasVectorOptions(!isNil(dto.Vector));
-        
+        this.hasVectorOptions(dto.Vector != null);
+
         this.storage(dto.Storage);
         
         this.suggestions(dto.Suggestions);
