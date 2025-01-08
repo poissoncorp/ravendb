@@ -26,7 +26,7 @@ $prefix: "bs-";
 
     --link-color: #{$link-color};
 
-    --license-developer: #c7ff6b;
+    --license-developer: #{$developer};
     --license-cloud: #{$brand-cloud};
     --license-community: #{$color-4};
     --license-professional: #{$color-4-2};
