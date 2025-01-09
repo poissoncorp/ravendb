@@ -8,6 +8,7 @@ import { TasksStubs } from "test/stubs/TasksStubs";
 import { boundCopy } from "components/utils/common";
 import OngoingTaskRavenEtlListView = Raven.Client.Documents.Operations.OngoingTasks.OngoingTaskRavenEtl;
 import OngoingTaskSqlEtlListView = Raven.Client.Documents.Operations.OngoingTasks.OngoingTaskSqlEtl;
+import OngoingTaskSnowflakeEtlListView = Raven.Client.Documents.Operations.OngoingTasks.OngoingTaskSnowflakeEtl;
 import MockTasksService from "../../../../../test/mocks/services/MockTasksService";
 import OngoingTaskOlapEtlListView = Raven.Client.Documents.Operations.OngoingTasks.OngoingTaskOlapEtl;
 import OngoingTaskElasticSearchEtlListView = Raven.Client.Documents.Operations.OngoingTasks.OngoingTaskElasticSearchEtl;
@@ -255,6 +256,45 @@ export const SqlEmptyScript = boundCopy(SqlTemplate, {
     emptyScript: true,
 });
 
+export const SnowflakeTemplate = (args: {
+    disabled?: boolean;
+    completed?: boolean;
+    emptyScript?: boolean;
+    customizeTask?: (x: OngoingTaskSnowflakeEtlListView) => void;
+}) => {
+    commonInit();
+
+    const { tasksService } = mockServices;
+
+    tasksService.withGetTasks((x) => {
+        const snowflakeEtl = TasksStubs.getSnowflake();
+        if (args.disabled) {
+            snowflakeEtl.TaskState = "Disabled";
+        }
+        args.customizeTask?.(snowflakeEtl);
+        x.OngoingTasks = [snowflakeEtl];
+        x.PullReplications = [];
+        x.SubscriptionsCount = 0;
+    });
+
+    mockEtlProgress(tasksService, args.completed, args.disabled, args.emptyScript);
+
+    return <OngoingTasksPage />;
+};
+
+export const SnowflakeDisabled = boundCopy(SnowflakeTemplate, {
+    disabled: true,
+});
+
+export const SnowflakeCompleted = boundCopy(SnowflakeTemplate, {
+    completed: true,
+});
+
+export const SnowflakeEmptyScript = boundCopy(SnowflakeTemplate, {
+    completed: true,
+    emptyScript: true,
+});
+
 export const OlapTemplate = (args: {
     disabled?: boolean;
     completed?: boolean;
@@ -446,6 +486,45 @@ export const AzureQueueStorageEtlCompleted = boundCopy(AzureQueueStorageEtlTempl
 });
 
 export const AzureQueueStorageEtlEmptyScript = boundCopy(AzureQueueStorageEtlTemplate, {
+    completed: true,
+    emptyScript: true,
+});
+
+export const AmazonSqsEtlTemplate = (args: {
+    disabled?: boolean;
+    completed?: boolean;
+    emptyScript?: boolean;
+    customizeTask?: (x: OngoingTaskQueueEtlListView) => void;
+}) => {
+    commonInit();
+
+    const { tasksService } = mockServices;
+
+    tasksService.withGetTasks((x) => {
+        const etl = TasksStubs.getAmazonSqsEtl();
+        if (args.disabled) {
+            etl.TaskState = "Disabled";
+        }
+        args.customizeTask?.(etl);
+        x.OngoingTasks = [etl];
+        x.PullReplications = [];
+        x.SubscriptionsCount = 0;
+    });
+
+    mockEtlProgress(tasksService, args.completed, args.disabled, args.emptyScript);
+
+    return <OngoingTasksPage />;
+};
+
+export const AmazonSqsEtlDisabled = boundCopy(AmazonSqsEtlTemplate, {
+    disabled: true,
+});
+
+export const AmazonSqsEtlCompleted = boundCopy(AmazonSqsEtlTemplate, {
+    completed: true,
+});
+
+export const AmazonSqsEtlEmptyScript = boundCopy(AmazonSqsEtlTemplate, {
     completed: true,
     emptyScript: true,
 });

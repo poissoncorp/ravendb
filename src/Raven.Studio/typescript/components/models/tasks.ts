@@ -115,6 +115,7 @@ export type OngoingTaskKafkaEtlSharedInfo = OngoingTaskQueueEtlSharedInfo;
 
 export type OngoingTaskRabbitMqEtlSharedInfo = OngoingTaskQueueEtlSharedInfo;
 export type OngoingTaskAzureQueueStorageEtlSharedInfo = OngoingTaskQueueEtlSharedInfo;
+export type OngoingTaskAmazonSqsEtlSharedInfo = OngoingTaskQueueEtlSharedInfo;
 
 export type OngoingTaskKafkaSinkSharedInfo = OngoingTaskQueueSinkSharedInfo;
 
@@ -130,6 +131,10 @@ export interface OngoingTaskSqlEtlSharedInfo extends OngoingTaskSharedInfo {
     destinationDatabase: string;
     connectionStringName: string;
     connectionStringDefined: boolean;
+}
+
+export interface OngoingTaskSnowflakeEtlSharedInfo extends OngoingTaskSharedInfo {
+    connectionStringName: string;
 }
 
 export interface OngoingTaskSubscriptionSharedInfo extends OngoingTaskSharedInfo {
@@ -157,6 +162,8 @@ export type OngoingTaskReplicationSinkNodeInfoDetails = OngoingTaskNodeInfoDetai
 
 export type OngoingTaskSqlEtlNodeInfoDetails = OngoingTaskNodeInfoDetails;
 
+export type OngoingTaskSnowflakeEtlNodeInfoDetails = OngoingTaskNodeInfoDetails;
+
 export type OngoingTaskSubscriptionNodeInfoDetails = OngoingTaskNodeInfoDetails;
 
 export type OngoingTaskKafkaEtlNodeInfoDetails = OngoingTaskNodeInfoDetails;
@@ -165,18 +172,22 @@ export type OngoingTaskRabbitMqEtlNodeInfoDetails = OngoingTaskNodeInfoDetails;
 
 export type OngoingTaskAzureQueueStorageEtlNodeInfoDetails = OngoingTaskNodeInfoDetails;
 
+export type OngoingTaskAmazonSqsEtlNodeInfoDetails = OngoingTaskNodeInfoDetails;
+
 export type OngoingTaskKafkaSinkNodeInfoDetails = OngoingTaskNodeInfoDetails;
 
 export type OngoingTaskRabbitMqSinkNodeInfoDetails = OngoingTaskNodeInfoDetails;
 
 export type AnyEtlOngoingTaskInfo =
     | OngoingTaskSqlEtlInfo
+    | OngoingTaskSnowflakeEtlInfo
     | OngoingTaskOlapEtlInfo
     | OngoingTaskElasticSearchEtlInfo
     | OngoingTaskRavenEtlInfo
     | OngoingTaskKafkaEtlInfo
     | OngoingTaskRabbitMqEtlInfo
-    | OngoingTaskAzureQueueStorageEtlInfo;
+    | OngoingTaskAzureQueueStorageEtlInfo
+    | OngoingTaskAmazonSqsEtlInfo;
 
 export interface OngoingTaskInfo<
     TSharded extends OngoingTaskSharedInfo = OngoingTaskSharedInfo,
@@ -228,6 +239,11 @@ export type OngoingTaskSqlEtlInfo = OngoingTaskInfo<
     OngoingEtlTaskNodeInfo<OngoingTaskSqlEtlNodeInfoDetails>
 >;
 
+export type OngoingTaskSnowflakeEtlInfo = OngoingTaskInfo<
+    OngoingTaskSnowflakeEtlSharedInfo,
+    OngoingEtlTaskNodeInfo<OngoingTaskSnowflakeEtlNodeInfoDetails>
+>;
+
 export type OngoingTaskKafkaEtlInfo = OngoingTaskInfo<
     OngoingTaskKafkaEtlSharedInfo,
     OngoingEtlTaskNodeInfo<OngoingTaskKafkaEtlNodeInfoDetails>
@@ -241,6 +257,11 @@ export type OngoingTaskRabbitMqEtlInfo = OngoingTaskInfo<
 export type OngoingTaskAzureQueueStorageEtlInfo = OngoingTaskInfo<
     OngoingTaskAzureQueueStorageEtlSharedInfo,
     OngoingEtlTaskNodeInfo<OngoingTaskAzureQueueStorageEtlNodeInfoDetails>
+>;
+
+export type OngoingTaskAmazonSqsEtlInfo = OngoingTaskInfo<
+    OngoingTaskAmazonSqsEtlSharedInfo,
+    OngoingEtlTaskNodeInfo<OngoingTaskAmazonSqsEtlNodeInfoDetails>
 >;
 
 export type OngoingTaskKafkaSinkInfo = OngoingTaskInfo<
