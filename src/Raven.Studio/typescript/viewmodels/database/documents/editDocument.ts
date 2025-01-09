@@ -47,6 +47,7 @@ import shardViewModelBase from "viewmodels/shardViewModelBase";
 import shard from "models/resources/shard";
 import shardedDatabase from "models/resources/shardedDatabase";
 import assertUnreachable from "components/utils/assertUnreachable";
+import deleteRevisionsForDocumentsCommand from "commands/database/documents/deleteRevisionsForDocumentsCommand";
 
 class editDocument extends shardViewModelBase {
 
@@ -88,7 +89,8 @@ class editDocument extends shardViewModelBase {
     lastModifiedAsAgo: KnockoutComputed<string>;
     latestRevisionUrl: KnockoutComputed<string>;
     rawJsonUrl: KnockoutComputed<string>;
-    
+
+    isRevision: KnockoutComputed<boolean>;
     isDeleteRevision: KnockoutComputed<boolean>;
     isConflictRevision: KnockoutComputed<boolean>;
     isResolvedRevision: KnockoutComputed<boolean>;
@@ -454,6 +456,15 @@ class editDocument extends shardViewModelBase {
             const hasRevisions = this.document()?.__metadata.hasFlag("HasRevisions");
             
             return !diffMode && !isClone && !creatingNewDocument && !deleteRevision && hasRevisions;
+        })
+
+        this.isRevision = ko.pureComputed(() => {
+            const doc = this.document();
+            if (doc) {
+                return doc.__metadata.hasFlag("Revision");
+            } else {
+                return false;
+            }
         })
 
         this.isDeleteRevision = ko.pureComputed(() => {
@@ -1413,6 +1424,26 @@ class editDocument extends shardViewModelBase {
         this.dirtyFlag().reset();
         this.connectedDocuments.onDocumentDeleted();
         this.displayDocumentDeleted(false);
+    }
+
+    deleteRevision() {
+        const doc = this.document();
+
+        const parameters: Raven.Client.Documents.Operations.Revisions.DeleteRevisionsOperation.Parameters = {
+            DocumentIds: [doc.getId()],
+            RevisionsChangeVectors: [doc.__metadata.changeVector()],
+            RemoveForceCreatedRevisions: false,
+        };
+
+        this.confirmationMessage("Are you sure?", "Do you want to delete current revision?", {
+            buttons: ["Cancel", "Yes, delete"],
+        }).done((result) => {
+            if (result.can) {
+                new deleteRevisionsForDocumentsCommand(this.db.name, parameters).execute().always(() => {
+                    router.navigate(appUrl.forAllRevisions(this.db));
+                });
+            }
+        });
     }
 
     deleteDocument() {
