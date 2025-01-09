@@ -1,6 +1,6 @@
 /* eslint-disable local-rules/no-reactstrap-alert */
 import classNames from "classnames";
-import { Alert, AlertProps } from "reactstrap";
+import { Alert, AlertProps, CloseButton } from "reactstrap";
 import { Icon } from "components/common/Icon";
 import IconName from "../../../typings/server/icons";
 
@@ -9,6 +9,7 @@ interface RichAlertProps extends AlertProps {
     iconAddon?: IconName;
     title?: string;
     color?: never;
+    onCancel?: () => void;
 }
 
 const defaultIcons: { [key: string]: IconName } = {
@@ -18,7 +19,7 @@ const defaultIcons: { [key: string]: IconName } = {
     success: "check",
 };
 
-export function RichAlert({ className, variant, children, icon, iconAddon, title, ...rest }: RichAlertProps) {
+export function RichAlert({ className, variant, children, icon, iconAddon, title, onCancel, ...rest }: RichAlertProps) {
     const renderAlertIcon = icon ?? defaultIcons[variant] ?? "terms";
 
     return (
@@ -31,6 +32,17 @@ export function RichAlert({ className, variant, children, icon, iconAddon, title
                 <Icon icon={renderAlertIcon} addon={iconAddon} margin="m-0" className="title-icon fs-3" />
             )}
             <div className="w-100">{children}</div>
+            {onCancel && (
+                <CloseButton
+                    className="pt-0"
+                    onClick={onCancel}
+                    style={{
+                        position: "absolute",
+                        top: 0,
+                        right: 0,
+                    }}
+                />
+            )}
         </Alert>
     );
 }
