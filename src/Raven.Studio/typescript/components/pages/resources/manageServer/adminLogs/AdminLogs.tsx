@@ -23,6 +23,7 @@ import { StylesConfig } from "react-select";
 import { Button, Card, CardBody, CardHeader, Input } from "reactstrap";
 import { Switch } from "components/common/Checkbox";
 import { FlexGrow } from "components/common/FlexGrow";
+import AdminLogsFilterState from "components/pages/resources/manageServer/adminLogs/bits/AdminLogsFilterState";
 
 export default function AdminLogs() {
     const dispatch = useAppDispatch();
@@ -84,6 +85,9 @@ export default function AdminLogs() {
                                 Logs on this view
                             </h4>
                             <div className="d-flex align-items-center lh-base">
+                                <AdminLogsFilterState
+                                    isActive={configs?.adminLogsConfig?.AdminLogs?.CurrentFilters?.length > 0}
+                                />
                                 <Icon icon="logs" addon="arrow-filled-up" />
                                 <span className="lh-1">
                                     <strong>Min level:</strong>
@@ -158,6 +162,9 @@ export default function AdminLogs() {
                                 Logs on disk
                             </h4>
                             <div className="d-flex align-items-center">
+                                <AdminLogsFilterState
+                                    isActive={configs?.adminLogsConfig?.Logs?.CurrentFilters?.length > 0}
+                                />
                                 <Icon icon="logs" addon="arrow-filled-up" />
                                 <span className="lh-1 me-1">
                                     <strong>Min level:</strong>
