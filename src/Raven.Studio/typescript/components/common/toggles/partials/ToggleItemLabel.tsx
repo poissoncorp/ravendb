@@ -16,12 +16,13 @@ export default function ToggleItemLabel<T extends string | number = string>({
         <>
             <label htmlFor={id}>
                 <span>{inputItem.label}</span>
-                {inputItem.count != null && inputItem.limit && (
+                {inputItem.count != null && inputItem.limit ? (
                     <ToggleLimitBadge target={id} count={inputItem.count} limit={inputItem.limit} />
-                )}
-                {inputItem.count != null && (
-                    <span className="multi-toggle-item-count">{genUtils.formatNumberToStringFixed(inputItem.count, 0)}</span>
-                )}
+                ) : inputItem.count != null ? (
+                    <span className="multi-toggle-item-count">
+                        {genUtils.formatNumberToStringFixed(inputItem.count, 0)}
+                    </span>
+                ) : null}
             </label>
             {inputItem.popover && (
                 <UncontrolledPopover
