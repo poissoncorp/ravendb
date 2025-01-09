@@ -25,6 +25,7 @@ using Raven.Client.Documents.Operations.ETL;
 using Raven.Client.Documents.Operations.ETL.ElasticSearch;
 using Raven.Client.Documents.Operations.ETL.OLAP;
 using Raven.Client.Documents.Operations.ETL.Queue;
+using Raven.Client.Documents.Operations.ETL.Snowflake;
 using Raven.Client.Documents.Operations.ETL.SQL;
 using Raven.Client.Documents.Operations.Expiration;
 using Raven.Client.Documents.Operations.Indexes;
@@ -67,8 +68,9 @@ using Raven.Server.Documents.ETL.Providers.OLAP;
 using Raven.Server.Documents.ETL.Providers.OLAP.Test;
 using Raven.Server.Documents.ETL.Providers.Queue.Test;
 using Raven.Server.Documents.ETL.Providers.Raven.Test;
-using Raven.Server.Documents.ETL.Providers.SQL.RelationalWriters;
-using Raven.Server.Documents.ETL.Providers.SQL.Test;
+using Raven.Server.Documents.ETL.Providers.RelationalDatabase;
+using Raven.Server.Documents.ETL.Providers.RelationalDatabase.Common;
+using Raven.Server.Documents.ETL.Providers.RelationalDatabase.Common.Test;
 using Raven.Server.Documents.ETL.Stats;
 using Raven.Server.Documents.Handlers;
 using Raven.Server.Documents.Handlers.Admin;
@@ -389,6 +391,7 @@ namespace TypingsGenerator
             scripter.AddType(typeof(EnforceRevisionsConfigurationOperation.Parameters));
             scripter.AddType(typeof(EnforceConfigurationResult));
             scripter.AddType(typeof(GetRevisionsCountOperation.DocumentRevisionsCount));
+            scripter.AddType(typeof(RevisionsStorage.RevisionType));
 
             // cluster dashboard
             scripter.AddType(typeof(WidgetRequest));
@@ -534,9 +537,9 @@ namespace TypingsGenerator
             // ongoing tasks - SQL ETL
             scripter.AddType(typeof(OngoingTaskSqlEtl));
             scripter.AddType(typeof(SqlEtlConfiguration));
-            scripter.AddType(typeof(TestSqlEtlScript));
+            scripter.AddType(typeof(TestRelationalDatabaseEtlScript<SqlConnectionString, SqlEtlConfiguration>));
             scripter.AddType(typeof(SqlEtlTable));
-            scripter.AddType(typeof(SqlEtlTestScriptResult));
+            scripter.AddType(typeof(RelationalDatabaseEtlTestScriptResult));
 
             // ongoing tasks - Olap ETL
             scripter.AddType(typeof(OngoingTaskOlapEtl));
@@ -563,6 +566,12 @@ namespace TypingsGenerator
             scripter.AddType(typeof(KafkaConnectionSettings));
             scripter.AddType(typeof(TestQueueSinkScript));
             scripter.AddType(typeof(TestQueueSinkScriptResult));
+            
+            // ongoing tasks - Snowflake ETL
+            scripter.AddType(typeof(OngoingTaskSnowflakeEtl));
+            scripter.AddType(typeof(SnowflakeEtlConfiguration));
+            scripter.AddType(typeof(TestRelationalDatabaseEtlScript<SnowflakeConnectionString, SnowflakeEtlConfiguration>));
+            scripter.AddType(typeof(SnowflakeEtlTable));
 
             // connection strings
             scripter.AddType(typeof(ConnectionString));
@@ -587,8 +596,9 @@ namespace TypingsGenerator
             scripter.AddType(typeof(CertificateDefinition));
 
             // admin logs
-            scripter.AddType(typeof(LogMode));
+            scripter.AddType(typeof(LogLevel));
             scripter.AddType(typeof(SetLogsConfigurationOperation.Parameters));
+            scripter.AddType(typeof(GetLogsConfigurationResult));
             scripter.AddType(typeof(PutTrafficWatchConfigurationOperation.Parameters));
             scripter.AddType(typeof(EventListenerToLog.EventListenerConfiguration));
 
