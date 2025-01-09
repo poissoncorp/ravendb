@@ -1439,7 +1439,7 @@ class editDocument extends shardViewModelBase {
             buttons: ["Cancel", "Yes, delete"],
         }).done((result) => {
             if (result.can) {
-                new deleteRevisionsForDocumentsCommand(this.db.name, parameters).execute().always(() => {
+                new deleteRevisionsForDocumentsCommand(this.db.name, parameters).execute().done(() => {
                     router.navigate(appUrl.forAllRevisions(this.db));
                 });
             }
