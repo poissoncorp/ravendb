@@ -19,9 +19,11 @@ export default function Local() {
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const { tasksService } = useServices();
 
-    const getLocalFolderPaths = async (folderPath: string, databaseName: string) => {
-        const dto = await tasksService.getLocalFolderPathOptions(folderPath, databaseName);
-        return dto?.List || [];
+    const getLocalFolderPathsProvider = (folderPath: string) => {
+        return async () => {
+            const dto = await tasksService.getLocalFolderPathOptions(folderPath, databaseName);
+            return dto?.List || [];
+        };
     };
 
     const asyncGetBackupLocation = useAsync(() => {
@@ -57,7 +59,7 @@ export default function Local() {
                                 name={getName("folderPath")}
                                 selectorTitle="Select database directory"
                                 placeholder="Enter directory path"
-                                getPaths={getLocalFolderPaths}
+                                getPathsProvider={(path: string) => getLocalFolderPathsProvider(path)}
                                 getPathDependencies={(path: string) => [path, databaseName]}
                             />
                             <PathInfo

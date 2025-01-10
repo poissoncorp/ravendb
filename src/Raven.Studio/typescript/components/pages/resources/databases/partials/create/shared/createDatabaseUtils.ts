@@ -30,23 +30,16 @@ export interface CreateDatabaseStep<T extends FormData> {
 interface GetStepValidationProps<T extends FormData> {
     stepId: Path<T>;
     trigger: UseFormTrigger<T>;
-    asyncDatabaseNameValidation: UseAsyncReturn<boolean, [string]>;
-    databaseName: string;
+    asyncDatabaseNameValidation: UseAsyncReturn<boolean, []>;
 }
 
 function getStepValidation<T extends FormData>({
     stepId,
     trigger,
     asyncDatabaseNameValidation,
-    databaseName,
 }: GetStepValidationProps<T>) {
     if (stepId === "basicInfoStep") {
-        return async () => {
-            const basicInfoResult = await trigger(stepId);
-            const isNameValid = await asyncDatabaseNameValidation.execute(databaseName);
-
-            return isNameValid && basicInfoResult;
-        };
+        return async () => (await asyncDatabaseNameValidation.execute()) && (await trigger(stepId));
     }
 
     return async () => await trigger(stepId);
@@ -57,8 +50,7 @@ interface GetStepInRangeValidationProps<T extends FormData> {
     targetStep: number;
     activeStepIds: Extract<Path<T>, CreateDatabaseStep<T>["id"]>[];
     trigger: UseFormTrigger<T>;
-    asyncDatabaseNameValidation: UseAsyncReturn<boolean, [string]>;
-    databaseName: string;
+    asyncDatabaseNameValidation: UseAsyncReturn<boolean, []>;
 }
 
 function getStepInRangeValidation<T extends FormData>({
@@ -67,7 +59,6 @@ function getStepInRangeValidation<T extends FormData>({
     activeStepIds,
     trigger,
     asyncDatabaseNameValidation,
-    databaseName,
 }: GetStepInRangeValidationProps<T>) {
     return async function (): Promise<StepInRangeValidationResult> {
         for (let i = currentStep; i <= targetStep; i++) {
@@ -75,7 +66,6 @@ function getStepInRangeValidation<T extends FormData>({
                 stepId: activeStepIds[i],
                 trigger,
                 asyncDatabaseNameValidation,
-                databaseName,
             });
 
             const isValid = await stepValidation();

@@ -104,44 +104,41 @@ function SourceRestorePoint({ index, remove }: RestorePointElementProps) {
         control,
     });
 
-    const asyncGetRestorePointsOptions = useAsyncDebounce(
-        async (link) => {
-            if (!link || !(await trigger("sourceStep.sourceData.ravenCloud.link"))) {
-                return [];
-            }
+    const asyncGetRestorePointsOptions = useAsyncDebounce(async () => {
+        if (!ravenCloud.link || !(await trigger("sourceStep.sourceData.ravenCloud.link"))) {
+            return [];
+        }
 
-            const credentials = await resourcesService.getCloudBackupCredentialsFromLink(link);
+        const credentials = await resourcesService.getCloudBackupCredentialsFromLink(ravenCloud.link);
 
-            setValue("sourceStep.sourceData.ravenCloud.awsSettings", {
-                sessionToken: credentials.AwsSessionToken,
-                accessKey: credentials.AwsAccessKey,
-                secretKey: credentials.AwsSecretKey,
-                regionName: credentials.AwsRegionName,
-                remoteFolderName: credentials.RemoteFolderName,
-                bucketName: credentials.BucketName,
-                expireDate: credentials.Expires,
-            });
+        setValue("sourceStep.sourceData.ravenCloud.awsSettings", {
+            sessionToken: credentials.AwsSessionToken,
+            accessKey: credentials.AwsAccessKey,
+            secretKey: credentials.AwsSecretKey,
+            regionName: credentials.AwsRegionName,
+            remoteFolderName: credentials.RemoteFolderName,
+            bucketName: credentials.BucketName,
+            expireDate: credentials.Expires,
+        });
 
-            const dto = await resourcesService.getRestorePoints_S3Backup(
-                {
-                    AwsSessionToken: credentials.AwsSessionToken,
-                    AwsAccessKey: credentials.AwsAccessKey,
-                    AwsSecretKey: credentials.AwsSecretKey,
-                    AwsRegionName: credentials.AwsRegionName,
-                    RemoteFolderName: credentials.RemoteFolderName,
-                    BucketName: credentials.BucketName,
-                    Disabled: false,
-                    GetBackupConfigurationScript: null,
-                    CustomServerUrl: null, // TODO RavenDB-14716
-                    ForcePathStyle: false,
-                },
-                true,
-                isSharded ? index : undefined
-            );
-            return mapToSelectOptions(dto);
-        },
-        [ravenCloud.link]
-    );
+        const dto = await resourcesService.getRestorePoints_S3Backup(
+            {
+                AwsSessionToken: credentials.AwsSessionToken,
+                AwsAccessKey: credentials.AwsAccessKey,
+                AwsSecretKey: credentials.AwsSecretKey,
+                AwsRegionName: credentials.AwsRegionName,
+                RemoteFolderName: credentials.RemoteFolderName,
+                BucketName: credentials.BucketName,
+                Disabled: false,
+                GetBackupConfigurationScript: null,
+                CustomServerUrl: null, // TODO RavenDB-14716
+                ForcePathStyle: false,
+            },
+            true,
+            isSharded ? index : undefined
+        );
+        return mapToSelectOptions(dto);
+    }, [ravenCloud.link]);
 
     return (
         <CreateDatabaseFromBackupRestorePoint

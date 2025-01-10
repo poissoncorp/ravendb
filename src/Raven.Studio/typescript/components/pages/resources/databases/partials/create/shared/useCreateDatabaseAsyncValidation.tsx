@@ -11,12 +11,12 @@ export const useCreateDatabaseAsyncValidation = (
     const { resourcesService } = useServices();
 
     return useAsyncDebounce(
-        async (databaseName) => {
+        async () => {
             if (!databaseName) {
-                return;
+                return true; // It will be validated by the form
             }
 
-            const result = await resourcesService.validateName("Database", databaseName);
+            const result = await resourcesService.validateName("Database", databaseName ?? "");
             if (!result.IsValid) {
                 setError("basicInfoStep.databaseName", {
                     type: "manual",
@@ -26,6 +26,7 @@ export const useCreateDatabaseAsyncValidation = (
 
             return result.IsValid;
         },
-        [databaseName]
+        [databaseName],
+        500
     );
 };

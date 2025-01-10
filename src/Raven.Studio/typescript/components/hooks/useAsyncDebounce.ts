@@ -1,16 +1,28 @@
-import AwesomeDebouncePromise from "awesome-debounce-promise";
-import { useMemo } from "react";
-import { UseAsyncOptionsNormalized, UseAsyncReturn, useAsync } from "react-async-hook";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useCallback, useEffect, useMemo } from "react";
+import { UseAsyncOptionsNormalized, UseAsyncReturn, useAsyncCallback } from "react-async-hook";
 
-export function useAsyncDebounce<ReturnType, const ParamsType extends unknown[]>(
-    callback: (...args: ParamsType) => Promise<ReturnType>,
-    params: ParamsType,
+export function useAsyncDebounce<T>(
+    callback: () => Promise<T>,
+    params: unknown[],
     waitTimeMs = 500,
-    options: Partial<UseAsyncOptionsNormalized<ReturnType>> = null
-): UseAsyncReturn<ReturnType, ParamsType> {
-    // debounce should be created only once
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    const debounced = useMemo(() => AwesomeDebouncePromise(callback, waitTimeMs), []);
+    options: Partial<UseAsyncOptionsNormalized<T>> = null
+): UseAsyncReturn<T, []> {
+    const memorizedCallback = useCallback(callback, params);
 
-    return useAsync(debounced, params, options);
+    const asyncCallback = useAsyncCallback(memorizedCallback, options);
+
+    const debounced = useMemo(() => _.debounce(asyncCallback.execute, waitTimeMs), []);
+
+    useEffect(() => {
+        asyncCallback.set({
+            status: "loading",
+            loading: true,
+            error: undefined,
+            result: undefined,
+        });
+        debounced();
+    }, [memorizedCallback]);
+
+    return asyncCallback;
 }

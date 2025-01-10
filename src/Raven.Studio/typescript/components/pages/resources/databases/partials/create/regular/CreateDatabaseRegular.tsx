@@ -91,10 +91,9 @@ export default function CreateDatabaseRegular({ closeModal, changeCreateModeToBa
                 activeStepIds: activeSteps.map((x) => x.id),
                 trigger,
                 asyncDatabaseNameValidation,
-                databaseName: formValues.basicInfoStep.databaseName,
             });
         },
-        [activeSteps, asyncDatabaseNameValidation, currentStep, formValues.basicInfoStep.databaseName, trigger]
+        [activeSteps, asyncDatabaseNameValidation, currentStep, trigger]
     );
 
     const { reportEvent } = useEventsCollector();
@@ -133,21 +132,14 @@ export default function CreateDatabaseRegular({ closeModal, changeCreateModeToBa
 
     const handleQuickCreate = useCallback(async () => {
         if (activeSteps[currentStep].id === "basicInfoStep") {
-            const isNameValid = await asyncDatabaseNameValidation.execute(formValues.basicInfoStep.databaseName);
+            const isNameValid = await asyncDatabaseNameValidation.execute();
             if (!isNameValid) {
                 return;
             }
         }
 
         await handleSubmit(onFinish)();
-    }, [
-        activeSteps,
-        asyncDatabaseNameValidation,
-        currentStep,
-        formValues.basicInfoStep.databaseName,
-        handleSubmit,
-        onFinish,
-    ]);
+    }, [activeSteps, asyncDatabaseNameValidation, currentStep, handleSubmit, onFinish]);
 
     useCreateDatabaseShortcuts({
         submit: handleQuickCreate,
@@ -189,7 +181,13 @@ export default function CreateDatabaseRegular({ closeModal, changeCreateModeToBa
                         </Button>
                     )}
                     <FlexGrow />
-                    {!isLastStep && <QuickCreateButton formValues={formValues} isSubmitting={formState.isSubmitting} />}
+                    {!isLastStep && (
+                        <QuickCreateButton
+                            formValues={formValues}
+                            isSubmitting={formState.isSubmitting}
+                            handleQuickCreate={handleQuickCreate}
+                        />
+                    )}
                     {isLastStep ? (
                         <ButtonWithSpinner
                             type="submit"

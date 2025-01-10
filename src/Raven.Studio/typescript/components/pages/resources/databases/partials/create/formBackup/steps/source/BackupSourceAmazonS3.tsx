@@ -180,52 +180,39 @@ function SourceRestorePoint({ index, remove }: RestorePointElementProps) {
         control,
     });
 
-    const asyncGetRestorePointsOptions = useAsyncDebounce(
-        async (
-            accessKey,
-            secretKey,
-            awsRegion,
-            bucketName,
-            remoteFolderName,
-            isUseCustomHost,
-            customHost,
-            isForcePathStyle,
-            isSharded
-        ) => {
-            if (!accessKey || !secretKey || !awsRegion || !bucketName) {
-                return [];
-            }
+    const asyncGetRestorePointsOptions = useAsyncDebounce(async () => {
+        if (!amazonS3Data.accessKey || !amazonS3Data.secretKey || !amazonS3Data.awsRegion || !amazonS3Data.bucketName) {
+            return [];
+        }
 
-            const dto = await resourcesService.getRestorePoints_S3Backup(
-                {
-                    AwsAccessKey: accessKey,
-                    AwsSecretKey: secretKey,
-                    AwsRegionName: awsRegion,
-                    BucketName: bucketName,
-                    RemoteFolderName: remoteFolderName,
-                    AwsSessionToken: "",
-                    CustomServerUrl: isUseCustomHost ? customHost : null,
-                    ForcePathStyle: isUseCustomHost && isForcePathStyle,
-                    Disabled: false,
-                    GetBackupConfigurationScript: null,
-                },
-                true,
-                isSharded ? index : undefined
-            );
-            return mapToSelectOptions(dto);
-        },
-        [
-            amazonS3Data.accessKey,
-            amazonS3Data.secretKey,
-            amazonS3Data.awsRegion,
-            amazonS3Data.bucketName,
-            amazonS3Data.remoteFolderName,
-            amazonS3Data.isUseCustomHost,
-            amazonS3Data.customHost,
-            amazonS3Data.isForcePathStyle,
-            isSharded,
-        ]
-    );
+        const dto = await resourcesService.getRestorePoints_S3Backup(
+            {
+                AwsAccessKey: amazonS3Data.accessKey,
+                AwsSecretKey: amazonS3Data.secretKey,
+                AwsRegionName: amazonS3Data.awsRegion,
+                BucketName: amazonS3Data.bucketName,
+                RemoteFolderName: amazonS3Data.remoteFolderName,
+                AwsSessionToken: "",
+                CustomServerUrl: amazonS3Data.isUseCustomHost ? amazonS3Data.customHost : null,
+                ForcePathStyle: amazonS3Data.isUseCustomHost && amazonS3Data.isForcePathStyle,
+                Disabled: false,
+                GetBackupConfigurationScript: null,
+            },
+            true,
+            isSharded ? index : undefined
+        );
+        return mapToSelectOptions(dto);
+    }, [
+        amazonS3Data.accessKey,
+        amazonS3Data.secretKey,
+        amazonS3Data.awsRegion,
+        amazonS3Data.bucketName,
+        amazonS3Data.remoteFolderName,
+        amazonS3Data.isUseCustomHost,
+        amazonS3Data.customHost,
+        amazonS3Data.isForcePathStyle,
+        isSharded,
+    ]);
 
     return (
         <CreateDatabaseFromBackupRestorePoint

@@ -1,20 +1,21 @@
 import ButtonWithSpinner from "components/common/ButtonWithSpinner";
 import { Icon } from "components/common/Icon";
 import { PropSummary, PropSummaryItem, PropSummaryName, PropSummaryValue } from "components/common/PropSummary";
-import React from "react";
 import { UncontrolledPopover } from "reactstrap";
 import { CreateDatabaseRegularFormData } from "./createDatabaseRegularValidation";
 
 interface QuickCreateButtonProps {
     formValues: CreateDatabaseRegularFormData;
     isSubmitting: boolean;
+    handleQuickCreate: () => void;
 }
 
-export default function QuickCreateButton({ formValues, isSubmitting }: QuickCreateButtonProps) {
+export default function QuickCreateButton({ formValues, isSubmitting, handleQuickCreate }: QuickCreateButtonProps) {
     return (
         <>
             <ButtonWithSpinner
-                type="submit"
+                type="button"
+                onClick={handleQuickCreate}
                 className="rounded-pill me-1"
                 id="quickCreateButton"
                 icon="star"

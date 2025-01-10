@@ -14,7 +14,7 @@ export interface PathSelectorStateRef {
 }
 
 export interface PathSelectorProps<ParamsType extends unknown[] = unknown[]> {
-    getPaths: (...args: ParamsType) => Promise<string[]>;
+    getPathsProvider: (path: string) => () => Promise<string[]>;
     getPathDependencies: (path: string) => ParamsType;
     handleSelect: (path: string) => void;
     defaultPath?: string;
@@ -28,7 +28,7 @@ export interface PathSelectorProps<ParamsType extends unknown[] = unknown[]> {
 export default function PathSelector<ParamsType extends unknown[] = unknown[]>(props: PathSelectorProps<ParamsType>) {
     const {
         handleSelect,
-        getPaths,
+        getPathsProvider,
         getPathDependencies,
         defaultPath,
         buttonClassName,
@@ -44,7 +44,7 @@ export default function PathSelector<ParamsType extends unknown[] = unknown[]>(p
         setPathInput(defaultPath || "");
     }, [defaultPath]);
 
-    const asyncGetPaths = useAsyncDebounce(getPaths, getPathDependencies(pathInput));
+    const asyncGetPaths = useAsyncDebounce(getPathsProvider(pathInput), getPathDependencies(pathInput));
 
     useImperativeHandle(stateRef, () => ({
         toggle: toggleIsModalOpen,

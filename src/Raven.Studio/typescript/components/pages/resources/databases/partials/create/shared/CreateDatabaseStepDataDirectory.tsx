@@ -28,15 +28,19 @@ export default function CreateDatabaseStepPath({ manualSelectedNodes, isBackupFo
     const allNodeTags = useAppSelector(clusterSelectors.allNodeTags);
     const selectedNodeTags = manualSelectedNodes ?? allNodeTags;
 
-    const getFolderOptions = async (path: string, isBackupFolder: boolean) => {
-        const dto = await resourcesService.getFolderPathOptions_ServerLocal(path || "", isBackupFolder);
-        return dto?.List || [];
+    const getFolderOptionsProvider = (path: string) => {
+        return async () => {
+            const dto = await resourcesService.getFolderPathOptions_ServerLocal(path || "", isBackupFolder);
+            return dto?.List || [];
+        };
     };
 
     const asyncGetDatabaseLocation = useAsyncDebounce(
-        (databaseName, directory, isDefault) => {
-            return resourcesService.getDatabaseLocation(databaseName, isDefault ? "" : directory);
-        },
+        () =>
+            resourcesService.getDatabaseLocation(
+                databaseName,
+                dataDirectoryStep.isDefault ? "" : dataDirectoryStep.directory
+            ),
         [databaseName, dataDirectoryStep.directory, dataDirectoryStep.isDefault]
     );
 
@@ -55,7 +59,7 @@ export default function CreateDatabaseStepPath({ manualSelectedNodes, isBackupFo
                     name="dataDirectoryStep.directory"
                     selectorTitle="Select database directory"
                     placeholder="Enter database directory"
-                    getPaths={getFolderOptions}
+                    getPathsProvider={(path: string) => getFolderOptionsProvider(path)}
                     getPathDependencies={(path: string) => [path, isBackupFolder]}
                     disabled={dataDirectoryStep.isDefault}
                 />

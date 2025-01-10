@@ -80,27 +80,24 @@ function SourceRestorePoint({ index, remove }: RestorePointElementProps) {
         control,
     });
 
-    const asyncGetRestorePointsOptions = useAsyncDebounce(
-        async (bucketName, credentialsJson, remoteFolderName) => {
-            if (!bucketName || !credentialsJson) {
-                return [];
-            }
+    const asyncGetRestorePointsOptions = useAsyncDebounce(async () => {
+        if (!googleCloudData.bucketName || !googleCloudData.credentialsJson) {
+            return [];
+        }
 
-            const dto = await resourcesService.getRestorePoints_GoogleCloudBackup(
-                {
-                    BucketName: bucketName,
-                    GoogleCredentialsJson: credentialsJson,
-                    RemoteFolderName: remoteFolderName,
-                    Disabled: false,
-                    GetBackupConfigurationScript: null,
-                },
-                true,
-                isSharded ? index : undefined
-            );
-            return mapToSelectOptions(dto);
-        },
-        [googleCloudData.bucketName, googleCloudData.credentialsJson, googleCloudData.remoteFolderName]
-    );
+        const dto = await resourcesService.getRestorePoints_GoogleCloudBackup(
+            {
+                BucketName: googleCloudData.bucketName,
+                GoogleCredentialsJson: googleCloudData.credentialsJson,
+                RemoteFolderName: googleCloudData.remoteFolderName,
+                Disabled: false,
+                GetBackupConfigurationScript: null,
+            },
+            true,
+            isSharded ? index : undefined
+        );
+        return mapToSelectOptions(dto);
+    }, [googleCloudData.bucketName, googleCloudData.credentialsJson, googleCloudData.remoteFolderName]);
 
     return (
         <CreateDatabaseFromBackupRestorePoint

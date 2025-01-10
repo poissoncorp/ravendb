@@ -551,7 +551,7 @@ export function FormPathSelector<
         shouldUnregister,
         selectorTitle,
         placeholder,
-        getPaths,
+        getPathsProvider,
         getPathDependencies,
         disabled,
     } = props;
@@ -592,7 +592,7 @@ export function FormPathSelector<
                         onFocus={handleInputFocus}
                     />
                     <PathSelector
-                        getPaths={getPaths}
+                        getPathsProvider={getPathsProvider}
                         getPathDependencies={getPathDependencies}
                         handleSelect={onChange}
                         defaultPath={formValuePath}

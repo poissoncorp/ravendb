@@ -93,29 +93,26 @@ function SourceRestorePoint({ index, remove }: RestorePointElementProps) {
         control,
     });
 
-    const asyncGetRestorePointsOptions = useAsyncDebounce(
-        async (accountName, accountKey, container, remoteFolderName, isSharded) => {
-            if (!accountName || !accountKey || !container) {
-                return [];
-            }
+    const asyncGetRestorePointsOptions = useAsyncDebounce(async () => {
+        if (!azureData.accountName || !azureData.accountKey || !azureData.container) {
+            return [];
+        }
 
-            const dto = await resourcesService.getRestorePoints_AzureBackup(
-                {
-                    AccountKey: accountKey,
-                    AccountName: accountName,
-                    StorageContainer: container,
-                    RemoteFolderName: remoteFolderName,
-                    Disabled: false,
-                    GetBackupConfigurationScript: null,
-                    SasToken: null,
-                },
-                true,
-                isSharded ? index : undefined
-            );
-            return mapToSelectOptions(dto);
-        },
-        [azureData.accountName, azureData.accountKey, azureData.container, azureData.remoteFolderName, isSharded]
-    );
+        const dto = await resourcesService.getRestorePoints_AzureBackup(
+            {
+                AccountKey: azureData.accountKey,
+                AccountName: azureData.accountName,
+                StorageContainer: azureData.container,
+                RemoteFolderName: azureData.remoteFolderName,
+                Disabled: false,
+                GetBackupConfigurationScript: null,
+                SasToken: null,
+            },
+            true,
+            isSharded ? index : undefined
+        );
+        return mapToSelectOptions(dto);
+    }, [azureData.accountName, azureData.accountKey, azureData.container, azureData.remoteFolderName, isSharded]);
 
     return (
         <CreateDatabaseFromBackupRestorePoint

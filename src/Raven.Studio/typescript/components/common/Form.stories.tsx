@@ -13,13 +13,12 @@ import {
     FormAceEditor,
     FormPathSelector,
 } from "./Form";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { withBootstrap5, withStorybookContexts } from "test/storybookTestUtils";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Button, Input, InputGroup, InputGroupText, Label } from "reactstrap";
-import { Checkbox } from "components/common/Checkbox";
 
 export default {
     title: "Bits/Form",
@@ -178,7 +177,7 @@ export function Form({ isDefaultValid }: { isDefaultValid: boolean }) {
                 <FormPathSelector
                     control={control}
                     name="inputPath"
-                    getPaths={() => Promise.resolve(["C:\\", "D:\\"])}
+                    getPathsProvider={() => () => Promise.resolve(["C:\\", "D:\\"])}
                     getPathDependencies={(path: string) => [path]}
                 />
             </div>

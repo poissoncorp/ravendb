@@ -90,10 +90,9 @@ export default function CreateDatabaseFromBackup({
                 activeStepIds: activeSteps.map((x) => x.id),
                 trigger,
                 asyncDatabaseNameValidation,
-                databaseName: formValues.basicInfoStep.databaseName,
             });
         },
-        [activeSteps, asyncDatabaseNameValidation, currentStep, formValues.basicInfoStep.databaseName, trigger]
+        [activeSteps, asyncDatabaseNameValidation, currentStep, trigger]
     );
 
     const { reportEvent } = useEventsCollector();

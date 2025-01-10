@@ -16,9 +16,11 @@ export default function BackupSourceLocal() {
     const { resourcesService } = useServices();
     const { control } = useFormContext<FormData>();
 
-    const getLocalFolderPaths = async (path: string) => {
-        const dto = await resourcesService.getFolderPathOptions_ServerLocal(path, true);
-        return dto?.List || [];
+    const getLocalFolderPathsProvider = (path: string) => {
+        return async () => {
+            const dto = await resourcesService.getFolderPathOptions_ServerLocal(path, true);
+            return dto?.List || [];
+        };
     };
 
     return (
@@ -33,7 +35,7 @@ export default function BackupSourceLocal() {
                         name="sourceStep.sourceData.local.directory"
                         selectorTitle="Select backup directory path"
                         placeholder="Enter backup directory path"
-                        getPaths={getLocalFolderPaths}
+                        getPathsProvider={(path: string) => getLocalFolderPathsProvider(path)}
                         getPathDependencies={(path: string) => [path]}
                     />
                 </Col>
@@ -60,22 +62,19 @@ function SourceRestorePoint({ index, remove }: RestorePointElementProps) {
         control,
     });
 
-    const asyncGetRestorePointsOptions = useAsyncDebounce(
-        async (directory, isSharded) => {
-            if (!directory) {
-                return [];
-            }
+    const asyncGetRestorePointsOptions = useAsyncDebounce(async () => {
+        if (!directory) {
+            return [];
+        }
 
-            const dto = await resourcesService.getRestorePoints_Local(
-                _.trim(directory),
-                null,
-                true,
-                isSharded ? index : undefined
-            );
-            return mapToSelectOptions(dto);
-        },
-        [directory, isSharded]
-    );
+        const dto = await resourcesService.getRestorePoints_Local(
+            _.trim(directory),
+            null,
+            true,
+            isSharded ? index : undefined
+        );
+        return mapToSelectOptions(dto);
+    }, [directory, isSharded]);
 
     return (
         <CreateDatabaseFromBackupRestorePoint

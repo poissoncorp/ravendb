@@ -16,16 +16,21 @@ interface PathSelectorStoryArgs extends Omit<PathSelectorProps, "getPaths"> {
 export const PathSelectorStory: StoryObj<PathSelectorStoryArgs> = {
     name: "Path Selector",
     render: (args) => {
-        const getPaths = args.isErrored
-            ? async () => {
-                  throw new Error();
-              }
-            : async () => args.paths;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const getPaths = (_: string) => {
+            return async () => {
+                if (args.isErrored) {
+                    throw new Error();
+                }
+
+                return args.paths;
+            };
+        };
 
         return (
             <PathSelector
-                getPaths={getPaths}
-                getPathDependencies={(x) => [x]}
+                getPathsProvider={(path: string) => getPaths(path)}
+                getPathDependencies={(path: string) => [path]}
                 handleSelect={() => null}
                 defaultPath={args.defaultPath}
                 selectorTitle={args.selectorTitle}
