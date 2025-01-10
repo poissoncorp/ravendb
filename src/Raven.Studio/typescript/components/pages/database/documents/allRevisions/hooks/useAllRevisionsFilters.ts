@@ -34,7 +34,7 @@ export default function useAllRevisionsFilters() {
     );
 
     const asyncGetTypeOptions = useAsyncDebounce(
-        async (selectedCollectionName: string) => {
+        async () => {
             const options: InputItem<RevisionType>[] = [];
 
             for (const type of allRevisionTypes) {
@@ -79,7 +79,7 @@ export default function useAllRevisionsFilters() {
     );
 
     const asyncGetCollectionOptions = useAsyncDebounce(
-        async (selectedType: RevisionType) => {
+        async () => {
             const options: SelectOptionWithCount[] = [];
 
             for (const collectionName of allCollectionNames) {
@@ -125,8 +125,8 @@ export default function useAllRevisionsFilters() {
             setValue: setSelectedCollectionName,
         },
         reload: async () => {
-            await asyncGetTypeOptions.execute(selectedCollectionName);
-            await asyncGetCollectionOptions.execute(selectedType);
+            await asyncGetTypeOptions.execute();
+            await asyncGetCollectionOptions.execute();
         },
     };
 }
