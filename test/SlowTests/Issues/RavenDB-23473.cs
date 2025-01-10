@@ -4,11 +4,13 @@ using System.Threading.Tasks;
 using FastTests;
 using Raven.Client.Documents;
 using Raven.Client.Documents.Indexes;
+using Raven.Client.Documents.Indexes.Vector;
 using Raven.Client.Documents.Operations;
 using Raven.Client.Documents.Subscriptions;
-using SmartComponents.LocalEmbeddings;
+using Raven.Server.Documents.Indexes.VectorSearch;
 using Sparrow;
 using Sparrow.Server;
+using Sparrow.Threading;
 using Tests.Infrastructure;
 using Xunit;
 using Xunit.Abstractions;
@@ -48,7 +50,6 @@ public class RavenDB_23473(ITestOutputHelper output) : RavenTestBase(output)
     [RavenFact(RavenTestCategory.Vector | RavenTestCategory.Indexes)]
     public async Task CanUpdateNoExplicitlyConfiguredVectorFieldViaSubscriptionWithLoadDocument()
     {
-        using (LocalEmbedder localEmbedder = new())
         using (var store = GetDocumentStore(Options.ForSearchEngine(RavenSearchEngineMode.Corax)))
         {
             await store.ExecuteIndexAsync(new VectorIndex());
@@ -69,9 +70,10 @@ public class RavenDB_23473(ITestOutputHelper output) : RavenTestBase(output)
                     var localEmbedding = await session.LoadAsync<Embedding>(embeddingId);
                     if (localEmbedding == null)
                     {
-                        // ReSharper disable once AccessToDisposedClosure
-                        var embedding = localEmbedder.Embed(q.Body);
-                        vector = embedding.Values.ToArray().ToList();
+#pragma warning disable SKEXP0070
+                        var embedding = await GenerateEmbeddings.Embedder.Value.GenerateEmbeddingsAsync(new List<string> {q.Body });
+#pragma warning restore SKEXP0070
+                        vector = embedding[0].ToArray().ToList();
                         localEmbedding = new Embedding { Vector = vector };
                         await session.StoreAsync(localEmbedding, embeddingId);
                     }

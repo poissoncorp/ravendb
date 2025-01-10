@@ -38,6 +38,7 @@ export interface AdminLogsState {
     isDownloadDiskLogsOpen: boolean;
     isAllExpanded: boolean;
     filter: string;
+    isBufferFullAlertOpen: boolean;
 }
 
 const initialState: AdminLogsState = {
@@ -53,6 +54,7 @@ const initialState: AdminLogsState = {
     isDownloadDiskLogsOpen: false,
     isAllExpanded: false,
     filter: "",
+    isBufferFullAlertOpen: false,
 };
 
 export const adminLogsSlice = createSlice({
@@ -69,7 +71,7 @@ export const adminLogsSlice = createSlice({
             state.logs = action.payload;
         },
         logsManyAppended: (state, action: PayloadAction<Omit<AdminLogsMessage, "_meta">[]>) => {
-            let newLogs: AdminLogsMessage[] = [
+            const newLogs: AdminLogsMessage[] = [
                 ...state.logs,
                 ...action.payload.map((message) => ({
                     ...message,
@@ -77,14 +79,13 @@ export const adminLogsSlice = createSlice({
                 })),
             ];
 
-            if (newLogs.length > state.maxLogsCount) {
-                newLogs = newLogs.slice(newLogs.length - state.maxLogsCount);
-            }
-
             state.logs = newLogs;
         },
         maxLogsCountSet: (state, action: PayloadAction<number>) => {
             state.maxLogsCount = action.payload;
+        },
+        isPausedSet: (state, action: PayloadAction<boolean>) => {
+            state.isPaused = action.payload;
         },
         isPausedToggled: (state) => {
             state.isPaused = !state.isPaused;
@@ -117,6 +118,9 @@ export const adminLogsSlice = createSlice({
                     : logItem
             );
             state.logs = newLogs;
+        },
+        isBufferFullAlertOpenSet: (state, action: PayloadAction<boolean>) => {
+            state.isBufferFullAlertOpen = action.payload;
         },
         reset: () => initialState,
     },
@@ -181,4 +185,6 @@ export const adminLogsSelectors = {
     isDownloadDiskLogsOpen: (store: RootState) => store.adminLogs.isDownloadDiskLogsOpen,
     isAllExpanded: (store: RootState) => store.adminLogs.isAllExpanded,
     filter: (store: RootState) => store.adminLogs.filter,
+    isBufferFull: (store: RootState) => store.adminLogs.logs.length >= store.adminLogs.maxLogsCount,
+    isBufferFullAlertOpen: (store: RootState) => store.adminLogs.isBufferFullAlertOpen,
 };

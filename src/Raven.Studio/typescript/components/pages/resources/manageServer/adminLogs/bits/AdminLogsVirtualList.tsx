@@ -1,6 +1,7 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
 import Code from "components/common/Code";
 import { Icon } from "components/common/Icon";
+import AdminLogsBufferAlert from "components/pages/resources/manageServer/adminLogs/bits/AdminLogsBufferAlert";
 import {
     adminLogsSelectors,
     adminLogsActions,
@@ -42,6 +43,7 @@ export default function AdminLogsVirtualList(props: { availableHeightInPx: numbe
     return (
         <div ref={listRef} style={{ overflow: "auto", height: props.availableHeightInPx }}>
             <div style={{ height: `${virtualizer.getTotalSize()}px`, position: "relative" }}>
+                <AdminLogsBufferAlert />
                 {virtualizer.getVirtualItems().map((virtualRow) => {
                     const log = filteredLogs[virtualRow.index];
 

@@ -91,6 +91,14 @@ namespace Raven.Server.Config.Categories
             
             EncryptedTransactionSizeLimit = defaultEncryptedTransactionSizeLimit;
             MaxAllocationsAtDictionaryTraining = defaultMaxAllocationsAtDictionaryTraining;
+
+            MaxNumberOfCoresForLocalEmbeddingsGeneration = Environment.ProcessorCount switch
+            {
+                <= 2 => 1,
+                <= 8 => 2,
+                <= 16 => 4,
+                _ => 6
+            };
         }
         
         private static HashSet<string> GetValidIndexingConfigurationKeys()
@@ -619,6 +627,12 @@ namespace Raven.Server.Config.Categories
         [IndexUpdateType(IndexUpdateType.Refresh)]
         [ConfigurationEntry("Indexing.Corax.VectorSearch.OrderByScoreAutomatically", ConfigurationEntryScope.ServerWideOrPerDatabaseOrPerIndex)]
         public bool CoraxVectorSearchOrderByScoreAutomatically { get; set; }
+        
+        [Description("Maximum number of processor cores that will be used for generating embedding from text locally.")]
+        [DefaultValue(DefaultValueSetInConstructor)]
+        [IndexUpdateType(IndexUpdateType.None)]
+        [ConfigurationEntry("Indexing.Corax.VectorSearch.MaxNumberOfCoresForLocalEmbeddingsGeneration", ConfigurationEntryScope.ServerWideOnly)]
+        public int MaxNumberOfCoresForLocalEmbeddingsGeneration { get; set; }
         
         protected override void ValidateProperty(PropertyInfo property)
         {

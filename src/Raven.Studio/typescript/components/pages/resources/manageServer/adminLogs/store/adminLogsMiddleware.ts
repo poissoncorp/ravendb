@@ -1,4 +1,4 @@
-import { createListenerMiddleware } from "@reduxjs/toolkit";
+import { createListenerMiddleware, isAnyOf } from "@reduxjs/toolkit";
 import { adminLogsActions, AdminLogsMessage } from "./adminLogsSlice";
 import { AppListenerEffectApi } from "components/store";
 import adminLogsWebSocketClient from "common/adminLogsWebSocketClient";
@@ -10,7 +10,7 @@ let liveClient: adminLogsWebSocketClient = null;
 let pushLogsBatchesInterval: NodeJS.Timeout = null;
 
 adminLogsMiddleware.startListening({
-    actionCreator: adminLogsActions.isPausedToggled,
+    matcher: isAnyOf(adminLogsActions.isPausedSet, adminLogsActions.isPausedToggled),
     effect: (_, listenerApi: AppListenerEffectApi) => {
         const state = listenerApi.getState();
 
@@ -52,19 +52,32 @@ adminLogsMiddleware.startListening({
             logsBatch = [];
         }, 500);
 
-        liveClient = new adminLogsWebSocketClient((message) => logsBatch.push(message));
+        liveClient = new adminLogsWebSocketClient((message) => {
+            const adminLogsState = listenerApi.getState().adminLogs;
+
+            if (adminLogsState.logs.length + logsBatch.length >= adminLogsState.maxLogsCount) {
+                listenerApi.dispatch(adminLogsActions.logsManyAppended(logsBatch));
+                logsBatch = [];
+                listenerApi.dispatch(adminLogsActions.isPausedSet(true));
+                listenerApi.dispatch(adminLogsActions.isBufferFullAlertOpenSet(true));
+                return;
+            }
+
+            logsBatch.push(message);
+        });
     },
 });
 
 adminLogsMiddleware.startListening({
-    actionCreator: adminLogsActions.maxLogsCountSet,
+    matcher: isAnyOf(adminLogsActions.maxLogsCountSet, adminLogsActions.logsManyAppended, adminLogsActions.logsSet),
     effect: (_, listenerApi: AppListenerEffectApi) => {
         const state = listenerApi.getState();
-        const logsLength = state.adminLogs.logs.length;
-        const maxLogsCount = state.adminLogs.maxLogsCount;
 
-        if (logsLength > maxLogsCount) {
-            listenerApi.dispatch(adminLogsActions.logsSet(state.adminLogs.logs.slice(logsLength - maxLogsCount)));
+        if (state.adminLogs.logs.length >= state.adminLogs.maxLogsCount) {
+            listenerApi.dispatch(adminLogsActions.isPausedSet(true));
+            listenerApi.dispatch(adminLogsActions.isBufferFullAlertOpenSet(true));
+        } else {
+            listenerApi.dispatch(adminLogsActions.isBufferFullAlertOpenSet(false));
         }
     },
 });
