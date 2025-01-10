@@ -1,8 +1,7 @@
 import { RtlScreen, rtlRender } from "test/rtlTestUtils";
-import { fireEvent, waitForElementToBeRemoved } from "@testing-library/react";
+import { fireEvent } from "@testing-library/react";
 import * as Stories from "./CreateDatabase.stories";
 import { composeStories } from "@storybook/react";
-import React from "react";
 
 const { DefaultCreateDatabase } = composeStories(Stories);
 
@@ -99,6 +98,5 @@ describe("CreateDatabase", () => {
     ) => {
         await fillInput(screen.getByPlaceholderText(/Database name/i), "some-db-name");
         await fireClick(screen.getByText(/Next/));
-        await waitForElementToBeRemoved(screen.getAllByTestId("loader"));
     };
 });
