@@ -70,11 +70,6 @@ export default function AllRevisions() {
                     collectionsTracker.default.getAllRevisionsCollection().documentCount() - selectedRows.length
                 );
         },
-        {
-            onError() {
-                messagePublisher.reportError("Failed to remove selected revisions");
-            },
-        }
     );
 
     const handleRemoveConfirmation = async () => {

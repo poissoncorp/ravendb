@@ -1438,8 +1438,11 @@ class editDocument extends shardViewModelBase {
         this.confirmationMessage("Are you sure?", "Do you want to delete current revision?", {
             buttons: ["Cancel", "Yes, delete"],
         }).done((result) => {
+            const docsIds = parameters.DocumentIds.join(", ")
+
             if (result.can) {
                 new deleteRevisionsForDocumentsCommand(this.db.name, parameters).execute().done(() => {
+                    messagePublisher.reportSuccess(`Deleted ${docsIds}`)
                     router.navigate(appUrl.forAllRevisions(this.db));
                 });
             }
