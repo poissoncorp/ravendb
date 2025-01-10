@@ -6,6 +6,11 @@ import activeDatabaseTracker = require("common/shell/activeDatabaseTracker");
 
 type configurationOrigin = "Default" | "Server" | "Database";
 
+function findMatchingKey<T>(availableKeys: string[], values: T): string | undefined {
+    const objectKeys = Object.keys(values);
+    return availableKeys.find((key) => objectKeys.includes(key));
+}
+
 export abstract class settingsEntry<T extends Raven.Server.Config.ConfigurationEntryServerValue = Raven.Server.Config.ConfigurationEntryServerValue>{
 
     data: T;
@@ -47,9 +52,8 @@ export abstract class settingsEntry<T extends Raven.Server.Config.ConfigurationE
         this.isSecured(this.data.Metadata.IsSecured);
         
         if (this.data.Metadata.Keys.length > 1 && this.hasServerValue()) {
-            // a single metadata key is expected from configuration, but case must be handled, see RavenDB-17777
-            const keyName = Object.keys(this.data.ServerValues)[0];
-            this.keyName(keyName);
+            const matchingKey = findMatchingKey<Raven.Server.Config.ConfigurationEntryServerValue["ServerValues"]>(this.data.Metadata.Keys, this.data.ServerValues);
+            this.keyName(matchingKey);
         }
 
         this.serverOrDefaultValue = ko.pureComputed(() => this.hasServerValue() ? this.data.ServerValues[this.keyName()].Value : this.data.Metadata.DefaultValue);
@@ -156,7 +160,9 @@ export abstract class databaseEntry<T> extends settingsEntry<Raven.Server.Config
         const databaseValuesHasContent = !_.isEmpty(this.data.DatabaseValues);
         
         if (databaseValuesHasContent) {
-            const keyContent = this.data.DatabaseValues[this.keyName()];
+            const databaseValuesKey = findMatchingKey<Raven.Server.Config.ConfigurationEntryDatabaseValue["DatabaseValues"]>(this.data.Metadata.Keys, this.data.DatabaseValues);
+
+            const keyContent = this.data.DatabaseValues[databaseValuesKey];
             
             if (keyContent.HasValue) {
                 this.rawValue(keyContent.Value);
