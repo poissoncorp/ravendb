@@ -104,7 +104,7 @@
 
     <script type="text/html" id="leafMenuItem">
         <li data-bind="with: item">
-            <a data-toggle="tooltip" data-bind="click: $parent.menu.navigate.bind($parent.menu), visible: nav,
+            <a data-toggle="tooltip" data-html="true" data-bind="click: $parent.menu.navigate.bind($parent.menu), visible: nav,
                           attr: { href: path, 'data-original-title': $root.disableReason($data) },
                           css: { 'active': $parent.menu.activeItem() === $data, 'disabled': $root.disableReason($data) }">
                 <i data-bind="css: css"></i>
