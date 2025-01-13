@@ -217,7 +217,7 @@ class nodeInfo {
 
     toDto(): Raven.Server.Commercial.NodeInfo {
         return {
-            Addresses: this.ips().map(x => ipEntry.formatIpAddress(x.ip())),
+            Addresses: this.ips().map(x => x.ip()),
             Port: this.port() ? parseInt(this.port(), 10) : this.mode() === 'Unsecured' ? 8080 : null,
             TcpPort: this.tcpPort() ? parseInt(this.tcpPort(), 10) : this.mode() === 'Unsecured' ? 38888 : null,
             PublicServerUrl: this.getServerUrl(),
