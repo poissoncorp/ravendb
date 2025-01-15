@@ -55,7 +55,7 @@ export default function AllRevisions() {
             await databasesService.deleteRevisionsForDocuments(activeDatabaseName, {
                 DocumentIds: [id],
                 RevisionsChangeVectors: selectedRows.filter((x) => x.Id === id).map((x) => x.ChangeVector),
-                RemoveForceCreatedRevisions: false,
+                RemoveForceCreatedRevisions: true,
             });
         }
 
