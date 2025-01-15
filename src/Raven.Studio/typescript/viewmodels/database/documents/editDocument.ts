@@ -1432,7 +1432,7 @@ class editDocument extends shardViewModelBase {
         const parameters: Raven.Client.Documents.Operations.Revisions.DeleteRevisionsOperation.Parameters = {
             DocumentIds: [doc.getId()],
             RevisionsChangeVectors: [doc.__metadata.changeVector()],
-            RemoveForceCreatedRevisions: false,
+            RemoveForceCreatedRevisions: true,
         };
 
         this.confirmationMessage("Are you sure?", "Do you want to delete current revision?", {
