@@ -87,7 +87,40 @@ namespace Raven.Server.ServerWide.Commands.AI
                     $"AI Agent config{(identifierConflicts.Length > 1 ? "s" : "")} " +
                     $"'{string.Join("', '", identifierConflicts.Select(x => x.Name))}'");
 
+            ValidateRemoteAttachmentsDestinations(databaseRecord);
+
             return isUpdate;
+        }
+
+        private void ValidateRemoteAttachmentsDestinations(DatabaseRecord databaseRecord)
+        {
+            var destinations = databaseRecord.RemoteAttachments?.Destinations;
+
+            if (string.IsNullOrEmpty(Configuration.DefaultRemoteAttachmentsDestination) == false)
+            {
+                if (destinations == null || destinations.ContainsKey(Configuration.DefaultRemoteAttachmentsDestination) == false)
+                    throw new RachisApplyException(
+                        $"AI Agent '{Configuration.Name}': {nameof(Configuration.DefaultRemoteAttachmentsDestination)} " +
+                        $"'{Configuration.DefaultRemoteAttachmentsDestination}' does not match any destination configured in " +
+                        $"{nameof(DatabaseRecord.RemoteAttachments)}.{nameof(databaseRecord.RemoteAttachments.Destinations)}.");
+            }
+
+            if (Configuration.RemoteAttachmentDestinationsByMime is { Count: > 0 } map)
+            {
+                foreach (var entry in map)
+                {
+                    // An empty value is the explicit "stay local" opt-out and is allowed even when
+                    // no destinations are configured at all.
+                    if (string.IsNullOrEmpty(entry.Value))
+                        continue;
+
+                    if (destinations == null || destinations.ContainsKey(entry.Value) == false)
+                        throw new RachisApplyException(
+                            $"AI Agent '{Configuration.Name}': {nameof(Configuration.RemoteAttachmentDestinationsByMime)}['{entry.Key}'] " +
+                            $"references destination '{entry.Value}' which is not configured in " +
+                            $"{nameof(DatabaseRecord.RemoteAttachments)}.{nameof(databaseRecord.RemoteAttachments.Destinations)}.");
+                }
+            }
         }
 
         public override void FillJson(DynamicJsonValue json)

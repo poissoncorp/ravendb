@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Raven.Client.Util;
+using Sparrow.Json;
 using Sparrow.Json.Parsing;
 
 namespace Raven.Client.Documents.Operations.AI.Agents;
@@ -137,6 +138,31 @@ public class AiAgentConfiguration : IDynamicJson
     /// </summary>
     public bool Disabled { get; set; }
 
+    /// <summary>
+    /// Default remote attachments destination used when the caller of <c>AddAttachment</c> does not
+    /// supply explicit <c>RemoteAttachmentParameters</c>. The value is a destination name registered
+    /// in <c>DatabaseRecord.RemoteAttachments.Destinations</c>.
+    /// </summary>
+    /// <remarks>
+    /// Null or empty disables the agent-wide default: new attachments stay local unless the caller
+    /// is explicit. Overridden per content type by <see cref="RemoteAttachmentDestinationsByMime"/>.
+    /// </remarks>
+    public string DefaultRemoteAttachmentsDestination { get; set; }
+
+    /// <summary>
+    /// Per-MIME-type overrides for the remote attachments destination, keyed by MIME glob. Supported
+    /// key forms are exact match (e.g. <c>"application/pdf"</c>) or trailing-<c>*</c> prefix match
+    /// (e.g. <c>"image/*"</c>). Longest matching key wins.
+    /// </summary>
+    /// <remarks>
+    /// A non-empty value is a destination name registered in
+    /// <c>DatabaseRecord.RemoteAttachments.Destinations</c>. An empty or null value explicitly opts
+    /// the matching MIME types out of remote storage (overrides <see cref="DefaultRemoteAttachmentsDestination"/>).
+    /// </remarks>
+    [JsonDeserializationStringDictionary(StringComparison.OrdinalIgnoreCase)]
+    public Dictionary<string, string> RemoteAttachmentDestinationsByMime { get; set; }
+        = new(StringComparer.OrdinalIgnoreCase);
+
 
     internal AiAgentToolQuery FindQuery(string name)
     {
@@ -175,6 +201,45 @@ public class AiAgentConfiguration : IDynamicJson
     }
 
     /// <summary>
+    /// Resolves the remote attachments destination name for an attachment with the given MIME type,
+    /// using the per-MIME overrides first (longest matching key wins) and falling back to
+    /// <see cref="DefaultRemoteAttachmentsDestination"/>. An empty result means "stay local".
+    /// </summary>
+    internal string ResolveRemoteDestinationForMime(string mime)
+    {
+        if (RemoteAttachmentDestinationsByMime is { Count: > 0 } map && string.IsNullOrEmpty(mime) == false)
+        {
+            string longestKey = null;
+            foreach (var entry in map)
+            {
+                if (MatchesMimeGlob(entry.Key, mime) == false)
+                    continue;
+                if (longestKey == null || entry.Key.Length > longestKey.Length)
+                    longestKey = entry.Key;
+            }
+
+            if (longestKey != null)
+                return map[longestKey]; // may be empty => caller treats as "stay local"
+        }
+
+        return DefaultRemoteAttachmentsDestination;
+    }
+
+    private static bool MatchesMimeGlob(string pattern, string mime)
+    {
+        if (string.IsNullOrEmpty(pattern))
+            return false;
+        if (pattern == "*" || pattern == "*/*")
+            return true;
+        if (pattern.EndsWith("/*", StringComparison.Ordinal))
+        {
+            var prefix = pattern.AsSpan(0, pattern.Length - 1); // keep trailing '/' for safety
+            return mime.AsSpan().StartsWith(prefix, StringComparison.OrdinalIgnoreCase);
+        }
+        return string.Equals(pattern, mime, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
     /// Serializes the configuration to a JSON structure.
     /// </summary>
     public DynamicJsonValue ToJson()
@@ -194,6 +259,10 @@ public class AiAgentConfiguration : IDynamicJson
             [nameof(ChatTrimming)] = ChatTrimming?.ToJson(),
             [nameof(MaxModelIterationsPerCall)] = MaxModelIterationsPerCall,
             [nameof(Disabled)] = Disabled,
+            [nameof(DefaultRemoteAttachmentsDestination)] = DefaultRemoteAttachmentsDestination,
+            [nameof(RemoteAttachmentDestinationsByMime)] = RemoteAttachmentDestinationsByMime != null
+                ? DynamicJsonValue.Convert(RemoteAttachmentDestinationsByMime)
+                : null,
         };
     }
 

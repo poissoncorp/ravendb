@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Raven.Client.Documents.Operations.AI.Agents;
+using Raven.Client.Documents.Operations.Attachments;
 
 namespace Raven.Client.Documents.AI;
 
@@ -257,6 +258,20 @@ public interface IAiConversationOperations
     /// <param name="stream">The data stream of the file.</param>
     /// <param name="contentType">The MIME media type of the attachment content (e.g. image/png).</param>
     void AddAttachment(string name, Stream stream, string contentType);
+
+    /// <summary>
+    /// Adds a file attachment as a stream to the conversation turn, with explicit remote storage parameters.
+    /// When <paramref name="remoteParameters"/> is non-null, the attachment is persisted into the configured
+    /// remote destination (S3/Azure) instead of local storage; when null and the agent has a configured
+    /// remote-attachments destination, the server fills in the destination automatically based on the
+    /// content type.
+    /// </summary>
+    /// <param name="name">The name of the attachment.</param>
+    /// <param name="stream">The data stream of the file.</param>
+    /// <param name="contentType">The MIME media type of the attachment content.</param>
+    /// <param name="remoteParameters">Optional remote attachment parameters targeting a specific
+    /// destination registered in <c>RemoteAttachmentsConfiguration.Destinations</c>.</param>
+    void AddAttachment(string name, Stream stream, string contentType, RemoteAttachmentParameters remoteParameters);
 
     /// <summary>
     /// Copies an existing attachment from a document in RavenDB into the conversation context.

@@ -4,6 +4,7 @@ using System.IO;
 using System.Security.Cryptography;
 using Raven.Client.Documents.Attachments;
 using Raven.Client.Documents.Operations.AI.Agents;
+using Raven.Client.Extensions;
 using Raven.Server.Documents.AI;
 using Raven.Server.Documents.ETL.Providers.AI;
 using Raven.Server.Documents.ETL.Providers.AI.GenAi;
@@ -55,19 +56,37 @@ internal static class ConversationHandlerAttachments
             return $"Attachment: {fileName}";
         }
 
-        var base64 = GetAttachmentDataAsBase64(attachment);
         var contentType = attachment.ContentType.ToString();
 
         if (request.Attachments == null)
             request.Attachments = new List<AiAttachment>();
 
-        request.Attachments.Add(new AiAttachment
+        if (attachment.RemoteParameters.IsRemoteStorageAttachment())
         {
-            Name = attachment.Name,
-            Type = contentType,
-            Data = base64,
-            Source = AiAttachmentSource.FromAttachment
-        });
+            // Blob lives only in S3/Azure: defer the download to ResolveDeferredAttachmentsAsync,
+            // which runs at the top of every conversation-loop iteration and uses the same
+            // RemoteAttachmentsStorage.GetAttachmentDataAsBase64Async that GenAI uses.
+            // Data carries the base64 hash here as the blob key (matches GenAi convention).
+            request.Attachments.Add(new AiAttachment
+            {
+                Name = attachment.Name,
+                Type = contentType,
+                Data = attachment.Base64Hash.ToString(),
+                Source = AiAttachmentSource.Deferred,
+                RemoteStorageId = attachment.RemoteParameters.Identifier
+            });
+        }
+        else
+        {
+            var base64 = GetAttachmentDataAsBase64(attachment);
+            request.Attachments.Add(new AiAttachment
+            {
+                Name = attachment.Name,
+                Type = contentType,
+                Data = base64,
+                Source = AiAttachmentSource.FromAttachment
+            });
+        }
 
         return $"Attachment: {attachment.Name}";
     }

@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Raven.Client.Documents.Operations.AI.Agents;
+using Raven.Client.Documents.Operations.Attachments;
 using Raven.Client.Exceptions;
 using Raven.Client.Util;
 using Sparrow.Json;
@@ -61,19 +62,27 @@ internal class AiConversation : IAiConversationOperations
 
     public void AddAttachment(string name, Stream stream, string contentType)
     {
+        AddAttachment(name, stream, contentType, remoteParameters: null);
+    }
+
+    public void AddAttachment(string name, Stream stream, string contentType, RemoteAttachmentParameters remoteParameters)
+    {
         if (stream == null)
             throw new ArgumentNullException(nameof(stream));
 
         var attachmentName = name;
-        _attachmentsCommands.Add(new PutAttachmentCommandData("__this__", attachmentName, stream, contentType, changeVector: null));
+        _attachmentsCommands.Add(new PutAttachmentCommandData("__this__", attachmentName, stream, contentType, changeVector: null, remoteParameters));
     }
 
     public void CopyAttachmentFrom(string sourceDocumentId, string fileName)
     {
         ValidationMethods.AssertNotNullOrEmpty(sourceDocumentId, nameof(sourceDocumentId));
         ValidationMethods.AssertNotNullOrEmpty(fileName, nameof(fileName));
-        ValidationMethods.AssertNotNullOrEmpty(sourceDocumentId, nameof(sourceDocumentId));
 
+        // CopyAttachmentCommandData does not currently carry RemoteAttachmentParameters on the
+        // wire, so the destination always inherits the source attachment's location (local or
+        // remote). To target a specific remote destination, callers must place the source
+        // attachment there first.
         _attachmentsCommands.Add(new CopyAttachmentCommandData(sourceDocumentId, fileName, "__this__", fileName, changeVector: null));
     }
 

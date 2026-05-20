@@ -11,16 +11,19 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features.Authentication;
 using Newtonsoft.Json;
 using Raven.Client.Documents.AI;
+using Raven.Client.Documents.Attachments;
 using Raven.Client.Documents.Commands.Batches;
 using Raven.Client.Documents.Commands.MultiGet;
 using Raven.Client.Documents.Operations.AI;
 using Raven.Client.Documents.Operations.AI.Agents;
+using Raven.Client.Documents.Operations.Attachments;
 using Raven.Client.Documents.Queries;
 using Raven.Client.Exceptions;
 using Raven.Client.Extensions;
 using Raven.Client.Json.Serialization;
 using Raven.Server.Documents.AI;
 using Raven.Server.Documents.ETL.Providers.AI;
+using Raven.Server.Documents.Handlers.Batches;
 using Raven.Server.Documents.Handlers.Processors.MultiGet;
 using Raven.Server.Extensions;
 using Raven.Server.NotificationCenter.Notifications.Details;
@@ -147,7 +150,8 @@ public partial class ConversationHandler(ServerStore server, DocumentDatabase da
                         break;
                     case CommandType.AttachmentPUT:
                         cmd.Id = _document.Id;
-                        if (it.MoveNext() == false) 
+                        TryApplyConfiguredRemoteDestination(cmd);
+                        if (it.MoveNext() == false)
                             throw new InvalidOperationException($"Missing attachment stream for '{cmd.Name}' in conversation '{_conversationId}'.");
 
                         it.Current.Stream.Position =0;
@@ -385,9 +389,6 @@ public partial class ConversationHandler(ServerStore server, DocumentDatabase da
         talker.Init();
         var toolsIterations = 0;
 
-        // Resolve deferred attachments before talking to the model
-        await ResolveDeferredAttachmentsAsync(_request.Attachments, token);
-
         AiResponse r = default;
         List<BlittableJsonReaderObject> historyDocs = default;
         bool shouldContinueConversation = true;
@@ -402,6 +403,12 @@ public partial class ConversationHandler(ServerStore server, DocumentDatabase da
             while (shouldContinueConversation)
             {
                 var attachments = _request.Attachments ?? new List<AiAttachment>();
+
+                // Resolve deferred attachments before each model round-trip. Internal tool calls
+                // (e.g. RetrieveAttachment) execute later in this iteration and enqueue more
+                // Deferred entries for the next iteration, so the resolver must run inside the
+                // loop, not only once before it.
+                await ResolveDeferredAttachmentsAsync(attachments, token);
 
                 database.ForTestingPurposes?.BeforeAiAgentTalk?.Invoke(talker.Document);
 
@@ -1153,6 +1160,21 @@ public partial class ConversationHandler(ServerStore server, DocumentDatabase da
                 attachment.Source = AiAttachmentSource.FromAttachment;
             }
         }
+    }
+
+    private void TryApplyConfiguredRemoteDestination(BatchRequestParser.CommandData cmd)
+    {
+        if (cmd.RemoteParameters != null)
+            return; // explicit caller intent wins
+
+        var destination = _configuration.ResolveRemoteDestinationForMime(cmd.ContentType);
+        if (string.IsNullOrEmpty(destination))
+            return; // no agent-level default for this MIME, or explicit local opt-out
+
+        cmd.RemoteParameters = new RemoteAttachmentParameters(destination, DateTime.UtcNow)
+        {
+            Flags = RemoteAttachmentFlags.Remote
+        };
     }
 
     private static readonly string SummarizationOutputSchema = ChatCompletionClient.GetSchemaFromSampleObject(JsonConvert.SerializeObject(new SummarizationSampleObject()));
