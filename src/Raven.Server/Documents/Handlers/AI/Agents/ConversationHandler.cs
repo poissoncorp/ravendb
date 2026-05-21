@@ -150,7 +150,7 @@ public partial class ConversationHandler(ServerStore server, DocumentDatabase da
                         break;
                     case CommandType.AttachmentPUT:
                         cmd.Id = _document.Id;
-                        TryApplyConfiguredRemoteDestination(cmd);
+                        TryApplyConfiguredDestination(cmd);
                         if (it.MoveNext() == false)
                             throw new InvalidOperationException($"Missing attachment stream for '{cmd.Name}' in conversation '{_conversationId}'.");
 
@@ -403,16 +403,16 @@ public partial class ConversationHandler(ServerStore server, DocumentDatabase da
             while (shouldContinueConversation)
             {
                 var attachments = _request.Attachments ?? new List<AiAttachment>();
+                var trace = debugTraces.CreateTrace();
 
                 // Resolve deferred attachments before each model round-trip. Internal tool calls
                 // (e.g. RetrieveAttachment) execute later in this iteration and enqueue more
                 // Deferred entries for the next iteration, so the resolver must run inside the
-                // loop, not only once before it.
-                await ResolveDeferredAttachmentsAsync(attachments, token);
+                // loop, not only once before it. The trace captures per-attachment download
+                // durations for the conversation performance view.
+                await ResolveDeferredAttachmentsAsync(attachments, trace, token);
 
                 database.ForTestingPurposes?.BeforeAiAgentTalk?.Invoke(talker.Document);
-
-                var trace = debugTraces.CreateTrace();
 
                 using var request = talker.CreateCompletionRequest(attachments, trace);
                 r = await talker.RunAsync(database.DocumentsStorage.ContextPool, request, trace, token);
@@ -1142,7 +1142,7 @@ public partial class ConversationHandler(ServerStore server, DocumentDatabase da
         }, token: token);
     }
 
-    private async Task ResolveDeferredAttachmentsAsync(List<AiAttachment> attachments, CancellationToken token)
+    private async Task ResolveDeferredAttachmentsAsync(List<AiAttachment> attachments, AiDebugTrace trace, CancellationToken token)
     {
         if (attachments == null)
             return;
@@ -1158,11 +1158,12 @@ public partial class ConversationHandler(ServerStore server, DocumentDatabase da
                 attachment.Data = await remote.GetAttachmentDataAsBase64Async(attachment.RemoteStorageId, attachment.Data, attachment.Type, token);
                 attachment.DownloadDurationInMs = sw.ElapsedMilliseconds;
                 attachment.Source = AiAttachmentSource.FromAttachment;
+                trace?.CaptureRemoteAttachmentResolution(attachment.Name, attachment.RemoteStorageId, attachment.DownloadDurationInMs);
             }
         }
     }
 
-    private void TryApplyConfiguredRemoteDestination(BatchRequestParser.CommandData cmd)
+    private void TryApplyConfiguredDestination(BatchRequestParser.CommandData cmd)
     {
         if (cmd.RemoteParameters != null)
             return; // explicit caller intent wins

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Raven.Client;
 using Raven.Server.Documents.ETL.Providers.AI;
 using Sparrow.Json;
@@ -20,6 +21,25 @@ public sealed class AiDebugTrace
 
     public BlittableJsonReaderObject Response;
     public List<BlittableJsonReaderObject> StreamEvents;
+
+    // Per-iteration capture of remote attachment download timings. Populated by
+    // ConversationHandler.ResolveDeferredAttachmentsAsync. Surfaces remote-store latency in
+    // the conversation debug document so operators can see how much of each LLM turn is
+    // spent fetching deferred attachments. Mirrors the data GenAi exposes through its
+    // GenAi/LoadToModel/RemoteAttachments stats scope, but without a full StatsScope
+    // infrastructure (which agents don't yet have).
+    public List<RemoteAttachmentResolution> RemoteAttachmentResolutions;
+
+    public void CaptureRemoteAttachmentResolution(string name, string remoteStorageId, long durationInMs)
+    {
+        RemoteAttachmentResolutions ??= [];
+        RemoteAttachmentResolutions.Add(new RemoteAttachmentResolution
+        {
+            Name = name,
+            RemoteStorageId = remoteStorageId,
+            DurationInMs = durationInMs
+        });
+    }
 
     public void CaptureRequestBody(string request)
     {
@@ -71,9 +91,24 @@ public sealed class AiDebugTrace
             [nameof(AttachmentNames)] = AttachmentNames == null ? null : new DynamicJsonArray(AttachmentNames),
             [nameof(RequestBody)] = RequestBody,
             [nameof(Response)] = Response,
-            [nameof(StreamEvents)] = StreamEvents == null ? null : new DynamicJsonArray(StreamEvents)
+            [nameof(StreamEvents)] = StreamEvents == null ? null : new DynamicJsonArray(StreamEvents),
+            [nameof(RemoteAttachmentResolutions)] = RemoteAttachmentResolutions == null
+                ? null
+                : new DynamicJsonArray(RemoteAttachmentResolutions.Select(r => (object)new DynamicJsonValue
+                {
+                    [nameof(RemoteAttachmentResolution.Name)] = r.Name,
+                    [nameof(RemoteAttachmentResolution.RemoteStorageId)] = r.RemoteStorageId,
+                    [nameof(RemoteAttachmentResolution.DurationInMs)] = r.DurationInMs
+                }))
         };
 
         return context.ReadObject(json, "ai-agent/debug-trace");
     }
+}
+
+public sealed class RemoteAttachmentResolution
+{
+    public string Name { get; set; }
+    public string RemoteStorageId { get; set; }
+    public long DurationInMs { get; set; }
 }
