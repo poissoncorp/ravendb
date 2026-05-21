@@ -210,16 +210,20 @@ public class AiAgentConfiguration : IDynamicJson
         if (RemoteAttachmentDestinationsByMime is { Count: > 0 } map && string.IsNullOrEmpty(mime) == false)
         {
             string longestKey = null;
+            string longestValue = null;
             foreach (var entry in map)
             {
                 if (MatchesMimeGlob(entry.Key, mime) == false)
                     continue;
                 if (longestKey == null || entry.Key.Length > longestKey.Length)
+                {
                     longestKey = entry.Key;
+                    longestValue = entry.Value;
+                }
             }
 
             if (longestKey != null)
-                return map[longestKey]; // may be empty => caller treats as "stay local"
+                return longestValue; // may be empty => caller treats as "stay local"
         }
 
         return DefaultRemoteAttachmentsDestination;

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Raven.Client;
 using Raven.Server.Documents.ETL.Providers.AI;
 using Sparrow.Json;
@@ -92,17 +91,28 @@ public sealed class AiDebugTrace
             [nameof(RequestBody)] = RequestBody,
             [nameof(Response)] = Response,
             [nameof(StreamEvents)] = StreamEvents == null ? null : new DynamicJsonArray(StreamEvents),
-            [nameof(RemoteAttachmentResolutions)] = RemoteAttachmentResolutions == null
-                ? null
-                : new DynamicJsonArray(RemoteAttachmentResolutions.Select(r => (object)new DynamicJsonValue
-                {
-                    [nameof(RemoteAttachmentResolution.Name)] = r.Name,
-                    [nameof(RemoteAttachmentResolution.RemoteStorageId)] = r.RemoteStorageId,
-                    [nameof(RemoteAttachmentResolution.DurationInMs)] = r.DurationInMs
-                }))
+            [nameof(RemoteAttachmentResolutions)] = BuildResolutionsJson()
         };
 
         return context.ReadObject(json, "ai-agent/debug-trace");
+    }
+
+    private DynamicJsonArray BuildResolutionsJson()
+    {
+        if (RemoteAttachmentResolutions == null)
+            return null;
+
+        var array = new DynamicJsonArray();
+        foreach (var r in RemoteAttachmentResolutions)
+        {
+            array.Add(new DynamicJsonValue
+            {
+                [nameof(RemoteAttachmentResolution.Name)] = r.Name,
+                [nameof(RemoteAttachmentResolution.RemoteStorageId)] = r.RemoteStorageId,
+                [nameof(RemoteAttachmentResolution.DurationInMs)] = r.DurationInMs
+            });
+        }
+        return array;
     }
 }
 
