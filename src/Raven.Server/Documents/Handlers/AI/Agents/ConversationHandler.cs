@@ -150,7 +150,7 @@ public partial class ConversationHandler(ServerStore server, DocumentDatabase da
                         break;
                     case CommandType.AttachmentPUT:
                         cmd.Id = _document.Id;
-                        TryApplyConfiguredDestination(cmd);
+                        ApplyConfiguredDestinationIfMissing(cmd);
                         if (it.MoveNext() == false)
                             throw new InvalidOperationException($"Missing attachment stream for '{cmd.Name}' in conversation '{_conversationId}'.");
 
@@ -1163,7 +1163,7 @@ public partial class ConversationHandler(ServerStore server, DocumentDatabase da
         }
     }
 
-    private void TryApplyConfiguredDestination(BatchRequestParser.CommandData cmd)
+    private void ApplyConfiguredDestinationIfMissing(BatchRequestParser.CommandData cmd)
     {
         if (cmd.RemoteParameters != null)
             return; // explicit caller intent wins
