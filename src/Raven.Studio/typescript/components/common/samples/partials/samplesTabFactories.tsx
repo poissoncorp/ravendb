@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { CodeLanguage } from "components/common/Code";
 import { MethodGroup, SampleScript, SamplesTab } from "./samplesTypes";
 import SampleScriptsList from "./SampleScriptsList";
@@ -12,6 +12,8 @@ export interface CreateSampleScriptsTabOptions {
 export interface CreateMethodsTabOptions {
     /** Language used to highlight the "Example usage" snippets. Defaults to "rql". */
     language?: CodeLanguage;
+    /** Caveat shown above the first group, for constraints that apply to the whole reference. */
+    notice?: ReactNode;
 }
 
 export function createSampleScriptsTab(scripts: SampleScript[], options?: CreateSampleScriptsTabOptions): SamplesTab {
@@ -29,13 +31,14 @@ export function createMethodsTab(methodGroups: MethodGroup[], options?: CreateMe
         label: "Methods",
         icon: "indent",
         hasSearch: true,
-        searchPlaceholder: "Search by signature",
-        content: ({ onSelect, search }) => (
+        searchPlaceholder: "Search methods",
+        content: ({ onInsert, search }) => (
             <MethodsTable
                 methodGroups={methodGroups}
                 search={search}
-                onSelect={onSelect}
+                onInsert={onInsert}
                 language={options?.language}
+                notice={options?.notice}
             />
         ),
     };

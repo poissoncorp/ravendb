@@ -13,10 +13,11 @@ import "./SamplesTabs.scss";
 export interface SamplesTabsProps {
     tabs: SamplesTab[];
     onSelect: (script: string) => void;
+    onInsert: (script: string) => void;
     onClose?: () => void;
 }
 
-export default function SamplesTabs({ tabs, onSelect, onClose }: SamplesTabsProps) {
+export default function SamplesTabs({ tabs, onSelect, onInsert, onClose }: SamplesTabsProps) {
     const [activeTabKey, setActiveTabKey] = useState(tabs[0]?.key);
     const [searchByTab, setSearchByTab] = useState<Record<string, string>>({});
     const tabContentRef = useRef<HTMLDivElement>(null);
@@ -88,7 +89,7 @@ export default function SamplesTabs({ tabs, onSelect, onClose }: SamplesTabsProp
                 <Tab.Content ref={tabContentRef}>
                     {tabs.map((tab) => (
                         <Tab.Pane key={tab.key} eventKey={tab.key}>
-                            {tab.content({ onSelect, search: searchByTab[tab.key] ?? "" })}
+                            {tab.content({ onSelect, onInsert, search: searchByTab[tab.key] ?? "" })}
                         </Tab.Pane>
                     ))}
                 </Tab.Content>

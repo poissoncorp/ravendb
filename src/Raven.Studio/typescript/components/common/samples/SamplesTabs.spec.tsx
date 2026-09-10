@@ -34,14 +34,37 @@ describe("SamplesTabs", () => {
             ),
         };
 
-        const { screen, fireClick } = rtlRender(<SamplesTabs tabs={[selectableTab]} onSelect={onSelect} />);
+        const { screen, fireClick } = rtlRender(
+            <SamplesTabs tabs={[selectableTab]} onSelect={onSelect} onInsert={jest.fn()} />
+        );
 
         await fireClick(screen.getByText("Load sample"));
         expect(onSelect).toHaveBeenCalledWith("loaded-script");
     });
 
+    it("propagates onInsert from tab content", async () => {
+        const onInsert = jest.fn();
+        const insertableTab: SamplesTab = {
+            key: "insertable",
+            label: "Insertable",
+            icon: "indent",
+            content: ({ onInsert: insert }) => (
+                <button type="button" onClick={() => insert("inserted-snippet")}>
+                    Insert sample
+                </button>
+            ),
+        };
+
+        const { screen, fireClick } = rtlRender(
+            <SamplesTabs tabs={[insertableTab]} onSelect={jest.fn()} onInsert={onInsert} />
+        );
+
+        await fireClick(screen.getByText("Insert sample"));
+        expect(onInsert).toHaveBeenCalledWith("inserted-snippet");
+    });
+
     it("renders only provided tabs and shows first tab content", () => {
-        const { screen } = rtlRender(<SamplesTabs tabs={[tabs[0]]} onSelect={jest.fn()} />);
+        const { screen } = rtlRender(<SamplesTabs tabs={[tabs[0]]} onSelect={jest.fn()} onInsert={jest.fn()} />);
 
         expect(screen.getByText("Tab one")).toBeInTheDocument();
         expect(screen.queryByText("Tab two")).not.toBeInTheDocument();
@@ -50,7 +73,7 @@ describe("SamplesTabs", () => {
     });
 
     it("shows search input only on tabs with hasSearch", async () => {
-        const { screen, fireClick } = rtlRender(<SamplesTabs tabs={tabs} onSelect={jest.fn()} />);
+        const { screen, fireClick } = rtlRender(<SamplesTabs tabs={tabs} onSelect={jest.fn()} onInsert={jest.fn()} />);
 
         expect(screen.queryByPlaceholderText("Search two")).not.toBeInTheDocument();
 
@@ -59,7 +82,7 @@ describe("SamplesTabs", () => {
     });
 
     it("persists search value across tab switches", async () => {
-        const { screen, fireClick } = rtlRender(<SamplesTabs tabs={tabs} onSelect={jest.fn()} />);
+        const { screen, fireClick } = rtlRender(<SamplesTabs tabs={tabs} onSelect={jest.fn()} onInsert={jest.fn()} />);
 
         await fireClick(screen.getByText("Tab two"));
 

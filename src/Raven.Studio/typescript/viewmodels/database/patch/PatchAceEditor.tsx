@@ -51,14 +51,6 @@ export default function PatchAceEditor({ query, languageService, validationError
         [query, checkSyntax]
     );
 
-    const handleLoadScript = useCallback(
-        (script: string) => {
-            query(script);
-            checkSyntax(script);
-        },
-        [query, checkSyntax]
-    );
-
     const handleEditorLoad = useCallback(() => {
         checkSyntax(query());
     }, [query, checkSyntax]);
@@ -78,7 +70,7 @@ export default function PatchAceEditor({ query, languageService, validationError
             actions={[
                 { component: <AceEditor.FullScreenAction /> },
                 { component: <AceEditor.FormatAction /> },
-                { component: <AceEditor.LoadFileAction onLoad={handleLoadScript} /> },
+                { component: <AceEditor.LoadFileAction onLoad={handleChange} /> },
             ]}
             samplesPanel={{ tabs: patchSamplesTabs }}
         />

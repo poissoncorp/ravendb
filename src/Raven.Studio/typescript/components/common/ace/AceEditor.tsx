@@ -81,15 +81,15 @@ function AceEditor(props: AceEditorProps) {
 
     const { value: isSamplesPanelOpen, toggle: toggleSamplesPanel } = useBoolean(false);
 
-    const hasSamplesPanel = samplesPanel?.tabs.length > 0;
+    // the editor is not editable in either case, and every sample action ends in a write, so offer none of it
+    const isSamplesPanelAvailable = samplesPanel?.tabs.length > 0 && !readOnly && !disabled;
 
-    const samplesToggleAction: ActionItem | null =
-        hasSamplesPanel && !readOnly
-            ? {
-                  component: <AceEditorSamplesToggleAction onClick={toggleSamplesPanel} />,
-                  position: "bottom",
-              }
-            : null;
+    const samplesToggleAction: ActionItem | null = isSamplesPanelAvailable
+        ? {
+              component: <AceEditorSamplesToggleAction onClick={toggleSamplesPanel} />,
+              position: "bottom",
+          }
+        : null;
 
     const validActions = [...actions, samplesToggleAction].filter(Boolean);
 
@@ -186,6 +186,21 @@ function AceEditor(props: AceEditorProps) {
         onChange?.(script);
     };
 
+    // used by the methods reference, whose snippets illustrate a single call - replacing the whole
+    // script with such a one-liner is never the intent, so it goes in at the caret instead.
+    // ace fires its own onChange for this, which is already wired to the form, so no onChange call here.
+    const handleSampleInsert = (script: string) => {
+        const editor = aceRef.current?.editor;
+
+        if (!editor) {
+            return;
+        }
+
+        const isAtLineStart = editor.getCursorPosition().column === 0;
+        editor.insert(`${isAtLineStart ? "" : "\n"}${script}\n`);
+        editor.focus();
+    };
+
     const handleBrowseSamplesClick = (e: MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
@@ -193,7 +208,9 @@ function AceEditor(props: AceEditorProps) {
         aceRef.current?.editor.focus();
     };
 
-    const showSamplesPlaceholder = hasSamplesPanel && !readOnly && !disabled && !placeholder && !value;
+    const showSamplesPlaceholder = isSamplesPanelAvailable && !placeholder && !value;
+    // "//" only reads as a comment in the script editors; in a JSON or plain-text field it is just noise
+    const samplesPlaceholderPrefix = props.mode === "javascript" || props.mode === "rql" ? "// " : "";
 
     const handleLoad = (editor: Ace.Editor) => {
         // (ctrl+k is used for studio search)
@@ -273,7 +290,7 @@ function AceEditor(props: AceEditorProps) {
                     {showSamplesPlaceholder && (
                         <div className="ace-samples-placeholder">
                             <span className="ace-samples-placeholder__text">
-                                {"// Start writing, or "}
+                                {`${samplesPlaceholderPrefix}Start writing, or `}
                                 <button
                                     type="button"
                                     className="ace-samples-placeholder__link"
@@ -304,11 +321,12 @@ function AceEditor(props: AceEditorProps) {
                     onDoubleClick={() => handleAutoResizeHeight(aceRef, resizableHeight.setHeight)}
                 />
             </div>
-            {hasSamplesPanel && (
+            {isSamplesPanelAvailable && (
                 <AceEditorSamplesPanel
-                    isOpen={isSamplesPanelOpen && !readOnly}
+                    isOpen={isSamplesPanelOpen}
                     tabs={samplesPanel.tabs}
                     onSelect={handleSampleSelect}
+                    onInsert={handleSampleInsert}
                     onClose={toggleSamplesPanel}
                 />
             )}

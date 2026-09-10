@@ -25,10 +25,17 @@ interface AceEditorSamplesPanelProps {
     isOpen: boolean;
     tabs: SamplesTab[];
     onSelect: (script: string) => void;
+    onInsert: (script: string) => void;
     onClose: () => void;
 }
 
-export default function AceEditorSamplesPanel({ isOpen, tabs, onSelect, onClose }: AceEditorSamplesPanelProps) {
+export default function AceEditorSamplesPanel({
+    isOpen,
+    tabs,
+    onSelect,
+    onInsert,
+    onClose,
+}: AceEditorSamplesPanelProps) {
     return (
         <AnimatePresence>
             {isOpen && (
@@ -40,7 +47,7 @@ export default function AceEditorSamplesPanel({ isOpen, tabs, onSelect, onClose 
                     transition={{ duration: 0.2 }}
                     style={{ overflow: "hidden" }}
                 >
-                    <SamplesTabs tabs={tabs} onSelect={onSelect} onClose={onClose} />
+                    <SamplesTabs tabs={tabs} onSelect={onSelect} onInsert={onInsert} onClose={onClose} />
                 </motion.div>
             )}
         </AnimatePresence>

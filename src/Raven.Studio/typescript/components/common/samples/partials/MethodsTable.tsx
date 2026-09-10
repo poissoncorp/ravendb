@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { ReactNode, useState } from "react";
 import Card from "react-bootstrap/Card";
 import Col from "react-bootstrap/Col";
 import Collapse from "react-bootstrap/Collapse";
@@ -9,32 +9,46 @@ import Code, { CodeLanguage } from "components/common/Code";
 import { EmptySet } from "components/common/EmptySet";
 import { Icon } from "components/common/Icon";
 import { MethodEntry, MethodGroup } from "./samplesTypes";
-import LoadButton from "./LoadButton";
+import InsertButton from "./InsertButton";
 
 interface MethodsTableProps {
     methodGroups: MethodGroup[];
     search: string;
-    onSelect: (script: string) => void;
+    onInsert: (script: string) => void;
     language?: CodeLanguage;
+    /** Rendered above the first group, for caveats that apply to the whole reference. */
+    notice?: ReactNode;
 }
 
-export default function MethodsTable({ methodGroups, search, onSelect, language = "rql" }: MethodsTableProps) {
+function matchesSearch(method: MethodEntry, category: string, search: string) {
+    if (!search) {
+        return true;
+    }
+
+    const needle = search.toLowerCase();
+    const haystack = [method.signature, category, ...(method.keywords ?? [])];
+
+    return haystack.some((term) => term.toLowerCase().includes(needle));
+}
+
+export default function MethodsTable({ methodGroups, search, onInsert, language = "rql", notice }: MethodsTableProps) {
     const filteredGroups = methodGroups
         .map((group) => ({
             ...group,
-            methods: group.methods.filter((method) => method.signature.toLowerCase().includes(search.toLowerCase())),
+            methods: group.methods.filter((method) => matchesSearch(method, group.category, search)),
         }))
         .filter((group) => group.methods.length > 0);
 
     return (
         <div className="methods-table vstack gap-3 px-3 py-2">
+            {notice && !search && <div>{notice}</div>}
             {filteredGroups.length === 0 && (
                 <EmptySet compact>
                     {search ? "No available methods match your search." : "No methods are available."}
                 </EmptySet>
             )}
             {filteredGroups.map((group) => (
-                <MethodGroupCard key={group.category} group={group} onSelect={onSelect} language={language} />
+                <MethodGroupCard key={group.category} group={group} onInsert={onInsert} language={language} />
             ))}
         </div>
     );
@@ -42,11 +56,11 @@ export default function MethodsTable({ methodGroups, search, onSelect, language 
 
 interface MethodGroupCardProps {
     group: MethodGroup;
-    onSelect: (script: string) => void;
+    onInsert: (script: string) => void;
     language: CodeLanguage;
 }
 
-function MethodGroupCard({ group, onSelect, language }: MethodGroupCardProps) {
+function MethodGroupCard({ group, onInsert, language }: MethodGroupCardProps) {
     return (
         <div>
             <h4 className="mb-2 mt-0">{group.category}</h4>
@@ -63,7 +77,7 @@ function MethodGroupCard({ group, onSelect, language }: MethodGroupCardProps) {
                     </Col>
                 </Row>
                 {group.methods.map((method) => (
-                    <MethodRow key={method.signature} method={method} onSelect={onSelect} language={language} />
+                    <MethodRow key={method.signature} method={method} onInsert={onInsert} language={language} />
                 ))}
             </Card>
         </div>
@@ -72,13 +86,13 @@ function MethodGroupCard({ group, onSelect, language }: MethodGroupCardProps) {
 
 interface MethodRowProps {
     method: MethodEntry;
-    onSelect: (script: string) => void;
+    onInsert: (script: string) => void;
     language: CodeLanguage;
 }
 
-function MethodRow({ method, onSelect, language }: MethodRowProps) {
+function MethodRow({ method, onInsert, language }: MethodRowProps) {
     const [open, setOpen] = useState(false);
-    const hasExample = !!method.sampleScript;
+    const hasExample = !!method.sampleScript && !method.isUnavailable;
 
     const toggle = () => {
         if (hasExample) {
@@ -91,6 +105,7 @@ function MethodRow({ method, onSelect, language }: MethodRowProps) {
             <Row
                 className={classNames("mx-0 border-top border-color-light method-row", {
                     "method-row--expandable": hasExample,
+                    "method-row--unavailable": method.isUnavailable,
                 })}
                 onClick={toggle}
             >
@@ -123,7 +138,7 @@ function MethodRow({ method, onSelect, language }: MethodRowProps) {
                                 language={language}
                                 isRunQueryHidden
                                 isTitleHidden
-                                extraActions={<LoadButton onSelect={() => onSelect(method.sampleScript)} />}
+                                extraActions={<InsertButton onInsert={() => onInsert(method.sampleScript)} />}
                             />
                         </div>
                     </div>

@@ -92,6 +92,15 @@
             line-height: 1;
             vertical-align: middle;
         }
+
+        // exists in the engine but must not be called here, so it reads as struck-through reference material
+        &--unavailable {
+            opacity: 0.65;
+
+            > div:first-child code {
+                text-decoration: line-through;
+            }
+        }
     }
 
     .method-example {
