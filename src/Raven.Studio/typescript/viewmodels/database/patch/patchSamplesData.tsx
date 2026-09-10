@@ -156,12 +156,12 @@ update {
 }`,
             },
             {
-                signature: "getMetadata(document)",
+                signature: "getMetadata(document) / metadataFor(document)",
                 returnType: "object",
                 description: (
                     <>
                         Returns the document&apos;s metadata, e.g. <code>@id</code>, <code>@collection</code>,{" "}
-                        <code>@last-modified</code>. Also available as <code>metadataFor(document)</code>.
+                        <code>@last-modified</code>.
                     </>
                 ),
                 sampleScript: `// Read the collection name from metadata into a field.
@@ -172,11 +172,12 @@ update {
             },
             {
                 signature: "lastModified(document)",
-                returnType: "number",
+                returnType: "number | undefined",
+                keywords: ["utc", "epoch", "timestamp"],
                 description: (
                     <>
                         Returns the document&apos;s last modification time as JavaScript milliseconds since the Unix
-                        epoch (UTC).
+                        epoch (UTC), or <code>undefined</code> for a document that has none yet.
                     </>
                 ),
                 sampleScript: `// Store each order's last-modified time (ms) in a field.
@@ -485,9 +486,13 @@ update {
             {
                 signature: "regex(inputString, regex)",
                 returnType: "boolean",
+                keywords: ["regexp", "match", "pattern", ".net"],
                 description: (
                     <>
-                        Returns <code>true</code> if <code>inputString</code> matches the specified regex pattern.
+                        Returns <code>true</code> if <code>inputString</code> matches the specified regex pattern. The
+                        pattern uses <strong>.NET</strong> regular expression syntax, not JavaScript, so inline options
+                        such as <code>(?i)</code> work while JavaScript-style flags do not. Evaluated server-side, with
+                        the timeout from the <code>Queries.RegexTimeout</code> configuration.
                     </>
                 ),
                 sampleScript: `// Flag companies whose name contains a digit.
@@ -538,7 +543,7 @@ update {
         methods: [
             {
                 signature: "Raven_Min(value1, value2)",
-                returnType: "number | string | boolean",
+                returnType: "number | string | boolean | null | undefined",
                 description: (
                     <>Returns the smaller value. Supports numbers, strings, booleans, and null/undefined values.</>
                 ),
@@ -550,7 +555,7 @@ update {
             },
             {
                 signature: "Raven_Max(value1, value2)",
-                returnType: "number | string | boolean",
+                returnType: "number | string | boolean | null | undefined",
                 description: (
                     <>Returns the larger value. Supports numbers, strings, booleans, and null/undefined values.</>
                 ),
@@ -707,10 +712,13 @@ update {
             {
                 signature: "crypto.digest(algorithm, data)",
                 returnType: "string",
+                keywords: ["hash", "sha256", "base64"],
                 description: (
                     <>
                         Computes a Base64-encoded hash of <code>data</code> using <code>SHA-256</code>,{" "}
-                        <code>SHA-384</code>, or <code>SHA-512</code>.
+                        <code>SHA-384</code>, or <code>SHA-512</code>. A string <code>data</code> is hashed as UTF-8
+                        bytes. The whole async <code>crypto.subtle</code> surface is unavailable, so use these
+                        synchronous methods.
                     </>
                 ),
                 sampleScript: `// Compute a SHA-256 hash of the order ID.
@@ -722,9 +730,12 @@ update {
             {
                 signature: "crypto.sign(hash, key, data)",
                 returnType: "string",
+                keywords: ["hmac", "base64", "utf-8"],
                 description: (
                     <>
-                        Computes a Base64-encoded HMAC signature over <code>data</code>.
+                        Computes a Base64-encoded HMAC signature over <code>data</code>. Note the asymmetry with the AES
+                        methods below: here a string <code>key</code> is taken as its <strong>UTF-8 bytes</strong>, so a
+                        passphrase works as is, and any key length is accepted.
                     </>
                 ),
                 sampleScript: `// Compute an HMAC signature over the order ID.
@@ -736,9 +747,11 @@ update {
             {
                 signature: "crypto.verify(hash, key, signature, data)",
                 returnType: "boolean",
+                keywords: ["hmac", "base64"],
                 description: (
                     <>
-                        Verifies an HMAC signature over <code>data</code>.
+                        Verifies an HMAC signature over <code>data</code>, using a fixed-time comparison.{" "}
+                        <code>key</code> follows the same UTF-8 rule as <code>crypto.sign</code>.
                     </>
                 ),
                 sampleScript: `// Verify an HMAC signature over the order ID.
@@ -751,9 +764,13 @@ update {
             {
                 signature: "crypto.encryptAesGcm(iv, key, data)",
                 returnType: "string",
+                keywords: ["aes", "base64", "encrypt"],
                 description: (
                     <>
-                        Encrypts <code>data</code> with AES-GCM and returns it Base64-encoded.
+                        Encrypts <code>data</code> with AES-GCM and returns it Base64-encoded (payload followed by the
+                        16-byte tag). <code>iv</code> and <code>key</code> given as strings are{" "}
+                        <strong>Base64-decoded</strong>, not read as text, so a plain passphrase throws. The decoded key
+                        must be 16, 24 or 32 bytes, and the IV should be 12 bytes and never reused with the same key.
                     </>
                 ),
                 sampleScript: `// Encrypt the company field with AES-GCM.
@@ -767,10 +784,13 @@ update {
             {
                 signature: "crypto.decryptAesGcm(iv, key, data, outputType?)",
                 returnType: "string | ArrayBuffer",
+                keywords: ["aes", "base64", "decrypt"],
                 description: (
                     <>
-                        Decrypts AES-GCM <code>data</code>. <code>outputType</code>: <code>&apos;string&apos;</code>{" "}
-                        (default), <code>&apos;raw&apos;</code>, or <code>&apos;buffer&apos;</code>.
+                        Decrypts AES-GCM <code>data</code>. <code>iv</code>, <code>key</code> and a string{" "}
+                        <code>data</code> are all Base64. <code>outputType</code>: <code>&apos;string&apos;</code>{" "}
+                        (default), <code>&apos;raw&apos;</code>, or <code>&apos;buffer&apos;</code>, the last two
+                        returning an <code>ArrayBuffer</code>.
                     </>
                 ),
                 sampleScript: `// Decrypt an encrypted company field.
@@ -788,14 +808,9 @@ update {
         category: "Debugging",
         methods: [
             {
-                signature: "output(message)",
+                signature: "output(message) / console.log(message)",
                 returnType: "void",
-                description: (
-                    <>
-                        Prints a message to the debug output when testing. Also available as{" "}
-                        <code>console.log(message)</code>.
-                    </>
-                ),
+                description: <>Prints a message to the debug output when testing.</>,
                 sampleScript: `// Print a debug message for each order being patched.
 from Orders as o
 update {
