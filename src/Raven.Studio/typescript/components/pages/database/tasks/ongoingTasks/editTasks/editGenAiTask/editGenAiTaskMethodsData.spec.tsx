@@ -17,6 +17,7 @@ const contextOnlySignatures = [
     "hasCounter(name)",
     "getTimeSeries()",
     "hasTimeSeries(timeSeriesName)",
+    "loadTo(...) / loadCounter(...) / loadTimeSeries(...)",
 ];
 
 const updateOnlySignatures = [
@@ -25,10 +26,18 @@ const updateOnlySignatures = [
     "put(id, document[, changeVector])",
     "del(documentId[, changeVector])",
     "archived.archiveAt(document, utcDateString)",
+    "incrementCounter(document, name, value = 1) / deleteCounter(document, name)",
+    "timeseries(document, name).append(...) / .increment(...) / .delete(...)",
+    "attachments(document, name).delete() / .copyFrom(...) / .remote(...)",
+    "archived.unarchive(document)",
 ];
 
 function getSignatures(groups: MethodGroup[]) {
     return groups.flatMap((group) => group.methods.map((method) => method.signature));
+}
+
+function getMethods(groups: MethodGroup[]) {
+    return groups.flatMap((group) => group.methods);
 }
 
 function getSampleScripts(groups: MethodGroup[]) {
@@ -60,5 +69,34 @@ describe("editGenAiTaskMethodsData", () => {
         expect(getSampleScripts(updateScriptMethodGroups)).not.toMatch(
             /\b(ai\.|loadAttachment|hasAttachment|getAttachments|getRevisionsCount|getCounters|hasCounter|getTimeSeries|hasTimeSeries)\s*\(/
         );
+    });
+
+    it.each([
+        ["context generation script", contextScriptMethodGroups],
+        ["update script", updateScriptMethodGroups],
+    ])("offers no runnable example for a method that must not be called (%s)", (_label, groups) => {
+        const unavailable = getMethods(groups).filter((method) => method.isUnavailable);
+
+        expect(unavailable.length).toBeGreaterThan(0);
+        expect(unavailable.every((method) => !method.sampleScript)).toBe(true);
+    });
+
+    it.each([
+        ["context generation script", contextScriptMethodGroups],
+        ["update script", updateScriptMethodGroups],
+    ])("warns about the unsupported mutations rather than hiding them (%s)", (_label, groups) => {
+        const signatures = getSignatures(groups);
+
+        // crypto.subtle throws in both scripts, so both references have to mention it
+        expect(signatures).toContain("crypto.subtle.*");
+        expect(groups.some((group) => group.category === "Not available in GenAI scripts")).toBe(true);
+    });
+
+    it("gives every usable method an example", () => {
+        const usable = [...getMethods(contextScriptMethodGroups), ...getMethods(updateScriptMethodGroups)].filter(
+            (method) => !method.isUnavailable
+        );
+
+        expect(usable.filter((method) => !method.sampleScript)).toEqual([]);
     });
 });

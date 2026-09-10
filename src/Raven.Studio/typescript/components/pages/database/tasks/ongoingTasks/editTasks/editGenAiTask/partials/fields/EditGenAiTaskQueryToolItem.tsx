@@ -12,7 +12,11 @@ import ReactAce from "react-ace";
 import Button from "react-bootstrap/Button";
 import { useFormContext, useWatch } from "react-hook-form";
 import { EditGenAiTaskFormData } from "../../utils/editGenAiTaskValidation";
-import { queryToolParametersSamplesTabs, queryToolParametersSchemaSamplesTabs } from "../../editGenAiTaskSamplesData";
+import {
+    queryToolParametersSamplesTabs,
+    queryToolParametersSchemaSamplesTabs,
+    queryToolQuerySamplesTabs,
+} from "../../editGenAiTaskSamplesData";
 import { SelectOption } from "components/common/select/Select";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import Accordion from "react-bootstrap/Accordion";
@@ -165,6 +169,7 @@ export default function EditGenAiTaskQueryToolItem({ index, remove, save, edit }
                     mode="rql"
                     languageService={rqlLanguageService}
                     actions={[{ component: <AceEditor.FullScreenAction /> }, { component: <AceEditor.FormatAction /> }]}
+                    samplesPanel={{ tabs: queryToolQuerySamplesTabs }}
                     placeholder={queryFieldQueryPlaceholder}
                 />
             </FormGroup>
@@ -311,14 +316,15 @@ const queryFieldDescriptionPlaceholder = `In this description, explain to the LL
 Example 1: Use this query to retrieve Order documents from the database filtered by destination country and company.
 Example 2: Use this query to perform a semantic search for products similar to those in the customer's order.`;
 
-const queryFieldQueryPlaceholder = `// Enter the query that will run against the database. 
+const queryFieldQueryPlaceholder = `// Enter the query that will run against the database.
 // You can query an existing static index or make a dynamic query. For example:
-// Example 1: from "Orders" where ShipTo.Country == $country" and Company == $company"
+// Example 1: from "Orders" where ShipTo.Country == $country and Company == $company
 // Example 2: from "Products" where vector.search(embedding.text(Name), $searchTerm, $similarityLevel)
 
 // When using a parameter (e.g., $country), if it's defined as a property in the context object (from the previous step),
 // its value will be taken from the generated context.
-// Otherwise, you must define the parameter manually in the "Sample parameters object" section below.`;
+// Otherwise, you must define the parameter manually in the "Sample parameters object" section below.
+// Open the (?) icon to browse sample queries.`;
 
 const queryFieldSampleObjectPlaceholder = `{
     // "ParamName": "Instruction to the LLM",
@@ -326,7 +332,7 @@ const queryFieldSampleObjectPlaceholder = `{
     // "ParamName" is the name of a parameter from the query for which the LLM needs to provide a value.
     // The value ("Instruction to the LLM") is a natural-language instruction that tells the LLM what value to supply in this field.
 }
-Open the (?) icon to view an example.`;
+Open the (?) icon to browse samples.`;
 
 const isAllowModelQueriesOptions: SelectOption<boolean>[] = [
     { label: "True", value: true },
