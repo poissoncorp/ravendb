@@ -32,8 +32,17 @@ interface GenAiMethodGroup {
  *    It can modify the current document and use `put`/`del`, and it gets the `$input` / `$output` arguments.
  *    It has no `ai` API.
  *
- * Counter, time-series, and attachment mutations and `archived.unarchive` are intentionally omitted.
- * The production GenAI update path does not run the PatchDocumentCommand finalization that those operations require.
+ * Counter, time-series and attachment mutations, and `archived.unarchive`, are NOT usable in a GenAI task.
+ * They are still registered in the engine, so they neither throw nor no-op cleanly: `incrementCounter` writes the
+ * counter value to storage while the document's `@counters` metadata stays untouched, `archived.unarchive` strips the
+ * `@archived` marker while the Archived document flag stays set, and so on. The bookkeeping they rely on lives in
+ * `PatchDocumentCommand.AddResolveFlagOrUpdateRelatedDocuments`, which the production update path
+ * (`GenAiBatchPatchCommand`) never runs. Rather than omit them silently, they are listed in the
+ * "Not available in GenAI scripts" group, with a `returnType` that says so and no example to load, so a user who
+ * reaches for them finds out why instead of shipping a half-written document.
+ *
+ * The same applies to the ETL-only entry points (`loadTo`, `loadCounter`, `loadTimeSeries`): they exist in the context
+ * script's engine because it is an ETL transformer, but `GenAiScriptTransformer` overrides them to throw.
  */
 const genAiMethodGroups: GenAiMethodGroup[] = [
     {
@@ -47,8 +56,11 @@ const genAiMethodGroups: GenAiMethodGroup[] = [
                     <>
                         Emits one context object, built from the <code>ctx</code> object you pass in. Each context
                         object is sent to the model as a separate request, so call this once per item you want the model
-                        to reason about. <code>ctx</code> must be a plain object; do not pass <code>null</code> or an
-                        array. Returns the context item, so attachments can be chained onto it.{" "}
+                        to reason about. <code>ctx</code> must be a plain object: an array is rejected outright, and{" "}
+                        <code>null</code> fails later with an unhelpful error, so pass an object even when it is empty.
+                        Returns the context item, so attachments can be chained onto it. The script is{" "}
+                        <strong>required</strong> to call this at least once, otherwise saving the task fails with{" "}
+                        <em>&quot;You must call the ai.genContext(ctx) function in your script&quot;</em>.{" "}
                         <strong>Context generation script only.</strong>
                     </>
                 ),
@@ -226,16 +238,23 @@ const genAiMethodGroups: GenAiMethodGroup[] = [
                 description: (
                     <>
                         Loads an attachment of the source document so it can be passed to one of the{" "}
-                        <code>AIContextItem</code> attachment methods. In a GenAI task a missing attachment resolves to
-                        an empty attachment rather than throwing, so guard with <code>hasAttachment()</code> when the
-                        attachment is optional. <strong>Context generation script only.</strong>
+                        <code>AIContextItem</code> attachment methods. A missing attachment does not throw: in a GenAI
+                        task it comes back as <code>null</code>, and the <code>withText()</code> /{" "}
+                        <code>withPng()</code> family accepts <code>null</code>, so an optional attachment can be
+                        chained without any guard. Test the result yourself, or call <code>hasAttachment()</code>, only
+                        when the script has to behave differently for a document without one.{" "}
+                        <strong>Context generation script only.</strong>
                     </>
                 ),
                 sampleScript: dedent`
-                    // Only attach the image when the document actually has one.
-                    if (hasAttachment("heart.png")) {
-                        ai.genContext({ Id: id(this) })
-                            .withPng(loadAttachment("heart.png"));
+                    // A missing attachment yields null, which withPng() accepts - no guard needed.
+                    ai.genContext({ Id: id(this) })
+                        .withPng(loadAttachment("heart.png"));
+
+                    // Branch explicitly only when the two cases need different context objects.
+                    const transcript = loadAttachment("transcript.txt");
+                    if (transcript === null) {
+                        ai.genContext({ Id: id(this), Note: "No transcript available" });
                     }
                 `,
             },
@@ -246,7 +265,9 @@ const genAiMethodGroups: GenAiMethodGroup[] = [
                 description: (
                     <>
                         Returns whether the source document has an attachment with this name. The comparison is
-                        case-insensitive. <strong>Context generation script only.</strong>
+                        case-insensitive. Not needed just to avoid an error, because <code>loadAttachment()</code>{" "}
+                        already returns <code>null</code> for a missing attachment.{" "}
+                        <strong>Context generation script only.</strong>
                     </>
                 ),
                 sampleScript: dedent`
@@ -283,8 +304,8 @@ const genAiMethodGroups: GenAiMethodGroup[] = [
                 scope: "context",
                 description: (
                     <>
-                        Returns how many revisions the source document has. Takes no arguments.{" "}
-                        <strong>Context generation script only.</strong>
+                        Returns how many revisions the source document has, or <code>0</code> when revisions are not
+                        enabled for it. Takes no arguments. <strong>Context generation script only.</strong>
                     </>
                 ),
                 sampleScript: dedent`
@@ -324,11 +345,11 @@ const genAiMethodGroups: GenAiMethodGroup[] = [
             },
             {
                 signature: "lastModified(document)",
-                returnType: "number",
+                returnType: "number | undefined",
                 description: (
                     <>
                         Returns the document&apos;s last modification time as JavaScript milliseconds since the Unix
-                        epoch (UTC).
+                        epoch (UTC), or <code>undefined</code> for a document that has none yet.
                     </>
                 ),
                 sampleScript: `output("Last modified: " + lastModified(this));`,
@@ -383,9 +404,11 @@ const genAiMethodGroups: GenAiMethodGroup[] = [
                 description: (
                     <>
                         Creates or overwrites a document and returns its ID. Pass an ID ending in <code>/</code> to get
-                        a server-generated identifier. <strong>Update script only</strong> &mdash; the context
-                        generation script runs read-only and this throws{" "}
-                        <em>&quot;Cannot make modifications in readonly context&quot;</em>.
+                        a server-generated identifier. Use it for <em>other</em> documents: the task writes the source
+                        document itself at the end of the run, so a <code>put()</code> aimed at <code>id(this)</code> is
+                        overwritten. To change the source document, assign to <code>this</code> instead.{" "}
+                        <strong>Update script only</strong> &mdash; the context generation script runs read-only and
+                        this throws <em>&quot;Cannot make modifications in readonly context&quot;</em>.
                     </>
                 ),
                 sampleScript: dedent`
@@ -405,9 +428,10 @@ const genAiMethodGroups: GenAiMethodGroup[] = [
                 scope: "update",
                 description: (
                     <>
-                        Deletes a document and returns whether it existed. <strong>Update script only</strong> &mdash;
-                        the context generation script runs read-only and this throws{" "}
-                        <em>&quot;Cannot make modifications in readonly context&quot;</em>.
+                        Deletes a document and returns whether it existed. Use it for <em>other</em> documents: the task
+                        writes the source document back at the end of the run, so deleting <code>id(this)</code> here
+                        does not stick. <strong>Update script only</strong> &mdash; the context generation script runs
+                        read-only and this throws <em>&quot;Cannot make modifications in readonly context&quot;</em>.
                     </>
                 ),
                 sampleScript: dedent`
@@ -422,7 +446,10 @@ const genAiMethodGroups: GenAiMethodGroup[] = [
                 scope: "update",
                 description: (
                     <>
-                        Schedules the document to be archived at the given UTC time.{" "}
+                        Schedules the document to be archived at the given UTC time by writing <code>@archive-at</code>{" "}
+                        into its metadata. A document that is already archived is left alone. Unlike <code>put()</code>{" "}
+                        and <code>del()</code> this one does not throw in the context generation script, it simply has
+                        no effect there, because that script&apos;s result is never persisted.{" "}
                         <strong>Update script only.</strong>
                     </>
                 ),
@@ -460,8 +487,8 @@ const genAiMethodGroups: GenAiMethodGroup[] = [
                 scope: "context",
                 description: (
                     <>
-                        Returns whether the source document has a counter with this name.{" "}
-                        <strong>Context generation script only.</strong>
+                        Returns whether the source document has a counter with this name. The comparison is
+                        case-insensitive. <strong>Context generation script only.</strong>
                     </>
                 ),
                 sampleScript: dedent`
@@ -529,8 +556,8 @@ const genAiMethodGroups: GenAiMethodGroup[] = [
                 scope: "context",
                 description: (
                     <>
-                        Returns whether the source document has a time series with this name.{" "}
-                        <strong>Context generation script only.</strong>
+                        Returns whether the source document has a time series with this name. The comparison is
+                        case-insensitive. <strong>Context generation script only.</strong>
                     </>
                 ),
                 sampleScript: dedent`
@@ -597,8 +624,10 @@ const genAiMethodGroups: GenAiMethodGroup[] = [
                 returnType: "boolean",
                 description: (
                     <>
-                        Returns whether the string matches the regular expression. Evaluated server-side with a
-                        configurable timeout.
+                        Returns whether the string matches the regular expression. The pattern uses{" "}
+                        <strong>.NET</strong> regular expression syntax, not JavaScript, so inline options such as{" "}
+                        <code>(?i)</code> work while JavaScript-style flags do not. Evaluated server-side, with the
+                        timeout from the <code>Queries.RegexTimeout</code> configuration.
                     </>
                 ),
                 sampleScript: dedent`
@@ -800,7 +829,7 @@ const genAiMethodGroups: GenAiMethodGroup[] = [
                     <>
                         Returns the base64 hash of <code>data</code>. <code>algorithm</code> may be{" "}
                         <code>&quot;SHA-256&quot;</code>, <code>&quot;SHA-384&quot;</code> or{" "}
-                        <code>&quot;SHA-512&quot;</code>. The async <code>crypto.subtle.digest</code> is not available.
+                        <code>&quot;SHA-512&quot;</code>. A string <code>data</code> is hashed as UTF-8 bytes.
                     </>
                 ),
                 sampleScript: dedent`
@@ -813,7 +842,9 @@ const genAiMethodGroups: GenAiMethodGroup[] = [
                 returnType: "string",
                 description: (
                     <>
-                        Returns a base64 HMAC signature of <code>data</code> using <code>key</code>.
+                        Returns a base64 HMAC signature of <code>data</code> using <code>key</code>. Note the asymmetry
+                        with the AES methods below: here a string <code>key</code> is taken as its{" "}
+                        <strong>UTF-8 bytes</strong>, so a passphrase works as is. Any key length is accepted.
                     </>
                 ),
                 sampleScript: dedent`
@@ -826,7 +857,8 @@ const genAiMethodGroups: GenAiMethodGroup[] = [
                 returnType: "boolean",
                 description: (
                     <>
-                        Verifies a base64 HMAC signature produced by <code>crypto.sign</code>.
+                        Verifies a base64 HMAC signature produced by <code>crypto.sign</code>, using a fixed-time
+                        comparison. <code>key</code> follows the same UTF-8 rule as <code>crypto.sign</code>.
                     </>
                 ),
                 sampleScript: dedent`
@@ -839,13 +871,18 @@ const genAiMethodGroups: GenAiMethodGroup[] = [
                 returnType: "string",
                 description: (
                     <>
-                        Encrypts <code>data</code> with AES-GCM and returns base64 ciphertext. The async{" "}
-                        <code>crypto.subtle.encrypt</code> is not available.
+                        Encrypts <code>data</code> with AES-GCM and returns base64 ciphertext (payload followed by the
+                        16-byte tag). <code>iv</code> and <code>key</code> given as strings are{" "}
+                        <strong>base64-decoded</strong>, not read as text, so a plain passphrase throws. The decoded key
+                        must be 16, 24 or 32 bytes, and the IV should be 12 bytes and never reused with the same key.{" "}
+                        <code>data</code> as a string is taken as UTF-8.
                     </>
                 ),
                 sampleScript: dedent`
-                    const encrypted = crypto.encryptAesGcm(this.Iv, this.Key, this.Text);
-                    output("Encrypted text: " + encrypted);
+                    // iv and key are base64, so generate them as base64 too.
+                    const iv = crypto.getRandomValuesBase64(12);
+                    const encrypted = crypto.encryptAesGcm(iv, this.Base64Key, this.Text);
+                    output("Encrypted text: " + encrypted + " (iv: " + iv + ")");
                 `,
             },
             {
@@ -853,12 +890,15 @@ const genAiMethodGroups: GenAiMethodGroup[] = [
                 returnType: "string | ArrayBuffer",
                 description: (
                     <>
-                        Decrypts AES-GCM ciphertext. <code>outputType</code> may be <code>&quot;string&quot;</code>,{" "}
-                        <code>&quot;raw&quot;</code>, or <code>&quot;buffer&quot;</code>.
+                        Decrypts AES-GCM ciphertext produced by <code>crypto.encryptAesGcm</code>. <code>iv</code> and{" "}
+                        <code>key</code> follow the same base64 rule as when encrypting, and <code>data</code> as a
+                        string is base64 too. <code>outputType</code> defaults to <code>&quot;string&quot;</code> (UTF-8
+                        text) and may also be <code>&quot;raw&quot;</code> or <code>&quot;buffer&quot;</code>, which
+                        both return an <code>ArrayBuffer</code>.
                     </>
                 ),
                 sampleScript: dedent`
-                    const note = crypto.decryptAesGcm(this.Iv, this.Key, this.EncryptedNote, "string");
+                    const note = crypto.decryptAesGcm(this.Base64Iv, this.Base64Key, this.EncryptedNote, "string");
                     output(note);
                 `,
             },
@@ -881,6 +921,98 @@ const genAiMethodGroups: GenAiMethodGroup[] = [
                         output("Processing comment " + comment.Id);
                     }
                 `,
+            },
+        ],
+    },
+    {
+        category: "Not available in GenAI scripts",
+        methods: [
+            {
+                signature: "incrementCounter(document, name, value = 1) / deleteCounter(document, name)",
+                returnType: "do not use",
+                scope: "update",
+                description: (
+                    <>
+                        Do not call these in a GenAI task. They do not throw: the counter value is written to storage,
+                        but the document&apos;s <code>@counters</code> metadata is not, because a GenAI task does not
+                        run the patch bookkeeping that would update it. The result is a counter that exists in storage
+                        yet is invisible to <code>getCounters()</code> and <code>hasCounter()</code>. Change counters
+                        from a client, a patch operation or a subscription instead.
+                    </>
+                ),
+            },
+            {
+                signature: "timeseries(document, name).append(...) / .increment(...) / .delete(...)",
+                returnType: "do not use",
+                scope: "update",
+                description: (
+                    <>
+                        Same story as the counter mutations: the entries land in storage while the document&apos;s{" "}
+                        <code>@timeseries</code> metadata is left behind. Only <code>.get()</code> and{" "}
+                        <code>.getStats()</code> are safe here.
+                    </>
+                ),
+            },
+            {
+                signature: "attachments(document, name).delete() / .copyFrom(...) / .remote(...)",
+                returnType: "do not use",
+                scope: "update",
+                description: (
+                    <>
+                        Attachment mutations need the same missing bookkeeping and leave the document&apos;s{" "}
+                        <code>@attachments</code> metadata inconsistent. Reading attachments in the context generation
+                        script is fine: see <code>loadAttachment()</code> and <code>getAttachments()</code>.
+                    </>
+                ),
+            },
+            {
+                signature: "archived.unarchive(document)",
+                returnType: "do not use",
+                scope: "update",
+                description: (
+                    <>
+                        Strips the <code>@archived</code> marker from the metadata, but the document&apos;s Archived
+                        flag is only cleared by the patch pipeline, which a GenAI task does not run. The document stays
+                        archived while claiming otherwise. <code>archived.archiveAt()</code> is fine, because it only
+                        writes metadata.
+                    </>
+                ),
+            },
+            {
+                signature: "loadTo(...) / loadCounter(...) / loadTimeSeries(...)",
+                returnType: "throws",
+                scope: "context",
+                description: (
+                    <>
+                        Present because the context generation script runs inside the ETL engine, but a GenAI task
+                        rejects them with <em>&quot;... is not supported in GenAI Task&quot;</em>. Emit context with{" "}
+                        <code>ai.genContext()</code> instead, and read counters and time series with{" "}
+                        <code>counter()</code> and <code>timeseries()</code>.
+                    </>
+                ),
+            },
+            {
+                signature: "await / fetch() / setTimeout()",
+                returnType: "not available",
+                description: (
+                    <>
+                        Scripts run synchronously, on the server, inside the transaction. There is no event loop, no
+                        network access and no timers, so everything the script needs must come from the source document,
+                        from <code>load()</code> or from <code>cmpxchg()</code>.
+                    </>
+                ),
+            },
+            {
+                signature: "crypto.subtle.*",
+                returnType: "throws",
+                description: (
+                    <>
+                        The whole async WebCrypto surface throws, including <code>digest</code>, <code>sign</code>,{" "}
+                        <code>verify</code>, <code>encrypt</code>, <code>decrypt</code> and the key-management methods.
+                        Scripts run synchronously, so use the <code>crypto.*</code> methods above; the thrown error
+                        names the replacement for each one.
+                    </>
+                ),
             },
         ],
     },
