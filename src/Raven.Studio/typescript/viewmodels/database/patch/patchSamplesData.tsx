@@ -156,12 +156,12 @@ update {
 }`,
             },
             {
-                signature: "getMetadata(document)",
+                signature: "getMetadata(document) / metadataFor(document)",
                 returnType: "object",
                 description: (
                     <>
                         Returns the document&apos;s metadata, e.g. <code>@id</code>, <code>@collection</code>,{" "}
-                        <code>@last-modified</code>. Also available as <code>metadataFor(document)</code>.
+                        <code>@last-modified</code>.
                     </>
                 ),
                 sampleScript: `// Read the collection name from metadata into a field.
@@ -172,11 +172,12 @@ update {
             },
             {
                 signature: "lastModified(document)",
-                returnType: "number",
+                returnType: "number | undefined",
                 description: (
                     <>
-                        Returns the document&apos;s last modification time as JavaScript milliseconds since the Unix
-                        epoch (UTC).
+                        Returns the document&apos;s last modification time as milliseconds since the Unix epoch (UTC),
+                        or
+                        <code>undefined</code> when it has none.
                     </>
                 ),
                 sampleScript: `// Store each order's last-modified time (ms) in a field.
@@ -487,7 +488,9 @@ update {
                 returnType: "boolean",
                 description: (
                     <>
-                        Returns <code>true</code> if <code>inputString</code> matches the specified regex pattern.
+                        Returns <code>true</code> if <code>inputString</code> matches the pattern. The pattern is
+                        <strong>.NET</strong> regex, not JavaScript, so <code>(?i)</code> works and JS-style flags do
+                        not.
                     </>
                 ),
                 sampleScript: `// Flag companies whose name contains a digit.
@@ -538,7 +541,7 @@ update {
         methods: [
             {
                 signature: "Raven_Min(value1, value2)",
-                returnType: "number | string | boolean",
+                returnType: "number | string | boolean | null | undefined",
                 description: (
                     <>Returns the smaller value. Supports numbers, strings, booleans, and null/undefined values.</>
                 ),
@@ -550,7 +553,7 @@ update {
             },
             {
                 signature: "Raven_Max(value1, value2)",
-                returnType: "number | string | boolean",
+                returnType: "number | string | boolean | null | undefined",
                 description: (
                     <>Returns the larger value. Supports numbers, strings, booleans, and null/undefined values.</>
                 ),
@@ -709,8 +712,8 @@ update {
                 returnType: "string",
                 description: (
                     <>
-                        Computes a Base64-encoded hash of <code>data</code> using <code>SHA-256</code>,{" "}
-                        <code>SHA-384</code>, or <code>SHA-512</code>.
+                        Computes a Base64 hash of <code>data</code> using <code>SHA-256</code>, <code>SHA-384</code> or
+                        <code>SHA-512</code>. A string is hashed as UTF-8.
                     </>
                 ),
                 sampleScript: `// Compute a SHA-256 hash of the order ID.
@@ -724,7 +727,8 @@ update {
                 returnType: "string",
                 description: (
                     <>
-                        Computes a Base64-encoded HMAC signature over <code>data</code>.
+                        Computes a Base64 HMAC signature over <code>data</code>. Unlike the AES methods, a string
+                        <code>key</code> is taken as its <strong>UTF-8 bytes</strong>.
                     </>
                 ),
                 sampleScript: `// Compute an HMAC signature over the order ID.
@@ -738,7 +742,7 @@ update {
                 returnType: "boolean",
                 description: (
                     <>
-                        Verifies an HMAC signature over <code>data</code>.
+                        Verifies an HMAC signature over <code>data</code>, using a fixed-time comparison.
                     </>
                 ),
                 sampleScript: `// Verify an HMAC signature over the order ID.
@@ -753,7 +757,9 @@ update {
                 returnType: "string",
                 description: (
                     <>
-                        Encrypts <code>data</code> with AES-GCM and returns it Base64-encoded.
+                        Encrypts <code>data</code> with AES-GCM, Base64-encoded. <code>iv</code> and <code>key</code>{" "}
+                        given as strings are <strong>Base64-decoded</strong>, not read as text, so a passphrase throws.
+                        The decoded key must be 16, 24 or 32 bytes, the IV 12.
                     </>
                 ),
                 sampleScript: `// Encrypt the company field with AES-GCM.
@@ -769,8 +775,10 @@ update {
                 returnType: "string | ArrayBuffer",
                 description: (
                     <>
-                        Decrypts AES-GCM <code>data</code>. <code>outputType</code>: <code>&apos;string&apos;</code>{" "}
-                        (default), <code>&apos;raw&apos;</code>, or <code>&apos;buffer&apos;</code>.
+                        Decrypts AES-GCM <code>data</code>. <code>iv</code>, <code>key</code> and a string{" "}
+                        <code>data</code>
+                        are all Base64. <code>outputType</code>: <code>&apos;string&apos;</code> (default),
+                        <code>&apos;raw&apos;</code> or <code>&apos;buffer&apos;</code>.
                     </>
                 ),
                 sampleScript: `// Decrypt an encrypted company field.
@@ -788,14 +796,9 @@ update {
         category: "Debugging",
         methods: [
             {
-                signature: "output(message)",
+                signature: "output(message) / console.log(message)",
                 returnType: "void",
-                description: (
-                    <>
-                        Prints a message to the debug output when testing. Also available as{" "}
-                        <code>console.log(message)</code>.
-                    </>
-                ),
+                description: <>Prints a message to the debug output when testing.</>,
                 sampleScript: `// Print a debug message for each order being patched.
 from Orders as o
 update {
