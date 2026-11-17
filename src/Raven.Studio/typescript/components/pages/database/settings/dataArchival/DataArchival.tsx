@@ -35,6 +35,8 @@ import { accessManagerSelectors } from "components/common/shell/accessManagerSli
 import { ConditionalPopover } from "components/common/ConditionalPopover";
 import { useRavenLink } from "hooks/useRavenLink";
 import moment from "moment";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 const defaultItemsToProcess = 65536;
 
@@ -46,6 +48,8 @@ export default function DataArchival() {
     const documentArchiveLinkToOverviewDocs = useRavenLink({ hash: "1FI4YS" });
 
     const { databasesService } = useServices();
+    const t = useStudioTranslation("dataArchival");
+    const commonT = useStudioTranslation("common");
     const asyncGetDataArchivalConfiguration = useAsyncCallback<DataArchivalFormData>(async () =>
         mapToFormData(await databasesService.getDataArchivalConfiguration(databaseName))
     );
@@ -58,6 +62,16 @@ export default function DataArchival() {
     const formValues = useWatch({ control: control });
     const { reportEvent } = useEventsCollector();
 
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("title"),
+            featureIcon: "data-archival",
+            community: { value: false },
+            professional: { value: false },
+            enterprise: { value: true },
+            quill: { value: true },
+        },
+    ];
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
         overwrites: [
@@ -109,7 +123,7 @@ export default function DataArchival() {
                 MaxItemsToProcess: formData.isLimitMaxItemsToProcessEnabled ? formData.maxItemsToProcess : null,
             });
 
-            messagePublisher.reportSuccess("Data archival configuration saved successfully");
+            messagePublisher.reportSuccess(t("saveSuccess"));
             activeDatabaseTracker.default.database().hasArchivalConfiguration(formData.isDataArchivalEnabled);
             reset(formData);
         });
@@ -123,7 +137,7 @@ export default function DataArchival() {
     }
 
     if (asyncGetDataArchivalConfiguration.status === "error") {
-        return <LoadError error="Unable to load data archival" refresh={asyncGetDataArchivalConfiguration.execute} />;
+        return <LoadError error={t("loadError")} refresh={asyncGetDataArchivalConfiguration.execute} />;
     }
 
     return (
@@ -133,7 +147,7 @@ export default function DataArchival() {
                     <Col>
                         <Form onSubmit={handleSubmit(onSave)} autoComplete="off">
                             <AboutViewHeading
-                                title="Data Archival"
+                                title={t("title")}
                                 icon="data-archival"
                                 licenseBadgeText={hasDataArchival ? null : "Enterprise"}
                             />
@@ -151,7 +165,7 @@ export default function DataArchival() {
                                     disabled={!formState.isDirty || !hasDatabaseAdminAccess}
                                     isSpinning={formState.isSubmitting}
                                 >
-                                    Save
+                                    {commonT("save")}
                                 </ButtonWithSpinner>
                             </ConditionalPopover>
                             <Col className={hasDataArchival ? "" : "item-disabled pe-none"}>
@@ -163,7 +177,7 @@ export default function DataArchival() {
                                                 control={control}
                                                 disabled={formState.isSubmitting}
                                             >
-                                                Enable Data Archival
+                                                {t("enableSwitch")}
                                             </FormSwitch>
                                             <div>
                                                 <FormSwitch
@@ -174,7 +188,7 @@ export default function DataArchival() {
                                                         formState.isSubmitting || !formValues.isDataArchivalEnabled
                                                     }
                                                 >
-                                                    Set custom archive frequency
+                                                    {t("customFrequencySwitch")}
                                                 </FormSwitch>
                                                 <FormInput
                                                     name="archiveFrequency"
@@ -183,8 +197,8 @@ export default function DataArchival() {
                                                     disabled={
                                                         formState.isSubmitting || !formValues.isArchiveFrequencyEnabled
                                                     }
-                                                    placeholder="Default (60)"
-                                                    addon="seconds"
+                                                    placeholder={t("frequencyPlaceholder", { seconds: 60 })}
+                                                    addon={t("secondsAddon")}
                                                 />
                                             </div>
                                             <div>
@@ -196,7 +210,7 @@ export default function DataArchival() {
                                                         formState.isSubmitting || !formValues.isDataArchivalEnabled
                                                     }
                                                 >
-                                                    Set max number of documents to process in a single run
+                                                    {t("maxItemsSwitch")}
                                                 </FormSwitch>
                                                 <FormInput
                                                     name="maxItemsToProcess"
@@ -206,7 +220,7 @@ export default function DataArchival() {
                                                         formState.isSubmitting ||
                                                         !formValues.isLimitMaxItemsToProcessEnabled
                                                     }
-                                                    addon="items"
+                                                    addon={t("itemsAddon")}
                                                 />
                                             </div>
                                         </div>
@@ -219,35 +233,45 @@ export default function DataArchival() {
                         <AboutViewAnchored defaultOpen={hasDataArchival ? null : "licensing"}>
                             <AccordionItemWrapper targetId="about" icon="about" color="info">
                                 <p>
-                                    When <strong>Data Archival</strong> is enabled:
+                                    <StudioTrans
+                                        ns="dataArchival"
+                                        i18nKey="about.intro"
+                                        components={{ strong: <strong /> }}
+                                    />
                                 </p>
                                 <ul>
                                     <li>
-                                        The server scans the database at the specified <strong>frequency</strong>,
-                                        searching for documents that should be archived.
+                                        <StudioTrans
+                                            ns="dataArchival"
+                                            i18nKey="about.scanItem"
+                                            components={{ strong: <strong /> }}
+                                        />
                                     </li>
                                     <li>
-                                        Any document that has an <code>@archive-at</code> metadata property whose time
-                                        has passed at the time of the scan will be archived:
+                                        <StudioTrans
+                                            ns="dataArchival"
+                                            i18nKey="about.metadataItem"
+                                            components={{ code: <code /> }}
+                                        />
                                         <ul>
-                                            <li>The archived document will be compressed</li>
+                                            <li>{t("about.compressedItem")}</li>
                                             <li>
-                                                The <code>@archive-at</code> metadata property will be replaced by:{" "}
-                                                <code>@archived: true</code>
+                                                <StudioTrans
+                                                    ns="dataArchival"
+                                                    i18nKey="about.replacedItem"
+                                                    components={{ code: <code /> }}
+                                                />
                                             </li>
-                                            <li>
-                                                Per-index/subscription, you can configure whether archived documents
-                                                will be included in the indexing and subscription processes
-                                            </li>
+                                            <li>{t("about.indexingItem")}</li>
                                         </ul>
                                     </li>
                                 </ul>
-                                <p>Example of a document scheduled for archival:</p>
+                                <p>{t("about.exampleLabel")}</p>
                                 <Code code={codeExample} language="javascript" />
                                 <hr />
-                                <div className="small-label mb-2">useful links</div>
+                                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                                 <a href={documentArchiveLinkToOverviewDocs} target="_blank">
-                                    <Icon icon="newtab" /> Docs - Data Archival - Overview
+                                    <Icon icon="newtab" /> {t("about.docsLink")}
                                 </a>
                             </AccordionItemWrapper>
                             <FeatureAvailabilitySummaryWrapper
@@ -289,14 +313,3 @@ function mapToFormData(dto: DataArchivalConfiguration): DataArchivalFormData {
         maxItemsToProcess: dto.MaxItemsToProcess,
     };
 }
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "Data Archival",
-        featureIcon: "data-archival",
-        community: { value: false },
-        professional: { value: false },
-        enterprise: { value: true },
-        quill: { value: true },
-    },
-];

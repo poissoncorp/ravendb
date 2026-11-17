@@ -31,6 +31,9 @@ import moment from "moment";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
 import activeDatabaseTracker = require("common/shell/activeDatabaseTracker");
 import RichAlert from "components/common/RichAlert";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import { StudioTranslate } from "common/i18n/resources";
 
 export const defaultItemsToProcess = 65536;
 const defaultDeleteFrequencyInSec = 60;
@@ -38,6 +41,8 @@ const defaultDeleteFrequencyInSec = 60;
 export default function DocumentExpiration() {
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const { databasesService } = useServices();
+    const t = useStudioTranslation("documentExpiration");
+    const commonT = useStudioTranslation("common");
 
     const asyncGetExpirationConfiguration = useAsyncCallback<DocumentExpirationFormData>(async () =>
         mapToFormData(await databasesService.getExpirationConfiguration(databaseName))
@@ -57,6 +62,16 @@ export default function DocumentExpiration() {
     const documentExpirationDocsLink = useRavenLink({ hash: "XBFEKZ" });
 
     const minPeriodForExpirationInHours = useAppSelector(licenseSelectors.statusValue("MinPeriodForExpirationInHours"));
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("minCheckFrequency"),
+            featureIcon: "clock",
+            community: { value: 36 },
+            professional: { value: Infinity },
+            enterprise: { value: Infinity },
+            quill: { value: Infinity },
+        },
+    ];
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
         overwrites: [
@@ -83,7 +98,7 @@ export default function DocumentExpiration() {
         formValues.isDocumentExpirationEnabled &&
         deleteFrequencyInHours < minPeriodForExpirationInHours;
 
-    const deleteFrequencyPlaceholder = getDeleteFrequencyPlaceholder(defaultDeleteFrequency);
+    const deleteFrequencyPlaceholder = getDeleteFrequencyPlaceholder(defaultDeleteFrequency, t);
 
     useEffect(() => {
         const { unsubscribe } = watch((values, { name }) => {
@@ -134,7 +149,7 @@ export default function DocumentExpiration() {
                 MaxItemsToProcess: formData.isLimitMaxItemsToProcessEnabled ? formData.maxItemsToProcess : null,
             });
 
-            messagePublisher.reportSuccess("Expiration configuration saved successfully");
+            messagePublisher.reportSuccess(t("saveSuccess"));
             activeDatabaseTracker.default.database().hasExpirationConfiguration(formData.isDocumentExpirationEnabled);
 
             reset(formData);
@@ -149,9 +164,7 @@ export default function DocumentExpiration() {
     }
 
     if (asyncGetExpirationConfiguration.status === "error") {
-        return (
-            <LoadError error="Unable to load document expiration" refresh={asyncGetExpirationConfiguration.execute} />
-        );
+        return <LoadError error={t("loadError")} refresh={asyncGetExpirationConfiguration.execute} />;
     }
 
     return (
@@ -160,7 +173,7 @@ export default function DocumentExpiration() {
                 <Row className="gy-sm">
                     <Col>
                         <Form onSubmit={handleSubmit(onSave)} autoComplete="off">
-                            <AboutViewHeading title="Document Expiration" icon="document-expiration" />
+                            <AboutViewHeading title={t("title")} icon="document-expiration" />
                             <ButtonWithSpinner
                                 type="submit"
                                 variant="primary"
@@ -169,14 +182,14 @@ export default function DocumentExpiration() {
                                 disabled={!formState.isDirty || isLimitWarningVisible}
                                 isSpinning={formState.isSubmitting}
                             >
-                                Save
+                                {commonT("save")}
                             </ButtonWithSpinner>
                             <Col>
                                 <Card>
                                     <Card.Body>
                                         <div className="vstack gap-2">
                                             <FormSwitch name="isDocumentExpirationEnabled" control={control}>
-                                                Enable Document Expiration
+                                                {t("enableSwitch")}
                                             </FormSwitch>
                                             <div>
                                                 <FormSwitch
@@ -187,7 +200,7 @@ export default function DocumentExpiration() {
                                                         !formValues.isDocumentExpirationEnabled
                                                     }
                                                 >
-                                                    Set custom expiration frequency
+                                                    {t("customFrequencySwitch")}
                                                 </FormSwitch>
                                                 <Collapse appear in={formValues.isDeleteFrequencyEnabled}>
                                                     <div className="pt-3">
@@ -207,8 +220,7 @@ export default function DocumentExpiration() {
                                                 </Collapse>
                                                 {isLimitWarningVisible && (
                                                     <RichAlert variant="warning" className="mt-3">
-                                                        Your current license does not allow an expiration frequency
-                                                        below {minPeriodForExpirationInHours} hours.
+                                                        {t("limitWarning", { count: minPeriodForExpirationInHours })}
                                                     </RichAlert>
                                                 )}
                                             </div>
@@ -222,7 +234,7 @@ export default function DocumentExpiration() {
                                                         !formValues.isDocumentExpirationEnabled
                                                     }
                                                 >
-                                                    Set max number of documents to process in a single run
+                                                    {t("maxItemsSwitch")}
                                                 </FormSwitch>
                                                 <FormInput
                                                     name="maxItemsToProcess"
@@ -232,7 +244,7 @@ export default function DocumentExpiration() {
                                                         formState.isSubmitting ||
                                                         !formValues.isLimitMaxItemsToProcessEnabled
                                                     }
-                                                    addon="items"
+                                                    addon={t("itemsAddon")}
                                                 />
                                             </div>
                                         </div>
@@ -245,25 +257,35 @@ export default function DocumentExpiration() {
                         <AboutViewAnchored>
                             <AccordionItemWrapper targetId="1" icon="about" color="info">
                                 <p>
-                                    When <strong>Document Expiration</strong> is enabled:
+                                    <StudioTrans
+                                        ns="documentExpiration"
+                                        i18nKey="about.intro"
+                                        components={{ strong: <strong /> }}
+                                    />
                                 </p>
                                 <ul>
                                     <li>
-                                        The server scans the database at the specified <strong>frequency</strong>,
-                                        searching for documents that should be deleted.
+                                        <StudioTrans
+                                            ns="documentExpiration"
+                                            i18nKey="about.scanItem"
+                                            components={{ strong: <strong /> }}
+                                        />
                                     </li>
                                     <li>
-                                        Any document that has an <code>@expires</code> metadata property whose time has
-                                        passed at the time of the scan will be removed.
+                                        <StudioTrans
+                                            ns="documentExpiration"
+                                            i18nKey="about.metadataItem"
+                                            components={{ code: <code /> }}
+                                        />
                                     </li>
                                 </ul>
 
-                                <p>Example of a document scheduled for expiration:</p>
+                                <p>{t("about.exampleLabel")}</p>
                                 <Code code={codeExample} language="javascript" />
                                 <hr />
-                                <div className="small-label mb-2">useful links</div>
+                                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                                 <a href={documentExpirationDocsLink} target="_blank">
-                                    <Icon icon="newtab" /> Docs - Document Expiration
+                                    <Icon icon="newtab" /> {t("about.docsLink")}
                                 </a>
                             </AccordionItemWrapper>
                             <FeatureAvailabilitySummaryWrapper
@@ -279,13 +301,13 @@ export default function DocumentExpiration() {
     );
 }
 
-function getDeleteFrequencyPlaceholder(totalSeconds: number) {
+function getDeleteFrequencyPlaceholder(totalSeconds: number, t: StudioTranslate<"documentExpiration">) {
     const duration = moment.duration(totalSeconds, "seconds");
 
     return {
-        hours: `Default (${Math.floor(duration.asHours())})`,
-        minutes: `Default (${duration.minutes()})`,
-        seconds: `Default (${duration.seconds()})`,
+        hours: t("frequencyPlaceholder", { value: Math.floor(duration.asHours()) }),
+        minutes: t("frequencyPlaceholder", { value: duration.minutes() }),
+        seconds: t("frequencyPlaceholder", { value: duration.seconds() }),
     };
 }
 
@@ -317,14 +339,3 @@ const codeExample = `{
       "@expires": "${moment().add(1, "year").toISOString()}"
     }
 }`;
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "Min check frequency (hrs)",
-        featureIcon: "clock",
-        community: { value: 36 },
-        professional: { value: Infinity },
-        enterprise: { value: Infinity },
-        quill: { value: Infinity },
-    },
-];

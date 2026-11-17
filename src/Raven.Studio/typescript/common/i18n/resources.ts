@@ -1,6 +1,8 @@
 import aboutView from "./locales/en/aboutView";
 import common from "./locales/en/common";
 import conflicts from "./locales/en/conflicts";
+import dataArchival from "./locales/en/dataArchival";
+import documentExpiration from "./locales/en/documentExpiration";
 import documentRefresh from "./locales/en/documentRefresh";
 import editCustomSorter from "./locales/en/editCustomSorter";
 import featureAvailabilitySummary from "./locales/en/featureAvailabilitySummary";
@@ -24,6 +26,8 @@ export const en = {
     aboutView,
     common,
     conflicts,
+    dataArchival,
+    documentExpiration,
     documentRefresh,
     editCustomSorter,
     featureAvailabilitySummary,
