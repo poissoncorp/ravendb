@@ -32,6 +32,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { accessManagerSelectors } from "components/common/shell/accessManagerSliceSelectors";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTranslate } from "common/i18n/resources";
 
 interface ConflictResolutionConfigPanelProps {
     initialConfig: ConflictResolutionCollectionConfig;
@@ -39,6 +41,7 @@ interface ConflictResolutionConfigPanelProps {
 
 export default function ConflictResolutionConfigPanel({ initialConfig }: ConflictResolutionConfigPanelProps) {
     const dispatch = useAppDispatch();
+    const t = useStudioTranslation("conflictResolution");
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
     const allCollectionNames = useAppSelector(collectionsTrackerSelectors.collectionNames).filter(
         (x) => x !== "@empty" && x !== "@hilo"
@@ -53,7 +56,7 @@ export default function ConflictResolutionConfigPanel({ initialConfig }: Conflic
             collectionName: initialConfig.name,
             script: initialConfig.script,
         },
-        resolver: yupResolver(getSchema(initialConfig.name, usedCollectionNames)),
+        resolver: yupResolver(getSchema(initialConfig.name, usedCollectionNames, t)),
     });
 
     const formValues = useWatch({ control });
@@ -82,10 +85,10 @@ export default function ConflictResolutionConfigPanel({ initialConfig }: Conflic
                 <RichPanelHeader>
                     <RichPanelInfo>
                         <RichPanelName>
-                            {formValues.collectionName || "Collection name"}
+                            {formValues.collectionName || t("script.collectionNameFallback")}
                             {(initialConfig.isEdited || initialConfig.isNewUnsaved) && (
                                 <OverlayTrigger
-                                    overlay={<Tooltip id={unsavedChangesId}>The script has not been saved yet</Tooltip>}
+                                    overlay={<Tooltip id={unsavedChangesId}>{t("script.notSaved")}</Tooltip>}
                                 >
                                     <span id={unsavedChangesId} className="text-warning d-inline-block">
                                         *
@@ -112,13 +115,13 @@ export default function ConflictResolutionConfigPanel({ initialConfig }: Conflic
                                 label={
                                     <>
                                         <Icon icon="clock" />
-                                        Last modified
+                                        {t("script.lastModified")}
                                     </>
                                 }
                             >
                                 {initialConfig.lastModifiedTime
                                     ? genUtils.formatUtcDateAsLocal(initialConfig.lastModifiedTime)
-                                    : "(new)"}
+                                    : t("script.newMark")}
                             </RichPanelDetailItem>
                         </RichPanelDetails>
                     </div>
@@ -128,11 +131,11 @@ export default function ConflictResolutionConfigPanel({ initialConfig }: Conflic
                         <RichPanelDetails className="vstack gap-3 p-3">
                             {!initialConfig.name && (
                                 <InputGroup className="vstack mb-1">
-                                    <FormLabel>Collection</FormLabel>
+                                    <FormLabel>{t("script.collectionLabel")}</FormLabel>
                                     <FormSelectCreatable
                                         control={control}
                                         name="collectionName"
-                                        placeholder="Select collection (or enter a new one)"
+                                        placeholder={t("script.collectionPlaceholder")}
                                         options={collectionOptions}
                                         isClearable={false}
                                         maxMenuHeight={300}
@@ -142,14 +145,14 @@ export default function ConflictResolutionConfigPanel({ initialConfig }: Conflic
                             )}
                             <InputGroup className="vstack">
                                 <FormLabel className="d-flex flex-wrap justify-content-between">
-                                    Script
+                                    {t("script.scriptLabel")}
                                     <Button
                                         variant="link"
                                         size="xs"
                                         onClick={toggleIsSyntaxModalOpen}
                                         className="p-0 align-self-end"
                                     >
-                                        Syntax
+                                        {t("script.syntaxButton")}
                                         <Icon icon="help" margin="ms-1" />
                                     </Button>
                                 </FormLabel>
@@ -184,7 +187,9 @@ function PanelActions({
     reset: () => void;
 }) {
     const dispatch = useAppDispatch();
+    const t = useStudioTranslation("conflictResolution");
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
+    const submitContext = isNewUnsaved ? "add" : "update";
 
     const discard = () => {
         dispatch(conflictResolutionActions.editDiscarded(configId));
@@ -195,11 +200,11 @@ function PanelActions({
         if (isInEditMode) {
             return (
                 <React.Fragment key="actions-in-edit">
-                    <Button type="submit" variant="success" title={isNewUnsaved ? "Add Script" : "Update Script"}>
-                        <Icon icon="tick" margin="m-0" /> {isNewUnsaved ? "Add" : "Update"}
+                    <Button type="submit" variant="success" title={t("script.submitTitle", { context: submitContext })}>
+                        <Icon icon="tick" margin="m-0" /> {t("script.submit", { context: submitContext })}
                     </Button>
-                    <Button type="button" variant="secondary" title="Discard changes" onClick={discard}>
-                        <Icon icon="cancel" margin="m-0" /> Discard
+                    <Button type="button" variant="secondary" title={t("script.discardTitle")} onClick={discard}>
+                        <Icon icon="cancel" margin="m-0" /> {t("script.discard")}
                     </Button>
                 </React.Fragment>
             );
@@ -209,7 +214,7 @@ function PanelActions({
                     <Button
                         type="button"
                         variant="secondary"
-                        title="Edit this script"
+                        title={t("script.editTitle")}
                         onClick={() => dispatch(conflictResolutionActions.edited(configId))}
                     >
                         <Icon icon="edit" margin="m-0" />
@@ -217,7 +222,7 @@ function PanelActions({
                     <Button
                         type="button"
                         variant="danger"
-                        title="Delete this script"
+                        title={t("script.deleteTitle")}
                         onClick={() => dispatch(conflictResolutionActions.deleted(configId))}
                     >
                         <Icon icon="trash" margin="m-0" />
@@ -232,7 +237,7 @@ function PanelActions({
             <Button
                 type="button"
                 variant="secondary"
-                title="Hide this script"
+                title={t("script.hideTitle")}
                 onClick={() => dispatch(conflictResolutionActions.editDiscarded(configId))}
             >
                 <Icon icon="preview-off" margin="m-0" />
@@ -243,7 +248,7 @@ function PanelActions({
             <Button
                 type="button"
                 variant="secondary"
-                title="Show this script"
+                title={t("script.showTitle")}
                 onClick={() => dispatch(conflictResolutionActions.edited(configId))}
             >
                 <Icon icon="preview" margin="m-0" />
@@ -252,14 +257,14 @@ function PanelActions({
     }
 }
 
-function getSchema(initialName: string, usedCollectionNames: string[]) {
+function getSchema(initialName: string, usedCollectionNames: string[], t: StudioTranslate<"conflictResolution">) {
     return yup.object({
         collectionName: yup
             .string()
             .required()
             .notOneOf(
                 usedCollectionNames.filter((x) => x !== initialName),
-                "This collection name is already used"
+                t("script.nameUsed")
             ),
         script: yup.string().required(),
     });

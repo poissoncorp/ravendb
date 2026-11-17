@@ -3,55 +3,60 @@ import { AboutViewAnchored, AccordionItemWrapper } from "components/common/About
 import { Icon } from "components/common/Icon";
 import { useRavenLink } from "components/hooks/useRavenLink";
 import { useAppUrls } from "components/hooks/useAppUrls";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function ConflictResolutionAboutView() {
     const conflictResolutionDocsLink = useRavenLink({ hash: "QRCNKH" });
     const { forCurrentDatabase } = useAppUrls();
+    const t = useStudioTranslation("conflictResolution");
+    const commonT = useStudioTranslation("common");
 
     return (
         <AboutViewAnchored>
             <AccordionItemWrapper targetId="1" icon="about" color="info">
                 <p>
-                    Since RavenDB accepts writes on any node in the cluster,
-                    <br /> a conflict may occur when the same document is updated concurrently on two different nodes.
+                    <StudioTrans ns="conflictResolution" i18nKey="about.intro" components={{ br: <br /> }} />
                 </p>
                 <p>
-                    In this view, you can <strong>define the server&apos;s behavior</strong> upon a conflict between
-                    documents.
-                    <br />
-                    When a conflict is detected, the server will attempt to resolve it via the following flow:
+                    <StudioTrans
+                        ns="conflictResolution"
+                        i18nKey="about.behavior"
+                        components={{ strong: <strong />, br: <br /> }}
+                    />
                 </p>
                 <ol>
                     <li>
-                        If a resolving script (a JavaScript function) is defined per the collection,
-                        <br /> it will be used to resolve the conflict.
-                        <br /> See the available script variables and examples in the provided documentation link.
+                        <StudioTrans ns="conflictResolution" i18nKey="about.scriptItem" components={{ br: <br /> }} />
                     </li>
                     <li className="margin-top-xs">
-                        Else, when no script is defined:
+                        {t("about.noScriptItem")}
                         <br />
                         <ul>
                             <li className="margin-top-xxs">
-                                If the &quot;<strong>Resolve to latest version</strong>&quot; toggle is turned ON:
-                                <br />
-                                The server will resolve the conflict to the latest document version.
+                                <StudioTrans
+                                    ns="conflictResolution"
+                                    i18nKey="about.latestOnItem"
+                                    components={{ strong: <strong />, br: <br /> }}
+                                />
                             </li>
                             <li className="margin-top-xxs">
-                                If the toggle is OFF:
-                                <br /> The conflict is not automatically resolved.
-                                <br /> You can resolve the conflict manually from the{" "}
-                                <a href={forCurrentDatabase.conflicts()} target="_blank">
-                                    Conflicts view
-                                </a>{" "}
-                                in the Studio.
+                                <StudioTrans
+                                    ns="conflictResolution"
+                                    i18nKey="about.latestOffItem"
+                                    components={{
+                                        br: <br />,
+                                        a: <a href={forCurrentDatabase.conflicts()} target="_blank" />,
+                                    }}
+                                />
                             </li>
                         </ul>
                     </li>
                 </ol>
                 <hr />
-                <div className="small-label mb-2">useful links</div>
+                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                 <a href={conflictResolutionDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - Conflict Resolution
+                    <Icon icon="newtab" /> {t("about.docsLink")}
                 </a>
             </AccordionItemWrapper>
         </AboutViewAnchored>

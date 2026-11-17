@@ -1,24 +1,27 @@
 ﻿import React from "react";
 import Code from "components/common/Code";
 import Modal from "components/common/Modal";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface EditConflictResolutionSyntaxModalProps {
     toggle: () => void;
 }
 
 export function EditConflictResolutionSyntaxModal({ toggle }: EditConflictResolutionSyntaxModalProps) {
+    const t = useStudioTranslation("conflictResolution");
+
     return (
         <Modal show size="lg" onHide={toggle} contentClassName="modal-border bulge-primary">
             <Modal.Header onCloseClick={toggle} />
             <Modal.Body>
-                <h5 className="mb-1">Conflicted documents</h5>
+                <h5 className="mb-1">{t("syntax.conflictedDocuments")}</h5>
                 <div className="d-flex gap-3 flex-wrap mb-3">
                     <Code code={conflictedDocument1} language="json" />
                     <Code code={conflictedDocument2} language="json" />
                 </div>
-                <h5 className="mb-1">Script</h5>
+                <h5 className="mb-1">{t("syntax.script")}</h5>
                 <Code code={script} language="javascript" className="mb-3" />
-                <h5 className="mb-1">Conflict resolution result</h5>
+                <h5 className="mb-1">{t("syntax.result")}</h5>
                 <Code code={result} language="json" />
             </Modal.Body>
         </Modal>

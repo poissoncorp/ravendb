@@ -1,5 +1,6 @@
 import aboutView from "./locales/en/aboutView";
 import common from "./locales/en/common";
+import conflictResolution from "./locales/en/conflictResolution";
 import conflicts from "./locales/en/conflicts";
 import dataArchival from "./locales/en/dataArchival";
 import databaseRecord from "./locales/en/databaseRecord";
@@ -31,6 +32,7 @@ export const languageNames: Record<StudioLanguage, string> = {
 export const en = {
     aboutView,
     common,
+    conflictResolution,
     conflicts,
     dataArchival,
     databaseRecord,

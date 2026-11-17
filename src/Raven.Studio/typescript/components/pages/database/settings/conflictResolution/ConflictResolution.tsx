@@ -25,9 +25,12 @@ import { useEventsCollector } from "components/hooks/useEventsCollector";
 import ConflictResolutionAboutView from "./ConflictResolutionAboutView";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
 import { ConditionalPopover } from "components/common/ConditionalPopover";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function ConflictResolution() {
     const dispatch = useAppDispatch();
+    const t = useStudioTranslation("conflictResolution");
+    const commonT = useStudioTranslation("common");
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const loadStatus = useAppSelector(conflictResolutionSelectors.loadStatus);
     const isResolveToLatest = useAppSelector(conflictResolutionSelectors.isResolveToLatest);
@@ -62,7 +65,7 @@ export default function ConflictResolution() {
     if (loadStatus === "failure") {
         return (
             <LoadError
-                error="Unable to load conflict resolution"
+                error={t("loadError")}
                 refresh={() => dispatch(conflictResolutionActions.fetchConfig(databaseName))}
             />
         );
@@ -72,14 +75,14 @@ export default function ConflictResolution() {
         <div className="content-margin">
             <Row className="gy-sm">
                 <Col>
-                    <AboutViewHeading title="Conflict Resolution" icon="conflicts-resolution" />
+                    <AboutViewHeading title={t("title")} icon="conflicts-resolution" />
                     <LazyLoad active={loadStatus === "idle" || loadStatus === "loading"}>
                         {hasDatabaseAdminAccess && (
                             <>
                                 <ConditionalPopover
                                     conditions={{
                                         isActive: isSomeInEditMode,
-                                        message: "Please finish editing all scripts before saving",
+                                        message: t("finishEditingHint"),
                                     }}
                                 >
                                     <div id="saveConflictResolutionScript" className="d-flex w-fit-content gap-3 mb-3">
@@ -90,7 +93,7 @@ export default function ConflictResolution() {
                                             onClick={asyncSave.execute}
                                             disabled={!isDirty || isSomeInEditMode}
                                         >
-                                            Save
+                                            {commonT("save")}
                                         </ButtonWithSpinner>
                                     </div>
                                 </ConditionalPopover>
@@ -105,11 +108,11 @@ export default function ConflictResolution() {
                                                 variant="info"
                                                 size="sm"
                                                 className="rounded-pill"
-                                                title="Add a new Conflicts Resolution script"
+                                                title={t("addScriptTitle")}
                                                 onClick={() => dispatch(conflictResolutionActions.added())}
                                             >
                                                 <Icon icon="plus" />
-                                                Add new
+                                                {t("addScriptButton")}
                                             </Button>
                                         </div>
                                     )
@@ -117,14 +120,14 @@ export default function ConflictResolution() {
                                 count={collectionConfigs.length}
                             >
                                 <Icon icon="documents" />
-                                Collection-specific scripts
+                                {t("scriptsHeading")}
                             </HrHeader>
                             {collectionConfigs.length > 0 ? (
                                 collectionConfigs.map((config) => (
                                     <ConflictResolutionConfigPanel key={config.id} initialConfig={config} />
                                 ))
                             ) : (
-                                <EmptySet>No scripts have been defined</EmptySet>
+                                <EmptySet>{t("noScripts")}</EmptySet>
                             )}
                         </div>
                         <Card>
@@ -137,8 +140,7 @@ export default function ConflictResolution() {
                                     }
                                     disabled={!hasDatabaseAdminAccess}
                                 >
-                                    If no script was defined for a collection, resolve the conflict using the latest
-                                    version
+                                    {t("resolveToLatestSwitch")}
                                 </Switch>
                             </Card.Body>
                         </Card>
