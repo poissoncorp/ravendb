@@ -8,6 +8,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import Form from "react-bootstrap/Form";
 import * as yup from "yup";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface UnusedIdsFormProps {
     ids: string[];
@@ -17,6 +18,7 @@ interface UnusedIdsFormProps {
 
 export default function UnusedIdsForm(props: UnusedIdsFormProps) {
     const { ids, addId, removeId } = props;
+    const t = useStudioTranslation("unusedDatabaseIds");
     const { control, handleSubmit, reset } = useForm<FormData>({
         resolver: formResolver,
         defaultValues: { id: "" },
@@ -32,15 +34,15 @@ export default function UnusedIdsForm(props: UnusedIdsFormProps) {
     return (
         <Form onSubmit={handleSubmit(onAddId)}>
             <div className="d-flex gap-3 my-2">
-                <FormInput control={control} name="id" type="text" placeholder="Enter database ID to add" />
-                <Button type="submit" variant="primary" title="Add ID to the list">
-                    <Icon icon="plus" /> Add ID
+                <FormInput control={control} name="id" type="text" placeholder={t("unusedIds.placeholder")} />
+                <Button type="submit" variant="primary" title={t("unusedIds.addButtonTitle")}>
+                    <Icon icon="plus" /> {t("unusedIds.addButton")}
                 </Button>
             </div>
             <div className="well p-2">
                 <div className="simple-item-list">
                     {ids.length === 0 ? (
-                        <EmptySet>No Unused IDs have been added</EmptySet>
+                        <EmptySet>{t("unusedIds.empty")}</EmptySet>
                     ) : (
                         ids.map((id) => (
                             <div key={id} className="p-1 hstack slidein-style">
@@ -49,9 +51,9 @@ export default function UnusedIdsForm(props: UnusedIdsFormProps) {
                                     <Button
                                         variant="link"
                                         size="xs"
-                                        onClick={() => copyToClipboard.copy(id, `Copied ${id} vector to clipboard`)}
+                                        onClick={() => copyToClipboard.copy(id, t("copied", { id }))}
                                         className="p-0"
-                                        title="Copy to clipboard"
+                                        title={t("unusedIds.copyTitle")}
                                     >
                                         <Icon icon="copy-to-clipboard" margin="m-0" />
                                     </Button>
@@ -60,7 +62,7 @@ export default function UnusedIdsForm(props: UnusedIdsFormProps) {
                                         size="xs"
                                         onClick={() => removeId(id)}
                                         className="p-0"
-                                        title="Remove"
+                                        title={t("unusedIds.removeTitle")}
                                     >
                                         <Icon icon="trash" margin="m-0" />
                                     </Button>

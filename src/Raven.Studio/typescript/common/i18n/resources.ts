@@ -12,6 +12,7 @@ import revisionsBin from "./locales/en/revisionsBin";
 import revisionsBinCleaner from "./locales/en/revisionsBinCleaner";
 import studioDatabaseConfiguration from "./locales/en/studioDatabaseConfiguration";
 import studioGlobalConfiguration from "./locales/en/studioGlobalConfiguration";
+import unusedDatabaseIds from "./locales/en/unusedDatabaseIds";
 
 export const supportedLanguages = ["en", "pl"] as const;
 
@@ -41,6 +42,7 @@ export const en = {
     revisionsBinCleaner,
     studioDatabaseConfiguration,
     studioGlobalConfiguration,
+    unusedDatabaseIds,
 };
 
 export type TranslationResources = typeof en;

@@ -14,16 +14,19 @@ import { useUnusedDatabaseIds } from "components/pages/database/settings/unusedD
 import PotentialUnusedIdList from "components/pages/database/settings/unusedDatabaseIds/partials/PotentialUnusedIdList";
 import "./UnusedDatabaseIds.scss";
 import RichAlert from "components/common/RichAlert";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function UnusedDatabaseIds() {
     const { isDirty, usedIds, unusedIds, unusedIdsActions, potentialUnusedId, isLoading, asyncSaveUnusedDatabaseIDs } =
         useUnusedDatabaseIds();
+    const t = useStudioTranslation("unusedDatabaseIds");
+    const commonT = useStudioTranslation("common");
 
     return (
         <div className="content-margin unused-database-ids">
             <Row className="gy-sm">
                 <Col>
-                    <AboutViewHeading title="Unused Database IDs" icon="database-id" />
+                    <AboutViewHeading title={t("title")} icon="database-id" />
                     <ButtonWithSpinner
                         type="button"
                         variant="primary"
@@ -33,14 +36,14 @@ export default function UnusedDatabaseIds() {
                         isSpinning={asyncSaveUnusedDatabaseIDs.loading}
                         disabled={asyncSaveUnusedDatabaseIDs.loading || !isDirty}
                     >
-                        Save
+                        {commonT("save")}
                     </ButtonWithSpinner>
                     <Card className="mb-3">
                         <LazyLoad active={isLoading}>
                             <Card.Body>
                                 <div className="vstack gap-2">
                                     <div className="d-flex gap-1 align-items-center">
-                                        <h4 className="mb-0">Used IDs</h4>
+                                        <h4 className="mb-0">{t("usedIds.heading")}</h4>
                                         <CounterBadge count={usedIds.length} />
                                     </div>
                                     <div className="used-ids-grid">
@@ -58,7 +61,7 @@ export default function UnusedDatabaseIds() {
                                 <div className="vstack gap-2">
                                     <div className="d-flex gap-1 align-items-center justify-content-between">
                                         <div className="d-flex gap-1">
-                                            <h4 className="mb-0">Unused IDs</h4>
+                                            <h4 className="mb-0">{t("unusedIds.heading")}</h4>
                                             <CounterBadge count={unusedIds.length} />
                                         </div>
                                         <Button
@@ -66,15 +69,14 @@ export default function UnusedDatabaseIds() {
                                             size="xs"
                                             onClick={unusedIdsActions.removeAll}
                                             className="p-0"
-                                            title="Remove all unused IDs from the list"
+                                            title={t("unusedIds.removeAllTitle")}
                                             disabled={unusedIds.length === 0}
                                         >
-                                            Remove all
+                                            {t("unusedIds.removeAll")}
                                         </Button>
                                     </div>
                                     <RichAlert variant="info" className="mt-1">
-                                        The Unused Database IDs will not be used in the Change Vector generated for a
-                                        new or modified document
+                                        {t("unusedIds.info")}
                                     </RichAlert>
                                     <UnusedIdsForm
                                         ids={unusedIds}

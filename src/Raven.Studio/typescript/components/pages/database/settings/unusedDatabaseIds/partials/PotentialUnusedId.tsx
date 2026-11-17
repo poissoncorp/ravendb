@@ -1,6 +1,7 @@
 ﻿import React from "react";
 import { ConditionalPopover } from "components/common/ConditionalPopover";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface PotentialUnusedIdProps {
     id: string;
@@ -10,19 +11,20 @@ interface PotentialUnusedIdProps {
 
 export default function PotentialUnusedId(props: PotentialUnusedIdProps) {
     const { id, addUnusedId, isAdded } = props;
+    const t = useStudioTranslation("unusedDatabaseIds");
 
     return (
         <ConditionalPopover
             conditions={{
                 isActive: isAdded,
-                message: "This ID has already been added to the list",
+                message: t("potentialIds.alreadyAdded"),
             }}
             popoverPlacement="top"
         >
             <Button
                 className="rounded-pill"
                 onClick={addUnusedId}
-                title="Copy ID"
+                title={t("potentialIds.copyTitle")}
                 variant="outline-secondary"
                 disabled={isAdded}
             >

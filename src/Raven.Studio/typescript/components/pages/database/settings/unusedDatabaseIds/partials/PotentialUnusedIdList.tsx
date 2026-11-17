@@ -3,6 +3,7 @@ import PotentialUnusedId from "components/pages/database/settings/unusedDatabase
 import { UnusedIdsActions } from "components/pages/database/settings/unusedDatabaseIds/useUnusedDatabaseIds";
 import React from "react";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface PotentialUnusedIdListProps {
     potentialUnusedId: string[];
@@ -12,6 +13,7 @@ interface PotentialUnusedIdListProps {
 
 export default function PotentialUnusedIdList(props: PotentialUnusedIdListProps) {
     const { potentialUnusedId, unusedIds, unusedIdsActions } = props;
+    const t = useStudioTranslation("unusedDatabaseIds");
 
     if (potentialUnusedId.length === 0) {
         return null;
@@ -21,7 +23,7 @@ export default function PotentialUnusedIdList(props: PotentialUnusedIdListProps)
         <>
             <div className="d-flex gap-1 align-items-center justify-content-between mt-3">
                 <div className="d-flex gap-1">
-                    <h4 className="mb-0">IDs that may be added to the list</h4>
+                    <h4 className="mb-0">{t("potentialIds.heading")}</h4>
                     <CounterBadge count={potentialUnusedId.length} />
                 </div>
                 <Button
@@ -29,9 +31,9 @@ export default function PotentialUnusedIdList(props: PotentialUnusedIdListProps)
                     size="xs"
                     onClick={unusedIdsActions.addAllPotentialUnusedIds}
                     className="p-0"
-                    title="Add all potential unused IDs to the list"
+                    title={t("potentialIds.addAllTitle")}
                 >
-                    Add all
+                    {t("potentialIds.addAll")}
                 </Button>
             </div>
             <div className="d-flex flex-wrap gap-1 mt-1">
