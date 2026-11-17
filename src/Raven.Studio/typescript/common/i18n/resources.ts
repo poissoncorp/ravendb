@@ -3,6 +3,7 @@ import common from "./locales/en/common";
 import conflictResolution from "./locales/en/conflictResolution";
 import conflicts from "./locales/en/conflicts";
 import dataArchival from "./locales/en/dataArchival";
+import databaseCustomAnalyzers from "./locales/en/databaseCustomAnalyzers";
 import databaseRecord from "./locales/en/databaseRecord";
 import documentCompression from "./locales/en/documentCompression";
 import documentExpiration from "./locales/en/documentExpiration";
@@ -35,6 +36,7 @@ export const en = {
     conflictResolution,
     conflicts,
     dataArchival,
+    databaseCustomAnalyzers,
     databaseRecord,
     documentCompression,
     documentExpiration,

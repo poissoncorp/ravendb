@@ -21,8 +21,11 @@ import { useCustomAnalyzers } from "components/common/customAnalyzers/useCustomA
 import DatabaseCustomAnalyzersServerWideList from "components/pages/database/settings/customAnalyzers/DatabaseCustomAnalyzersServerWideList";
 import RichAlert from "components/common/RichAlert";
 import { ConditionalPopover } from "components/common/ConditionalPopover";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function DatabaseCustomAnalyzers() {
+    const t = useStudioTranslation("databaseCustomAnalyzers");
     const db = useAppSelector(databaseSelectors.activeDatabase);
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
 
@@ -76,7 +79,7 @@ export default function DatabaseCustomAnalyzers() {
             />
             <Row className="gy-sm">
                 <Col>
-                    <AboutViewHeading title="Custom analyzers" icon="custom-analyzers" />
+                    <AboutViewHeading title={t("title")} icon="custom-analyzers" />
                     {hasDatabaseAdminAccess && (
                         <ConditionalPopover
                             conditions={{
@@ -95,13 +98,13 @@ export default function DatabaseCustomAnalyzers() {
                                 onClick={addNewAnalyzer}
                                 disabled={isLimitReached}
                             >
-                                <Icon icon="plus" /> Add a custom analyzer
+                                <Icon icon="plus" /> {t("addButton")}
                             </Button>
                         </ConditionalPopover>
                     )}
 
                     <HrHeader count={databaseLimitReachStatus === "notReached" ? databaseResultsCount : null}>
-                        Database custom analyzers
+                        {t("databaseHeading")}
                         {databaseLimitReachStatus !== "notReached" && (
                             <CounterBadge className="ms-2" count={databaseResultsCount} limit={licenseDatabaseLimit} />
                         )}
@@ -120,15 +123,15 @@ export default function DatabaseCustomAnalyzers() {
                             <a
                                 href={appUrl.forServerWideCustomAnalyzers()}
                                 target="_blank"
-                                title="Navigate to the server-wide view to edit"
+                                title={t("serverWideLinkTitle")}
                             >
                                 <Icon icon="link" />
-                                Server-wide custom analyzers
+                                {t("serverWideHeading")}
                             </a>
                         }
                         count={serverWideResultsCount}
                     >
-                        Server-wide custom analyzers
+                        {t("serverWideHeading")}
                         {!hasServerWideCustomAnalyzers && <LicenseRestrictedBadge licenseRequired="Professional +" />}
                     </HrHeader>
                     {hasServerWideCustomAnalyzers && (
@@ -164,17 +167,12 @@ function DatabaseLimitAlert(props: DatabaseLimitAlertProps) {
             iconAddon="warning"
             className="mb-3"
         >
-            Database {databaseLimitReachStatus === "limitReached" ? "has reached" : "is reaching"} the{" "}
-            <strong>maximum number of Custom Analyzers</strong> allowed per database by your license{" "}
-            <strong>
-                ({databaseResultsCount}/{licenseDatabaseLimit})
-            </strong>
-            <br /> Delete unused analyzers or{" "}
-            <strong>
-                <a href={upgradeLicenseLink} target="_blank">
-                    upgrade your license
-                </a>
-            </strong>
+            <StudioTrans
+                ns="databaseCustomAnalyzers"
+                i18nKey="databaseLimitAlert"
+                options={{ context: databaseLimitReachStatus, used: databaseResultsCount, limit: licenseDatabaseLimit }}
+                components={{ strong: <strong />, br: <br />, a: <a href={upgradeLicenseLink} target="_blank" /> }}
+            />
         </RichAlert>
     );
 }
@@ -201,17 +199,16 @@ function ClusterLimitAlert(props: ClusterLimitAlertProps) {
             iconAddon="warning"
             className="mb-3"
         >
-            Cluster {clusterLimitReachStatus === "limitReached" ? "has reached" : "is reaching"} the{" "}
-            <strong>maximum number of Custom Analyzers</strong> allowed per cluster by your license{" "}
-            <strong>
-                ({numberOfCustomAnalyzersInCluster}/{licenseClusterLimit})
-            </strong>
-            <br /> Delete unused analyzers or{" "}
-            <strong>
-                <a href={upgradeLicenseLink} target="_blank">
-                    upgrade your license
-                </a>
-            </strong>
+            <StudioTrans
+                ns="databaseCustomAnalyzers"
+                i18nKey="clusterLimitAlert"
+                options={{
+                    context: clusterLimitReachStatus,
+                    used: numberOfCustomAnalyzersInCluster,
+                    limit: licenseClusterLimit,
+                }}
+                components={{ strong: <strong />, br: <br />, a: <a href={upgradeLicenseLink} target="_blank" /> }}
+            />
         </RichAlert>
     );
 }
@@ -225,12 +222,12 @@ function AddButtonLicensePopoverBody({ databaseLimitReachStatus, upgradeLicenseL
     return (
         <div className="text-center">
             <Icon icon={databaseLimitReachStatus === "limitReached" ? "database" : "cluster"} />
-            {databaseLimitReachStatus === "limitReached" ? "Database" : "Cluster"} has reached the maximum number of
-            Custom Analyzers allowed per {databaseLimitReachStatus === "limitReached" ? "database" : "cluster"}.
-            <br /> Delete unused analyzers or{" "}
-            <a href={upgradeLicenseLink} target="_blank">
-                upgrade your license
-            </a>
+            <StudioTrans
+                ns="databaseCustomAnalyzers"
+                i18nKey="addButtonLimitPopover"
+                options={{ context: databaseLimitReachStatus === "limitReached" ? "database" : "cluster" }}
+                components={{ br: <br />, a: <a href={upgradeLicenseLink} target="_blank" /> }}
+            />
         </div>
     );
 }

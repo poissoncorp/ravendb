@@ -4,6 +4,7 @@ import { LoadError } from "components/common/LoadError";
 import { EmptySet } from "components/common/EmptySet";
 import React from "react";
 import { RichPanel, RichPanelHeader, RichPanelInfo, RichPanelName } from "components/common/RichPanel";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface DatabaseCustomAnalyzersServerWideListProps {
     asyncGetAnalyzers: UseAsyncReturn<Raven.Client.Documents.Indexes.Analysis.AnalyzerDefinition[], any[]>;
@@ -12,16 +13,18 @@ interface DatabaseCustomAnalyzersServerWideListProps {
 export default function DatabaseCustomAnalyzersServerWideList({
     asyncGetAnalyzers,
 }: DatabaseCustomAnalyzersServerWideListProps) {
+    const t = useStudioTranslation("databaseCustomAnalyzers");
+
     if (asyncGetAnalyzers.status === "loading") {
         return <LoadingView />;
     }
 
     if (asyncGetAnalyzers.status === "error") {
-        return <LoadError error="Unable to load custom analyzers" refresh={asyncGetAnalyzers.execute} />;
+        return <LoadError error={t("loadError")} refresh={asyncGetAnalyzers.execute} />;
     }
 
     if (asyncGetAnalyzers.result.length === 0) {
-        return <EmptySet>No server-wide custom analyzers have been defined</EmptySet>;
+        return <EmptySet>{t("serverWideEmpty")}</EmptySet>;
     }
 
     return (

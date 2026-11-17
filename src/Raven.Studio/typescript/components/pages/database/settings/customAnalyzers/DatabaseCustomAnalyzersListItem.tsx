@@ -34,6 +34,7 @@ import fileImporter from "common/fileImporter";
 import Button from "react-bootstrap/Button";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface DatabaseCustomAnalyzersListItemProps {
     initialAnalyzer: CustomAnalyzerFormData;
@@ -44,6 +45,7 @@ interface DatabaseCustomAnalyzersListItemProps {
 
 export default function DatabaseCustomAnalyzersListItem(props: DatabaseCustomAnalyzersListItemProps) {
     const { initialAnalyzer, serverWideAnalyzerNames, remove, markAsSaved } = props;
+    const t = useStudioTranslation("databaseCustomAnalyzers");
     const form = useForm<CustomAnalyzerFormData>({
         resolver: customAnalyzerYupResolver,
         defaultValues: initialAnalyzer,
@@ -100,12 +102,12 @@ export default function DatabaseCustomAnalyzersListItem(props: DatabaseCustomAna
                 <RichPanelHeader>
                     <RichPanelInfo>
                         <RichPanelName>
-                            {formValues.name || "New analyzer name"}
+                            {formValues.name || t("item.newNameFallback")}
                             {(formState.isDirty || isNew) && <span className="text-warning ms-1">*</span>}
                         </RichPanelName>
                     </RichPanelInfo>
                     {serverWideAnalyzerNames.includes(formValues.name) && (
-                        <OverlayTrigger overlay={<Tooltip id={tooltipId}>Override server-wide analyzer</Tooltip>}>
+                        <OverlayTrigger overlay={<Tooltip id={tooltipId}>{t("item.overridesServerWide")}</Tooltip>}>
                             <div className="d-inline-block">
                                 <Icon id={tooltipId} icon="info" color="info" />
                             </div>
@@ -130,12 +132,12 @@ export default function DatabaseCustomAnalyzersListItem(props: DatabaseCustomAna
                         <RichPanelDetails className="vstack gap-3 p-4">
                             {isNew && (
                                 <InputGroup className="vstack mb-1">
-                                    <FormLabel>Name</FormLabel>
+                                    <FormLabel>{t("item.nameLabel")}</FormLabel>
                                     <FormInput
                                         type="text"
                                         control={control}
                                         name="name"
-                                        placeholder="Enter analyzer name"
+                                        placeholder={t("item.namePlaceholder")}
                                     />
                                 </InputGroup>
                             )}
@@ -144,7 +146,7 @@ export default function DatabaseCustomAnalyzersListItem(props: DatabaseCustomAna
                                     <div className="d-flex justify-content-end">
                                         <FormLabel className="btn btn-link btn-xs text-right">
                                             <Icon icon="upload" />
-                                            Load from a file
+                                            {t("item.loadFromFile")}
                                             <input
                                                 type="file"
                                                 className="d-none"
@@ -195,6 +197,7 @@ function CustomAnalyzersActions({
     isSubmitting,
     asyncDeleteAnalyzer,
 }: CustomAnalyzersActionsProps) {
+    const t = useStudioTranslation("databaseCustomAnalyzers");
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
 
     if (!hasDatabaseAdminAccess) {
@@ -214,10 +217,10 @@ function CustomAnalyzersActions({
             {isEditMode ? (
                 <>
                     <Button key="save" type="submit" variant="success" disabled={isSubmitting}>
-                        <Icon icon="save" /> Save changes
+                        <Icon icon="save" /> {t("item.saveButton")}
                     </Button>
                     <Button key="cancel" type="button" variant="secondary" onClick={onDiscard}>
-                        <Icon icon="cancel" /> Discard
+                        <Icon icon="cancel" /> {t("item.discardButton")}
                     </Button>
                 </>
             ) : (

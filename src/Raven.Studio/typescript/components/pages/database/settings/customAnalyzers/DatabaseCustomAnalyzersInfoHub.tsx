@@ -8,17 +8,45 @@ import { useRavenLink } from "hooks/useRavenLink";
 import { useAppSelector } from "components/store";
 import { licenseSelectors } from "components/common/shell/licenseSlice";
 import { getLicenseLimitReachStatus, useLimitedFeatureAvailability } from "components/utils/licenseLimitsUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface DatabaseCustomAnalyzersInfoHubProps {
     databaseAnalyzersCount: number;
 }
 
 export function DatabaseCustomAnalyzersInfoHub({ databaseAnalyzersCount }: DatabaseCustomAnalyzersInfoHubProps) {
+    const t = useStudioTranslation("databaseCustomAnalyzers");
+    const commonT = useStudioTranslation("common");
     const customAnalyzersDocsLink = useRavenLink({ hash: "VWCQPI" });
     const licenseClusterLimit = useAppSelector(licenseSelectors.statusValue("MaxNumberOfCustomAnalyzersPerCluster"));
     const licenseDatabaseLimit = useAppSelector(licenseSelectors.statusValue("MaxNumberOfCustomAnalyzersPerDatabase"));
     const numberOfCustomAnalyzersInCluster = useAppSelector(licenseSelectors.limitsUsage).NumberOfAnalyzersInCluster;
     const hasServerWideCustomAnalyzers = useAppSelector(licenseSelectors.statusValue("HasServerWideAnalyzers"));
+
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("featureAvailability.limitPerDatabase"),
+            community: { value: 1 },
+            professional: { value: Infinity },
+            enterprise: { value: Infinity },
+            quill: { value: Infinity },
+        },
+        {
+            featureName: t("featureAvailability.limitPerCluster"),
+            community: { value: 5 },
+            professional: { value: Infinity },
+            enterprise: { value: Infinity },
+            quill: { value: Infinity },
+        },
+        {
+            featureName: t("featureAvailability.serverWide"),
+            community: { value: false },
+            professional: { value: true },
+            enterprise: { value: true },
+            quill: { value: true },
+        },
+    ];
 
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
@@ -45,36 +73,51 @@ export function DatabaseCustomAnalyzersInfoHub({ databaseAnalyzersCount }: Datab
         <AboutViewAnchored>
             <AccordionItemWrapper targetId="1" icon="about" color="info">
                 <p>
-                    <strong>Analyzers</strong> are used by indexes to split the index-fields into tokens (terms).
-                    <br />
-                    The analyzer defines how the field is tokenized.
-                    <br />
-                    When querying an index, these terms are used to define the search criteria and filter query results.
+                    <StudioTrans
+                        ns="databaseCustomAnalyzers"
+                        i18nKey="about.analyzers"
+                        components={{ strong: <strong />, br: <br /> }}
+                    />
                 </p>
                 <div>
-                    <strong>In this view</strong>, you can add your own analyzers in addition to the existing analyzers
-                    that come with RavenDB.
+                    <StudioTrans
+                        ns="databaseCustomAnalyzers"
+                        i18nKey="about.inThisView"
+                        components={{ strong: <strong /> }}
+                    />
                     <ul>
-                        <li>The custom analyzers added here can be used only by indexes in this database.</li>
-                        <li>The server-wide custom analyzers listed can also be used in this database.</li>
+                        <li>{t("about.databaseScopeItem")}</li>
+                        <li>{t("about.serverWideScopeItem")}</li>
                     </ul>
                 </div>
                 <div>
-                    Provide <code>C#</code> code in the editor view, or upload from file.
+                    <StudioTrans
+                        ns="databaseCustomAnalyzers"
+                        i18nKey="about.provideCode"
+                        components={{ code: <code /> }}
+                    />
                     <ul>
-                        <li>The analyzer name must be the same as the analyzer&apos;s class name in your code.</li>
+                        <li>{t("about.nameItem")}</li>
                         <li>
-                            Inherit from <code>Lucene.Net.Analysis.Analyzer</code>
+                            <StudioTrans
+                                ns="databaseCustomAnalyzers"
+                                i18nKey="about.inheritItem"
+                                components={{ code: <code /> }}
+                            />
                         </li>
                         <li>
-                            Code must be compilable and include all necessary <code>using</code> statements.
+                            <StudioTrans
+                                ns="databaseCustomAnalyzers"
+                                i18nKey="about.compilableItem"
+                                components={{ code: <code /> }}
+                            />
                         </li>
                     </ul>
                 </div>
                 <hr />
-                <div className="small-label mb-2">useful links</div>
+                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                 <a href={customAnalyzersDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - Custom Analyzers
+                    <Icon icon="newtab" /> {t("about.docsLink")}
                 </a>
             </AccordionItemWrapper>
             <FeatureAvailabilitySummaryWrapper
@@ -89,27 +132,3 @@ export function DatabaseCustomAnalyzersInfoHub({ databaseAnalyzersCount }: Datab
         </AboutViewAnchored>
     );
 }
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "Limit per database",
-        community: { value: 1 },
-        professional: { value: Infinity },
-        enterprise: { value: Infinity },
-        quill: { value: Infinity },
-    },
-    {
-        featureName: "Limit per cluster",
-        community: { value: 5 },
-        professional: { value: Infinity },
-        enterprise: { value: Infinity },
-        quill: { value: Infinity },
-    },
-    {
-        featureName: "Server-wide custom analyzers",
-        community: { value: false },
-        professional: { value: true },
-        enterprise: { value: true },
-        quill: { value: true },
-    },
-];
