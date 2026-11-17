@@ -33,10 +33,14 @@ import { databaseSelectors } from "components/common/shell/databaseSliceSelector
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import { ConditionalPopover } from "components/common/ConditionalPopover";
 import FeatureNotAvailableInYourLicensePopoverBody from "components/common/FeatureNotAvailableInYourLicensePopoverBody";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function StudioDatabaseConfiguration() {
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const { databasesService } = useServices();
+    const t = useStudioTranslation("studioDatabaseConfiguration");
+    const commonT = useStudioTranslation("common");
 
     const asyncDatabaseSettings = useAsyncCallback<StudioDatabaseConfigurationFormData>(async () => {
         const settings = await databasesService.getDatabaseStudioConfiguration(databaseName);
@@ -60,6 +64,16 @@ export default function StudioDatabaseConfiguration() {
     const { reportEvent } = useEventsCollector();
 
     const hasStudioConfiguration = useAppSelector(licenseSelectors.statusValue("HasStudioConfiguration"));
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("title"),
+            featureIcon: "studio-configuration",
+            community: { value: false },
+            professional: { value: true },
+            enterprise: { value: true },
+            quill: { value: true },
+        },
+    ];
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
         overwrites: [
@@ -87,7 +101,7 @@ export default function StudioDatabaseConfiguration() {
     }
 
     if (asyncDatabaseSettings.status === "error") {
-        return <LoadError error="Unable to load studio configuration" refresh={onRefresh} />;
+        return <LoadError error={t("loadError")} refresh={onRefresh} />;
     }
 
     return (
@@ -96,7 +110,7 @@ export default function StudioDatabaseConfiguration() {
                 <Col>
                     <AboutViewHeading
                         icon="database-studio-configuration"
-                        title="Studio Configuration"
+                        title={t("title")}
                         licenseBadgeText={hasStudioConfiguration ? null : "Professional +"}
                     />
                     <Form onSubmit={handleSubmit(onSave)} autoComplete="off">
@@ -115,13 +129,13 @@ export default function StudioDatabaseConfiguration() {
                                     disabled={!formState.isDirty}
                                     isSpinning={formState.isSubmitting}
                                 >
-                                    Save
+                                    {commonT("save")}
                                 </ButtonWithSpinner>
                             </ConditionalPopover>
-                            <small title="Navigate to the server-wide Client Configuration View">
+                            <small title={t("serverWideLinkTitle")}>
                                 <a target="_blank" href={appUrl.forGlobalStudioConfiguration()}>
                                     <Icon icon="link" />
-                                    Go to Server-Wide Studio Configuration View
+                                    {t("serverWideLink")}
                                 </a>
                             </small>
                         </div>
@@ -130,15 +144,18 @@ export default function StudioDatabaseConfiguration() {
                                 <Card.Body className="d-flex flex-center flex-column flex-wrap gap-4">
                                     <InputGroup className="gap-1 flex-wrap flex-column">
                                         <FormLabel className="mb-0 md-label">
-                                            Database Environment{" "}
+                                            {t("environment.label")}{" "}
                                             <PopoverWithHoverWrapper
                                                 message={
                                                     <ul>
                                                         <li className="margin-bottom-xs">
-                                                            Apply a <strong>tag</strong> to the Studio indicating the
-                                                            database environment.
+                                                            <StudioTrans
+                                                                ns="studioDatabaseConfiguration"
+                                                                i18nKey="environment.tagInfo"
+                                                                components={{ strong: <strong /> }}
+                                                            />
                                                         </li>
-                                                        <li>This does not affect any settings or features.</li>
+                                                        <li>{t("environment.noEffectInfo")}</li>
                                                     </ul>
                                                 }
                                                 placement="right"
@@ -159,18 +176,18 @@ export default function StudioDatabaseConfiguration() {
                                 <Card.Body>
                                     <div className="d-flex flex-column">
                                         <FormSwitch control={control} name="DisableAutoIndexCreation">
-                                            Disable creating new Auto-Indexes{" "}
+                                            {t("autoIndexes.disableSwitch")}{" "}
                                             <PopoverWithHoverWrapper
                                                 message={
                                                     <ul className="mb-0">
                                                         <li className="margin-bottom-xs">
-                                                            Toggle on to disable creating new Auto-Indexes when making a{" "}
-                                                            <strong>dynamic query</strong>.
+                                                            <StudioTrans
+                                                                ns="studioDatabaseConfiguration"
+                                                                i18nKey="autoIndexes.dynamicQueryInfo"
+                                                                components={{ strong: <strong /> }}
+                                                            />
                                                         </li>
-                                                        <li>
-                                                            Query results will be returned only when a matching
-                                                            Auto-Index already exists.
-                                                        </li>
+                                                        <li>{t("autoIndexes.existingIndexInfo")}</li>
                                                     </ul>
                                                 }
                                                 placement="right"
@@ -188,14 +205,16 @@ export default function StudioDatabaseConfiguration() {
                     <AboutViewAnchored defaultOpen={hasStudioConfiguration ? null : "licensing"}>
                         <AccordionItemWrapper icon="about" color="info" targetId="1">
                             <p>
-                                This is the <strong>Database Studio-Configuration</strong> view.
-                                <br />
-                                The available configuration options will apply only to this database.
+                                <StudioTrans
+                                    ns="studioDatabaseConfiguration"
+                                    i18nKey="about.scope"
+                                    components={{ strong: <strong />, br: <br /> }}
+                                />
                             </p>
                             <hr />
-                            <div className="small-label mb-2">useful links</div>
+                            <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                             <a href={studioConfigurationDocsLink} target="_blank">
-                                <Icon icon="newtab" /> Docs - Studio Configuration
+                                <Icon icon="newtab" /> {t("about.docsLink")}
                             </a>
                         </AccordionItemWrapper>
                         <FeatureAvailabilitySummaryWrapper
@@ -208,14 +227,3 @@ export default function StudioDatabaseConfiguration() {
         </div>
     );
 }
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "Studio Configuration",
-        featureIcon: "studio-configuration",
-        community: { value: false },
-        professional: { value: true },
-        enterprise: { value: true },
-        quill: { value: true },
-    },
-];

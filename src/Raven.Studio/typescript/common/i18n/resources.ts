@@ -2,11 +2,13 @@ import aboutView from "./locales/en/aboutView";
 import common from "./locales/en/common";
 import conflicts from "./locales/en/conflicts";
 import dataArchival from "./locales/en/dataArchival";
+import documentCompression from "./locales/en/documentCompression";
 import documentExpiration from "./locales/en/documentExpiration";
 import documentRefresh from "./locales/en/documentRefresh";
 import editCustomSorter from "./locales/en/editCustomSorter";
 import featureAvailabilitySummary from "./locales/en/featureAvailabilitySummary";
 import revisionsBin from "./locales/en/revisionsBin";
+import studioDatabaseConfiguration from "./locales/en/studioDatabaseConfiguration";
 import studioGlobalConfiguration from "./locales/en/studioGlobalConfiguration";
 
 export const supportedLanguages = ["en", "pl"] as const;
@@ -27,11 +29,13 @@ export const en = {
     common,
     conflicts,
     dataArchival,
+    documentCompression,
     documentExpiration,
     documentRefresh,
     editCustomSorter,
     featureAvailabilitySummary,
     revisionsBin,
+    studioDatabaseConfiguration,
     studioGlobalConfiguration,
 };
 

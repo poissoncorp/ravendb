@@ -35,11 +35,15 @@ import { databaseSelectors } from "components/common/shell/databaseSliceSelector
 import { accessManagerSelectors } from "components/common/shell/accessManagerSliceSelectors";
 import RichAlert from "components/common/RichAlert";
 import { ConditionalPopover } from "components/common/ConditionalPopover";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function DocumentCompression() {
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
     const { databasesService } = useServices();
+    const t = useStudioTranslation("documentCompression");
+    const commonT = useStudioTranslation("common");
 
     const allCollectionNames = useAppSelector(collectionsTrackerSelectors.collectionNames).filter(
         (x) => x !== "@empty" && x !== "@hilo"
@@ -70,6 +74,16 @@ export default function DocumentCompression() {
     const { Collections, CompressAllCollections } = useWatch({ control });
 
     const hasDocumentsCompression = useAppSelector(licenseSelectors.statusValue("HasDocumentsCompression"));
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("title"),
+            featureIcon: "documents-compression",
+            community: { value: false },
+            professional: { value: false },
+            enterprise: { value: true },
+            quill: { value: true },
+        },
+    ];
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
         overwrites: [
@@ -90,7 +104,7 @@ export default function DocumentCompression() {
     }
 
     if (asyncGetConfig.status === "error") {
-        return <LoadError error="Unable to load document compression configuration" refresh={asyncGetConfig.execute} />;
+        return <LoadError error={t("loadError")} refresh={asyncGetConfig.execute} />;
     }
 
     const onSave: SubmitHandler<DocumentsCompressionConfiguration> = async (formData) => {
@@ -106,7 +120,7 @@ export default function DocumentCompression() {
         });
     };
 
-    const infoTextSuffix = CompressAllCollections ? "all collections" : "the selected collections";
+    const collectionsScope = CompressAllCollections ? "all" : "selected";
 
     return (
         <div className="content-margin">
@@ -114,7 +128,7 @@ export default function DocumentCompression() {
                 <Row className="gy-sm">
                     <Col className="gy-sm">
                         <AboutViewHeading
-                            title="Document Compression"
+                            title={t("title")}
                             icon="documents-compression"
                             licenseBadgeText={hasDocumentsCompression ? null : "Enterprise"}
                         />
@@ -135,13 +149,13 @@ export default function DocumentCompression() {
                                             disabled={!formState.isDirty}
                                             isSpinning={formState.isSubmitting}
                                         >
-                                            Save
+                                            {commonT("save")}
                                         </ButtonWithSpinner>
                                     </ConditionalPopover>
                                 )}
                                 <FlexGrow />
                                 <a href={appUrl.forStatusStorageReport(databaseName)}>
-                                    <Icon icon="link" /> Storage Report
+                                    <Icon icon="link" /> {t("storageReportLink")}
                                 </a>
                             </div>
 
@@ -161,12 +175,10 @@ export default function DocumentCompression() {
                                     <div>
                                         <RichAlert variant="info" icon="documents-compression" className="mt-4">
                                             <div>
-                                                Documents that will be compressed:
+                                                {t("compressedDocuments")}
                                                 <ul className="m-0">
-                                                    <li>New documents created in {infoTextSuffix}</li>
-                                                    <li>
-                                                        Existing documents that are modified & saved in {infoTextSuffix}
-                                                    </li>
+                                                    <li>{t("newDocumentsItem", { context: collectionsScope })}</li>
+                                                    <li>{t("modifiedDocumentsItem", { context: collectionsScope })}</li>
                                                 </ul>
                                             </div>
                                         </RichAlert>
@@ -183,7 +195,7 @@ export default function DocumentCompression() {
                                     name="CompressRevisions"
                                     disabled={!hasDatabaseAdminAccess}
                                 >
-                                    Compress revisions for all collections
+                                    {t("compressRevisionsSwitch")}
                                 </FormSwitch>
                             </Card>
                         </Form>
@@ -193,19 +205,18 @@ export default function DocumentCompression() {
                             <AccordionItemWrapper targetId="aboutView" icon="about" color="info">
                                 <ul>
                                     <li>
-                                        Enable documents compression to achieve efficient data storage.
-                                        <br />
-                                        Storage space will be reduced using the zstd compression algorithm.
+                                        <StudioTrans
+                                            ns="documentCompression"
+                                            i18nKey="about.storageItem"
+                                            components={{ br: <br /> }}
+                                        />
                                     </li>
-                                    <li>
-                                        Documents compression can be set for all collections, selected collections, and
-                                        all revisions.
-                                    </li>
+                                    <li>{t("about.scopeItem")}</li>
                                 </ul>
                                 <hr />
-                                <div className="small-label mb-2">useful links</div>
+                                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                                 <a href={docsLink} target="_blank">
-                                    <Icon icon="newtab" /> Docs - Document Compression
+                                    <Icon icon="newtab" /> {t("about.docsLink")}
                                 </a>
                             </AccordionItemWrapper>
                             <FeatureAvailabilitySummaryWrapper
@@ -219,14 +230,3 @@ export default function DocumentCompression() {
         </div>
     );
 }
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "Document Compression",
-        featureIcon: "documents-compression",
-        community: { value: false },
-        professional: { value: false },
-        enterprise: { value: true },
-        quill: { value: true },
-    },
-];
