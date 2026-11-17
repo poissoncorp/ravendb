@@ -3,48 +3,45 @@ import React from "react";
 import { useAppSelector } from "components/store";
 import { useAppUrls } from "hooks/useAppUrls";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export function RevisionsBinCleanerInfoHub() {
     const { appUrl } = useAppUrls();
     const activeDatabaseName = useAppSelector(databaseSelectors.activeDatabaseName);
+    const revisionsBinLink = <a href={appUrl.forRevisionsBin(activeDatabaseName)} target="_blank" />;
 
     return (
         <AboutViewAnchored>
             <AccordionItemWrapper targetId="about" icon="about" color="info">
                 <div>
-                    <strong>Automatic deletion</strong>:
-                    <br />
-                    This view allows you to configure automatic deletion of{" "}
-                    <strong>
-                        <code>&quot;Delete Revisions&quot;</code>
-                    </strong>{" "}
-                    that are stored in the{" "}
-                    <a href={appUrl.forRevisionsBin(activeDatabaseName)} target="_blank">
-                        Revisions Bin
-                    </a>
-                    . You can set the following:
+                    <StudioTrans
+                        ns="revisionsBinCleaner"
+                        i18nKey="about.automaticDeletion"
+                        components={{ strong: <strong />, br: <br />, code: <code />, a: revisionsBinLink }}
+                    />
                     <ul className="mt-1">
                         <li className="mb-1">
-                            <strong>Minimum age</strong>
-                            <br />
-                            Revisions that have been in the Revisions Bin for longer than this duration will be removed
-                            when the cleaner executes.
+                            <StudioTrans
+                                ns="revisionsBinCleaner"
+                                i18nKey="about.minimumAge"
+                                components={{ strong: <strong />, br: <br /> }}
+                            />
                         </li>
                         <li>
-                            <strong>Cleaner frequency</strong>
-                            <br />
-                            Defines how often the cleaner executes to remove revisions.
+                            <StudioTrans
+                                ns="revisionsBinCleaner"
+                                i18nKey="about.cleanerFrequency"
+                                components={{ strong: <strong />, br: <br /> }}
+                            />
                         </li>
                     </ul>
                 </div>
                 <div>
-                    <strong>Manual deletion</strong>:
-                    <br />
-                    Manual deletion of individual &quot;Delete Revisions&quot; can be performed from the{" "}
-                    <a href={appUrl.forRevisionsBin(activeDatabaseName)} target="_blank">
-                        Revisions Bin View
-                    </a>
-                    .
+                    <StudioTrans
+                        ns="revisionsBinCleaner"
+                        i18nKey="about.manualDeletion"
+                        components={{ strong: <strong />, br: <br />, a: revisionsBinLink }}
+                    />
                 </div>
             </AccordionItemWrapper>
         </AboutViewAnchored>

@@ -27,11 +27,14 @@ import { revisionsBinCleanerUtils } from "components/pages/database/settings/rev
 import { Icon } from "components/common/Icon";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import Form from "react-bootstrap/Form";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function RevisionsBinCleaner() {
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const { databasesService } = useServices();
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
+    const t = useStudioTranslation("revisionsBinCleaner");
+    const commonT = useStudioTranslation("common");
 
     const asyncGetRevisionsBinCleanerConfiguration = useAsyncCallback<RevisionsBinCleanerFormData>(async () =>
         revisionsBinCleanerUtils.mapToFormData(await databasesService.getRevisionsBinCleanerConfiguration(databaseName))
@@ -70,12 +73,7 @@ export default function RevisionsBinCleaner() {
     }
 
     if (asyncGetRevisionsBinCleanerConfiguration.status === "error") {
-        return (
-            <LoadError
-                error="Unable to load revisions bin cleaner"
-                refresh={asyncGetRevisionsBinCleanerConfiguration.execute}
-            />
-        );
+        return <LoadError error={t("loadError")} refresh={asyncGetRevisionsBinCleanerConfiguration.execute} />;
     }
 
     return (
@@ -84,7 +82,7 @@ export default function RevisionsBinCleaner() {
                 <Row className="gy-sm">
                     <Col>
                         <Form onSubmit={handleSubmit(handleSave)} autoComplete="off">
-                            <AboutViewHeading title="Revisions Bin Cleaner" icon="revisions-bin" />
+                            <AboutViewHeading title={t("title")} icon="revisions-bin" />
                             {hasDatabaseAdminAccess && (
                                 <ButtonWithSpinner
                                     type="submit"
@@ -94,7 +92,7 @@ export default function RevisionsBinCleaner() {
                                     disabled={!formState.isDirty}
                                     isSpinning={formState.isSubmitting}
                                 >
-                                    Save
+                                    {commonT("save")}
                                 </ButtonWithSpinner>
                             )}
                             <Col>
@@ -106,7 +104,7 @@ export default function RevisionsBinCleaner() {
                                                 disabled={!hasDatabaseAdminAccess}
                                                 control={control}
                                             >
-                                                Enable Revisions Bin Cleaner
+                                                {t("enableSwitch")}
                                             </FormSwitch>
                                         </FormGroup>
                                         <FormGroup className="d-flex gap-2 align-items-center">
@@ -120,11 +118,11 @@ export default function RevisionsBinCleaner() {
                                                     !formValues.isRevisionsBinCleanerEnabled
                                                 }
                                             >
-                                                Set minimum entries age to keep
+                                                {t("minimumAgeSwitch")}
                                             </FormSwitch>
                                             {formValues.isRevisionsBinCleanerEnabled &&
                                                 !formValues.isMinimumEntriesAgeToKeepEnabled && (
-                                                    <PopoverWithHoverWrapper message="All items in the Revisions Bin will be deleted when 'Set minimum entries age to keep' is toggled off.">
+                                                    <PopoverWithHoverWrapper message={t("minimumAgeOffWarning")}>
                                                         <Icon margin="m-0" icon="warning" color="warning" />
                                                     </PopoverWithHoverWrapper>
                                                 )}
@@ -147,9 +145,9 @@ export default function RevisionsBinCleaner() {
                                                             !formValues.isMinimumEntriesAgeToKeepEnabled
                                                         }
                                                         placeholder={{
-                                                            days: "Default (30)",
-                                                            hours: "Default (0)",
-                                                            minutes: "Default (0)",
+                                                            days: t("defaultPlaceholder", { value: 30 }),
+                                                            hours: t("defaultPlaceholder", { value: 0 }),
+                                                            minutes: t("defaultPlaceholder", { value: 0 }),
                                                         }}
                                                         name="minimumEntriesAgeToKeep"
                                                         showDays
@@ -169,7 +167,7 @@ export default function RevisionsBinCleaner() {
                                                     !formValues.isRevisionsBinCleanerEnabled
                                                 }
                                             >
-                                                Set custom cleaner frequency
+                                                {t("customFrequencySwitch")}
                                             </FormSwitch>
                                             <FormInput
                                                 name="cleanerFrequencyInSec"
@@ -181,8 +179,8 @@ export default function RevisionsBinCleaner() {
                                                     !formValues.isRevisionsBinCleanerEnabled ||
                                                     !formValues.isCleanerFrequencyInSecEnabled
                                                 }
-                                                placeholder="Default (300)"
-                                                addon="seconds"
+                                                placeholder={t("defaultPlaceholder", { value: 300 })}
+                                                addon={t("secondsAddon")}
                                             />
                                         </FormGroup>
                                     </Card.Body>

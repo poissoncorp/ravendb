@@ -8,6 +8,7 @@ import documentRefresh from "./locales/en/documentRefresh";
 import editCustomSorter from "./locales/en/editCustomSorter";
 import featureAvailabilitySummary from "./locales/en/featureAvailabilitySummary";
 import revisionsBin from "./locales/en/revisionsBin";
+import revisionsBinCleaner from "./locales/en/revisionsBinCleaner";
 import studioDatabaseConfiguration from "./locales/en/studioDatabaseConfiguration";
 import studioGlobalConfiguration from "./locales/en/studioGlobalConfiguration";
 
@@ -35,6 +36,7 @@ export const en = {
     editCustomSorter,
     featureAvailabilitySummary,
     revisionsBin,
+    revisionsBinCleaner,
     studioDatabaseConfiguration,
     studioGlobalConfiguration,
 };
