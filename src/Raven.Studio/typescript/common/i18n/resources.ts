@@ -8,6 +8,7 @@ import documentExpiration from "./locales/en/documentExpiration";
 import documentRefresh from "./locales/en/documentRefresh";
 import editCustomSorter from "./locales/en/editCustomSorter";
 import featureAvailabilitySummary from "./locales/en/featureAvailabilitySummary";
+import revertRevisions from "./locales/en/revertRevisions";
 import revisionsBin from "./locales/en/revisionsBin";
 import revisionsBinCleaner from "./locales/en/revisionsBinCleaner";
 import studioDatabaseConfiguration from "./locales/en/studioDatabaseConfiguration";
@@ -38,6 +39,7 @@ export const en = {
     documentRefresh,
     editCustomSorter,
     featureAvailabilitySummary,
+    revertRevisions,
     revisionsBin,
     revisionsBinCleaner,
     studioDatabaseConfiguration,

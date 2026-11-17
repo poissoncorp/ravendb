@@ -27,10 +27,14 @@ import { collectionsTrackerSelectors } from "components/common/shell/collections
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
 import activeDatabaseTracker = require("common/shell/activeDatabaseTracker");
 import { useRavenLink } from "hooks/useRavenLink";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function RevertRevisions() {
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
+    const t = useStudioTranslation("revertRevisions");
+    const commonT = useStudioTranslation("common");
 
     const revertCollectionsDocsLink = useRavenLink({ hash: "E752O6" });
 
@@ -62,16 +66,20 @@ export default function RevertRevisions() {
         (x) => x !== "@empty" && x !== "@hilo"
     );
 
-    const tooltipMessage = isRevertAllCollections
-        ? "Revert documents from all collections to the specified point in time"
-        : "Revert documents from the selected collections to the specified point in time";
+    const tooltipMessage = t("revertTooltip", { context: isRevertAllCollections ? "all" : "selected" });
+
+    const timeWindowOptions: SelectOption<timeMagnitude>[] = [
+        { value: "minutes", label: t("timeWindow.units.minutes") },
+        { value: "hours", label: t("timeWindow.units.hours") },
+        { value: "days", label: t("timeWindow.units.days") },
+    ];
 
     const onRevert = async (formData: RevertRevisionsFormData) => {
         const isConfirmed = await confirm({
-            title: `Do you want to revert documents state to date: ${formattedPointInTimeUtc}?`,
+            title: t("confirmTitle", { pointInTime: formattedPointInTimeUtc }),
             icon: "revert-revisions",
             actionColor: "primary",
-            confirmText: "Revert",
+            confirmText: t("revertButton"),
         });
 
         if (isConfirmed) {
@@ -88,7 +96,7 @@ export default function RevertRevisions() {
     return (
         <Row className="content-margin gy-sm">
             <Col>
-                <AboutViewHeading title="Revert Documents to Revisions" icon="revert-revisions" />
+                <AboutViewHeading title={t("title")} icon="revert-revisions" />
                 <Form onSubmit={handleSubmit(onRevert)} autoComplete="off">
                     <div className="d-flex justify-content-between align-items-end">
                         <ButtonWithSpinner
@@ -99,19 +107,19 @@ export default function RevertRevisions() {
                             isSpinning={asyncRevertRevisions.status === "loading"}
                             title={tooltipMessage}
                         >
-                            Revert
+                            {t("revertButton")}
                         </ButtonWithSpinner>
                         <small>
-                            <a href={forCurrentDatabase.revisions()} title="Navigate to Document Revisions View">
+                            <a href={forCurrentDatabase.revisions()} title={t("backLinkTitle")}>
                                 <Icon icon="link" />
-                                Go back to Revisions View
+                                {t("backLink")}
                             </a>
                         </small>
                     </div>
                     <Card className="mt-3">
                         <Card.Body className="gap-4">
                             <FormGroup className="mb-3">
-                                <FormLabel>Point in Time</FormLabel>
+                                <FormLabel>{t("pointInTime.label")}</FormLabel>
                                 <FormDatePicker
                                     name="pointInTime"
                                     control={control}
@@ -121,18 +129,18 @@ export default function RevertRevisions() {
                                     filterTime={filterPointInTime}
                                     showYearDropdown
                                     showMonthDropdown
-                                    placeholderText="Select the point in time"
-                                    addon="local"
+                                    placeholderText={t("pointInTime.placeholder")}
+                                    addon={t("pointInTime.localAddon")}
                                 />
                             </FormGroup>
                             <FormGroup>
-                                <FormLabel>Time Window</FormLabel>
+                                <FormLabel>{t("timeWindow.label")}</FormLabel>
                                 <InputGroup>
                                     <FormInput
                                         type="number"
                                         control={control}
                                         name="timeWindow"
-                                        placeholder={`default (${defaultWindowValue})`}
+                                        placeholder={t("timeWindow.placeholder", { value: defaultWindowValue })}
                                         addon={
                                             <FormSelect
                                                 control={control}
@@ -169,62 +177,59 @@ export default function RevertRevisions() {
                 <AboutViewAnchored defaultOpen="about-view">
                     <AccordionItemWrapper targetId="about-view" icon="about" color="info">
                         <div className="margin-bottom-sm">
-                            Use this view to revert documents to their revisions as they were at the specified{" "}
-                            <strong>Point in Time</strong>.
-                            <br />
-                            You can choose to revert documents from all collections or only from selected collections.
+                            <StudioTrans
+                                ns="revertRevisions"
+                                i18nKey="about.intro"
+                                components={{ strong: <strong />, br: <br /> }}
+                            />
                         </div>
                         <div className="margin-bottom-sm">
-                            <strong>Time Window</strong> parameter is used for performance optimization: since revisions
-                            are not sorted by date, we stop the revert process when hitting a versioned document outside
-                            the window.
+                            <StudioTrans
+                                ns="revertRevisions"
+                                i18nKey="about.timeWindow"
+                                components={{ strong: <strong /> }}
+                            />
                         </div>
                         {pointInTime && (
                             <div>
-                                Based on the specified <strong>Point in Time</strong>,
-                                <br />
-                                the following will apply when the revert process takes place:
+                                <StudioTrans
+                                    ns="revertRevisions"
+                                    i18nKey="about.effects"
+                                    components={{ strong: <strong />, br: <br /> }}
+                                />
                                 <ul>
                                     <li>
-                                        Documents
-                                        <strong>
-                                            <em> modified </em>
-                                        </strong>
-                                        after Point in Time:
-                                        <code> {formattedPointInTimeUtc} </code>
-                                        will be reverted (by creating new revision) to latest version before
-                                        <code> {formattedPointInTimeUtc} </code>.
+                                        <StudioTrans
+                                            ns="revertRevisions"
+                                            i18nKey="about.modifiedItem"
+                                            components={{ strong: <strong />, em: <em />, code: <code /> }}
+                                            options={{ pointInTime: formattedPointInTimeUtc }}
+                                        />
                                     </li>
                                     <li>
-                                        If collection has maximum revisions limit and all of them were
-                                        <strong>
-                                            <em> created </em>
-                                        </strong>
-                                        after Point in Time:
-                                        <code> {formattedPointInTimeUtc} </code>
-                                        the oldest revision will be used.
+                                        <StudioTrans
+                                            ns="revertRevisions"
+                                            i18nKey="about.limitItem"
+                                            components={{ strong: <strong />, em: <em />, code: <code /> }}
+                                            options={{ pointInTime: formattedPointInTimeUtc }}
+                                        />
                                     </li>
                                     <li>
-                                        Documents
-                                        <strong>
-                                            <em> created </em>
-                                        </strong>
-                                        after Point in Time:
-                                        <code> {formattedPointInTimeUtc} </code>
-                                        will be moved to
-                                        <strong>
-                                            <em> Revisions&nbsp;Bin</em>
-                                        </strong>
-                                        .
+                                        <StudioTrans
+                                            ns="revertRevisions"
+                                            i18nKey="about.createdItem"
+                                            components={{ strong: <strong />, em: <em />, code: <code /> }}
+                                            options={{ pointInTime: formattedPointInTimeUtc }}
+                                        />
                                     </li>
-                                    <li>Remaining documents will not be modified.</li>
+                                    <li>{t("about.remainingItem")}</li>
                                 </ul>
                             </div>
                         )}
                         <hr />
-                        <div className="small-label mb-2">useful links</div>
+                        <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                         <a href={revertCollectionsDocsLink} target="_blank">
-                            <Icon icon="newtab" /> Docs - Revert Documents to Revisions
+                            <Icon icon="newtab" /> {t("about.docsLink")}
                         </a>
                     </AccordionItemWrapper>
                 </AboutViewAnchored>
@@ -242,11 +247,6 @@ const filterPointInTime = (date: Date) => {
 
     return currentDate > selectedDate;
 };
-
-const timeWindowOptions: SelectOption<timeMagnitude>[] = ["minutes", "hours", "days"].map((x: timeMagnitude) => ({
-    value: x,
-    label: x,
-}));
 
 function toDto(formData: RevertRevisionsFormData): RevertRevisionsRequest {
     let WindowInSec = formData.timeWindow ?? defaultWindowValue;
