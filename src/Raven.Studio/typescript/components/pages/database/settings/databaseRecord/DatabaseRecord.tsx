@@ -25,6 +25,7 @@ import { useEventsCollector } from "components/hooks/useEventsCollector";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
 import RichAlert from "components/common/RichAlert";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface VisibleDocument {
     text: string;
@@ -34,6 +35,8 @@ interface VisibleDocument {
 export default function DatabaseRecord() {
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const isOperatorOrAbove = useAppSelector(accessManagerSelectors.isOperatorOrAbove);
+    const t = useStudioTranslation("databaseRecord");
+    const commonT = useStudioTranslation("common");
 
     const { databasesService } = useServices();
     const confirm = useConfirm();
@@ -89,12 +92,12 @@ export default function DatabaseRecord() {
                 try {
                     await asyncGetDatabaseRecord.execute(false);
                 } catch (error) {
-                    messagePublisher.reportError("Error fetching database record!", error.message, error.name);
+                    messagePublisher.reportError(t("fetchError"), error.message, error.name);
                 }
             }
         };
         getData();
-    }, [asyncGetDatabaseRecord, isOperatorOrAbove]);
+    }, [asyncGetDatabaseRecord, isOperatorOrAbove, t]);
 
     useEffect(() => {
         if (asyncGetDatabaseRecord.result) {
@@ -112,9 +115,9 @@ export default function DatabaseRecord() {
         const confirmed = await confirm({
             icon: "database-record",
             actionColor: "warning",
-            title: "You're about to enter edit mode",
+            title: t("editConfirm.title"),
             message: <EditModeRiskAlert />,
-            confirmText: "I understand the risk and want to proceed",
+            confirmText: t("editConfirm.confirmButton"),
         });
 
         if (confirmed) {
@@ -130,8 +133,8 @@ export default function DatabaseRecord() {
         const confirmed = await confirm({
             icon: "save",
             actionColor: "warning",
-            title: "Do you want to save changes?",
-            confirmText: "Yes, save changes",
+            title: t("saveConfirm.title"),
+            confirmText: t("saveConfirm.confirmButton"),
         });
 
         if (confirmed) {
@@ -144,8 +147,8 @@ export default function DatabaseRecord() {
         const confirmed = await confirm({
             icon: "database-record",
             actionColor: "primary",
-            title: "Do you want to discard changes?",
-            confirmText: "Yes, discard changes",
+            title: t("discardConfirm.title"),
+            confirmText: t("discardConfirm.confirmButton"),
         });
 
         if (confirmed) {
@@ -160,9 +163,7 @@ export default function DatabaseRecord() {
     };
 
     if (asyncGetDatabaseRecord.status === "error") {
-        return (
-            <LoadError error="Unable to load database record" refresh={() => asyncGetDatabaseRecord.execute(true)} />
-        );
+        return <LoadError error={t("loadError")} refresh={() => asyncGetDatabaseRecord.execute(true)} />;
     }
 
     return (
@@ -170,7 +171,7 @@ export default function DatabaseRecord() {
             {isOperatorOrAbove ? (
                 <Row className="gy-sm">
                     <Col>
-                        <AboutViewHeading title="Database Record" icon="database-record" />
+                        <AboutViewHeading title={t("title")} icon="database-record" />
                         <div
                             className={classNames("d-flex gap-3 flex-wrap mb-3", {
                                 "justify-content-between": !isEditMode,
@@ -184,10 +185,10 @@ export default function DatabaseRecord() {
                                         onClick={saveDatabaseRecord}
                                         isSpinning={asyncSaveDatabaseRecord.loading}
                                     >
-                                        Save
+                                        {commonT("save")}
                                     </ButtonWithSpinner>
                                     <Button variant="secondary" onClick={discardDatabaseRecord}>
-                                        Cancel
+                                        {commonT("cancel")}
                                     </Button>
                                 </>
                             ) : (
@@ -198,7 +199,7 @@ export default function DatabaseRecord() {
                                         isSpinning={asyncGetDatabaseRecord.loading}
                                         icon="refresh"
                                     >
-                                        Refresh
+                                        {commonT("refresh")}
                                     </ButtonWithSpinner>
                                     <Button
                                         variant="secondary"
@@ -206,7 +207,7 @@ export default function DatabaseRecord() {
                                         disabled={asyncGetDatabaseRecord.loading}
                                     >
                                         <Icon icon="edit" />
-                                        Edit record
+                                        {t("editButton")}
                                     </Button>
                                 </>
                             )}
@@ -228,7 +229,7 @@ export default function DatabaseRecord() {
                                                 selected={isHideEmptyValues}
                                                 toggleSelection={toggleIsHideEmptyValues}
                                             >
-                                                Hide empty values
+                                                {t("hideEmptyValuesSwitch")}
                                             </Switch>
                                         )}
                                         <Button
@@ -240,11 +241,11 @@ export default function DatabaseRecord() {
                                         >
                                             {isCollapsed ? (
                                                 <>
-                                                    <Icon icon="expand-vertical" /> Expand record
+                                                    <Icon icon="expand-vertical" /> {t("expandButton")}
                                                 </>
                                             ) : (
                                                 <>
-                                                    <Icon icon="collapse-vertical" /> Collapse record
+                                                    <Icon icon="collapse-vertical" /> {t("collapseButton")}
                                                 </>
                                             )}
                                         </Button>
@@ -266,19 +267,14 @@ export default function DatabaseRecord() {
                     </Col>
                 </Row>
             ) : (
-                <FeatureNotAvailable badgeText="Insufficient access">
-                    You are not authorized to view this page
-                </FeatureNotAvailable>
+                <FeatureNotAvailable badgeText={t("noAccess.badge")}>{t("noAccess.message")}</FeatureNotAvailable>
             )}
         </div>
     );
 }
 
 function EditModeRiskAlert() {
-    return (
-        <RichAlert variant="warning">
-            Tampering with the Database Record may result in unwanted behavior including loss of the database along with
-            all its data.
-        </RichAlert>
-    );
+    const t = useStudioTranslation("databaseRecord");
+
+    return <RichAlert variant="warning">{t("editConfirm.riskWarning")}</RichAlert>;
 }

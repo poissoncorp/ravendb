@@ -2,6 +2,7 @@ import aboutView from "./locales/en/aboutView";
 import common from "./locales/en/common";
 import conflicts from "./locales/en/conflicts";
 import dataArchival from "./locales/en/dataArchival";
+import databaseRecord from "./locales/en/databaseRecord";
 import documentCompression from "./locales/en/documentCompression";
 import documentExpiration from "./locales/en/documentExpiration";
 import documentRefresh from "./locales/en/documentRefresh";
@@ -30,6 +31,7 @@ export const en = {
     common,
     conflicts,
     dataArchival,
+    databaseRecord,
     documentCompression,
     documentExpiration,
     documentRefresh,

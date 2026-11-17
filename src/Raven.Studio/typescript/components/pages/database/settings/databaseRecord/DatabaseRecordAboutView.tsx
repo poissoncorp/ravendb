@@ -2,29 +2,27 @@ import { AboutViewAnchored, AccordionItemWrapper } from "components/common/About
 import { Icon } from "components/common/Icon";
 import { useRavenLink } from "components/hooks/useRavenLink";
 import React from "react";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function DatabaseRecordAboutView() {
     const databaseRecordDocsLink = useRavenLink({ hash: "LJNTFQ" });
+    const t = useStudioTranslation("databaseRecord");
+    const commonT = useStudioTranslation("common");
 
     return (
         <AboutViewAnchored>
             <AccordionItemWrapper targetId="1" icon="about" color="info">
                 <ul>
-                    <li>
-                        The Database Record stores all settings and configurations for the database and is consistently
-                        updated. Each node in the cluster maintains an up-to-date copy of this document.
-                    </li>
+                    <li>{t("about.storesItem")}</li>
                     <li className="margin-top-sm">
-                        Editing the Database Record is strongly discouraged.
-                        <br />
-                        Changes may lead to unintended consequences, including the loss of the entire database and its
-                        data.
+                        <StudioTrans ns="databaseRecord" i18nKey="about.editingItem" components={{ br: <br /> }} />
                     </li>
                 </ul>
                 <hr />
-                <div className="small-label mb-2">useful links</div>
+                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                 <a href={databaseRecordDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - Database Record
+                    <Icon icon="newtab" /> {t("about.docsLink")}
                 </a>
             </AccordionItemWrapper>
         </AboutViewAnchored>
