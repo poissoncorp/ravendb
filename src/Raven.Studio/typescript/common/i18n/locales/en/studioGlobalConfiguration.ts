@@ -22,6 +22,11 @@ export default {
         info: "Choose the font used for displaying <strong>code</strong> across the Studio, including code editors and samples.",
     },
     fontPreview: "Preview",
+    fontPreviewColumns: {
+        name: "Name",
+        active: "Active",
+        city: "City",
+    },
     collapseDocsSwitch: "Collapse documents when opening",
     usageStatsSwitch: "Help improve the Studio by gathering anonymous usage statistics",
     about: {

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
 import Card from "react-bootstrap/Card";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
@@ -42,6 +42,7 @@ import { virtualTableUtils } from "components/common/virtualTable/utils/virtualT
 import AceEditor from "components/common/ace/AceEditor";
 import studioSettings = require("common/settings/studioSettings");
 import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTranslate } from "common/i18n/resources";
 import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function StudioGlobalConfiguration() {
@@ -75,6 +76,16 @@ export default function StudioGlobalConfiguration() {
     const { reportEvent } = useEventsCollector();
 
     const hasStudioConfiguration = useAppSelector(licenseSelectors.statusValue("HasStudioConfiguration"));
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("title"),
+            featureIcon: "studio-configuration",
+            community: { value: false },
+            professional: { value: true },
+            enterprise: { value: true },
+            quill: { value: true },
+        },
+    ];
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
         overwrites: [
@@ -379,9 +390,9 @@ const vtPreviewData: VtPreviewRow[] = [
     { name: "9b3e6a1f-2d7c-4b9a-e5f1-6c2a8d3f7e9b", active: false, city: "Sydney" },
 ];
 
-const vtPreviewColumns: ColumnDef<VtPreviewRow>[] = [
+const getVtPreviewColumns = (t: StudioTranslate<"studioGlobalConfiguration">): ColumnDef<VtPreviewRow>[] => [
     {
-        header: "Name",
+        header: t("fontPreviewColumns.name"),
         accessorKey: "name",
         cell: CellValueWrapper,
         size: 160,
@@ -389,7 +400,7 @@ const vtPreviewColumns: ColumnDef<VtPreviewRow>[] = [
         enableSorting: false,
     },
     {
-        header: "Active",
+        header: t("fontPreviewColumns.active"),
         accessorKey: "active",
         cell: CellValueWrapper,
         size: 80,
@@ -397,7 +408,7 @@ const vtPreviewColumns: ColumnDef<VtPreviewRow>[] = [
         enableSorting: false,
     },
     {
-        header: "City",
+        header: t("fontPreviewColumns.city"),
         accessorKey: "city",
         cell: CellValueWrapper,
         size: 120,
@@ -408,9 +419,10 @@ const vtPreviewColumns: ColumnDef<VtPreviewRow>[] = [
 
 function VtTablePreview({ fontFamily }: { fontFamily?: string }) {
     const t = useStudioTranslation("studioGlobalConfiguration");
+    const columns = useMemo(() => getVtPreviewColumns(t), [t]);
     const table = useReactTable({
         data: vtPreviewData,
-        columns: vtPreviewColumns,
+        columns,
         columnResizeMode: "onChange",
         getCoreRowModel: getCoreRowModel(),
         enableColumnFilters: false,
@@ -485,14 +497,3 @@ function CodeFontPopoverContent() {
         </p>
     );
 }
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "Studio Configuration",
-        featureIcon: "studio-configuration",
-        community: { value: false },
-        professional: { value: true },
-        enterprise: { value: true },
-        quill: { value: true },
-    },
-];

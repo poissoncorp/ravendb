@@ -57,6 +57,16 @@ export default function DocumentRefresh() {
     const documentRefreshDocsLink = useRavenLink({ hash: "1PKUYJ" });
 
     const minPeriodForRefreshInHours = useAppSelector(licenseSelectors.statusValue("MinPeriodForRefreshInHours"));
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("minCheckFrequency"),
+            featureIcon: "clock",
+            community: { value: 36 },
+            professional: { value: Infinity },
+            enterprise: { value: Infinity },
+            quill: { value: Infinity },
+        },
+    ];
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
         overwrites: [
@@ -298,14 +308,3 @@ const codeExample = `{
     "@refresh": "${moment().add(1, "year").toISOString()}"
   }
 }`;
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "Min check frequency (hrs)",
-        featureIcon: "clock",
-        community: { value: 36 },
-        professional: { value: Infinity },
-        enterprise: { value: Infinity },
-        quill: { value: Infinity },
-    },
-];

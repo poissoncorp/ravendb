@@ -9,6 +9,7 @@ export default {
     limitWarning: "Your current license does not allow a frequency higher than {{hours}} hours ({{seconds}} seconds)",
     maxItemsSwitch: "Set max number of documents to process in a single run",
     itemsAddon: "items",
+    minCheckFrequency: "Min check frequency (hrs)",
     about: {
         intro: "When <strong>Document Refresh</strong> is enabled:",
         scanItem: "The server scans the database at the specified <strong>frequency</strong>, searching for documents that should be refreshed.",
