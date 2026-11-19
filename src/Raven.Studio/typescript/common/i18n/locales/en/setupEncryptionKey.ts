@@ -1,0 +1,31 @@
+export default {
+    keyLabel: 'Key <small class="text-muted">(Base64 Encoding)</small>',
+    keyPlaceholder: "Key",
+    generateKeyTitle: "Generate different key",
+    qrCode: "QR Code:",
+    validateFirst: "Validate database name & key !",
+    download: "Download encryption key",
+    copyToClipboard: "Copy to clipboard",
+    copied: "Encryption key data was copied to clipboard",
+    print: "Print encryption key",
+    savedConfirmation: "I have saved the encryption key.",
+    savedConfirmationRequired: "Please confirm that you have saved the encryption key",
+    warning: {
+        saveSafely_availableAgain: "Save this key in a safe place.",
+        saveSafely_notAvailableAgain: "Save this key in a safe place. It will not be available again.",
+        loseAccess: "If you lose this key you could lose access to your data!",
+    },
+    keyFile: {
+        databaseKey: "Encryption Key for database '{{databaseName}}': {{encryptionKey}}",
+        databaseUsage: "This key is used to encrypt the RavenDB database, it is required for restoring the database.",
+        databaseKeepSafe: "Make sure you keep it in a private, safe place as it will Not be available again !",
+        backupKey: "Backup Encryption Key for database '{{databaseName}}': {{encryptionKey}}",
+        backupUsage: "This key is used to encrypt backup, it is required for restoring the database.",
+        serverWideBackupKey: "Encryption Key for Server-Wide-Backup: {{encryptionKey}}",
+        serverWideBackupUsage:
+            "This key is used to encrypt the server-wide-backup, it is required for restoring the data.",
+        exportKey: "Encryption Key for exported database '{{databaseName}}': {{encryptionKey}}",
+        exportUsage: "This key is used to encrypt export, it is required for importing the database.",
+        keepSafe: "Make sure you keep it in a private, safe place.",
+    },
+} as const;

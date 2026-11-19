@@ -1,0 +1,105 @@
+export default {
+    heading_new: "New Embeddings Generation",
+    heading_edit: "Edit Embeddings Generation",
+    about: {
+        intro: "In this view, you can configure an ongoing task to generate embeddings from your documents' content using an AI service.<br/>The generated embeddings are saved in a dedicated collection and can be used for vector search.",
+        configurationIncludes: "Configuration includes:",
+        destination:
+            "<strong>Destination AI service:</strong><br/>Select a <a>connection string</a> to specify which AI service and model to use.",
+        sourceData:
+            "<strong>Source data:</strong><br/>Select the source collection. Extract text directly from document properties or transform it using a script. Define the chunking method for splitting the content.",
+        quantization: "<strong>Quantization method:</strong><br/>Choose the format for saving the generated embeddings.",
+        expiration:
+            "<strong>Embeddings expiration:</strong><br/>Set how long the generated embeddings are retained in the database.",
+        queryTime:
+            "<strong>Query-time settings:</strong><br/>Embeddings are also generated for search terms used in vector search queries. Configure chunking and cache expiration for these embeddings.",
+        ongoingProcessing:
+            "<strong>Ongoing processing:</strong><br/>Whenever a document in the selected collection is modified, the task is triggered to extract the updated text and regenerate its embeddings.",
+        overviewDocsLink: "Docs - Generating Embeddings Overview",
+        taskDocsLink: "Docs - The Embeddings Generation Task",
+        chunkingDocsLink: "Docs - Chunking methods and tokens",
+        quantizationDocsLink: "Docs - Quantization options",
+    },
+    featureAvailability: {
+        embeddedModel: "Embedded Model",
+        externalModels: "External Models",
+    },
+    task: {
+        nameLabel: "Task Name",
+        namePlaceholder: "Enter a descriptive name for the AI task",
+        identifierLabel: "Identifier",
+        identifierInfo:
+            "A unique identifier used in document paths.<br/>If not specified, it will be auto-generated from the task name.",
+        identifierPlaceholder: "Enter an identifier (optional)",
+        regenerateIdentifierTitle: "Click to generate the identifier from the task name",
+        regenerateIdentifier: "Regenerate",
+        stateLabel: "Task State",
+        stateEnabled: "Enabled",
+        stateDisabled: "Disabled",
+        encryptedDatabase: "Note: Database <strong>{{databaseName}}</strong> is encrypted",
+        allowNonEncryptedChannel: "Allow task on a non-encrypted communication channel",
+        responsibleNodeShardedTitle: "Not supported in sharded databases",
+        responsibleNodeTitle: "Toggle on to set a responsible node for the task",
+        responsibleNodeToggle: "Set responsible node",
+        connectionStringLabel: "Connection String",
+        selectConnectionString: "Select a connection string",
+        createConnectionString: "Create a new AI connection string",
+    },
+    testConnection: {
+        title: "Test the connection to AI service",
+        button: "Test Connection",
+        connectionStringNotFound: "Connection string not found",
+        connectionStringNotFoundTitle: "Warning",
+        success: "Successfully connected to the server",
+        failed: "Connection test failed: {{error}}",
+        hideDetails: "hide details",
+        showDetails: "show details",
+    },
+    documentExpiration: {
+        enable: "Enable document expiration",
+        info: "Embeddings created by this task will be cached.<br/>To ensure they expire and are deleted after the specified duration, enable 'document expiration'.",
+    },
+    source: {
+        collectionLabel: "Collection",
+        collectionPlaceholder: "Select (or enter) a collection",
+        embeddingsSourceLabel: "Embeddings Source",
+        selectEmbeddingsSource: "Select a embeddings source",
+        script: "Script",
+        paths: "Paths",
+        pathConfigurations: "Path Configurations",
+        sourceTextPath: "Source Text Path",
+        sourceTextPathPlaceholder: "Enter Source Text Path",
+        addPathConfiguration: "Add path configuration",
+        pathColumn: "Path",
+        removePathTitle: "Remove path",
+        scriptLabel: "Script",
+        syntax: "Syntax",
+    },
+    chunking: {
+        chunkingMethod: "Chunking Method",
+        chunkingMethodInfo:
+            "The selected chunking method will be used as the default when no specific method is used in the script.",
+        maxTokensPerChunk: "Max Tokens per Chunk",
+        overlapTokens: "Overlap Tokens",
+        defaultPlaceholder: "Default: {{value}}",
+        defaultValueInfo: "This value will be used as the default when no specific value is set in the script.",
+        overlapTokensApplicability:
+            'Only applicable when the chunking method is<br/><em>"Plain Text: Split Paragraphs"</em> or <em>"Markdown: Split Paragraphs"</em>.',
+    },
+    quantization: {
+        label: "Quantization",
+        info: "Choose the format for storing the embedding vectors that will be generated by the AI model:",
+        single: "<code>Single</code> - No quantization.<br/>A 32-bit floating-point value per dimension.<br/>Provides the most accurate vector representation.",
+        int8: "<code>Int8</code> - An 8-bit integer value per dimension.<br/>Reduces storage size by ~4x.<br/>Offers good performance with moderate accuracy loss.",
+        binary: "<code>Binary</code> - 1-bit per dimension.<br/>Minimizes storage usage and enables very fast search, but with very high accuracy loss. Suitable when coarse similarity is acceptable.",
+    },
+    cacheExpiration: {
+        label: "Embeddings Cache Expiration",
+        info: "Set how long the generated embeddings will be retained in the database.",
+    },
+    regenerateEmbeddings: "Regenerate embeddings for all documents",
+    querying: {
+        title: "Querying",
+        info: "When making a vector search query, embeddings are also generated from the provided <strong>search term</strong> to compare against stored vectors.<br/>The options below apply to the search term used in the query.",
+    },
+} as const;

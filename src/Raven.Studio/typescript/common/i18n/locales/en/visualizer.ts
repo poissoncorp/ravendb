@@ -1,0 +1,36 @@
+export default {
+    noIndexSelected: "Select an index",
+    noIndexes: "No indexes available",
+    mapIndexesNotAvailable: "Map indexes are not available in a 'MapReduce' visualizer.",
+    documentIdPlaceholder: "Document ID",
+    back: "Back",
+    reduceTreeForKey: "Reduce tree for key:",
+    instructions: {
+        selectIndex: "Select index.",
+        enterDocumentIds: "Enter document ids.",
+        selectArea: "Select your area of interest by dragging. Zoom with the scroll wheel on your mouse.",
+        clickTree: "Click on the tree for MapReduce details.",
+    },
+    previousTree: "Go to previous Map-Reduce tree",
+    nextTree: "Go to next Map-Reduce tree",
+    removeDocument: {
+        title: "Are you sure?",
+        message: "Do you want to remove document: {{name}} from analysis?",
+        cancel: "No",
+        confirm: "Yes, delete",
+    },
+    details: {
+        nestedSection: "NESTED\nSECTION",
+        leafsCollapsed_one: "{{count}} leafs collapsed",
+        leafsCollapsed_other: "{{count}} leafs collapsed",
+        entries: "Entries:",
+        aggregation: "Aggregation:",
+    },
+    treeExplorer: {
+        title: "MapReduce Page Entries",
+        aggregationResult: "Aggregation Result",
+        entries: "Entries ({{entriesCount}})",
+        sourceDocument: "Source Document",
+        close: "Close",
+    },
+} as const;

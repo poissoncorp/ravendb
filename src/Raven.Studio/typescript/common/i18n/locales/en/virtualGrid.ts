@@ -1,0 +1,48 @@
+export default {
+    columns: {
+        toggleSelection: "Toggle selection",
+        preview: "Preview",
+        previewTitle: "Show item preview",
+        node: "Node",
+        nodes: "Nodes",
+        timeSeries: "Time Series",
+        documentFlags: "Document Flags",
+    },
+    row: {
+        loadError: "Unable to load data",
+    },
+    cell: {
+        error: "Error!",
+        goToNode: "Go to {{description}} on node {{nodeTag}}",
+    },
+    flags: {
+        attachments: "Attachments",
+        revisions: "Revisions",
+        counters: "Counters",
+        timeSeries: "Time Series",
+        archived: "Archived",
+        shard: "Shard #",
+    },
+    timeSeries: {
+        iconTitle: "Time Series",
+        points: "Points",
+        buckets: "Buckets",
+        dateRange: "Date Range",
+        notAvailable: "N/A",
+        showValues: "Show time series values",
+        plotTitle: "Plot time series graph",
+        plotTitle_noData: "No data to plot",
+        plotTitle_groupedByTag: "Graph is available only when time series data is not grouped by 'tag'",
+    },
+    preview: {
+        dateLabel_utc: "UTC:",
+        dateLabel_local: "Local:",
+        relative: "Relative:",
+        copyToClipboard: "Copy to clipboard",
+        copied: "Copied!",
+        copiedMessage: "Item has been copied to clipboard",
+        documentTitle: "Document Preview",
+        documentIdTitle: "Document: {{id}}",
+        documentIdTitle_sharded: "Document: {{id}} (shard #{{shardNumber}})",
+    },
+} as const;

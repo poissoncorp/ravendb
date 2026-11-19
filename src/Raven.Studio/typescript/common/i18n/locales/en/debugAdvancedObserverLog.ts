@@ -1,0 +1,25 @@
+export default {
+    filterPlaceholder: "Filter",
+    term: "Term: {{term}}",
+    export: "Export",
+    suspendTitle: "Cluster observer won't be making any decisions",
+    suspend: "Suspend cluster observer",
+    resume: "Resume cluster observer",
+    columns: {
+        date: "Date",
+        database: "Database",
+        message: "Message",
+    },
+    termChanged: "A term has changed. Your results are stale.",
+    termChangedRefresh: "Refresh.",
+    leaderOnly: "Cluster Observer Log entries are only available on <strong>Leader</strong> node.",
+    noEntries: "No entries found.",
+    confirm: {
+        title: "Are you sure?",
+        no: "No",
+        suspend: "Do you want to suspend cluster observer?",
+        suspendButton: "Yes, suspend",
+        resume: "Do you want to resume cluster observer?",
+        resumeButton: "Yes, resume",
+    },
+} as const;

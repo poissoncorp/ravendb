@@ -1,0 +1,88 @@
+export default {
+    heading_new: "New Server-Wide Backup Task",
+    heading_edit: "Edit Server-Wide Backup Task",
+    licenseRestrictedTooltip:
+        "Your current license does not support this feature.<br /><a>Upgrade your plan</a> to access.",
+    cancelTitle: "Return to the Server-Wide Tasks view",
+    taskName: "Task Name",
+    taskNamePlaceholder: "Enter a name for the Server-Wide Backup Task",
+    taskState: "Task State",
+    stateEnabled: "Enabled",
+    stateDisabled: "Disabled",
+    backupUploadMode: "Backup Upload Mode",
+    backupType: "Backup Type",
+    backupTypePlaceholder: "Select backup type..",
+    snapshotNotSupportedInSharded: "Snapshot is not supported in <icon/> Sharded Databases",
+    compressionAlgorithm: "Compression Algorithm",
+    compressionLevel: "Compression Level",
+    responsibleNodeTitle: "Toggle on to set a responsible node for the task",
+    setResponsibleNode: "Set responsible node",
+    excludeIndexesTitle: "Back up index definitions only. Indexes will be rebuilt from these definitions upon Restore.",
+    excludeIndexes: "Exclude indexes data",
+    excludeDatabases: {
+        title: "Select databases to exclude from the server-wide backup",
+        label: "Exclude databases",
+        placeholder: "Select (or enter) a database to exclude",
+        add: "Add Database",
+        excludedHeading: "Excluded Databases:",
+        removeTitle: "Remove database",
+        shardedTitle:
+            "Snapshot is not supported in sharded databases. Existing and new sharded databases will be excluded from this task.",
+        shardedExcluded:
+            "All sharded databases listed below are <strong>automatically excluded</strong> as Snapshot is not supported",
+    },
+    schedule: {
+        heading: "Schedule",
+        full: "Full",
+        enableFull: "Enable full backup",
+        incremental: "Incremental",
+        enableIncremental: "Enable incremental backup",
+    },
+    retention: {
+        heading: "Retention Policy",
+        limitByAge: "Limit # of backups by age",
+        minimumRetentionTime: "Minimum retention time",
+    },
+    encryption: {
+        heading: "Encryption",
+        encryptBackup: "Encrypt backup",
+        allowUnencrypted: "Allow unencrypted backup for encrypted database",
+        currentKey: "Current Encryption Key",
+        currentKeyTitle: "This key is currently in use",
+        changeKey: "Change encryption key",
+        keyConfigurationHeading: "Encryption Key Configuration",
+        selectNewKeyHeading: "Select New Encryption Key",
+        keyUsageNote:
+            "The encryption key defined in this section will be used only if the database being backed up is <strong>Not encrypted</strong>.<br/>If the database backed up is <strong>encrypted</strong> then the backup will use the database key itself.",
+    },
+    destinationDisabled: "Destination was disabled by administrator",
+    popovers: {
+        bucketRequired: "Bucket should be created manually in order for this Server-Wide Backup to work.",
+        storageContainerRequired:
+            "Storage container should be created manually in order for this Server-Wide Backup to work.",
+        vaultRequired: "Vault should be created manually in order for this Server-Wide Backup to work.",
+        testCredentials: "You can use the 'Test credentials' button to verify its existance.",
+        bucketNamingGuidelines: "Bucket naming guidelines",
+    },
+    about: {
+        serverWideTask:
+            "Defining a <strong>Server-Wide backup task</strong> will create an ongoing periodic backup task for each database in your cluster.",
+        excludeItem: "You can select specific databases to exclude from the task.",
+        configurationsItem:
+            "The configurations set in the Server-Wide task will be applied to the corresponding ongoing backup task created per database.",
+        configurationOptions: "Configuration options available:",
+        backupTypeItem: "Customize the backup type (Backup or Snapshot)",
+        backupKindsItem: "Select full and/or incremental backups",
+        retentionItem: "Set the backups retention period",
+        destinationsItem: "Specify destinations, where the backup files will be stored",
+        encryptionItem: "Opt for backup data encryption to enhance data security",
+        inAddition: "In addition:",
+        responsibleNodeItem: "You can set a responsible node to handle this task.",
+        disablingItem: "Disabling this task will disable the corresponding tasks per database.",
+        docsLink: "Docs - Server-Wide Backup Task",
+    },
+    featureAvailability: {
+        serverWideBackups: "Server-Wide Backups",
+        snapshotBackups: "Snapshot Backups",
+    },
+} as const;

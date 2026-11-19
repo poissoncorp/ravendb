@@ -1,0 +1,43 @@
+export default {
+    title: "Gather Debug Info",
+    description: "Generate a comprehensive diagnostic package to assist in troubleshooting and resolving issues.",
+    downloadCluster: "Download package for entire cluster",
+    downloadServer: "Download for current server only",
+    abort: "Abort",
+    packageAnalyzer: "Debug Package Analyzer",
+    selectAll: "Select all",
+    dataSource: {
+        heading: "Select data source",
+        includeServer: "Include Server",
+        includeDatabases: "Include Databases",
+        includeLogs: "Include Logs",
+    },
+    databases: {
+        heading: "Select databases",
+        exportAll: "Export all databases",
+        customize: "Customize export",
+        searchPlaceholder: "Search for database",
+        nameColumn: "Database name",
+        empty: "No databases found",
+        required: "Required",
+    },
+    icons: {
+        replication: "Replication",
+        performance: "Performance",
+        io: "I/O",
+        storage: "Storage",
+        memory: "Memory",
+        other: "Other",
+    },
+    abortConfirm: {
+        title: "Are you sure?",
+        message: "Do you want to abort package creation?",
+    },
+    leaveConfirm: {
+        title: "Abort Debug Package Creation",
+        message: "Leaving this page will abort package creation.<br>How do you want to proceed?",
+        stay: "Stay on this page",
+        leave: "Leave and Abort",
+    },
+    nextOperationIdError: "Could not get next task id.",
+} as const;

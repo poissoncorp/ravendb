@@ -1,0 +1,101 @@
+export default {
+    loadError: "Unable to load the collections",
+    collectionRemoved: "{{collectionName}} was removed",
+    toolbar: {
+        newDocument: "New document",
+        moreOptions: "More options",
+        newDocumentInCollection: "New document in current collection",
+        dataChanged: "The data has changed. Your results may contain duplicates or non-current entries.",
+        queryTitle: "Query current collection",
+        query: "Query",
+        recentQueryName: "Recent query ({{collectionName}})",
+        displayTitle: "Display settings",
+        displayTitle_custom: "Using custom columns and their order",
+        display: "Display",
+        columnLayoutSettings: "Column layout settings",
+        paginationNotAvailable: "Pagination is not available in a sharded database",
+        paginationTitle: "Show the documents page by page instead of scrolling",
+        pagination: "Pagination",
+    },
+    export: {
+        title: "Export documents as CSV/JSON",
+        button: "Export to file",
+        formatLabel: "Format",
+        columnsLabel: "Columns",
+        columns: {
+            all: "All",
+            visible: "Visible",
+        },
+        exportButton: "Export",
+    },
+    columns: {
+        selectAll: "Select all documents",
+        selectDocument: "Select document",
+        id: "Id",
+        lastModified: "Last Modified",
+        collection: "Collection",
+        documentNoLongerExists: "The document no longer exists",
+    },
+    itemsName: "documents",
+    emptyMessage_allDocuments: "There are no documents in the database",
+    emptyMessage_collection: "Collection is empty",
+    selection: {
+        selectedCount_one: "<strong>{{formattedCount}}</strong> selected",
+        selectedCount_other: "<strong>{{formattedCount}}</strong> selected",
+        selectAll_one: "Select all {{formattedCount}}",
+        selectAll_other: "Select all {{formattedCount}}",
+        copyLimit_one: "You can only copy up to {{count}} documents",
+        copyLimit_other: "You can only copy up to {{count}} documents",
+        copy: "Copy",
+        moreCopyOptions: "More copy options",
+        copyIds: "Copy IDs",
+        clearSelection: "Clear selection",
+        deleteConfirmTitle_one: "Delete {{formattedCount}} document?",
+        deleteConfirmTitle_other: "Delete {{formattedCount}} documents?",
+        deleteSuccess: {
+            single: "Deleted {{id}}",
+            many_one: "Deleted {{count}} documents",
+            many_other: "Deleted {{count}} documents",
+        },
+        deleteFailed: {
+            single: "Failed to delete {{id}}",
+            many_one: "Failed to delete {{count}} documents",
+            many_other: "Failed to delete {{count}} documents",
+        },
+        copyFailed: "Failed to copy the documents",
+        documentsNoLongerExist: "Documents no longer exist: {{ids}}",
+        copyDocumentsTitle: "Documents",
+        copyIdsTitle: "Document IDs",
+    },
+    copyModal: {
+        close: "Close",
+        copied: "Copied to clipboard",
+        copyToClipboard: "Copy to Clipboard",
+    },
+    deleteModal: {
+        title_all: "Delete all documents?",
+        title_selected: "Delete selected documents?",
+        info_allFromAllCollections_one:
+            "All documents from <b>all</b> collections will be deleted ({{formattedCount}} documents).",
+        info_allFromAllCollections_other:
+            "All documents from <b>all</b> collections will be deleted ({{formattedCount}} documents).",
+        info_selectedFromAllCollections_one:
+            "Selected documents from <b>all</b> collections will be deleted ({{formattedCount}} documents).",
+        info_selectedFromAllCollections_other:
+            "Selected documents from <b>all</b> collections will be deleted ({{formattedCount}} documents).",
+        info_allFromCollection_one:
+            "All documents from collection <b>{{collectionName}}</b> will be deleted ({{formattedCount}} documents).",
+        info_allFromCollection_other:
+            "All documents from collection <b>{{collectionName}}</b> will be deleted ({{formattedCount}} documents).",
+        info_selectedFromCollection_one:
+            "Selected documents from collection <b>{{collectionName}}</b> will be deleted ({{formattedCount}} documents).",
+        info_selectedFromCollection_other:
+            "Selected documents from collection <b>{{collectionName}}</b> will be deleted ({{formattedCount}} documents).",
+        typeToConfirm: "Type DELETE to confirm",
+        requireTypedConfirmation: "Require typed confirmation",
+        loadSettingsFailed: "Failed to load studio global settings",
+        collectionDeleted: "Deleted collection {{collectionName}}",
+        documentsDeleted_one: "Deleted {{formattedCount}} document from {{collectionName}}",
+        documentsDeleted_other: "Deleted {{formattedCount}} documents from {{collectionName}}",
+    },
+} as const;

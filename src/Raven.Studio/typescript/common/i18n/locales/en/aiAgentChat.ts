@@ -1,0 +1,62 @@
+export default {
+    titleFallback: "AI Agent",
+    loadError: "Unable to load configuration",
+    tokensUsed: "Tokens used: {{tokens}}",
+    disabledBadge: "Disabled",
+    about: {
+        chatView:
+            "This chat view lets you interact with the agent by sending user prompts that are forwarded to the LLM and receiving its responses.",
+        tools: "When appropriate, the LLM can instruct the agent to invoke predefined tools - either to run queries and retrieve data from the database, or to perform specific actions.",
+        interaction:
+            "You can view the full interaction between the agent and the LLM, including tool calls triggered during the conversation. Switch between the chat display and raw data format to inspect how each user request is handled.",
+        storage: "The chat session is saved in a dedicated document in the <code>@conversations</code> collection.",
+    },
+    newChat: "New chat",
+    newChatTitle: "Click to start a new chat with the LLM using this agent",
+    editDocument: "Edit document",
+    editConfiguration: "Edit configuration",
+    rawData: "Raw data",
+    rawDataTitle: "Toggle on to view the chat communication in raw data format",
+    persistence: {
+        heading: "Define conversation ID or prefix and expiration",
+        headingInfo:
+            "Chat conversations are stored as documents in the <code>@conversations</code> collection.<br/><br/>Configure the document ID prefix and whether these documents should expire after a set period of time.",
+        idPrefixLabel: "Conversation ID or prefix",
+        idPrefixInfo: "Prefix to use in the document ID of each saved chat created with this agent.",
+        idPrefixPlaceholder: "e.g. Chats/",
+        enableExpiration: "Enable document expiration",
+        setExpiration: "Set expiration",
+        setExpirationInfo:
+            "Toggle on to automatically delete conversation documents after a specified period.<br/>If disabled, these documents will be retained indefinitely.",
+    },
+    documentUpdated:
+        "This document has been updated. To see the latest version in chat, <button>click here to refresh</button>.",
+    documentDeleted: "This document has been deleted, <a>click here to see the recent conversations</a>.",
+    attachments: {
+        dropzoneIconsAlt: "File icons",
+        dropzoneTitle: "Drop files to add them to the conversation",
+        supportedTypes: "Supported types: {{types}}",
+        unsupportedFileType: "Unsupported file type: {{files}}",
+        removeTitle: "Remove attachment",
+        addTitle: "Add attachments",
+        chooseLocation: "Choose location",
+        localFiles: "Local files",
+        documentAttachments: "Document attachments",
+        documentId: "Document ID",
+        documentIdPlaceholder: "Enter document ID prefix",
+        noDocuments: "No documents found",
+        addToPrompt: "Add to prompt",
+        loadError: "Failed to load attachments",
+        noAttachments: "No attachments found",
+        selectAtLeastOne: "Select at least one attachment",
+    },
+    prompt: {
+        placeholder: "Ask the agent anything",
+        required_one: "Prompt is required",
+        required_other: "Prompts are required",
+        position: "{{current}} of {{total}}",
+        addTitle: "Add prompt",
+        addAnother: "Add another prompt",
+        remove: "Remove prompt",
+    },
+} as const;

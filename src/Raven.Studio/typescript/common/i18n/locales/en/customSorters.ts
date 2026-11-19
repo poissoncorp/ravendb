@@ -1,0 +1,65 @@
+export default {
+    title: "Custom sorters",
+    shardedNotAvailable: "Custom sorters are not available for <icon/> sharded databases",
+    addButton: "Add a custom sorter",
+    addButtonLimitPopover_database:
+        "Database has reached the maximum number of Custom Sorters allowed per database.<br/> Delete unused sorters or <a>upgrade your license</a>",
+    addButtonLimitPopover_cluster:
+        "Cluster has reached the maximum number of Custom Sorters allowed per cluster.<br/> Delete unused sorters or <a>upgrade your license</a>",
+    databaseLimitAlert_limitReached:
+        "Database has reached the <strong>maximum number of Custom Sorters</strong> allowed per database by your license <strong>({{used}}/{{limit}})</strong><br/> Delete unused sorters or <strong><a>upgrade your license</a></strong>",
+    databaseLimitAlert_closeToLimit:
+        "Database is reaching the <strong>maximum number of Custom Sorters</strong> allowed per database by your license <strong>({{used}}/{{limit}})</strong><br/> Delete unused sorters or <strong><a>upgrade your license</a></strong>",
+    clusterLimitAlert_limitReached:
+        "Cluster has reached the <strong>maximum number of Custom Sorters</strong> allowed per cluster by your license <strong>({{used}}/{{limit}})</strong><br/> Delete unused sorters or <strong><a>upgrade your license</a></strong>",
+    clusterLimitAlert_closeToLimit:
+        "Cluster is reaching the <strong>maximum number of Custom Sorters</strong> allowed per cluster by your license <strong>({{used}}/{{limit}})</strong><br/> Delete unused sorters or <strong><a>upgrade your license</a></strong>",
+    databaseHeading: "Database custom sorters",
+    serverWideHeading: "Server-wide custom sorters",
+    serverWideLinkTitle: "Go to the server-wide custom sorters view",
+    loadError: "Unable to load custom sorters",
+    empty: "No custom sorters have been defined",
+    serverWideEmpty: "No server-wide custom sorters have been defined",
+    item: {
+        newNameFallback: "New sorter name",
+        overridesServerWide: "This database sorter overrides the server-wide sorter with the same name.",
+        testDisabledPopover: "To test, first exit edit mode",
+        exitTestTitle: "Exit test mode",
+        testTitle: "Test custom sorter",
+        saveButton: "Save changes",
+        discardButton: "Discard",
+        editDisabledPopover: "To edit, first exit test mode",
+        editTitle: "Edit custom sorter",
+        deleteTitle: "Delete custom sorter",
+        nameLabel: "Name",
+        namePlaceholder: "Enter a sorter name",
+        loadFromFile: "Load from a file",
+    },
+    test: {
+        runButton: "Run test",
+        rqlLabel: "Enter test RQL:",
+        resultsHeading: "Test Results",
+        resultsLimit: "Displaying up to 128 results",
+        resultsTab: "Results",
+        diagnosticsTab: "Diagnostics",
+        messageColumn: "Message",
+    },
+    featureAvailability: {
+        limitPerDatabase: "Limit per database",
+        limitPerCluster: "Limit per cluster",
+        serverWide: "Server-wide custom sorters",
+    },
+    about: {
+        intro: "A <strong>Custom Sorter</strong> allows you to define how documents will be ordered in the query results<br/> according to your specific requirements.",
+        inThisView: "<strong>In this view</strong>, you can add your own sorters:",
+        databaseScopeItem: "The custom sorters added here can be used only with queries in this database.",
+        serverWideScopeItem: "The server-wide custom sorters listed can also be applied within this database.",
+        testItem: "The custom sorters can be tested in this view with a sample query.",
+        coraxItem: "Note: custom sorters are not supported when querying Corax indexes.",
+        provideCode: "Provide <code>C#</code> code in the editor view, or upload from file:",
+        nameItem: "The sorter name must be the same as the sorter's class name in your code.",
+        inheritItem: "Inherit from <code>Lucene.Net.Search.FieldComparator</code>",
+        compilableItem: "Code must be compilable and include all necessary <code>using</code> statements.",
+        docsLink: "Docs - Custom Sorters",
+    },
+} as const;

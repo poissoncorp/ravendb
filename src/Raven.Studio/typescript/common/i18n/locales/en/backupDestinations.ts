@@ -1,0 +1,20 @@
+export default {
+    title: "Destination",
+    local: "Local",
+    overrideViaScript: "Override configuration via external script",
+    backupDirectory: "Backup directory",
+    folderPathPlaceholder_relative: "Relative backup path",
+    folderPathPlaceholder_full: "Full directory backup path",
+    location: {
+        heading: "The backup files will be created in:",
+        nodeTag: "Node Tag:",
+        path: "Path:",
+        error: "Error:",
+        freeDiskSpace: "Free Disk Space:",
+        total: "Total:",
+        pathUnreachable: "(Path is unreachable)",
+    },
+    useCustomS3Host: "Use a custom S3 host",
+    testCredentials: "Test credentials",
+    createdInPath: "The backup files will be created in path:",
+} as const;

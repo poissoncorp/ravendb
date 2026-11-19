@@ -1,0 +1,35 @@
+export default {
+    bucketName: "Bucket: {{bucket}}",
+    tooltip: {
+        range: "Range:",
+        documentsCount: "Documents Count:",
+        bucketsCount: "Buckets Count:",
+        shards: "Shards:",
+        shard: "# {{shardNumber}}",
+        shard_pendingRemoval: "# {{shardNumber}} (pending removal)",
+        size: "Size:",
+    },
+    table: {
+        range: "Range",
+        bucketsCount: "Non-empty buckets count",
+        documentsCount: "Documents count",
+        shards: "Shards",
+        size: "Size (∑ {{total}})",
+        totalPercentage: "% Total",
+        actions: "Actions",
+        pendingRemoval: "pending removal",
+        moveTo: "Move to",
+        moveToShard: "Shard #{{shardNumber}}",
+    },
+    resharding: {
+        title: "Confirm resharding",
+        question_bucket: "Do you want to move bucket {{from}} to shard #{{shardNumber}}?",
+        question_range: "Do you want to move range [{{from}} - {{to}}] to shard #{{shardNumber}}?",
+        start: "Start resharding",
+    },
+    bucketContents: {
+        title: "Items stored in this bucket:",
+        itemColumn: "Item",
+    },
+    empty: "The bucket list is empty",
+} as const;

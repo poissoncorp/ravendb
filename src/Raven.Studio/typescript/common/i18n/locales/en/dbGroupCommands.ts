@@ -1,0 +1,17 @@
+export default {
+    addNodeSucceeded: "Node {{nodeTag}} was added",
+    addNodeFailed: "Failed to add node to database group",
+    addNodeToShardSucceeded: "Node {{nodeTag}} was added to shard {{databaseName}}",
+    addNodeToShardFailed: "Failed to add node to shard",
+    addOrchestratorSucceeded: "Node {{nodeTag}} was added as orchestrator to {{databaseName}}",
+    addOrchestratorFailed: "Failed to add orchestrator to database group",
+    addShardSucceeded: "New shard was created",
+    addShardFailed: "Failed to create new shard",
+    promoteNodeFailed: "Failed to promote node {{nodeTag}}",
+    reorderNodesSucceeded: "Nodes order was successfully saved",
+    reorderNodesFailed: "Failed to change nodes order",
+    startReshardingFailed: "Failed to start resharding operation",
+    dynamicDistributionToggled_on: "Dynamic database distribution was turned on",
+    dynamicDistributionToggled_off: "Dynamic database distribution was turned off",
+    dynamicDistributionToggleFailed: "Failed to toggle database distribution mode",
+} as const;

@@ -1,0 +1,71 @@
+export default {
+    title: "Index Errors",
+    about: {
+        intro: "An indexing error can occur during indexing if the indexing function is malformed or if the document data is corrupted or missing. When the error rate exceeds a certain threshold, the index state is marked as <i>Error</i>, and queries cannot be made to it.",
+        listIntro: "This view lists the current index errors for all indexes across all cluster nodes:",
+        filterItem:
+            "<strong>Filter viewed indexes</strong><br/>You can filter the list of viewed indexes by specific indexes or by action.<br/>The action refers to the part of the indexing process where the error occurred, such as <i>map</i>,<i>reduce</i>, or <i>analyzer</i>.",
+        deleteItem:
+            "<strong>Delete errors</strong><br/>You can delete errors for selected indexes.<br/>Note that deleting errors only removes the errors; the index state will not change. It will remain in an <b>Error</b> state and will not be set back to the <b>Normal</b> state.",
+    },
+    filter: {
+        indexesTitle: "Select indexes to view",
+        actionsTitle: "Select indexes to view by action",
+        selected_indexes: "Selected indexes ({{selectedCount}})",
+        selected_actions: "Selected actions ({{selectedCount}})",
+        allSelected_indexes: "All indexes selected",
+        allSelected_actions: "All actions selected",
+        noItems_indexes: "No indexes with indexing errors available",
+        noItems_actions: "No actions with indexing errors available",
+    },
+    panel: {
+        status: {
+            error: "Error",
+            loading: "Loading",
+            errors: "Errors",
+            ok: "OK",
+        },
+        expandDetails: "Expand errors details",
+        collapseDetails: "Collapse errors details",
+        deleteErrorsTitle: "Click to delete errors from the selected indexes",
+        deleteErrors: "Delete errors",
+        totalCount: "Total count",
+        errorsCount_one: "{{count}} errors",
+        errorsCount_other: "{{count}} errors",
+        utc: "UTC: ",
+        relative: "Relative: ",
+        mostRecent: "Most recent",
+        loadError: "Error during loading identities",
+    },
+    columns: {
+        show: "Show",
+        indexName: "Index Name",
+        documentId: "Document ID",
+        date: "Date",
+        action: "Action",
+        error: "Error",
+        showErrorDetails: "Show error details",
+    },
+    sheet: {
+        title: "Indexing error details",
+        indexName: "Index name",
+        documentId: "Document ID",
+        date: "Date",
+        action: "Action",
+        close: "Close",
+    },
+    deleteModal: {
+        title: "Delete errors for <nodeIcon/> <strong>{{nodeTag}}</strong>?",
+        title_shard:
+            "Delete errors for <nodeIcon/> <strong>{{nodeTag}}</strong> <shardIcon/> <strong>#{{shardNumber}}</strong>?",
+        allIndexes:
+            "Errors will be deleted for <strong>ALL</strong> indexes. <br/>To delete errors for <b>specific indexes</b>, select them in the dropdown.",
+        selectedIndexes_one: "You're deleting errors for <b>{{count}}</b> index:",
+        selectedIndexes_other: "You're deleting errors for <b>{{count}}</b> indexes:",
+        info: "While the current indexing errors will be cleared, an index in an <b>Error state</b> will not be set back to the <b>Normal</b> state.",
+        typeToConfirm: "Type DELETE to confirm",
+        requireTypedConfirmation: "Require typed confirmation",
+        loadSettingsFailed: "Failed to load studio global settings",
+        success: "Successfully cleared index errors for {{location}}!",
+    },
+} as const;

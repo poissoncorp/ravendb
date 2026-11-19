@@ -1,0 +1,48 @@
+export default {
+    title: {
+        register: "Register License",
+        replace: "Replace License",
+        expired: "License Expired",
+        renew: "Renew License",
+    },
+    close: "Close",
+    currentLicenseId: "Current license ID",
+    daysLeftToRegister_one: '<strong class="text-warning">{{count}}</strong> day left to register',
+    daysLeftToRegister_other: '<strong class="text-warning">{{count}}</strong> days left to register',
+    error: {
+        invalid: "Invalid license",
+        invalidWithMessage: "Invalid license: {{message}}",
+        expired: "License has expired",
+        expiredOn: "License has expired on {{date}} UTC {{icon}}",
+    },
+    selectOption: "Select one of the following options:",
+    renew: {
+        title: "Renew License",
+        description: "Click to renew the current existing license.<br>The license expiration date will be extended.",
+        sent: 'The renewed license was sent to: <strong class="text-info">{{email}}</strong><br/>The new expiration date is: <strong class="text-info">{{date}}</strong>',
+        buttonTitle_sent: "Please check your mail for the renewed license",
+        buttonTitle_notSent: "Click to renew your license",
+        button: "Renew",
+    },
+    forceUpdate: {
+        title: "Force Update",
+        description: "Click to apply the new expiration date that was set for you.",
+        buttonTitle: "Click to apply the new expiration date",
+        button: "Force",
+    },
+    submitLicense: {
+        title: "Submit License",
+        pasteRenewedKey: "Paste the renewed license key received in the email and click Submit.",
+        obtainNewLicense:
+            'Click here to <strong><a target="_blank" href="{{url}}">obtain a new license.</a></strong><br>Already got one? Paste your license key below and click Submit.',
+        pasteKeyAfterRenew: "Paste here the renewed license key that you will receive in the email after clicking Renew.",
+        licenseKeyPlaceholder: "e.g.\n{{sample}}",
+    },
+    connectionToLicenseServer: "Connection to License Server:",
+    licenseServerUnreachable: "Unable to reach the RavenDB License Server at <code>api.ravendb.net</code><br>{{exception}}",
+    checkConnectionTitle: "Click to check connection",
+    submitTitle: "Click to submit the new license",
+    submit: "Submit",
+    dismissForOneDay: "Dismiss for 1 day",
+    licenseRegistered: "Your license was successfully registered. Thank you for choosing RavenDB.",
+} as const;

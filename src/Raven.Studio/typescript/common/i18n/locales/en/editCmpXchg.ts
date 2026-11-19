@@ -1,0 +1,57 @@
+export default {
+    clone: "Clone",
+    atomicGuardWarning:
+        "This compare-exchange item is used as an <strong>Atomic Guard</strong>, identified by the <code>rvn-atomic/</code> prefix.<br />Editing it manually may break document concurrency guarantees.<br />Learn more in the <a href='{{url}}' target='_blank'>Atomic Guards docs</a>.",
+    externalChange: "Value has been modified outside of the studio.",
+    clickToRefresh: "Click here to refresh.",
+    reloadConfirm: "Reload compare exchange item?",
+    key: {
+        label: "Key",
+        info: "A unique identifier in the database",
+        placeholder: "Enter Compare Exchange Key",
+        backslashNotAllowed: "Key Cannot contain a backslash",
+        atomicGuardPrefixReserved: "The prefix 'rvn-atomic/' is reserved by RavenDB for Atomic Guards",
+    },
+    value: {
+        label: "Value",
+        info: "A Value that is associated with the Key.",
+    },
+    anyJsonInfo: "Can be a number, string, array, or any valid JSON object.",
+    metadata: {
+        label: "Metadata",
+        info: "The Metadata is associated with the Key, similar to a document's metadata.",
+        expirationInfo: "Can be used to set the <strong>Compare-Exchange item expiration.</strong>",
+        expiresFieldInfo: "Set the <i>@expires</i> field to schedule expiration.",
+        expiresExample: "e.g. <code>{{example}}</code>",
+        add: "Add Metadata",
+        removeTitle: "Remove the metadata from the compare exchange item",
+    },
+    raftIndex: {
+        label: "Raft Index",
+        versionInfo: "The Raft Index indicates the <strong>Compare-Exchange item's version</strong>.",
+        concurrencyInfo: "Used for concurrency control.",
+    },
+    editor: {
+        copyTitle: "Copy metadata to clipboard",
+        copy: "Copy",
+        format: "Format",
+        expand: "Expand",
+        collapse: "Collapse",
+        toggleNewLines: "Toggle new lines",
+        copied_Value: "Value has been copied to clipboard",
+        copied_Metadata: "Metadata has been copied to clipboard",
+        formatFailed: "Could not format json",
+        invalidJson_Value: "Value content is not a legal JSON expression",
+        invalidJson_Metadata: "Metadata content is not a legal JSON expression",
+    },
+    saveSucceeded: "Compare exchange item with key: {{key}} was saved successfully",
+    saveFailed:
+        "Failed to save compare exchange item. Save was called with index: {{index}}, but key: {{key}} has index: {{currentIndex}}.",
+    deleteConfirm: {
+        title_single: "Delete compare exchange item?",
+        title_multiple: "Delete compare exchange items?",
+        subTitle: "You're deleting a compare exchange item with key:",
+        subTitleMultiple_one: "You're deleting <strong>{{count}}</strong> compare exchange items with keys:",
+        subTitleMultiple_other: "You're deleting <strong>{{count}}</strong> compare exchange items with keys:",
+    },
+} as const;

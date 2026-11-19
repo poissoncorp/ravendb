@@ -1,0 +1,33 @@
+export default {
+    close: "Close",
+    samples: {
+        title: "Sample scripts",
+        assignCollection: "Assign collection and put document",
+        mapAndPut: "Map and put document",
+        copyTitle: "Copy code sample",
+        copied: "Sample has been copied to clipboard",
+    },
+    methods: {
+        title: "Methods signature",
+        intro: "The following functions can be used in the script:",
+        fullList: "See RavenDB online documentation for the full list.",
+    },
+    functions: {
+        documents: "Documents:",
+        load: "loads document by ID",
+        put: "puts document with given name and data",
+        del: "deletes document by ID",
+        counters: "Counters:",
+        counter: "get the counter value by document/document ID",
+        incrementCounter: "increment a counter by document/document ID",
+        deleteCounter: "delete a counter by document/document ID",
+        timeSeries: "Time Series:",
+        timeSeriesGet: "get timeseries entries",
+        timeSeriesAppend: "add a new entry to a timeseries",
+        timeSeriesDelete: "delete entries from a timeseries",
+        general: "General:",
+        output: "output debug info when testing",
+        docsTitle: "Go to script functions documentation",
+        syntaxTutorial: "Syntax tutorial",
+    },
+} as const;

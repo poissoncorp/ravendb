@@ -1,0 +1,115 @@
+export default {
+    heading_new: "New Subscription",
+    heading_edit: "Edit Subscription",
+    clone: "Clone",
+    cloneTitle: "Clone this subscription",
+    cloneTitle_databaseLimitReached:
+        "The database has reached the maximum number of subscriptions allowed by your license per database.",
+    cloneTitle_clusterLimitReached:
+        "The cluster has reached the maximum number of subscriptions allowed by your license per cluster.",
+    cancelTitle: "Return to Ongoing Tasks View",
+    testTitle: "Test this subscription definition",
+    testSubscription: "Test Subscription",
+    closeTestAreaTitle: "Close the test area",
+    closeTestArea: "Close Test Area",
+    close: "Close",
+    syntax: "Syntax",
+    task: {
+        liveConnectionTitle: "Note: Client connection will be disconnected upon Save !",
+        liveConnectionWarning: "Warning: You are editing a live subscription connection . . .",
+        nameLabel: "Task Name",
+        namePlaceholder: "Enter a descriptive name for the subscription task (optional)",
+        nameTitle: "Note: if no name is supplied then server will create one for you",
+        stateLabel: "Task State",
+        stateEnabled: "Enabled",
+        stateDisabled: "Disabled",
+        queryLabel: "Subscription RQL:",
+        queryPlaceholder: "Enter transform script",
+        revisionsLicense:
+            "<strong>Your current license does not support processing document revisions by this Subscription task</strong>.<br/>Unleash the full potential of <subscriptionIcon/> Subscriptions by <a href='{{upgradeUrl}}' target='_blank'>upgrading</a> your plan.",
+    },
+    archived: {
+        label: "Archived Data Processing Behavior",
+        default: "Default",
+        excludeArchived: "Exclude Archived",
+        includeArchived: "Include Archived",
+        archivedOnly: "Archived Only",
+        availableOptions: "Available options:",
+        archivedOnlyInfo: "<strong>Archived Only</strong><br />Only archived documents will be included in processing.",
+        excludeArchivedInfo:
+            "<strong>Exclude Archived</strong> (Default behavior)<br />Only non-archived documents will be included in processing.",
+        includeArchivedInfo:
+            "<strong>Include Archived</strong><br />Both archived and non-archived documents will be included in processing.",
+    },
+    startingPoint: {
+        toggleTitle: "Toggle on to set starting point from which documents will be sent",
+        toggle: "Use a defined starting point",
+        label: "Send Documents From:",
+        title: "Set the starting point for the subscription task",
+        beginningOfTimeTitle: "Documents will be sent from the very first document in the collection",
+        beginningOfTime: "Beginning of Time",
+        latestDocumentTitle: "Documents will be sent from the latest document in the collection",
+        latestDocument: "Latest Document",
+        changeVectorTitle: "Documents will be sent from the specified change vector related document",
+        changeVector: "Change Vector",
+        notAvailableSharded: "(not available for sharded database)",
+        changeVectorLabel: "Change Vector:",
+        changeVectorPlaceholder: "Enter change vector to start sending documents from",
+    },
+    responsibleNode: {
+        shardedTitle: "Not supported in sharded databases",
+        title: "Toggle on to set a responsible node for the task",
+        toggle: "Set responsible node",
+    },
+    nextBatch: {
+        title: "This change vector is the starting point for next batch",
+        label: "Next batch starting point is :",
+    },
+    test: {
+        heading: "Test Subscription",
+        resultsLimit: "Results limit",
+        resultsLimitHint: "Set number of documents to fetch",
+        runTitle: "Run test with current settings",
+        run: "Run Test",
+        timeLimit: "Time limit",
+        timeLimitPlaceholder: "Set timeout for operation (Default: 15)",
+        timeLimitTitle: "Set timeout for operation",
+        seconds: "seconds",
+        display: "Display",
+        results: "Results",
+        includes: "Includes ({{name}})",
+        noResults: "No results for the defined subscription.",
+    },
+    rqlSyntax: {
+        heading: "Sample Subscription RQL",
+        allDocuments: "A subscription for all documents in a collection:",
+        projection: "A subscription for projected (partial) document data:",
+        filter: "A subscription that filters documents:",
+        revisions: "A subscription for document revisions:",
+        copyTitle: "Copy code sample",
+        copied: "Sample has been copied to clipboard",
+        note: "<strong>Note</strong>: Only object literal notation can be used with the <code>select</code> clause.",
+        moreExamples: "More examples are available in the following documentation:",
+        creationExamplesLink: "Subscriptions creation examples",
+        revisionsSupportLink: "Subscriptions revisions support",
+    },
+    about: {
+        defineQuery:
+            "Define a <strong>Subscription Query</strong> in this view to create a subscription-task on the RavenDB server to which clients can subscribe.",
+        matchingDocuments:
+            "When a client opens a connection to this task, the server sends all documents <strong>matching the defined query</strong> to the client for processing.",
+        ongoingProcess:
+            "This is an <strong>ongoing process</strong>, whenever a new or updated document matches the subscription query, it will also be sent to the client.",
+        batches:
+            "Documents are sent to the client in <strong>batches</strong>.<br/>The client processes a batch and receives the next one only after acknowledging the batch was processed.",
+        startingPoint:
+            "The <strong>starting point</strong> from where to send the matching documents can be configured.",
+        testQuery:
+            "You can <strong>test the subscription query</strong> in this view to preview sample document results that will be sent to the client.",
+        docsLink: "Docs - Subscription Task",
+    },
+    featureAvailability: {
+        concurrentDataSubscriptions: "Concurrent Data Subscriptions",
+        subscriptionsRevisions: "Subscriptions Revisions",
+    },
+} as const;
