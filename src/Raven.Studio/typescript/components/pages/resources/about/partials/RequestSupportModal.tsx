@@ -10,6 +10,8 @@ import React from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "components/common/Modal";
 import { FormGroup, FormLabel } from "components/common/Form";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface RequestSupportModalProps {
     visible: boolean;
@@ -19,6 +21,7 @@ interface RequestSupportModalProps {
 }
 
 export function RequestSupportModal(props: RequestSupportModalProps) {
+    const t = useStudioTranslation("aboutPage");
     const { visible, toggle, supportId, licenseId } = props;
 
     const { value: includeDebugPackage, toggle: toggleIncludeDebugPackage } = useBoolean(false);
@@ -31,47 +34,51 @@ export function RequestSupportModal(props: RequestSupportModalProps) {
                     <Icon icon="support" color="primary" className="fs-1" margin="m-0" />
                 </div>
 
-                <div className="text-center lead">Request support</div>
+                <div className="text-center lead">{t("requestSupport.title")}</div>
             </Modal.Header>
             <Modal.Body className="vstack">
                 <Form className="vstack gap-2">
                     <FormGroup>
-                        <FormLabel htmlFor="contactEmail">Contact email</FormLabel>
+                        <FormLabel htmlFor="contactEmail">{t("requestSupport.contactEmail")}</FormLabel>
                         <Form.Control
                             type="email"
                             name="contactEmail"
                             value="defaultEmailAssignedToLicense@client.com"
-                            placeholder="Email"
+                            placeholder={t("requestSupport.emailPlaceholder")}
                         />
                     </FormGroup>
                     <Row>
                         <Col>
                             <FormGroup>
-                                <FormLabel htmlFor="supportId">Support ID</FormLabel>
+                                <FormLabel htmlFor="supportId">{t("requestSupport.supportId")}</FormLabel>
                                 <Form.Control type="number" name="supportId" value={supportId} disabled />
                             </FormGroup>
                         </Col>
                         <Col>
                             <FormGroup>
-                                <FormLabel htmlFor="LicenseId">License ID</FormLabel>
+                                <FormLabel htmlFor="LicenseId">{t("requestSupport.licenseId")}</FormLabel>
                                 <Form.Control type="text" name="supportId" value={licenseId} disabled />
                             </FormGroup>
                         </Col>
                     </Row>
                     <FormGroup>
                         <FormLabel htmlFor="messageText">
-                            Message <span className="text-muted">(optional)</span>
+                            <StudioTrans
+                                ns="aboutPage"
+                                i18nKey="requestSupport.message"
+                                components={{ span: <span className="text-muted" /> }}
+                            />
                         </FormLabel>
                         <Form.Control as="textarea" name="text" id="messageText" rows={10} />
                     </FormGroup>
                     <div className="well p-3 rounded-2">
                         <Checkbox size="lg" selected={includeDebugPackage} toggleSelection={toggleIncludeDebugPackage}>
-                            Include debug package
+                            {t("requestSupport.includeDebugPackage")}
                         </Checkbox>
                         <Collapse in={includeDebugPackage}>
                             <div className="py-2">
                                 <Switch selected={includeAllDatabases} toggleSelection={toggleIncludeAllDatabases}>
-                                    Include all databases
+                                    {t("requestSupport.includeAllDatabases")}
                                 </Switch>
                                 <Collapse in={!includeAllDatabases}>
                                     <div className="vstack">
@@ -88,13 +95,13 @@ export function RequestSupportModal(props: RequestSupportModalProps) {
                                 </Collapse>
                                 <div className="d-flex gap-4">
                                     <Checkbox selected={null} toggleSelection={null}>
-                                        Server
+                                        {t("requestSupport.server")}
                                     </Checkbox>
                                     <Checkbox selected={null} toggleSelection={null}>
-                                        Databases
+                                        {t("requestSupport.databases")}
                                     </Checkbox>
                                     <Checkbox selected={null} toggleSelection={null}>
-                                        Logs
+                                        {t("requestSupport.logs")}
                                     </Checkbox>
                                 </div>
                             </div>
@@ -104,11 +111,11 @@ export function RequestSupportModal(props: RequestSupportModalProps) {
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="outline-secondary" onClick={toggle} className="rounded-pill px-3">
-                    Close
+                    {t("requestSupport.close")}
                 </Button>
                 <Button variant="primary" className="rounded-pill px-3">
                     <Icon icon="support" />
-                    Request support
+                    {t("requestSupport.submit")}
                 </Button>
             </Modal.Footer>
         </Modal>

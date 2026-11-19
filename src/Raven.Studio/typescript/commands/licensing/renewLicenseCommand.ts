@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("licensingCommands");
 
 class renewLicenseCommand extends commandBase {
 
@@ -8,7 +11,7 @@ class renewLicenseCommand extends commandBase {
         
         return this.post(url, null, null)
             .fail((response: JQueryXHR) => {
-                this.reportError("Failed to renew license", response.responseText, response.statusText);
+                this.reportError(t("renewFailed"), response.responseText, response.statusText);
             });
     }
 }

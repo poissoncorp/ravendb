@@ -1,5 +1,8 @@
 ﻿import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("licensingCommands");
 
 class getConnectivityToLicenseServerCommand extends commandBase {
  
@@ -8,7 +11,7 @@ class getConnectivityToLicenseServerCommand extends commandBase {
 
         return this.query<any>(url, null)
             .fail((response: JQueryXHR) => {
-                this.reportError("No connection to RavenDB License Server", response.responseText, response.statusText);
+                this.reportError(t("noLicenseServerConnection"), response.responseText, response.statusText);
             });
     }
 }

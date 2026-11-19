@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("licensingCommands");
 
 class licenseVerifyLicenseCommand extends commandBase {
     constructor(private verifyLicensePayload: DownloadFreeLicenseRequest) {
@@ -15,7 +18,7 @@ class licenseVerifyLicenseCommand extends commandBase {
             .done((result: DownloadFreeLicenseResponse) => {
                 if (result.LicenseDownloadStatus !== "Success") {
                     task.reject(result.LicenseDownloadStatus);
-                    this.reportError("License verification failed", result.LicenseDownloadStatus);
+                    this.reportError(t("verificationFailed"), result.LicenseDownloadStatus);
                     return;
                 }
                 task.resolve(result);

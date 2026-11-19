@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("licensingCommands");
 
 class licenseActivateCommand extends commandBase {
 
@@ -16,8 +19,8 @@ class licenseActivateCommand extends commandBase {
         return this.post(url, JSON.stringify(this.licensePayload), null, { dataType: undefined })
             .fail((response: JQueryXHR) => {
                 const message = response.status === 405 ?
-                    "License activation has been disabled on this server" : 
-                    "Failed to activate license";
+                    t("activationDisabled") : 
+                    t("activateFailed");
 
                 this.reportError(message, response.responseText, response.statusText);
             });

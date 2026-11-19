@@ -13,6 +13,7 @@ import ButtonWithSpinner from "components/common/ButtonWithSpinner";
 import { licenseSelectors } from "components/common/shell/licenseSlice";
 import genUtils from "common/generalUtils";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface VersionsSummaryProps {
     asyncLatestVersion: AsyncState<Raven.Server.ServerWide.BackgroundTasks.LatestVersionCheck.VersionInfo>;
@@ -22,8 +23,9 @@ interface VersionsSummaryProps {
 }
 
 export function VersionsSummary(props: VersionsSummaryProps) {
+    const t = useStudioTranslation("aboutPage");
     const serverVersion = useAppSelector(clusterSelectors.serverVersion);
-    const serverFullVersion = serverVersion?.FullVersion ?? "n/a";
+    const serverFullVersion = serverVersion?.FullVersion ?? t("versions.notAvailable");
     const isCloud = useAppSelector(licenseSelectors.statusValue("IsCloud"));
     const { asyncLatestVersion } = props;
 
@@ -45,21 +47,21 @@ export function VersionsSummary(props: VersionsSummaryProps) {
     return (
         <Card>
             <Card.Body>
-                <h4>Software Version</h4>
+                <h4>{t("versions.title")}</h4>
                 <div className="vstack gap-4">
                     <Row>
-                        <OverallInfoItem icon="server" label="Server version">
+                        <OverallInfoItem icon="server" label={t("versions.serverVersion")}>
                             {serverFullVersion}
                         </OverallInfoItem>
                         <Col className="d-flex flex-wrap gap-2 align-items-center justify-content-end">
                             <Button variant="outline-secondary" className="rounded-pill" onClick={showChangeLogModal}>
-                                <Icon icon="logs" /> Changelog
+                                <Icon icon="logs" /> {t("versions.changelog")}
                             </Button>
                         </Col>
                     </Row>
                     {showLatestVersionInfo && (
                         <Row>
-                            <OverallInfoItem icon="global" label="Updates">
+                            <OverallInfoItem icon="global" label={t("versions.updates")}>
                                 <LatestVersion
                                     asyncLatestVersion={asyncLatestVersion}
                                     serverVersion={serverVersion}
@@ -73,7 +75,7 @@ export function VersionsSummary(props: VersionsSummaryProps) {
                                     className="rounded-pill"
                                     onClick={checkForUpdates}
                                 >
-                                    <Icon icon="refresh" /> Check for updates
+                                    <Icon icon="refresh" /> {t("versions.checkForUpdates")}
                                 </ButtonWithSpinner>
                             </Col>
                         </Row>
@@ -89,18 +91,19 @@ function LatestVersion(props: {
     serverVersion: serverBuildVersionDto;
     showWhatsNewModal: () => void;
 }) {
+    const t = useStudioTranslation("aboutPage");
     const { asyncLatestVersion, serverVersion, showWhatsNewModal } = props;
 
     if (asyncLatestVersion.loading) {
         return (
             <LazyLoad active>
-                <div>Loading placeholder</div>
+                <div>{t("loadingPlaceholder")}</div>
             </LazyLoad>
         );
     }
 
     if (asyncLatestVersion.status === "error") {
-        return <LoadError error="Unable to load latest version" />;
+        return <LoadError error={t("versions.loadError")} />;
     }
 
     const hasNewerVersion = genUtils.isNewVersionAvailable(serverVersion, asyncLatestVersion.result);
@@ -112,12 +115,12 @@ function LatestVersion(props: {
             <>
                 <span className="text-warning">
                     <Icon icon="star-filled" />
-                    Update Available
+                    {t("versions.updateAvailable")}
                 </span>
                 <div className="small text-muted fw-light">
                     {latestVersion}
                     <Button size="xs" variant="link" onClick={showWhatsNewModal} className="fw-bold">
-                        What&apos;s new?
+                        {t("versions.whatsNew")}
                     </Button>
                 </div>
             </>
@@ -127,7 +130,7 @@ function LatestVersion(props: {
     return (
         <span className="text-success">
             <Icon icon="check" />
-            You are using the latest version
+            {t("versions.usingLatest")}
         </span>
     );
 }

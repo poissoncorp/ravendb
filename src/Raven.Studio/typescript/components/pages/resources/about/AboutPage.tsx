@@ -18,12 +18,14 @@ import { licenseSelectors } from "components/common/shell/licenseSlice";
 import licenseModel from "models/auth/licenseModel";
 import Tab from "react-bootstrap/Tab";
 import Nav from "react-bootstrap/Nav";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface AboutPageProps {
     initialChangeLogMode?: "whatsNew" | "changeLog" | "hidden";
 }
 
 export function AboutPage({ initialChangeLogMode = "hidden" }: AboutPageProps) {
+    const t = useStudioTranslation("aboutPage");
     const licenseRegistered = useAppSelector(licenseSelectors.licenseRegistered);
     const license = useAppSelector(licenseSelectors.status);
     const support = useAppSelector(licenseSelectors.support);
@@ -82,7 +84,7 @@ export function AboutPage({ initialChangeLogMode = "hidden" }: AboutPageProps) {
                                             color={licenseRegistered ? "success" : "warning"}
                                             margin="me-2"
                                         />
-                                        <span className="fs-3">License details</span>
+                                        <span className="fs-3">{t("tabs.licenseDetails")}</span>
                                         {/* TODO show if you some extra options to enable in cloud
                                 <Badge className="rounded-pill py-1 ms-1 align-self-start" color="primary">
                                     1
@@ -98,7 +100,7 @@ export function AboutPage({ initialChangeLogMode = "hidden" }: AboutPageProps) {
                                         onClick={() => setActiveTab("support")}
                                     >
                                         <Icon icon="support" className="circle-border" margin="fs-2 me-2" />
-                                        <span className="fs-3">Support plan</span>
+                                        <span className="fs-3">{t("tabs.supportPlan")}</span>
                                         {paidSupportAvailable && (
                                             <Badge className="rounded-pill py-1 ms-1 align-self-start" bg="primary">
                                                 1

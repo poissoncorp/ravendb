@@ -3,7 +3,7 @@ import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import { Icon } from "components/common/Icon";
-import React, { ChangeEvent, useState } from "react";
+import React, { ChangeEvent, useMemo, useState } from "react";
 import { RadioToggleWithIcon, RadioToggleWithIconInputItem } from "components/common/toggles/RadioToggle";
 import classNames from "classnames";
 import { aboutPageUrls } from "components/pages/resources/about/partials/common";
@@ -14,8 +14,13 @@ import Button from "react-bootstrap/Button";
 import Tooltip from "react-bootstrap/Tooltip";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import { aiConnectionStringUtils } from "components/pages/database/settings/connectionStrings/editForms/aiConnectionStringUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import { createTranslator } from "common/i18n/i18n";
+import type { StudioTranslate } from "common/i18n/resources";
 
 export function LicenseDetails() {
+    const t = useStudioTranslation("aboutPage");
     const licenseId = useAppSelector(licenseSelectors.statusValue("Id"));
     const licenseTo = useAppSelector(licenseSelectors.statusValue("LicensedTo"));
     const licenseType = useAppSelector(licenseSelectors.licenseType);
@@ -26,19 +31,18 @@ export function LicenseDetails() {
                 {licenseType !== "None" ? (
                     <Row className="text-center py-4">
                         <Col className="px-4">
-                            <div className="small text-muted">License ID</div>
+                            <div className="small text-muted">{t("licenseDetails.licenseId")}</div>
                             <h4 className="fw-bolder text-emphasis m-0">{licenseId}</h4>
                         </Col>
                         <Col className="px-4">
-                            <div className="small text-muted">License To</div>
+                            <div className="small text-muted">{t("licenseDetails.licenseTo")}</div>
                             <h4 className="fw-bolder text-emphasis m-0">{licenseTo}</h4>
                         </Col>
                     </Row>
                 ) : (
                     <div className="text-center py-4">
                         <h3 className="fw-bolder text-warning d-flex align-items-center justify-content-center">
-                            <Icon icon="empty-set" className="fs-1" margin="me-3" /> No license - AGPLv3 Restrictions
-                            Applied
+                            <Icon icon="empty-set" className="fs-1" margin="me-3" /> {t("licenseDetails.noLicense")}
                         </h3>
                         <Button
                             variant="success"
@@ -47,7 +51,7 @@ export function LicenseDetails() {
                             href={aboutPageUrls.getLicense}
                             target="_blank"
                         >
-                            <strong>Get free license</strong>
+                            <strong>{t("licenseDetails.getFreeLicense")}</strong>
                             <Icon icon="newtab" margin="ms-2" />
                         </Button>
                     </div>
@@ -64,6 +68,7 @@ interface LicenseTableProps {
 }
 
 function LicenseTable(props: LicenseTableProps) {
+    const t = useStudioTranslation("aboutPage");
     const { licenseType } = props;
 
     const [searchText, setSearchText] = useState("");
@@ -73,6 +78,8 @@ function LicenseTable(props: LicenseTableProps) {
     const { columns, current: currentColumn } = getColumnsData(licenseType, licenseStatus.IsCloud);
 
     const developerLicenseLink = useRavenLink({ hash: "ZOVGRA", isDocs: false });
+
+    const featureAvailabilityData = useMemo(() => getFeatureAvailabilityData(t), [t]);
 
     const getEffectiveValue = (feature: FeatureAvailabilityItem, column: LicenseColumn) => {
         if (column !== currentColumn || !feature.fieldInLicense) {
@@ -101,13 +108,13 @@ function LicenseTable(props: LicenseTableProps) {
     };
 
     const leftRadioToggleItem: RadioToggleWithIconInputItem<"showDiff"> = {
-        label: "Show differences",
+        label: t("licenseDetails.showDifferences"),
         value: "showDiff",
         iconName: "diff",
     };
 
     const rightRadioToggleItem: RadioToggleWithIconInputItem<"showAll"> = {
-        label: "Show all license properties",
+        label: t("licenseDetails.showAll"),
         value: "showAll",
         iconName: "license",
     };
@@ -141,8 +148,8 @@ function LicenseTable(props: LicenseTableProps) {
                     <Form.Control
                         type="text"
                         accessKey="/"
-                        placeholder="Filter: e.g. ETL"
-                        title="Filter indexes"
+                        placeholder={t("licenseDetails.filterPlaceholder")}
+                        title={t("licenseDetails.filterTitle")}
                         className="filtering-input"
                         value={searchText}
                         onChange={(e: ChangeEvent<HTMLInputElement>) => onSearchTextChange(e.target.value)}
@@ -160,11 +167,13 @@ function LicenseTable(props: LicenseTableProps) {
                 <Table borderless hover striped className="text-center feature-availability-table">
                     <thead>
                         <tr>
-                            <th>License type</th>
+                            <th>{t("licenseDetails.licenseType")}</th>
                             {columns.map((column) => (
                                 <th key={column} className={classNames({ "bg-current": column === currentColumn })}>
                                     <h4 className="fw-bolder text-uppercase m-0">{getLicenseTypeName(column)}</h4>
-                                    {column === currentColumn && <div className="text-primary">Current</div>}
+                                    {column === currentColumn && (
+                                        <div className="text-primary">{t("licenseDetails.current")}</div>
+                                    )}
                                 </th>
                             ))}
                         </tr>
@@ -173,7 +182,7 @@ function LicenseTable(props: LicenseTableProps) {
                     <tbody>
                         {filteredSections.length === 0 && (
                             <tr>
-                                <td>No matches found</td>
+                                <td>{t("licenseDetails.noMatches")}</td>
                             </tr>
                         )}
                         {filteredSections.map((section) => (
@@ -238,7 +247,7 @@ function LicenseTable(props: LicenseTableProps) {
                                             >
                                                 <FeatureValue
                                                     value={getEffectiveValue(feature, column)}
-                                                    suffix={feature.suffix}
+                                                    unit={feature.unit}
                                                 />
                                             </td>
                                         ))}
@@ -265,11 +274,14 @@ function LicenseTable(props: LicenseTableProps) {
             {licenseType !== "Developer" && licenseType !== "Quill" && (
                 <small className="mt-2 pb-2 text-center text-muted">
                     <Icon icon="info" />
-                    We offer a free{" "}
-                    <a href={developerLicenseLink} target="_blank" className="text-developer">
-                        Developer license <Icon icon="newtab" margin="m-0" />
-                    </a>{" "}
-                    for development purposes
+                    <StudioTrans
+                        ns="aboutPage"
+                        i18nKey="licenseDetails.developerLicenseInfo"
+                        components={{
+                            a: <a href={developerLicenseLink} target="_blank" className="text-developer" />,
+                            icon: <Icon icon="newtab" margin="m-0" />,
+                        }}
+                    />
                 </small>
             )}
         </>
@@ -286,1059 +298,1061 @@ const availableEverywhere = {
     quill: { value: true },
 };
 
-const featureAvailabilityData: FeatureAvailabilitySection[] = [
-    {
-        name: null,
-        link: null,
-        items: [
-            {
-                name: "Eligible for Commercial Use",
-                agpl: { value: true },
-                community: { value: true },
-                professional: { value: true },
-                enterprise: { value: true },
-                developer: { value: false },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: null,
-            },
-            {
-                name: "Number of databases",
-                agpl: { value: Infinity },
-                community: { value: Infinity },
-                professional: { value: Infinity },
-                enterprise: { value: Infinity },
-                developer: { value: Infinity },
-                enterpriseAi: { value: Infinity },
-                quill: { value: Infinity },
-                fieldInLicense: null,
-            },
-            {
-                name: "Single database size",
-                agpl: { value: Infinity },
-                community: { value: Infinity },
-                professional: { value: Infinity },
-                enterprise: { value: Infinity },
-                developer: { value: Infinity },
-                enterpriseAi: { value: Infinity },
-                quill: { value: Infinity },
-                fieldInLicense: null,
-            },
-            {
-                name: "Management Studio (GUI)",
-                ...availableEverywhere,
-                fieldInLicense: null,
-            },
-        ],
-    },
-    {
-        name: "AI",
-        className: "ai-gradient",
-        link: null,
-        items: [
-            {
-                name: "GenAI",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: false },
-                enterprise: { value: false },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasGenAi",
-            },
-            {
-                name: "AI Agent",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: false },
-                enterprise: { value: false },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasAiAgent",
-            },
-            {
-                name: "AI Assistant",
-                agpl: { value: false },
-                community: { value: true },
-                professional: { value: true },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasAiAssistant",
-            },
-        ],
-    },
-    {
-        name: "Clustering",
-        link: "https://ravendb.net/features#clusters",
-        items: [
-            {
-                name: "Max cluster size",
-                agpl: { value: "1" },
-                community: { value: "3" },
-                professional: { value: "5" },
-                enterprise: { value: Infinity },
-                developer: { value: "3" },
-                enterpriseAi: { value: Infinity },
-                quill: { value: "1" },
-                fieldInLicense: "MaxClusterSize",
-                suffix: "nodes",
-            },
-            {
-                name: "Max cores in cluster",
-                agpl: { value: 3 },
-                community: { value: 3 },
-                professional: { value: 40 },
-                enterprise: { value: Infinity },
-                developer: { value: 9 },
-                enterpriseAi: { value: Infinity },
-                quill: { value: 3 },
-                fieldInLicense: "MaxCores",
-            },
-            {
-                name: "Max cluster memory usage",
-                agpl: { value: "6" },
-                community: { value: "6" },
-                professional: { value: "240" },
-                enterprise: { value: Infinity },
-                developer: { value: "36" },
-                enterpriseAi: { value: Infinity },
-                quill: { value: "6" },
-                fieldInLicense: "MaxMemory",
-                suffix: "GB RAM",
-            },
-            {
-                name: "Cluster Dashboard",
-                ...availableEverywhere,
-                fieldInLicense: null,
-            },
-            {
-                name: "Cluster transactions",
-                ...availableEverywhere,
-                fieldInLicense: null,
-            },
-            {
-                name: "Highly available tasks",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: false },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: false },
-                fieldInLicense: "HasHighlyAvailableTasks",
-            },
-            {
-                name: "Dynamic database distribution",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: false },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: false },
-                fieldInLicense: "HasDynamicNodesDistribution",
-            },
-        ],
-    },
-    {
-        name: "Indexes",
-        link: "https://ravendb.net/features#indexes",
-        items: [
-            {
-                name: "Static & Auto",
-                ...availableEverywhere,
-                fieldInLicense: null,
-            },
-            {
-                name: "Static indexes per database",
-                agpl: { value: Infinity },
-                community: { value: Infinity },
-                professional: { value: Infinity },
-                enterprise: { value: Infinity },
-                developer: { value: Infinity },
-                enterpriseAi: { value: Infinity },
-                quill: { value: Infinity },
-                fieldInLicense: "MaxNumberOfStaticIndexesPerDatabase",
-            },
-            {
-                name: "Static indexes per cluster",
-                agpl: { value: Infinity },
-                community: { value: Infinity },
-                professional: { value: Infinity },
-                enterprise: { value: Infinity },
-                developer: { value: Infinity },
-                enterpriseAi: { value: Infinity },
-                quill: { value: Infinity },
-                fieldInLicense: "MaxNumberOfStaticIndexesPerCluster",
-            },
-            {
-                name: "Auto indexes per database",
-                agpl: { value: Infinity },
-                community: { value: Infinity },
-                professional: { value: Infinity },
-                enterprise: { value: Infinity },
-                developer: { value: Infinity },
-                enterpriseAi: { value: Infinity },
-                quill: { value: Infinity },
-                fieldInLicense: "MaxNumberOfAutoIndexesPerDatabase",
-            },
-            {
-                name: "Auto indexes per cluster",
-                agpl: { value: Infinity },
-                community: { value: Infinity },
-                professional: { value: Infinity },
-                enterprise: { value: Infinity },
-                developer: { value: Infinity },
-                enterpriseAi: { value: Infinity },
-                quill: { value: Infinity },
-                fieldInLicense: "MaxNumberOfAutoIndexesPerCluster",
-            },
-            {
-                name: "Corax",
-                ...availableEverywhere,
-                fieldInLicense: null,
-            },
-            {
-                name: "JavaScript Indexes",
-                ...availableEverywhere,
-                fieldInLicense: null,
-            },
-            {
-                name: "Counters Indexing",
-                ...availableEverywhere,
-                fieldInLicense: null,
-            },
-            {
-                name: "Compare Exchange indexing",
-                ...availableEverywhere,
-                fieldInLicense: null,
-            },
-            {
-                name: "Additional Assemblies from NuGet",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: true },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasAdditionalAssembliesFromNuGet",
-            },
-            {
-                name: "Attachments Support",
-                ...availableEverywhere,
-                fieldInLicense: null,
-            },
-            {
-                name: "Rolling Index Deployment",
-                ...availableEverywhere,
-                fieldInLicense: null,
-            },
-            {
-                name: "Index Cleanup",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: true },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasIndexCleanup",
-            },
-        ],
-    },
-    {
-        name: "Sharding",
-        link: "https://ravendb.net/features/clusters/sharding",
-        items: [
-            {
-                name: "Single-node sharding",
-                ...availableEverywhere,
-                fieldInLicense: null,
-            },
-            {
-                name: "Multi-node sharding",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: false },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasMultiNodeSharding",
-            },
-            {
-                name: "Max replication factor",
-                agpl: { value: 1 },
-                community: { value: 1 },
-                professional: { value: Infinity },
-                enterprise: { value: Infinity },
-                developer: { value: 1 },
-                enterpriseAi: { value: Infinity },
-                quill: { value: Infinity },
-                fieldInLicense: "MaxReplicationFactorForSharding",
-            },
-        ],
-    },
-    {
-        name: "Time Series",
-        link: "https://ravendb.net/features#timeseries",
-        items: [
-            {
-                name: "Time Series",
-                ...availableEverywhere,
-                fieldInLicense: null,
-            },
-            {
-                name: "Incremental Time Series",
-                ...availableEverywhere,
-                fieldInLicense: null,
-            },
-            {
-                name: "Rollups & Retention",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: true },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasTimeSeriesRollupsAndRetention",
-            },
-        ],
-    },
-    {
-        name: "Monitoring",
-        link: "https://ravendb.net/features#monitoring",
-        items: [
-            {
-                name: "Cluster Dashboard",
-                ...availableEverywhere,
-                fieldInLicense: null,
-            },
-            {
-                name: "SNMP",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: false },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasSnmpMonitoring",
-            },
-            {
-                name: "Monitoring Endpoints",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: false },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasMonitoringEndpoints",
-            },
-            {
-                name: "OpenTelemetry",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: false },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasMonitoringEndpoints",
-            },
-        ],
-    },
-    {
-        name: "Extensions",
-        link: "https://ravendb.net/features#extensions",
-        items: [
-            {
-                name: "Counters",
-                ...availableEverywhere,
-                fieldInLicense: null,
-            },
-            {
-                name: "Counters Bulk Insert",
-                ...availableEverywhere,
-                fieldInLicense: null,
-            },
-            {
-                name: "Document Revisions",
-                ...availableEverywhere,
-                fieldInLicense: null,
-            },
-            {
-                name: "Default revisions configuration",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: true },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "CanSetupDefaultRevisionsConfiguration",
-            },
-            {
-                name: "Max number of revisions to keep",
-                agpl: { value: 2 },
-                community: { value: 2 },
-                professional: { value: Infinity },
-                enterprise: { value: Infinity },
-                developer: { value: Infinity },
-                enterpriseAi: { value: Infinity },
-                quill: { value: Infinity },
-                fieldInLicense: "MaxNumberOfRevisionsToKeep",
-            },
-            {
-                name: "Max revisions retention time (days)",
-                agpl: { value: 45 },
-                community: { value: 45 },
-                professional: { value: Infinity },
-                enterprise: { value: Infinity },
-                developer: { value: Infinity },
-                enterpriseAi: { value: Infinity },
-                quill: { value: Infinity },
-                fieldInLicense: "MaxNumberOfRevisionAgeToKeepInDays",
-            },
-            {
-                name: "Document Expiration & Refresh",
-                ...availableEverywhere,
-                fieldInLicense: null,
-            },
-            {
-                name: "Min refresh frequency (hrs)",
-                agpl: { value: 36 },
-                community: { value: 36 },
-                professional: { value: Infinity },
-                enterprise: { value: Infinity },
-                developer: { value: Infinity },
-                enterpriseAi: { value: Infinity },
-                quill: { value: Infinity },
-                fieldInLicense: "MinPeriodForRefreshInHours",
-            },
-            {
-                name: "Min expiration frequency (hrs)",
-                agpl: { value: 36 },
-                community: { value: 36 },
-                professional: { value: Infinity },
-                enterprise: { value: Infinity },
-                developer: { value: Infinity },
-                enterpriseAi: { value: Infinity },
-                quill: { value: Infinity },
-                fieldInLicense: "MinPeriodForExpirationInHours",
-            },
-            {
-                name: "Attachments",
-                ...availableEverywhere,
-                fieldInLicense: null,
-            },
-            {
-                name: "Documents Compression",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: false },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasDocumentsCompression",
-            },
-            {
-                name: "TCP Compression",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: true },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasTcpDataCompression",
-            },
-        ],
-    },
-    {
-        name: "External Replication",
-        link: "https://ravendb.net/features/replication/external-replication",
-        items: [
-            {
-                name: "Immediate",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: true },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasExternalReplication",
-            },
-            {
-                name: "Delayed",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: false },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasDelayedExternalReplication",
-            },
-            {
-                name: "Filtered",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: false },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasPullReplicationAsHub",
-            },
-            {
-                name: "Replication Sink",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: true },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasPullReplicationAsSink",
-            },
-            {
-                name: "Replication Hub",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: false },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasPullReplicationAsHub",
-            },
-        ],
-    },
-    {
-        name: "Backups",
-        link: "https://ravendb.net/features#backups",
-        items: [
-            {
-                name: "Local",
-                ...availableEverywhere,
-                fieldInLicense: null,
-            },
-            {
-                name: "Cloud & Remote",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: true },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasCloudBackups",
-            },
-            {
-                name: "Encrypted Backups",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: true },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasEncryptedBackups",
-            },
-            {
-                name: "Snapshot Backups",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: false },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasSnapshotBackups",
-            },
-            {
-                name: "Periodic Backups",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: true },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasPeriodicBackup",
-            },
-        ],
-    },
-    {
-        name: "Embeddings Generation",
-        link: null,
-        items: [
-            {
-                name: "Embedded Model",
-                ...availableEverywhere,
-                fieldInLicense: null,
-                helperInfo: "bge-micro-v2",
-            },
-            {
-                name: "External Models",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: false },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasEmbeddingsGeneration",
-                helperInfo: (
-                    <ul>
-                        {aiConnectionStringUtils.getExternalConnectorOptions().map((x) => (
-                            <li key={x.value}>{x.label}</li>
-                        ))}
-                    </ul>
-                ),
-            },
-        ],
-    },
-    {
-        name: "Integration",
-        link: "https://ravendb.net/features#integration",
-        items: [
-            {
-                name: "RavenDB ETL",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: true },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasRavenEtl",
-            },
-            {
-                name: "SQL ETL",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: true },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasSqlEtl",
-            },
-            {
-                name: "Snowflake ETL",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: false },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasSnowflakeEtl",
-            },
-            {
-                name: "OLAP ETL",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: false },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasOlapEtl",
-            },
-            {
-                name: "Elasticsearch ETL",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: false },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasElasticSearchEtl",
-            },
-            {
-                name: "PostgreSQL Protocol Support",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: false },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasPostgreSqlIntegration",
-            },
-            {
-                name: "Power BI",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: false },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasPowerBI",
-            },
-            {
-                name: "ETL to Kafka",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: false },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasQueueEtl",
-            },
-            {
-                name: "ETL to RabbitMQ",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: false },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasQueueEtl",
-            },
-            {
-                name: "ETL to Azure Queue Storage",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: false },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasQueueEtl",
-            },
-            {
-                name: "ETL to Amazon SQS",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: false },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasQueueEtl",
-            },
-            {
-                name: "Kafka Sink",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: false },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasQueueSink",
-            },
-            {
-                name: "RabbitMQ Sink",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: false },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasQueueSink",
-            },
-            {
-                name: "CDC Sink",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: false },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasCdcSink",
-            },
-            {
-                name: "Grafana plugin for data",
-                ...availableEverywhere,
-                fieldInLicense: null,
-            },
-        ],
-    },
-    {
-        name: "Security",
-        link: "https://ravendb.net/features#security",
-        items: [
-            {
-                name: "Certificates",
-                ...availableEverywhere,
-                fieldInLicense: null,
-            },
-            {
-                name: "Read-Only Certificates",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: true },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasReadOnlyCertificates",
-            },
-            {
-                name: "Encryption in transit",
-                agpl: { value: "TLS 1.3 & X.509" },
-                community: { value: "TLS 1.3 & X.509" },
-                professional: { value: "TLS 1.3 & X.509" },
-                enterprise: { value: "TLS 1.3 & X.509" },
-                developer: { value: "TLS 1.3 & X.509" },
-                enterpriseAi: { value: "TLS 1.3 & X.509" },
-                quill: { value: "TLS 1.3 & X.509" },
-                fieldInLicense: null,
-            },
-            {
-                name: "Storage encryption",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: false },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasEncryption",
-            },
-        ],
-    },
-    {
-        name: "Subscriptions",
-        link: "https://ravendb.net/features/extensions/subscriptions",
-        items: [
-            {
-                name: "Data Subscriptions",
-                ...availableEverywhere,
-                fieldInLicense: null,
-            },
-            {
-                name: "Concurrent Data Subscriptions",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: true },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasConcurrentDataSubscriptions",
-            },
-            {
-                name: "Revisions in Subscriptions",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: true },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasRevisionsInSubscriptions",
-            },
-            {
-                name: "Subscriptions per database",
-                agpl: { value: 3 },
-                community: { value: 3 },
-                professional: { value: Infinity },
-                enterprise: { value: Infinity },
-                developer: { value: Infinity },
-                enterpriseAi: { value: Infinity },
-                quill: { value: Infinity },
-                fieldInLicense: "MaxNumberOfSubscriptionsPerDatabase",
-            },
-            {
-                name: "Subscriptions per cluster",
-                agpl: { value: 15 },
-                community: { value: 15 },
-                professional: { value: Infinity },
-                enterprise: { value: Infinity },
-                developer: { value: Infinity },
-                enterpriseAi: { value: Infinity },
-                quill: { value: Infinity },
-                fieldInLicense: "MaxNumberOfSubscriptionsPerCluster",
-            },
-        ],
-    },
-    {
-        name: "Server-Wide",
-        link: "https://ravendb.net/features/administration/periodic-backups",
-        items: [
-            {
-                name: "Backups",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: true },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasServerWideBackups",
-            },
-            {
-                name: "External Replications",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: true },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasServerWideExternalReplications",
-            },
-            {
-                name: "Custom Sorters",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: true },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasServerWideCustomSorters",
-            },
-            {
-                name: "Custom Analyzers",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: true },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasServerWideAnalyzers",
-            },
-        ],
-    },
-    {
-        name: "Settings",
-        link: null,
-        items: [
-            {
-                name: "Data Archival",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: false },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasDataArchival",
-            },
-            {
-                name: "Custom Sorters",
-                ...availableEverywhere,
-                fieldInLicense: null,
-            },
-            {
-                name: "Custom Sorters per database",
-                agpl: { value: 1 },
-                community: { value: 1 },
-                professional: { value: Infinity },
-                enterprise: { value: Infinity },
-                developer: { value: Infinity },
-                enterpriseAi: { value: Infinity },
-                quill: { value: Infinity },
-                fieldInLicense: "MaxNumberOfCustomSortersPerDatabase",
-            },
-            {
-                name: "Custom Sorters per cluster",
-                agpl: { value: 5 },
-                community: { value: 5 },
-                professional: { value: Infinity },
-                enterprise: { value: Infinity },
-                developer: { value: Infinity },
-                enterpriseAi: { value: Infinity },
-                quill: { value: Infinity },
-                fieldInLicense: "MaxNumberOfCustomSortersPerCluster",
-            },
-            {
-                name: "Custom Analyzers",
-                ...availableEverywhere,
-                fieldInLicense: null,
-            },
-            {
-                name: "Custom Analyzers per database",
-                agpl: { value: 1 },
-                community: { value: 1 },
-                professional: { value: Infinity },
-                enterprise: { value: Infinity },
-                developer: { value: Infinity },
-                enterpriseAi: { value: Infinity },
-                quill: { value: Infinity },
-                fieldInLicense: "MaxNumberOfCustomAnalyzersPerDatabase",
-            },
-            {
-                name: "Custom Analyzers per cluster",
-                agpl: { value: 5 },
-                community: { value: 5 },
-                professional: { value: Infinity },
-                enterprise: { value: Infinity },
-                developer: { value: Infinity },
-                enterpriseAi: { value: Infinity },
-                quill: { value: Infinity },
-                fieldInLicense: "MaxNumberOfCustomAnalyzersPerCluster",
-            },
-            {
-                name: "Client Configuration",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: true },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasClientConfiguration",
-            },
-            {
-                name: "Studio Configuration",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: true },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasStudioConfiguration",
-            },
-            {
-                name: "Document Schema",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: true },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasSchemaValidation",
-            },
-            {
-                name: "Remote Attachments",
-                agpl: { value: false },
-                community: { value: false },
-                professional: { value: false },
-                enterprise: { value: true },
-                developer: { value: true },
-                enterpriseAi: { value: true },
-                quill: { value: true },
-                fieldInLicense: "HasRemoteAttachments",
-            },
-        ],
-    },
-];
+function getFeatureAvailabilityData(t: StudioTranslate<"aboutPage">): FeatureAvailabilitySection[] {
+    return [
+        {
+            name: null,
+            link: null,
+            items: [
+                {
+                    name: t("licenseDetails.features.general.eligibleForCommercialUse"),
+                    agpl: { value: true },
+                    community: { value: true },
+                    professional: { value: true },
+                    enterprise: { value: true },
+                    developer: { value: false },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: null,
+                },
+                {
+                    name: t("licenseDetails.features.general.numberOfDatabases"),
+                    agpl: { value: Infinity },
+                    community: { value: Infinity },
+                    professional: { value: Infinity },
+                    enterprise: { value: Infinity },
+                    developer: { value: Infinity },
+                    enterpriseAi: { value: Infinity },
+                    quill: { value: Infinity },
+                    fieldInLicense: null,
+                },
+                {
+                    name: t("licenseDetails.features.general.singleDatabaseSize"),
+                    agpl: { value: Infinity },
+                    community: { value: Infinity },
+                    professional: { value: Infinity },
+                    enterprise: { value: Infinity },
+                    developer: { value: Infinity },
+                    enterpriseAi: { value: Infinity },
+                    quill: { value: Infinity },
+                    fieldInLicense: null,
+                },
+                {
+                    name: t("licenseDetails.features.general.managementStudio"),
+                    ...availableEverywhere,
+                    fieldInLicense: null,
+                },
+            ],
+        },
+        {
+            name: "AI",
+            className: "ai-gradient",
+            link: null,
+            items: [
+                {
+                    name: "GenAI",
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: false },
+                    enterprise: { value: false },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasGenAi",
+                },
+                {
+                    name: t("licenseDetails.features.ai.aiAgent"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: false },
+                    enterprise: { value: false },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasAiAgent",
+                },
+                {
+                    name: t("licenseDetails.features.ai.aiAssistant"),
+                    agpl: { value: false },
+                    community: { value: true },
+                    professional: { value: true },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasAiAssistant",
+                },
+            ],
+        },
+        {
+            name: t("licenseDetails.features.clustering.title"),
+            link: "https://ravendb.net/features#clusters",
+            items: [
+                {
+                    name: t("licenseDetails.features.clustering.maxClusterSize"),
+                    agpl: { value: "1" },
+                    community: { value: "3" },
+                    professional: { value: "5" },
+                    enterprise: { value: Infinity },
+                    developer: { value: "3" },
+                    enterpriseAi: { value: Infinity },
+                    quill: { value: "1" },
+                    fieldInLicense: "MaxClusterSize",
+                    unit: "nodes",
+                },
+                {
+                    name: t("licenseDetails.features.clustering.maxCores"),
+                    agpl: { value: 3 },
+                    community: { value: 3 },
+                    professional: { value: 40 },
+                    enterprise: { value: Infinity },
+                    developer: { value: 9 },
+                    enterpriseAi: { value: Infinity },
+                    quill: { value: 3 },
+                    fieldInLicense: "MaxCores",
+                },
+                {
+                    name: t("licenseDetails.features.clustering.maxMemory"),
+                    agpl: { value: "6" },
+                    community: { value: "6" },
+                    professional: { value: "240" },
+                    enterprise: { value: Infinity },
+                    developer: { value: "36" },
+                    enterpriseAi: { value: Infinity },
+                    quill: { value: "6" },
+                    fieldInLicense: "MaxMemory",
+                    unit: "memory",
+                },
+                {
+                    name: t("licenseDetails.features.clustering.clusterDashboard"),
+                    ...availableEverywhere,
+                    fieldInLicense: null,
+                },
+                {
+                    name: t("licenseDetails.features.clustering.clusterTransactions"),
+                    ...availableEverywhere,
+                    fieldInLicense: null,
+                },
+                {
+                    name: t("licenseDetails.features.clustering.highlyAvailableTasks"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: false },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: false },
+                    fieldInLicense: "HasHighlyAvailableTasks",
+                },
+                {
+                    name: t("licenseDetails.features.clustering.dynamicDatabaseDistribution"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: false },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: false },
+                    fieldInLicense: "HasDynamicNodesDistribution",
+                },
+            ],
+        },
+        {
+            name: t("licenseDetails.features.indexes.title"),
+            link: "https://ravendb.net/features#indexes",
+            items: [
+                {
+                    name: t("licenseDetails.features.indexes.staticAndAuto"),
+                    ...availableEverywhere,
+                    fieldInLicense: null,
+                },
+                {
+                    name: t("licenseDetails.features.indexes.staticPerDatabase"),
+                    agpl: { value: Infinity },
+                    community: { value: Infinity },
+                    professional: { value: Infinity },
+                    enterprise: { value: Infinity },
+                    developer: { value: Infinity },
+                    enterpriseAi: { value: Infinity },
+                    quill: { value: Infinity },
+                    fieldInLicense: "MaxNumberOfStaticIndexesPerDatabase",
+                },
+                {
+                    name: t("licenseDetails.features.indexes.staticPerCluster"),
+                    agpl: { value: Infinity },
+                    community: { value: Infinity },
+                    professional: { value: Infinity },
+                    enterprise: { value: Infinity },
+                    developer: { value: Infinity },
+                    enterpriseAi: { value: Infinity },
+                    quill: { value: Infinity },
+                    fieldInLicense: "MaxNumberOfStaticIndexesPerCluster",
+                },
+                {
+                    name: t("licenseDetails.features.indexes.autoPerDatabase"),
+                    agpl: { value: Infinity },
+                    community: { value: Infinity },
+                    professional: { value: Infinity },
+                    enterprise: { value: Infinity },
+                    developer: { value: Infinity },
+                    enterpriseAi: { value: Infinity },
+                    quill: { value: Infinity },
+                    fieldInLicense: "MaxNumberOfAutoIndexesPerDatabase",
+                },
+                {
+                    name: t("licenseDetails.features.indexes.autoPerCluster"),
+                    agpl: { value: Infinity },
+                    community: { value: Infinity },
+                    professional: { value: Infinity },
+                    enterprise: { value: Infinity },
+                    developer: { value: Infinity },
+                    enterpriseAi: { value: Infinity },
+                    quill: { value: Infinity },
+                    fieldInLicense: "MaxNumberOfAutoIndexesPerCluster",
+                },
+                {
+                    name: "Corax",
+                    ...availableEverywhere,
+                    fieldInLicense: null,
+                },
+                {
+                    name: t("licenseDetails.features.indexes.javaScriptIndexes"),
+                    ...availableEverywhere,
+                    fieldInLicense: null,
+                },
+                {
+                    name: t("licenseDetails.features.indexes.countersIndexing"),
+                    ...availableEverywhere,
+                    fieldInLicense: null,
+                },
+                {
+                    name: t("licenseDetails.features.indexes.compareExchangeIndexing"),
+                    ...availableEverywhere,
+                    fieldInLicense: null,
+                },
+                {
+                    name: t("licenseDetails.features.indexes.additionalAssemblies"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: true },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasAdditionalAssembliesFromNuGet",
+                },
+                {
+                    name: t("licenseDetails.features.indexes.attachmentsSupport"),
+                    ...availableEverywhere,
+                    fieldInLicense: null,
+                },
+                {
+                    name: t("licenseDetails.features.indexes.rollingDeployment"),
+                    ...availableEverywhere,
+                    fieldInLicense: null,
+                },
+                {
+                    name: t("licenseDetails.features.indexes.indexCleanup"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: true },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasIndexCleanup",
+                },
+            ],
+        },
+        {
+            name: t("licenseDetails.features.sharding.title"),
+            link: "https://ravendb.net/features/clusters/sharding",
+            items: [
+                {
+                    name: t("licenseDetails.features.sharding.singleNode"),
+                    ...availableEverywhere,
+                    fieldInLicense: null,
+                },
+                {
+                    name: t("licenseDetails.features.sharding.multiNode"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: false },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasMultiNodeSharding",
+                },
+                {
+                    name: t("licenseDetails.features.sharding.maxReplicationFactor"),
+                    agpl: { value: 1 },
+                    community: { value: 1 },
+                    professional: { value: Infinity },
+                    enterprise: { value: Infinity },
+                    developer: { value: 1 },
+                    enterpriseAi: { value: Infinity },
+                    quill: { value: Infinity },
+                    fieldInLicense: "MaxReplicationFactorForSharding",
+                },
+            ],
+        },
+        {
+            name: t("licenseDetails.features.timeSeries.title"),
+            link: "https://ravendb.net/features#timeseries",
+            items: [
+                {
+                    name: t("licenseDetails.features.timeSeries.timeSeries"),
+                    ...availableEverywhere,
+                    fieldInLicense: null,
+                },
+                {
+                    name: t("licenseDetails.features.timeSeries.incremental"),
+                    ...availableEverywhere,
+                    fieldInLicense: null,
+                },
+                {
+                    name: t("licenseDetails.features.timeSeries.rollupsAndRetention"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: true },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasTimeSeriesRollupsAndRetention",
+                },
+            ],
+        },
+        {
+            name: t("licenseDetails.features.monitoring.title"),
+            link: "https://ravendb.net/features#monitoring",
+            items: [
+                {
+                    name: t("licenseDetails.features.monitoring.clusterDashboard"),
+                    ...availableEverywhere,
+                    fieldInLicense: null,
+                },
+                {
+                    name: "SNMP",
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: false },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasSnmpMonitoring",
+                },
+                {
+                    name: t("licenseDetails.features.monitoring.monitoringEndpoints"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: false },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasMonitoringEndpoints",
+                },
+                {
+                    name: "OpenTelemetry",
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: false },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasMonitoringEndpoints",
+                },
+            ],
+        },
+        {
+            name: t("licenseDetails.features.extensions.title"),
+            link: "https://ravendb.net/features#extensions",
+            items: [
+                {
+                    name: t("licenseDetails.features.extensions.counters"),
+                    ...availableEverywhere,
+                    fieldInLicense: null,
+                },
+                {
+                    name: t("licenseDetails.features.extensions.countersBulkInsert"),
+                    ...availableEverywhere,
+                    fieldInLicense: null,
+                },
+                {
+                    name: t("licenseDetails.features.extensions.documentRevisions"),
+                    ...availableEverywhere,
+                    fieldInLicense: null,
+                },
+                {
+                    name: t("licenseDetails.features.extensions.defaultRevisionsConfiguration"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: true },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "CanSetupDefaultRevisionsConfiguration",
+                },
+                {
+                    name: t("licenseDetails.features.extensions.maxRevisionsToKeep"),
+                    agpl: { value: 2 },
+                    community: { value: 2 },
+                    professional: { value: Infinity },
+                    enterprise: { value: Infinity },
+                    developer: { value: Infinity },
+                    enterpriseAi: { value: Infinity },
+                    quill: { value: Infinity },
+                    fieldInLicense: "MaxNumberOfRevisionsToKeep",
+                },
+                {
+                    name: t("licenseDetails.features.extensions.maxRevisionsRetention"),
+                    agpl: { value: 45 },
+                    community: { value: 45 },
+                    professional: { value: Infinity },
+                    enterprise: { value: Infinity },
+                    developer: { value: Infinity },
+                    enterpriseAi: { value: Infinity },
+                    quill: { value: Infinity },
+                    fieldInLicense: "MaxNumberOfRevisionAgeToKeepInDays",
+                },
+                {
+                    name: t("licenseDetails.features.extensions.expirationAndRefresh"),
+                    ...availableEverywhere,
+                    fieldInLicense: null,
+                },
+                {
+                    name: t("licenseDetails.features.extensions.minRefreshFrequency"),
+                    agpl: { value: 36 },
+                    community: { value: 36 },
+                    professional: { value: Infinity },
+                    enterprise: { value: Infinity },
+                    developer: { value: Infinity },
+                    enterpriseAi: { value: Infinity },
+                    quill: { value: Infinity },
+                    fieldInLicense: "MinPeriodForRefreshInHours",
+                },
+                {
+                    name: t("licenseDetails.features.extensions.minExpirationFrequency"),
+                    agpl: { value: 36 },
+                    community: { value: 36 },
+                    professional: { value: Infinity },
+                    enterprise: { value: Infinity },
+                    developer: { value: Infinity },
+                    enterpriseAi: { value: Infinity },
+                    quill: { value: Infinity },
+                    fieldInLicense: "MinPeriodForExpirationInHours",
+                },
+                {
+                    name: t("licenseDetails.features.extensions.attachments"),
+                    ...availableEverywhere,
+                    fieldInLicense: null,
+                },
+                {
+                    name: t("licenseDetails.features.extensions.documentsCompression"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: false },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasDocumentsCompression",
+                },
+                {
+                    name: t("licenseDetails.features.extensions.tcpCompression"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: true },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasTcpDataCompression",
+                },
+            ],
+        },
+        {
+            name: t("licenseDetails.features.externalReplication.title"),
+            link: "https://ravendb.net/features/replication/external-replication",
+            items: [
+                {
+                    name: t("licenseDetails.features.externalReplication.immediate"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: true },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasExternalReplication",
+                },
+                {
+                    name: t("licenseDetails.features.externalReplication.delayed"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: false },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasDelayedExternalReplication",
+                },
+                {
+                    name: t("licenseDetails.features.externalReplication.filtered"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: false },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasPullReplicationAsHub",
+                },
+                {
+                    name: t("licenseDetails.features.externalReplication.replicationSink"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: true },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasPullReplicationAsSink",
+                },
+                {
+                    name: t("licenseDetails.features.externalReplication.replicationHub"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: false },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasPullReplicationAsHub",
+                },
+            ],
+        },
+        {
+            name: t("licenseDetails.features.backups.title"),
+            link: "https://ravendb.net/features#backups",
+            items: [
+                {
+                    name: t("licenseDetails.features.backups.local"),
+                    ...availableEverywhere,
+                    fieldInLicense: null,
+                },
+                {
+                    name: t("licenseDetails.features.backups.cloudAndRemote"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: true },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasCloudBackups",
+                },
+                {
+                    name: t("licenseDetails.features.backups.encrypted"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: true },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasEncryptedBackups",
+                },
+                {
+                    name: t("licenseDetails.features.backups.snapshot"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: false },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasSnapshotBackups",
+                },
+                {
+                    name: t("licenseDetails.features.backups.periodic"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: true },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasPeriodicBackup",
+                },
+            ],
+        },
+        {
+            name: t("licenseDetails.features.embeddingsGeneration.title"),
+            link: null,
+            items: [
+                {
+                    name: t("licenseDetails.features.embeddingsGeneration.embeddedModel"),
+                    ...availableEverywhere,
+                    fieldInLicense: null,
+                    helperInfo: "bge-micro-v2",
+                },
+                {
+                    name: t("licenseDetails.features.embeddingsGeneration.externalModels"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: false },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasEmbeddingsGeneration",
+                    helperInfo: (
+                        <ul>
+                            {aiConnectionStringUtils.getExternalConnectorOptions().map((x) => (
+                                <li key={x.value}>{x.label}</li>
+                            ))}
+                        </ul>
+                    ),
+                },
+            ],
+        },
+        {
+            name: t("licenseDetails.features.integration.title"),
+            link: "https://ravendb.net/features#integration",
+            items: [
+                {
+                    name: "RavenDB ETL",
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: true },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasRavenEtl",
+                },
+                {
+                    name: "SQL ETL",
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: true },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasSqlEtl",
+                },
+                {
+                    name: "Snowflake ETL",
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: false },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasSnowflakeEtl",
+                },
+                {
+                    name: "OLAP ETL",
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: false },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasOlapEtl",
+                },
+                {
+                    name: "Elasticsearch ETL",
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: false },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasElasticSearchEtl",
+                },
+                {
+                    name: t("licenseDetails.features.integration.postgreSqlProtocol"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: false },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasPostgreSqlIntegration",
+                },
+                {
+                    name: "Power BI",
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: false },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasPowerBI",
+                },
+                {
+                    name: t("licenseDetails.features.integration.etlToKafka"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: false },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasQueueEtl",
+                },
+                {
+                    name: t("licenseDetails.features.integration.etlToRabbitMq"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: false },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasQueueEtl",
+                },
+                {
+                    name: t("licenseDetails.features.integration.etlToAzureQueueStorage"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: false },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasQueueEtl",
+                },
+                {
+                    name: t("licenseDetails.features.integration.etlToAmazonSqs"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: false },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasQueueEtl",
+                },
+                {
+                    name: t("licenseDetails.features.integration.kafkaSink"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: false },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasQueueSink",
+                },
+                {
+                    name: t("licenseDetails.features.integration.rabbitMqSink"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: false },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasQueueSink",
+                },
+                {
+                    name: t("licenseDetails.features.integration.cdcSink"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: false },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasCdcSink",
+                },
+                {
+                    name: t("licenseDetails.features.integration.grafanaPlugin"),
+                    ...availableEverywhere,
+                    fieldInLicense: null,
+                },
+            ],
+        },
+        {
+            name: t("licenseDetails.features.security.title"),
+            link: "https://ravendb.net/features#security",
+            items: [
+                {
+                    name: t("licenseDetails.features.security.certificates"),
+                    ...availableEverywhere,
+                    fieldInLicense: null,
+                },
+                {
+                    name: t("licenseDetails.features.security.readOnlyCertificates"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: true },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasReadOnlyCertificates",
+                },
+                {
+                    name: t("licenseDetails.features.security.encryptionInTransit"),
+                    agpl: { value: "TLS 1.3 & X.509" },
+                    community: { value: "TLS 1.3 & X.509" },
+                    professional: { value: "TLS 1.3 & X.509" },
+                    enterprise: { value: "TLS 1.3 & X.509" },
+                    developer: { value: "TLS 1.3 & X.509" },
+                    enterpriseAi: { value: "TLS 1.3 & X.509" },
+                    quill: { value: "TLS 1.3 & X.509" },
+                    fieldInLicense: null,
+                },
+                {
+                    name: t("licenseDetails.features.security.storageEncryption"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: false },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasEncryption",
+                },
+            ],
+        },
+        {
+            name: t("licenseDetails.features.subscriptions.title"),
+            link: "https://ravendb.net/features/extensions/subscriptions",
+            items: [
+                {
+                    name: t("licenseDetails.features.subscriptions.dataSubscriptions"),
+                    ...availableEverywhere,
+                    fieldInLicense: null,
+                },
+                {
+                    name: t("licenseDetails.features.subscriptions.concurrent"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: true },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasConcurrentDataSubscriptions",
+                },
+                {
+                    name: t("licenseDetails.features.subscriptions.revisions"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: true },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasRevisionsInSubscriptions",
+                },
+                {
+                    name: t("licenseDetails.features.subscriptions.perDatabase"),
+                    agpl: { value: 3 },
+                    community: { value: 3 },
+                    professional: { value: Infinity },
+                    enterprise: { value: Infinity },
+                    developer: { value: Infinity },
+                    enterpriseAi: { value: Infinity },
+                    quill: { value: Infinity },
+                    fieldInLicense: "MaxNumberOfSubscriptionsPerDatabase",
+                },
+                {
+                    name: t("licenseDetails.features.subscriptions.perCluster"),
+                    agpl: { value: 15 },
+                    community: { value: 15 },
+                    professional: { value: Infinity },
+                    enterprise: { value: Infinity },
+                    developer: { value: Infinity },
+                    enterpriseAi: { value: Infinity },
+                    quill: { value: Infinity },
+                    fieldInLicense: "MaxNumberOfSubscriptionsPerCluster",
+                },
+            ],
+        },
+        {
+            name: t("licenseDetails.features.serverWide.title"),
+            link: "https://ravendb.net/features/administration/periodic-backups",
+            items: [
+                {
+                    name: t("licenseDetails.features.serverWide.backups"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: true },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasServerWideBackups",
+                },
+                {
+                    name: t("licenseDetails.features.serverWide.externalReplications"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: true },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasServerWideExternalReplications",
+                },
+                {
+                    name: t("licenseDetails.features.serverWide.customSorters"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: true },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasServerWideCustomSorters",
+                },
+                {
+                    name: t("licenseDetails.features.serverWide.customAnalyzers"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: true },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasServerWideAnalyzers",
+                },
+            ],
+        },
+        {
+            name: t("licenseDetails.features.settings.title"),
+            link: null,
+            items: [
+                {
+                    name: t("licenseDetails.features.settings.dataArchival"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: false },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasDataArchival",
+                },
+                {
+                    name: t("licenseDetails.features.settings.customSorters"),
+                    ...availableEverywhere,
+                    fieldInLicense: null,
+                },
+                {
+                    name: t("licenseDetails.features.settings.customSortersPerDatabase"),
+                    agpl: { value: 1 },
+                    community: { value: 1 },
+                    professional: { value: Infinity },
+                    enterprise: { value: Infinity },
+                    developer: { value: Infinity },
+                    enterpriseAi: { value: Infinity },
+                    quill: { value: Infinity },
+                    fieldInLicense: "MaxNumberOfCustomSortersPerDatabase",
+                },
+                {
+                    name: t("licenseDetails.features.settings.customSortersPerCluster"),
+                    agpl: { value: 5 },
+                    community: { value: 5 },
+                    professional: { value: Infinity },
+                    enterprise: { value: Infinity },
+                    developer: { value: Infinity },
+                    enterpriseAi: { value: Infinity },
+                    quill: { value: Infinity },
+                    fieldInLicense: "MaxNumberOfCustomSortersPerCluster",
+                },
+                {
+                    name: t("licenseDetails.features.settings.customAnalyzers"),
+                    ...availableEverywhere,
+                    fieldInLicense: null,
+                },
+                {
+                    name: t("licenseDetails.features.settings.customAnalyzersPerDatabase"),
+                    agpl: { value: 1 },
+                    community: { value: 1 },
+                    professional: { value: Infinity },
+                    enterprise: { value: Infinity },
+                    developer: { value: Infinity },
+                    enterpriseAi: { value: Infinity },
+                    quill: { value: Infinity },
+                    fieldInLicense: "MaxNumberOfCustomAnalyzersPerDatabase",
+                },
+                {
+                    name: t("licenseDetails.features.settings.customAnalyzersPerCluster"),
+                    agpl: { value: 5 },
+                    community: { value: 5 },
+                    professional: { value: Infinity },
+                    enterprise: { value: Infinity },
+                    developer: { value: Infinity },
+                    enterpriseAi: { value: Infinity },
+                    quill: { value: Infinity },
+                    fieldInLicense: "MaxNumberOfCustomAnalyzersPerCluster",
+                },
+                {
+                    name: t("licenseDetails.features.settings.clientConfiguration"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: true },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasClientConfiguration",
+                },
+                {
+                    name: t("licenseDetails.features.settings.studioConfiguration"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: true },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasStudioConfiguration",
+                },
+                {
+                    name: t("licenseDetails.features.settings.documentSchema"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: true },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasSchemaValidation",
+                },
+                {
+                    name: t("licenseDetails.features.settings.remoteAttachments"),
+                    agpl: { value: false },
+                    community: { value: false },
+                    professional: { value: false },
+                    enterprise: { value: true },
+                    developer: { value: true },
+                    enterpriseAi: { value: true },
+                    quill: { value: true },
+                    fieldInLicense: "HasRemoteAttachments",
+                },
+            ],
+        },
+    ];
+}
 
 type LicenseColumn = "agpl" | "community" | "professional" | "enterprise" | "developer" | "enterpriseAi" | "quill";
 
@@ -1458,11 +1472,15 @@ function filterFeatureAvailabilitySection(
 
 export const forTesting = {
     filterFeatureAvailabilitySection,
-    featureAvailabilityData,
+    get featureAvailabilityData() {
+        const t = createTranslator("aboutPage");
+        return getFeatureAvailabilityData(t);
+    },
 };
 
-function FeatureValue(props: { value: AvailabilityValue; suffix: string }) {
-    const { value, suffix } = props;
+function FeatureValue(props: { value: AvailabilityValue; unit: FeatureValueUnit }) {
+    const t = useStudioTranslation("aboutPage");
+    const { value, unit } = props;
     switch (value) {
         case true:
             return <Icon icon="check" color="success" margin="m-0" />;
@@ -1471,7 +1489,13 @@ function FeatureValue(props: { value: AvailabilityValue; suffix: string }) {
         case Infinity:
             return <Icon icon="infinity" margin="m-0" />;
         default:
-            return value + " " + (suffix ?? "");
+            if (unit === "nodes") {
+                return t("licenseDetails.nodesValue", { count: Number(value) });
+            }
+            if (unit === "memory") {
+                return t("licenseDetails.memoryValue", { value: String(value) });
+            }
+            return value + " ";
     }
 }
 
@@ -1494,9 +1518,11 @@ interface FeatureAvailabilityItem {
     developer: ValueData;
     enterpriseAi: ValueData;
     quill: ValueData;
-    suffix?: string;
+    unit?: FeatureValueUnit;
     helperInfo?: React.ReactNode;
 }
+
+type FeatureValueUnit = "nodes" | "memory";
 
 type AvailabilityValue = boolean | number | string;
 
@@ -1506,6 +1532,7 @@ interface ValueData {
 }
 
 function UpgradeRow({ columns, current }: ColumnsData) {
+    const t = useStudioTranslation("aboutPage");
     const isCloud = useAppSelector(licenseSelectors.statusValue("IsCloud"));
 
     const data = columns.map((column) => ({
@@ -1535,7 +1562,7 @@ function UpgradeRow({ columns, current }: ColumnsData) {
                                     className="btn btn-cloud rounded-pill"
                                 >
                                     <Icon icon="cloud" />
-                                    Cloud pricing
+                                    {t("licenseDetails.cloudPricing")}
                                 </a>
                             ) : (
                                 <a
@@ -1544,7 +1571,7 @@ function UpgradeRow({ columns, current }: ColumnsData) {
                                     className="btn btn-primary rounded-pill"
                                 >
                                     <Icon icon="upgrade-arrow" />
-                                    Upgrade license
+                                    {t("licenseDetails.upgradeLicense")}
                                 </a>
                             )}
                         </>

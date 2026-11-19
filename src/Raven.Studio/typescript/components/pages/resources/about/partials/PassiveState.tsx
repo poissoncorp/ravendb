@@ -10,8 +10,11 @@ import { withPreventDefault } from "components/utils/common";
 import CreateDatabase, {
     CreateDatabaseMode,
 } from "components/pages/resources/databases/partials/create/CreateDatabase";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export function PassiveState() {
+    const t = useStudioTranslation("aboutPage");
     const isPassive = useAppSelector(clusterSelectors.isPassive);
     const licenseStatus = useAppSelector(licenseSelectors.status);
     const licenseRegistered = useAppSelector(licenseSelectors.licenseRegistered);
@@ -31,29 +34,35 @@ export function PassiveState() {
             <Card.Body className="text-body">
                 <h3>
                     <Icon icon="info" />
-                    The running server is in a <span className="fw-bolder">Passive State</span>, it is not part of a
-                    cluster yet.
+                    <StudioTrans
+                        ns="aboutPage"
+                        i18nKey="passiveState.heading"
+                        components={{ strong: <span className="fw-bolder" /> }}
+                    />
                 </h3>
-                <p>Your license information will be visible only when the server is part of a cluster.</p>
-                <p>Either one of the following can be done to Bootstrap a Cluster:</p>
+                <p>{t("passiveState.licenseInfo")}</p>
+                <p>{t("passiveState.bootstrapIntro")}</p>
                 <ul>
                     <li>
-                        Create a{" "}
-                        <a href="#" onClick={withPreventDefault(newDatabase)}>
-                            New database
-                        </a>
+                        <StudioTrans
+                            ns="aboutPage"
+                            i18nKey="passiveState.createDatabase"
+                            components={{ a: <a href="#" onClick={withPreventDefault(newDatabase)} /> }}
+                        />
                     </li>
                     {!licenseRegistered && (
                         <li>
                             <a href="#" onClick={withPreventDefault(registerLicense)}>
-                                Register a license
+                                {t("passiveState.registerLicense")}
                             </a>
                         </li>
                     )}
                     <li>
-                        Bootstrap the cluster on the <a href={appUrl.forCluster()}>Cluster View</a>
-                        <br />
-                        (or add another node, resulting in both nodes being part of the cluster)
+                        <StudioTrans
+                            ns="aboutPage"
+                            i18nKey="passiveState.bootstrapCluster"
+                            components={{ a: <a href={appUrl.forCluster()} />, br: <br /> }}
+                        />
                     </li>
                 </ul>
                 {createDatabaseMode && (

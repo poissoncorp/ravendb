@@ -33,6 +33,8 @@ import { loadableData } from "components/models/common";
 import { CheckConsentAiAssistantResultDto } from "commands/aiAssistant/checkConsentAiAssistantCommand";
 import ProgressBar from "react-bootstrap/ProgressBar";
 import { aiAssistantConstants } from "components/common/aiAssistant/aiAssistantConstants";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface LicenseSummaryProps {
     asyncCheckLicenseServerConnectivity: AsyncState<ConnectivityStatus>;
@@ -45,6 +47,7 @@ function canRenewLicense(licenseType: LicenseType) {
 }
 
 export function LicenseSummary(props: LicenseSummaryProps) {
+    const t = useStudioTranslation("aboutPage");
     const { recheckConnectivity, asyncCheckLicenseServerConnectivity, asyncGetConfigurationSettings } = props;
 
     const licenseStatus = useAppSelector(licenseSelectors.status);
@@ -70,10 +73,10 @@ export function LicenseSummary(props: LicenseSummaryProps) {
     return (
         <Card>
             <Card.Body>
-                <h4>License</h4>
+                <h4>{t("license.title")}</h4>
                 <div className="vstack gap-4">
                     <Row>
-                        <OverallInfoItem icon="license" label="License type">
+                        <OverallInfoItem icon="license" label={t("license.licenseType")}>
                             <span
                                 className={classNames({
                                     "text-cloud": isCloud,
@@ -88,7 +91,7 @@ export function LicenseSummary(props: LicenseSummaryProps) {
                         <LicenseExpiration />
                     </Row>
                     <Row>
-                        <OverallInfoItem icon="raven" label="License server">
+                        <OverallInfoItem icon="raven" label={t("license.licenseServer")}>
                             <ConnectivityStatusComponent
                                 refreshing={refreshing}
                                 refresh={refreshConnectivity}
@@ -101,7 +104,7 @@ export function LicenseSummary(props: LicenseSummaryProps) {
                 {!isAiAssistantDisabled && (
                     <>
                         <hr />
-                        <h4>AI Assistant</h4>
+                        <h4>{t("aiAssistant.title")}</h4>
                         <div className="vstack gap-4">
                             <Row>
                                 <OverallInfoItem
@@ -110,13 +113,15 @@ export function LicenseSummary(props: LicenseSummaryProps) {
                                     label={
                                         <div className="hstack justify-content-between">
                                             <div>
-                                                Tokens usage
-                                                <PopoverWithHoverWrapper message="The number of tokens available depends on your license and powers the AI Assistant.">
+                                                {t("aiAssistant.tokensUsage")}
+                                                <PopoverWithHoverWrapper message={t("aiAssistant.tokensUsageInfo")}>
                                                     <Icon icon="info-new" margin="ms-1" />
                                                 </PopoverWithHoverWrapper>
                                             </div>
                                             {aiAssistantUsage.data?.Status === "Success" && (
-                                                <div>Resets {aiUsageResetFormattedDate}</div>
+                                                <div>
+                                                    {t("aiAssistant.resets", { date: aiUsageResetFormattedDate })}
+                                                </div>
                                             )}
                                         </div>
                                     }
@@ -130,16 +135,13 @@ export function LicenseSummary(props: LicenseSummaryProps) {
                                     icon="document"
                                     label={
                                         <>
-                                            Consent
+                                            {t("aiAssistant.consent")}
                                             <PopoverWithHoverWrapper
                                                 message={
                                                     <span>
-                                                        To use AI Assistant, you need to accept the Terms of Use.{" "}
+                                                        {t("aiAssistant.consentInfo")}{" "}
                                                         {aiAssistantConsentStatus.data === "Success" && (
-                                                            <span>
-                                                                If you wish to withdraw the consent, please contact
-                                                                support.
-                                                            </span>
+                                                            <span>{t("aiAssistant.withdrawConsentInfo")}</span>
                                                         )}
                                                     </span>
                                                 }
@@ -172,13 +174,14 @@ function ConnectivityStatusComponent(props: {
     refreshing: boolean;
     refresh: () => void;
 }) {
+    const t = useStudioTranslation("aboutPage");
     const { status, refresh, refreshing } = props;
     const uniqueId = useUniqueId("licenseConnectivityException");
 
     if (status.loading) {
         return (
             <LazyLoad active>
-                <div>Loading placeholder</div>
+                <div>{t("loadingPlaceholder")}</div>
             </LazyLoad>
         );
     }
@@ -195,18 +198,28 @@ function ConnectivityStatusComponent(props: {
         return (
             <span className="text-success">
                 <Icon icon="check" />
-                Connected
+                {t("license.connected")}
             </span>
         );
     }
 
     return (
         <div>
-            <OverlayTrigger overlay={<Tooltip id={uniqueId}>Exception: {status.result.exception}</Tooltip>}>
+            <OverlayTrigger
+                overlay={
+                    <Tooltip id={uniqueId}>
+                        {t("license.connectionException", { exception: status.result.exception })}
+                    </Tooltip>
+                }
+            >
                 <span className="text-warning">
                     <Icon icon="warning" />
                     <small>
-                        Unable to reach the RavenDB License Server at <code>api.ravendb.net</code>
+                        <StudioTrans
+                            ns="aboutPage"
+                            i18nKey="licenseServerUnreachable"
+                            components={{ code: <code /> }}
+                        />
                     </small>
                 </span>
             </OverlayTrigger>
@@ -216,7 +229,7 @@ function ConnectivityStatusComponent(props: {
                 className="mt-2 rounded-pill"
                 onClick={refresh}
             >
-                <Icon icon="refresh" title="Click to check connection" /> Test again
+                <Icon icon="refresh" title={t("license.checkConnectionTitle")} /> {t("license.testAgain")}
             </ButtonWithSpinner>
         </div>
     );
@@ -227,6 +240,7 @@ interface LicenseActionsProps {
 }
 
 function LicenseActions(props: LicenseActionsProps) {
+    const t = useStudioTranslation("aboutPage");
     const licenseStatus = useAppSelector(licenseSelectors.status);
     const licenseRegistered = useAppSelector(licenseSelectors.licenseRegistered);
     const isClusterAdminOrClusterNode = useAppSelector(accessManagerSelectors.isClusterAdminOrClusterNode);
@@ -255,10 +269,10 @@ function LicenseActions(props: LicenseActionsProps) {
         const forceUpdate = async () => {
             const confirmed = await confirm({
                 icon: "force",
-                title: "Force License Update",
-                message: <p className="text-center">Are you sure that you want to force license update?</p>,
+                title: t("license.forceUpdateConfirm.title"),
+                message: <p className="text-center">{t("license.forceUpdateConfirm.message")}</p>,
                 actionColor: "primary",
-                confirmText: "Update",
+                confirmText: t("license.forceUpdateConfirm.confirm"),
             });
 
             if (!confirmed) {
@@ -287,8 +301,8 @@ function LicenseActions(props: LicenseActionsProps) {
                             target="renew-license-btn"
                             operationEnabledInConfiguration={licenseConfiguration.CanRenew}
                             hasPrivileges={isClusterAdminOrClusterNode}
-                            operationAction="Renew the current license (expiration date will be extended)"
-                            operationTitle="Renew"
+                            operationAction={t("license.renewAction")}
+                            operationTitle={t("license.renewTitle")}
                         >
                             <span>
                                 <Button
@@ -297,7 +311,7 @@ function LicenseActions(props: LicenseActionsProps) {
                                     onClick={renewLicense}
                                     disabled={!isRenewLicenseEnabled}
                                 >
-                                    <Icon icon="reset" /> Renew license
+                                    <Icon icon="reset" /> {t("license.renew")}
                                 </Button>
                             </span>
                         </LicenseTooltip>
@@ -309,8 +323,8 @@ function LicenseActions(props: LicenseActionsProps) {
                             target="replace-license-btn"
                             operationEnabledInConfiguration={licenseConfiguration.CanActivate}
                             hasPrivileges={isClusterAdminOrClusterNode}
-                            operationAction="Replace the current license with another"
-                            operationTitle="Replacing license"
+                            operationAction={t("license.replaceAction")}
+                            operationTitle={t("license.replaceTitle")}
                         >
                             <span>
                                 <Button
@@ -319,7 +333,7 @@ function LicenseActions(props: LicenseActionsProps) {
                                     onClick={registerLicense}
                                     disabled={!isReplaceLicenseEnabled}
                                 >
-                                    <Icon icon="replace" /> Replace
+                                    <Icon icon="replace" /> {t("license.replace")}
                                 </Button>
                             </span>
                         </LicenseTooltip>
@@ -330,8 +344,8 @@ function LicenseActions(props: LicenseActionsProps) {
                     target="force-update-license-btn"
                     operationEnabledInConfiguration={licenseConfiguration.CanForceUpdate}
                     hasPrivileges={isClusterAdminOrClusterNode}
-                    operationAction="Synchronize the current license with license server"
-                    operationTitle="Force license update"
+                    operationAction={t("license.forceUpdateAction")}
+                    operationTitle={t("license.forceUpdateTitle")}
                 >
                     <span>
                         <ButtonWithSpinner
@@ -341,7 +355,7 @@ function LicenseActions(props: LicenseActionsProps) {
                             variant="outline-secondary"
                             onClick={forceUpdate}
                         >
-                            <Icon icon="force" /> Force Update
+                            <Icon icon="force" /> {t("license.forceUpdate")}
                         </ButtonWithSpinner>
                     </span>
                 </LicenseTooltip>
@@ -357,8 +371,8 @@ function LicenseActions(props: LicenseActionsProps) {
                 target="replace-license-btn"
                 operationEnabledInConfiguration={licenseConfiguration.CanActivate}
                 hasPrivileges={isClusterAdminOrClusterNode}
-                operationAction="Register a new license"
-                operationTitle="Registering new license"
+                operationAction={t("license.registerAction")}
+                operationTitle={t("license.registerTitle")}
             >
                 <div className="d-inline-block">
                     <Button
@@ -367,7 +381,7 @@ function LicenseActions(props: LicenseActionsProps) {
                         onClick={registerLicense}
                         disabled={!isRegisterLicenseEnabled}
                     >
-                        <Icon icon="replace" /> Register license
+                        <Icon icon="replace" /> {t("license.register")}
                     </Button>
                 </div>
             </LicenseTooltip>
@@ -383,17 +397,25 @@ export function LicenseTooltip(props: {
     operationAction: string;
     operationTitle: string;
 }) {
+    const t = useStudioTranslation("aboutPage");
     const { children, operationEnabledInConfiguration, operationTitle, operationAction, hasPrivileges } = props;
 
-    let msg = operationEnabledInConfiguration && hasPrivileges ? `${operationAction}` : "";
+    const getMessage = () => {
+        if (!operationEnabledInConfiguration) {
+            return t("license.tooltip.disabledInConfiguration", {
+                operation: operationTitle,
+                context: hasPrivileges ? undefined : "noPrivileges",
+            });
+        }
 
-    if (!operationEnabledInConfiguration) {
-        msg = `${operationTitle} is disabled in the server configuration.`;
-    }
+        if (!hasPrivileges) {
+            return t("license.tooltip.noPrivileges");
+        }
 
-    if (!hasPrivileges) {
-        msg += " You have insufficient privileges. Only a Cluster Admin can do this.";
-    }
+        return operationAction;
+    };
+
+    const msg = getMessage();
 
     if (!msg) {
         return null;
@@ -407,6 +429,7 @@ export function LicenseTooltip(props: {
 }
 
 function LicenseExpiration() {
+    const t = useStudioTranslation("aboutPage");
     const subscriptionExpiration = useAppSelector(licenseSelectors.statusValue("SubscriptionExpiration"));
     const isIsv = useAppSelector(licenseSelectors.statusValue("IsIsv"));
 
@@ -415,13 +438,14 @@ function LicenseExpiration() {
     }
 
     return (
-        <OverallInfoItem icon="calendar" label={isIsv ? "Updates Expiration" : "Expires"}>
+        <OverallInfoItem icon="calendar" label={isIsv ? t("license.updatesExpiration") : t("license.expires")}>
             <LicenseExpirationDetails />
         </OverallInfoItem>
     );
 }
 
 function LicenseExpirationDetails() {
+    const t = useStudioTranslation("aboutPage");
     const isExpired = useAppSelector(licenseSelectors.statusValue("Expired"));
     const subscriptionExpiration = useAppSelector(licenseSelectors.statusValue("SubscriptionExpiration"));
     const subscriptionExpirationUtc = moment.utc(subscriptionExpiration);
@@ -432,7 +456,7 @@ function LicenseExpirationDetails() {
 
     return (
         <div>
-            {subscriptionExpirationUtc.format(dateFormat)} UTC{" "}
+            {t("license.expirationDate", { date: subscriptionExpirationUtc.format(dateFormat) })}{" "}
             <LicenseExpirationInfoPopover date={subscriptionExpirationUtc}>
                 <Icon icon="info" color="info" id="utc-info" />
             </LicenseExpirationInfoPopover>
@@ -450,6 +474,7 @@ function LicenseExpirationDetails() {
 }
 
 function LicenseExpirationInfoPopover({ date, children }: { date: moment.Moment; children: React.ReactNode }) {
+    const t = useStudioTranslation("aboutPage");
     const isExpired = useAppSelector(licenseSelectors.statusValue("Expired"));
     const isCloud = useAppSelector(licenseSelectors.statusValue("IsCloud"));
 
@@ -457,13 +482,15 @@ function LicenseExpirationInfoPopover({ date, children }: { date: moment.Moment;
         <PopoverWithHoverWrapper
             message={
                 <>
-                    Your license {isExpired ? "has expired on" : "will expire at the end of"}{" "}
-                    {date.format("YYYY-MM-DD")} UTC, which {isExpired ? "was" : "is"}{" "}
-                    {date.local().format("YYYY-MM-DD HH:mm:ss")} your local time.
+                    {t("license.expirationInfo", {
+                        date: date.format("YYYY-MM-DD"),
+                        localDate: date.local().format("YYYY-MM-DD HH:mm:ss"),
+                        context: isExpired ? "expired" : "active",
+                    })}
                     {isCloud && (
                         <div>
                             <br />
-                            <Icon icon="cloud" /> Cloud licenses are automatically renewed.
+                            <Icon icon="cloud" /> {t("license.cloudAutoRenewal")}
                         </div>
                     )}
                 </>
@@ -475,6 +502,8 @@ function LicenseExpirationInfoPopover({ date, children }: { date: moment.Moment;
 }
 
 function AiAssistantReviewConsentButton() {
+    const t = useStudioTranslation("aboutPage");
+
     return (
         <Col className="d-flex align-items-center justify-content-end">
             <a
@@ -482,7 +511,7 @@ function AiAssistantReviewConsentButton() {
                 target="_blank"
                 className="btn btn-outline-secondary rounded-pill"
             >
-                Review the consent
+                {t("aiAssistant.reviewConsent")}
                 <Icon icon="newtab" margin="ms-1" />
             </a>
         </Col>
@@ -490,12 +519,13 @@ function AiAssistantReviewConsentButton() {
 }
 
 function AiAssistantGiveConsentButton() {
+    const t = useStudioTranslation("aboutPage");
     const { value: isEulaOpen, toggle: toggleEulaOpen } = useBoolean(false);
 
     return (
         <Col className="d-flex align-items-center justify-content-end">
             <Button variant="outline-secondary" className="rounded-pill" onClick={toggleEulaOpen}>
-                Review the consent
+                {t("aiAssistant.reviewConsent")}
                 <Icon icon="open-modal" margin="ms-1" />
             </Button>
             {isEulaOpen && <AiAssistantEulaModal close={toggleEulaOpen} />}
@@ -504,6 +534,7 @@ function AiAssistantGiveConsentButton() {
 }
 
 function AiAssistantRetryCheckConsentButton() {
+    const t = useStudioTranslation("aboutPage");
     const dispatch = useAppDispatch();
 
     return (
@@ -513,13 +544,14 @@ function AiAssistantRetryCheckConsentButton() {
                 className="rounded-pill"
                 onClick={() => dispatch(aiAssistantActions.checkConsent())}
             >
-                <Icon icon="refresh" /> Retry
+                <Icon icon="refresh" /> {t("aiAssistant.retry")}
             </Button>
         </Col>
     );
 }
 
 function AiAssistantRetryCheckUsageButton() {
+    const t = useStudioTranslation("aboutPage");
     const dispatch = useAppDispatch();
 
     return (
@@ -529,17 +561,19 @@ function AiAssistantRetryCheckUsageButton() {
                 className="rounded-pill"
                 onClick={() => dispatch(aiAssistantActions.checkUsage())}
             >
-                <Icon icon="refresh" /> Retry
+                <Icon icon="refresh" /> {t("aiAssistant.retry")}
             </Button>
         </Col>
     );
 }
 
 function TokensUsageItem({ usage }: { usage: loadableData<CheckUsageAiAssistantResultDto> }) {
+    const t = useStudioTranslation("aboutPage");
+
     if (usage.status === "loading") {
         return (
             <LazyLoad active>
-                <strong className="fs-4">Checking usage...</strong>
+                <strong className="fs-4">{t("aiAssistant.checkingUsage")}</strong>
             </LazyLoad>
         );
     }
@@ -548,7 +582,7 @@ function TokensUsageItem({ usage }: { usage: loadableData<CheckUsageAiAssistantR
         return (
             <strong className="text-danger fs-4">
                 <Icon icon="cancel" />
-                Failed to check usage. Please try again.
+                {t("aiAssistant.checkUsageFailed")}
             </strong>
         );
     }
@@ -568,7 +602,12 @@ function TokensUsageItem({ usage }: { usage: loadableData<CheckUsageAiAssistantR
         return (
             <div>
                 <div className="fs-4">
-                    <strong>{remaining}%</strong> remaining
+                    <StudioTrans
+                        ns="aboutPage"
+                        i18nKey="aiAssistant.remaining"
+                        components={{ strong: <strong /> }}
+                        options={{ remaining }}
+                    />
                 </div>
                 <ProgressBar now={remaining} className="tokens-usage-progress-bar" />
             </div>
@@ -583,10 +622,12 @@ function ConsentStatusItem({
 }: {
     consentStatus: loadableData<CheckConsentAiAssistantResultDto["Status"]>;
 }) {
+    const t = useStudioTranslation("aboutPage");
+
     if (consentStatus.status === "loading") {
         return (
             <LazyLoad active>
-                <strong className="fs-4">Checking consent...</strong>
+                <strong className="fs-4">{t("aiAssistant.checkingConsent")}</strong>
             </LazyLoad>
         );
     }
@@ -604,7 +645,7 @@ function ConsentStatusItem({
         return (
             <strong className="text-warning fs-4">
                 <Icon icon="cancel" />
-                Not accepted
+                {t("aiAssistant.notAccepted")}
             </strong>
         );
     }
@@ -622,7 +663,7 @@ function ConsentStatusItem({
         return (
             <strong className="text-success fs-4">
                 <Icon icon="check" />
-                Accepted
+                {t("aiAssistant.accepted")}
             </strong>
         );
     }

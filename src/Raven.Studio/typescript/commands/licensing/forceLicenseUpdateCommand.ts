@@ -2,6 +2,9 @@ import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
 import LicenseLeaseResult = Raven.Server.Commercial.LicenseLeaseResult;
 import messagePublisher = require("common/messagePublisher");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("licensingCommands");
 
 class forceLicenseUpdateCommand extends commandBase {
     execute(): JQueryPromise<LicenseLeaseResult> {
@@ -10,23 +13,21 @@ class forceLicenseUpdateCommand extends commandBase {
         return this.post<LicenseLeaseResult>(url, null, null)
             .done((result: LicenseLeaseResult) => {
                 if (result.Status === "Updated") {
-                    this.reportSuccess("Your license was successfully updated");
+                    this.reportSuccess(t("licenseUpdated"));
                 }
             })
             .fail((response: JQueryXHR) => {
                 const message =
                     response.status === 405
-                        ? "License activation has been disabled on this server"
-                        : "Failed to activate license";
+                        ? t("activationDisabled")
+                        : t("activateFailed");
 
                 this.reportError(message, response.responseText, response.statusText);
             });
     }
 
     static handleNotModifiedStatus(isExpired: boolean) {
-        messagePublisher.reportWarning(
-            "The license was fetched successfully, " + (isExpired ? "but is still expired" : "but is the same")
-        );
+        messagePublisher.reportWarning(t("licenseFetched", { context: isExpired ? "expired" : "same" }));
     }
 }
 

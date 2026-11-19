@@ -14,6 +14,8 @@ import Button from "react-bootstrap/Button";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 import Modal from "components/common/Modal";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface ChangelogModalProps {
     mode: "whatsNew" | "changeLog" | "hidden";
@@ -21,6 +23,7 @@ interface ChangelogModalProps {
 }
 
 export function ChangeLogModal(props: ChangelogModalProps) {
+    const t = useStudioTranslation("aboutPage");
     const { mode, onClose } = props;
     const { licenseService } = useServices();
     const isCloud = useAppSelector(licenseSelectors.statusValue("IsCloud"));
@@ -36,7 +39,7 @@ export function ChangeLogModal(props: ChangelogModalProps) {
         return (
             <ModalWrapper onClose={onClose} mode={mode}>
                 <LazyLoad active>
-                    <h3>VERSION</h3>
+                    <h3>{t("changeLog.versionPlaceholder")}</h3>
                 </LazyLoad>
 
                 <LazyLoad active>
@@ -88,17 +91,22 @@ export function ChangeLogModal(props: ChangelogModalProps) {
                         <div key={build.FullVersion} className="mb-5">
                             <div className="d-flex align-items-center justify-content-between">
                                 <h3>
-                                    {mode === "whatsNew" && (
-                                        <>
-                                            <strong className="text-warning">
-                                                <Icon icon="star-filled" />
-                                                NEW
-                                            </strong>{" "}
-                                            -{" "}
-                                        </>
-                                    )}
-                                    {build.FullVersion} -{" "}
-                                    {genUtils.formatUtcDateAsLocal(build.ReleasedAt, genUtils.basicDateFormat)}{" "}
+                                    <StudioTrans
+                                        ns="aboutPage"
+                                        i18nKey="changeLog.buildTitle"
+                                        components={{
+                                            strong: <strong className="text-warning" />,
+                                            icon: <Icon icon="star-filled" />,
+                                        }}
+                                        options={{
+                                            version: build.FullVersion,
+                                            date: genUtils.formatUtcDateAsLocal(
+                                                build.ReleasedAt,
+                                                genUtils.basicDateFormat
+                                            ),
+                                            context: mode === "whatsNew" ? "new" : undefined,
+                                        }}
+                                    />{" "}
                                 </h3>
                                 <div className="flex-horizontal">
                                     {!isCloud && (
@@ -107,17 +115,9 @@ export function ChangeLogModal(props: ChangelogModalProps) {
                                                 overlay={
                                                     <Tooltip id={downgradeTooltipId}>
                                                         <div className="px-2 py-1">
-                                                            {build.CanDowngradeFollowingUpgrade ? (
-                                                                <>
-                                                                    This update allows you to switch back to the current
-                                                                    version
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    This update doesn&apos;t allow you to switch back to
-                                                                    the current version
-                                                                </>
-                                                            )}
+                                                            {build.CanDowngradeFollowingUpgrade
+                                                                ? t("changeLog.downgradeAllowedTooltip")
+                                                                : t("changeLog.downgradeNotAllowedTooltip")}
                                                         </div>
                                                     </Tooltip>
                                                 }
@@ -125,11 +125,13 @@ export function ChangeLogModal(props: ChangelogModalProps) {
                                                 <div className="well mx-1 px-3 py-1 small rounded-pill">
                                                     {build.CanDowngradeFollowingUpgrade ? (
                                                         <>
-                                                            <Icon icon="check" color="success" /> Can downgrade
+                                                            <Icon icon="check" color="success" />{" "}
+                                                            {t("changeLog.canDowngrade")}
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <Icon icon="cancel" color="danger" /> Can&apos;t downgrade
+                                                            <Icon icon="cancel" color="danger" />{" "}
+                                                            {t("changeLog.cannotDowngrade")}
                                                         </>
                                                     )}
                                                 </div>
@@ -138,17 +140,9 @@ export function ChangeLogModal(props: ChangelogModalProps) {
                                                 overlay={
                                                     <Tooltip id={upgradeTooltipId}>
                                                         <div className="px-2 py-1">
-                                                            {build.CanUpgrade ? (
-                                                                <>
-                                                                    Your license is eligible for upgrade to this version
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    Your license can&apos;t be used with the target
-                                                                    version. Prior updating, please contact us and
-                                                                    update your license beforehand.
-                                                                </>
-                                                            )}
+                                                            {build.CanUpgrade
+                                                                ? t("changeLog.upgradeAllowedTooltip")
+                                                                : t("changeLog.upgradeNotAllowedTooltip")}
                                                         </div>
                                                     </Tooltip>
                                                 }
@@ -156,12 +150,13 @@ export function ChangeLogModal(props: ChangelogModalProps) {
                                                 <div className="well mx-1 px-3 py-1 small rounded-pill">
                                                     {build.CanUpgrade ? (
                                                         <>
-                                                            <Icon icon="check" color="success" /> Can upgrade
+                                                            <Icon icon="check" color="success" />{" "}
+                                                            {t("changeLog.canUpgrade")}
                                                         </>
                                                     ) : (
                                                         <>
-                                                            <Icon icon="license" color="danger" /> Your license needs to
-                                                            be upgraded in order to update
+                                                            <Icon icon="license" color="danger" />{" "}
+                                                            {t("changeLog.licenseUpgradeRequired")}
                                                         </>
                                                     )}
                                                 </div>
@@ -190,17 +185,20 @@ function ModalWrapper(
         onPageChange?: (page: number) => void;
     } & ChangelogModalProps
 ) {
+    const t = useStudioTranslation("aboutPage");
     const { onClose, children, mode, page, totalPages, onPageChange } = props;
     return (
         <Modal show scrollable onHide={onClose} size="lg" contentClassName="modal-border bulge-warning">
             <Modal.Header className="vstack gap-4" onCloseClick={onClose}>
                 <Icon icon="logs" color="warning" className="fs-1" margin="m-0" />
-                <div className=" lead">{mode === "whatsNew" ? "What's New" : "Changelog"}</div>
+                <div className=" lead">
+                    {mode === "whatsNew" ? t("changeLog.whatsNewTitle") : t("changeLog.changelogTitle")}
+                </div>
             </Modal.Header>
             <Modal.Body className="vstack gap-4 position-relative">{children}</Modal.Body>
             <Modal.Footer>
                 <Button variant="outline-secondary" onClick={onClose} className="rounded-pill px-3">
-                    Close
+                    {t("changeLog.close")}
                 </Button>
 
                 {mode === "whatsNew" && (
@@ -212,7 +210,7 @@ function ModalWrapper(
                             className="rounded-pill px-3"
                             href={aboutPageUrls.updateInstructions}
                         >
-                            Update instructions <Icon icon="newtab" margin="m-0" />
+                            {t("changeLog.updateInstructions")} <Icon icon="newtab" margin="m-0" />
                         </Button>
                     </React.Fragment>
                 )}

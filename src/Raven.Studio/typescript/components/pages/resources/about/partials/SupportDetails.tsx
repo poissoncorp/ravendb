@@ -13,6 +13,7 @@ import { AsyncState } from "react-async-hook";
 import { LazyLoad } from "components/common/LazyLoad";
 import { LoadError } from "components/common/LoadError";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 const supportImg = require("Content/img/pages/about/support.svg");
 const supportCharacterImg = require("Content/img/pages/about/supportCharacter.svg");
@@ -22,6 +23,7 @@ interface SupportDetailsProps {
 }
 
 export function SupportDetails(props: SupportDetailsProps) {
+    const t = useStudioTranslation("aboutPage");
     const { asyncCheckLicenseServerConnectivity } = props;
 
     const license = useAppSelector(licenseSelectors.status);
@@ -36,7 +38,7 @@ export function SupportDetails(props: SupportDetailsProps) {
     if (asyncCheckLicenseServerConnectivity.status === "loading") {
         return (
             <LazyLoad active>
-                <div>Loading placeholder</div>
+                <div>{t("loadingPlaceholder")}</div>
             </LazyLoad>
         );
     }
@@ -52,70 +54,75 @@ export function SupportDetails(props: SupportDetailsProps) {
     if (!asyncCheckLicenseServerConnectivity.result.connected) {
         return (
             <div className="m-3">
-                <LoadError error="Please check connection to license server." />
+                <LoadError error={t("supportDetails.connectionError")} />
             </div>
         );
     }
 
     const getTypeHeader = () => {
         if (supportType === "Community") {
-            return "Free Community Support";
+            return t("supportDetails.typeHeader", { context: "community" });
         }
         if (isCloud && supportType === "Production") {
-            return "Cloud Support";
+            return t("supportDetails.typeHeader", { context: "cloud" });
         }
         if (support.SupportType === "Extended") {
-            return "Extended Support";
+            return t("supportDetails.typeHeader", { context: "extended" });
+        }
+        if (supportType === "Professional") {
+            return t("supportDetails.typeHeader", { context: "professional" });
+        }
+        if (supportType === "Production") {
+            return t("supportDetails.typeHeader", { context: "production" });
         }
 
-        return `${supportType} Support`;
+        return t("supportDetails.typeHeader", { context: "partial" });
     };
 
     return (
         <React.Fragment key="support-details">
             <div className="bg-faded-info hstack justify-content-center">
-                <img alt="Support Character" src={supportCharacterImg} className="support-character-img mt-4" />
+                <img
+                    alt={t("supportDetails.supportCharacterAlt")}
+                    src={supportCharacterImg}
+                    className="support-character-img mt-4"
+                />
             </div>
             {supportType === "Community" && (
                 <>
                     <RichPanelHeader className="text-center p-4">
-                        You are using
+                        {t("supportDetails.youAreUsing")}
                         <h2 className="text-info">{getTypeHeader()}</h2>
-                        <p>
-                            Get help and connect with fellow users and RavenDB developers through our community forum.
-                        </p>
+                        <p>{t("supportDetails.communityForum")}</p>
                         <Button
                             variant="outline-secondary"
                             href={aboutPageUrls.joinCommunity}
                             className="rounded-pill align-self-center px-3"
                             target="_blank"
                         >
-                            <Icon icon="group" /> Join community <Icon icon="newtab" margin="ms-2" />
+                            <Icon icon="group" /> {t("supportDetails.joinCommunity")}{" "}
+                            <Icon icon="newtab" margin="ms-2" />
                         </Button>
                     </RichPanelHeader>
                     <div className="text-center p-4 vstack align-items-center">
                         <h2 className="hstack justify-content-center">
-                            <img alt="Support" src={supportImg} width={70} className="me-4" />
-                            Elevate your experience
+                            <img alt={t("supportDetails.supportAlt")} src={supportImg} width={70} className="me-4" />
+                            {t("supportDetails.elevateExperience")}
                         </h2>
                         <div>
-                            <p className="max-paragraph-width">
-                                RavenDB Support has you covered. Whether it’s a simple question or a mission-critical
-                                emergency, our core developers will be on hand to provide expert assistance and advice
-                                around the clock.
-                            </p>
-                            <p>Here’s what you’ll get:</p>
+                            <p className="max-paragraph-width">{t("supportDetails.supportCoverage")}</p>
+                            <p>{t("supportDetails.whatYouGet")}</p>
                         </div>
                         <Row className="support-advantages">
-                            <SupportAdvantage icon="phone">Phone & Email support</SupportAdvantage>
+                            <SupportAdvantage icon="phone">{t("supportDetails.phoneAndEmail")}</SupportAdvantage>
                             {/* <SupportAdvantage icon="notifications"> TODO we hide this for now*/}
                             {/*    Request support directly from RavenDB Studio*/}
                             {/*</SupportAdvantage>*/}
-                            <SupportAdvantage icon="user">Access to RavenDB core developers</SupportAdvantage>
+                            <SupportAdvantage icon="user">{t("supportDetails.coreDevelopersAccess")}</SupportAdvantage>
                             <SupportAdvantage icon="clock">
-                                Up to 2 hour SLA
+                                {t("supportDetails.upToTwoHourSla")}
                                 <br />
-                                24/7 availability
+                                {t("supportDetails.availability")}
                             </SupportAdvantage>
                         </Row>
                         <Button
@@ -125,7 +132,7 @@ export function SupportDetails(props: SupportDetailsProps) {
                             href={upgradeLink}
                             target="_blank"
                         >
-                            <Icon icon="upgrade-arrow" /> <strong>Upgrade Your Support</strong>
+                            <Icon icon="upgrade-arrow" /> <strong>{t("supportDetails.upgradeYourSupport")}</strong>
                         </Button>
                     </div>
                 </>
@@ -137,7 +144,7 @@ export function SupportDetails(props: SupportDetailsProps) {
                             <Col xs={12} sm={6} className="text-end">
                                 <div className="d-flex align-items-center">
                                     <div className="flex-grow">
-                                        You are using
+                                        {t("supportDetails.youAreUsing")}
                                         <h2
                                             className={classNames(
                                                 "text-info m-0",
@@ -148,7 +155,12 @@ export function SupportDetails(props: SupportDetailsProps) {
                                             {getTypeHeader()}
                                         </h2>
                                     </div>
-                                    <img alt="Support" src={supportImg} width={70} className="ms-4" />
+                                    <img
+                                        alt={t("supportDetails.supportAlt")}
+                                        src={supportImg}
+                                        width={70}
+                                        className="ms-4"
+                                    />
                                 </div>
                             </Col>
                             <Col xs={12} sm={6}>
@@ -161,14 +173,14 @@ export function SupportDetails(props: SupportDetailsProps) {
                                                 <div className="small me-3">
                                                     {supportType === "Professional" && (
                                                         <>
-                                                            <strong>Next business day SLA</strong>
-                                                            <div>24/7 availability</div>
+                                                            <strong>{t("supportDetails.nextBusinessDaySla")}</strong>
+                                                            <div>{t("supportDetails.availability")}</div>
                                                         </>
                                                     )}
                                                     {supportType === "Production" && (
                                                         <>
-                                                            <strong>2 hour SLA</strong>
-                                                            <div>24/7 availability</div>
+                                                            <strong>{t("supportDetails.twoHourSla")}</strong>
+                                                            <div>{t("supportDetails.availability")}</div>
                                                         </>
                                                     )}
                                                 </div>
@@ -185,7 +197,7 @@ export function SupportDetails(props: SupportDetailsProps) {
                                                 }
                                                 target="_blank"
                                             >
-                                                <Icon icon="notifications" /> Request support
+                                                <Icon icon="notifications" /> {t("supportDetails.requestSupport")}
                                             </Button>
                                         )}
                                     </div>
@@ -197,17 +209,14 @@ export function SupportDetails(props: SupportDetailsProps) {
                                             className="d-inline-flex no-decor"
                                         >
                                             <Icon icon="terms" className="fs-2" />
-                                            <div className="small">Terms and conditions</div>
+                                            <div className="small">{t("supportDetails.termsAndConditions")}</div>
                                         </a>
                                     </div>
                                 </div>
                             </Col>
                         </Row>
                         <Row className="g-md">
-                            <Col className="text-right">
-                                Get help and connect with fellow users and RavenDB developers through our community
-                                forum.
-                            </Col>
+                            <Col className="text-right">{t("supportDetails.communityForum")}</Col>
                             <Col>
                                 <Button
                                     variant="outline-secondary"
@@ -215,7 +224,7 @@ export function SupportDetails(props: SupportDetailsProps) {
                                     className="rounded-pill align-self-center px-3"
                                     target="_blank"
                                 >
-                                    Join our Community <Icon icon="newtab" margin="ms-1" />
+                                    {t("supportDetails.joinOurCommunity")} <Icon icon="newtab" margin="ms-1" />
                                 </Button>
                             </Col>
                         </Row>
@@ -224,12 +233,13 @@ export function SupportDetails(props: SupportDetailsProps) {
                         <div className="text-center p-4">
                             <div className="bg-faded-success hstack align-items-center rounded-pill p-1">
                                 <div className="px-4 flex-grow-1 text-center lh-1">
-                                    <strong className="fs-3">Get 2 hour SLA</strong>
+                                    <strong className="fs-3">{t("supportDetails.getTwoHourSla")}</strong>
                                     <br />
-                                    <small>We’re here for you 24/7</small>
+                                    <small>{t("supportDetails.hereForYou")}</small>
                                 </div>
                                 <Button href={upgradeLink} variant="success" className="px-4 rounded-pill" size="lg">
-                                    <Icon icon="upgrade-arrow" /> <strong>Upgrade to Production</strong>
+                                    <Icon icon="upgrade-arrow" />{" "}
+                                    <strong>{t("supportDetails.upgradeToProduction")}</strong>
                                 </Button>
                             </div>
                         </div>

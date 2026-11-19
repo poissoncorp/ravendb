@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
 import database = require("models/resources/database");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("licensingCommands");
 
 class getDatabaseLicenseLimitsUsage extends commandBase {
 
@@ -15,7 +18,7 @@ class getDatabaseLicenseLimitsUsage extends commandBase {
         const url = endpoints.databases.studioStats.studioLicenseLimitsUsage;
         
         return this.query<Raven.Server.Commercial.DatabaseLicenseLimitsUsage>(url, null, this.db)
-            .fail((response: JQueryXHR) => this.reportError("Failed to get license limits usage", response.responseText));
+            .fail((response: JQueryXHR) => this.reportError(t("getLimitsUsageFailed"), response.responseText));
     }
 }
 

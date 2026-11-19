@@ -1,8 +1,11 @@
 import { Icon } from "components/common/Icon";
 import React from "react";
 import { aboutPageUrls } from "components/pages/resources/about/partials/common";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export function AboutFooter() {
+    const t = useStudioTranslation("aboutPage");
+
     return (
         <div className="hstack align-items-center gap-4 flex-wrap justify-content-center mb-4">
             <div className="d-flex align-item text-center ms-4">
@@ -20,7 +23,7 @@ export function AboutFooter() {
                 </a>
             </div>
             <div className="small text-muted text-center">
-                Copyright © 2009 - {new Date().getFullYear()} RavenDB. All rights reserved.
+                {t("footer.copyright", { year: new Date().getFullYear() })}
             </div>
         </div>
     );

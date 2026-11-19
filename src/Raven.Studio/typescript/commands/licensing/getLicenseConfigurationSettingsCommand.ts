@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("licensingCommands");
 
 class getLicenseConfigurationSettingsCommand extends commandBase {
 
@@ -7,7 +10,7 @@ class getLicenseConfigurationSettingsCommand extends commandBase {
         const url = endpoints.global.license.licenseConfiguration;
         
         return this.query<Raven.Server.Config.Categories.LicenseConfiguration>(url, null)
-            .fail((response: JQueryXHR) => this.reportError("Failed to get license configuration settings", response.responseText));
+            .fail((response: JQueryXHR) => this.reportError(t("getConfigurationSettingsFailed"), response.responseText));
     }
 }
 

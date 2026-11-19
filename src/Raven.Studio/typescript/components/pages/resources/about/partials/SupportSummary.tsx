@@ -11,12 +11,22 @@ import { licenseSelectors } from "components/common/shell/licenseSlice";
 import licenseModel from "models/auth/licenseModel";
 import { AsyncState } from "react-async-hook";
 import useUniqueId from "components/hooks/useUniqueId";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface SupportSummaryProps {
     asyncCheckLicenseServerConnectivity: AsyncState<ConnectivityStatus>;
 }
 
+const SUPPORT_PLAN_CONTEXTS = {
+    Community: "community",
+    Professional: "professional",
+    Production: "production",
+    Partial: "partial",
+} as const;
+
 export function SupportSummary(props: SupportSummaryProps) {
+    const t = useStudioTranslation("aboutPage");
     const license = useAppSelector(licenseSelectors.status);
     const licenseId = useAppSelector(licenseSelectors.statusValue("Id"));
     const isCloud = useAppSelector(licenseSelectors.statusValue("IsCloud"));
@@ -34,15 +44,19 @@ export function SupportSummary(props: SupportSummaryProps) {
     return (
         <Card>
             <Card.Body>
-                <h4>Support & Community</h4>
+                <h4>{t("supportSummary.title")}</h4>
                 <div className="vstack gap-4">
                     <Row>
-                        <OverallInfoItem icon="support" label="Support type">
+                        <OverallInfoItem icon="support" label={t("supportSummary.supportType")}>
                             {hideSupportStatus ? (
                                 <span className="text-warning" id={uniqueId}>
                                     <Icon icon="warning" />
                                     <small>
-                                        Unable to reach the RavenDB License Server at <code>api.ravendb.net</code>
+                                        <StudioTrans
+                                            ns="aboutPage"
+                                            i18nKey="licenseServerUnreachable"
+                                            components={{ code: <code /> }}
+                                        />
                                     </small>
                                 </span>
                             ) : (
@@ -52,7 +66,11 @@ export function SupportSummary(props: SupportSummaryProps) {
                                         { "text-enterprise": supportType === "Production" }
                                     )}
                                 >
-                                    {isCloud && supportType === "Production" ? "Cloud Support" : supportType}
+                                    {isCloud && supportType === "Production"
+                                        ? t("supportSummary.cloudSupport")
+                                        : t("supportSummary.supportPlan", {
+                                              context: SUPPORT_PLAN_CONTEXTS[supportType],
+                                          })}
                                 </span>
                             )}
                         </OverallInfoItem>
@@ -64,7 +82,7 @@ export function SupportSummary(props: SupportSummaryProps) {
                                     className="rounded-pill"
                                     variant={isCloud ? "cloud" : "primary"}
                                 >
-                                    <Icon icon="notifications" /> Request support
+                                    <Icon icon="notifications" /> {t("supportSummary.requestSupport")}
                                 </Button>
                             )}
                             <Button
@@ -78,8 +96,8 @@ export function SupportSummary(props: SupportSummaryProps) {
                         </Col>
                     </Row>
                     <Row>
-                        <OverallInfoItem icon="discord" label="Let's solve it together">
-                            Developers Community
+                        <OverallInfoItem icon="discord" label={t("supportSummary.solveTogether")}>
+                            {t("supportSummary.developersCommunity")}
                         </OverallInfoItem>
                         <Col className="d-flex flex-wrap gap-2 align-items-center justify-content-end">
                             <Button
@@ -88,7 +106,7 @@ export function SupportSummary(props: SupportSummaryProps) {
                                 href={aboutPageUrls.discordServer}
                                 target="_blank"
                             >
-                                Join our Discord <Icon icon="newtab" margin="ms-1" />
+                                {t("supportSummary.joinDiscord")} <Icon icon="newtab" margin="ms-1" />
                             </Button>
                         </Col>
                     </Row>

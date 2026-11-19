@@ -1,5 +1,8 @@
 ﻿import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("versionCommands");
 
 type VersionInfoDto = Raven.Server.ServerWide.BackgroundTasks.LatestVersionCheck.VersionInfo;
 
@@ -17,7 +20,7 @@ class getLatestVersionInfoCommand extends commandBase {
             + (this.refresh ? this.urlEncodeArgs(args) : '');
         return this.post<VersionInfoDto>(url, null)
             .fail(response => {
-                this.reportError(`Failed to get latest version info.`,
+                this.reportError(t("getLatestVersionInfoFailed"),
                     response.responseText,
                     response.statusText);
             });
