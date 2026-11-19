@@ -20,6 +20,8 @@ import router from "plugins/router";
 import classNames from "classnames";
 import genUtils from "common/generalUtils";
 import studioSettings from "common/settings/studioSettings";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 type FeatureImpression = "positive" | "negative";
 
@@ -28,6 +30,7 @@ interface FeedbackFormProps {
 }
 
 export function FeedbackFormContent({ goBack }: FeedbackFormProps) {
+    const t = useStudioTranslation("chatbot");
     const licenseId = useAppSelector(licenseSelectors.statusValue("Id"));
     const isCloud = useAppSelector(licenseSelectors.statusValue("IsCloud"));
     const serverVersion = useAppSelector(clusterSelectors.serverVersion).FullVersion;
@@ -105,18 +108,34 @@ export function FeedbackFormContent({ goBack }: FeedbackFormProps) {
         <Form onSubmit={handleSubmit(handleSendFeedback)}>
             <ul className="action-menu__list">
                 <FormGroup marginClass="m-0">
-                    <FormInput placeholder="Your name" type="text" control={control} name="name" />
+                    <FormInput placeholder={t("feedback.namePlaceholder")} type="text" control={control} name="name" />
                 </FormGroup>
                 <FormGroup marginClass="m-0">
-                    <FormInput placeholder="Your email" type="email" control={control} name="email" />
+                    <FormInput
+                        placeholder={t("feedback.emailPlaceholder")}
+                        type="email"
+                        control={control}
+                        name="email"
+                    />
                 </FormGroup>
                 <FormGroup marginClass="m-0">
-                    <FormInput placeholder="Message" type="textarea" control={control} name="message" rows={8} />
+                    <FormInput
+                        placeholder={t("feedback.messagePlaceholder")}
+                        type="textarea"
+                        control={control}
+                        name="message"
+                        rows={8}
+                    />
                 </FormGroup>
                 <FormGroup marginClass="m-0">
                     <FormCheckbox control={control} name="isFeatureSpecific">
                         <span className="fw-normal">
-                            Is your feedback related to the <strong>{moduleTitle}</strong> feature?
+                            <StudioTrans
+                                ns="chatbot"
+                                i18nKey="feedback.featureRelated"
+                                options={{ feature: moduleTitle }}
+                                components={{ strong: <strong /> }}
+                            />
                         </span>
                     </FormCheckbox>
                 </FormGroup>
@@ -133,7 +152,7 @@ export function FeedbackFormContent({ goBack }: FeedbackFormProps) {
                                     })}
                                     onClick={() => changeFeatureImpression("positive")}
                                 >
-                                    <Icon icon="thumb-up" margin="m-0" title="Positive" />
+                                    <Icon icon="thumb-up" margin="m-0" title={t("feedback.positive")} />
                                 </Button>
                                 <Button
                                     variant="link"
@@ -144,7 +163,7 @@ export function FeedbackFormContent({ goBack }: FeedbackFormProps) {
                                     })}
                                     onClick={() => changeFeatureImpression("negative")}
                                 >
-                                    <Icon icon="thumb-down" margin="m-0" title="Negative" />
+                                    <Icon icon="thumb-down" margin="m-0" title={t("feedback.negative")} />
                                 </Button>
                             </div>
                         </div>
@@ -157,7 +176,7 @@ export function FeedbackFormContent({ goBack }: FeedbackFormProps) {
                         icon="paperplane"
                         isSpinning={formState.isSubmitting}
                     >
-                        Send feedback
+                        {t("feedback.send")}
                     </ButtonWithSpinner>
                 </div>
             </ul>
@@ -165,17 +184,19 @@ export function FeedbackFormContent({ goBack }: FeedbackFormProps) {
             <div className="action-menu__footer">
                 <small className="lh-1">
                     <Icon icon="community" />
-                    Join our{" "}
-                    <a href={communityUrl} target="_blank">
-                        Community
-                    </a>
+                    <StudioTrans
+                        ns="chatbot"
+                        i18nKey="helpAndResources.joinOurCommunity"
+                        components={{ a: <a href={communityUrl} target="_blank" /> }}
+                    />
                 </small>
                 <small className="lh-1 mt-1">
                     <Icon icon="support" />
-                    Need help?{" "}
-                    <a href={requestSupportUrl} target="_blank">
-                        Contact support
-                    </a>
+                    <StudioTrans
+                        ns="chatbot"
+                        i18nKey="feedback.needHelp"
+                        components={{ a: <a href={requestSupportUrl} target="_blank" /> }}
+                    />
                 </small>
             </div>
         </Form>

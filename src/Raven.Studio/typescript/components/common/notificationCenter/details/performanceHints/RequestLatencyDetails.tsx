@@ -3,6 +3,8 @@ import { CellContext, ColumnDef } from "@tanstack/react-table";
 import performanceHint from "common/notifications/models/performanceHint";
 import genUtils from "common/generalUtils";
 import { useKnockoutValue } from "hooks/useKnockoutValue";
+import type { StudioTranslate } from "common/i18n/resources";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 import { NotificationDetailsProps } from "../notificationDetailsProvider";
 import { PerformanceHintDetailsModal } from "../NotificationDetailsModal";
 import { NotificationDetailsTable } from "../NotificationDetailsTable";
@@ -10,36 +12,43 @@ import { CellWithFormattedValue, columnSizes, dateColumnOptions } from "../Notif
 
 type RequestLatencyInfo = Raven.Server.NotificationCenter.Notifications.Details.RequestLatencyInfo;
 
-const columns: ColumnDef<RequestLatencyInfo>[] = [
-    {
-        header: "Action",
-        accessorKey: "Action",
-        meta: { relativeWidth: 20 },
-    },
-    {
-        header: "Date",
-        accessorKey: "Date",
-        ...dateColumnOptions,
-    },
-    {
-        header: "Duration",
-        accessorKey: "Duration",
-        cell: CellDuration,
-        size: columnSizes.duration,
-        meta: { exportHeader: "Duration (ms)", filterPlaceholder: "In ms, e.g. > 1200" },
-    },
-    {
-        header: "Query",
-        accessorKey: "Query",
-        meta: { relativeWidth: 45 },
-    },
-];
+function getColumns(t: StudioTranslate<"notificationCenter">): ColumnDef<RequestLatencyInfo>[] {
+    return [
+        {
+            header: t("fields.action"),
+            accessorKey: "Action",
+            meta: { relativeWidth: 20 },
+        },
+        {
+            header: t("fields.date"),
+            accessorKey: "Date",
+            ...dateColumnOptions,
+        },
+        {
+            header: t("fields.duration"),
+            accessorKey: "Duration",
+            cell: CellDuration,
+            size: columnSizes.duration,
+            meta: {
+                exportHeader: t("fields.durationMs"),
+                filterPlaceholder: t("requestLatency.durationFilterPlaceholder"),
+            },
+        },
+        {
+            header: t("fields.query"),
+            accessorKey: "Query",
+            meta: { relativeWidth: 45 },
+        },
+    ];
+}
 
 export default function RequestLatencyDetails({
     notification,
     actions,
 }: NotificationDetailsProps<performanceHint<"RequestLatency">>) {
+    const t = useStudioTranslation("notificationCenter");
     const details = useKnockoutValue(notification.details);
+    const columns = useMemo(() => getColumns(t), [t]);
 
     const requests = useMemo(() => {
         return Object.entries(details.RequestLatencies ?? {})
@@ -53,8 +62,7 @@ export default function RequestLatencyDetails({
                 notification={notification}
                 data={requests}
                 columns={columns}
-                itemName="request"
-                itemNamePlural="requests"
+                countKey="table.count.request"
             />
         </PerformanceHintDetailsModal>
     );

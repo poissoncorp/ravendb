@@ -13,6 +13,9 @@ import getIndexesMenuItem = require("common/shell/menu/items/indexes");
 import getDocumentsMenuItem = require("common/shell/menu/items/documents");
 import rootItems = require("common/shell/menu/items/rootItems");
 import getAiHubMenuItem = require("./items/aiHub");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("menu");
 
 export = generateMenuItems;
 
@@ -33,7 +36,7 @@ function generateMenuItems(options: GenerateMenuItemsOptions) {
 function generateNoActiveDatabaseMenuItems(options: GenerateMenuItemsOptions) {
     const appUrls = appUrl.forCurrentDatabase();
     return [
-        new separatorMenuItem('Server'),
+        new separatorMenuItem(t("server")),
         getDatabasesMenuItem(appUrls),
         rootItems.clusterDashboard(),
         getManageServerMenuItem(),
@@ -52,7 +55,7 @@ function generateActiveDatabaseMenuItems(options: GenerateMenuItemsOptions) {
         getStatsMenuItem(appUrls, options.isSharded),
         getAiHubMenuItem(appUrls),
         
-        new separatorMenuItem('Server'),
+        new separatorMenuItem(t("server")),
         getDatabasesMenuItem(appUrls),
         rootItems.clusterDashboard(),
         getManageServerMenuItem(),

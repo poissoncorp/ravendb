@@ -6,6 +6,10 @@ import { CellWithCopy, CellWithCopyWrapper } from "components/common/virtualTabl
 import CellValue from "components/common/virtualTable/cells/CellValue";
 import DateFormatterCell from "components/common/virtualTable/cells/CellDateFormatter";
 import genUtils from "common/generalUtils";
+import { createTranslator } from "common/i18n/i18n";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+
+const translate = createTranslator("notificationCenter");
 
 type ValueCellProps = Pick<CellContext<unknown, unknown>, "getValue">;
 
@@ -62,7 +66,11 @@ export const dateColumnOptions = {
     cell: CellDate,
     filterFn: dateFilter,
     size: columnSizes.date,
-    meta: { filterPlaceholder: "e.g. October 20th" },
+    meta: {
+        get filterPlaceholder() {
+            return translate("table.dateFilterPlaceholder");
+        },
+    },
 };
 
 export function CellBytes({ getValue }: ValueCellProps) {
@@ -84,7 +92,9 @@ export function CellWithFormattedValue({ value, formattedValue }: { value: unkno
 }
 
 export function CellNotAvailable() {
-    return <span className="text-muted">n/a</span>;
+    const t = useStudioTranslation("notificationCenter");
+
+    return <span className="text-muted">{t("table.notAvailable")}</span>;
 }
 
 export function previewColumn<T>(onPreview: (item: T) => void): ColumnDef<T> {
@@ -94,16 +104,16 @@ export function previewColumn<T>(onPreview: (item: T) => void): ColumnDef<T> {
         enableSorting: false,
         enableColumnFilter: false,
         enableResizing: false,
-        cell: ({ row }) => (
-            <Button
-                variant="link"
-                size="sm"
-                className="p-0"
-                title="Show details below the table"
-                onClick={() => onPreview(row.original)}
-            >
-                <Icon icon="preview" margin="m-0" />
-            </Button>
-        ),
+        cell: ({ row }) => <PreviewButton onClick={() => onPreview(row.original)} />,
     };
+}
+
+function PreviewButton({ onClick }: { onClick: () => void }) {
+    const t = useStudioTranslation("notificationCenter");
+
+    return (
+        <Button variant="link" size="sm" className="p-0" title={t("table.showDetails")} onClick={onClick}>
+            <Icon icon="preview" margin="m-0" />
+        </Button>
+    );
 }

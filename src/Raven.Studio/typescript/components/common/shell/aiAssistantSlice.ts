@@ -7,6 +7,9 @@ import messagePublisher from "common/messagePublisher";
 import { CheckConsentAiAssistantResultDto } from "commands/aiAssistant/checkConsentAiAssistantCommand";
 import { CheckUsageAiAssistantResultDto } from "commands/aiAssistant/checkUsageAiAssistantCommand";
 import { aiAssistantConstants } from "../aiAssistant/aiAssistantConstants";
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("shellComponents");
 
 interface AiAssistantSettings {
     isDisabled: boolean;
@@ -86,7 +89,7 @@ const giveConsent = createAsyncThunk(aiAssistantSlice.name + "/giveConsent", asy
 
     if (result.Status === "InvalidCredentials") {
         messagePublisher.reportError(
-            `Failed to give consent to AI Assistant. ${aiAssistantConstants.invalidCredentials}`
+            t("aiAssistant.giveConsentFailed", { reason: aiAssistantConstants.invalidCredentials })
         );
     }
 

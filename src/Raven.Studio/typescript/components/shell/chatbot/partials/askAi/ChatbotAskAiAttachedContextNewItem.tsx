@@ -16,11 +16,13 @@ import { useAsync } from "react-async-hook";
 import DatabaseUtils from "components/utils/DatabaseUtils";
 import { clusterSelectors } from "components/common/shell/clusterSlice";
 import IconName from "typings/server/icons";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 export default function ChatbotAskAiAttachedContextNewItem() {
     const dispatch = useAppDispatch();
     const tab = useAppSelector(chatbotSelectors.newContextTab);
     const isNewContextOpen = useAppSelector(chatbotSelectors.isNewContextOpen);
+    const t = useStudioTranslation("chatbot");
 
     return (
         <Dropdown
@@ -39,7 +41,7 @@ export default function ChatbotAskAiAttachedContextNewItem() {
                     fontSize: "10px",
                     height: "22px",
                 }}
-                title="Add context"
+                title={t("newContext.addContext")}
             >
                 <Icon icon="plus" className="lh-base" margin="m-0" size="xs" />
             </Dropdown.Toggle>
@@ -58,11 +60,12 @@ export default function ChatbotAskAiAttachedContextNewItem() {
 
 function AllTabs() {
     const dispatch = useAppDispatch();
+    const t = useStudioTranslation("chatbot");
 
     return (
         <>
             <Dropdown.Header className="hstack justify-content-between">
-                <div className="small-label">Add context</div>
+                <div className="small-label">{t("newContext.addContext")}</div>
                 <Button
                     onClick={() => dispatch(chatbotActions.isNewContextOpenToggled())}
                     variant="link"
@@ -72,10 +75,20 @@ function AllTabs() {
                     <Icon icon="close" margin="m-0" size="xs" />
                 </Button>
             </Dropdown.Header>
-            <AllTabsItem tab="DatabaseName" label="Database Name" iconName="database" />
-            <AllTabsItem tab="DocumentId" label="Document ID" iconName="document" isRequiredDatabaseName />
-            <AllTabsItem tab="CollectionName" label="Collection Name" iconName="documents" isRequiredDatabaseName />
-            <AllTabsItem tab="IndexName" label="Index Name" iconName="index" isRequiredDatabaseName />
+            <AllTabsItem tab="DatabaseName" label={t("newContext.databaseName")} iconName="database" />
+            <AllTabsItem
+                tab="DocumentId"
+                label={t("newContext.documentId")}
+                iconName="document"
+                isRequiredDatabaseName
+            />
+            <AllTabsItem
+                tab="CollectionName"
+                label={t("newContext.collectionName")}
+                iconName="documents"
+                isRequiredDatabaseName
+            />
+            <AllTabsItem tab="IndexName" label={t("newContext.indexName")} iconName="index" isRequiredDatabaseName />
         </>
     );
 }
@@ -90,6 +103,7 @@ interface AllTabsItemProps {
 function AllTabsItem({ tab, label, iconName, isRequiredDatabaseName }: AllTabsItemProps) {
     const dispatch = useAppDispatch();
     const databaseNameContext = useAppSelector((state) => chatbotSelectors.attachedContextById(state, "DatabaseName"));
+    const t = useStudioTranslation("chatbot");
 
     const isDisabled = isRequiredDatabaseName && (!databaseNameContext || databaseNameContext?.state === "excluded");
 
@@ -98,11 +112,11 @@ function AllTabsItem({ tab, label, iconName, isRequiredDatabaseName }: AllTabsIt
             conditions={[
                 {
                     isActive: isRequiredDatabaseName && !databaseNameContext,
-                    message: "First, add Database Name to the context",
+                    message: t("newContext.addDatabaseNameFirst"),
                 },
                 {
                     isActive: isRequiredDatabaseName && databaseNameContext?.state === "excluded",
-                    message: "First, include Database Name by clicking on it in the attached context",
+                    message: t("newContext.includeDatabaseNameFirst"),
                 },
             ]}
             popoverPlacement="left"
@@ -119,6 +133,7 @@ function AllTabsItem({ tab, label, iconName, isRequiredDatabaseName }: AllTabsIt
 function DatabaseNameTab() {
     const dispatch = useAppDispatch();
     const allDatabases = useAppSelector(databaseSelectors.allDatabases).filter((db) => !db.isDisabled);
+    const t = useStudioTranslation("chatbot");
     const [filter, setFilter] = useState("");
 
     const databaseOptions = useMemo(() => {
@@ -154,7 +169,7 @@ function DatabaseNameTab() {
                     >
                         <Icon icon="arrow-left" margin="me-1" />
                     </Button>
-                    Database Name
+                    {t("newContext.databaseName")}
                 </span>
             </Dropdown.Header>
             <div className="clearable-input mb-2">
@@ -162,7 +177,7 @@ function DatabaseNameTab() {
                     type="text"
                     value={filter}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => setFilter(e.target.value)}
-                    placeholder="Search database name"
+                    placeholder={t("newContext.searchDatabaseName")}
                     className="rounded-pill ps-3 pe-4"
                 />
                 {filter && (
@@ -182,7 +197,7 @@ function DatabaseNameTab() {
                     ))
                 ) : (
                     <EmptySet compact className="hstack justify-content-center">
-                        No databases
+                        {t("newContext.noDatabases")}
                     </EmptySet>
                 )}
             </div>
@@ -195,6 +210,7 @@ function DocumentIdTab() {
     const databaseName = useAppSelector((state) => chatbotSelectors.attachedContextById(state, "DatabaseName"))?.value;
 
     const [idPrefix, setIdPrefix] = useState("");
+    const t = useStudioTranslation("chatbot");
 
     const { databasesService } = useServices();
 
@@ -245,7 +261,7 @@ function DocumentIdTab() {
                     >
                         <Icon icon="arrow-left" margin="me-1" />
                     </Button>
-                    Document ID
+                    {t("newContext.documentId")}
                 </span>
             </Dropdown.Header>
 
@@ -254,7 +270,7 @@ function DocumentIdTab() {
                     type="text"
                     value={idPrefix}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => setIdPrefix(e.target.value)}
-                    placeholder="Enter document ID prefix"
+                    placeholder={t("newContext.documentIdPrefix")}
                     className="rounded-pill ps-3 pe-4"
                 />
                 {idPrefix && (
@@ -268,7 +284,7 @@ function DocumentIdTab() {
             {asyncGetDocumentIds.loading && <ListSkeleton />}
             {asyncGetDocumentIds.result?.length === 0 && !asyncGetDocumentIds.loading && (
                 <EmptySet compact className="hstack justify-content-center mt-3">
-                    No documents found
+                    {t("newContext.noDocuments")}
                 </EmptySet>
             )}
             <div className="overflow-y-auto flex-grow-1">
@@ -294,6 +310,7 @@ function CollectionNameTab() {
     const [filter, setFilter] = useState("");
 
     const { tasksService } = useServices();
+    const t = useStudioTranslation("chatbot");
 
     const asyncGetCollections = useAsync(async () => {
         const result = await tasksService.fetchCollectionsStats(databaseName);
@@ -325,7 +342,7 @@ function CollectionNameTab() {
                     >
                         <Icon icon="arrow-left" margin="me-1" />
                     </Button>
-                    Collection Name
+                    {t("newContext.collectionName")}
                 </span>
             </Dropdown.Header>
             <div className="clearable-input mb-2">
@@ -333,7 +350,7 @@ function CollectionNameTab() {
                     type="text"
                     value={filter}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => setFilter(e.target.value)}
-                    placeholder="Search collection name"
+                    placeholder={t("newContext.searchCollectionName")}
                     className="rounded-pill ps-3 pe-4"
                 />
                 {filter && (
@@ -347,7 +364,7 @@ function CollectionNameTab() {
             {asyncGetCollections.loading && <ListSkeleton />}
             {asyncGetCollections.result?.length === 0 && !asyncGetCollections.loading && (
                 <EmptySet compact className="hstack justify-content-center mt-3">
-                    No collections found
+                    {t("newContext.noCollections")}
                 </EmptySet>
             )}
             <div className="overflow-y-auto flex-grow-1">
@@ -377,6 +394,7 @@ function IndexNameTab() {
     const [filter, setFilter] = useState("");
 
     const { indexesService } = useServices();
+    const t = useStudioTranslation("chatbot");
 
     const location = useMemo(
         () => (db ? DatabaseUtils.getFirstLocation(db, localNodeTag) : null),
@@ -414,7 +432,7 @@ function IndexNameTab() {
                     >
                         <Icon icon="arrow-left" margin="me-1" />
                     </Button>
-                    Index Name
+                    {t("newContext.indexName")}
                 </span>
             </Dropdown.Header>
             <div className="clearable-input mb-2">
@@ -422,7 +440,7 @@ function IndexNameTab() {
                     type="text"
                     value={filter}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => setFilter(e.target.value)}
-                    placeholder="Search index name"
+                    placeholder={t("newContext.searchIndexName")}
                     className="rounded-pill ps-3 pe-4"
                 />
                 {filter && (
@@ -436,7 +454,7 @@ function IndexNameTab() {
             {asyncGetIndexNames.loading && <ListSkeleton />}
             {asyncGetIndexNames.result?.length === 0 && !asyncGetIndexNames.loading && (
                 <EmptySet compact className="hstack justify-content-center mt-3">
-                    No indexes found
+                    {t("newContext.noIndexes")}
                 </EmptySet>
             )}
             <div className="overflow-y-auto flex-grow-1">

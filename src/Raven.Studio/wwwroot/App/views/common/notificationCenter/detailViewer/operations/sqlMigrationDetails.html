@@ -6,7 +6,7 @@
                     <h3 class="modal-title" id="myModalLabel" data-bind="text: op.title, attr:{ class: 'modal-title ' + op.headerClass() }"></h3>
                 </div>
                 <div class="flex-grow text-right margin-right margin-right-sm">
-                    <span class="text-muted">Time elapsed:</span> <span data-bind="text: op.duration"></span>
+                    <span class="text-muted" data-bind="i18n: 'sqlMigrationDetails:timeElapsed'"></span> <span data-bind="text: op.duration"></span>
                 </div>
                 <div>
                     <button type="button" class="close" data-bind="click: close" aria-hidden="true">
@@ -17,22 +17,18 @@
             <div class="notification-time" data-bind="text: op.displayDate().format('LLL')"></div>
         </div>
         <div class="modal-body">
-            <h3 class="text-danger" data-bind="visible: operationFailed">Operation failed!</h3>
+            <h3 class="text-danger" data-bind="visible: operationFailed, i18n: 'sqlMigrationDetails:operationFailed'"></h3>
             <div class="items-list" data-bind="visible: items().length">
                 <div class="migration-legend">
                     <div class="name">
                     </div>
-                    <div class="status status-processed">
-                        status
+                    <div class="status status-processed" data-bind="i18n: 'sqlMigrationDetails:legend.status'">
                     </div>
-                    <div class="read">
-                        read
+                    <div class="read" data-bind="i18n: 'sqlMigrationDetails:legend.read'">
                     </div>
-                    <div class="skipped">
-                        skipped
+                    <div class="skipped" data-bind="i18n: 'sqlMigrationDetails:legend.skipped'">
                     </div>
-                    <div class="errors">
-                        errors
+                    <div class="errors" data-bind="i18n: 'sqlMigrationDetails:legend.errors'">
                     </div>
                 </div>
                 <div class="items-container" data-bind="foreach: items">
@@ -41,16 +37,16 @@
                             <h3 data-bind="text: name"></h3>
                         </div>
                         <div class="status status-processed" data-bind="visible: stage() === 'processed'">
-                            <i class="icon-check"></i> <span>Processed</span>
+                            <i class="icon-check"></i> <span data-bind="i18n: 'sqlMigrationDetails:stage.processed'"></span>
                         </div>
                         <div class="status status-errored" data-bind="visible: stage() === 'error'">
-                            <i class="icon-exclamation"></i> <span>Error</span>
+                            <i class="icon-exclamation"></i> <span data-bind="i18n: 'sqlMigrationDetails:stage.error'"></span>
                         </div>
                         <div class="status status-processing" data-bind="visible: stage() === 'processing'">
-                            <span class="global-spinner spinner-sm"></span> <span>Processing</span>
+                            <span class="global-spinner spinner-sm"></span> <span data-bind="i18n: 'sqlMigrationDetails:stage.processing'"></span>
                         </div>
                         <div class="status status-waiting" data-bind="visible: stage() === 'pending'">
-                            <i class="icon-waiting"></i> <span>Pending</span>
+                            <i class="icon-waiting"></i> <span data-bind="i18n: 'sqlMigrationDetails:stage.pending'"></span>
                         </div>
                         <div class="read" data-bind="text: readCount, css: { 'text-muted': !hasReadCount() }">
                         </div>
@@ -64,17 +60,16 @@
             <div class="flex-horizontal margin-top" data-bind="visible: !operationFailed()">
                 <div class="toggle" data-bind="visible: !operationFailed()">
                     <input id="smuggler-monitoring" type="checkbox" data-bind="checked: tail, disable: op.isCompleted">
-                    <label for="smuggler-monitoring">
-                        Monitoring (tail -f)
+                    <label for="smuggler-monitoring" data-bind="i18n: 'sqlMigrationDetails:monitoring'">
                     </label>
                 </div>
                 <div class="flex-separator"></div>
-                <button class="btn btn-default btn-sm" data-bind="click: toggleDetails, text: detailsVisible() ? 'Hide details':'Show details', clickBubble: false">
+                <button class="btn btn-default btn-sm" data-bind="click: toggleDetails, i18n: detailsVisible() ? 'sqlMigrationDetails:hideDetails' : 'sqlMigrationDetails:showDetails', clickBubble: false">
                 </button>
             </div>
             <div class="d-flex margin-top" data-bind="visible: operationFailed">
                 <div class="flex-grow"></div>
-                <button type="button" class="btn btn-default btn-sm" data-bind="click: copyErrorDetails"><i class="icon-copy-to-clipboard"></i><span>Copy error message</span></button>
+                <button type="button" class="btn btn-default btn-sm" data-bind="click: copyErrorDetails"><i class="icon-copy-to-clipboard"></i><span data-bind="i18n: 'sqlMigrationDetails:copyErrorMessage'"></span></button>
             </div>
             <pre class="migration-messages" data-bind="visible: detailsVisible, if: detailsVisible, css: { 'margin-top': !operationFailed() }"><code data-bind="text: messagesJoined"></code></pre>
         </div>

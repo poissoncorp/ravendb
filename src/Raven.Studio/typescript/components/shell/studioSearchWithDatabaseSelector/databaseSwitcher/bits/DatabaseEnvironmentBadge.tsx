@@ -1,12 +1,15 @@
 import assertUnreachable from "components/utils/assertUnreachable";
 import React from "react";
 import Badge from "react-bootstrap/Badge";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 interface DatabaseEnvironmentBadgeProps {
     environment: Raven.Client.Documents.Operations.Configuration.StudioConfiguration.StudioEnvironment;
 }
 
 export default function DatabaseEnvironmentBadge({ environment }: DatabaseEnvironmentBadgeProps) {
+    const t = useStudioTranslation("studioSearchWithDatabaseSelector");
+
     if (!environment || environment === "None") {
         return null;
     }
@@ -27,11 +30,11 @@ export default function DatabaseEnvironmentBadge({ environment }: DatabaseEnviro
     const getText = () => {
         switch (environment) {
             case "Production":
-                return "Prod";
+                return t("databaseSwitcher.environment.production");
             case "Testing":
-                return "Test";
+                return t("databaseSwitcher.environment.testing");
             case "Development":
-                return "Dev";
+                return t("databaseSwitcher.environment.development");
             default:
                 return assertUnreachable(environment);
         }

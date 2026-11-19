@@ -14,6 +14,7 @@ import { aiAssistantSelectors } from "components/common/shell/aiAssistantSlice";
 import { useAppSelector } from "components/store";
 import Row from "react-bootstrap/Row";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 export default function StudioSearch(props: { menuItems?: menuItem[] }) {
     const { refs, isSearchDropdownOpen, searchQuery, setSearchQuery, matchStatus, results, activeItem, handleAskAi } =
@@ -21,6 +22,7 @@ export default function StudioSearch(props: { menuItems?: menuItem[] }) {
 
     const isAiAssistantDisabled = useAppSelector(aiAssistantSelectors.isDisabled);
     const operatingSystem = useOS();
+    const t = useStudioTranslation("studioSearchWithDatabaseSelector");
 
     const isAskAiVisible = !isAiAssistantDisabled && searchQuery;
 
@@ -36,7 +38,7 @@ export default function StudioSearch(props: { menuItems?: menuItem[] }) {
                         id={studioSearchInputId}
                         ref={refs.inputRef}
                         type="search"
-                        placeholder={operatingSystem === "MacOS" ? "Use ⌘ + K to search" : "Use Ctrl + K to search"}
+                        placeholder={t("search.placeholder", { context: operatingSystem === "MacOS" ? "cmd" : "ctrl" })}
                         value={searchQuery}
                         onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
                         className="flex-grow-1 studio-search__input align-self-stretch pe-2"
@@ -48,11 +50,11 @@ export default function StudioSearch(props: { menuItems?: menuItem[] }) {
                         onClick={handleAskAi}
                         className="studio-search__ask-ai-button"
                         id="ask-ai"
-                        title={"Ask AI about " + searchQuery}
+                        title={t("search.askAiAbout", { query: searchQuery })}
                         variant="secondary"
                     >
                         <Icon icon="ask-ai" className="ai-gradient" />
-                        Ask AI
+                        {t("search.askAi")}
                     </Button>
                 )}
                 <Dropdown.Menu className="studio-search__results">
@@ -65,7 +67,7 @@ export default function StudioSearch(props: { menuItems?: menuItem[] }) {
                             ref={refs.databaseColumnRef}
                         >
                             <Dropdown.Header className="studio-search__database-col__header--sticky">
-                                <span className="small-label">Active database</span>
+                                <span className="small-label">{t("search.activeDatabase")}</span>
                             </Dropdown.Header>
 
                             <StudioSearchDatabaseResults

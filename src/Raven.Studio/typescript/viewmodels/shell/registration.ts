@@ -10,6 +10,21 @@ import renewLicenseCommand = require("commands/licensing/renewLicenseCommand");
 import getServerCertificateSetupModeCommand = require("commands/auth/getServerCertificateSetupModeCommand");
 import popoverUtils = require("common/popoverUtils");
 import getConnectivityToLicenseServerCommand = require("commands/licensing/getConnectivityToLicenseServerCommand");
+import generalUtils = require("common/generalUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("registration");
+
+const LICENSE_KEY_SAMPLE = [
+    "{",
+    '            "Id": "12345678-1234-1234-1234-123456789101",',
+    '            "Name": "RavenDB License Owner",',
+    '            "Keys": [',
+    '                "aBcDeFgHiJkLmNoPqRsTuVwXyZ",',
+    '                "~!@#$%^&*()_+=-0987654321`"',
+    "            ]",
+    "}",
+].join("\n");
 
 class licenseKeyModel {
 
@@ -66,6 +81,7 @@ class registration extends dialogViewModelBase {
     dismissVisible = ko.observable<boolean>(true);
     canBeClosed = ko.observable<boolean>(false);
     daysToRegister: KnockoutComputed<number>;
+    daysToRegisterHtml: KnockoutComputed<string>;
 
     forceUpdateWhenExpired: KnockoutComputed<boolean>;
     renewWhenExpired: KnockoutComputed<boolean>;
@@ -75,6 +91,9 @@ class registration extends dialogViewModelBase {
     renewError = ko.observable<string>();
 
     registrationUrl = ko.observable<string>();
+    obtainNewLicenseHtml: KnockoutComputed<string>;
+    renewDescriptionHtml: string;
+    licenseKeyPlaceholder: string;
     error = ko.observable<string>();
 
     private licenseKeyModel = ko.validatedObservable(new licenseKeyModel());
@@ -106,16 +125,17 @@ class registration extends dialogViewModelBase {
 
         let error: string = null;
         if (licenseStatus.Type === "Invalid") {
-            error = "Invalid license";
-            if (licenseStatus.ErrorMessage) {
-                error += `: ${licenseStatus.ErrorMessage}`;
-            }
+            error = licenseStatus.ErrorMessage
+                ? t("error.invalidWithMessage", { message: generalUtils.escapeHtml(licenseStatus.ErrorMessage) })
+                : t("error.invalid");
         } else if (licenseStatus.Expired) {
             const expiration = moment.utc(licenseStatus.SubscriptionExpiration);
-            error = "License has expired";
-            if (expiration.isValid()) {
-                error += ` on ${expiration.format("YYYY MMMM Do")} UTC ${license.getLicenseInfoIcon({ date: expiration, isExpired: true, isSmall: false })}`;
-            }
+            error = expiration.isValid()
+                ? t("error.expiredOn", {
+                      date: generalUtils.escapeHtml(expiration.format("YYYY MMMM Do")),
+                      icon: license.getLicenseInfoIcon({ date: expiration, isExpired: true, isSmall: false }),
+                  })
+                : t("error.expired");
         }
         this.error(error);
 
@@ -126,6 +146,8 @@ class registration extends dialogViewModelBase {
             const now = moment.utc();
             return firstStart.diff(now, "days");
         });
+
+        this.daysToRegisterHtml = ko.pureComputed(() => t("daysLeftToRegister", { count: this.daysToRegister() }));
 
         this.forceUpdateWhenExpired = ko.pureComputed(() => {
             // Force Update is for: ALL licenses EXCEPT Developer and Community
@@ -144,6 +166,11 @@ class registration extends dialogViewModelBase {
         this.renewWhenNotExpired(renewNonExpiredLicense);
 
         this.registrationUrl(license.generateLicenseRequestUrl());
+        this.obtainNewLicenseHtml = ko.pureComputed(() =>
+            t("submitLicense.obtainNewLicense", { url: generalUtils.escapeHtml(this.registrationUrl()) })
+        );
+        this.renewDescriptionHtml = t("renew.description");
+        this.licenseKeyPlaceholder = t("submitLicense.licenseKeyPlaceholder", { sample: LICENSE_KEY_SAMPLE });
 
         this.registerDisposable(license.licenseStatus.subscribe(statusUpdated => {
             if (!statusUpdated.Expired && !statusUpdated.ErrorMessage && !this.renewWhenNotExpired()) {
@@ -186,9 +213,7 @@ class registration extends dialogViewModelBase {
 
         popoverUtils.longWithHover($(".not-connected"),
             {
-                content:
-                    `<small><small>Unable to reach the RavenDB License Server at <code>api.ravendb.net</code><br>
-                     ${this.connectionException()}</small></small>`,
+                content: `<small><small>${t("licenseServerUnreachable", { exception: generalUtils.escapeHtml(this.connectionException()) })}</small></small>`,
                 placement: "top"
             });
     }
@@ -305,7 +330,10 @@ class registration extends dialogViewModelBase {
             newExpirationDateFormatted = newExpiration.format("YYYY MMMM Do");
         }
 
-        return `The renewed license was sent to: <strong class="text-info">${sentToEmail}</strong><br/>The new expiration date is: <strong class="text-info">${newExpirationDateFormatted}</strong>`;
+        return t("renew.sent", {
+            email: generalUtils.escapeHtml(sentToEmail),
+            date: generalUtils.escapeHtml(newExpirationDateFormatted),
+        });
     }
 
     dismiss(days: number) {
@@ -336,7 +364,7 @@ class registration extends dialogViewModelBase {
                     .done(() => license.fetchSupportCoverage());
 
                 dialog.close(this);
-                messagePublisher.reportSuccess("Your license was successfully registered. Thank you for choosing RavenDB.");
+                messagePublisher.reportSuccess(t("licenseRegistered"));
             })
             .always(() => this.spinners.activateLicense(false));
     }

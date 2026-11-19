@@ -6,6 +6,9 @@ import IndexesPage = require("components/pages/database/indexes/list/IndexesPage
 import IndexCleanup = require("components/pages/database/indexes/cleanup/IndexCleanup");
 import IndexErrors = require("components/pages/database/indexes/errors/IndexErrors");
 import IndexTerms = require("components/pages/database/indexes/list/terms/IndexTerms");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("menu");
 
 export = getIndexesMenuItem;
 
@@ -15,13 +18,13 @@ function getIndexesMenuItem(appUrls: computedAppUrls) {
             route: 'databases/query/index(/:indexNameOrRecentQueryIndex)',
             shardingMode: "allShards",
             moduleId: require('viewmodels/database/query/query'),
-            title: 'Query',
+            title: t("indexes.query"),
             nav: true,
             css: 'icon-indexes-query',
             dynamicHash: appUrls.query('')
         }),
         new leafMenuItem({
-            title: "List of Indexes",
+            title: t("indexes.listOfIndexes.title"),
             nav: true,
             shardingMode: "allShards",
             route: "databases/indexes",
@@ -30,18 +33,18 @@ function getIndexesMenuItem(appUrls: computedAppUrls) {
             dynamicHash: appUrls.indexes(null, false, false),
             search: {
                 innerActions: [
-                    { name: "Set priority", alternativeNames: ["Set low priority", "Set normal priority", "Set high priority"] },
-                    { name: "Set lock mode", alternativeNames: ["Unlock index", "Lock index"] },
-                    { name: "Set state", alternativeNames: ["Start indexing", "Disable indexing", "Pause indexing until restart"] },
-                    { name: "Delete index", alternativeNames: ["Remove index"] },
-                    { name: "Edit index" },
-                    { name: "Reset index (rebuild)", alternativeNames: ["Reset in place", "Reset side by side"] }, 
-                    { name: "Export indexes" }
+                    { name: t("indexes.listOfIndexes.setPriority"), alternativeNames: [t("indexes.listOfIndexes.setLowPriority"), t("indexes.listOfIndexes.setNormalPriority"), t("indexes.listOfIndexes.setHighPriority")] },
+                    { name: t("indexes.listOfIndexes.setLockMode"), alternativeNames: [t("indexes.listOfIndexes.unlockIndex"), t("indexes.listOfIndexes.lockIndex")] },
+                    { name: t("indexes.listOfIndexes.setState"), alternativeNames: [t("indexes.listOfIndexes.startIndexing"), t("indexes.listOfIndexes.disableIndexing"), t("indexes.listOfIndexes.pauseIndexingUntilRestart")] },
+                    { name: t("indexes.listOfIndexes.deleteIndex"), alternativeNames: [t("indexes.listOfIndexes.removeIndex")] },
+                    { name: t("indexes.listOfIndexes.editIndex") },
+                    { name: t("indexes.listOfIndexes.resetIndex"), alternativeNames: [t("indexes.listOfIndexes.resetInPlace"), t("indexes.listOfIndexes.resetSideBySide")] }, 
+                    { name: t("indexes.listOfIndexes.exportIndexes") }
                 ],
             },
         }),
         new leafMenuItem({
-            title: "List of Indexes",
+            title: t("indexes.listOfIndexes.title"),
             nav: false,
             shardingMode: "allShards",
             route: "databases/indexes",
@@ -50,22 +53,22 @@ function getIndexesMenuItem(appUrls: computedAppUrls) {
             itemRouteToHighlight: 'databases/indexes',
             dynamicHash: appUrls.indexes(null, false, true),
             search: {
-                overrideTitle: "Import indexes",
+                overrideTitle: t("indexes.listOfIndexes.importIndexes"),
             }
         }),
         new leafMenuItem({
             route: 'databases/indexes/performance',
             shardingMode: "singleShard",
             moduleId: require('viewmodels/database/indexes/indexPerformance'),
-            title: 'Indexing Performance',
-            tooltip: "Shows details about indexing performance",
+            title: t("indexes.indexingPerformance.title"),
+            tooltip: t("indexes.indexingPerformance.tooltip"),
             nav: true,
             css: 'icon-indexing-performance',
             dynamicHash: appUrls.indexPerformance,
             search: {
                 innerActions: [
-                    { name: "Export indexing performance" },
-                    { name: "Import indexing performance" },
+                    { name: t("indexes.indexingPerformance.exportPerformance") },
+                    { name: t("indexes.indexingPerformance.importPerformance") },
                 ],
             },
         }),
@@ -73,7 +76,7 @@ function getIndexesMenuItem(appUrls: computedAppUrls) {
             route: 'databases/indexes/visualizer',
             shardingMode: "singleShard",
             moduleId: require('viewmodels/database/indexes/visualizer/visualizer'),
-            title: 'Map-Reduce Visualizer',
+            title: t("indexes.mapReduceVisualizer"),
             nav: true,
             css: 'icon-map-reduce-visualizer',
             dynamicHash: appUrls.visualizer
@@ -82,16 +85,16 @@ function getIndexesMenuItem(appUrls: computedAppUrls) {
             route: 'databases/indexes/cleanup',
             moduleId: reactUtils.bridgeToReact(IndexCleanup.IndexCleanup, "nonShardedView"),
             shardingMode: "allShards",
-            title: 'Index Cleanup',
+            title: t("indexes.indexCleanup.title"),
             nav: true,
             css: 'icon-index-cleanup',
             dynamicHash: appUrls.indexCleanup,
             search: {
                 innerActions: [
-                    { name: "Merge indexes" },
-                    { name: "Remove sub-indexes", alternativeNames: ["Delete sub-indexes"] },
-                    { name: "Remove unused indexes", alternativeNames: ["Delete unused indexes"] },
-                    { name: "Unmergable indexes" },
+                    { name: t("indexes.indexCleanup.mergeIndexes") },
+                    { name: t("indexes.indexCleanup.removeSubIndexes"), alternativeNames: [t("indexes.indexCleanup.deleteSubIndexes")] },
+                    { name: t("indexes.indexCleanup.removeUnusedIndexes"), alternativeNames: [t("indexes.indexCleanup.deleteUnusedIndexes")] },
+                    { name: t("indexes.indexCleanup.unmergableIndexes") },
                 ],
             },
         }),
@@ -99,14 +102,14 @@ function getIndexesMenuItem(appUrls: computedAppUrls) {
             route: 'databases/indexes/indexErrors',
             shardingMode: "allShards",
             moduleId: reactUtils.bridgeToReact(IndexErrors.default, "nonShardedView"),
-            title: 'Index Errors',
+            title: t("indexes.indexErrors"),
             nav: true,
             css: 'icon-index-errors',
             dynamicHash: appUrls.indexErrors,
             badgeData: ko.pureComputed(() => { return footer.default.stats() ? footer.default.stats().countOfIndexingErrors() : null; })
         }),
         new leafMenuItem({
-            title: 'Add New Index',
+            title: t("indexes.addNewIndex.title"),
             shardingMode: "allShards",
             route: 'databases/indexes/new',
             moduleId: require('viewmodels/database/indexes/editIndex'),
@@ -115,11 +118,11 @@ function getIndexesMenuItem(appUrls: computedAppUrls) {
             itemRouteToHighlight: 'databases/indexes',
             dynamicHash: appUrls.newIndex,
             search: {
-                alternativeTitles: ["Create Index"],
+                alternativeTitles: [t("indexes.addNewIndex.createIndex")],
             }
         }),
         new leafMenuItem({
-            title: 'Edit Index',
+            title: t("indexes.editIndex"),
             shardingMode: "allShards",
             route: 'databases/indexes/edit(/:indexName)',
             moduleId: require('viewmodels/database/indexes/editIndex'),
@@ -131,7 +134,7 @@ function getIndexesMenuItem(appUrls: computedAppUrls) {
             }
         }),
         new leafMenuItem({
-            title: 'Terms',
+            title: t("indexes.terms"),
             route: 'databases/indexes/terms/(:indexName)',
             moduleId: reactUtils.bridgeToReact(IndexTerms.default, "shardedView"),
             shardingMode: "allShards",
@@ -143,7 +146,7 @@ function getIndexesMenuItem(appUrls: computedAppUrls) {
         })
     ];
 
-    return new intermediateMenuItem("Indexes", indexesItems, 'icon-indexing', {
+    return new intermediateMenuItem(t("indexes.title"), indexesItems, 'icon-indexing', {
         dynamicHash: appUrls.indexes(null, false, false)
     });
 }

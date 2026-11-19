@@ -8,44 +8,43 @@ import { FeedbackFormContent } from "./partials/FeedbackFormContent";
 import { ContactSupportContent } from "./partials/ContactSupportContent";
 import { chatbotActions, chatbotSelectors } from "../../store/chatbotSlice";
 import { useAppDispatch, useAppSelector } from "components/store";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 export default function ChatbotPanelResources() {
     const dispatch = useAppDispatch();
     const activeTab = useAppSelector(chatbotSelectors.chatbotResourcesTab);
+    const t = useStudioTranslation("chatbot");
 
     return (
         <div className="chatbot-panel-resources vstack">
             {activeTab === "helpAndResources" && (
                 <div className="vstack">
                     <ul className="action-menu__list flex-grow">
-                        <p className="mb-0">
-                            Explore our documentation, engage with community, and connect with our dedicated support
-                            channels for all your needs.
-                        </p>
+                        <p className="mb-0">{t("helpAndResources.intro")}</p>
                         <li
                             className="action-menu__list-item action-menu__list-item--highlight"
                             role="button"
-                            title="Join the Community"
+                            title={t("helpAndResources.joinTheCommunity")}
                             onClick={() => dispatch(chatbotActions.chatbotResourcesTabSet("joinTheCommunity"))}
                         >
                             <Icon icon="group" margin="m-0" />
-                            Join the Community
+                            {t("helpAndResources.joinTheCommunity")}
                         </li>
                         <li
                             className="action-menu__list-item"
                             role="button"
-                            title="Contact support"
+                            title={t("helpAndResources.contactSupport")}
                             onClick={() => dispatch(chatbotActions.chatbotResourcesTabSet("contactSupport"))}
                         >
                             <Icon icon="support" margin="m-0" />
-                            Contact support
+                            {t("helpAndResources.contactSupport")}
                         </li>
                         <SeeDocumentationButton />
                     </ul>
                     <FlexGrow />
                     <div className="action-menu__footer">
                         <div className="d-flex flex-row align-items-center">
-                            <small className="lh-1">See our project on GitHub</small>
+                            <small className="lh-1">{t("helpAndResources.githubProject")}</small>
                             <FlexGrow />
                             <GithubButtonWithStars />
                         </div>

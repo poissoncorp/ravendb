@@ -1,6 +1,10 @@
 ﻿/// <reference path="../../../typings/tsd.d.ts"/>
 import database = require("models/resources/database");
 import DatabaseUtils = require("components/utils/DatabaseUtils");
+import generalUtils = require("common/generalUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("shellCommon");
 
 class accessManager {
 
@@ -51,15 +55,15 @@ class accessManager {
         switch (accessLevel) {
             case "ClusterNode":
             case "ClusterAdmin":
-                return "Cluster Admin/Node";
+                return t("accessLevel.clusterAdminOrNode");
             case "Operator":
-                return "Operator";
+                return t("accessLevel.operator");
             case "DatabaseAdmin":
-                return "Admin";
+                return t("accessLevel.admin");
             case "DatabaseReadWrite":
-                return "Read/Write";
+                return t("accessLevel.readWrite");
             case "DatabaseRead":
-                return "Read Only";
+                return t("accessLevel.readOnly");
         }
     }
 
@@ -157,14 +161,16 @@ class accessManager {
     
     static getDisableReasonHtml(requiredAccess: accessLevel) {
         const securityClearance = accessManager.isSecurityClearanceLevel(requiredAccess);
-        const title = securityClearance ? "Insufficient security clearance" : "Insufficient database access";
+        const title = securityClearance
+            ? t("disableReason.insufficientSecurityClearance")
+            : t("disableReason.insufficientDatabaseAccess");
 
         const requiredText = accessManager.default.getAccessLevelText(requiredAccess);
 
         return `<div class="text-left padding-xs">
                     <h4 class="margin-none">${title}</h4>
                     <ul class="margin-top-xs">
-                        <li>Required: <strong>${requiredText}</strong></li>
+                        <li>${t("disableReason.required", { accessLevel: generalUtils.escapeHtml(requiredText) })}</li>
                     </ul>
                 </div>`;
     }

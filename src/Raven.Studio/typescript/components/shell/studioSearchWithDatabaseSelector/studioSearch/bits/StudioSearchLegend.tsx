@@ -4,39 +4,42 @@ import { useOS } from "components/hooks/useOS";
 import Dropdown from "react-bootstrap/Dropdown";
 import { aiAssistantSelectors } from "components/common/shell/aiAssistantSlice";
 import { useAppSelector } from "components/store";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 const KeyboardShortcuts = () => {
     const os = useOS();
     const isMac = os === "MacOS";
     const isAiAssistantDisabled = useAppSelector(aiAssistantSelectors.isDisabled);
+    const t = useStudioTranslation("studioSearchWithDatabaseSelector");
 
     return (
         <Col sm={12} className="studio-search__legend-col p-0">
             <div className="studio-search__legend-col__group">
                 <Dropdown.Header className="studio-search__legend-col__group__header">
                     <div className="d-flex align-items-center gap-1">
-                        <kbd>↑</kbd> <span>Move up</span>
+                        <kbd>↑</kbd> <span>{t("search.legend.moveUp")}</span>
                     </div>
                     <div className="d-flex align-items-center gap-1">
-                        <kbd>↓</kbd> <span>Move down</span>
+                        <kbd>↓</kbd> <span>{t("search.legend.moveDown")}</span>
                     </div>
                     <div className="d-flex align-items-center gap-1">
-                        <kbd>{isMac ? "⌥" : "ALT"}</kbd> <kbd>→</kbd>
-                        <span>Move right</span>
+                        <kbd>{isMac ? "⌥" : t("search.legend.keys.alt")}</kbd> <kbd>→</kbd>
+                        <span>{t("search.legend.moveRight")}</span>
                     </div>
                     <div className="d-flex align-items-center gap-1">
-                        <kbd>{isMac ? "⌥" : "ALT"}</kbd> <kbd>←</kbd>
-                        <span>Move left</span>
+                        <kbd>{isMac ? "⌥" : t("search.legend.keys.alt")}</kbd> <kbd>←</kbd>
+                        <span>{t("search.legend.moveLeft")}</span>
                     </div>
                     <div className="d-flex align-items-center gap-1">
-                        <kbd>Enter</kbd> <span>Select</span>
+                        <kbd>{t("search.legend.keys.enter")}</kbd> <span>{t("search.legend.select")}</span>
                     </div>
                     <div className="d-flex align-items-center gap-1">
-                        <kbd>Esc</kbd> <span>Close</span>
+                        <kbd>{t("search.legend.keys.esc")}</kbd> <span>{t("search.legend.close")}</span>
                     </div>
                     {!isAiAssistantDisabled && (
                         <div className="d-flex align-items-center gap-1 ms-auto">
-                            <kbd>{isMac ? "⌘" : "Ctrl"}</kbd> <kbd>/</kbd> <span>Ask AI</span>
+                            <kbd>{isMac ? "⌘" : t("search.legend.keys.ctrl")}</kbd> <kbd>/</kbd>{" "}
+                            <span>{t("search.askAi")}</span>
                         </div>
                     )}
                 </Dropdown.Header>

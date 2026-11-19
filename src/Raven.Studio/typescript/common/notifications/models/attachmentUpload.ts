@@ -3,6 +3,9 @@
 import abstractNotification = require("common/notifications/models/abstractNotification");
 import generalUtils = require("common/generalUtils");
 import moment = require("moment");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("notifications");
 
 class attachmentUpload extends abstractNotification {
 
@@ -49,7 +52,13 @@ class attachmentUpload extends abstractNotification {
             this.total(event.total);
             
             if (this.isCompleted()) {
-                this.message("File '" + generalUtils.escapeHtml(this.fileName) + "' (size: " + generalUtils.formatBytesToSize(event.total) + ") was uploaded to document '" + generalUtils.escapeHtml(this.documentId) + "'");
+                this.message(
+                    t("attachmentUpload.uploaded", {
+                        fileName: generalUtils.escapeHtml(this.fileName),
+                        size: generalUtils.formatBytesToSize(event.total),
+                        documentId: generalUtils.escapeHtml(this.documentId),
+                    })
+                );
                 this.severity("Success");
             }
         }
@@ -60,8 +69,11 @@ class attachmentUpload extends abstractNotification {
             Type: "AttachmentUpload",
             CreatedAt: null, // will be assigned later
             Database: databaseName,
-            Message: "Uploading '" + fileName + "' for document '" + documentId + "'",
-            Title: "Attachment upload",
+            Message: t("attachmentUpload.uploading", {
+                fileName: generalUtils.escapeHtml(fileName),
+                documentId: generalUtils.escapeHtml(documentId),
+            }),
+            Title: t("attachmentUpload.title"),
             Severity: "None",
             IsPersistent: false,
             Id: "AttachmentUpload/" + (attachmentUpload.currentUploadId++)

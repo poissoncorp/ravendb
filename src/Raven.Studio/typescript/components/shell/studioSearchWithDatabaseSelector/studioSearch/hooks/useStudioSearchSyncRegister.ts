@@ -15,6 +15,7 @@ import { collectionsTrackerSelectors } from "components/common/shell/collections
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
 import { useAppSelector } from "components/store";
 import { accessManagerSelectors } from "components/common/shell/accessManagerSliceSelectors";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 interface UseStudioSearchSyncRegisterParams {
     register: (type: StudioSearchItemType, newItems: StudioSearchItem[]) => void;
@@ -25,6 +26,7 @@ interface UseStudioSearchSyncRegisterParams {
 
 export function useStudioSearchSyncRegister(props: UseStudioSearchSyncRegisterParams) {
     const { register, menuItems, goToUrl, resetDropdown } = props;
+    const t = useStudioTranslation("studioSearchWithDatabaseSelector");
 
     const activeDatabaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const allDatabases = useAppSelector(databaseSelectors.allDatabases);
@@ -86,10 +88,15 @@ export function useStudioSearchSyncRegister(props: UseStudioSearchSyncRegisterPa
                     icon: "database",
                     onSelected: (e) => handleDatabaseSwitch(db.name, e),
                     text: db.name,
-                    alternativeTexts: ["db", "Database", "Active Database", "Select Database"],
+                    alternativeTexts: [
+                        t("search.databaseSearchTerms.db"),
+                        t("search.databaseSearchTerms.database"),
+                        t("search.databaseSearchTerms.activeDatabase"),
+                        t("search.databaseSearchTerms.selectDatabase"),
+                    ],
                 }))
         );
-    }, [activeDatabaseName, allDatabases, appUrl, register, handleDatabaseSwitch]);
+    }, [activeDatabaseName, allDatabases, appUrl, register, handleDatabaseSwitch, t]);
 
     const getMenuItemType = useCallback((route: string): StudioSearchMenuItemType => {
         if (route === "virtual") {

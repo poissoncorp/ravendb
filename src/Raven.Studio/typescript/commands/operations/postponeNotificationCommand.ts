@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("operationsCommands");
 
 class postponeNotificationCommand extends commandBase {
 
@@ -25,7 +28,7 @@ class postponeNotificationCommand extends commandBase {
         const url = this.db ? endpoints.databases.databaseNotificationCenter.notificationCenterPostpone : endpoints.global.serverNotificationCenter.serverNotificationCenterPostpone;
 
         return this.post(url + this.urlEncodeArgs(args), null, this.db, { dataType: undefined })
-            .fail((response: JQueryXHR) => this.reportError("Failed to postpone action", response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("postponeFailed"), response.responseText, response.statusText));
         
     }
 }

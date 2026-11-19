@@ -8,11 +8,11 @@
                     </div>
                     <div class="flex-horizontal">
                         <div class="flex-grow">
-                            Does your feedback concern the <strong data-bind="text: $parent.moduleTitle"></strong> feature?
+                            <span data-bind="i18n: 'feedback:concernsFeatureStart'"></span> <strong data-bind="text: $parent.moduleTitle"></strong> <span data-bind="i18n: 'feedback:concernsFeatureEnd'"></span>
                         </div>
                         <div class="flex-vertical yes-no-buttons">
-                            <button class="btn btn-default" data-bind="css: { 'active': viewSpecific }, click: _.partial(viewSpecific, true)">Yes</button>
-                            <button class="btn btn-default" data-bind="css: { 'active': !viewSpecific() }, click: _.partial(viewSpecific, false)">No, something else</button>
+                            <button class="btn btn-default" data-bind="css: { 'active': viewSpecific }, click: _.partial(viewSpecific, true), i18n: 'feedback:yes'"></button>
+                            <button class="btn btn-default" data-bind="css: { 'active': !viewSpecific() }, click: _.partial(viewSpecific, false), i18n: 'feedback:no'"></button>
                         </div>
                     </div>
                 </div>
@@ -22,12 +22,12 @@
                             <div class="row row-sm">
                                 <div class="col-sm-6">
                                     <button type="button" class="btn btn-success btn-block" data-bind="click: _.partial(featureImpression, 'positive'), css: { 'active': featureImpression() === 'positive' }">
-                                        <i class="icon-thumb-up"></i> <span>I like it</span>
+                                        <i class="icon-thumb-up"></i> <span data-bind="i18n: 'feedback:likeIt'"></span>
                                     </button>
                                 </div>
                                 <div class="col-sm-6">
                                     <button type="button" class="btn btn-danger btn-block" data-bind="click: _.partial(featureImpression, 'negative'), css: { 'active': featureImpression() === 'negative' }">
-                                        <i class="icon-thumb-down"></i> <span>Could be better</span>
+                                        <i class="icon-thumb-down"></i> <span data-bind="i18n: 'feedback:couldBeBetter'"></span>
                                     </button>
                                 </div>
                             </div>
@@ -38,30 +38,30 @@
                     <div class="row">
                         <div class="col-sm-6">
                             <div class="form-group" data-bind="validationElement: name">
-                                <input type="text" placeholder="Name" class="form-control" data-bind="textInput: name">
+                                <input type="text" class="form-control" data-bind="textInput: name, i18nAttr: { placeholder: 'feedback:namePlaceholder' }">
                             </div>
                         </div>
                         <div class="col-sm-6">
                             <div class="form-group" data-bind="validationElement: email">
-                                <input type="email" placeholder="Email" class="form-control" data-bind="textInput: email">
+                                <input type="email" class="form-control" data-bind="textInput: email, i18nAttr: { placeholder: 'feedback:emailPlaceholder' }">
                             </div>
                         </div>
                     </div>
                     <div class="form-group" data-bind="validationElement: message">
-                        <textarea class="form-control" placeholder="Message" rows="6" data-bind="textInput: message">
+                        <textarea class="form-control" rows="6" data-bind="textInput: message, i18nAttr: { placeholder: 'feedback:messagePlaceholder' }">
                         </textarea>
                     </div>
                     <div class="flex-horizontal">
                         <div>
                             <a class="btn btn-info" href="https://issues.hibernatingrhinos.com/issues/RavenDB" target="_blank">
-                                <i class="icon-bug"></i> <span>Bug Tracker</span>
+                                <i class="icon-bug"></i> <span data-bind="i18n: 'feedback:bugTracker'"></span>
                             </a>
                         </div>
                         <div class="flex-separator"></div>
                         <div>
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal" data-bind="i18n: 'common:cancel'"></button>
                             <button type="submit" class="btn btn-primary" data-bind="css: { 'btn-spinner': $root.spinners.send }, disable: $root.spinners.send">
-                                <i class="icon-rocket"></i> <span>Send</span>
+                                <i class="icon-rocket"></i> <span data-bind="i18n: 'feedback:send'"></span>
                             </button>
                         </div>
                     </div>

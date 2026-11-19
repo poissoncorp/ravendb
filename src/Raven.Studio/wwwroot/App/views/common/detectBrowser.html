@@ -1,8 +1,8 @@
 <div data-bind="if: showBrowserAlert(), css: { 'browser-alert': showBrowserAlert() }">
     <div class="browser-message">
         <i class="icon-unsupported-browser icon-xl"></i>
-        <p class="lead margin-bottom">This browser is not supported and some features may not work correctly</p>
-        <p>To ensure best experience please use:</p>
+        <p class="lead margin-bottom" data-bind="i18n: 'studioShell:browserAlert.notSupported'"></p>
+        <p data-bind="i18n: 'studioShell:browserAlert.pleaseUse'"></p>
         <div class="browser-links">
             <a class="chrome" href="https://www.google.com/chrome/" target="_blank">
                 <i class="icon-chrome icon-lg"></i>
@@ -13,14 +13,12 @@
                 Mozilla Firefox
             </a>
         </div>
-        <p class="margin-bottom">Or</p>
-        <button class="btn btn-default" data-bind="click: continueWithCurrentBrowser">Continue with current browser</button>
+        <p class="margin-bottom" data-bind="i18n: 'studioShell:browserAlert.or'"></p>
+        <button class="btn btn-default" data-bind="click: continueWithCurrentBrowser, i18n: 'studioShell:browserAlert.continue'"></button>
         <div data-bind="if: infoPersistedInSettings">
             <div class="checkbox">
                 <input id="dontShowAgainBrowser" class="styled" type="checkbox" data-bind="checked: dontShowBrowserAlertAgain">
-                <label for="dontShowAgainBrowser">
-                    Don't show again
-                </label>
+                <label for="dontShowAgainBrowser" data-bind="i18n: 'studioShell:browserAlert.dontShowAgain'"></label>
             </div>
         </div>
     </div>

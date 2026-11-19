@@ -4,6 +4,8 @@ import performanceHint from "common/notifications/models/performanceHint";
 import genUtils from "common/generalUtils";
 import Code from "components/common/Code";
 import { useKnockoutValue } from "hooks/useKnockoutValue";
+import type { StudioTranslate } from "common/i18n/resources";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 import { NotificationDetailsProps } from "../notificationDetailsProvider";
 import { PerformanceHintDetailsModal } from "../NotificationDetailsModal";
 import { NotificationDetailsTable } from "../NotificationDetailsTable";
@@ -14,28 +16,31 @@ import { usePreviewItem } from "../usePreviewItem";
 
 type SlowSqlStatementInfo = Raven.Server.NotificationCenter.Notifications.Details.SlowSqlStatementInfo;
 
-const dataColumns: ColumnDef<SlowSqlStatementInfo>[] = [
-    {
-        header: "Duration (ms)",
-        accessorKey: "Duration",
-        size: columnSizes.duration,
-    },
-    {
-        header: "Date",
-        accessorKey: "Date",
-        ...dateColumnOptions,
-    },
-    {
-        header: "Statement",
-        accessorKey: "Statement",
-        meta: { relativeWidth: 65 },
-    },
-];
+function getDataColumns(t: StudioTranslate<"notificationCenter">): ColumnDef<SlowSqlStatementInfo>[] {
+    return [
+        {
+            header: t("fields.durationMs"),
+            accessorKey: "Duration",
+            size: columnSizes.duration,
+        },
+        {
+            header: t("fields.date"),
+            accessorKey: "Date",
+            ...dateColumnOptions,
+        },
+        {
+            header: t("slowSql.statement"),
+            accessorKey: "Statement",
+            meta: { relativeWidth: 65 },
+        },
+    ];
+}
 
 export default function SlowSqlDetails({
     notification,
     actions,
 }: NotificationDetailsProps<performanceHint<"SqlEtl_SlowSql">>) {
+    const t = useStudioTranslation("notificationCenter");
     const details = useKnockoutValue(notification.details);
 
     const statements = useMemo(() => [...(details.Statements ?? [])].reverse(), [details]);
@@ -43,8 +48,8 @@ export default function SlowSqlDetails({
     const [selectedStatement, setSelectedStatement] = usePreviewItem(statements, getStatementKey);
 
     const columns = useMemo(
-        () => [previewColumn<SlowSqlStatementInfo>(setSelectedStatement), ...dataColumns],
-        [setSelectedStatement]
+        () => [previewColumn<SlowSqlStatementInfo>(setSelectedStatement), ...getDataColumns(t)],
+        [setSelectedStatement, t]
     );
 
     return (
@@ -53,18 +58,17 @@ export default function SlowSqlDetails({
                 notification={notification}
                 data={statements}
                 columns={columns}
-                itemName="statement"
-                itemNamePlural="statements"
+                countKey="table.count.statement"
                 selectedItem={selectedStatement}
                 onItemClick={setSelectedStatement}
             />
             {selectedStatement && (
-                <NotificationDetailsPreview title="Details" item={selectedStatement}>
+                <NotificationDetailsPreview title={t("table.previewTitle")} item={selectedStatement}>
                     <NotificationDetailsList>
-                        <NotificationDetailsListItem label="Duration">
-                            {selectedStatement.Duration.toLocaleString()} ms
+                        <NotificationDetailsListItem label={t("fields.duration")}>
+                            {t("slowSql.durationValue", { duration: selectedStatement.Duration.toLocaleString() })}
                         </NotificationDetailsListItem>
-                        <NotificationDetailsListItem label="Date">
+                        <NotificationDetailsListItem label={t("fields.date")}>
                             {genUtils.formatUtcDateAsLocal(selectedStatement.Date)}
                         </NotificationDetailsListItem>
                     </NotificationDetailsList>

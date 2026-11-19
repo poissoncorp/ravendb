@@ -19,6 +19,7 @@ import { useForm, useWatch } from "react-hook-form";
 import classNames from "classnames";
 import { ConditionalPopover } from "components/common/ConditionalPopover";
 import { clusterSelectors } from "components/common/shell/clusterSlice";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 export default function ChatbotAskAiPromptPanel() {
     const dispatch = useAppDispatch();
@@ -26,6 +27,7 @@ export default function ChatbotAskAiPromptPanel() {
     const conversationId = useAppSelector(chatbotSelectors.conversationId);
     const attachedContexts = useAppSelector(chatbotSelectors.attachedContexts);
     const buildVersion = useAppSelector(clusterSelectors.serverVersion)?.BuildVersion;
+    const t = useStudioTranslation("chatbot");
 
     const isConsentSuccess = consentStatus.data === "Success";
 
@@ -77,7 +79,7 @@ export default function ChatbotAskAiPromptPanel() {
                         as="textarea"
                         control={control}
                         name="prompt"
-                        placeholder="Ask anything"
+                        placeholder={t("prompt.placeholder")}
                         className="prompt-textarea"
                         disabled={isInputDisabled}
                         onKeyDown={(e) => {
@@ -94,11 +96,11 @@ export default function ChatbotAskAiPromptPanel() {
                                 conditions={[
                                     {
                                         isActive: isRequestSizeExceeded,
-                                        message: "Request body is too large. Please remove some attached context.",
+                                        message: t("prompt.requestTooLarge"),
                                     },
                                     {
                                         isActive: formState.isSubmitting,
-                                        message: "Your request is being processed. Please wait for the response.",
+                                        message: t("prompt.requestInProgress"),
                                     },
                                 ]}
                             >
@@ -110,16 +112,14 @@ export default function ChatbotAskAiPromptPanel() {
                                     style={{ width: "30px", height: "30px" }}
                                     isSpinning={formState.isSubmitting}
                                     disabled={isSubmitDisabled}
-                                    title="Send"
+                                    title={t("prompt.send")}
                                 />
                             </ConditionalPopover>
                         </div>
                     )}
                 </div>
             </div>
-            <p className="chatbot-disclaimer mb-0 pt-1 small text-center text-muted">
-                Responses are AI-generated and may require verification.
-            </p>
+            <p className="chatbot-disclaimer mb-0 pt-1 small text-center text-muted">{t("prompt.disclaimer")}</p>
             <Usage />
         </>
     );
@@ -135,6 +135,7 @@ interface RequestSizeIndicatorProps {
 }
 
 function RequestSizeIndicator({ estimatedRequestSizeInBytes }: RequestSizeIndicatorProps) {
+    const t = useStudioTranslation("chatbot");
     const sizeState = getRequestSizeState(estimatedRequestSizeInBytes);
     const progress = Math.min(estimatedRequestSizeInBytes / chatbotRequestSizeLimitBytes, 1);
     const sizeText = genUtils.formatBytesToSize(estimatedRequestSizeInBytes, 2);
@@ -148,11 +149,11 @@ function RequestSizeIndicator({ estimatedRequestSizeInBytes }: RequestSizeIndica
         <PopoverWithHoverWrapper
             message={
                 <div className="small">
-                    <div className="fw-bold">Request body size</div>
+                    <div className="fw-bold">{t("prompt.requestSize")}</div>
                     <div>
                         {sizeText} / {limitText}
                     </div>
-                    <div className="small mt-2">Includes server metadata overhead.</div>
+                    <div className="small mt-2">{t("prompt.requestSizeOverhead")}</div>
                 </div>
             }
             inline={false}
@@ -193,6 +194,7 @@ const USAGE_THRESHOLD = 60;
 
 function Usage() {
     const usage = useAppSelector(aiAssistantSelectors.usage);
+    const t = useStudioTranslation("chatbot");
     const isVisible =
         usage.status === "success" && usage.data?.Status === "Success" && usage.data?.UsagePercentage > USAGE_THRESHOLD;
 
@@ -208,19 +210,19 @@ function Usage() {
             message={
                 <div style={{ width: "200px" }}>
                     <div className="hstack gap-2">
-                        <strong>{roundedUsage}% used</strong>
+                        <strong>{t("prompt.usagePercentage", { usage: roundedUsage })}</strong>
                         <ProgressBar
                             now={roundedUsage}
                             className="tokens-usage-progress-bar flex-grow"
                             style={{ height: "8px" }}
                         />
                     </div>
-                    <div className="small">Resets {resetsFormattedDate}</div>
+                    <div className="small">{t("prompt.usageResets", { date: resetsFormattedDate })}</div>
                 </div>
             }
         >
             <div className="text-center small">
-                <Icon icon="info-new" /> You&apos;ve used {roundedUsage}% of your usage limit.
+                <Icon icon="info-new" /> {t("prompt.usageLimit", { usage: roundedUsage })}
             </div>
         </PopoverWithHoverWrapper>
     );

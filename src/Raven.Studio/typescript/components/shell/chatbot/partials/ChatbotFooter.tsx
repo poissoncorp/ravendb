@@ -9,9 +9,11 @@ import AiAssistantDisabledInSettingsMessage from "components/common/aiAssistant/
 import { licenseSelectors } from "components/common/shell/licenseSlice";
 import FeatureNotAvailableInYourLicensePopoverBody from "components/common/FeatureNotAvailableInYourLicensePopoverBody";
 import "./ChatbotFooter.scss";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 export default function ChatbotFooter() {
     const dispatch = useAppDispatch();
+    const t = useStudioTranslation("chatbot");
 
     const chatbotTab = useAppSelector(chatbotSelectors.chatbotTab);
     const isAiAssistantSettingsDisabled = useAppSelector(aiAssistantSelectors.settings).isDisabled;
@@ -34,7 +36,7 @@ export default function ChatbotFooter() {
             >
                 <FooterItem
                     icon="ask-ai"
-                    title="AI Assistant"
+                    title={t("aiAssistant")}
                     isActive={chatbotTab === "aiAssistant"}
                     handleClick={() => dispatch(chatbotActions.chatbotTabSet("aiAssistant"))}
                     isDisabled={isAiAssistantSettingsDisabled || !hasAiAssistant}
@@ -42,7 +44,7 @@ export default function ChatbotFooter() {
             </ConditionalPopover>
             <FooterItem
                 icon="resources"
-                title="Resources"
+                title={t("resources")}
                 isActive={chatbotTab === "resources"}
                 handleClick={() => dispatch(chatbotActions.chatbotTabSet("resources"))}
             />

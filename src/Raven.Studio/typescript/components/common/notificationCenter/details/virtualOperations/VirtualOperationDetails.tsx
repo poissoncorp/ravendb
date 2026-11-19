@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import groupedVirtualNotification from "common/notifications/models/groupedVirtualNotification";
 import virtualBulkInsert from "common/notifications/models/virtualBulkInsert";
@@ -7,6 +8,8 @@ import virtualDeleteByQueryFailures from "common/notifications/models/virtualDel
 import virtualUpdateByQuery from "common/notifications/models/virtualUpdateByQuery";
 import virtualUpdateByQueryFailures from "common/notifications/models/virtualUpdateByQueryFailures";
 import { useKnockoutValue } from "hooks/useKnockoutValue";
+import type { StudioTranslate } from "common/i18n/resources";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 import { NotificationDetailsProps } from "../notificationDetailsProvider";
 import { NotificationDetailsModal } from "../NotificationDetailsModal";
 import { NotificationDetailsTable } from "../NotificationDetailsTable";
@@ -42,84 +45,141 @@ function VirtualOperationDetails<T extends OperationItem>({
                 notification={notification}
                 data={operations}
                 columns={columns}
-                itemName="operation"
-                itemNamePlural="operations"
+                countKey="table.count.operation"
                 exportTitle={title}
             />
         </NotificationDetailsModal>
     );
 }
 
-function dateColumn<T extends { date: string }>(): ColumnDef<T> {
+function dateColumn<T extends { date: string }>(t: StudioTranslate<"notificationCenter">): ColumnDef<T> {
     return {
         id: "date",
-        header: "Date",
+        header: t("fields.date"),
         accessorFn: (x) => x.date,
         ...dateColumnOptions,
     };
 }
 
-function durationColumn<T extends { duration: number }>(): ColumnDef<T> {
+function durationColumn<T extends { duration: number }>(t: StudioTranslate<"notificationCenter">): ColumnDef<T> {
     return {
         id: "duration",
-        header: "Duration (ms)",
+        header: t("fields.durationMs"),
         accessorFn: (x) => x.duration,
         size: columnSizes.duration,
     };
 }
 
-const bulkInsertColumns: ColumnDef<virtualBulkOperationItem>[] = [
-    dateColumn(),
-    durationColumn(),
-    { header: "Documents", accessorKey: "documentsProcessed", meta: { relativeWidth: 17 } },
-    { header: "Attachments", accessorKey: "attachmentsProcessed", meta: { relativeWidth: 17 } },
-    { header: "Counters", accessorKey: "countersProcessed", meta: { relativeWidth: 17 } },
-    { header: "Time Series", accessorKey: "timeSeriesProcessed", meta: { relativeWidth: 17 } },
-];
+function getBulkInsertColumns(t: StudioTranslate<"notificationCenter">): ColumnDef<virtualBulkOperationItem>[] {
+    return [
+        dateColumn(t),
+        durationColumn(t),
+        { header: t("virtualOperations.documents"), accessorKey: "documentsProcessed", meta: { relativeWidth: 17 } },
+        {
+            header: t("virtualOperations.attachments"),
+            accessorKey: "attachmentsProcessed",
+            meta: { relativeWidth: 17 },
+        },
+        { header: t("virtualOperations.counters"), accessorKey: "countersProcessed", meta: { relativeWidth: 17 } },
+        { header: t("virtualOperations.timeSeries"), accessorKey: "timeSeriesProcessed", meta: { relativeWidth: 17 } },
+    ];
+}
 
-const bulkInsertFailureColumns: ColumnDef<virtualBulkOperationFailureItem>[] = [
-    dateColumn(),
-    durationColumn(),
-    { header: "Error message", accessorKey: "errorMsg", meta: { relativeWidth: 25 } },
-    { header: "Error", accessorKey: "error", meta: { relativeWidth: 43 } },
-];
+function getBulkInsertFailureColumns(
+    t: StudioTranslate<"notificationCenter">
+): ColumnDef<virtualBulkOperationFailureItem>[] {
+    return [
+        dateColumn(t),
+        durationColumn(t),
+        { header: t("fields.errorMessage"), accessorKey: "errorMsg", meta: { relativeWidth: 25 } },
+        { header: t("fields.error"), accessorKey: "error", meta: { relativeWidth: 43 } },
+    ];
+}
 
-const queryBasedColumns: ColumnDef<queryBasedVirtualBulkOperationItem>[] = [
-    dateColumn(),
-    durationColumn(),
-    { header: "Processed documents", accessorKey: "totalItemsProcessed", meta: { relativeWidth: 15 } },
-    { header: "Collection/Index", accessorKey: "indexOrCollectionUsed", meta: { relativeWidth: 20 } },
-    { header: "Query", accessorKey: "query", meta: { relativeWidth: 33 } },
-];
+function getQueryBasedColumns(
+    t: StudioTranslate<"notificationCenter">
+): ColumnDef<queryBasedVirtualBulkOperationItem>[] {
+    return [
+        dateColumn(t),
+        durationColumn(t),
+        {
+            header: t("virtualOperations.processedDocuments"),
+            accessorKey: "totalItemsProcessed",
+            meta: { relativeWidth: 15 },
+        },
+        {
+            header: t("virtualOperations.collectionOrIndex"),
+            accessorKey: "indexOrCollectionUsed",
+            meta: { relativeWidth: 20 },
+        },
+        { header: t("fields.query"), accessorKey: "query", meta: { relativeWidth: 33 } },
+    ];
+}
 
-const queryBasedFailureColumns: ColumnDef<queryBasedVirtualBulkOperationFailureItem>[] = [
-    dateColumn(),
-    durationColumn(),
-    { header: "Query", accessorKey: "query", meta: { relativeWidth: 25 } },
-    { header: "Error message", accessorKey: "errorMsg", meta: { relativeWidth: 18 } },
-    { header: "Error", accessorKey: "error", meta: { relativeWidth: 25 } },
-];
+function getQueryBasedFailureColumns(
+    t: StudioTranslate<"notificationCenter">
+): ColumnDef<queryBasedVirtualBulkOperationFailureItem>[] {
+    return [
+        dateColumn(t),
+        durationColumn(t),
+        { header: t("fields.query"), accessorKey: "query", meta: { relativeWidth: 25 } },
+        { header: t("fields.errorMessage"), accessorKey: "errorMsg", meta: { relativeWidth: 18 } },
+        { header: t("fields.error"), accessorKey: "error", meta: { relativeWidth: 25 } },
+    ];
+}
 
 export function VirtualBulkInsertDetails(props: NotificationDetailsProps<virtualBulkInsert>) {
-    return <VirtualOperationDetails {...props} title="Bulk inserts - inserted items" columns={bulkInsertColumns} />;
+    const t = useStudioTranslation("notificationCenter");
+    const columns = useMemo(() => getBulkInsertColumns(t), [t]);
+
+    return <VirtualOperationDetails {...props} title={t("virtualOperations.bulkInsertTitle")} columns={columns} />;
 }
 
 export function VirtualBulkInsertFailuresDetails(props: NotificationDetailsProps<virtualBulkInsertFailures>) {
-    return <VirtualOperationDetails {...props} title="Bulk inserts - failures" columns={bulkInsertFailureColumns} />;
+    const t = useStudioTranslation("notificationCenter");
+    const columns = useMemo(() => getBulkInsertFailureColumns(t), [t]);
+
+    return (
+        <VirtualOperationDetails {...props} title={t("virtualOperations.bulkInsertFailuresTitle")} columns={columns} />
+    );
 }
 
 export function VirtualUpdateByQueryDetails(props: NotificationDetailsProps<virtualUpdateByQuery>) {
-    return <VirtualOperationDetails {...props} title="Update by query" columns={queryBasedColumns} />;
+    const t = useStudioTranslation("notificationCenter");
+    const columns = useMemo(() => getQueryBasedColumns(t), [t]);
+
+    return <VirtualOperationDetails {...props} title={t("virtualOperations.updateByQueryTitle")} columns={columns} />;
 }
 
 export function VirtualUpdateByQueryFailuresDetails(props: NotificationDetailsProps<virtualUpdateByQueryFailures>) {
-    return <VirtualOperationDetails {...props} title="Update by query - failures" columns={queryBasedFailureColumns} />;
+    const t = useStudioTranslation("notificationCenter");
+    const columns = useMemo(() => getQueryBasedFailureColumns(t), [t]);
+
+    return (
+        <VirtualOperationDetails
+            {...props}
+            title={t("virtualOperations.updateByQueryFailuresTitle")}
+            columns={columns}
+        />
+    );
 }
 
 export function VirtualDeleteByQueryDetails(props: NotificationDetailsProps<virtualDeleteByQuery>) {
-    return <VirtualOperationDetails {...props} title="Delete by query" columns={queryBasedColumns} />;
+    const t = useStudioTranslation("notificationCenter");
+    const columns = useMemo(() => getQueryBasedColumns(t), [t]);
+
+    return <VirtualOperationDetails {...props} title={t("virtualOperations.deleteByQueryTitle")} columns={columns} />;
 }
 
 export function VirtualDeleteByQueryFailuresDetails(props: NotificationDetailsProps<virtualDeleteByQueryFailures>) {
-    return <VirtualOperationDetails {...props} title="Delete by query - failures" columns={queryBasedFailureColumns} />;
+    const t = useStudioTranslation("notificationCenter");
+    const columns = useMemo(() => getQueryBasedFailureColumns(t), [t]);
+
+    return (
+        <VirtualOperationDetails
+            {...props}
+            title={t("virtualOperations.deleteByQueryFailuresTitle")}
+            columns={columns}
+        />
+    );
 }

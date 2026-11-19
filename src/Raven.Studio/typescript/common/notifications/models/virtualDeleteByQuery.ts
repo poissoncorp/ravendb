@@ -1,8 +1,10 @@
 /// <reference path="../../../../typings/tsd.d.ts" />
 import database = require("models/resources/database");
-import pluralizeHelpers = require("common/helpers/text/pluralizeHelpers");
 import moment = require("moment");
 import groupedVirtualNotification = require("common/notifications/models/groupedVirtualNotification");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("notifications");
 
 class virtualDeleteByQuery extends groupedVirtualNotification<queryBasedVirtualBulkOperationItem> {
     
@@ -22,7 +24,7 @@ class virtualDeleteByQuery extends groupedVirtualNotification<queryBasedVirtualB
             Severity: null,
         });
         
-        this.title("Delete by query");
+        this.title(t("deleteByQuery.title"));
         this.severity("Success");
     }
     
@@ -56,8 +58,10 @@ class virtualDeleteByQuery extends groupedVirtualNotification<queryBasedVirtualB
             this.operations.unshift(item);
         }
         
-        this.message(pluralizeHelpers.pluralize(this.operations().length, "operation", "operations")
-            + " has been completed successfully. ");
+        const operationsCount = this.operations().length;
+        this.message(
+            t("deleteByQuery.completed", { count: operationsCount, formattedCount: operationsCount.toLocaleString() })
+        );
     }
 }
 

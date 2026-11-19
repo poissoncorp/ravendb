@@ -1,9 +1,11 @@
 /// <reference path="../../../../typings/tsd.d.ts" />
 import database = require("models/resources/database");
-import pluralizeHelpers = require("common/helpers/text/pluralizeHelpers");
 import moment = require("moment");
 import groupedVirtualNotification = require("common/notifications/models/groupedVirtualNotification");
 import typeUtils = require("common/typeUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("notifications");
 
 class virtualBulkInsert extends groupedVirtualNotification<virtualBulkOperationItem> {
     
@@ -23,7 +25,7 @@ class virtualBulkInsert extends groupedVirtualNotification<virtualBulkOperationI
             Severity: null,
         });
         
-        this.title("Bulk inserts");
+        this.title(t("bulkInsert.title"));
         this.severity("Success");
     }
     
@@ -54,10 +56,19 @@ class virtualBulkInsert extends groupedVirtualNotification<virtualBulkOperationI
         }
         
         const totalItemsCount = typeUtils.sumBy(this.operations(), x => x.totalItemsProcessed);
-        this.message(pluralizeHelpers.pluralize(this.operations().length, "bulk insert", "bulk inserts")
-            + " to database " + this.databaseName
-            + " completed successfully. "
-            + pluralizeHelpers.pluralize(totalItemsCount, " item was inserted.", "items were inserted.") );
+        const operationsCount = this.operations().length;
+        this.message(
+            t("bulkInsert.completed", {
+                count: operationsCount,
+                formattedCount: operationsCount.toLocaleString(),
+                databaseName: this.databaseName,
+            }) +
+                " " +
+                t("bulkInsert.itemsInserted", {
+                    count: totalItemsCount,
+                    formattedCount: totalItemsCount.toLocaleString(),
+                })
+        );
     }
 }
 

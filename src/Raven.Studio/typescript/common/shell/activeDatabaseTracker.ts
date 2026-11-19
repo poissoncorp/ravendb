@@ -4,6 +4,9 @@ import router = require("plugins/router");
 import messagePublisher = require("common/messagePublisher");
 import databaseSettings = require("common/settings/databaseSettings");
 import studioSettings = require("common/settings/studioSettings");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("shellCommon");
 
 interface databaseActivation {
     db: database;
@@ -34,10 +37,10 @@ class activeDatabaseTracker {
                     messagePublisher.reportWarning("Database " + e.databaseName + " was deleted");
                     router.navigate("#databases"); // don't use appUrl since it will create dependency cycle*/
                 } else if (e.cause === "DatabaseDisabled") {
-                    messagePublisher.reportWarning("Database " + e.databaseName + " was disabled");
+                    messagePublisher.reportWarning(t("activeDatabase.disabled", { databaseName: e.databaseName }));
                     router.navigate("#databases"); // don't use appUrl since it will create dependency cycle
                 } else if (e.cause === "DatabaseIsNotRelevant") {
-                    messagePublisher.reportWarning("Database " + e.databaseName + " is not longer relevant on this node");
+                    messagePublisher.reportWarning(t("activeDatabase.notRelevant", { databaseName: e.databaseName }));
                     router.navigate("#databases"); // don't use appUrl since it will create dependency cycle
                 }
             }

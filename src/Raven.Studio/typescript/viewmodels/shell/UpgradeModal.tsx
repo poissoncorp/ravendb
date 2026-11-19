@@ -12,10 +12,13 @@ import { useAsync } from "react-async-hook";
 import { useServices } from "components/hooks/useServices";
 import registration from "viewmodels/shell/registration";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 const upgradeLicenseImg = require("Content/img/upgrade-license.svg");
 
 export default function UpgradeModal(props: { close: () => void }) {
+    const t = useStudioTranslation("studioShell");
     const downloadLink = useRavenLink({ hash: "44DYH5", isDocs: false });
 
     const upgradeRequired = useAppSelector(licenseSelectors.statusValue("UpgradeRequired"));
@@ -54,32 +57,39 @@ export default function UpgradeModal(props: { close: () => void }) {
                 onCloseClick={props.close}
             >
                 <div className="d-flex justify-content-center">
-                    <img src={upgradeLicenseImg} alt="Upgrade license" width="120" />
+                    <img src={upgradeLicenseImg} alt={t("upgradeModal.imageAlt")} width="120" />
                 </div>
-                <h3 className="text-warning text-center mb-0">It&apos;s time to upgrade!</h3>
+                <h3 className="text-warning text-center mb-0">{t("upgradeModal.title")}</h3>
             </Modal.Header>
             <Modal.Body>
                 <p className="text-center mb-0">
-                    Your server is running version <strong>{productVersion}</strong> while the latest version is{" "}
-                    <strong>{latestVersion}</strong>.
-                    <br />
-                    In order to continue using RavenDB please upgrade your server to the latest available version.
+                    <StudioTrans
+                        ns="studioShell"
+                        i18nKey="upgradeModal.versionInfo"
+                        options={{ productVersion, latestVersion }}
+                        components={{ strong: <strong />, br: <br /> }}
+                    />
                     {upgradeRequired.AllowDismiss && upgradeRequired.AllowDismissUntil && (
                         <>
                             <br />
                             <br />
                             <span className="text-muted">
-                                You can dismiss this message until {allowDismissUntilUtc.format(dateFormat)} UTC
+                                {t("upgradeModal.dismissUntil", { date: allowDismissUntilUtc.format(dateFormat) })}
                                 <PopoverWithHoverWrapper
-                                    message={`${allowDismissUntilUtc.local().format(dateFormat)} your local time`}
+                                    message={t("upgradeModal.localTime", {
+                                        date: allowDismissUntilUtc.local().format(dateFormat),
+                                    })}
                                 >
                                     <Icon icon="info" color="info" margin="ms-1" />
                                 </PopoverWithHoverWrapper>
                             </span>
                             <br />
                             <span className="text-muted">
-                                Afterwards the <strong>RavenDB Studio</strong> will be{" "}
-                                <strong className="text-danger">blocked</strong>.
+                                <StudioTrans
+                                    ns="studioShell"
+                                    i18nKey="upgradeModal.blockedWarning"
+                                    components={{ strong: <strong />, danger: <strong className="text-danger" /> }}
+                                />
                             </span>
                         </>
                     )}
@@ -90,8 +100,8 @@ export default function UpgradeModal(props: { close: () => void }) {
                     target="replace-license-btn"
                     operationEnabledInConfiguration={canActivate}
                     hasPrivileges={isClusterAdminOrClusterNode}
-                    operationAction="Replace the current license with another"
-                    operationTitle="Replacing license"
+                    operationAction={t("upgradeModal.replaceAction")}
+                    operationTitle={t("upgradeModal.replaceTitle")}
                 >
                     <span>
                         <Button
@@ -100,13 +110,13 @@ export default function UpgradeModal(props: { close: () => void }) {
                             onClick={registerLicense}
                             disabled={!isReplaceLicenseEnabled}
                         >
-                            <Icon icon="replace" /> Replace
+                            <Icon icon="replace" /> {t("upgradeModal.replace")}
                         </Button>
                     </span>
                 </LicenseTooltip>
                 <a href={downloadLink} target="_blank" className="btn btn-warning rounded-pill">
                     <Icon icon="download" />
-                    Download now
+                    {t("upgradeModal.downloadNow")}
                 </a>
             </Modal.Footer>
         </Modal>

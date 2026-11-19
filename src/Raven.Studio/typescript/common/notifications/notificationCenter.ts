@@ -43,6 +43,9 @@ import studioSettings = require("common/settings/studioSettings");
 import optimizeIndexDetails = require("viewmodels/common/notificationCenter/detailViewer/operations/optimizeIndexDetails");
 import groupedVirtualNotification = require("common/notifications/models/groupedVirtualNotification");
 import typeUtils = require("common/typeUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("notifications");
 
 interface detailsProvider {
     supportsDetailsFor(notification: abstractNotification): boolean;
@@ -444,7 +447,7 @@ class notificationCenter {
     }
 
     killAttachmentUpload(upload: attachmentUpload) {
-        return viewHelpers.confirmationMessage("Are you sure?", "Do you want to abort attachment upload?", {
+        return viewHelpers.confirmationMessage(t("abortConfirm.title"), t("abortConfirm.attachmentUpload"), {
             forceRejectWithResolve: true
         })
             .done((result: confirmDialogResult) => {
@@ -458,7 +461,7 @@ class notificationCenter {
     }
     
     killOperation(operationToKill: operation) {
-        return viewHelpers.confirmationMessage("Are you sure?", "Do you want to abort current operation?", {
+        return viewHelpers.confirmationMessage(t("abortConfirm.title"), t("abortConfirm.operation"), {
             forceRejectWithResolve: true
         })
             .done((result: confirmDialogResult) => {

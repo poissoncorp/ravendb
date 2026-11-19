@@ -29,11 +29,16 @@ import BackupResult = Raven.Client.Documents.Operations.Backups.BackupResult;
 import timeAwareEWMA = require("viewmodels/common/timeAwareEWMA");
 import ImportResultModal = require("components/pages/database/tasks/importData/importFromFile/ImportResultModal");
 import OperationExceptionResult = Raven.Client.Documents.Operations.OperationExceptionResult;
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("smugglerDatabaseDetails");
+const commonT = i18nModule.createTranslator("common");
 
 type smugglerListItemStatus = "processed" | "skipped" | "processing" | "pending" | "processedWithErrors";
 
 type smugglerListItem = {
     name: string;
+    label: string;
     stage: smugglerListItemStatus;
     hasReadCount: boolean;
     readCount: string;
@@ -250,7 +255,7 @@ class smugglerDatabaseDetails extends abstractOperationDetails {
 
                 // skip it this case means it is not backup progress object or it is backup of non-binary data
                 if (backupCount && backupCount.Skipped) {
-                    result.push(this.mapToExportListItem("Backed up files", backupCount));
+                    result.push(this.mapToExportListItem("backedUpFiles", t("items.backedUpFiles"), backupCount));
                 }
             }
 
@@ -259,41 +264,41 @@ class smugglerDatabaseDetails extends abstractOperationDetails {
 
                 // skip it this case means it is not restore progress object or it is restore of non-binary data 
                 if (restoreCounts && restoreCounts.Skipped) {
-                    result.push(this.mapToExportListItem("Preparing restore", restoreCounts));
+                    result.push(this.mapToExportListItem("preparingRestore", t("items.preparingRestore"), restoreCounts));
                 }
             }
 
             const isDatabaseMigration = this.op.taskType() === "DatabaseMigration";
 
             if (this.op.taskType() === "CollectionImportFromCsv" || isDatabaseMigration) {
-                result.push(this.mapToExportListItem("Documents", status.Documents));
+                result.push(this.mapToExportListItem("documents", t("items.documents"), status.Documents));
                 if (isDatabaseMigration) {
                     const attachments = (status.Documents as CountsWithLastEtagAndAttachments).Attachments;
-                    result.push(this.mapToExportListItem("Attachments", attachments, true));
+                    result.push(this.mapToExportListItem("attachments", t("items.attachments"), attachments, true));
                 }
             } else {
-                result.push(this.mapToExportListItem("Database Record", status.DatabaseRecord));
-                result.push(this.mapToExportListItem("Documents", status.Documents));
+                result.push(this.mapToExportListItem("databaseRecord", t("items.databaseRecord"), status.DatabaseRecord));
+                result.push(this.mapToExportListItem("documents", t("items.documents"), status.Documents));
 
                 const attachments = (status.Documents as CountsWithLastEtagAndAttachments).Attachments;
-                result.push(this.mapToExportListItem("Attachments", attachments, true));
+                result.push(this.mapToExportListItem("attachments", t("items.attachments"), attachments, true));
 
-                result.push(this.mapToExportListItem("Counters", status.Counters, true));
-                result.push(this.mapToExportListItem("TimeSeries", status.TimeSeries, true));
+                result.push(this.mapToExportListItem("counters", t("items.counters"), status.Counters, true));
+                result.push(this.mapToExportListItem("timeSeries", t("items.timeSeries"), status.TimeSeries, true));
 
-                result.push(this.mapToExportListItem("Revisions", status.RevisionDocuments));
+                result.push(this.mapToExportListItem("revisions", t("items.revisions"), status.RevisionDocuments));
                 const revisionsAttachments = (status.RevisionDocuments as CountsWithLastEtagAndAttachments).Attachments;
-                result.push(this.mapToExportListItem("Attachments", revisionsAttachments, true));
+                result.push(this.mapToExportListItem("attachments", t("items.attachments"), revisionsAttachments, true));
 
-                result.push(this.mapToExportListItem("Conflicts", status.Conflicts));
-                result.push(this.mapToExportListItem("Indexes", status.Indexes));
-                result.push(this.mapToExportListItem("Identities", status.Identities));
-                result.push(this.mapToExportListItem("Compare Exchange", status.CompareExchange));
+                result.push(this.mapToExportListItem("conflicts", t("items.conflicts"), status.Conflicts));
+                result.push(this.mapToExportListItem("indexes", t("items.indexes"), status.Indexes));
+                result.push(this.mapToExportListItem("identities", t("items.identities"), status.Identities));
+                result.push(this.mapToExportListItem("compareExchange", t("items.compareExchange"), status.CompareExchange));
 
-                result.push(this.mapToExportListItem("Subscriptions", status.Subscriptions));
+                result.push(this.mapToExportListItem("subscriptions", t("items.subscriptions"), status.Subscriptions));
 
                 if (status.TimeSeriesDeletedRanges) {
-                    result.push(this.mapToExportListItem("Time Series Deleted Ranges", status.TimeSeriesDeletedRanges));
+                    result.push(this.mapToExportListItem("timeSeriesDeletedRanges", t("items.timeSeriesDeletedRanges"), status.TimeSeriesDeletedRanges));
                 }
             }
 
@@ -431,9 +436,17 @@ class smugglerDatabaseDetails extends abstractOperationDetails {
             backupStatus.UploadProgress.BytesPutsPerSec);
 
         return {
-            name: `Upload to ${backupType}`,
+            name: t("uploadTo", { destination: backupType }),
             uploadProgress: uploadProgress
         };
+    }
+
+    delayBackupHoursLabel(count: number) {
+        return t("delayBackup.hours", { count });
+    }
+
+    delayBackupDaysLabel(count: number) {
+        return t("delayBackup.days", { count });
     }
 
     delayBackup(duration: string) {
@@ -445,8 +458,8 @@ class smugglerDatabaseDetails extends abstractOperationDetails {
 
         const durationFormatted = generalUtils.formatTimeSpan(duration, true);
 
-        viewHelpers.confirmationMessage("Delay backup", "Do you want to delay backup by " + durationFormatted + "?", {
-            buttons: ["Cancel", "Delay"]
+        viewHelpers.confirmationMessage(t("delayBackup.confirmTitle"), t("delayBackup.confirmMessage", { duration: durationFormatted }), {
+            buttons: [commonT("cancel"), t("delayBackup.confirm")]
         })
             .done(result => {
                 if (result.can) {
@@ -508,7 +521,7 @@ class smugglerDatabaseDetails extends abstractOperationDetails {
         }));
     }
 
-    private mapToExportListItem(name: string, item: Counts, isNested = false): smugglerListItem {
+    private mapToExportListItem(name: string, label: string, item: Counts, isNested = false): smugglerListItem {
         if (!item) {
             return null;
         }
@@ -554,6 +567,7 @@ class smugglerDatabaseDetails extends abstractOperationDetails {
 
         return {
             name: name,
+            label: label,
             stage: stage,
             hasReadCount: true, // it will be reassigned in post-processing
             readCount: item.ReadCount.toLocaleString(),
@@ -574,7 +588,7 @@ class smugglerDatabaseDetails extends abstractOperationDetails {
     }
 
     private static showSpeed(name: string) {
-        return name === "Documents" || name === "Revisions" || name === "Counters" || name === "TimeSeries";
+        return name === "documents" || name === "revisions" || name === "counters" || name === "timeSeries";
     }
 
     static supportsDetailsFor(notification: abstractNotification) {
@@ -662,7 +676,7 @@ class smugglerDatabaseDetails extends abstractOperationDetails {
 
     copyLogs() {
         const dialogContainer = document.getElementById("exportModal");
-        copyToClipboard.copy(this.messagesJoined(), "Copied details to clipboard.", dialogContainer);
+        copyToClipboard.copy(this.messagesJoined(), t("detailsCopied"), dialogContainer);
     }
 }
 

@@ -22,6 +22,9 @@ import RevisionsBinCleaner = require("components/pages/database/settings/revisio
 import RemoteAttachments = require("components/pages/database/settings/remoteAttachments/RemoteAttachments");
 import DocumentSchema = require("components/pages/database/settings/documentSchema/DocumentSchema");
 import DocumentSchemaPlayground = require("components/pages/database/settings/documentSchema/partials/DocumentSchemaPlayground");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("menu");
 
 export = getSettingsMenuItem;
 
@@ -32,7 +35,7 @@ function getSettingsMenuItem(appUrls: computedAppUrls) {
             route: 'databases/settings/databaseSettings',
             moduleId: require('viewmodels/database/settings/databaseSettings'),
             shardingMode: "allShards",
-            title: 'Database Settings',
+            title: t("settings.databaseSettings"),
             nav: true,
             css: 'icon-database-settings',
             dynamicHash: appUrls.databaseSettings,
@@ -41,7 +44,7 @@ function getSettingsMenuItem(appUrls: computedAppUrls) {
         new leafMenuItem({
             route: 'databases/settings/connectionStrings',
             moduleId: reactUtils.bridgeToReact(ConnectionStrings.default, "nonShardedView"),
-            title: "Connection Strings",
+            title: t("settings.connectionStrings.title"),
             nav: true,
             css: 'icon-manage-connection-strings',
             dynamicHash: appUrls.connectionStrings,
@@ -49,9 +52,9 @@ function getSettingsMenuItem(appUrls: computedAppUrls) {
             search: {
                 innerActions: [
                     {
-                        name: "Add New Connection String",
+                        name: t("settings.connectionStrings.addNew"),
                         alternativeNames: [
-                            "Create Connection String",
+                            t("settings.connectionStrings.create"),
                             "RavenDB",
                             "SQL",
                             "Snowflake",
@@ -62,11 +65,11 @@ function getSettingsMenuItem(appUrls: computedAppUrls) {
                         ],
                     },
                     {
-                        name: "Delete connection string",
-                        alternativeNames: ["Remove connection string"]
+                        name: t("settings.connectionStrings.delete"),
+                        alternativeNames: [t("settings.connectionStrings.remove")]
                     },
-                    { name: "Edit connection string" },
-                    { name: "Test connection string" },
+                    { name: t("settings.connectionStrings.edit") },
+                    { name: t("settings.connectionStrings.test") },
                 ],
             },
         }),
@@ -74,7 +77,7 @@ function getSettingsMenuItem(appUrls: computedAppUrls) {
             route: 'databases/settings/conflictResolution',
             moduleId: reactUtils.bridgeToReact(ConflictResolution.default, "nonShardedView"),
             shardingMode: "allShards",
-            title: "Conflict Resolution",
+            title: t("settings.conflictResolution"),
             nav: true,
             css: 'icon-conflicts-resolution',
             dynamicHash: appUrls.conflictResolution,
@@ -84,15 +87,15 @@ function getSettingsMenuItem(appUrls: computedAppUrls) {
             moduleId: reactUtils.bridgeToReact(ClientDatabaseConfiguration.default, "nonShardedView"),
             search: {
                 innerActions: [
-                    { name: "Identity Parts Separator" },
-                    { name: "Maximum Number of Requests per Session" },
-                    { name: "Load Balance Behavior" },
-                    { name: "Seed" },
-                    { name: "Read Balance Behavior" },
+                    { name: t("settings.clientConfiguration.identityPartsSeparator") },
+                    { name: t("settings.clientConfiguration.maxNumberOfRequestsPerSession") },
+                    { name: t("settings.clientConfiguration.loadBalanceBehavior") },
+                    { name: t("settings.clientConfiguration.seed") },
+                    { name: t("settings.clientConfiguration.readBalanceBehavior") },
                 ],
             },
             shardingMode: "allShards",
-            title: 'Client Configuration',
+            title: t("settings.clientConfiguration.title"),
             nav: true,
             css: 'icon-database-client-configuration',
             dynamicHash: appUrls.clientConfiguration,
@@ -102,13 +105,13 @@ function getSettingsMenuItem(appUrls: computedAppUrls) {
             route: 'databases/settings/studioConfiguration',
             search: {
                 innerActions: [
-                    { name: "Database Environment" },
-                    { name: "Disable Creating New Auto-Indexes" }
+                    { name: t("settings.studioConfiguration.databaseEnvironment") },
+                    { name: t("settings.studioConfiguration.disableCreatingNewAutoIndexes") }
                 ],
             },
             moduleId: reactUtils.bridgeToReact(StudioDatabaseConfiguration.default, "nonShardedView"),
             shardingMode: "allShards",
-            title: 'Studio Configuration',
+            title: t("settings.studioConfiguration.title"),
             nav: true,
             css: 'icon-database-studio-configuration',
             dynamicHash: appUrls.studioConfiguration,
@@ -118,15 +121,15 @@ function getSettingsMenuItem(appUrls: computedAppUrls) {
             route: 'databases/settings/refresh',
             moduleId: reactUtils.bridgeToReact(DocumentRefresh.default, "nonShardedView"),
             shardingMode: "allShards",
-            title: 'Document Refresh',
+            title: t("settings.documentRefresh.title"),
             nav: true,
             css: 'icon-expos-refresh',
             dynamicHash: appUrls.refresh,
             requiredAccess: "DatabaseAdmin",
             search: {
                 innerActions: [
-                    { name: "Enable Document Refresh" },
-                    { name: "Set custom refresh frequency" },
+                    { name: t("settings.documentRefresh.enable") },
+                    { name: t("settings.documentRefresh.setCustomFrequency") },
                 ],
             },
         }),
@@ -134,15 +137,15 @@ function getSettingsMenuItem(appUrls: computedAppUrls) {
             route: 'databases/settings/expiration',
             moduleId: reactUtils.bridgeToReact(DocumentExpiration.default, "nonShardedView"),
             shardingMode: "allShards",
-            title: 'Document Expiration',
+            title: t("settings.documentExpiration.title"),
             nav: true,
             css: 'icon-document-expiration',
             dynamicHash: appUrls.expiration,
             requiredAccess: "DatabaseAdmin",
             search: {
                 innerActions: [
-                    { name: "Enable Document Expiration" },
-                    { name: "Set custom expiration frequency" },
+                    { name: t("settings.documentExpiration.enable") },
+                    { name: t("settings.documentExpiration.setCustomFrequency") },
                 ],
             },
         }),
@@ -150,13 +153,13 @@ function getSettingsMenuItem(appUrls: computedAppUrls) {
             route: 'databases/settings/documentsCompression',
             moduleId: reactUtils.bridgeToReact(DocumentCompression.default, "nonShardedView"),
             shardingMode: "allShards",
-            title: 'Document Compression',
+            title: t("settings.documentCompression.title"),
             nav: true,
             css: 'icon-documents-compression',
             dynamicHash: appUrls.documentsCompression,
             search: {
                 innerActions: [
-                    { name: "Compress revisions for all collections" },
+                    { name: t("settings.documentCompression.compressAllRevisions") },
                 ],
             },
         }),
@@ -164,7 +167,7 @@ function getSettingsMenuItem(appUrls: computedAppUrls) {
             route: 'databases/settings/documentSchema',
             moduleId: reactUtils.bridgeToReact(DocumentSchema.default, "nonShardedView"),
             shardingMode: "allShards",
-            title: 'Document Schema',
+            title: t("settings.documentSchema"),
             nav: true,
             requiredAccess: "DatabaseAdmin",
             css: 'icon-document-schema',
@@ -173,7 +176,7 @@ function getSettingsMenuItem(appUrls: computedAppUrls) {
         new leafMenuItem({
             route: 'databases/settings/documentSchema/playground',
             moduleId: reactUtils.bridgeToReact(DocumentSchemaPlayground.default, "nonShardedView"),
-            title: 'Document Schema Playground',
+            title: t("settings.documentSchemaPlayground"),
             nav: false,
             css: 'icon-document',
             dynamicHash: appUrls.documentSchemaPlayground,
@@ -184,15 +187,15 @@ function getSettingsMenuItem(appUrls: computedAppUrls) {
             route: 'databases/settings/revisions',
             moduleId: reactUtils.bridgeToReact(DocumentRevisions.default, "nonShardedView"),
             shardingMode: "allShards",
-            title: 'Document Revisions',
+            title: t("settings.documentRevisions.title"),
             search: {
                 innerActions: [
-                    { name: "Enforce Revisions Configuration" },
-                    { name: "Add New Revision Configuration", alternativeNames: ["Create Revision Configuration"] },
-                    { name: "Delete Revision Configuration", alternativeNames: ["Remove Revision Configuration"] },
-                    { name: "Edit Revision Configuration" },
-                    { name: "Enable Revision Configuration" },
-                    { name: "Disable Revision Configuration" },
+                    { name: t("settings.documentRevisions.enforceConfiguration") },
+                    { name: t("settings.documentRevisions.addNew"), alternativeNames: [t("settings.documentRevisions.create")] },
+                    { name: t("settings.documentRevisions.delete"), alternativeNames: [t("settings.documentRevisions.remove")] },
+                    { name: t("settings.documentRevisions.edit") },
+                    { name: t("settings.documentRevisions.enable") },
+                    { name: t("settings.documentRevisions.disable") },
                 ],
             },
             nav: true,
@@ -203,15 +206,15 @@ function getSettingsMenuItem(appUrls: computedAppUrls) {
             route: 'databases/settings/revisionsBinCleaner',
             moduleId: reactUtils.bridgeToReact(RevisionsBinCleaner.default, "nonShardedView"),
             shardingMode: "allShards",
-            title: 'Revisions Bin Cleaner',
+            title: t("settings.revisionsBinCleaner.title"),
             nav: true,
             css: 'icon-revisions-bin',
             dynamicHash: appUrls.revisionsBinCleaner,
             search: {
                 innerActions: [
-                    { name: "Set automatic revision bin configuration" },
-                    { name: "Configure retention policies" },
-                    { name: "View current revisions bin configuration" },
+                    { name: t("settings.revisionsBinCleaner.setAutomaticConfiguration") },
+                    { name: t("settings.revisionsBinCleaner.configureRetentionPolicies") },
+                    { name: t("settings.revisionsBinCleaner.viewCurrentConfiguration") },
                 ],
             },
         }),
@@ -219,7 +222,7 @@ function getSettingsMenuItem(appUrls: computedAppUrls) {
             route: 'databases/settings/revertRevisions',
             moduleId: reactUtils.bridgeToReact(RevertRevisions.default, "nonShardedView"),
             shardingMode: "allShards",
-            title: 'Revert Revisions',
+            title: t("settings.revertRevisions"),
             nav: false,
             css: 'icon-revert-revisions',
             dynamicHash: appUrls.revertRevisions,
@@ -229,15 +232,15 @@ function getSettingsMenuItem(appUrls: computedAppUrls) {
             route: 'databases/settings/dataArchival',
             moduleId: reactUtils.bridgeToReact(DataArchival.default, "nonShardedView"),
             shardingMode: "allShards",
-            title: 'Data Archival',
+            title: t("settings.dataArchival.title"),
             nav: true,
             css: 'icon-data-archival',
             dynamicHash: appUrls.dataArchival,
             requiredAccess: "DatabaseAdmin",
             search: {
                 innerActions: [
-                    { name: "Enable Data Archival" },
-                    { name: "Set custom archival frequency" },
+                    { name: t("settings.dataArchival.enable") },
+                    { name: t("settings.dataArchival.setCustomFrequency") },
                 ],
             },
         }),
@@ -245,7 +248,7 @@ function getSettingsMenuItem(appUrls: computedAppUrls) {
             route: 'databases/settings/remoteAttachments',
             moduleId: reactUtils.bridgeToReact(RemoteAttachments.default, 'nonShardedView'),
             shardingMode: "allShards",
-            title: "Remote Attachments",
+            title: t("settings.remoteAttachments.title"),
             nav: true,
             css: "icon-remote-attachment",
             dynamicHash: appUrls.remoteAttachments,
@@ -253,16 +256,16 @@ function getSettingsMenuItem(appUrls: computedAppUrls) {
             search: {
                 innerActions: [
                     {
-                        name: "Enable Remote Attachments",
-                        alternativeNames: ["Turn on Remote Attachments", "Activate Remote Attachments"]
+                        name: t("settings.remoteAttachments.enable"),
+                        alternativeNames: [t("settings.remoteAttachments.turnOn"), t("settings.remoteAttachments.activate")]
                     },
                     {
-                        name: "Add New destination",
-                        alternativeNames: ["Create destination", "Add Remote destination", "New Attachment destination"]
+                        name: t("settings.remoteAttachments.addNewDestination"),
+                        alternativeNames: [t("settings.remoteAttachments.createDestination"), t("settings.remoteAttachments.addRemoteDestination"), t("settings.remoteAttachments.newAttachmentDestination")]
                     },
                     {
-                        name: "Delete destination",
-                        alternativeNames: ["Remove destination", "Remote remote destination", "Delete remote attachment"]
+                        name: t("settings.remoteAttachments.deleteDestination"),
+                        alternativeNames: [t("settings.remoteAttachments.removeDestination"), t("settings.remoteAttachments.removeRemoteDestination"), t("settings.remoteAttachments.deleteRemoteAttachment")]
                     },
                 ],
             },
@@ -271,35 +274,35 @@ function getSettingsMenuItem(appUrls: computedAppUrls) {
             route: 'databases/settings/timeSeries',
             moduleId: require('viewmodels/database/settings/timeSeries'),
             shardingMode: "allShards",
-            title: 'Time Series',
+            title: t("settings.timeSeries.title"),
             nav: true, 
             css: 'icon-timeseries-settings',
             dynamicHash: appUrls.timeSeries,
             search: {
                 innerActions: [
-                    { name: "Enable Time Series" },
-                    { name: "Disable Time Series" },
-                    { name: "Policy Check Frequency" },
-                    { name: "Delete Time Series", alternativeNames: ["Remove Time Series"] },
-                    { name: "Edit Time Series" },
-                    { name: "Add New Collection Specific Configuration", alternativeNames: ["Create Collection Specific Configuration"] },
+                    { name: t("settings.timeSeries.enable") },
+                    { name: t("settings.timeSeries.disable") },
+                    { name: t("settings.timeSeries.policyCheckFrequency") },
+                    { name: t("settings.timeSeries.delete"), alternativeNames: [t("settings.timeSeries.remove")] },
+                    { name: t("settings.timeSeries.edit") },
+                    { name: t("settings.timeSeries.addNewCollectionConfiguration"), alternativeNames: [t("settings.timeSeries.createCollectionConfiguration")] },
                 ],
             },
         }),
         new leafMenuItem({
             route: 'databases/settings/customSorters',
             moduleId: reactUtils.bridgeToReact(DatabaseCustomSorters.default, "nonShardedView"),
-            title: 'Custom Sorters',
+            title: t("settings.customSorters.title"),
             shardingMode: "allShards",
             nav: true,
             css: 'icon-custom-sorters',
             dynamicHash: appUrls.customSorters,
             search: {
                 innerActions: [
-                    { name: "Add New Custom Sorter", alternativeNames: ["Create Custom Sorter"] },
-                    { name: "Delete custom sorter", alternativeNames: ["Remove Custom Sorter"] },
-                    { name: "Edit custom sorter" },
-                    { name: "Test custom sorter" },
+                    { name: t("settings.customSorters.addNew"), alternativeNames: [t("settings.customSorters.create")] },
+                    { name: t("settings.customSorters.delete"), alternativeNames: [t("settings.customSorters.remove")] },
+                    { name: t("settings.customSorters.edit") },
+                    { name: t("settings.customSorters.test") },
                 ],
             },
         }),
@@ -307,32 +310,32 @@ function getSettingsMenuItem(appUrls: computedAppUrls) {
             route: 'databases/settings/customAnalyzers',
             moduleId: reactUtils.bridgeToReact(DatabaseCustomAnalyzers.default, "nonShardedView"),
             shardingMode: "allShards",
-            title: 'Custom Analyzers',
+            title: t("settings.customAnalyzers.title"),
             nav: true,
             css: 'icon-custom-analyzers',
             dynamicHash: appUrls.customAnalyzers,
             search: {
                 innerActions: [
-                    { name: "Add New Custom Analyzer", alternativeNames: ["Create Custom Analyzer"] },
-                    { name: "Delete custom analyzer", alternativeNames: ["Remove Custom Analyzer"] },
-                    { name: "Edit custom analyzer" },
+                    { name: t("settings.customAnalyzers.addNew"), alternativeNames: [t("settings.customAnalyzers.create")] },
+                    { name: t("settings.customAnalyzers.delete"), alternativeNames: [t("settings.customAnalyzers.remove")] },
+                    { name: t("settings.customAnalyzers.edit") },
                 ],
             },
         }),
         new leafMenuItem({
             route: 'databases/manageDatabaseGroup',
             moduleId: reactUtils.bridgeToReact(ManageDatabaseGroupPage.ManageDatabaseGroupPage, "nonShardedView"),
-            title: 'Manage Database Group',
+            title: t("settings.manageDatabaseGroup.title"),
             nav: true,
             css: 'icon-manage-dbgroup',
             dynamicHash: appUrls.manageDatabaseGroup,
             search: {
                 innerActions: [
-                    { name: "Add node" },
-                    { name: "Reorder nodes" },
-                    { name: "Allow dynamic database distribution" },
-                    { name: "Add shard" },
-                    { name: "Delete from group", alternativeNames: ["Remove from group"] },
+                    { name: t("settings.manageDatabaseGroup.addNode") },
+                    { name: t("settings.manageDatabaseGroup.reorderNodes") },
+                    { name: t("settings.manageDatabaseGroup.allowDynamicDistribution") },
+                    { name: t("settings.manageDatabaseGroup.addShard") },
+                    { name: t("settings.manageDatabaseGroup.deleteFromGroup"), alternativeNames: [t("settings.manageDatabaseGroup.removeFromGroup")] },
                 ],
             },
         }),
@@ -340,26 +343,26 @@ function getSettingsMenuItem(appUrls: computedAppUrls) {
             route: 'databases/settings/integrations',
             moduleId: reactUtils.bridgeToReact(Integrations.default, "nonShardedView"),
             shardingMode: "allShards",
-            title: 'Integrations',
+            title: t("settings.integrations.title"),
             nav: true,
             css: 'icon-integrations',
             dynamicHash: appUrls.integrations,
             requiredAccess: "DatabaseAdmin",
             search: {
-                alternativeTitles: ["PostgreSQL protocol credentials"],
+                alternativeTitles: [t("settings.integrations.postgreSqlCredentials")],
                 innerActions: [
-                    { name: "Add New Credentials", alternativeNames: ["Create Credentials"] },
-                    { name: "Delete credentials", alternativeNames: ["Remove Credentials"] },
+                    { name: t("settings.integrations.addNewCredentials"), alternativeNames: [t("settings.integrations.createCredentials")] },
+                    { name: t("settings.integrations.deleteCredentials"), alternativeNames: [t("settings.integrations.removeCredentials")] },
                 ]
             }
         }),
         new separatorMenuItem(),
-        new separatorMenuItem('Advanced'),
+        new separatorMenuItem(t("settings.advanced")),
         new leafMenuItem({
             route: 'databases/advanced/databaseRecord',
             moduleId: reactUtils.bridgeToReact(DatabaseRecord.default, "nonShardedView"),
             shardingMode: "allShards",
-            title: 'Database Record',
+            title: t("settings.databaseRecord"),
             nav: true,
             css: 'icon-database-record',
             dynamicHash: appUrls.databaseRecord,
@@ -369,7 +372,7 @@ function getSettingsMenuItem(appUrls: computedAppUrls) {
             route: 'databases/advanced/databaseIDs',
             moduleId: reactUtils.bridgeToReact(UnusedDatabaseIds.default, "nonShardedView"),
             shardingMode: "allShards",
-            title: 'Unused Database IDs',
+            title: t("settings.unusedDatabaseIds"),
             nav: true,
             css: 'icon-database-id',
             dynamicHash: appUrls.databaseIDs,
@@ -377,5 +380,5 @@ function getSettingsMenuItem(appUrls: computedAppUrls) {
         })
     ];
 
-    return new intermediateMenuItem('Settings', settingsItems, 'icon-settings');
+    return new intermediateMenuItem(t("settings.title"), settingsItems, 'icon-settings');
 }

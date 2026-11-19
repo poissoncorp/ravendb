@@ -7,6 +7,9 @@ import notificationCenter = require("common/notifications/notificationCenter");
 import virtualDeleteByQuery = require("common/notifications/models/virtualDeleteByQuery");
 import virtualDeleteByQueryFailures = require("common/notifications/models/virtualDeleteByQueryFailures");
 import abstractOperationDetails = require("viewmodels/common/notificationCenter/detailViewer/operations/abstractOperationDetails");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("deleteDocumentsDetails");
 
 class deleteDocumentsDetails extends abstractOperationDetails {
 
@@ -24,8 +27,9 @@ class deleteDocumentsDetails extends abstractOperationDetails {
     constructor(op: operation, notificationCenter: notificationCenter) {
         super(op, notificationCenter);
         this.taskType = op.taskType();
-        this.deleteTypeName = this.taskType === "DeleteByCollection" ? "Collection" : this.taskType === "DeleteByQuery" ? "Index" :
-            "N/A";
+        this.deleteTypeName = t("typeLabel", {
+            context: this.taskType === "DeleteByCollection" ? "collection" : this.taskType === "DeleteByQuery" ? "index" : undefined,
+        });
 
         this.initObservables();
     }
@@ -55,7 +59,7 @@ class deleteDocumentsDetails extends abstractOperationDetails {
                 return "N/A";
             }
 
-            return `${processingSpeed.toLocaleString()} docs / sec`;
+            return t("docsPerSecond", { speed: processingSpeed.toLocaleString() });
         }).extend({ rateLimit : 2000 });
 
         this.estimatedTimeLeft = ko.pureComputed(() => {

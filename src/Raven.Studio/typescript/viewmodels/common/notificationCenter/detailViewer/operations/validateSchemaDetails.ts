@@ -8,6 +8,9 @@ import virtualGridController = require("widgets/virtualGrid/virtualGridControlle
 import columnPreviewPlugin = require("widgets/virtualGrid/columnPreviewPlugin");
 import textColumn = require("widgets/virtualGrid/columns/textColumn");
 import generalUtils = require("common/generalUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("validateSchemaDetails");
 
 type gridItem = {
     Id: string;
@@ -107,10 +110,10 @@ class validateSchemaDetails extends abstractOperationDetails {
             () => this.fetcher(),
             () => {
                 return [
-                    new textColumn<gridItem>(grid, (x) => x.Id, "Document ID", "30%", {
+                    new textColumn<gridItem>(grid, (x) => x.Id, t("columns.documentId"), "30%", {
                         sortable: "string",
                     }),
-                    new textColumn<gridItem>(grid, (x) => x.Message, "Error", "70%", {
+                    new textColumn<gridItem>(grid, (x) => x.Message, t("columns.error"), "70%", {
                         sortable: "string",
                     }),
                 ];

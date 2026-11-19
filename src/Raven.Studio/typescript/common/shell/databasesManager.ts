@@ -17,6 +17,9 @@ import getDatabasesForStudioCommand = require("commands/resources/getDatabasesFo
 import getDatabaseForStudioCommand = require("commands/resources/getDatabaseForStudioCommand");
 import StudioDatabaseInfo = Raven.Server.Web.System.Processors.Studio.StudioDatabasesHandlerForGetDatabases.StudioDatabaseInfo;
 import convertedIndexesToStaticStorage = require("common/storage/convertedIndexesToStaticStorage");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("shellCommon");
 
 class databasesManager {
 
@@ -102,17 +105,17 @@ class databasesManager {
                     .fail(() => task.reject());
 
             } else if (db && db.disabled()) {
-                messagePublisher.reportError(`${db.fullTypeName} '${db.name}' is disabled!`,
-                    `You can't access any section of the ${db.fullTypeName.toLowerCase()} while it's disabled.`, null, false);
+                messagePublisher.reportError(t("activation.disabledTitle", { databaseName: db.name }),
+                    t("activation.disabledDetails"), null, false);
                 task.resolve({ redirect: databasesListView });
                 return task;
             } else if (db && !db.relevant()) {
-                messagePublisher.reportError(`${db.fullTypeName} '${db.name}' is not relevant on this node!`,
-                    `You can't access any section of the ${db.fullTypeName.toLowerCase()} while it's not relevant.`, null, false);
+                messagePublisher.reportError(t("activation.notRelevantTitle", { databaseName: db.name }),
+                    t("activation.notRelevantDetails"), null, false);
                 task.resolve({ redirect: databasesListView });
                 return task;
             } else {
-                messagePublisher.reportError("The database " + dbName + " doesn't exist!", null, null, false);
+                messagePublisher.reportError(t("activation.notFound", { databaseName: dbName }), null, null, false);
                 task.resolve({ redirect: databasesListView });
                 return task;
             }

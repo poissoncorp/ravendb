@@ -20,6 +20,7 @@ import { Icon } from "components/common/Icon";
 import copyToClipboard from "common/copyToClipboard";
 import "./ChatbotMessages.scss";
 import classNames from "classnames";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 export default function ChatbotMessages() {
     const messagesRef = useRef<HTMLDivElement>(null);
@@ -106,6 +107,7 @@ function AgentMessage({ message }: AgentMessageProps) {
 
 function AgentMessageBody({ message }: AgentMessageProps) {
     const dispatch = useAppDispatch();
+    const t = useStudioTranslation("chatbot");
 
     const contentTypewriter = useTypewriter({
         text: message.content,
@@ -150,8 +152,8 @@ function AgentMessageBody({ message }: AgentMessageProps) {
                 {errorMessageId && (
                     <Button
                         variant="link"
-                        onClick={() => copyToClipboard.copy(errorMessageId, `Copied error ID to clipboard`)}
-                        title="Copy error ID"
+                        onClick={() => copyToClipboard.copy(errorMessageId, t("messages.copiedErrorId"))}
+                        title={t("messages.copyErrorId")}
                     >
                         <Icon icon="copy" />
                     </Button>
@@ -163,9 +165,9 @@ function AgentMessageBody({ message }: AgentMessageProps) {
     if (message.state === "Error") {
         return (
             <RichAlert variant="danger">
-                {message.errorMessage ?? "Failed to get response from AI Assistant."}{" "}
+                {message.errorMessage ?? t("messages.responseFailed")}{" "}
                 <Button variant="link" className="px-0" onClick={() => dispatch(chatbotActions.retryRunChat())}>
-                    Please try again
+                    {t("messages.tryAgain")}
                 </Button>
             </RichAlert>
         );
@@ -198,9 +200,13 @@ function AgentMessageBody({ message }: AgentMessageProps) {
                     />
                 </svg>
                 {message.thinkingTimeInMs != null ? (
-                    <span>Thought for {moment.duration(message.thinkingTimeInMs).asSeconds().toFixed(2)}s</span>
+                    <span>
+                        {t("messages.thoughtFor", {
+                            seconds: moment.duration(message.thinkingTimeInMs).asSeconds().toFixed(2),
+                        })}
+                    </span>
                 ) : (
-                    <TextShimmer>Thinking</TextShimmer>
+                    <TextShimmer>{t("messages.thinking")}</TextShimmer>
                 )}
             </div>
             <div className="pb-1">

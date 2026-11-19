@@ -8,8 +8,12 @@ import licenseModel from "models/auth/licenseModel";
 import classNames from "classnames";
 import { useRavenLink } from "hooks/useRavenLink";
 import { useServices } from "components/hooks/useServices";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import assertUnreachable from "components/utils/assertUnreachable";
 
 export function ContactSupportContent() {
+    const t = useStudioTranslation("chatbot");
     const license = useAppSelector(licenseSelectors.status);
     const licenseId = useAppSelector(licenseSelectors.statusValue("Id"));
     const isCloud = useAppSelector(licenseSelectors.statusValue("IsCloud"));
@@ -34,6 +38,25 @@ export function ContactSupportContent() {
     const requestSupportUrl = isCloud ? cloudRequestSupportUrl : onPremiseRequestSupportUrl;
     const termsUrl = isCloud ? cloudTermsUrl : onPremiseTermsUrl;
 
+    const getPlanLabel = () => {
+        if (isCloud && supportType === "Production") {
+            return t("contactSupport.cloudSupport");
+        }
+
+        switch (supportType) {
+            case "Production":
+                return t("contactSupport.plans.production");
+            case "Professional":
+                return t("contactSupport.plans.professional");
+            case "Partial":
+                return t("contactSupport.plans.partial");
+            case "Community":
+                return t("contactSupport.plans.community");
+            default:
+                return assertUnreachable(supportType);
+        }
+    };
+
     return (
         <>
             <ul className="action-menu__list">
@@ -42,22 +65,31 @@ export function ContactSupportContent() {
                         <span className="text-warning">
                             <Icon icon="warning" />
                             <small>
-                                Unable to reach the RavenDB License Server at <code>api.ravendb.net</code>
+                                <StudioTrans
+                                    ns="chatbot"
+                                    i18nKey="contactSupport.licenseServerUnreachable"
+                                    components={{ code: <code /> }}
+                                />
                             </small>
                         </span>
                     ) : (
                         <span>
-                            You are using{" "}
-                            <strong
-                                className={classNames(
-                                    { "text-professional": supportType === "Professional" },
-                                    { "text-enterprise": supportType === "Production" },
-                                    { "text-community": supportType === "Community" }
-                                )}
-                            >
-                                {isCloud && supportType === "Production" ? "Cloud Support" : supportType}
-                            </strong>{" "}
-                            plan
+                            <StudioTrans
+                                ns="chatbot"
+                                i18nKey="contactSupport.currentPlan"
+                                options={{ plan: getPlanLabel() }}
+                                components={{
+                                    strong: (
+                                        <strong
+                                            className={classNames(
+                                                { "text-professional": supportType === "Professional" },
+                                                { "text-enterprise": supportType === "Production" },
+                                                { "text-community": supportType === "Community" }
+                                            )}
+                                        />
+                                    ),
+                                }}
+                            />
                         </span>
                     )}
                 </p>
@@ -68,19 +100,21 @@ export function ContactSupportContent() {
                                 <Icon icon="clock" />
                                 <div className="d-flex flex-column">
                                     <span className="fw-bold lh-base">
-                                        {supportType === "Professional" ? "Next day SLA" : "2 hour SLA"}
+                                        {supportType === "Professional"
+                                            ? t("contactSupport.nextDaySla")
+                                            : t("contactSupport.twoHourSla")}
                                     </span>
                                     <small className="lh-1">
                                         {supportType === "Professional"
-                                            ? "Sun-Fri, Business Hours"
-                                            : "24/7 availability"}
+                                            ? t("contactSupport.businessHours")
+                                            : t("contactSupport.fullAvailability")}
                                     </small>
                                 </div>
                             </div>
                         )}
                         <a href={termsUrl} target="_blank" className="d-flex align-items-center gap-1 w-fit-content">
                             <Icon icon="terms" />
-                            Terms and conditions
+                            {t("contactSupport.termsAndConditions")}
                         </a>
                         <li
                             className={classNames(
@@ -88,29 +122,26 @@ export function ContactSupportContent() {
                                 isCloud ? "action-menu__list-item--cloud" : "action-menu__list-item--primary"
                             )}
                             role="button"
-                            title="Request support"
+                            title={t("contactSupport.requestSupport")}
                             onClick={() => window.open(requestSupportUrl, "_blank")}
                         >
                             <Icon icon="notifications" margin="m-0" />
-                            Request support
+                            {t("contactSupport.requestSupport")}
                             <FlexGrow />
                             <Icon icon="newtab" margin="m-0" />
                         </li>
                     </>
                 ) : (
                     <>
-                        <p className="m-0">
-                            Get fast and comprehensive help from fellow RavenDB users and developers in our community
-                            forum.
-                        </p>
+                        <p className="m-0">{t("contactSupport.communityHelp")}</p>
                         <li
                             className="action-menu__list-item action-menu__list-item--primary mt-1"
                             role="button"
-                            title="Go to GitHub discussions"
+                            title={t("helpAndResources.goToGithubDiscussions")}
                             onClick={() => window.open(gitHubDiscussionsUrl, "_blank")}
                         >
                             <Icon icon="github" margin="m-0" />
-                            GitHub Discussions
+                            {t("helpAndResources.githubDiscussions")}
                             <FlexGrow />
                             <Icon icon="newtab" margin="m-0" />
                         </li>
@@ -121,18 +152,20 @@ export function ContactSupportContent() {
             <div className="action-menu__footer">
                 <small className="lh-1">
                     <Icon icon="support" />
-                    Get more details on our{" "}
-                    <a href={supportPlansUrl} target="_blank">
-                        support plans
-                    </a>
+                    <StudioTrans
+                        ns="chatbot"
+                        i18nKey="contactSupport.supportPlans"
+                        components={{ a: <a href={supportPlansUrl} target="_blank" /> }}
+                    />
                 </small>
                 {isPaidSupport && !isSupportStatusHidden && (
                     <small className="lh-1 mt-1">
                         <Icon icon="community" />
-                        Join our{" "}
-                        <a href={communityUrl} target="_blank">
-                            Community
-                        </a>
+                        <StudioTrans
+                            ns="chatbot"
+                            i18nKey="helpAndResources.joinOurCommunity"
+                            components={{ a: <a href={communityUrl} target="_blank" /> }}
+                        />
                     </small>
                 )}
             </div>

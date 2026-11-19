@@ -3,6 +3,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import alert from "common/notifications/models/alert";
 import appUrl from "common/appUrl";
 import { useKnockoutValue } from "hooks/useKnockoutValue";
+import type { StudioTranslate } from "common/i18n/resources";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 import { NotificationDetailsProps } from "../notificationDetailsProvider";
 import { AlertDetailsModal } from "../NotificationDetailsModal";
 import { NotificationDetailsTable } from "../NotificationDetailsTable";
@@ -15,6 +17,7 @@ export default function BlockingTombstonesDetails({
     notification,
     actions,
 }: NotificationDetailsProps<alert<"BlockingTombstones">>) {
+    const t = useStudioTranslation("notificationCenter");
     const details = useKnockoutValue(notification.details);
     const blockers = useMemo(() => details.BlockingTombstones ?? [], [details]);
 
@@ -22,8 +25,12 @@ export default function BlockingTombstonesDetails({
         (): ColumnDef<BlockingTombstoneDetails>[] => [
             {
                 id: "Source",
-                header: "Blockage source",
-                accessorFn: (x) => `${getBlockerTypeDescription(x.BlockerType)} "${x.Source}"`,
+                header: t("blockingTombstones.source"),
+                accessorFn: (x) =>
+                    t("blockingTombstones.sourceName", {
+                        type: getBlockerTypeDescription(x.BlockerType, t),
+                        source: x.Source,
+                    }),
                 cell: ({ getValue, row }) => (
                     <a href={getSourceLink(row.original, notification.databaseName)} onClick={actions.close}>
                         {getValue() as string}
@@ -32,24 +39,27 @@ export default function BlockingTombstonesDetails({
                 meta: { relativeWidth: 40 },
             },
             {
-                header: "Collection",
+                header: t("blockingTombstones.collection"),
                 accessorKey: "Collection",
                 meta: { relativeWidth: 20 },
             },
             {
-                header: "Tombstones count",
+                header: t("blockingTombstones.tombstonesCount"),
                 accessorKey: "NumberOfTombstones",
                 meta: { relativeWidth: 20 },
             },
             {
-                header: "Size",
+                header: t("blockingTombstones.size"),
                 accessorKey: "SizeOfTombstonesInBytes",
                 cell: CellBytes,
                 size: columnSizes.bytes,
-                meta: { exportHeader: "Size (bytes)", filterPlaceholder: "e.g. > 5 MB" },
+                meta: {
+                    exportHeader: t("blockingTombstones.sizeExport"),
+                    filterPlaceholder: t("table.sizeFilterPlaceholder"),
+                },
             },
         ],
-        [notification, actions]
+        [notification, actions, t]
     );
 
     return (
@@ -58,19 +68,21 @@ export default function BlockingTombstonesDetails({
                 notification={notification}
                 data={blockers}
                 columns={columns}
-                itemName="source"
-                itemNamePlural="sources"
+                countKey="table.count.source"
             />
         </AlertDetailsModal>
     );
 }
 
-function getBlockerTypeDescription(type: TombstoneDeletionBlockerType): string {
+function getBlockerTypeDescription(
+    type: TombstoneDeletionBlockerType,
+    t: StudioTranslate<"notificationCenter">
+): string {
     switch (type) {
         case "RavenEtl":
             return "RavenDB ETL";
         case "ExternalReplication":
-            return "External Replication";
+            return t("blockingTombstones.blockerType.externalReplication");
         case "SqlEtl":
             return "SQL ETL";
         case "SnowflakeEtl":
@@ -80,11 +92,15 @@ function getBlockerTypeDescription(type: TombstoneDeletionBlockerType): string {
         case "ElasticSearchEtl":
             return "Elasticsearch ETL";
         case "PullReplicationAsHub":
-            return "Replication Hub";
+            return t("blockingTombstones.blockerType.replicationHub");
         case "PullReplicationAsSink":
-            return "Replication Sink";
+            return t("blockingTombstones.blockerType.replicationSink");
         case "QueueEtl":
-            return "Queue ETL";
+            return t("blockingTombstones.blockerType.queueEtl");
+        case "Index":
+            return t("blockingTombstones.blockerType.index");
+        case "Backup":
+            return t("blockingTombstones.blockerType.backup");
         default:
             return type;
     }

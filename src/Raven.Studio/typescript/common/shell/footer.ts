@@ -13,6 +13,9 @@ import clientCertificateModel = require("models/auth/clientCertificateModel");
 import viewHelpers = require("common/helpers/view/viewHelpers");
 import clusterNode = require("models/database/cluster/clusterNode");
 import clusterTopologyManager = require("common/shell/clusterTopologyManager");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("shellCommon");
 
 class footerStats {
     countOfDocuments = ko.observable<number>(0);
@@ -125,7 +128,7 @@ class footer {
     }
     
     logout() {
-        viewHelpers.confirmationMessage("Log out", "Are you sure you want to log out?")
+        viewHelpers.confirmationMessage(t("logout.title"), t("logout.confirmation"))
             .done(result => {
                 if (result.can) {
                     new forgotTwoFactorSecretCommand()

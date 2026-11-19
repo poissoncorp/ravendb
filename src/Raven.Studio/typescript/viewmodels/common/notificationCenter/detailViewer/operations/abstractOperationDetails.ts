@@ -6,6 +6,9 @@ import database = require("models/resources/database");
 import abstractNotification = require("common/notifications/models/abstractNotification");
 import moment = require("moment");
 import copyToClipboard = require("common/copyToClipboard");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("abstractOperationDetails");
 
 abstract class abstractOperationDetails extends dialogViewModelBase {
     
@@ -66,7 +69,7 @@ abstract class abstractOperationDetails extends dialogViewModelBase {
     copyErrorDetails(_: unknown, event: Event): void {
         const exceptionResult = this.op.result() as Raven.Client.Documents.Operations.OperationExceptionResult;
         const dialogContainer = (event.currentTarget as Element).closest(".modal-dialog");
-        copyToClipboard.copy(exceptionResult.Error, "Error has been copied to clipboard", dialogContainer);
+        copyToClipboard.copy(exceptionResult.Error, t("errorCopied"), dialogContainer);
     }
 
     protected calculateProcessingSpeed(processed: number): number {

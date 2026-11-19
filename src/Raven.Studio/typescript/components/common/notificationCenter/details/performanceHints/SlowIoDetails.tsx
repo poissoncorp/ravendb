@@ -2,6 +2,8 @@ import { useMemo } from "react";
 import { CellContext, ColumnDef } from "@tanstack/react-table";
 import performanceHint from "common/notifications/models/performanceHint";
 import { useKnockoutValue } from "hooks/useKnockoutValue";
+import type { StudioTranslate } from "common/i18n/resources";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 import { NotificationDetailsProps } from "../notificationDetailsProvider";
 import { PerformanceHintDetailsModal } from "../NotificationDetailsModal";
 import { NotificationDetailsTable } from "../NotificationDetailsTable";
@@ -9,32 +11,36 @@ import { CellWithFormattedValue, dateColumnOptions } from "../NotificationDetail
 
 type SlowWriteInfo = Raven.Server.NotificationCenter.Notifications.Details.SlowIoDetails.SlowWriteInfo;
 
-const columns: ColumnDef<SlowWriteInfo>[] = [
-    {
-        header: "Path",
-        accessorKey: "Path",
-        meta: { relativeWidth: 35 },
-    },
-    {
-        header: "Type",
-        accessorKey: "Type",
-        meta: { relativeWidth: 15 },
-    },
-    {
-        header: "Date",
-        accessorKey: "Date",
-        ...dateColumnOptions,
-    },
-    {
-        header: "Speed",
-        accessorKey: "SpeedInMbPerSec",
-        cell: CellSpeed,
-        meta: { relativeWidth: 30, exportHeader: "Speed (MB/s)" },
-    },
-];
+function getColumns(t: StudioTranslate<"notificationCenter">): ColumnDef<SlowWriteInfo>[] {
+    return [
+        {
+            header: t("slowIo.path"),
+            accessorKey: "Path",
+            meta: { relativeWidth: 35 },
+        },
+        {
+            header: t("fields.type"),
+            accessorKey: "Type",
+            meta: { relativeWidth: 15 },
+        },
+        {
+            header: t("fields.date"),
+            accessorKey: "Date",
+            ...dateColumnOptions,
+        },
+        {
+            header: t("slowIo.speed"),
+            accessorKey: "SpeedInMbPerSec",
+            cell: CellSpeed,
+            meta: { relativeWidth: 30, exportHeader: t("slowIo.speedExport") },
+        },
+    ];
+}
 
 export default function SlowIoDetails({ notification, actions }: NotificationDetailsProps<performanceHint<"SlowIO">>) {
+    const t = useStudioTranslation("notificationCenter");
     const details = useKnockoutValue(notification.details);
+    const columns = useMemo(() => getColumns(t), [t]);
 
     const writes = useMemo(() => Object.values(details.Writes ?? {}).reverse(), [details]);
 
@@ -44,16 +50,20 @@ export default function SlowIoDetails({ notification, actions }: NotificationDet
                 notification={notification}
                 data={writes}
                 columns={columns}
-                itemName="write"
-                itemNamePlural="writes"
+                countKey="table.count.write"
             />
         </PerformanceHintDetailsModal>
     );
 }
 
 function CellSpeed({ row }: Pick<CellContext<SlowWriteInfo, unknown>, "row">) {
+    const t = useStudioTranslation("notificationCenter");
     const { DataWrittenInMb, DurationInSec, SpeedInMbPerSec } = row.original;
-    const formattedSpeed = `${DataWrittenInMb.toFixed(2)} MB in ${DurationInSec.toFixed(2)} sec. (${SpeedInMbPerSec.toFixed(2)} MB/s)`;
+    const formattedSpeed = t("slowIo.speedValue", {
+        dataWritten: DataWrittenInMb.toFixed(2),
+        duration: DurationInSec.toFixed(2),
+        speed: SpeedInMbPerSec.toFixed(2),
+    });
 
     return <CellWithFormattedValue value={SpeedInMbPerSec} formattedValue={formattedSpeed} />;
 }

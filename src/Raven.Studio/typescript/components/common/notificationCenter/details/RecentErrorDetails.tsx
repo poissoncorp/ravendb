@@ -3,11 +3,13 @@ import recentError from "common/notifications/models/recentError";
 import Code from "components/common/Code";
 import { Icon } from "components/common/Icon";
 import { useKnockoutValue } from "hooks/useKnockoutValue";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 import { NotificationDetailsProps } from "./notificationDetailsProvider";
 import { NotificationDetailsModal } from "./NotificationDetailsModal";
 import { CloseButton, DetailsFooter, DismissButton } from "./NotificationDetailsFooters";
 
 export default function RecentErrorDetails({ notification, actions }: NotificationDetailsProps<recentError>) {
+    const t = useStudioTranslation("notificationCenter");
     const messageHtml = useKnockoutValue(notification.longerMessage);
     const errorDetails = useKnockoutValue(notification.details);
 
@@ -26,7 +28,7 @@ export default function RecentErrorDetails({ notification, actions }: Notificati
                             className="rounded-pill"
                         >
                             <Icon icon="bug" />
-                            Bug tracker
+                            {t("recentError.bugTracker")}
                         </Button>
                     }
                 >

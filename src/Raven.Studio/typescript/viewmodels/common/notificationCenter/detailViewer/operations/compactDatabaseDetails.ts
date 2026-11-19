@@ -4,6 +4,9 @@ import operation = require("common/notifications/models/operation");
 import abstractNotification = require("common/notifications/models/abstractNotification");
 import notificationCenter = require("common/notifications/notificationCenter");
 import abstractOperationDetails = require("viewmodels/common/notificationCenter/detailViewer/operations/abstractOperationDetails");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("compactDatabaseDetails");
 
 type compactListItemStatus = "processed" | "skipped" | "processing" | "pending";
 
@@ -60,7 +63,7 @@ class compactDatabaseDetails extends abstractOperationDetails {
                 }
             }
             
-            result.push(this.mapToCompactItem("Documents", status));
+            result.push(this.mapToCompactItem(t("documents"), status));
 
             return result;
         });

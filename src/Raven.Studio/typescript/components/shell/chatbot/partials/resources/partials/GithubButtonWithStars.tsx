@@ -4,18 +4,21 @@ import { useAsync } from "react-async-hook";
 import * as yup from "yup";
 import { Icon } from "components/common/Icon";
 import "./GithubButtonWithStars.scss";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 export default function GithubButtonWithStars() {
+    const t = useStudioTranslation("chatbot");
+
     return (
         <a
             href="https://github.com/ravendb/ravendb"
             target="_blank"
-            title="Star ravendb on GitHub"
+            title={t("helpAndResources.starOnGithub")}
             className="github-star no-decor"
         >
             <div>
                 <Icon icon="github" />
-                Star
+                {t("helpAndResources.star")}
             </div>
             <div className="border-start ps-1">
                 <strong>

@@ -11,6 +11,7 @@ import useBoolean from "components/hooks/useBoolean";
 import alert from "common/notifications/models/alert";
 import performanceHint from "common/notifications/models/performanceHint";
 import notificationCenterSettings from "common/notifications/notificationCenterSettings";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 import { NotificationDetailsActions } from "./notificationDetailsProvider";
 
 interface DetailsFooterProps {
@@ -28,18 +29,22 @@ export function DetailsFooter({ start, children }: DetailsFooterProps) {
 }
 
 export function CloseButton({ onClick }: { onClick: () => void }) {
+    const t = useStudioTranslation("notificationCenter");
+
     return (
         <Button variant="link" className="link-muted" onClick={onClick}>
-            Close
+            {t("footer.close")}
         </Button>
     );
 }
 
 export function DismissButton({ onClick }: { onClick: () => void }) {
+    const t = useStudioTranslation("notificationCenter");
+
     return (
-        <Button variant="primary" className="rounded-pill" onClick={onClick} title="Dismiss this notification">
+        <Button variant="primary" className="rounded-pill" onClick={onClick} title={t("footer.dismissTitle")}>
             <Icon icon="dismiss-all" />
-            Dismiss
+            {t("footer.dismiss")}
         </Button>
     );
 }
@@ -68,6 +73,7 @@ export function PerformanceHintDetailsFooter({
     hint: performanceHint;
     actions: NotificationDetailsActions;
 }) {
+    const t = useStudioTranslation("notificationCenter");
     const dontShowAgain = useKnockoutValue(hint.dontShowAgain);
     const canBeDismissed = hint.canBeDismissed();
 
@@ -76,7 +82,7 @@ export function PerformanceHintDetailsFooter({
             start={
                 canBeDismissed && (
                     <Checkbox selected={dontShowAgain} toggleSelection={(e) => hint.dontShowAgain(e.target.checked)}>
-                        Don&apos;t show again
+                        {t("footer.dontShowAgain")}
                     </Checkbox>
                 )
             }
@@ -88,6 +94,7 @@ export function PerformanceHintDetailsFooter({
 }
 
 function PostponeDropdown({ actions }: { actions: NotificationDetailsActions }) {
+    const t = useStudioTranslation("notificationCenter");
     const { value: isPostponing, setTrue: startPostponing, setFalse: stopPostponing } = useBoolean(false);
 
     const postpone = (timeInSeconds: number) => {
@@ -99,7 +106,7 @@ function PostponeDropdown({ actions }: { actions: NotificationDetailsActions }) 
         <Dropdown drop="up">
             <Dropdown.Toggle as={CustomDropdownToggle} disabled={isPostponing}>
                 {isPostponing ? <Spinner size="sm" className="me-1" /> : <Icon icon="clock" />}
-                Postpone
+                {t("footer.postpone")}
             </Dropdown.Toggle>
             <Dropdown.Menu renderOnMount popperConfig={{ strategy: "fixed" }}>
                 {notificationCenterSettings.postponeOptions.map((option) => (

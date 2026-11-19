@@ -3,6 +3,10 @@
 import registration = require("viewmodels/shell/registration");
 import license = require("models/auth/licenseModel");
 import moment = require("moment");
+import generalUtils = require("common/generalUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("licenseAgpl");
 
 class licenseAgpl  {
     
@@ -11,6 +15,11 @@ class licenseAgpl  {
     getView() {
         return this.view;
     }
+
+    licensedUnderHtml = t("licensedUnder").replace(
+        "<a>",
+        `<a href="https://www.gnu.org/licenses/agpl-3.0.en.html" target="_blank">`
+    );
     
     canUseUntil = ko.pureComputed(() => {
         const licenseStatus = license.licenseStatus();
@@ -23,13 +32,18 @@ class licenseAgpl  {
         const weekAfterFirstStart = firstStart.clone().add("1", "week");
         const dateFormat = "YYYY-MM-DD HH:mm:ss";
 
-        return now.isBefore(weekAfterFirstStart)
-            ? `<strong>${weekAfterFirstStart.format(dateFormat)} UTC
-                    <i class="icon-info text-info"
-                        title="The Studio will be available for use until ${weekAfterFirstStart.format(dateFormat)} UTC, which is ${weekAfterFirstStart.local().format(dateFormat)} your local time.">
-                    </i>
-                </strong>`
-            : null;
+        if (!now.isBefore(weekAfterFirstStart)) {
+            return null;
+        }
+
+        const utcDate = weekAfterFirstStart.format(dateFormat);
+        const localDate = weekAfterFirstStart.local().format(dateFormat);
+        const tooltip = t("availableUntilTooltip", { utcDate, localDate });
+
+        return t("availableUntil", { date: generalUtils.escapeHtml(utcDate) }).replace(
+            "<icon/>",
+            `<i class="icon-info text-info" title="${generalUtils.escapeHtml(tooltip)}"></i>`
+        );
     });
     
     register() {

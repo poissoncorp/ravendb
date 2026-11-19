@@ -7,6 +7,9 @@ import notificationCenter = require("common/notifications/notificationCenter");
 import abstractOperationDetails = require("viewmodels/common/notificationCenter/detailViewer/operations/abstractOperationDetails");
 import virtualBulkInsert = require("common/notifications/models/virtualBulkInsert");
 import virtualBulkInsertFailures = require("common/notifications/models/virtualBulkInsertFailures");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("bulkInsertDetails");
 
 class bulkInsertDetails extends abstractOperationDetails {
 
@@ -44,7 +47,7 @@ class bulkInsertDetails extends abstractOperationDetails {
                 return "N/A";
             }
 
-            return `${processingSpeed.toLocaleString()} docs / sec`;
+            return t("docsPerSecond", { speed: processingSpeed.toLocaleString() });
         }).extend({ rateLimit : 2000 });
     }
     

@@ -7,6 +7,9 @@ import notificationCenter = require("common/notifications/notificationCenter");
 import virtualUpdateByQuery = require("common/notifications/models/virtualUpdateByQuery");
 import virtualUpdateByQueryFailures = require("common/notifications/models/virtualUpdateByQueryFailures");
 import abstractOperationDetails = require("viewmodels/common/notificationCenter/detailViewer/operations/abstractOperationDetails");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("patchDocumentsDetails");
 
 class patchDocumentsDetails extends abstractOperationDetails {
 
@@ -49,7 +52,7 @@ class patchDocumentsDetails extends abstractOperationDetails {
                 return "N/A";
             }
 
-            return `${processingSpeed.toLocaleString()} docs / sec`;
+            return t("docsPerSecond", { speed: processingSpeed.toLocaleString() });
         }).extend({ rateLimit : 2000 });
 
         this.estimatedTimeLeft = ko.pureComputed(() => {

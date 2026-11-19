@@ -16,7 +16,7 @@ import "eonasdan-bootstrap-datetimepicker/src/js/bootstrap-datetimepicker";
 
 import system from "durandal/system";
 import app from "durandal/app";
-import { changeLanguage } from "common/i18n/i18n";
+import { changeLanguage, createTranslator } from "common/i18n/i18n";
 import globalSettings = require("common/settings/globalSettings");
 
 require("prismjs/components/prism-javascript");
@@ -75,6 +75,7 @@ app.start().then(async () => {
         }
     } else {
         //The browser doesn't support WebSocket
-        app.showBootstrapMessage("Your browser isn't supported. Please use a modern browser!", ":-(", []);
+        const t = createTranslator("bootstrap");
+        app.showBootstrapMessage(t("browserNotSupported"), ":-(", []);
     }
 });

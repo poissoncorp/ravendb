@@ -5,18 +5,20 @@ import { chatbotSelectors } from "components/shell/chatbot/store/chatbotSlice";
 import { useAppSelector } from "components/store";
 import { useState, useEffect } from "react";
 import IconName from "typings/server/icons";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
-const KEYWORDS: { word: string; icon?: IconName }[] = [
-    { word: "Learn", icon: "learn" },
-    { word: "Query", icon: "query" },
-    { word: "Analyze", icon: "analyze" },
-    { word: "Troubleshoot", icon: "hammer-driver" },
+const KEYWORDS: { wordKey: "learn" | "query" | "analyze" | "troubleshoot"; icon?: IconName }[] = [
+    { wordKey: "learn", icon: "learn" },
+    { wordKey: "query", icon: "query" },
+    { wordKey: "analyze", icon: "analyze" },
+    { wordKey: "troubleshoot", icon: "hammer-driver" },
 ] as const;
 
 export default function KeywordsSlider() {
     const [index, setIndex] = useState(0);
     const [isVisible, setIsVisible] = useState(true);
     const isChatbotOpen = useAppSelector(chatbotSelectors.isOpen);
+    const t = useStudioTranslation("chatbot");
 
     useEffect(() => {
         if (!isChatbotOpen) {
@@ -35,7 +37,7 @@ export default function KeywordsSlider() {
         return () => clearInterval(id);
     }, [isChatbotOpen]);
 
-    const { word, icon } = KEYWORDS[index];
+    const { wordKey, icon } = KEYWORDS[index];
 
     return (
         <div className="d-flex justify-content-center align-items-center overflow-hidden">
@@ -46,7 +48,7 @@ export default function KeywordsSlider() {
                 )}
             >
                 {icon && <Icon icon={icon} className="text-primary" />}
-                {word}
+                {t(`welcome.keywords.${wordKey}`)}
             </h3>
         </div>
     );

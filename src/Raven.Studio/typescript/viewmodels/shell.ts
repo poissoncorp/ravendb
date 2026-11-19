@@ -67,6 +67,9 @@ import ChatbotNavIcon = require("components/shell/chatbot/ChatbotNavIcon");
 import getSettingsAiAssistantCommand = require("commands/aiAssistant/getSettingsAiAssistantCommand");
 import chatbotSlice = require("components/shell/chatbot/store/chatbotSlice");
 import aiAssistantSlice = require("components/common/shell/aiAssistantSlice");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("studioShell");
 
 class shell extends viewModelBase {
     private router = router;
@@ -84,6 +87,7 @@ class shell extends viewModelBase {
 
     collectionsTracker = collectionsTracker.default;
     collectionsCountText: KnockoutObservable<string>;
+    collectionsCountTitle: KnockoutComputed<string>;
 
     footer = footer.default;
     clusterManager = clusterTopologyManager.default;
@@ -129,6 +133,7 @@ class shell extends viewModelBase {
     serverEnvironment =
         ko.observable<Raven.Client.Documents.Operations.Configuration.StudioConfiguration.StudioEnvironment>();
     serverEnvironmentClass: KnockoutComputed<string>;
+    serverEnvironmentText: KnockoutComputed<string>;
     serverEnvironmentShortText: KnockoutComputed<string>;
 
     private onBootstrapFinishedTask = $.Deferred<void>();
@@ -163,6 +168,13 @@ class shell extends viewModelBase {
             // Value shows in UI only if there is at least 1 collection other than 'All Documents'
             return (this.collectionsTracker.collections().length - 1).toLocaleString();
         });
+
+        this.collectionsCountTitle = ko.pureComputed(() =>
+            t("collections.title", {
+                count: this.collectionsTracker.collections().length - 1,
+                formattedCount: this.collectionsCountText(),
+            })
+        );
 
         this.clientBuildVersion.subscribe((v) => viewModelBase.clientVersion(v.Version));
 
@@ -274,16 +286,31 @@ class shell extends viewModelBase {
             }
         });
 
+        this.serverEnvironmentText = ko.pureComputed(() => {
+            const env = this.serverEnvironment();
+
+            switch (env) {
+                case "Production":
+                    return t("serverEnvironment.production");
+                case "Testing":
+                    return t("serverEnvironment.testing");
+                case "Development":
+                    return t("serverEnvironment.development");
+                default:
+                    return env;
+            }
+        });
+
         this.serverEnvironmentShortText = ko.pureComputed(() => {
             const env = this.serverEnvironment();
 
             switch (env) {
                 case "Production":
-                    return "PROD";
+                    return t("serverEnvironment.productionShort");
                 case "Testing":
-                    return "TEST";
+                    return t("serverEnvironment.testingShort");
                 case "Development":
-                    return "DEV";
+                    return t("serverEnvironment.developmentShort");
                 default:
                     return "";
             }
@@ -487,31 +514,31 @@ class shell extends viewModelBase {
                                         </div>`
                           )
                           .join("")
-                    : "No access granted";
+                    : t("clientCertificate.noAccessGranted");
 
                 const notAfter = this.clientCertificate().NotAfter;
                 const notAfterUtc = moment(notAfter).utc();
 
                 const expirationDate = notAfter
                     ? `${notAfter.substring(0, 10)} <span class="${this.getExpirationDurationClass()}">(${genUtils.formatDurationByDate(notAfterUtc, true)})</span>`
-                    : "n/a";
+                    : t("clientCertificate.notAvailable");
 
                 const twoFactorPart = this.footer.twoFactorSessionExpiration()
-                    ? `<dt>2FA Session Expiration:</dt>
+                    ? `<dt>${t("clientCertificate.twoFactorSessionExpiration")}</dt>
                       <dd><strong>${this.footer.twoFactorSessionExpiration().local().format("YYYY-MM-DD HH:mm:ss")}
                        (${genUtils.formatDurationByDate(this.footer.twoFactorSessionExpiration(), true)})</strong></dd>`
                     : "";
 
                 return `<dl class="dl-horizontal margin-none client-certificate-info">
-                            <dt>Client Certificate</dt>
+                            <dt>${t("clientCertificate.name")}</dt>
                             <dd><strong>${this.clientCertificate().Name}</strong></dd>
-                            <dt>Expiration Date</dt>
+                            <dt>${t("clientCertificate.expirationDate")}</dt>
                             <dd><strong>${expirationDate}</strong></dd>
-                            <dt>Thumbprint</dt>
+                            <dt>${t("clientCertificate.thumbprint")}</dt>
                             <dd><strong>${this.clientCertificate().Thumbprint}</strong></dd>
-                            <dt><span>Security Clearance</span></dt>
+                            <dt><span>${t("clientCertificate.securityClearance")}</span></dt>
                             <dd><strong>${this.certificateClearanceLabel(this.clientCertificate().SecurityClearance)}</strong></dd>
-                            <dt><span>Access to databases:</span></dt>
+                            <dt><span>${t("clientCertificate.databasesAccess")}</span></dt>
                             <dd><span>${allowedDatabasesText}</span></dd>
                             ${twoFactorPart}
                           </dl>`;
@@ -525,7 +552,7 @@ class shell extends viewModelBase {
         }
 
         if (!this.clientCertificate()) {
-            const authenticationInfo = "No authentication is set. Running in an unsecure mode.";
+            const authenticationInfo = t("clientCertificate.noAuthentication");
 
             popoverUtils.longWithHover($(".js-client-cert"), {
                 content: authenticationInfo,
@@ -535,22 +562,22 @@ class shell extends viewModelBase {
 
         sys.error = (e: any) => {
             console.error(e);
-            messagePublisher.reportWarning("Failed to load routed module!", e);
+            messagePublisher.reportWarning(t("failedToLoadModule"), e);
         };
     }
 
     private certificateClearanceLabel(clearance: Raven.Client.ServerWide.Operations.Certificates.SecurityClearance) {
         switch (clearance) {
             case "ClusterNode":
-                return "Cluster Node";
+                return t("clientCertificate.clearance.clusterNode");
             case "ClusterAdmin":
-                return "Cluster Admin";
+                return t("clientCertificate.clearance.clusterAdmin");
             case "Operator":
-                return "Operator";
+                return t("clientCertificate.clearance.operator");
             case "ValidUser":
-                return "Valid User";
+                return t("clientCertificate.clearance.validUser");
             default:
-                return "Unknown";
+                return t("clientCertificate.clearance.unknown");
         }
     }
 
@@ -564,7 +591,7 @@ class shell extends viewModelBase {
             case "ClusterAdmin":
             case "Operator":
             case "ClusterNode":
-                dbAccessInfo = { All: "Admin" };
+                dbAccessInfo = { [t("clientCertificate.allDatabases")]: "Admin" };
                 break;
             default:
                 dbAccessInfo = certificateDefinition.Permissions;

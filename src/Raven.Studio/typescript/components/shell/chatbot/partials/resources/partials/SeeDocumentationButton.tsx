@@ -6,10 +6,12 @@ import { getDocsHash } from "components/utils/docsHashes";
 import { clusterSelectors } from "components/common/shell/clusterSlice";
 import { useAppSelector } from "components/store";
 import genUtils from "common/generalUtils";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 export default function SeeDocumentationButton() {
     const clientMajorVersion = getMajorVersion(useAppSelector(clusterSelectors.clientVersion));
     const getRavenLink = useGetRavenLink();
+    const t = useStudioTranslation("chatbot");
 
     const handleOpenDocumentation = () => {
         const singleRoute = genUtils.getSingleRoute(router.activeInstruction()?.config?.route);
@@ -30,11 +32,11 @@ export default function SeeDocumentationButton() {
         <li
             className="action-menu__list-item"
             role="button"
-            title="See documentation"
+            title={t("helpAndResources.seeDocumentation")}
             onClick={handleOpenDocumentation}
         >
             <Icon icon="document2" margin="m-0" />
-            See documentation
+            {t("helpAndResources.seeDocumentation")}
             <FlexGrow />
             <Icon icon="newtab" margin="m-0" />
         </li>

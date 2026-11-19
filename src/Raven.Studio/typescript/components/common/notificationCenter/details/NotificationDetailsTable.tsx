@@ -14,17 +14,19 @@ import { Icon } from "components/common/Icon";
 import { virtualTableUtils } from "components/common/virtualTable/utils/virtualTableUtils";
 import fileDownloader from "common/fileDownloader";
 import copyToClipboard from "common/copyToClipboard";
-import pluralizeHelpers from "common/helpers/text/pluralizeHelpers";
 import abstractNotification from "common/notifications/models/abstractNotification";
+import { TranslationKey } from "common/i18n/resources";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 import { CellDetailsValue } from "./NotificationDetailsCells";
 import { getCsvFileName, tableToCsv } from "./notificationDetailsCsv";
+
+type CountKey = Extract<TranslationKey<"notificationCenter">, `table.count.${string}`>;
 
 interface NotificationDetailsTableProps<T> {
     notification: abstractNotification;
     data: T[];
     columns: ColumnDef<T>[];
-    itemName: string;
-    itemNamePlural: string;
+    countKey: CountKey;
     exportTitle?: string;
     selectedItem?: T;
     onItemClick?: (item: NoInfer<T>) => void;
@@ -46,13 +48,13 @@ function SizedNotificationDetailsTable<T>({
     notification,
     data,
     columns,
-    itemName,
-    itemNamePlural,
+    countKey,
     exportTitle,
     selectedItem,
     onItemClick,
     width,
 }: NotificationDetailsTableProps<T> & { width: number }) {
+    const t = useStudioTranslation("notificationCenter");
     const fittedColumns = useMemo(() => virtualTableUtils.fitColumnsToWidth(columns, width), [columns, width]);
 
     const table = useReactTable<T>({
@@ -76,14 +78,19 @@ function SizedNotificationDetailsTable<T>({
     };
 
     const copyAsCsv = () => {
-        copyToClipboard.copy(tableToCsv(table), "Table has been copied to clipboard as CSV");
+        copyToClipboard.copy(tableToCsv(table), t("table.copiedAsCsv"));
     };
 
     return (
         <>
             <div className="hstack justify-content-between">
                 <span className="text-muted small">
-                    {getCountText(visibleCount, data.length, itemName, itemNamePlural)}
+                    {t(countKey, {
+                        count: data.length,
+                        formattedCount: data.length.toLocaleString(),
+                        visibleCount: visibleCount.toLocaleString(),
+                        context: visibleCount === data.length ? undefined : "filtered",
+                    })}
                 </span>
                 <div className="hstack gap-1">
                     <Button
@@ -94,7 +101,7 @@ function SizedNotificationDetailsTable<T>({
                         disabled={visibleCount === 0}
                     >
                         <Icon icon="copy-to-clipboard" />
-                        Copy as CSV
+                        {t("table.copyAsCsv")}
                     </Button>
                     <Button
                         variant="secondary"
@@ -104,7 +111,7 @@ function SizedNotificationDetailsTable<T>({
                         disabled={visibleCount === 0}
                     >
                         <Icon icon="csv-export" />
-                        Export to CSV
+                        {t("table.exportToCsv")}
                     </Button>
                 </div>
             </div>
@@ -124,9 +131,4 @@ function SizedNotificationDetailsTable<T>({
             />
         </>
     );
-}
-
-function getCountText(visibleCount: number, totalCount: number, itemName: string, itemNamePlural: string): string {
-    const total = pluralizeHelpers.pluralize(totalCount, itemName, itemNamePlural);
-    return visibleCount === totalCount ? total : `${visibleCount.toLocaleString()} of ${total}`;
 }

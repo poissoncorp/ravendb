@@ -6,7 +6,7 @@
                     <h3 class="modal-title" id="myModalLabel" data-bind="text: op.title, attr:{ class: 'modal-title ' + op.headerClass() }"></h3>
                 </div>
                 <div class="flex-grow text-right margin-right margin-right-sm">
-                    <span class="text-muted">Time elapsed:</span> <span data-bind="text: op.duration"></span>
+                    <span class="text-muted" data-bind="i18n: 'deleteDocumentsDetails:timeElapsed'"></span> <span data-bind="text: op.duration"></span>
                 </div>
                 <div>
                     <button type="button" class="close" data-bind="click: close" aria-hidden="true">
@@ -21,39 +21,35 @@
                 <div class="details-item">
                     <div class="row">
                         <div class="col-sm-3 text-right">
-                            <span data-bind="text: $root.deleteTypeName"></span>:
+                            <span data-bind="text: $root.deleteTypeName"></span>
                         </div>
                         <div class="col-sm-9 details-value">
                             <span data-bind="html: $root.op.message"></span>
                         </div>
                     </div>
                     <div class="row" data-bind="with: progress">
-                        <div class="col-sm-3 text-right">
-                            Processed:
+                        <div class="col-sm-3 text-right" data-bind="i18n: 'deleteDocumentsDetails:processed'">
                         </div>
                         <div class="col-sm-9 details-value">
                             <span data-bind="text: Processed.toLocaleString()"></span> / <span data-bind="text: Total.toLocaleString()"></span>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-sm-3 text-right">
-                            Processing Speed:
+                        <div class="col-sm-3 text-right" data-bind="i18n: 'deleteDocumentsDetails:processingSpeed'">
                         </div>
                         <div class="col-sm-9 details-value">
                             <span data-bind="text: $root.processingSpeed"></span>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-sm-3 text-right">
-                            Estimated Time Left:
+                        <div class="col-sm-3 text-right" data-bind="i18n: 'deleteDocumentsDetails:estimatedTimeLeft'">
                         </div>
                         <div class="col-sm-9 details-value">
                             <span data-bind="text: $root.estimatedTimeLeft"></span>
                         </div>
                     </div>
                     <div class="row" data-bind="if: $root.query">
-                        <div class="col-sm-3 text-right">
-                            Query:
+                        <div class="col-sm-3 text-right" data-bind="i18n: 'deleteDocumentsDetails:query'">
                         </div>
                         <div class="col-sm-9 details-value">
                                 <pre class="bg-info max-height">
@@ -68,10 +64,10 @@
                 </div>
             </div>
             <div data-bind="if: operationFailed">
-                <h3 class="text-danger">Operation failed!</h3>
+                <h3 class="text-danger" data-bind="i18n: 'deleteDocumentsDetails:operationFailed'"></h3>
                 <div class="d-flex margin-top">
                     <div class="flex-grow"></div>
-                    <button type="button" class="btn btn-default btn-sm" data-bind="click: copyErrorDetails"><i class="icon-copy-to-clipboard"></i><span>Copy error message</span></button>
+                    <button type="button" class="btn btn-default btn-sm" data-bind="click: copyErrorDetails"><i class="icon-copy-to-clipboard"></i><span data-bind="i18n: 'deleteDocumentsDetails:copyErrorMessage'"></span></button>
                 </div>
                 <pre class="error-messages"><code data-bind="foreach: errorMessages"><span data-bind="text: $data"></span>
 </code></pre>
@@ -81,7 +77,7 @@
                     <div class="details-item">
                         <div class="row">
                             <div class="col-sm-3 text-right">
-                                <span data-bind="text: $root.deleteTypeName"></span>:
+                                <span data-bind="text: $root.deleteTypeName"></span>
                             </div>
                             <div class="col-sm-9 details-value">
                                 <span data-bind="html: $root.op.message"></span>
@@ -89,16 +85,14 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-sm-3 text-right">
-                                Processed:
+                            <div class="col-sm-3 text-right" data-bind="i18n: 'deleteDocumentsDetails:processed'">
                             </div>
                             <div class="col-sm-9 details-value">
                                 <span data-bind="text: Total.toLocaleString()"></span>
                             </div>
                         </div>
                         <div class="row" data-bind="if: $root.query">
-                            <div class="col-sm-3 text-right">
-                                Query:
+                            <div class="col-sm-3 text-right" data-bind="i18n: 'deleteDocumentsDetails:query'">
                             </div>
                             <div class="col-sm-9 details-value">
                                 <pre class="bg-info max-height">

@@ -1,8 +1,10 @@
 /// <reference path="../../../../typings/tsd.d.ts" />
 import database = require("models/resources/database");
-import pluralizeHelpers = require("common/helpers/text/pluralizeHelpers");
 import moment = require("moment");
 import groupedVirtualNotification = require("common/notifications/models/groupedVirtualNotification");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("notifications");
 
 class virtualDeleteByQueryFailures extends groupedVirtualNotification<queryBasedVirtualBulkOperationFailureItem> {
     
@@ -22,7 +24,7 @@ class virtualDeleteByQueryFailures extends groupedVirtualNotification<queryBased
             Severity: null,
         });
         
-        this.title("Delete by query");
+        this.title(t("deleteByQuery.title"));
         this.severity("Error");
     }
     
@@ -53,8 +55,10 @@ class virtualDeleteByQueryFailures extends groupedVirtualNotification<queryBased
             this.operations.unshift(item);
         }
         
-        this.message(pluralizeHelpers.pluralize(this.operations().length, "operation", "operations")
-            + " has been completed with an error. ");
+        const operationsCount = this.operations().length;
+        this.message(
+            t("deleteByQuery.failed", { count: operationsCount, formattedCount: operationsCount.toLocaleString() })
+        );
     }
 }
 

@@ -1,26 +1,24 @@
 <div class="layout-container pin-chatbot" data-bind="css: { 'cloud-cluster-admin': applyColorCustomization, 'collapse-menu': collapseMenu() || smallScreen(), 'pin-notifications': notificationCenter.pinNotifications(), 'show-notifications': notificationCenter.showNotifications()}">
     <div data-bind="compose: { model: browserAlert }" class="bs3"></div>
-    <aside class="top-alert" data-bind="visible: developerLicense">
-        Developer License - Not for Production Use
-    </aside>
+    <aside class="top-alert" data-bind="visible: developerLicense, i18n: 'studioShell:topAlert.developerLicense'"></aside>
     <aside class="top-alert shard-debug" data-bind="visible: singleShardName">
-        <span>Displayed data is sourced from only a single shard &nbsp;&nbsp; (<i class="icon-shard"></i><strong data-bind="text: singleShardName"></strong> ) &nbsp;&nbsp;<a data-bind="attr: { href: allShardsUrl }"> <i class="icon-sharding"></i> Go to all shards mode</a></span>
+        <span><span data-bind="i18n: 'studioShell:topAlert.singleShard'"></span> &nbsp;&nbsp; (<i class="icon-shard"></i><strong data-bind="text: singleShardName"></strong> ) &nbsp;&nbsp;<a data-bind="attr: { href: allShardsUrl }"> <i class="icon-sharding"></i> <span data-bind="i18n: 'studioShell:topAlert.goToAllShards'"></span></a></span>
     </aside>
     <aside class="top-alert" data-bind="visible: applyColorCustomization">
-        !!! Running as Cloud Cluster Admin !!!  <a href="#" data-bind="click: disableColorCustomization">Disable color customization</a>
+        <span data-bind="i18n: 'studioShell:topAlert.cloudClusterAdmin'"></span>  <a href="#" data-bind="click: disableColorCustomization, i18n: 'studioShell:topAlert.disableColorCustomization'"></a>
     </aside>
     <nav class="bs5 navbar">
         <div class="navbar-header">
             <a class="navbar-brand no-decor" data-bind="attr: { href: appUrls.clusterDashboard }">
                 <div data-bind="attr: { class: logoClass() }">
-                    <img data-bind="attr: { src: logoSrc() }" alt="RavenDB Logo" />
-                    <div data-bind="visible: serverEnvironment, attr: { class: 'badge rounded-pill ms-auto text-uppercase margin-bottom-xxs ' + serverEnvironmentClass() }" title="Server environment">
-                        <span data-bind="text: serverEnvironment"></span>
+                    <img data-bind="attr: { src: logoSrc() }, i18nAttr: { alt: 'studioShell:logoAlt' }" />
+                    <div data-bind="visible: serverEnvironment, attr: { class: 'badge rounded-pill ms-auto text-uppercase margin-bottom-xxs ' + serverEnvironmentClass() }, i18nAttr: { title: 'studioShell:serverEnvironment.title' }">
+                        <span data-bind="text: serverEnvironmentText"></span>
                     </div>
                 </div>
                 <div class="collapsed-logo">
                     <i class="icon-raven"></i>
-                    <div data-bind="visible: serverEnvironment, attr: { class: 'badge rounded-pill server-environment-label__collapsed text-uppercase ' + serverEnvironmentClass() }" title="Server environment">
+                    <div data-bind="visible: serverEnvironment, attr: { class: 'badge rounded-pill server-environment-label__collapsed text-uppercase ' + serverEnvironmentClass() }, i18nAttr: { title: 'studioShell:serverEnvironment.title' }">
                         <span data-bind="text: serverEnvironmentShortText"></span>
                     </div>
                 </div>
@@ -30,13 +28,13 @@
             <div style="flex-grow: 1;" data-bind="react: $root.studioSearchWithDatabaseSwitcherView"></div>
             <ul class="nav navbar-nav navbar-right">
                 <li>
-                    <button title="Change theme" class="btn theme-change no-decor nav-icon" data-bind="click: $data.constructor.chooseTheme">
+                    <button class="btn theme-change no-decor nav-icon" data-bind="click: $data.constructor.chooseTheme, i18nAttr: { title: 'studioShell:navbar.changeTheme' }">
                         <i class="icon-theme"></i>
                     </button>
                 </li>
-                <li style="display:none"><a target="_blank" title="Help" data-bind="attr: { href: currentHelpLink }" class="icon-help"></a></li>
+                <li style="display:none"><a target="_blank" data-bind="attr: { href: currentHelpLink }, i18nAttr: { title: 'studioShell:navbar.help' }" class="icon-help"></a></li>
                 <li data-bind="with: notificationCenter">
-                    <button title="Notification Center"id="notification-toggle" class="btn no-decor nav-icon" data-bind="click: showNotifications.toggle.bind(showNotifications), css: { 'active': showNotifications() }">
+                    <button id="notification-toggle" class="btn no-decor nav-icon" data-bind="click: showNotifications.toggle.bind(showNotifications), css: { 'active': showNotifications() }, i18nAttr: { title: 'studioShell:navbar.notificationCenter' }">
                         <i class="icon-changes"></i>
                         <span class="notification-counter show" data-bind="text: totalItemsCount(), attr: { 'data-count': totalItemsCount() }, css: { 'show': alertCountAnimation() }"></span>
                     </button>
@@ -52,7 +50,7 @@
             <!-- ko with: $root.collectionsTracker.getAllDocumentsCollection() -->
             <a data-bind="click: $parent.menu.navigate.bind($parent.menu), attr: { href: $root.urlForCollection($data) }, css: { 'active': $parent.item.isOpen($parent.menu.activeItem, $data) }">
                 <i class="icon-documents"></i>
-                <span>All Documents</span>
+                <span data-bind="i18n: 'studioShell:collections.allDocuments'"></span>
                 <div class="collection-count" data-bind="attr: {title: documentCount().toLocaleString()}, css: { 'bounce': hasBounceClass }">
                     <div class="value label label-default" data-bind="text: countPrefix"></div>
                     <div data-bind="attr: { class: sizeClass }"></div>
@@ -65,7 +63,7 @@
             <a data-bind="click: $parent.menu.navigate.bind($parent.menu), attr: { href: $root.urlForAllRevisions() }, 
                           css: { 'active': $parent.item.isOpen($parent.menu.activeItem, $data) }">
                 <i class="icon-revisions"></i>
-                <span>All Revisions</span>
+                <span data-bind="i18n: 'studioShell:collections.allRevisions'"></span>
                 <div class="collection-count" data-bind="attr: {title: documentCount().toLocaleString()}, css: { 'bounce': hasBounceClass }">
                     <div class="value label label-default" data-bind="text: countPrefix"></div>
                     <div data-bind="attr: { class: sizeClass }"></div>
@@ -78,14 +76,12 @@
             <a data-bind="click: $parent.menu.navigate.bind($parent.menu), attr: { href: $root.urlForRevisionsBin() }, 
                           css: { 'active': $parent.item.isOpen($parent.menu.activeItem, $data) }">
                 <i class="icon-revisions-bin"></i>
-                <span>Revisions Bin</span>
+                <span data-bind="i18n: 'studioShell:collections.revisionsBin'"></span>
             </a>
             <!-- /ko -->
         </li>
         <hr data-bind="visible: $root.collectionsTracker.collections().length > 1" />
-        <h3 data-bind="visible: $root.collectionsTracker.collections().length > 1, attr: { title: $root.collectionsCountText() + ' collections'}">
-            Collections (<span data-bind="text: $root.collectionsCountText"></span>)
-        </h3>
+        <h3 data-bind="visible: $root.collectionsTracker.collections().length > 1, attr: { title: $root.collectionsCountTitle() }, i18n: { key: 'studioShell:collections.heading', options: { formattedCount: $root.collectionsCountText } }"></h3>
         <li class="collections-list">
             <ul>
                 <!-- ko if: $root.collectionsTracker.systemCollections().length > 0 -->
@@ -193,17 +189,16 @@
 
         <div class="level-0"
              data-level="0"
-             data-level-name="Menu"
-             data-bind="click: handleLevelClick">
+             data-bind="click: handleLevelClick, i18nAttr: { 'data-level-name': 'studioShell:menu.title' }">
             <ul data-bind="foreach: items">
                 <!-- ko template: { name: type + 'MenuItem', data: { item: $data, menu: $parent }} -->
                 <!-- /ko -->
             </ul>
         </div>
-        <button class="btn-collapse-menu" data-bind="click: $root.toggleMenu" title="Collapse sidebar menu">
-            <i class="icon-sidebar-collapse"></i><span class="m-0">Collapse Menu</span>
+        <button class="btn-collapse-menu" data-bind="click: $root.toggleMenu, i18nAttr: { title: 'studioShell:menu.collapseTitle' }">
+            <i class="icon-sidebar-collapse"></i><span class="m-0" data-bind="i18n: 'studioShell:menu.collapse'"></span>
         </button>
-        <button class="btn-expand-menu" data-bind="click: $root.toggleMenu" title="Expand sidebar menu">
+        <button class="btn-expand-menu" data-bind="click: $root.toggleMenu, i18nAttr: { title: 'studioShell:menu.expandTitle' }">
             <i class="icon-sidebar-collapse"></i>
         </button>
     </nav>
@@ -216,43 +211,43 @@
     <footer class="status-footer bs3" data-bind="with: $root.footer">
         <div class="footer-left" data-bind="with: stats(), visible: stats">
             <div class="footer-item">
-                <a data-bind="attr: { href: $parent.urlForDocuments() }" title="Documents"><i class="icon-documents"></i> <span data-bind="text: countOfDocuments().toLocaleString()"></span></a>
+                <a data-bind="attr: { href: $parent.urlForDocuments() }, i18nAttr: { title: 'studioShell:footer.documents' }"><i class="icon-documents"></i> <span data-bind="text: countOfDocuments().toLocaleString()"></span></a>
             </div>
             <div class="footer-item">
-                <a title="Indexes" class="indexes-link" data-bind="attr: { href: $parent.urlForIndexes() }">
+                <a class="indexes-link" data-bind="attr: { href: $parent.urlForIndexes() }, i18nAttr: { title: 'studioShell:footer.indexes' }">
                     <i class="icon-index"></i>
                     <span data-bind="text: countOfIndexes().toLocaleString()"></span>
                 </a>
-                <a title="Stale Indexes" class="stale-indexes-link" data-bind="attr: { href: $parent.urlForStaleIndexes() }">
+                <a class="stale-indexes-link" data-bind="attr: { href: $parent.urlForStaleIndexes() }, i18nAttr: { title: 'studioShell:footer.staleIndexes' }">
                     <span class="separator">|</span><span data-bind="text: countOfStaleIndexes().toLocaleString(), css: {'text-warning': countOfStaleIndexes}"></span>
                 </a>
             </div>
             <div class="footer-item" data-bind="visible: countOfIndexingErrors">
-                <a title="Indexing errors" class="text-danger" data-bind="attr: { href: $parent.urlForIndexingErrors() }">
+                <a class="text-danger" data-bind="attr: { href: $parent.urlForIndexingErrors() }, i18nAttr: { title: 'studioShell:footer.indexingErrors' }">
                     <i class="icon-index-errors"></i> <span data-bind="text: countOfIndexingErrors().toLocaleString()"></span>
                 </a>
             </div>
         </div>
         <div class="footer-left spinner" data-bind="visible: spinners.loading">
-            <span class="global-spinner spinner-sm"></span> <strong>Loading, please wait</strong>
+            <span class="global-spinner spinner-sm"></span> <strong data-bind="i18n: 'studioShell:footer.loading'"></strong>
         </div>
         <div class="footer-right">
             <div class="footer-item" data-bind="visible: ssoAppUrl">
-                <a class="btn btn-primary btn-sm" data-bind="attr: { href: ssoAppUrl }" title="Back to SSO app">
-                    <i class="icon-arrow-left"></i> <span>Back to SSO app</span>
+                <a class="btn btn-primary btn-sm" data-bind="attr: { href: ssoAppUrl }, i18nAttr: { title: 'studioShell:footer.backToSsoApp' }">
+                    <i class="icon-arrow-left"></i> <span data-bind="i18n: 'studioShell:footer.backToSsoApp'"></span>
                 </a>
             </div>
             <div class="footer-item bg-info" data-bind="visible: $root.clusterManager.votingInProgress">
-                <a data-bind="attr: { href: $root.urlForCluster() }" title="Voting in progress"><i class="icon-cluster-node"></i><span>Voting in progress</span></a>
+                <a data-bind="attr: { href: $root.urlForCluster() }, i18nAttr: { title: 'studioShell:footer.votingInProgress' }"><i class="icon-cluster-node"></i><span data-bind="i18n: 'studioShell:footer.votingInProgress'"></span></a>
             </div>
             <div class="footer-item">
-                <button class="btn btn-primary" title="Continue Test" data-bind="click: $root.continueTest.continue, visible: $root.continueTest.showContinueButton">
-                    <i class="icon-play"></i> <span>Continue test</span>
+                <button class="btn btn-primary" data-bind="click: $root.continueTest.continue, visible: $root.continueTest.showContinueButton, i18nAttr: { title: 'studioShell:footer.continueTestTitle' }">
+                    <i class="icon-play"></i> <span data-bind="i18n: 'studioShell:footer.continueTest'"></span>
                 </button>
             </div>
             <div class="footer-item" data-bind="visible: twoFactorSessionExpiration">
-                <a class="btn btn-2fa btn-sm lh-1" title="End current 2FA session" data-bind="click: logout">
-                    <i class="icon-logout"></i> <span class="me-0">End session</span>
+                <a class="btn btn-2fa btn-sm lh-1" data-bind="click: logout, i18nAttr: { title: 'studioShell:footer.endSessionTitle' }">
+                    <i class="icon-logout"></i> <span class="me-0" data-bind="i18n: 'studioShell:footer.endSession'"></span>
                 </a>
             </div>
             <div class="footer-item" data-bind="visible: !$root.clientCertificate()">
@@ -267,50 +262,50 @@
                     <i class="icon-lock-cutout icon-addon-exclamation" data-bind="visible: $root.certificateExpirationState() !== 'valid'"></i>
                 </a>
             </div>
-            <div class="footer-item" data-bind="visible: $root.clusterManager.nodesCount() === 1, if: $root.clusterManager.nodesCount() === 1" title="Local node tag">
+            <div class="footer-item" data-bind="visible: $root.clusterManager.nodesCount() === 1, if: $root.clusterManager.nodesCount() === 1, i18nAttr: { title: 'studioShell:footer.localNodeTag' }">
                 <!-- when cluster contains single node - display fake button -->
                 <a style="pointer-events: none">
                     <i class="icon-cluster"></i>
-                    <span data-bind="text: 'Node ' + $root.clusterManager.localNodeTag()"></span>
+                    <span data-bind="i18n: { key: 'studioShell:footer.node', options: { tag: $root.clusterManager.localNodeTag } }"></span>
                 </a>
             </div>
             <div class="footer-item" data-bind="visible: $root.clusterManager.nodesCount() > 1, if: $root.clusterManager.nodesCount() > 1">
                 <div class="btn-group dropup">
-                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" title="Local node tag. Click to go to another cluster node">
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" data-bind="i18nAttr: { title: 'studioShell:footer.localNodeTagSwitch' }">
                         <i class="icon-cluster"></i>
-                        <span data-bind="text: 'Node ' + $root.clusterManager.localNodeTag()"></span>
+                        <span data-bind="i18n: { key: 'studioShell:footer.node', options: { tag: $root.clusterManager.localNodeTag } }"></span>
                         <span class="caret"></span>
-                        <span class="sr-only">Toggle Dropdown</span>
+                        <span class="sr-only" data-bind="i18n: 'studioShell:footer.toggleDropdown'"></span>
                     </button>
                     <ul class="dropdown-menu dropup" data-bind="foreach: $root.clusterManager.topology().nodes">
                         <li>
-                            <a target="_blank" title="Go to another cluster node" data-bind="attr: { href: $root.createUrlWithHashComputed($parent.nodeServerUrl($data)) }">
+                            <a target="_blank" data-bind="attr: { href: $root.createUrlWithHashComputed($parent.nodeServerUrl($data)) }, i18nAttr: { title: 'studioShell:footer.goToNode' }">
                                 <i data-bind="attr: { class: cssIcon() }"></i>
-                                <span data-bind="text: 'Node ' + tag()"></span>
+                                <span data-bind="i18n: { key: 'studioShell:footer.node', options: { tag: tag } }"></span>
                             </a>
                         </li>
                     </ul>
                 </div>
             </div>
             <div class="footer-item">
-                <a title="Studio Version" data-bind="attr: { href: urlForAbout }">
+                <a data-bind="attr: { href: urlForAbout }, i18nAttr: { title: 'studioShell:footer.studioVersion' }">
                     <i class="icon-client"></i> <span data-bind="text: $root.constructor.clientVersion"></span>
                 </a>
             </div>
             <div class="footer-item">
-                <a title="Server Version" data-bind="attr: { href: urlForAbout }">
+                <a data-bind="attr: { href: urlForAbout }, i18nAttr: { title: 'studioShell:footer.serverVersion' }">
                     <i class="icon-server"></i> <span data-bind="text: $root.constructor.buildInfo.serverBuildVersion() ? $root.constructor.buildInfo.serverBuildVersion().FullVersion : ''"></span>
                 </a>
             </div>
             <div class="footer-item">
-                <a title="License Information" data-bind="attr: { href: urlForAbout, class: licenseBgColorClass() + ' license btn btn-sm d-flex gap-1' }">
+                <a data-bind="attr: { href: urlForAbout, class: licenseBgColorClass() + ' license btn btn-sm d-flex gap-1' }, i18nAttr: { title: 'studioShell:footer.licenseInformation' }">
                     <i class="icon-license-information"></i>
                     <span data-bind="text: licenseTypeShortText()"></span>
                     <span data-bind="attr: { title: licenseStatusTooltip(), class: licenseClass() + ' license-status'}"></span>
                 </a>
             </div>
             <div class="footer-item">
-                <a title="Support Information" data-bind="attr: { href: urlForAbout, class: supportClass() + ' support btn btn-sm' }">
+                <a data-bind="attr: { href: urlForAbout, class: supportClass() + ' support btn btn-sm' }, i18nAttr: { title: 'studioShell:footer.supportInformation' }">
                     <i class="icon-support"></i>
                 </a>
             </div>
@@ -323,13 +318,13 @@
     </footer>
     <div class="connection-lost bs3" data-bind="css: { show: $root.constructor.showConnectionLost }">
         <div class="absolute-center">
-            <h3>Connection lost</h3>
+            <h3 data-bind="i18n: 'studioShell:connectionLost.title'"></h3>
             <img src="../../Content/img/connection-lost.svg" width="260" />
-            <p class="small">Studio may not work correctly until reload</p>
-            <button class="btn" data-bind="click: ignoreWebSocketError"><i class="icon-warning"></i><span>Ignore</span></button>&nbsp;&nbsp;
+            <p class="small" data-bind="i18n: 'studioShell:connectionLost.description'"></p>
+            <button class="btn" data-bind="click: ignoreWebSocketError"><i class="icon-warning"></i><span data-bind="i18n: 'studioShell:connectionLost.ignore'"></span></button>&nbsp;&nbsp;
             <button class="btn btn-primary" onclick="location.reload();">
                 <i class="icon-refresh"></i>
-                <span>Reload</span>
+                <span data-bind="i18n: 'studioShell:connectionLost.reload'"></span>
             </button>
         </div>
     </div>

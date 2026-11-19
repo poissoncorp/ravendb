@@ -6,6 +6,8 @@ import StudioSearchDropdownItem from "../bits/StudioSearchResultItem";
 import { StudioSearchResult, StudioSearchResultDatabaseGroup, StudioSearchResultItem } from "../studioSearchTypes";
 import { useAppSelector } from "components/store";
 import Dropdown from "react-bootstrap/Dropdown";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function StudioSearchDatabaseResults(props: {
     hasDatabaseMatch: boolean;
@@ -14,6 +16,7 @@ export default function StudioSearchDatabaseResults(props: {
     searchQuery: string;
 }) {
     const { hasDatabaseMatch, databaseResults, activeItem, searchQuery } = props;
+    const t = useStudioTranslation("studioSearchWithDatabaseSelector");
 
     const activeDatabase = useAppSelector(databaseSelectors.activeDatabase);
 
@@ -21,9 +24,11 @@ export default function StudioSearchDatabaseResults(props: {
         return (
             <Dropdown.Item disabled className="studio-search__database-col__group pt-0">
                 <EmptySet compact>
-                    No active database
-                    <br />
-                    Choose a database from the selector or by typing its name
+                    <StudioTrans
+                        ns="studioSearchWithDatabaseSelector"
+                        i18nKey="search.noActiveDatabase"
+                        components={{ br: <br /> }}
+                    />
                 </EmptySet>
             </Dropdown.Item>
         );
@@ -33,9 +38,12 @@ export default function StudioSearchDatabaseResults(props: {
         return (
             <Dropdown.Item disabled className="studio-search__database-col__group pt-0">
                 <EmptySet compact>
-                    Search <b>{activeDatabase.name}</b>
-                    <br />
-                    Type to find results in this database
+                    <StudioTrans
+                        ns="studioSearchWithDatabaseSelector"
+                        i18nKey="search.searchDatabase"
+                        options={{ name: activeDatabase.name }}
+                        components={{ b: <b />, br: <br /> }}
+                    />
                 </EmptySet>
             </Dropdown.Item>
         );
@@ -46,10 +54,15 @@ export default function StudioSearchDatabaseResults(props: {
             <Dropdown.Item disabled className="studio-search__database-col__group pt-0">
                 <EmptySet compact>
                     <span>
-                        No matches for <b>{props.searchQuery}</b> in <b>{activeDatabase.name}</b>
+                        <StudioTrans
+                            ns="studioSearchWithDatabaseSelector"
+                            i18nKey="search.noMatches"
+                            options={{ query: props.searchQuery, name: activeDatabase.name }}
+                            components={{ b: <b /> }}
+                        />
                     </span>
                     <br />
-                    <span>Refine your search or Ask AI</span>
+                    <span>{t("search.refineSearch")}</span>
                 </EmptySet>
             </Dropdown.Item>
         );

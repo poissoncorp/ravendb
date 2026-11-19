@@ -2,6 +2,8 @@ import { useMemo } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import alert from "common/notifications/models/alert";
 import { useKnockoutValue } from "hooks/useKnockoutValue";
+import type { StudioTranslate } from "common/i18n/resources";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 import { NotificationDetailsProps } from "../notificationDetailsProvider";
 import { AlertDetailsModal } from "../NotificationDetailsModal";
 import { NotificationDetailsTable } from "../NotificationDetailsTable";
@@ -11,24 +13,28 @@ interface ComplexFieldsItem {
     complexFields: string;
 }
 
-const columns: ColumnDef<ComplexFieldsItem>[] = [
-    {
-        header: "Index Name",
-        accessorKey: "indexName",
-        meta: { relativeWidth: 30 },
-    },
-    {
-        header: "Fields",
-        accessorKey: "complexFields",
-        meta: { relativeWidth: 70 },
-    },
-];
+function getColumns(t: StudioTranslate<"notificationCenter">): ColumnDef<ComplexFieldsItem>[] {
+    return [
+        {
+            header: t("fields.indexName"),
+            accessorKey: "indexName",
+            meta: { relativeWidth: 30 },
+        },
+        {
+            header: t("complexFields.fields"),
+            accessorKey: "complexFields",
+            meta: { relativeWidth: 70 },
+        },
+    ];
+}
 
 export default function ComplexFieldsAlertDetails({
     notification,
     actions,
 }: NotificationDetailsProps<alert<"Indexing_CoraxComplexItem">>) {
+    const t = useStudioTranslation("notificationCenter");
     const details = useKnockoutValue(notification.details);
+    const columns = useMemo(() => getColumns(t), [t]);
 
     const items = useMemo(
         () =>
@@ -45,8 +51,7 @@ export default function ComplexFieldsAlertDetails({
                 notification={notification}
                 data={items}
                 columns={columns}
-                itemName="index"
-                itemNamePlural="indexes"
+                countKey="table.count.index"
             />
         </AlertDetailsModal>
     );

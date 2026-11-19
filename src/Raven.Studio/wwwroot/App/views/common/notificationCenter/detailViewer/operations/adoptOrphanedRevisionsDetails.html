@@ -6,7 +6,7 @@
                     <h3 id="myModalLabel" data-bind="text: op.title, attr:{ class: 'modal-title ' + op.headerClass() }"></h3>
                 </div>
                 <div class="flex-grow text-right margin-right margin-right-sm">
-                    <span class="text-muted">Time elapsed:</span> <span data-bind="text: op.duration"></span>
+                    <span class="text-muted" data-bind="i18n: 'adoptOrphanedRevisionsDetails:timeElapsed'"></span> <span data-bind="text: op.duration"></span>
                 </div>
                 <div>
                     <button type="button" class="close" data-bind="click: close" aria-hidden="true">
@@ -21,28 +21,28 @@
             <div class="modal-details" data-bind="with: progress">
                 <div class="details-item">
                     <div class="row">
-                        <div class="col-sm-6 text-right">Scanned revisions:</div>
+                        <div class="col-sm-6 text-right" data-bind="i18n: 'adoptOrphanedRevisionsDetails:scannedRevisions'"></div>
                         <div class="col-sm-6 details-value" data-bind="text: ScannedRevisions.toLocaleString()"></div>
                     </div>
                 </div>
                 <div class="details-item">
                     <div class="row">
-                        <div class="col-sm-6 text-right">Scanned documents:</div>
+                        <div class="col-sm-6 text-right" data-bind="i18n: 'adoptOrphanedRevisionsDetails:scannedDocuments'"></div>
                         <div class="col-sm-6 details-value" data-bind="text: ScannedDocuments.toLocaleString()"></div>
                     </div>
                 </div>
                 <div class="details-item">
                     <div class="row">
-                        <div class="col-sm-6 text-right">Adopted count:</div>
+                        <div class="col-sm-6 text-right" data-bind="i18n: 'adoptOrphanedRevisionsDetails:adoptedCount'"></div>
                         <div class="col-sm-6 details-value" data-bind="text: AdoptedCount.toLocaleString()"></div>
                     </div>
                 </div>
             </div>
             <div data-bind="if: operationFailed">
-                <h3 class="text-danger text-center">Operation failed!</h3>
+                <h3 class="text-danger text-center" data-bind="i18n: 'adoptOrphanedRevisionsDetails:operationFailed'"></h3>
                 <div class="d-flex margin-top">
                     <div class="flex-grow"></div>
-                    <button type="button" class="btn btn-default btn-sm" data-bind="click: copyErrorDetails"><i class="icon-copy-to-clipboard"></i><span>Copy error message</span></button>
+                    <button type="button" class="btn btn-default btn-sm" data-bind="click: copyErrorDetails"><i class="icon-copy-to-clipboard"></i><span data-bind="i18n: 'adoptOrphanedRevisionsDetails:copyErrorMessage'"></span></button>
                 </div>
                 <pre class="error-messages"><code data-bind="text: errorMessages().filter(x => x).join('\n')"></code></pre>
             </div>
@@ -58,5 +58,5 @@
 </div>
 
 <script type="text/html" id="empty-adopt-orphaned-revisions-template">
-    No warnings found.
+    <span data-bind="i18n: 'adoptOrphanedRevisionsDetails:noWarnings'"></span>
 </script>

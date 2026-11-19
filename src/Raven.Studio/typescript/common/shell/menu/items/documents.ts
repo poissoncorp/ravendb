@@ -7,6 +7,9 @@ import reactUtils = require("common/reactUtils");
 import AllRevisions = require("components/pages/database/documents/allRevisions/AllRevisions");
 import CompareExchange = require("components/pages/database/documents/compareExchange/CompareExchange");
 import DocumentsPage = require("components/pages/database/documents/documentsList/DocumentsPage");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("menu");
 
 export = getDocumentsMenuItem;
 
@@ -16,31 +19,31 @@ function getDocumentsMenuItem(appUrls: computedAppUrls) {
             route: "databases/documents",
             moduleId: reactUtils.bridgeToReact(DocumentsPage.default, "shardedView"),
             shardingMode: "allShards",
-            title: "All Documents",
+            title: t("documents.allDocuments"),
             nav: false,
             css: "icon-documents",
             dynamicHash: appUrls.documents,
             search: {
-                alternativeTitles: ["Documents"]
+                alternativeTitles: [t("documents.title")]
             }
         }),
         new leafMenuItem({
             route: "databases/documents/revisions/all",
             moduleId: reactUtils.bridgeToReact(AllRevisions.default, "shardedView"),
             shardingMode: "allShards",
-            title: "All Revisions",
+            title: t("documents.allRevisions.title"),
             nav: false,
             css: "icon-revisions",
             dynamicHash: appUrls.allRevisions,
             search: {
-                alternativeTitles: ["Revisions"]
+                alternativeTitles: [t("documents.allRevisions.revisions")]
             }
         }),
         new leafMenuItem({
             route: "databases/documents/revisions/bin",
             moduleId: require("viewmodels/database/documents/revisionsBin"),
             shardingMode: "allShards",
-            title: "Revisions Bin",
+            title: t("documents.revisionsBin"),
             nav: false,
             css: "icon-revisions-bin",
             dynamicHash: appUrls.revisionsBin,
@@ -50,7 +53,7 @@ function getDocumentsMenuItem(appUrls: computedAppUrls) {
             route: "databases/patch(/:recentPatchHash)",
             moduleId: require("viewmodels/database/patch/patch"),
             shardingMode: "allShards",
-            title: "Patch",
+            title: t("documents.patch"),
             nav: true,
             css: "icon-patch",
             dynamicHash: appUrls.patch,
@@ -60,7 +63,7 @@ function getDocumentsMenuItem(appUrls: computedAppUrls) {
             route: "databases/query/index(/:indexNameOrRecentQueryIndex)",
             moduleId: require("viewmodels/database/query/query"),
             shardingMode: "allShards",
-            title: "Query",
+            title: t("documents.query"),
             nav: true,
             css: "icon-documents-query",
             alias: true,
@@ -73,20 +76,20 @@ function getDocumentsMenuItem(appUrls: computedAppUrls) {
             route: "databases/edit",
             moduleId: require("viewmodels/database/documents/editDocument"),
             shardingMode: "allShards",
-            title: "Edit Document",
+            title: t("documents.editDocument.title"),
             nav: false,
             css: "icon-new-document",
             itemRouteToHighlight: "databases/documents",
             dynamicHash: appUrls.newDoc,
             search: {
-                overrideTitle: "Add New Document",
-                alternativeTitles: ["Create Document"],
+                overrideTitle: t("documents.editDocument.addNew"),
+                alternativeTitles: [t("documents.editDocument.create")],
             }
         }),
         new leafMenuItem({
             route: "databases/ts/edit",
             moduleId: require("viewmodels/database/timeSeries/editTimeSeries"),
-            title: "Edit Time Series",
+            title: t("documents.editTimeSeries"),
             nav: false,
             itemRouteToHighlight: "databases/documents",
             search: {
@@ -97,13 +100,13 @@ function getDocumentsMenuItem(appUrls: computedAppUrls) {
             route: "databases/identities",
             moduleId: reactUtils.bridgeToReact(DocumentIdentities.default, "nonShardedView"),
             shardingMode: "allShards",
-            title: "Identities",
+            title: t("documents.identities.title"),
             nav: true,
             css: "icon-identities",
             dynamicHash: appUrls.identities,
             search: {
                 innerActions: [
-                    { name: "Add New Identity", alternativeNames: ["Create Identity"] }
+                    { name: t("documents.identities.addNew"), alternativeNames: [t("documents.identities.create")] }
                 ],
             },
         }),
@@ -111,7 +114,7 @@ function getDocumentsMenuItem(appUrls: computedAppUrls) {
             route: "databases/cmpXchg",
             moduleId: reactUtils.bridgeToReact(CompareExchange.default, "nonShardedView"),
             shardingMode: "allShards",
-            title: "Compare Exchange",
+            title: t("documents.compareExchange"),
             nav: true,
             css: "icon-cmp-xchg",
             dynamicHash: appUrls.cmpXchg
@@ -120,21 +123,21 @@ function getDocumentsMenuItem(appUrls: computedAppUrls) {
             route: "databases/cmpXchg/edit",
             moduleId: require("viewmodels/database/cmpXchg/editCmpXchg"),
             shardingMode: "allShards",
-            title: "Edit Compare Exchange Value",
+            title: t("documents.editCompareExchange.title"),
             nav: false,
             css: "icon-plus",
             itemRouteToHighlight: "databases/cmpXchg",
             dynamicHash: appUrls.cmpXchg,
             search: {
-                overrideTitle: "Add New Compare Exchange Value",
-                alternativeTitles: ["Create Compare Exchange Value"],
+                overrideTitle: t("documents.editCompareExchange.addNew"),
+                alternativeTitles: [t("documents.editCompareExchange.create")],
             }
         }),
         new leafMenuItem({
             route: "databases/documents/conflicts",
             moduleId: require("viewmodels/database/conflicts/conflicts"),
             shardingMode: "allShards",
-            title: "Conflicts",
+            title: t("documents.conflicts"),
             nav: true,
             css: "icon-conflicts",
             dynamicHash: appUrls.conflicts,
@@ -142,7 +145,7 @@ function getDocumentsMenuItem(appUrls: computedAppUrls) {
         })
     ];
 
-    return new intermediateMenuItem("Documents", documentsItems, "icon-documents", {
+    return new intermediateMenuItem(t("documents.title"), documentsItems, "icon-documents", {
         dynamicHash: appUrls.documents
     });
 }

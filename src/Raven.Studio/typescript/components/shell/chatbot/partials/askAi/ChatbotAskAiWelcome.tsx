@@ -3,10 +3,12 @@ import { chatbotSelectors } from "../../store/chatbotSlice";
 import { aiAssistantSelectors } from "components/common/shell/aiAssistantSlice";
 import AsciiLogo from "components/shell/chatbot/partials/askAi/iconAscii/IconAscii";
 import KeywordsSlider from "components/shell/chatbot/partials/askAi/ChatbotAskAiKeywordsSlider";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 export default function ChatbotAskAiWelcome() {
     const messagesCount = useAppSelector(chatbotSelectors.messagesCount);
     const consentStatus = useAppSelector(aiAssistantSelectors.consentStatus);
+    const t = useStudioTranslation("chatbot");
     const isConsentSuccess = consentStatus.data === "Success";
 
     if (messagesCount > 0 || !isConsentSuccess) {
@@ -17,7 +19,7 @@ export default function ChatbotAskAiWelcome() {
         <div className="p-5 text-center">
             <AsciiLogo />
             <div className="vstack gap-1">
-                <h3 className="mt-4 mb-0 fw-semibold">AI Assistant</h3>
+                <h3 className="mt-4 mb-0 fw-semibold">{t("aiAssistant")}</h3>
                 <KeywordsSlider />
             </div>
         </div>

@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("aiAssistantCommands");
 
 export interface GiveConsentAiAssistantResultDto {
     Status: Extract<AiAssistantResponseStatus, "Success" | "InvalidCredentials">;
@@ -23,7 +26,7 @@ export default class giveConsentAiAssistantCommand extends commandBase {
                         Status: xhr.responseJSON.Status,
                     });
                 } else {
-                    this.reportError("Failed to give consent to AI Assistant", xhr.responseText, xhr.statusText);
+                    this.reportError(t("giveConsentFailed"), xhr.responseText, xhr.statusText);
                     deferred.reject(xhr);
                 }
             });

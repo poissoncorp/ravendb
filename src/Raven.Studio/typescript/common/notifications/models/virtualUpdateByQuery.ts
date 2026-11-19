@@ -1,8 +1,10 @@
 /// <reference path="../../../../typings/tsd.d.ts" />
 import database = require("models/resources/database");
 import moment = require("moment");
-import pluralizeHelpers = require("common/helpers/text/pluralizeHelpers");
 import groupedVirtualNotification = require("common/notifications/models/groupedVirtualNotification");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("notifications");
 
 class virtualUpdateByQuery extends groupedVirtualNotification<queryBasedVirtualBulkOperationItem> {
 
@@ -22,7 +24,7 @@ class virtualUpdateByQuery extends groupedVirtualNotification<queryBasedVirtualB
             Severity: null,
         });
 
-        this.title("Update by query");
+        this.title(t("updateByQuery.title"));
         this.severity("Success");
     }
 
@@ -49,8 +51,10 @@ class virtualUpdateByQuery extends groupedVirtualNotification<queryBasedVirtualB
             this.operations.unshift(item);
         }
 
-        this.message(pluralizeHelpers.pluralize(this.operations().length, "operation", "operations")
-            + " has been completed successfully. ");
+        const operationsCount = this.operations().length;
+        this.message(
+            t("updateByQuery.completed", { count: operationsCount, formattedCount: operationsCount.toLocaleString() })
+        );
     }
 }
 

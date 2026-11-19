@@ -4,6 +4,9 @@ import separatorMenuItem = require("common/shell/menu/separatorMenuItem");
 import reactUtils = require("common/reactUtils");
 import StatisticsPage = require("components/pages/database/status/statistics/StatisticsPage");
 import TombstonesState = require("components/pages/database/status/tombstones/TombstonesState");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("menu");
 
 export = getStatsMenuItem;
 
@@ -13,7 +16,7 @@ function getStatsMenuItem(appUrls: computedAppUrls, isSharded: boolean) {
             route: 'databases/status',
             moduleId: reactUtils.bridgeToReact(StatisticsPage.StatisticsPage, "nonShardedView"),
             shardingMode: "allShards",
-            title: 'Stats',
+            title: t("stats.title"),
             nav: true,
             css: 'icon-stats',
             dynamicHash: appUrls.status
@@ -22,15 +25,15 @@ function getStatsMenuItem(appUrls: computedAppUrls, isSharded: boolean) {
             route: 'databases/status/ioStats',
             moduleId: require('viewmodels/database/status/ioStats'),
             shardingMode: "singleShard",
-            title: 'IO Stats',
-            tooltip: "Displays IO metrics status",
+            title: t("stats.ioStats.title"),
+            tooltip: t("stats.ioStats.tooltip"),
             nav: true,
             css: 'icon-io-test',
             dynamicHash: appUrls.ioStats,
             search: {
                 innerActions: [
-                    { name: "Export IO Stats" },
-                    { name: "Import IO Stats" },
+                    { name: t("stats.ioStats.export") },
+                    { name: t("stats.ioStats.import") },
                 ],
             },
         }),
@@ -38,8 +41,8 @@ function getStatsMenuItem(appUrls: computedAppUrls, isSharded: boolean) {
             route: 'databases/status/storage/report',
             moduleId: require('viewmodels/database/status/storageReport'),
             shardingMode: "singleShard",
-            title: 'Storage Report',
-            tooltip: "Storage Report",
+            title: t("stats.storageReport"),
+            tooltip: t("stats.storageReport"),
             nav: true,
             css: 'icon-storage',
             dynamicHash: appUrls.statusStorageReport
@@ -48,8 +51,8 @@ function getStatsMenuItem(appUrls: computedAppUrls, isSharded: boolean) {
             route: 'databases/status/buckets/report',
             moduleId: require('viewmodels/database/status/bucketsReport'),
             shardingMode: "allShards",
-            title: 'Buckets Report',
-            tooltip: "Buckets Report",
+            title: t("stats.bucketsReport"),
+            tooltip: t("stats.bucketsReport"),
             nav: isSharded,
             css: 'icon-storage', //TODO:
             dynamicHash: appUrls.statusBucketsReport,
@@ -60,7 +63,7 @@ function getStatsMenuItem(appUrls: computedAppUrls, isSharded: boolean) {
         new leafMenuItem({
             route: "virtual", // here we only redirect to global section with proper db set in url
             moduleId: () => { /* empty */},
-            title: 'Running Queries',
+            title: t("stats.runningQueries"),
             nav: true,
             css: 'icon-stats-running-queries',
             dynamicHash: appUrls.runningQueries
@@ -69,23 +72,23 @@ function getStatsMenuItem(appUrls: computedAppUrls, isSharded: boolean) {
             route: 'databases/status/ongoingTasksStats',
             moduleId: require('viewmodels/database/status/ongoingTasksStats'),
             shardingMode: "singleShard",
-            title: 'Ongoing Task Stats',
+            title: t("stats.ongoingTaskStats.title"),
             nav: true,
             css: 'icon-replication-stats',
             dynamicHash: appUrls.ongoingTasksStats,
             search: {
                 innerActions: [
-                    { name: "Export Ongoing Task Stats" },
-                    { name: "Import Ongoing Task Stats" },
+                    { name: t("stats.ongoingTaskStats.export") },
+                    { name: t("stats.ongoingTaskStats.import") },
                 ],
             },
         }),
         new separatorMenuItem(),
-        new separatorMenuItem('Advanced'),
+        new separatorMenuItem(t("stats.advanced")),
         new leafMenuItem({
             route: 'databases/status/tombstonesState',
             moduleId: reactUtils.bridgeToReact(TombstonesState.default, "shardedView"),
-            title: 'Tombstones',
+            title: t("stats.tombstones.title"),
             nav: true,
             shardingMode: "singleShard",
             css: 'icon-tombstones',
@@ -93,14 +96,14 @@ function getStatsMenuItem(appUrls: computedAppUrls, isSharded: boolean) {
             requiredAccess: "Operator",
             search: {
                 innerActions: [
-                    { name: "Force cleanup" },
+                    { name: t("stats.tombstones.forceCleanup") },
                 ],
             },
         }),
         new leafMenuItem({
             route: 'databases/status/debug*details',
             moduleId: null,
-            title: 'Debug',
+            title: t("stats.debug"),
             nav: false,
             css: 'icon-debug',
             search: {
@@ -109,5 +112,5 @@ function getStatsMenuItem(appUrls: computedAppUrls, isSharded: boolean) {
         })
     ];
 
-    return new intermediateMenuItem("Stats", statsItems, "icon-stats-menu");
+    return new intermediateMenuItem(t("stats.title"), statsItems, "icon-stats-menu");
 }

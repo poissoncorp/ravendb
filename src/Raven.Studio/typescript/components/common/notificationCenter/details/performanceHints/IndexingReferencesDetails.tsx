@@ -4,6 +4,8 @@ import Table from "react-bootstrap/Table";
 import performanceHint from "common/notifications/models/performanceHint";
 import genUtils from "common/generalUtils";
 import { useKnockoutValue } from "hooks/useKnockoutValue";
+import type { StudioTranslate } from "common/i18n/resources";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 import { NotificationDetailsProps } from "../notificationDetailsProvider";
 import { PerformanceHintDetailsModal } from "../NotificationDetailsModal";
 import { NotificationDetailsTable } from "../NotificationDetailsTable";
@@ -21,23 +23,26 @@ interface IndexReferencesWarning {
     loadedReferences: LoadedReference[];
 }
 
-const dataColumns: ColumnDef<IndexReferencesWarning>[] = [
-    {
-        header: "Index Name",
-        accessorKey: "indexName",
-        meta: { relativeWidth: 60 },
-    },
-    {
-        header: "Last Warning Date",
-        accessorKey: "lastWarningTime",
-        ...dateColumnOptions,
-    },
-];
+function getDataColumns(t: StudioTranslate<"notificationCenter">): ColumnDef<IndexReferencesWarning>[] {
+    return [
+        {
+            header: t("fields.indexName"),
+            accessorKey: "indexName",
+            meta: { relativeWidth: 60 },
+        },
+        {
+            header: t("indexingReferences.lastWarningDate"),
+            accessorKey: "lastWarningTime",
+            ...dateColumnOptions,
+        },
+    ];
+}
 
 export default function IndexingReferencesDetails({
     notification,
     actions,
 }: NotificationDetailsProps<performanceHint<"Indexing_References">>) {
+    const t = useStudioTranslation("notificationCenter");
     const details = useKnockoutValue(notification.details);
 
     const warnings = useMemo(
@@ -55,8 +60,8 @@ export default function IndexingReferencesDetails({
     const [selectedWarning, setSelectedWarning] = usePreviewItem(warnings, getWarningKey);
 
     const columns = useMemo(
-        () => [previewColumn<IndexReferencesWarning>(setSelectedWarning), ...dataColumns],
-        [setSelectedWarning]
+        () => [previewColumn<IndexReferencesWarning>(setSelectedWarning), ...getDataColumns(t)],
+        [setSelectedWarning, t]
     );
 
     return (
@@ -65,26 +70,25 @@ export default function IndexingReferencesDetails({
                 notification={notification}
                 data={warnings}
                 columns={columns}
-                itemName="index"
-                itemNamePlural="indexes"
+                countKey="table.count.index"
                 selectedItem={selectedWarning}
                 onItemClick={setSelectedWarning}
             />
             {selectedWarning && (
-                <NotificationDetailsPreview title="Top loaded references" item={selectedWarning}>
+                <NotificationDetailsPreview title={t("indexingReferences.previewTitle")} item={selectedWarning}>
                     <NotificationDetailsList>
-                        <NotificationDetailsListItem label="Index Name">
+                        <NotificationDetailsListItem label={t("fields.indexName")}>
                             {selectedWarning.indexName}
                         </NotificationDetailsListItem>
-                        <NotificationDetailsListItem label="Last warning time">
+                        <NotificationDetailsListItem label={t("indexingReferences.lastWarningTime")}>
                             {genUtils.formatUtcDateAsLocal(selectedWarning.lastWarningTime)}
                         </NotificationDetailsListItem>
                     </NotificationDetailsList>
                     <Table striped size="sm" className="mb-0">
                         <thead>
                             <tr>
-                                <th>Reference ID</th>
-                                <th>Number of loads</th>
+                                <th>{t("fields.referenceId")}</th>
+                                <th>{t("indexingReferences.numberOfLoads")}</th>
                             </tr>
                         </thead>
                         <tbody>

@@ -1,5 +1,6 @@
 import { ChatbotRelevantLink } from "commands/aiAssistant/runChatbotAiAssistantCommand";
 import "./ChatbotAskAiMessageRelevantLinks.scss";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 const sourceChipFavicon = require("Content/img/source-chip-favicon.svg");
 
@@ -8,13 +9,15 @@ interface ChatbotAskAiMessageRelevantLinksProps {
 }
 
 export default function ChatbotAskAiMessageRelevantLinks({ links }: ChatbotAskAiMessageRelevantLinksProps) {
+    const t = useStudioTranslation("chatbot");
+
     if (!links?.length) {
         return null;
     }
 
     return (
         <div className="pb-2 vstack gap-1">
-            <span className="small-label">Sources</span>
+            <span className="small-label">{t("messages.sources")}</span>
             <div className="hstack gap-1 flex-wrap pb-2">
                 {links.filter(Boolean).map((link) => (
                     <a

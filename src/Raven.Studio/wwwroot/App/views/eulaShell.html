@@ -4,7 +4,7 @@
             <i class="icon-raven text-primary icon-lg"></i>
         </div>
         <div class="padding">
-            <h2 class="margin-none"> <strong>RavenDB End-User License Agreement</strong></h2>
+            <h2 class="margin-none"> <strong data-bind="i18n: 'eulaShell:title'"></strong></h2>
         </div>
         
     </div>
@@ -20,12 +20,12 @@
 <footer class="bs3 status-footer">
     <div class="footer-right">
         <div class="footer-item">
-            <div title="Studio Version">
+            <div data-bind="i18nAttr: { title: 'eulaShell:studioVersion' }">
                 <i class="icon-client"></i> <span data-bind="text: $root.constructor.clientVersion"></span>
             </div>
         </div>
         <div class="footer-item">
-            <div title="Server Version">
+            <div data-bind="i18nAttr: { title: 'eulaShell:serverVersion' }">
                 <i class="icon-server"></i> <span data-bind="text: $root.constructor.buildInfo.serverBuildVersion() ? $root.constructor.buildInfo.serverBuildVersion().FullVersion : ''"></span>
             </div>
         </div>

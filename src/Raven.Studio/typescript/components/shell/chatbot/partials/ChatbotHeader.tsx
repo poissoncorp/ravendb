@@ -12,9 +12,12 @@ import "./ChatbotHeader.scss";
 import useConfirm from "components/common/ConfirmDialog";
 import Badge from "react-bootstrap/Badge";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function ChatbotHeader() {
     const dispatch = useAppDispatch();
+    const t = useStudioTranslation("chatbot");
     const chatbotTab = useAppSelector(chatbotSelectors.chatbotTab);
     const isPinned = useAppSelector(chatbotSelectors.isPinned);
 
@@ -29,7 +32,7 @@ export default function ChatbotHeader() {
                     variant="link"
                     size="sm"
                     onClick={() => dispatch(chatbotActions.isPinnedToggled())}
-                    title={isPinned ? "Unpin window" : "Pin window"}
+                    title={isPinned ? t("header.unpinWindow") : t("header.pinWindow")}
                 >
                     <Icon icon={isPinned ? "pinned" : "pin"} margin="m-0" />
                 </Button>
@@ -40,6 +43,7 @@ export default function ChatbotHeader() {
 
 function AskAiActions() {
     const dispatch = useAppDispatch();
+    const t = useStudioTranslation("chatbot");
     const isAlwaysAllowEndpointCalls = useAppSelector(chatbotSelectors.isAlwaysAllowEndpointCalls);
     const isChatbotDataSubmissionEnabled = useAppSelector(chatbotSelectors.isDataSubmissionEnabled);
     const aiAssistantSettings = useAppSelector(aiAssistantSelectors.settings);
@@ -51,9 +55,9 @@ function AskAiActions() {
 
     const resetConversation = async () => {
         const isConfirmed = await confirm({
-            title: "Start new conversation",
-            message: "This will clear the current conversation.",
-            confirmText: "Start new",
+            title: t("header.startNewConversation"),
+            message: t("header.startNewConversationMessage"),
+            confirmText: t("header.startNewConversationConfirm"),
         });
 
         if (!isConfirmed) {
@@ -71,7 +75,7 @@ function AskAiActions() {
             <ConditionalPopover
                 conditions={{
                     isActive: isConversationEmpty,
-                    message: "The current conversation is empty",
+                    message: t("header.conversationEmpty"),
                 }}
             >
                 <Button
@@ -81,12 +85,12 @@ function AskAiActions() {
                     onClick={resetConversation}
                     disabled={isConversationEmpty}
                 >
-                    <Icon icon="plus" margin="m-0" title="Start new conversation" />
+                    <Icon icon="plus" margin="m-0" title={t("header.startNewConversation")} />
                 </Button>
             </ConditionalPopover>
             <Dropdown>
                 <Dropdown.Toggle as={CustomDropdownToggle} isCaretHidden variant="link" className="text-emphasis">
-                    <Icon icon="settings" margin="m-0" title="Chat settings" />
+                    <Icon icon="settings" margin="m-0" title={t("header.chatSettings")} />
                 </Dropdown.Toggle>
                 <Dropdown.Menu className="p-3" style={{ minWidth: "max-content" }}>
                     <Switch
@@ -96,12 +100,14 @@ function AskAiActions() {
                             dispatch(chatbotActions.isAlwaysAllowEndpointCallsSet(!isAlwaysAllowEndpointCalls))
                         }
                     >
-                        Always allow endpoints calls
+                        {t("header.alwaysAllowEndpointCalls")}
                         <PopoverWithHoverWrapper
                             message={
-                                <>
-                                    Enable this option to allow AI Assistant <b>always</b> call endpoints.
-                                </>
+                                <StudioTrans
+                                    ns="chatbot"
+                                    i18nKey="header.alwaysAllowEndpointCallsInfo"
+                                    components={{ b: <b /> }}
+                                />
                             }
                         >
                             <Icon icon="info-new" margin="ms-1" />
@@ -123,12 +129,8 @@ function AskAiActions() {
                             }
                             disabled={aiAssistantSettings.isDataSubmissionDisabled}
                         >
-                            Allow data submission
-                            <PopoverWithHoverWrapper
-                                message={
-                                    <>Enable this option to allow the AI Assistant to submit data for processing.</>
-                                }
-                            >
+                            {t("header.allowDataSubmission")}
+                            <PopoverWithHoverWrapper message={t("header.allowDataSubmissionInfo")}>
                                 <Icon icon="info-new" margin="ms-1" />
                             </PopoverWithHoverWrapper>
                         </Switch>
@@ -136,7 +138,7 @@ function AskAiActions() {
                     <ConditionalPopover
                         conditions={{
                             isActive: isConversationEmpty,
-                            message: "The current conversation is empty",
+                            message: t("header.conversationEmpty"),
                         }}
                         className="w-100"
                     >
@@ -148,7 +150,7 @@ function AskAiActions() {
                                 disabled={isConversationEmpty}
                             >
                                 <Icon icon="export" />
-                                Export conversation
+                                {t("header.exportConversation")}
                             </Button>
                         </>
                     </ConditionalPopover>
@@ -160,6 +162,7 @@ function AskAiActions() {
 
 function HeaderTitle() {
     const dispatch = useAppDispatch();
+    const t = useStudioTranslation("chatbot");
 
     const chatbotTab = useAppSelector(chatbotSelectors.chatbotTab);
     const resourcesTab = useAppSelector(chatbotSelectors.chatbotResourcesTab);
@@ -172,13 +175,13 @@ function HeaderTitle() {
         return (
             <div className="d-flex align-items-center gap-1">
                 <Icon icon="ask-ai" className="ai-gradient" margin="m-0" />
-                AI Assistant
+                {t("aiAssistant")}
                 <Badge
                     bg="faded-experimental"
                     className="font-monospace border border-experimental font-monospace font-size-10 px-1"
                     pill
                 >
-                    Preview
+                    {t("header.preview")}
                 </Badge>
             </div>
         );
@@ -189,15 +192,15 @@ function HeaderTitle() {
             return (
                 <div>
                     <Icon icon="resources" />
-                    Resources
+                    {t("resources")}
                 </div>
             );
         }
 
         const resourcesTabTitles: Record<string, string> = {
-            joinTheCommunity: "Join the Community",
-            contactSupport: "Contact Support",
-            submitFeedback: "Submit Feedback",
+            joinTheCommunity: t("helpAndResources.joinTheCommunity"),
+            contactSupport: t("header.contactSupport"),
+            submitFeedback: t("header.submitFeedback"),
         };
 
         return (

@@ -5,6 +5,8 @@ import { RemoteAttachmentErrorInfo } from "common/notifications/models/notificat
 import genUtils from "common/generalUtils";
 import Code from "components/common/Code";
 import { useKnockoutValue } from "hooks/useKnockoutValue";
+import type { StudioTranslate } from "common/i18n/resources";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 import { NotificationDetailsProps } from "../notificationDetailsProvider";
 import { AlertDetailsModal } from "../NotificationDetailsModal";
 import { NotificationDetailsTable } from "../NotificationDetailsTable";
@@ -13,34 +15,37 @@ import { NotificationDetailsList, NotificationDetailsListItem } from "../Notific
 import { NotificationDetailsPreview } from "../NotificationDetailsPreview";
 import { usePreviewItem } from "../usePreviewItem";
 
-const dataColumns: ColumnDef<RemoteAttachmentErrorInfo>[] = [
-    {
-        header: "Date",
-        accessorKey: "Date",
-        ...dateColumnOptions,
-    },
-    {
-        id: "Ids",
-        header: "Ids",
-        accessorFn: (x) => x.Ids?.join(", "),
-        meta: { relativeWidth: 15 },
-    },
-    {
-        header: "Identifier",
-        accessorKey: "Identifier",
-        meta: { relativeWidth: 20 },
-    },
-    {
-        header: "Error",
-        accessorKey: "Error",
-        meta: { relativeWidth: 50 },
-    },
-];
+function getDataColumns(t: StudioTranslate<"notificationCenter">): ColumnDef<RemoteAttachmentErrorInfo>[] {
+    return [
+        {
+            header: t("fields.date"),
+            accessorKey: "Date",
+            ...dateColumnOptions,
+        },
+        {
+            id: "Ids",
+            header: t("remoteAttachmentError.ids"),
+            accessorFn: (x) => x.Ids?.join(", "),
+            meta: { relativeWidth: 15 },
+        },
+        {
+            header: t("remoteAttachmentError.identifier"),
+            accessorKey: "Identifier",
+            meta: { relativeWidth: 20 },
+        },
+        {
+            header: t("fields.error"),
+            accessorKey: "Error",
+            meta: { relativeWidth: 50 },
+        },
+    ];
+}
 
 export default function RemoteAttachmentErrorDetails({
     notification,
     actions,
 }: NotificationDetailsProps<alert<"Attachments_RemoteAttachmentErroredIdentifier">>) {
+    const t = useStudioTranslation("notificationCenter");
     const details = useKnockoutValue(notification.details);
 
     const errors = useMemo(() => [...(details.Errors ?? [])].reverse(), [details]);
@@ -48,8 +53,8 @@ export default function RemoteAttachmentErrorDetails({
     const [selectedError, setSelectedError] = usePreviewItem(errors, getErrorKey);
 
     const columns = useMemo(
-        () => [previewColumn<RemoteAttachmentErrorInfo>(setSelectedError), ...dataColumns],
-        [setSelectedError]
+        () => [previewColumn<RemoteAttachmentErrorInfo>(setSelectedError), ...getDataColumns(t)],
+        [setSelectedError, t]
     );
 
     return (
@@ -58,22 +63,23 @@ export default function RemoteAttachmentErrorDetails({
                 notification={notification}
                 data={errors}
                 columns={columns}
-                itemName="error"
-                itemNamePlural="errors"
+                countKey="table.count.error"
                 selectedItem={selectedError}
                 onItemClick={setSelectedError}
             />
             {selectedError && (
-                <NotificationDetailsPreview title="Details" item={selectedError}>
+                <NotificationDetailsPreview title={t("table.previewTitle")} item={selectedError}>
                     <NotificationDetailsList>
-                        <NotificationDetailsListItem label="Identifier">
+                        <NotificationDetailsListItem label={t("remoteAttachmentError.identifier")}>
                             {selectedError.Identifier}
                         </NotificationDetailsListItem>
-                        <NotificationDetailsListItem label="Hash">{selectedError.Hash}</NotificationDetailsListItem>
-                        <NotificationDetailsListItem label="Document IDs">
+                        <NotificationDetailsListItem label={t("remoteAttachmentError.hash")}>
+                            {selectedError.Hash}
+                        </NotificationDetailsListItem>
+                        <NotificationDetailsListItem label={t("remoteAttachmentError.documentIds")}>
                             {selectedError.Ids?.length ? selectedError.Ids.join(", ") : "-"}
                         </NotificationDetailsListItem>
-                        <NotificationDetailsListItem label="Date">
+                        <NotificationDetailsListItem label={t("fields.date")}>
                             {genUtils.formatUtcDateAsLocal(selectedError.Date)}
                         </NotificationDetailsListItem>
                     </NotificationDetailsList>

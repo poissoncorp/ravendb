@@ -3,12 +3,15 @@ import protractedCommandsDetector from "common/notifications/protractedCommandsD
 import { Icon } from "components/common/Icon";
 import Button from "react-bootstrap/Button";
 import Spinner from "react-bootstrap/Spinner";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 export default function ProtractedRequestMessage() {
+    const t = useStudioTranslation("shellPartials");
+
     return (
         <div className="protracted-request-message hidden">
             <Spinner size="sm" variant="progress" className="me-2" />
-            <span>Making things happen... Please hold on.</span>
+            <span>{t("protractedRequest")}</span>
             <Button
                 variant="link"
                 size="sm"

@@ -13,6 +13,7 @@ import genUtils from "common/generalUtils";
 import ChatbotAskAiAttachedContextNewItem from "components/shell/chatbot/partials/askAi/ChatbotAskAiAttachedContextNewItem";
 import Button from "react-bootstrap/Button";
 import Code from "components/common/Code";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 interface ChatbotAskAiAttachedContextProps {
     attachedContexts: ChatbotAttachedContext[];
@@ -46,6 +47,7 @@ interface ContextItemProps {
 
 function Item({ item, isReadOnly = false }: ContextItemProps) {
     const dispatch = useAppDispatch();
+    const t = useStudioTranslation("chatbot");
 
     const sizeInBytes = useMemo(() => {
         const stringValue = typeof item.value === "string" ? item.value : JSON.stringify(item.value);
@@ -123,7 +125,7 @@ function Item({ item, isReadOnly = false }: ContextItemProps) {
                             onClick={() => dispatch(chatbotActions.attachedContextRemoved(item.id))}
                             size="xs"
                         >
-                            <Icon icon="cancel" margin="ms-1" size="xs" title="Remove context" />
+                            <Icon icon="cancel" margin="ms-1" size="xs" title={t("attachedContext.removeContext")} />
                         </Button>
                     )}
                 </div>
@@ -131,7 +133,7 @@ function Item({ item, isReadOnly = false }: ContextItemProps) {
             {hasAdditionalInfo && (
                 <div className="context-additional-info bg-faded-primary hstack text-body rounded-1 gap-1">
                     {hasConfidentialData && (
-                        <PopoverWithHoverWrapper message="This content may contain confidential data.">
+                        <PopoverWithHoverWrapper message={t("attachedContext.confidentialData")}>
                             <Icon icon="shield" color="primary" margin="m-0" size="xs" />
                         </PopoverWithHoverWrapper>
                     )}
@@ -143,6 +145,18 @@ function Item({ item, isReadOnly = false }: ContextItemProps) {
 }
 
 function LabelTooltipContent({ item }: { item: ChatbotAttachedContext }) {
+    const t = useStudioTranslation("chatbot");
+
+    const tooltipTitles: Record<ChatbotAttachedContext["type"], string> = {
+        View: t("attachedContext.types.view"),
+        DatabaseName: t("attachedContext.types.databaseName"),
+        DocumentId: t("attachedContext.types.documentId"),
+        IndexName: t("attachedContext.types.indexName"),
+        CollectionName: t("attachedContext.types.collectionName"),
+        QueryResult: t("attachedContext.types.queryResult"),
+        QueryError: t("attachedContext.types.queryError"),
+    };
+
     return (
         <>
             <div className="fw-bold">{tooltipTitles[item.type]}</div>
@@ -154,13 +168,3 @@ function LabelTooltipContent({ item }: { item: ChatbotAttachedContext }) {
         </>
     );
 }
-
-const tooltipTitles: Record<ChatbotAttachedContext["type"], string> = {
-    View: "Current view",
-    DatabaseName: "Database name",
-    DocumentId: "Document ID",
-    IndexName: "Index name",
-    CollectionName: "Collection name",
-    QueryResult: "Query result",
-    QueryError: "Query error",
-};

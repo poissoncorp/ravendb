@@ -6,7 +6,7 @@
                     <h3 class="modal-title" id="myModalLabel" data-bind="text: op.title, attr:{ class: 'modal-title ' + op.headerClass() }"></h3>
                 </div>
                 <div class="flex-grow text-right margin-right margin-right-sm">
-                    <span class="text-muted">Time elapsed:</span> <span data-bind="text: op.duration"></span>
+                    <span class="text-muted" data-bind="i18n: 'compactDatabaseDetails:timeElapsed'"></span> <span data-bind="text: op.duration"></span>
                 </div>
                 <div>
                     <button type="button" class="close" data-bind="click: close" aria-hidden="true">
@@ -17,19 +17,16 @@
             <div class="notification-time" data-bind="text: op.displayDate().format('LLL')"></div>
         </div>
         <div class="modal-body">
-            <h3 class="text-danger" data-bind="visible: operationFailed">Operation failed!</h3>
+            <h3 class="text-danger" data-bind="visible: operationFailed, i18n: 'compactDatabaseDetails:operationFailed'"></h3>
             <div class="items-list" data-bind="visible: items().length">
                 <div class="export-legend">
                     <div class="name">
                     </div>
-                    <div class="status status-processed">
-                        status
+                    <div class="status status-processed" data-bind="i18n: 'compactDatabaseDetails:legend.status'">
                     </div>
-                    <div class="read">
-                        processed
+                    <div class="read" data-bind="i18n: 'compactDatabaseDetails:legend.processed'">
                     </div>
-                    <div class="skipped">
-                        total
+                    <div class="skipped" data-bind="i18n: 'compactDatabaseDetails:legend.total'">
                     </div>
                     <div class="entries">
                     </div>
@@ -40,26 +37,26 @@
                             <h3 data-bind="text: name, attr: {title: name}"></h3>
                         </div>
                         <div class="status status-processed" data-bind="visible: stage === 'processed'">
-                            <i class="icon-check"></i> <span>Processed</span>
+                            <i class="icon-check"></i> <span data-bind="i18n: 'compactDatabaseDetails:stage.processed'"></span>
                         </div>
                         <div class="status status-skipped" data-bind="visible: stage === 'skipped'">
-                            <i class="icon-skip"></i> <span>Skipped</span>
+                            <i class="icon-skip"></i> <span data-bind="i18n: 'compactDatabaseDetails:stage.skipped'"></span>
                         </div>
                         <div class="status status-processing" data-bind="visible: stage === 'processing'">
-                            <span class="global-spinner spinner-sm"></span> <span>Processing</span>
+                            <span class="global-spinner spinner-sm"></span> <span data-bind="i18n: 'compactDatabaseDetails:stage.processing'"></span>
                         </div>
                         <div class="status status-waiting" data-bind="visible: stage === 'pending'">
-                            <i class="icon-waiting"></i> <span>Pending</span>
+                            <i class="icon-waiting"></i> <span data-bind="i18n: 'compactDatabaseDetails:stage.pending'"></span>
                         </div>
                         <div class="read" data-bind="text: processed.toLocaleString()"> <!-- TODO css: { 'text-muted': !hasReadCount } -->
                         </div>
                         <div class="skipped" data-bind="text: total.toLocaleString()"> <!--  TODO css: { 'text-muted': !hasSkippedCount }-->
                         </div>
-                        <div class="entries">trees</div>
+                        <div class="entries" data-bind="i18n: 'compactDatabaseDetails:trees'"></div>
                     </div>
                     <div class="attachments export-item" data-bind="with: detailedProgress, visible: detailedProgress">
                         <div class="name">
-                            <h4 data-bind="text: 'Current tree: ' + treeName"></h4>
+                            <h4 data-bind="i18n: { key: 'compactDatabaseDetails:currentTree', options: { treeName: treeName } }"></h4>
                         </div>
                         <div class="status">
                         </div>
@@ -67,25 +64,24 @@
                         </div>
                         <div class="skipped" data-bind="text: total.toLocaleString()">
                         </div>
-                        <div class="entries">entries</div>
+                        <div class="entries" data-bind="i18n: 'compactDatabaseDetails:entries'"></div>
                     </div>
                 </div>
             </div>
             <div class="clearfix" data-bind="visible: !operationFailed()">
                 <div class="pull-right margin-top">
-                    <button class="btn btn-default btn-sm" data-bind="click: toggleDetails, text: detailsVisible() ? 'Hide details':'Show details', clickBubble: false">
+                    <button class="btn btn-default btn-sm" data-bind="click: toggleDetails, i18n: detailsVisible() ? 'compactDatabaseDetails:hideDetails' : 'compactDatabaseDetails:showDetails', clickBubble: false">
                     </button>
                 </div>
             </div>
             <div class="d-flex margin-top" data-bind="visible: operationFailed">
                 <div class="flex-grow"></div>
-                <button type="button" class="btn btn-default btn-sm" data-bind="click: copyErrorDetails"><i class="icon-copy-to-clipboard"></i><span>Copy error message</span></button>
+                <button type="button" class="btn btn-default btn-sm" data-bind="click: copyErrorDetails"><i class="icon-copy-to-clipboard"></i><span data-bind="i18n: 'compactDatabaseDetails:copyErrorMessage'"></span></button>
             </div>
             <pre class="compact-messages" data-bind="visible: detailsVisible, css: { 'margin-top': !operationFailed() }"><code data-bind="foreach: messages"><span data-bind="text: '\n' + $data"></span></code></pre>
             <div class="toggle margin-top margin-top-sm" data-bind="visible: detailsVisible() && !operationFailed()">
                 <input id="smuggler-monitoring" type="checkbox" data-bind="checked: tail, disable: op.isCompleted">
-                <label for="smuggler-monitoring">
-                    Monitoring (tail -f)
+                <label for="smuggler-monitoring" data-bind="i18n: 'compactDatabaseDetails:monitoring'">
                 </label>
             </div>
         </div>

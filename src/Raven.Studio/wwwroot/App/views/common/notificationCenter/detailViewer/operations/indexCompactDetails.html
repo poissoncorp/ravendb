@@ -6,7 +6,7 @@
                     <h3 class="modal-title" id="myModalLabel" data-bind="text: op.title, attr:{ class: 'modal-title ' + op.headerClass() }"></h3>
                 </div>
                 <div class="flex-grow text-right margin-right margin-right-sm">
-                    <span class="text-muted">Time elapsed:</span> <span data-bind="text: op.duration"></span>
+                    <span class="text-muted" data-bind="i18n: 'indexCompactDetails:timeElapsed'"></span> <span data-bind="text: op.duration"></span>
                 </div>
                 <div>
                     <button type="button" class="close" data-bind="click: $root.close" aria-hidden="true">
@@ -20,8 +20,7 @@
                 <div class="modal-details">
                     <div class="details-item">
                         <div class="row">
-                            <div class="col-sm-6 text-right">
-                                Processed:
+                            <div class="col-sm-6 text-right" data-bind="i18n: 'indexCompactDetails:processed'">
                             </div>
                             <div class="col-sm-6 details-value">
                                 <span data-bind="text: Processed.toLocaleString()"></span> / <span data-bind="text: Total.toLocaleString()"></span>
@@ -41,15 +40,15 @@
                 <span data-bind="text: Message"></span>
             </div>
             <div data-bind="if: operationFailed">
-                <h3 class="text-danger">Operation failed!</h3>
+                <h3 class="text-danger" data-bind="i18n: 'indexCompactDetails:operationFailed'"></h3>
                 <pre class="margin-top error-messages"><code data-bind="foreach: errorMessages"><span data-bind="text: $data"></span>
 </code></pre>
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-bind="click: $root.close">Close</button>
+            <button type="button" class="btn btn-default" data-bind="click: $root.close, i18n: 'indexCompactDetails:close'"></button>
             <button type="button" class="btn btn-danger" data-bind="click: killOperation, visible: killable">
-                <i class="icon-cancel"></i> <span>Abort</span>
+                <i class="icon-cancel"></i> <span data-bind="i18n: 'indexCompactDetails:abort'"></span>
             </button>
         </div>
     </div>

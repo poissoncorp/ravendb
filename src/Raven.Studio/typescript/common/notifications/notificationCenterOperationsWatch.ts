@@ -1,4 +1,7 @@
 ﻿import database = require("models/resources/database");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("notifications");
 
 class notificationCenterOperationsWatch {
 
@@ -58,7 +61,7 @@ class notificationCenterOperationsWatch {
                 operation.resolve(state.Result);
             } else if (state.Status === "Canceled") {
                 operation.reject({
-                    Message: "The operation was canceled"
+                    Message: t("operationCanceled"),
                 } as Raven.Client.Documents.Operations.OperationExceptionResult);
             } else {
                 operation.reject(state.Result);

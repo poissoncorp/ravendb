@@ -1,35 +1,27 @@
 <div id="notification-center" class="flex-vertical" data-bind="css: { 'show-notifications': notificationCenter.showNotifications() }, with: notificationCenter">
     <div class="notification-actions flex-horizontal flex-stretch-items" data-bind="if: includeInDom">
         <div class="flex-horizontal flex-stretch-items">
-            <button data-bind="click: _.partial(filterBySeverity, null), css: { active: !severityFilter() }"
-                    title="Show all notifications" class="notification-type-toggle active">
-                All
-            </button>
-            <button data-bind="click: _.partial(filterBySeverity, 'Success'), css: { active: severityFilter() === 'Success' }, text: successItemsCount"
-                    title="Filter by severity: Success" class="notification-type-toggle type-success"></button>
-            <button data-bind="click: _.partial(filterBySeverity, 'Info'), css: { active: severityFilter() === 'Info' }, text: infoItemsCount"
-                    title="Filter by severity: Info" class="notification-type-toggle type-info"></button>
-            <button data-bind="click: _.partial(filterBySeverity, 'Warning'), css: { active: severityFilter() === 'Warning' }, text: warningItemsCount"
-                    title="Filter by severity: Warning" class="notification-type-toggle type-warning"></button>
-            <button data-bind="click: _.partial(filterBySeverity, 'Error'), css: { active: severityFilter() === 'Error' }, text: errorItemsCount"
-                    title="Filter by severity: Error" class="notification-type-toggle type-danger"></button>
+            <button data-bind="click: _.partial(filterBySeverity, null), css: { active: !severityFilter() }, i18nAttr: { title: 'studioShell:notificationCenter.showAll' }, i18n: 'studioShell:notificationCenter.all'"
+                    class="notification-type-toggle active"></button>
+            <button data-bind="click: _.partial(filterBySeverity, 'Success'), css: { active: severityFilter() === 'Success' }, text: successItemsCount, i18nAttr: { title: 'studioShell:notificationCenter.filterBySeverity.success' }" class="notification-type-toggle type-success"></button>
+            <button data-bind="click: _.partial(filterBySeverity, 'Info'), css: { active: severityFilter() === 'Info' }, text: infoItemsCount, i18nAttr: { title: 'studioShell:notificationCenter.filterBySeverity.info' }" class="notification-type-toggle type-info"></button>
+            <button data-bind="click: _.partial(filterBySeverity, 'Warning'), css: { active: severityFilter() === 'Warning' }, text: warningItemsCount, i18nAttr: { title: 'studioShell:notificationCenter.filterBySeverity.warning' }" class="notification-type-toggle type-warning"></button>
+            <button data-bind="click: _.partial(filterBySeverity, 'Error'), css: { active: severityFilter() === 'Error' }, text: errorItemsCount, i18nAttr: { title: 'studioShell:notificationCenter.filterBySeverity.error' }" class="notification-type-toggle type-danger"></button>
         </div>
-        <button data-bind="click: dismissAll" class="dismiss"><i class="icon-dismiss-all"></i> Dismiss all</button>
+        <button data-bind="click: dismissAll" class="dismiss"><i class="icon-dismiss-all"></i> <span data-bind="i18n: 'studioShell:notificationCenter.dismissAll'"></span></button>
         <div class="flex-grow"></div>
         <button data-bind="{ click: pinNotifications.toggle.bind(pinNotifications), css: { 'pinned': pinNotifications() } }" class="notifications-pin-toggle"><i class="icon-pin"></i><i class="icon-pinned"></i></button>
     </div>
     <div class="padding" data-bind="visible: noNewNotifications">
         <i class="icon-xl icon-empty-set text-muted"></i>
-        <h2 class="text-center text-muted">No new notifications</h2>
+        <h2 class="text-center text-muted" data-bind="i18n: 'studioShell:notificationCenter.noNewNotifications'"></h2>
     </div>
     <div class="notification-list scroll" data-bind="if: includeInDom">
         <div data-bind="foreach: notificationsToShow">
             <div data-bind="template: { name: type + '-template' }"></div>
         </div>
         <div class="text-center" data-bind="visible: visibleNotifications().length > constructor.numberOfNotificationsToShow && !isShowingAllNotifications()">
-            <button class="btn btn-danger margin-top-xs" data-bind="click: showAllNotifications">
-                Show all notifications
-            </button>
+            <button class="btn btn-danger margin-top-xs" data-bind="click: showAllNotifications, i18n: 'studioShell:notificationCenter.showAll'"></button>
         </div>
     </div>
 </div>
@@ -47,13 +39,13 @@
                 </div>
                 <div class="notification-time" data-bind="text: displayDate().format('LLL')"></div>
                 <p data-bind="html: message"></p>
-                <p data-bind="visible: isCanceled" class="text-warning">The operation was cancelled.</p>
+                <p data-bind="visible: isCanceled, i18n: 'studioShell:notificationCenter.operationCancelled'" class="text-warning"></p>
 
                 <div class="flex-horizontal">
                     <button data-bind="visible: hasDetails(), click: _.partial($parent.openDetails, $data)"
                             class="btn btn-default btn-sm">
                         <i class="icon-details"></i>
-                        <span>Details</span>
+                        <span data-bind="i18n: 'studioShell:notificationCenter.details'"></span>
                     </button>
                 </div>
             </div>
@@ -76,12 +68,12 @@
                     <button data-bind="visible: hasDetails(), click: _.partial($parent.openDetails, $data)"
                             class="btn btn-default btn-sm">
                         <i class="icon-details"></i>
-                        <span>Details</span>
+                        <span data-bind="i18n: 'studioShell:notificationCenter.details'"></span>
                     </button>
                     <div class="flex-separator"></div>
                     <button class="btn btn-sm btn-danger" data-bind="click: _.partial($parent.killOperation, $data), visible: killable(), enable: !_.includes($parent.spinners.kill(), id), css: { 'btn-spinner': _.includes($parent.spinners.kill(), id) }">
                         <i class="icon-cancel"></i>
-                        <span>Abort</span>
+                        <span data-bind="i18n: 'studioShell:notificationCenter.abort'"></span>
                     </button>
                 </div>
             </div>
@@ -105,12 +97,12 @@
                 <button data-bind="visible: hasDetails(), click: _.partial($parent.openDetails, $data)"
                         class="btn btn-default btn-sm">
                     <i class="icon-details"></i>
-                    <span>Details</span>
+                    <span data-bind="i18n: 'studioShell:notificationCenter.details'"></span>
                 </button>
                 <div class="flex-separator"></div>
                 <div class="dropdown dropdown-right" data-bind="visible: canBePostponed">
                     <button class="btn btn-sm btn-info dropdown-toggle" data-toggle="dropdown" data-bind="enable: !_.includes($parent.spinners.postpone(), id), css: { 'btn-spinner': _.includes($parent.spinners.postpone(), id) }">
-                        <i class="icon-clock"></i><span>Postpone</span>
+                        <i class="icon-clock"></i><span data-bind="i18n: 'studioShell:notificationCenter.postpone'"></span>
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" data-bind="foreach: $parent.constructor.postponeOptions">
@@ -138,10 +130,8 @@
             <div class="notification-time" data-bind="text: displayDate().format('LLL')"></div>
             <p data-bind="html: shortMessage"></p>
             <div class="flex-horizontal">
-                <button data-bind="visible: hasDetails(), click: _.partial($parent.openDetails, $data)"
-                        class="btn btn-default btn-sm">
-                    Details
-                </button>
+                <button data-bind="visible: hasDetails(), click: _.partial($parent.openDetails, $data), i18n: 'studioShell:notificationCenter.details'"
+                        class="btn btn-default btn-sm"></button>
             </div>
         </div>
     </div>
@@ -163,13 +153,13 @@
                 <button data-bind="visible: hasDetails(), click: _.partial($parent.openDetails, $data)"
                         class="btn btn-default btn-sm">
                     <i class="icon-details"></i>
-                    <span>Details</span>
+                    <span data-bind="i18n: 'studioShell:notificationCenter.details'"></span>
                 </button>
                 <div class="flex-separator"></div>
                 <div class="dropdown dropdown-right" data-bind="visible: canBePostponed">
                     <button class="btn btn-sm btn-info dropdown-toggle" data-toggle="dropdown"
                             data-bind="enable: !_.includes($parent.spinners.postpone(), id), css: { 'btn-spinner': _.includes($parent.spinners.postpone(), id) }">
-                        <i class="icon-clock"></i><span>Postpone</span>
+                        <i class="icon-clock"></i><span data-bind="i18n: 'studioShell:notificationCenter.postpone'"></span>
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu">
@@ -181,7 +171,7 @@
                         <!-- /ko -->
                         <li>
                             <a href="#"
-                               data-bind="text: 'Don\'t show again', click: _.partial($parent.postpone, $data, 0)"></a>
+                               data-bind="i18n: 'studioShell:notificationCenter.dontShowAgain', click: _.partial($parent.postpone, $data, 0)"></a>
                         </li>
                     </ul>
                 </div>
@@ -206,7 +196,7 @@
                 <button data-bind="click: _.partial($parent.openDetails, $data)"
                         class="btn btn-default btn-sm">
                     <i class="icon-details"></i>
-                    <span>Details</span>
+                    <span data-bind="i18n: 'studioShell:notificationCenter.details'"></span>
                 </button>
             </div>
         </div>
@@ -230,7 +220,7 @@
                 <button data-bind="click: _.partial($parent.openDetails, $data)"
                         class="btn btn-default btn-sm">
                     <i class="icon-details"></i>
-                    <span>Details</span>
+                    <span data-bind="i18n: 'studioShell:notificationCenter.details'"></span>
                 </button>
             </div>
         </div>
@@ -253,7 +243,7 @@
                 <button data-bind="click: _.partial($parent.openDetails, $data)"
                         class="btn btn-default btn-sm">
                     <i class="icon-details"></i>
-                    <span>Details</span>
+                    <span data-bind="i18n: 'studioShell:notificationCenter.details'"></span>
                 </button>
             </div>
         </div>
@@ -276,7 +266,7 @@
                 <button data-bind="click: _.partial($parent.openDetails, $data)"
                         class="btn btn-default btn-sm">
                     <i class="icon-details"></i>
-                    <span>Details</span>
+                    <span data-bind="i18n: 'studioShell:notificationCenter.details'"></span>
                 </button>
             </div>
         </div>
@@ -299,7 +289,7 @@
                 <button data-bind="click: _.partial($parent.openDetails, $data)"
                         class="btn btn-default btn-sm">
                     <i class="icon-details"></i>
-                    <span>Details</span>
+                    <span data-bind="i18n: 'studioShell:notificationCenter.details'"></span>
                 </button>
             </div>
         </div>
@@ -322,7 +312,7 @@
                 <button data-bind="click: _.partial($parent.openDetails, $data)"
                         class="btn btn-default btn-sm">
                     <i class="icon-details"></i>
-                    <span>Details</span>
+                    <span data-bind="i18n: 'studioShell:notificationCenter.details'"></span>
                 </button>
             </div>
         </div>
@@ -342,7 +332,7 @@
                 </div>
                 <div class="notification-time" data-bind="text: displayDate().format('LLL')"></div>
                 <p data-bind="html: message"></p>
-                <p data-bind="visible: isCanceled" class="text-warning">The operation was cancelled.</p>
+                <p data-bind="visible: isCanceled, i18n: 'studioShell:notificationCenter.operationCancelled'" class="text-warning"></p>
             </div>
             <div data-bind="if: !isCompleted()">
                 <div class="notification-header">
@@ -365,7 +355,7 @@
                     <div class="flex-separator"></div>
                     <button class="btn btn-sm btn-danger" data-bind="click: _.partial($parent.killAttachmentUpload, $data), visible: killable()">
                         <i class="icon-cancel"></i>
-                        <span>Abort</span>
+                        <span data-bind="i18n: 'studioShell:notificationCenter.abort'"></span>
                     </button>
                 </div>
             </div>

@@ -1,19 +1,20 @@
 import IconAsciiPlaceholder from "components/shell/chatbot/partials/askAi/iconAscii/IconAsciiPlaceholder";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function ChatbotPanelConsent() {
+    const t = useStudioTranslation("chatbot");
+
     return (
         <div>
             <IconAsciiPlaceholder />
-            <h3 className="mt-4 mb-0 fw-semibold">AI Assistant</h3>
+            <h3 className="mt-4 mb-0 fw-semibold">{t("aiAssistant")}</h3>
             <div className="mt-2">
-                The built-in AI Assistant is designed to supercharge your workflow. To enable this feature, please
-                review and accept the Terms of Use.
-                <br />
-                The feature will remain unavailable until accepted.
+                <StudioTrans ns="chatbot" i18nKey="consent.description" components={{ br: <br /> }} />
                 <div className="mt-3">
                     <Button variant="primary" className="rounded-pill">
-                        Review Terms of Use
+                        {t("consent.reviewTermsOfUse")}
                     </Button>
                 </div>
             </div>

@@ -18,7 +18,9 @@ import { accessManagerActions } from "components/common/shell/accessManagerSlice
 import { aiAssistantActions } from "./aiAssistantSlice";
 import { chatbotActions } from "components/shell/chatbot/store/chatbotSlice";
 import router from "plugins/router";
-import { initI18n } from "common/i18n/i18n";
+import { createTranslator, initI18n } from "common/i18n/i18n";
+
+const t = createTranslator("shellComponents");
 
 let initialized = false;
 
@@ -170,58 +172,61 @@ declare module "yup" {
 function initYup() {
     yup.setLocale({
         mixed: {
-            required: "Required",
+            required: () => t("validation.required"),
             notType(params) {
                 switch (params.type) {
                     case "number":
-                        return "Please enter valid number";
+                        return t("validation.invalidNumber");
                     case "string":
-                        return "Please enter valid text";
+                        return t("validation.invalidText");
                     default:
-                        return "Please enter valid value";
+                        return t("validation.invalidValue");
                 }
             },
         },
         string: {
-            url: "Please enter valid URL",
-            email: "Please enter valid e-mail",
-            length: ({ length }) => `Please enter exactly ${length} character${length > 1 ? "s" : ""}`,
-            min: ({ min }) => `Please provide at least ${min} characters`,
-            max: ({ max }) => `The provided text should not exceed ${max} characters`,
-            trim: "Please remove whitespace",
+            url: () => t("validation.invalidUrl"),
+            email: () => t("validation.invalidEmail"),
+            length: ({ length }) => t("validation.exactLength", { count: length }),
+            min: ({ min }) => t("validation.minLength", { count: min }),
+            max: ({ max }) => t("validation.maxLength", { count: max }),
+            trim: () => t("validation.trim"),
         },
         number: {
-            integer: "Please enter integer number",
-            positive: "Please enter positive number",
-            min: ({ min }) => `Value must be greater than or equal ${min}`,
-            max: ({ max }) => `Value must be less than or equal ${max}`,
+            integer: () => t("validation.integer"),
+            positive: () => t("validation.positive"),
+            min: ({ min }) => t("validation.minNumber", { min }),
+            max: ({ max }) => t("validation.maxNumber", { max }),
         },
         date: {
-            min: ({ min }) => `Value must be ${min} or later`,
-            max: ({ max }) => `Value must be ${max} or earlier`,
+            min: ({ min }) => t("validation.minDate", { min: String(min) }),
+            max: ({ max }) => t("validation.maxDate", { max: String(max) }),
         },
         array: {
-            min: ({ min }) => `The list should contain at least ${min} item${min > 1 ? "s" : ""}`,
-            max: ({ max }) => `The list should contain a maximum of ${max} item${max > 1 ? "s" : ""}`,
+            min: ({ min }) => t("validation.minItems", { count: min }),
+            max: ({ max }) => t("validation.maxItems", { count: max }),
         },
     });
 
-    yup.addMethod<yup.StringSchema>(yup.string, "basicUrl", function (msg = genUtils.invalidUrlMessage) {
-        return this.matches(genUtils.urlRegex, msg);
+    yup.addMethod<yup.StringSchema>(yup.string, "basicUrl", function (msg?: string) {
+        return this.matches(genUtils.urlRegex, msg ?? (() => genUtils.invalidUrlMessage));
     });
 
-    yup.addMethod<yup.StringSchema>(yup.string, "base64", function (msg = "Please enter valid base64 string") {
-        return this.matches(/^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/, msg);
+    yup.addMethod<yup.StringSchema>(yup.string, "base64", function (msg?: string) {
+        return this.matches(
+            /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/,
+            msg ?? (() => t("validation.invalidBase64"))
+        );
     });
 
-    yup.addMethod<yup.StringSchema>(yup.string, "ipv4", function (msg = "Please enter valid IPv4 address") {
-        return this.matches(/(^(\d{1,3}\.){3}(\d{1,3})$)/, msg);
+    yup.addMethod<yup.StringSchema>(yup.string, "ipv4", function (msg?: string) {
+        return this.matches(/(^(\d{1,3}\.){3}(\d{1,3})$)/, msg ?? (() => t("validation.invalidIpv4")));
     });
 
-    yup.addMethod<yup.StringSchema>(yup.string, "phone", function (msg = "Please enter valid phone number") {
+    yup.addMethod<yup.StringSchema>(yup.string, "phone", function (msg?: string) {
         const phoneRegExp =
             /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
-        return this.test("phone", msg, (value) => {
+        return this.test("phone", msg ?? (() => t("validation.invalidPhone")), (value) => {
             if (value && value.length > 0) {
                 return phoneRegExp.test(value);
             }

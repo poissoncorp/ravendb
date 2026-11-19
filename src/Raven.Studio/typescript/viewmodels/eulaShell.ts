@@ -12,6 +12,9 @@ import autoCompleteBindingHandler = require("common/bindingHelpers/autoCompleteB
 import requestExecution = require("common/notifications/requestExecution");
 import protractedCommandsDetector = require("common/notifications/protractedCommandsDetector");
 import buildInfo = require("models/resources/buildInfo");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("eulaShell");
 
 class eulaShell extends viewModelBase {
 
@@ -76,7 +79,7 @@ class eulaShell extends viewModelBase {
         router.mapUnknownRoutes((instruction: DurandalRouteInstruction) => {
             const queryString = instruction.queryString ? ("?" + instruction.queryString) : "";
 
-            messagePublisher.reportError("Unknown route", "The route " + instruction.fragment + queryString + " doesn't exist, redirecting...");
+            messagePublisher.reportError(t("unknownRoute"), t("routeDoesNotExist", { route: instruction.fragment + queryString }));
 
             location.href = "#license";
         });
@@ -87,7 +90,7 @@ class eulaShell extends viewModelBase {
 
         sys.error = (e: any) => {
             console.error(e);
-            messagePublisher.reportError("Failed to load routed module!", e);
+            messagePublisher.reportError(t("failedToLoadModule"), e);
         };
     }
 

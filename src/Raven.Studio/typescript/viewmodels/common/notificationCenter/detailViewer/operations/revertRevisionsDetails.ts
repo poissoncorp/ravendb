@@ -8,6 +8,9 @@ import virtualGridController = require("widgets/virtualGrid/virtualGridControlle
 import columnPreviewPlugin = require("widgets/virtualGrid/columnPreviewPlugin");
 import textColumn = require("widgets/virtualGrid/columns/textColumn");
 import generalUtils = require("common/generalUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("revertRevisionsDetails");
 
 type gridItem = {
     Id: string;
@@ -70,10 +73,10 @@ class revertRevisionsDetails extends abstractOperationDetails {
 
         grid.init(() => this.fetcher(), () => {
             return [
-                new textColumn<gridItem>(grid, x => x.Id, "Document ID", "15%", {
+                new textColumn<gridItem>(grid, x => x.Id, t("columns.documentId"), "15%", {
                     sortable: "string"
                 }),
-                new textColumn<gridItem>(grid, x => x.Description, "Warning", "85%", {
+                new textColumn<gridItem>(grid, x => x.Description, t("columns.warning"), "85%", {
                     sortable: "string"
                 })
             ];

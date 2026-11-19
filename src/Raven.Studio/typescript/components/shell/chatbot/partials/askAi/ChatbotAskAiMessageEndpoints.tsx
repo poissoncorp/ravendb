@@ -16,6 +16,7 @@ import { chatbotConstants, ChatbotEndpointEntry } from "components/shell/chatbot
 import "./ChatbotAskAiMessageEndpoints.scss";
 import genUtils from "common/generalUtils";
 import { ConditionalPopover } from "components/common/ConditionalPopover";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 interface ChatbotAskAiMessageEndpointsProps {
     id: string;
@@ -37,6 +38,7 @@ export default function ChatbotAskAiMessageEndpoints({
     userActionState,
 }: ChatbotAskAiMessageEndpointsProps) {
     const dispatch = useAppDispatch();
+    const t = useStudioTranslation("chatbot");
 
     const deniedEndpoints = useAppSelector(chatbotSelectors.deniedEndpoints);
     const isAlwaysAllowEndpointCalls = useAppSelector(chatbotSelectors.isAlwaysAllowEndpointCalls);
@@ -218,7 +220,7 @@ export default function ChatbotAskAiMessageEndpoints({
         {
             onError: (e) => {
                 console.error(e);
-                messagePublisher.reportError("Failed to retrieve endpoints");
+                messagePublisher.reportError(t("endpoints.retrieveFailed"));
             },
         }
     );
@@ -281,7 +283,7 @@ export default function ChatbotAskAiMessageEndpoints({
         <div className="retrieve-endpoints well border border-color-light rounded-2">
             <div className="retrieve-endpoints-header border-bottom border-color-light">
                 <Icon icon="endpoint" />
-                Retrieve endpoints
+                {t("endpoints.title")}
             </div>
             <div className="p-2">
                 <ul className="tree">
@@ -298,7 +300,7 @@ export default function ChatbotAskAiMessageEndpoints({
                             onClick={handleDeny}
                             disabled={asyncHandleAllow.loading}
                         >
-                            Deny
+                            {t("endpoints.deny")}
                         </Button>
                         <div className="hstack gap-1">
                             <Button
@@ -308,7 +310,7 @@ export default function ChatbotAskAiMessageEndpoints({
                                 onClick={handleSkip}
                                 disabled={asyncHandleAllow.loading}
                             >
-                                Skip
+                                {t("endpoints.skip")}
                             </Button>
                             <Dropdown className="button-dropdown-pill" as={ButtonGroup}>
                                 <ButtonWithSpinner
@@ -318,7 +320,7 @@ export default function ChatbotAskAiMessageEndpoints({
                                     onClick={asyncHandleAllow.execute}
                                     isSpinning={asyncHandleAllow.loading}
                                 >
-                                    Allow
+                                    {t("endpoints.allow")}
                                 </ButtonWithSpinner>
                                 <Dropdown.Toggle
                                     variant="primary"
@@ -328,7 +330,9 @@ export default function ChatbotAskAiMessageEndpoints({
                                     disabled={asyncHandleAllow.loading}
                                 />
                                 <Dropdown.Menu>
-                                    <Dropdown.Item onClick={handleAlwaysAllow}>Always allow</Dropdown.Item>
+                                    <Dropdown.Item onClick={handleAlwaysAllow}>
+                                        {t("endpoints.alwaysAllow")}
+                                    </Dropdown.Item>
                                 </Dropdown.Menu>
                             </Dropdown>
                         </div>
@@ -338,19 +342,19 @@ export default function ChatbotAskAiMessageEndpoints({
                         {userActionState === "alwaysAllowed" && (
                             <Badge bg="success" className="rounded-pill mt-2">
                                 <Icon icon="check" />
-                                Always allowed
+                                {t("endpoints.alwaysAllowed")}
                             </Badge>
                         )}
                         {userActionState === "denied" && (
                             <Badge bg="secondary" className="rounded-pill mt-2">
                                 <Icon icon="cancel" />
-                                Denied
+                                {t("endpoints.denied")}
                             </Badge>
                         )}
                         {userActionState === "skipped" && (
                             <Badge bg="secondary" className="rounded-pill mt-2">
                                 <Icon icon="skip" />
-                                Skipped
+                                {t("endpoints.skipped")}
                             </Badge>
                         )}
                     </div>
@@ -365,6 +369,7 @@ interface EndpointItemProps {
 }
 
 function EndpointItem({ endpoint }: EndpointItemProps) {
+    const t = useStudioTranslation("chatbot");
     const urlObject = new URL(endpoint.url, window.location.origin);
     const urlWithParamToDisplay = chatbotConstants.paramToDisplayRegexEndpoints.find(({ regex }) =>
         regex.test(urlObject.pathname)
@@ -388,7 +393,7 @@ function EndpointItem({ endpoint }: EndpointItemProps) {
                 <ConditionalPopover
                     conditions={{
                         isActive: endpoint.isRequestTooLarge,
-                        message: "Request too large to process",
+                        message: t("endpoints.requestTooLarge"),
                     }}
                     className="ms-auto"
                 >
