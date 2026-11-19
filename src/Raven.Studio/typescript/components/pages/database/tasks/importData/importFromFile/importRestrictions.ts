@@ -17,6 +17,9 @@ import {
 } from "./importFromFileLabels";
 import IconName from "../../../../../../../typings/server/icons";
 import { mergeCapabilities, OngoingTaskTarget } from "components/pages/database/tasks/shared/ongoingTaskCapabilities";
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("importFromFile");
 
 type LicenseStatusKey = keyof LicenseStatus;
 
@@ -41,7 +44,9 @@ interface ImportRestrictionRule {
 
 export const documentToggleRules: Partial<Record<DocumentToggleKey, ImportRestrictionRule>> = {
     isIncludeArchivedDocuments: {
-        label: "Archived Documents",
+        get label() {
+            return t("labels.archivedDocuments");
+        },
         icon: "data-archival",
         licenseFlags: ["HasDataArchival"],
         licenseRequired: "Enterprise",
@@ -50,43 +55,57 @@ export const documentToggleRules: Partial<Record<DocumentToggleKey, ImportRestri
 
 export const databaseSettingRules: Partial<Record<DatabaseSettingKey, ImportRestrictionRule>> = {
     revisions: {
-        label: databaseSettingLabels.revisions,
+        get label() {
+            return databaseSettingLabels.revisions;
+        },
         icon: databaseSettingIcons.revisions,
         licenseFlags: ["CanSetupDefaultRevisionsConfiguration"],
         licenseRequired: "Professional +",
     },
     documentsCompression: {
-        label: databaseSettingLabels.documentsCompression,
+        get label() {
+            return databaseSettingLabels.documentsCompression;
+        },
         icon: databaseSettingIcons.documentsCompression,
         licenseFlags: ["HasDocumentsCompression"],
         licenseRequired: "Enterprise",
     },
     dataArchival: {
-        label: databaseSettingLabels.dataArchival,
+        get label() {
+            return databaseSettingLabels.dataArchival;
+        },
         icon: databaseSettingIcons.dataArchival,
         licenseFlags: ["HasDataArchival"],
         licenseRequired: "Enterprise",
     },
     timeSeries: {
-        label: databaseSettingLabels.timeSeries,
+        get label() {
+            return databaseSettingLabels.timeSeries;
+        },
         icon: databaseSettingIcons.timeSeries,
         licenseFlags: ["HasTimeSeriesRollupsAndRetention"],
         licenseRequired: "Professional +",
     },
     postgreSqlIntegration: {
-        label: databaseSettingLabels.postgreSqlIntegration,
+        get label() {
+            return databaseSettingLabels.postgreSqlIntegration;
+        },
         icon: databaseSettingIcons.postgreSqlIntegration,
         licenseFlags: ["HasPostgreSqlIntegration"],
         licenseRequired: "Enterprise",
     },
     client: {
-        label: databaseSettingLabels.client,
+        get label() {
+            return databaseSettingLabels.client;
+        },
         icon: databaseSettingIcons.client,
         licenseFlags: ["HasClientConfiguration"],
         licenseRequired: "Professional +",
     },
     schemaValidation: {
-        label: databaseSettingLabels.schemaValidation,
+        get label() {
+            return databaseSettingLabels.schemaValidation;
+        },
         icon: databaseSettingIcons.schemaValidation,
         licenseFlags: ["HasSchemaValidation"],
         licenseRequired: "Professional +",
@@ -120,7 +139,9 @@ export const ongoingTaskRules: Partial<Record<OngoingTaskKey, ImportRestrictionR
         return [
             key,
             {
-                label: ongoingTaskLabels[key],
+                get label() {
+                    return ongoingTaskLabels[key];
+                },
                 icon: ongoingTaskIcons[key],
                 licenseFlags,
                 licenseRequired: licenseBadge,
@@ -148,7 +169,9 @@ export const connectionStringRules: Partial<Record<ConnectionStringKey, ImportRe
         return [
             key,
             {
-                label: connectionStringLabels[key],
+                get label() {
+                    return connectionStringLabels[key];
+                },
                 icon: connectionStringIcons[key],
                 licenseFlags,
                 licenseRequired: licenseBadge,
@@ -159,15 +182,15 @@ export const connectionStringRules: Partial<Record<ConnectionStringKey, ImportRe
 );
 
 export function getLicenseRestrictionTooltip(label: string) {
-    return `Data created with ${label} won't be imported - this feature isn't included in your license`;
+    return t("restrictionTooltips.license", { label });
 }
 
 export function getShardingRestrictionTooltip(label: string) {
-    return `${label} are not supported for sharded databases and won't be imported`;
+    return t("restrictionTooltips.sharding", { label });
 }
 
 export function getAccessRestrictionTooltip(label: string) {
-    return `Your certificate doesn't grant sufficient permissions to import ${label}`;
+    return t("restrictionTooltips.access", { label });
 }
 
 export function resolveRestriction(

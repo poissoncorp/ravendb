@@ -24,10 +24,13 @@ import EditCdcSinkTaskPatchAdvancedField from "./EditCdcSinkTaskPatchAdvancedFie
 import FormStringValueList from "components/common/formFields/FormStringValueList";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import { Icon } from "components/common/Icon";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 type CdcSinkRelationType = Raven.Client.Documents.Operations.CdcSink.CdcSinkRelationType;
 
 export default function EditCdcSinkTaskEmbeddedTableEditor({ path }: { path: EmbeddedTablePath }) {
+    const t = useStudioTranslation("editCdcSinkTask");
     const { control } = useFormContext<EditCdcSinkTaskFormData>();
 
     const caseSensitiveKeys = useWatch({ control, name: `${path}.caseSensitiveKeys` });
@@ -48,6 +51,12 @@ export default function EditCdcSinkTaskEmbeddedTableEditor({ path }: { path: Emb
         [rootTablesAnalysis, embeddedTable]
     );
 
+    const relationTypeOptions: SelectOption<CdcSinkRelationType>[] = [
+        { value: "Array", label: t("tableEditor.embedded.relationTypeArray") },
+        { value: "Map", label: t("tableEditor.embedded.relationTypeMap") },
+        { value: "Value", label: t("tableEditor.embedded.relationTypeValue") },
+    ];
+
     return (
         <div>
             {warningMessages.map((warning) => (
@@ -57,28 +66,28 @@ export default function EditCdcSinkTaskEmbeddedTableEditor({ path }: { path: Emb
             ))}
             <div className="grid mb-3">
                 <FormGroup className="g-col-6" marginClass="m-0">
-                    <FormLabel>Source schema</FormLabel>
+                    <FormLabel>{t("tableEditor.sourceSchema")}</FormLabel>
                     <FormSelectAutocomplete
                         control={control}
                         name={`${path}.sourceTableSchema`}
                         options={sourceSchemaOptions}
-                        placeholder="Select or enter source schema"
+                        placeholder={t("tableEditor.sourceSchemaPlaceholder")}
                     />
                 </FormGroup>
                 <FormGroup className="g-col-6" marginClass="m-0">
-                    <FormLabel>Source table</FormLabel>
+                    <FormLabel>{t("tableEditor.sourceTable")}</FormLabel>
                     <FormSelectAutocomplete
                         control={control}
                         name={`${path}.sourceTableName`}
                         options={sourceTableOptions}
                         afterSelect={handleSourceTableChange}
-                        placeholder="Select or enter source table"
+                        placeholder={t("tableEditor.sourceTablePlaceholder")}
                     />
                 </FormGroup>
                 <FormGroup className="g-col-6" marginClass="m-0">
                     <FormLabel>
-                        Target property
-                        <PopoverWithHoverWrapper message="The RavenDB document field where the embedded related data will be stored.">
+                        {t("tableEditor.targetProperty")}
+                        <PopoverWithHoverWrapper message={t("tableEditor.embedded.targetPropertyInfo")}>
                             <Icon icon="info-new" margin="ms-1" />
                         </PopoverWithHoverWrapper>
                     </FormLabel>
@@ -86,18 +95,14 @@ export default function EditCdcSinkTaskEmbeddedTableEditor({ path }: { path: Emb
                 </FormGroup>
                 <FormGroup className="g-col-6" marginClass="m-0">
                     <FormLabel>
-                        Relation type
+                        {t("tableEditor.embedded.relationType")}
                         <PopoverWithHoverWrapper
                             message={
-                                <>
-                                    How related rows are embedded in the parent document:
-                                    <br />
-                                    <strong>Array</strong> - multiple rows stored as an array of objects.
-                                    <br />
-                                    <strong>Map</strong> - multiple rows stored as a keyed object (dictionary).
-                                    <br />
-                                    <strong>Value</strong> - a single row stored directly as an object.
-                                </>
+                                <StudioTrans
+                                    ns="editCdcSinkTask"
+                                    i18nKey="tableEditor.embedded.relationTypeInfo"
+                                    components={{ br: <br />, strong: <strong /> }}
+                                />
                             }
                         >
                             <Icon icon="info-new" margin="ms-1" />
@@ -109,13 +114,13 @@ export default function EditCdcSinkTaskEmbeddedTableEditor({ path }: { path: Emb
             <FormStringValueList
                 title={
                     <>
-                        Primary key columns
-                        <PopoverWithHoverWrapper message="Columns that uniquely identify rows in this related table.">
+                        {t("tableEditor.primaryKeyColumns")}
+                        <PopoverWithHoverWrapper message={t("tableEditor.embedded.primaryKeyColumnsInfo")}>
                             <Icon icon="info-new" margin="ms-1" />
                         </PopoverWithHoverWrapper>
                     </>
                 }
-                addButtonLabel="Add primary key column"
+                addButtonLabel={t("tableEditor.addPrimaryKeyColumn")}
                 control={control}
                 name={`${path}.primaryKeyColumns`}
                 fieldNameAccessor={(idx) => `${path}.primaryKeyColumns.${idx}.value`}
@@ -125,13 +130,13 @@ export default function EditCdcSinkTaskEmbeddedTableEditor({ path }: { path: Emb
             <FormStringValueList
                 title={
                     <>
-                        Join columns
-                        <PopoverWithHoverWrapper message="Columns used to match rows in this related table with rows from the root table.">
+                        {t("tableEditor.joinColumns")}
+                        <PopoverWithHoverWrapper message={t("tableEditor.embedded.joinColumnsInfo")}>
                             <Icon icon="info-new" margin="ms-1" />
                         </PopoverWithHoverWrapper>
                     </>
                 }
-                addButtonLabel="Add join column"
+                addButtonLabel={t("tableEditor.addJoinColumn")}
                 control={control}
                 name={`${path}.joinColumns`}
                 fieldNameAccessor={(idx) => `${path}.joinColumns.${idx}.value`}
@@ -142,14 +147,14 @@ export default function EditCdcSinkTaskEmbeddedTableEditor({ path }: { path: Emb
             <EditCdcSinkTaskAdvancedSettings hasAdvancedValues={hasAdvancedValues}>
                 <FormGroup>
                     <FormSwitch control={control} name={`${path}.caseSensitiveKeys`}>
-                        Case-sensitive keys
+                        {t("tableEditor.embedded.caseSensitiveKeys")}
                         <PopoverWithHoverWrapper
                             message={
-                                <>
-                                    When enabled, string values in primary key columns are compared case-sensitively
-                                    when matching embedded items. Applies only to <strong>Array</strong> and{" "}
-                                    <strong>Map</strong> embedded tables.
-                                </>
+                                <StudioTrans
+                                    ns="editCdcSinkTask"
+                                    i18nKey="tableEditor.embedded.caseSensitiveKeysInfo"
+                                    components={{ strong: <strong /> }}
+                                />
                             }
                         >
                             <Icon icon="info-new" margin="ms-1" />
@@ -162,9 +167,3 @@ export default function EditCdcSinkTaskEmbeddedTableEditor({ path }: { path: Emb
         </div>
     );
 }
-
-const relationTypeOptions: SelectOption<CdcSinkRelationType>[] = [
-    { value: "Array", label: "Array" },
-    { value: "Map", label: "Map" },
-    { value: "Value", label: "Value" },
-];

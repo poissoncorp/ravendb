@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksCommands");
 
 class saveSubscriptionTaskCommand extends commandBase {
     private readonly databaseName: string;
@@ -17,10 +20,10 @@ class saveSubscriptionTaskCommand extends commandBase {
     execute(): JQueryPromise<Raven.Client.Documents.Operations.OngoingTasks.ModifyOngoingTaskResult> {
         return this.updateSubscription()
             .fail((response: JQueryXHR) => {
-                this.reportError("Failed to save subscription task", response.responseText, response.statusText); 
+                this.reportError(t("subscriptionSaveFailed"), response.responseText, response.statusText); 
             })
             .done(() => {
-                this.reportSuccess(`Saved subscription task ${this.payload.Name} from database ${this.databaseName}`);
+                this.reportSuccess(t("subscriptionSaved", { taskName: this.payload.Name, databaseName: this.databaseName }));
             });
     }
 

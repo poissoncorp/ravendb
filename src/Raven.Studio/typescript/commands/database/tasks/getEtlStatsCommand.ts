@@ -2,6 +2,9 @@ import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
 import EtlTaskStats = Raven.Server.Documents.ETL.Stats.EtlTaskStats;
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksCommands");
 
 interface EtlStatsArgs extends databaseLocationSpecifier {
     name?: string[];
@@ -21,7 +24,7 @@ class getEtlStatsCommand extends commandBase {
         const url = endpoints.databases.etl.etlStats + this.urlEncodeArgs(args);
 
         return this.query<EtlTaskStats[]>(url, null, this.db, (results) => results.Results, { timeout: commandBase.perNodeRequestTimeoutMs })
-            .fail((response: JQueryXHR) => this.reportError(`Failed to fetch ETL stats`, response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("etlStatsFailed"), response.responseText, response.statusText));
     }
 }
 

@@ -26,12 +26,14 @@ import { useAppSelector } from "components/store";
 import { Icon } from "components/common/Icon";
 import { EtlPanelBaseProps, useEtlPanel } from "./etlPanelUtils";
 import { TaskPanelErrors, EtlPanelHealthBadge, EtlPanelProgressItem, EtlPanelToggleButton } from "./EtlPanelComponents";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 import copyToClipboard from "common/copyToClipboard";
 
 type EmbeddingsGenerationPanelProps = EtlPanelBaseProps<OngoingTaskEmbeddingsGenerationInfo>;
 
 export function EmbeddingsGenerationPanel(props: EmbeddingsGenerationPanelProps) {
     const { data, toggleSelection, isSelected, onTaskOperation, isDeleting, isTogglingState, etlStats } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     const { forCurrentDatabase } = useAppUrls();
     const editUrl = forCurrentDatabase.editEmbeddingsGeneration(data.shared.taskId)();
@@ -89,16 +91,16 @@ export function EmbeddingsGenerationPanel(props: EmbeddingsGenerationPanelProps)
             </RichPanelHeader>
             <RichPanelDetails>
                 <EtlPanelToggleButton detailsVisible={detailsVisible} toggleDetails={toggleDetails} />
-                <RichPanelDetailItem label="Type">
+                <RichPanelDetailItem label={t("taskDetails.type")}>
                     <Icon icon="ai-etl" className="text-reset" />
-                    Embeddings Generation
+                    {t("taskType.embeddingsGeneration")}
                 </RichPanelDetailItem>
                 {identifier && (
-                    <RichPanelDetailItem label="Identifier">
+                    <RichPanelDetailItem label={t("taskDetails.identifier")}>
                         {identifier}
                         <Button
                             variant="link"
-                            onClick={() => copyToClipboard.copy(identifier, "Identifier copied to clipboard")}
+                            onClick={() => copyToClipboard.copy(identifier, t("taskDetails.identifierCopied"))}
                             size="xs"
                         >
                             <Icon icon="copy-to-clipboard" />

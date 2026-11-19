@@ -56,6 +56,7 @@ import { CellDateWithRelativeTimeWrapper } from "components/common/virtualTable/
 import { DeleteErrorsModal } from "./DeleteModals";
 import { accessManagerSelectors } from "components/common/shell/accessManagerSliceSelectors";
 import { AccessPopover } from "components/common/AccessPopover";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 import EtlTaskStats = Raven.Server.Documents.ETL.Stats.EtlTaskStats;
 
 interface TaskTypeRichPanelItemProps {
@@ -75,6 +76,7 @@ function TaskTypeRichPanelItem({ category, etlType }: TaskTypeRichPanelItemProps
 }
 
 function useTasksErrorsPanelTableColumns(availableWidth: number, hasProcessErrors: boolean) {
+    const t = useStudioTranslation("tasksErrors");
     const db = useAppSelector(databaseSelectors.activeDatabase);
     const bodyWidth = virtualTableUtils.getTableBodyWidth(availableWidth);
     const getSize = useMemo(() => virtualTableUtils.getCellSizeProvider(bodyWidth - SHOW_WIDTH_SIZE), [bodyWidth]);
@@ -82,30 +84,30 @@ function useTasksErrorsPanelTableColumns(availableWidth: number, hasProcessError
     const tasksErrorsPanelColumns: ColumnDef<FlatError>[] = useMemo(
         () => [
             {
-                header: "Show",
+                header: t("columns.show"),
                 cell: CellValueButtonWrapper,
                 size: SHOW_WIDTH_SIZE,
             },
             {
-                header: "Error type",
+                header: t("columns.errorType"),
                 accessorKey: "errorType",
                 cell: CellErrorTypeWrapper,
                 size: getSize(10),
             },
             {
-                header: "Error step",
+                header: t("columns.errorStep"),
                 cell: CellErrorStepWrapper,
                 accessorKey: "Step",
                 size: getSize(10),
             },
             {
-                header: "Document",
+                header: t("columns.document"),
                 cell: HyperLinkDocumentCellValue,
                 accessorKey: "DocumentId",
                 size: getSize(10),
             },
             {
-                header: "Date",
+                header: t("columns.date"),
                 cell: CellDateWithRelativeTimeWrapper,
                 accessorKey: "CreatedAt",
                 size: getSize(20),
@@ -113,7 +115,7 @@ function useTasksErrorsPanelTableColumns(availableWidth: number, hasProcessError
             ...(hasProcessErrors
                 ? [
                       {
-                          header: "Affected Documents",
+                          header: t("columns.affectedDocuments"),
                           cell: CellAffectedDocumentsWrapper,
                           accessorKey: "AffectedDocumentsCount",
                           size: getSize(10),
@@ -121,14 +123,14 @@ function useTasksErrorsPanelTableColumns(availableWidth: number, hasProcessError
                   ]
                 : []),
             {
-                header: "Error",
+                header: t("columns.error"),
                 cell: CellWithCopyWrapper,
                 accessorKey: "Error",
                 size: getSize((db.isSharded ? 40 : 45) - (hasProcessErrors ? 10 : 0)),
                 enableSorting: false,
             },
             {
-                header: "Node",
+                header: t("columns.node"),
                 cell: CellNodeValueWrapper,
                 accessorKey: "nodeTag",
                 size: getSize(3),
@@ -136,12 +138,12 @@ function useTasksErrorsPanelTableColumns(availableWidth: number, hasProcessError
                 enableColumnFilter: false,
             },
         ],
-        [getSize, hasProcessErrors]
+        [getSize, hasProcessErrors, t]
     );
 
     if (db.isSharded) {
         tasksErrorsPanelColumns.push({
-            header: "Shard",
+            header: t("columns.shard"),
             cell: CellShardValueWrapper,
             accessorKey: "shardNumber",
             size: getSize(3),
@@ -231,6 +233,7 @@ function NestedTaskPanelDetails({
     itemErrors,
     ...rest
 }: NestedTaskPanelDetailsProps) {
+    const t = useStudioTranslation("tasksErrors");
     const { value: isNestedDetailsVisible, toggle: toggleNestedDetailsVisible } = useBoolean(true);
 
     const totalErrors = processErrors.length + itemErrors.length;
@@ -255,7 +258,7 @@ function NestedTaskPanelDetails({
                 <span className="h4 mb-0">{transformationName}</span>
                 <div className="flex-grow">
                     <Icon icon="warning" color="danger" />
-                    <span>Errors</span> <b>{totalErrors}</b>
+                    <span>{t("panel.errors")}</span> <b>{totalErrors}</b>
                 </div>
                 <Button variant="secondary" onClick={toggleNestedDetailsVisible}>
                     <Icon icon={isNestedDetailsVisible ? "collapse-vertical" : "expand-vertical"} margin="m-0" />
@@ -282,6 +285,7 @@ interface TaskPanelProps extends TaskWithErrors {
 }
 
 export function TaskPanel({ etlName, etlType, category, transformations, etlStats, onRefresh }: TaskPanelProps) {
+    const t = useStudioTranslation("tasksErrors");
     const hasDatabaseWriteAccess = useAppSelector(accessManagerSelectors.getHasDatabaseWriteAccess)();
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const db = useAppSelector(databaseSelectors.activeDatabase);
@@ -313,7 +317,7 @@ export function TaskPanel({ etlName, etlType, category, transformations, etlStat
                         <AccessPopover accessRequired="DatabaseReadWrite">
                             <Button variant="danger" disabled={!hasDatabaseWriteAccess} onClick={toggleDeleteModal}>
                                 <Icon icon="trash" />
-                                Delete errors
+                                {t("panel.deleteErrors")}
                             </Button>
                         </AccessPopover>
                     </RichPanelActions>
@@ -324,7 +328,7 @@ export function TaskPanel({ etlName, etlType, category, transformations, etlStat
                             variant="secondary"
                             className="btn-toggle-panel rounded-pill"
                             onClick={toggleDetails}
-                            title="Click for details"
+                            title={t("panel.toggleDetailsTitle")}
                         >
                             <Icon icon={isDetailsVisible ? "fold" : "unfold"} margin="m-0" />
                         </Button>
@@ -332,11 +336,11 @@ export function TaskPanel({ etlName, etlType, category, transformations, etlStat
                     <TaskTypeRichPanelItem category={category} etlType={etlType} />
                     <RichPanelDetailItem contentClassName="d-flex gap-1 align-items-center">
                         <Icon icon="warning" color="danger" margin="m-0" />
-                        <span>Errors</span> <b>{errorsCount}</b>
+                        <span>{t("panel.errors")}</span> <b>{errorsCount}</b>
                     </RichPanelDetailItem>
                     <RichPanelDetailItem contentClassName="d-flex gap-1 align-items-center">
                         <Icon icon="console" />
-                        <span>Scripts</span> <b>{transformations.length}</b>
+                        <span>{t("panel.scripts")}</span> <b>{transformations.length}</b>
                     </RichPanelDetailItem>
                     <RichPanelDetailItem>
                         <PopoverWithHoverWrapper
@@ -353,7 +357,7 @@ export function TaskPanel({ etlName, etlType, category, transformations, etlStat
                     <RichPanelDetailItem>
                         <PopoverWithHoverWrapper
                             wrapperClassName="d-flex gap-1 align-items-center"
-                            message="The node this task is currently running on"
+                            message={t("panel.nodePopover")}
                         >
                             <Icon icon="node" />
                             <span>{taskStats?.NodeTag ?? "-"}</span>
@@ -363,7 +367,7 @@ export function TaskPanel({ etlName, etlType, category, transformations, etlStat
                         <RichPanelDetailItem>
                             <PopoverWithHoverWrapper
                                 wrapperClassName="d-flex gap-1 align-items-center"
-                                message="The shard this task is currently running on"
+                                message={t("panel.shardPopover")}
                             >
                                 <Icon icon="shard" color="shard" />
                                 <span>{taskStats?.ShardNumber ?? "-"}</span>

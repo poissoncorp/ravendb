@@ -12,6 +12,7 @@ import {
     TaskErrorsByLocation,
 } from "./etlPanelUtils";
 import { healthStatusToBadge } from "components/pages/database/tasks/tasksErrors/utils/tasksErrorsUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface EtlPanelToggleButtonProps {
     detailsVisible: boolean;
@@ -19,13 +20,15 @@ interface EtlPanelToggleButtonProps {
 }
 
 export function EtlPanelToggleButton({ detailsVisible, toggleDetails }: EtlPanelToggleButtonProps) {
+    const t = useStudioTranslation("ongoingTasks");
+
     return (
         <RichPanelDetailItem>
             <Button
                 variant="secondary"
                 className="btn-toggle-panel rounded-pill"
                 onClick={toggleDetails}
-                title="Click for details"
+                title={t("taskDetails.toggleTitle")}
             >
                 <Icon icon={detailsVisible ? "fold" : "unfold"} margin="m-0" />
             </Button>
@@ -38,10 +41,11 @@ interface EtlPanelHealthBadgeProps {
 }
 
 export function EtlPanelHealthBadge({ taskHealth }: EtlPanelHealthBadgeProps) {
+    const t = useStudioTranslation("ongoingTasks");
     const { bg, icon, label } = healthStatusToBadge(taskHealth);
 
     return (
-        <RichPanelDetailItem label="Health status">
+        <RichPanelDetailItem label={t("taskDetails.healthStatus")}>
             <PopoverWithHoverWrapper
                 wrapperClassName="d-flex align-items-center"
                 message={getPopoverMessageForTaskHealth(taskHealth)}
@@ -62,6 +66,8 @@ interface TaskPanelErrorsProps {
 }
 
 export function TaskPanelErrors({ errorCount, errorsByLocation, goToTaskErrors }: TaskPanelErrorsProps) {
+    const t = useStudioTranslation("ongoingTasks");
+
     if (errorCount === 0) {
         return null;
     }
@@ -71,7 +77,7 @@ export function TaskPanelErrors({ errorCount, errorsByLocation, goToTaskErrors }
             <PopoverWithHoverWrapper message={<TaskPanelErrorsTooltip errorsByLocation={errorsByLocation} />}>
                 <a href={goToTaskErrors} className="d-flex gap-1 align-items-center">
                     <Icon icon="warning" color="danger" margin="m-0" />
-                    <span className="text-danger">Errors</span>
+                    <span className="text-danger">{t("taskDetails.errors")}</span>
                     <b>{errorCount}</b>
                 </a>
             </PopoverWithHoverWrapper>
@@ -80,9 +86,11 @@ export function TaskPanelErrors({ errorCount, errorsByLocation, goToTaskErrors }
 }
 
 function TaskPanelErrorsTooltip({ errorsByLocation }: { errorsByLocation: TaskErrorsByLocation[] }) {
+    const t = useStudioTranslation("ongoingTasks");
+
     return (
         <div className="d-flex flex-column gap-1">
-            <div className="small text-muted mb-1">Errors per node</div>
+            <div className="small text-muted mb-1">{t("taskDetails.errorsPerNode")}</div>
             {errorsByLocation.map((row) => (
                 <div key={`${row.nodeTag}-${row.shardNumber ?? ""}`} className="d-flex align-items-center gap-2">
                     <span className="text-nowrap small">

@@ -4,6 +4,9 @@ import genUtils = require("common/generalUtils");
 import popoverUtils = require("common/popoverUtils");
 import tasksCommonContent = require("models/database/tasks/tasksCommonContent");
 import common = require("components/utils/common");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("s3Settings");
 
 type S3StorageClass = Raven.Client.Documents.Operations.Backups.S3StorageClass;
 
@@ -72,11 +75,11 @@ class s3Settings extends amazonSettings {
     }
 
     static getAccessKeyPropertyName(useCustomS3Host: boolean, customServerUrl: string) {
-        return s3Settings.isBackBlaze(useCustomS3Host, customServerUrl) ? "Application Key ID" : "Access key";
+        return s3Settings.isBackBlaze(useCustomS3Host, customServerUrl) ? t("applicationKeyId") : t("accessKey");
     }
 
     static getSecretKeyPropertyName(useCustomS3Host: boolean, customServerUrl: string) {
-        return s3Settings.isBackBlaze(useCustomS3Host, customServerUrl) ? "Application Key" : "Secret key";
+        return s3Settings.isBackBlaze(useCustomS3Host, customServerUrl) ? t("applicationKey") : t("secretKey");
     }
 
     private static isBackBlaze(useCustomS3Host: boolean, customServerUrl: string) {
@@ -85,7 +88,7 @@ class s3Settings extends amazonSettings {
 
     private getPopoverTargetOperation(): string {
         if (this.targetOperation === "ManualBackup" || this.targetOperation === "PeriodicBackup") {
-            return "Backup";
+            return t("bucketInfo.targetOperationBackup");
         }
 
         return this.targetOperation;
@@ -94,7 +97,7 @@ class s3Settings extends amazonSettings {
     compositionComplete(view: Element, container: HTMLElement) {
         popoverUtils.longWithHover($(".bucket-info", container),
             {
-                content: tasksCommonContent.textForPopover("Bucket", this.getPopoverTargetOperation())
+                content: tasksCommonContent.textForPopover(t("bucketInfo.storageName"), this.getPopoverTargetOperation())
             });
     }
     
@@ -117,31 +120,31 @@ class s3Settings extends amazonSettings {
             validation: [
                 {
                     validator: (bucketName: string) => bucketName && bucketName.length >= 3 && bucketName.length <= 63,
-                    message: "Bucket name should be between 3 and 63 characters long"
+                    message: t("validation.bucketNameLength")
                 },
                 {
                     validator: (bucketName: string) => bucketName && regExp.test(bucketName),
-                    message: "Allowed characters are lowercase characters, numbers, periods, and dashes"
+                    message: t("validation.allowedCharacters")
                 },
                 {
                     validator: (bucketName: string) => bucketName && letterOrNumberRegex.test(bucketName[0]),
-                    message: "Bucket name should start with a number or letter"
+                    message: t("validation.bucketNameStart")
                 },
                 {
                     validator: (bucketName: string) => bucketName && letterOrNumberRegex.test(bucketName[bucketName.length - 1]),
-                    message: "Bucket name should end with a number or letter"
+                    message: t("validation.bucketNameEnd")
                 },
                 {
                     validator: (bucketName: string) => bucketName && !bucketName.includes(".."),
-                    message: "Bucket name cannot contain consecutive periods"
+                    message: t("validation.consecutivePeriods")
                 },
                 {
                     validator: (bucketName: string) => bucketName && !bucketName.includes(".-") && !bucketName.includes("-."),
-                    message: "Bucket names cannot contain dashes next to periods (e.g. \" -.\" and/or \".-\")"
+                    message: t("validation.dashesNextToPeriods")
                 },
                 {
                     validator: (bucketName: string) => !ipRegExp.test(bucketName),
-                    message: "Bucket name must not be formatted as an IP address (e.g., 192.168.5.4)"
+                    message: t("validation.ipAddress")
                 }
             ]
         });

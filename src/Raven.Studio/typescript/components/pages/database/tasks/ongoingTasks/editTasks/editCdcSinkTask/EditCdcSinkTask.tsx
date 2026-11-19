@@ -32,12 +32,14 @@ import { useEditCdcSinkTaskVerification } from "components/pages/database/tasks/
 import EditCdcSinkTaskVerificationAlert from "components/pages/database/tasks/ongoingTasks/editTasks/editCdcSinkTask/partials/EditCdcSinkTaskVerificationAlert";
 import useConfirm from "components/common/ConfirmDialog";
 import { useEditCdcSinkTaskRawViewSync } from "components/pages/database/tasks/ongoingTasks/editTasks/editCdcSinkTask/hooks/useEditCdcSinkTaskRawViewSync";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface QueryParams {
     taskId?: string;
 }
 
 export default function EditCdcSinkTask({ queryParams }: ReactQueryParamsProps<QueryParams>) {
+    const t = useStudioTranslation("editCdcSinkTask");
     const dispatch = useAppDispatch();
     const { tasksService } = useServices();
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
@@ -110,11 +112,11 @@ export default function EditCdcSinkTask({ queryParams }: ReactQueryParamsProps<Q
         }
 
         return await confirm({
-            title: "Save the task configuration anyway?",
+            title: t("saveAnywayConfirm.title"),
             message: <EditCdcSinkTaskVerificationAlert result={result} />,
             icon: result.Success ? "warning" : "danger",
             actionColor: result.Success ? "warning" : "danger",
-            confirmText: "Save anyway",
+            confirmText: t("saveAnywayConfirm.confirmText"),
             confirmIcon: "save",
             size: "lg",
         });
@@ -148,7 +150,7 @@ export default function EditCdcSinkTask({ queryParams }: ReactQueryParamsProps<Q
     }
 
     if (asyncGetDefaultValues.error) {
-        return <LoadError error="Unable to load configuration" refresh={reloadEditForm} />;
+        return <LoadError error={t("loadError")} refresh={reloadEditForm} />;
     }
 
     return (
@@ -157,7 +159,7 @@ export default function EditCdcSinkTask({ queryParams }: ReactQueryParamsProps<Q
                 <div className="p-3 flex-grow-1 overflow-y-auto vstack">
                     <div className="hstack align-items-center flex-wrap gap-2">
                         <AboutViewHeading
-                            title={isEditMode ? "Edit CDC Sink task" : "New CDC Sink task"}
+                            title={t("title", { context: isEditMode ? "edit" : "new" })}
                             licenseBadgeText={hasCdcSink ? null : "Enterprise"}
                             icon="cdc-sink"
                             marginBottom={4}

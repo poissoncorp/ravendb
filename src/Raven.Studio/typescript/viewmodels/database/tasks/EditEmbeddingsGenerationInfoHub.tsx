@@ -10,8 +10,12 @@ import { databaseSelectors } from "components/common/shell/databaseSliceSelector
 import { aiConnectionStringUtils } from "components/pages/database/settings/connectionStrings/editForms/aiConnectionStringUtils";
 import { Icon } from "components/common/Icon";
 import { useRavenLink } from "hooks/useRavenLink";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export function EditEmbeddingsGenerationInfoHub() {
+    const t = useStudioTranslation("editEmbeddingsGenerationTask");
+    const commonT = useStudioTranslation("common");
     const hasEmbeddingsGeneration = useAppSelector(licenseSelectors.statusValue("HasEmbeddingsGeneration"));
 
     const { appUrl } = useAppUrls();
@@ -21,6 +25,33 @@ export function EditEmbeddingsGenerationInfoHub() {
     const embeddingsGenerationTaskDocsLink = useRavenLink({ hash: "MKXRLR" });
     const chunkingMethodsDocsLink = useRavenLink({ hash: "TLJF56" });
     const quantizationOptionsDocsLink = useRavenLink({ hash: "JWJPZE" });
+
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("featureAvailability.embeddedModel"),
+            featureIcon: "ai-etl",
+            community: { value: true },
+            professional: { value: true },
+            enterprise: { value: true },
+            quill: { value: true },
+            helperInfo: "bge-micro-v2",
+        },
+        {
+            featureName: t("featureAvailability.externalModels"),
+            featureIcon: "ai-etl",
+            community: { value: false },
+            professional: { value: false },
+            enterprise: { value: true },
+            quill: { value: true },
+            helperInfo: (
+                <ul>
+                    {aiConnectionStringUtils.getExternalConnectorOptions().map((x) => (
+                        <li key={x.value}>{x.label}</li>
+                    ))}
+                </ul>
+            ),
+        },
+    ];
 
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
@@ -37,70 +68,80 @@ export function EditEmbeddingsGenerationInfoHub() {
             <AccordionItemWrapper targetId="about" icon="about" color="info">
                 <div>
                     <p>
-                        In this view, you can configure an ongoing task to generate embeddings from your documents&apos;
-                        content using an AI service.
-                        <br />
-                        The generated embeddings are saved in a dedicated collection and can be used for vector search.
+                        <StudioTrans
+                            ns="editEmbeddingsGenerationTask"
+                            i18nKey="about.intro"
+                            components={{ br: <br /> }}
+                        />
                     </p>
                     <hr />
-                    Configuration includes:
+                    {t("about.configurationIncludes")}
                     <br />
                     <br />
                     <p>
-                        <strong>Destination AI service:</strong>
-                        <br />
-                        Select a{" "}
-                        <a href={appUrl.forAiConnectionStrings(activeDatabaseName)} target="_blank">
-                            connection string{" "}
-                        </a>{" "}
-                        to specify which AI service and model to use.
+                        <StudioTrans
+                            ns="editEmbeddingsGenerationTask"
+                            i18nKey="about.destination"
+                            components={{
+                                strong: <strong />,
+                                br: <br />,
+                                a: <a href={appUrl.forAiConnectionStrings(activeDatabaseName)} target="_blank" />,
+                            }}
+                        />
                     </p>
                     <p>
-                        <strong>Source data:</strong>
-                        <br />
-                        Select the source collection. Extract text directly from document properties or transform it
-                        using a script. Define the chunking method for splitting the content.
+                        <StudioTrans
+                            ns="editEmbeddingsGenerationTask"
+                            i18nKey="about.sourceData"
+                            components={{ strong: <strong />, br: <br /> }}
+                        />
                     </p>
                     <p>
-                        <strong>Quantization method:</strong>
-                        <br />
-                        Choose the format for saving the generated embeddings.
+                        <StudioTrans
+                            ns="editEmbeddingsGenerationTask"
+                            i18nKey="about.quantization"
+                            components={{ strong: <strong />, br: <br /> }}
+                        />
                     </p>
                     <p>
-                        <strong>Embeddings expiration:</strong>
-                        <br />
-                        Set how long the generated embeddings are retained in the database.
+                        <StudioTrans
+                            ns="editEmbeddingsGenerationTask"
+                            i18nKey="about.expiration"
+                            components={{ strong: <strong />, br: <br /> }}
+                        />
                     </p>
                     <p>
-                        <strong>Query-time settings:</strong>
-                        <br />
-                        Embeddings are also generated for search terms used in vector search queries. Configure chunking
-                        and cache expiration for these embeddings.
+                        <StudioTrans
+                            ns="editEmbeddingsGenerationTask"
+                            i18nKey="about.queryTime"
+                            components={{ strong: <strong />, br: <br /> }}
+                        />
                     </p>
                 </div>
                 <hr />
                 <div>
-                    <strong>Ongoing processing:</strong>
-                    <br />
-                    Whenever a document in the selected collection is modified, the task is triggered to extract the
-                    updated text and regenerate its embeddings.
+                    <StudioTrans
+                        ns="editEmbeddingsGenerationTask"
+                        i18nKey="about.ongoingProcessing"
+                        components={{ strong: <strong />, br: <br /> }}
+                    />
                 </div>
                 <hr />
-                <div className="small-label mb-2">useful links</div>
+                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                 <a href={generatingEmbeddingsOverviewDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - Generating Embeddings Overview
+                    <Icon icon="newtab" /> {t("about.overviewDocsLink")}
                 </a>
                 <br />
                 <a href={embeddingsGenerationTaskDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - The Embeddings Generation Task
+                    <Icon icon="newtab" /> {t("about.taskDocsLink")}
                 </a>
                 <br />
                 <a href={chunkingMethodsDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - Chunking methods and tokens
+                    <Icon icon="newtab" /> {t("about.chunkingDocsLink")}
                 </a>
                 <br />
                 <a href={quantizationOptionsDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - Quantization options
+                    <Icon icon="newtab" /> {t("about.quantizationDocsLink")}
                 </a>
             </AccordionItemWrapper>
             <FeatureAvailabilitySummaryWrapper
@@ -111,30 +152,3 @@ export function EditEmbeddingsGenerationInfoHub() {
         </AboutViewFloating>
     );
 }
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "Embedded Model",
-        featureIcon: "ai-etl",
-        community: { value: true },
-        professional: { value: true },
-        enterprise: { value: true },
-        quill: { value: true },
-        helperInfo: "bge-micro-v2",
-    },
-    {
-        featureName: "External Models",
-        featureIcon: "ai-etl",
-        community: { value: false },
-        professional: { value: false },
-        enterprise: { value: true },
-        quill: { value: true },
-        helperInfo: (
-            <ul>
-                {aiConnectionStringUtils.getExternalConnectorOptions().map((x) => (
-                    <li key={x.value}>{x.label}</li>
-                ))}
-            </ul>
-        ),
-    },
-];

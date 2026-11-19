@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("studioCommands");
 
 class importFromCsvCommand extends commandBase {
 
@@ -24,8 +27,8 @@ class importFromCsvCommand extends commandBase {
         formData.append("file", this.file);
 
         return this.post(url, formData, this.db, commandBase.getOptionsForImport(this.isUploading, this.uploadStatus), 0)
-            .fail((response: JQueryXHR) => this.reportError("Failed to upload data", response.responseText, response.statusText))
-            .done(() => this.reportSuccess("CSV file was imported successfully."))
+            .fail((response: JQueryXHR) => this.reportError(t("uploadFailed"), response.responseText, response.statusText))
+            .done(() => this.reportSuccess(t("csvImported")))
     }
 }
 

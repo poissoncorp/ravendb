@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
 import Test = Raven.Client.Documents.Operations.CdcSink.Test;
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksCommands");
 
 class testCdcSinkCommand extends commandBase {
     constructor(
@@ -15,7 +18,7 @@ class testCdcSinkCommand extends commandBase {
 
         return this.post<Test.TestCdcSinkMappingResult>(url, JSON.stringify(this.payload), this.db).fail(
             (response: JQueryXHR) => {
-                this.reportError(`Failed to test CDC Sink`, response.responseText, response.statusText);
+                this.reportError(t("cdcSinkTestFailed"), response.responseText, response.statusText);
             }
         );
     }

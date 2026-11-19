@@ -5,6 +5,7 @@ import { produce } from "immer";
 import React, { ChangeEvent } from "react";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export type OngoingTaskFilterType = "AI" | "Replication" | "ETL" | "Sink" | "Backup" | "Subscription";
 
@@ -23,6 +24,7 @@ interface OngoingTasksFilterProps {
 
 export default function OngoingTasksFilter(props: OngoingTasksFilterProps) {
     const { filter, setFilter, filterByStatusOptions, tasksCount } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     const onSearchTextChange = (searchText: string) => {
         setFilter(
@@ -43,13 +45,13 @@ export default function OngoingTasksFilter(props: OngoingTasksFilterProps) {
     return (
         <div className="d-flex flex-wrap flex-grow align-items-end gap-3 mb-3">
             <div className="flex-grow">
-                <div className="small-label ms-1 mb-1">Filter by name</div>
+                <div className="small-label ms-1 mb-1">{t("filter.nameLabel")}</div>
                 <div className="clearable-input">
                     <Form.Control
                         type="text"
                         accessKey="/"
-                        placeholder="e.g. Embeddings Generation"
-                        title="Filter ongoing tasks"
+                        placeholder={t("filter.namePlaceholder")}
+                        title={t("filter.nameTitle")}
                         className="filtering-input"
                         value={filter.searchText}
                         onChange={(e: ChangeEvent<HTMLInputElement>) => onSearchTextChange(e.target.value)}
@@ -67,11 +69,11 @@ export default function OngoingTasksFilter(props: OngoingTasksFilterProps) {
                 <div>
                     <MultiCheckboxToggle
                         inputItems={filterByStatusOptions}
-                        label="Filter by type"
+                        label={t("filter.typeLabel")}
                         selectedItems={filter.types}
                         setSelectedItems={onSearchStatusesChange}
                         selectAll
-                        selectAllLabel="All"
+                        selectAllLabel={t("filter.all")}
                         selectAllCount={tasksCount}
                     />
                 </div>

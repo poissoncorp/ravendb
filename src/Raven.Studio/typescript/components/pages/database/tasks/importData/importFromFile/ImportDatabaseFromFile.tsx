@@ -1,5 +1,5 @@
 import "./ImportDatabaseFromFile.scss";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FieldErrors, FormProvider, useWatch } from "react-hook-form";
 import { useAsync } from "react-async-hook";
 import Alert from "react-bootstrap/Alert";
@@ -15,6 +15,8 @@ import { useServices } from "components/hooks/useServices";
 import { useDirtyFlag } from "components/hooks/useDirtyFlag";
 import { useScrollSpy } from "components/hooks/useScrollSpy";
 import viewHelpers = require("common/helpers/view/viewHelpers");
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import type { StudioTranslate } from "common/i18n/resources";
 import { useImportFromFileForm } from "./useImportFromFileForm";
 import { useImportOperation } from "./useImportOperation";
 import { ImportRestrictionsProvider, useImportRestrictions } from "./useImportRestrictions";
@@ -38,6 +40,7 @@ export default function ImportDatabaseFromFile() {
 }
 
 function ImportDatabaseFromFileContent() {
+    const t = useStudioTranslation("importFromFile");
     const { forCurrentDatabase } = useAppUrls();
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const { databasesService } = useServices();
@@ -53,7 +56,8 @@ function ImportDatabaseFromFileContent() {
 
     const [isCommandModalOpen, setIsCommandModalOpen] = useState(false);
 
-    useDirtyFlag(isUploading, uploadInProgressDialog);
+    const showUploadInProgressDialog = useCallback(() => uploadInProgressDialog(t), [t]);
+    useDirtyFlag(isUploading, showUploadInProgressDialog);
 
     const contentRef = useRef<HTMLDivElement>(null);
     const [scrollRoot, setScrollRoot] = useState<Element | null>(null);
@@ -103,15 +107,14 @@ function ImportDatabaseFromFileContent() {
         <FormProvider {...form}>
             <div className="import-page">
                 <AboutViewHeading
-                    title="Import data from a .ravendbdump file"
+                    title={t("title")}
                     icon="import-database"
                     backUrl={importOptionsUrl}
                     marginBottom={2}
                 />
                 {hasExistingData && (
                     <Alert variant="warning" className="w-50">
-                        <Icon icon="warning" color="warning" /> Note: Importing will overwrite any existing documents
-                        and indexes.
+                        <Icon icon="warning" color="warning" /> {t("overwriteWarning")}
                     </Alert>
                 )}
                 <div className="my-4 d-flex align-items-center gap-3">
@@ -121,7 +124,7 @@ function ImportDatabaseFromFileContent() {
                         disabled={!canImport}
                         onClick={handleSubmit(startImport, onInvalidSubmit)}
                     >
-                        <Icon icon="import-database" /> Import database
+                        <Icon icon="import-database" /> {t("importButton")}
                     </Button>
                     <Button
                         variant="secondary"
@@ -129,7 +132,7 @@ function ImportDatabaseFromFileContent() {
                         disabled={!file}
                         onClick={() => setIsCommandModalOpen(true)}
                     >
-                        <Icon icon="code" /> Use import command
+                        <Icon icon="code" /> {t("commandButton")}
                     </Button>
                 </div>
                 {isUploading && (
@@ -144,7 +147,7 @@ function ImportDatabaseFromFileContent() {
                 )}
                 {!hasInclude && (
                     <Alert variant="warning" className="mb-2">
-                        Note: At least one &apos;include&apos; option must be checked.
+                        {t("noIncludeWarning")}
                     </Alert>
                 )}
                 <div className="d-flex gap-4 import-page-body">
@@ -174,12 +177,12 @@ function ImportDatabaseFromFileContent() {
     );
 }
 
-function uploadInProgressDialog(): JQueryDeferred<confirmDialogResult> {
+function uploadInProgressDialog(t: StudioTranslate<"importFromFile">): JQueryDeferred<confirmDialogResult> {
     const result = $.Deferred<confirmDialogResult>();
 
     viewHelpers
-        .confirmationMessage("Upload is in progress", "Please wait until uploading is complete.", {
-            buttons: ["OK"],
+        .confirmationMessage(t("uploadInProgress.title"), t("uploadInProgress.message"), {
+            buttons: [t("uploadInProgress.okButton")],
         })
         .always(() => result.resolve({ can: false }));
 

@@ -3,6 +3,9 @@ import { RecursiveRequired } from "components/utils/common";
 import { getDuplicateRootTableErrors } from "components/pages/database/tasks/ongoingTasks/editTasks/editCdcSinkTask/utils/editCdcSinkTaskTableWarnings";
 import { Resolver } from "react-hook-form";
 import * as yup from "yup";
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("editCdcSinkTask");
 
 type CdcColumnType = Raven.Client.Documents.Operations.CdcSink.CdcColumnType;
 type CdcSinkRelationType = Raven.Client.Documents.Operations.CdcSink.CdcSinkRelationType;
@@ -17,7 +20,7 @@ const stringValueItemSchema = yup.object({
 const sourceTableSchemaSchema = yup
     .string()
     .nullable()
-    .required('Source schema is required. Enter the schema the source table belongs to (e.g. "public" or "dbo").');
+    .required(() => t("validation.sourceSchemaRequired"));
 
 const cdcColumnMappingSchema = yup.object({
     column: yup.string().required(),
@@ -34,7 +37,7 @@ const hasUniqueValues = <TItem>(items: TItem[], getValue: (item: TItem) => strin
     return new Set(values).size === values.length;
 };
 
-const stringValueListSchema = (options: { uniqueMessage: string; requiredMessage?: string }) =>
+const stringValueListSchema = (options: { uniqueMessage: yup.Message; requiredMessage?: yup.Message }) =>
     yup
         .array()
         .of(stringValueItemSchema)
@@ -44,12 +47,16 @@ const stringValueListSchema = (options: { uniqueMessage: string; requiredMessage
 const cdcColumnMappingsSchema = yup
     .array()
     .of(cdcColumnMappingSchema)
-    .min(1, "At least one column mapping is required")
-    .test("unique-source-columns", "Source columns must be unique", (items) =>
-        hasUniqueValues(items, (item) => item.column)
+    .min(1, () => t("validation.columnMappingRequired"))
+    .test(
+        "unique-source-columns",
+        () => t("validation.sourceColumnsUnique"),
+        (items) => hasUniqueValues(items, (item) => item.column)
     )
-    .test("unique-target-columns", "Target properties must be unique", (items) =>
-        hasUniqueValues(items, (item) => item.name)
+    .test(
+        "unique-target-columns",
+        () => t("validation.targetPropertiesUnique"),
+        (items) => hasUniqueValues(items, (item) => item.name)
     );
 
 const cdcSinkOnDeleteSchema = yup.object({
@@ -59,8 +66,8 @@ const cdcSinkOnDeleteSchema = yup.object({
 
 const cdcSinkLinkedTableSchema = yup.object({
     joinColumns: stringValueListSchema({
-        requiredMessage: "At least one join column is required",
-        uniqueMessage: "Join columns must be unique",
+        requiredMessage: () => t("validation.joinColumnRequired"),
+        uniqueMessage: () => t("validation.joinColumnsUnique"),
     }),
     linkedCollectionName: yup.string().required(),
     propertyName: yup.string().required(),
@@ -72,15 +79,15 @@ const cdcSinkEmbeddedTableBaseSchema = yup.object({
     caseSensitiveKeys: yup.boolean(),
     columns: cdcColumnMappingsSchema,
     joinColumns: stringValueListSchema({
-        requiredMessage: "At least one join column is required",
-        uniqueMessage: "Join columns must be unique",
+        requiredMessage: () => t("validation.joinColumnRequired"),
+        uniqueMessage: () => t("validation.joinColumnsUnique"),
     }),
     linkedTables: yup.array().of(cdcSinkLinkedTableSchema),
     onDelete: cdcSinkOnDeleteSchema,
     patch: yup.string().nullable(),
     primaryKeyColumns: stringValueListSchema({
-        requiredMessage: "At least one primary key column is required",
-        uniqueMessage: "Primary key columns must be unique",
+        requiredMessage: () => t("validation.primaryKeyColumnRequired"),
+        uniqueMessage: () => t("validation.primaryKeyColumnsUnique"),
     }),
     propertyName: yup.string().required(),
     sourceTableName: yup.string().required(),
@@ -106,8 +113,8 @@ const cdcSinkTableSchema = yup.object({
     onDelete: cdcSinkOnDeleteSchema,
     patch: yup.string().nullable(),
     primaryKeyColumns: stringValueListSchema({
-        requiredMessage: "At least one primary key column is required",
-        uniqueMessage: "Primary key columns must be unique",
+        requiredMessage: () => t("validation.primaryKeyColumnRequired"),
+        uniqueMessage: () => t("validation.primaryKeyColumnsUnique"),
     }),
     sourceTableName: yup.string().required(),
     sourceTableSchema: sourceTableSchemaSchema,
@@ -132,9 +139,11 @@ export const editCdcSinkTaskSchema = yup.object({
     tables: yup
         .array()
         .of(cdcSinkTableSchema)
-        .min(1, "At least one table is required")
-        .test("unique-collection-names", "Collection names must be unique", (items) =>
-            hasUniqueValues(items, (item) => item.collectionName)
+        .min(1, () => t("validation.tableRequired"))
+        .test(
+            "unique-collection-names",
+            () => t("validation.collectionNamesUnique"),
+            (items) => hasUniqueValues(items, (item) => item.collectionName)
         )
         .test("unique-root-source-tables", function (items) {
             const duplicateErrors = getDuplicateRootTableErrors(items);

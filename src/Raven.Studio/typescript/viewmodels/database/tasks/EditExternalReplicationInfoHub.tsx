@@ -8,9 +8,24 @@ import FeatureAvailabilitySummaryWrapper, {
 } from "components/common/FeatureAvailabilitySummary";
 import { useLimitedFeatureAvailability } from "components/utils/licenseLimitsUtils";
 import { useRavenLink } from "hooks/useRavenLink";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export function EditExternalReplicationInfoHub() {
+    const t = useStudioTranslation("editExternalReplicationTask");
+    const commonT = useStudioTranslation("common");
     const hasExternalReplication = useAppSelector(licenseSelectors.statusValue("HasExternalReplication"));
+
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("featureAvailability.externalReplication"),
+            featureIcon: "external-replication",
+            community: { value: false },
+            professional: { value: true },
+            enterprise: { value: true },
+            quill: { value: true },
+        },
+    ];
 
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
@@ -28,54 +43,37 @@ export function EditExternalReplicationInfoHub() {
         <AboutViewFloating defaultOpen={hasExternalReplication ? null : "licensing"}>
             <AccordionItemWrapper targetId="about" icon="about" color="info">
                 <div>
-                    Schedule an <strong>External Replication</strong> ongoing-task in order to have a live replica of
-                    your data in another RavenDB database in another cluster.
+                    <StudioTrans
+                        ns="editExternalReplicationTask"
+                        i18nKey="about.task"
+                        components={{ strong: <strong /> }}
+                    />
                     <ul className="margin-top-xxs">
-                        <li>The replica can serve as a failover solution in case the source cluster is down.</li>
+                        <li>{t("about.failoverItem")}</li>
                     </ul>
                 </div>
                 <div>
-                    What is replicated:
+                    {t("about.whatIsReplicated")}
                     <ul className="margin-top-xxs">
-                        <li>
-                            Documents and their related data (attachments, revisions, counters, time series) will be
-                            replicated.
-                        </li>
-                        <li>
-                            Server and cluster-level items (e.g. indexes, identities, compare-exchange items, ongoing
-                            tasks definitions, etc.) are Not replicated.
-                        </li>
+                        <li>{t("about.documentsItem")}</li>
+                        <li>{t("about.clusterItemsItem")}</li>
                     </ul>
                 </div>
                 <div>
-                    Task definition includes:
+                    {t("about.taskDefinition")}
                     <ul className="margin-top-xxs">
-                        <li>
-                            A connection string to the destination database containing the URLs of the target
-                            cluster&apos;s servers.
-                        </li>
-                        <li>An optional delay time for data replication.</li>
-                        <li>A responsible node to handle this task can be set.</li>
+                        <li>{t("about.connectionStringItem")}</li>
+                        <li>{t("about.delayItem")}</li>
+                        <li>{t("about.responsibleNodeItem")}</li>
                     </ul>
                 </div>
                 <hr />
-                <div className="small-label mb-2">useful links</div>
+                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                 <a href={externalReplicationDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - External Replication
+                    <Icon icon="newtab" /> {t("about.docsLink")}
                 </a>
             </AccordionItemWrapper>
             <FeatureAvailabilitySummaryWrapper isUnlimited={hasExternalReplication} data={featureAvailability} />
         </AboutViewFloating>
     );
 }
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "External Replication",
-        featureIcon: "external-replication",
-        community: { value: false },
-        professional: { value: true },
-        enterprise: { value: true },
-        quill: { value: true },
-    },
-];

@@ -14,11 +14,14 @@ import { useAppSelector } from "components/store";
 import Button from "react-bootstrap/Button";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 type CdcColumnType = Raven.Client.Documents.Operations.CdcSink.CdcColumnType;
 type FieldMappingPath = RootTablePath | EmbeddedTablePath;
 
 export default function EditCdcSinkTaskFieldMapping({ path }: { path: FieldMappingPath }) {
+    const t = useStudioTranslation("editCdcSinkTask");
     const { control } = useFormContext<EditCdcSinkTaskFormData>();
     const isFieldMappingExpandedByDefault = useAppSelector(editCdcSinkTaskSelectors.isFieldMappingExpandedByDefault);
     const { value: isExpanded, setTrue: expand, setValue: setIsExpanded } = useBoolean(isFieldMappingExpandedByDefault);
@@ -30,11 +33,17 @@ export default function EditCdcSinkTaskFieldMapping({ path }: { path: FieldMappi
         name: columnsPath,
     });
 
+    const columnTypeOptions: SelectOption<CdcColumnType>[] = [
+        { value: "Default", label: t("fieldMapping.typeDefault") },
+        { value: "Json", label: "JSON" },
+        { value: "Attachment", label: t("fieldMapping.typeAttachment") },
+    ];
+
     return (
         <>
             <div className="hstack justify-content-between mb-1">
                 <div className="hstack">
-                    Field mapping
+                    {t("fieldMapping.title")}
                     <FormErrorIcon control={control} paths={[columnsPath]} />
                 </div>
                 <Button
@@ -46,37 +55,33 @@ export default function EditCdcSinkTaskFieldMapping({ path }: { path: FieldMappi
                     }}
                 >
                     <Icon icon="plus" />
-                    Add field mapping
+                    {t("fieldMapping.add")}
                 </Button>
             </div>
             {columnsFieldArray.fields.length === 0 ? (
                 <div className="panel-bg-2 p-1 rounded border border-secondary hstack justify-content-center">
-                    <EmptySet compact>No field mappings defined.</EmptySet>
+                    <EmptySet compact>{t("fieldMapping.empty")}</EmptySet>
                 </div>
             ) : (
                 <div>
                     <div className="field-mapping-row panel-bg-2 rounded-top p-1">
-                        <div>Source column</div>
+                        <div>{t("fieldMapping.sourceColumn")}</div>
                         <div></div>
                         <div>
-                            Target property
-                            <PopoverWithHoverWrapper message="The RavenDB document field where the source column value will be stored.">
+                            {t("tableEditor.targetProperty")}
+                            <PopoverWithHoverWrapper message={t("fieldMapping.targetPropertyInfo")}>
                                 <Icon icon="info-new" margin="ms-1" />
                             </PopoverWithHoverWrapper>
                         </div>
                         <div>
-                            Type
+                            {t("fieldMapping.type")}
                             <PopoverWithHoverWrapper
                                 message={
-                                    <>
-                                        How the source column value is stored in the document:
-                                        <br />
-                                        <strong>Default</strong> - stored as a regular property.
-                                        <br />
-                                        <strong>JSON</strong> - parsed as JSON before storing.
-                                        <br />
-                                        <strong>Attachment</strong> - stored as a RavenDB attachment.
-                                    </>
+                                    <StudioTrans
+                                        ns="editCdcSinkTask"
+                                        i18nKey="fieldMapping.typeInfo"
+                                        components={{ br: <br />, strong: <strong /> }}
+                                    />
                                 }
                             >
                                 <Icon icon="info-new" margin="ms-1" />
@@ -128,9 +133,3 @@ export default function EditCdcSinkTaskFieldMapping({ path }: { path: FieldMappi
         </>
     );
 }
-
-const columnTypeOptions: SelectOption<CdcColumnType>[] = [
-    { value: "Default", label: "Default" },
-    { value: "Json", label: "JSON" },
-    { value: "Attachment", label: "Attachment" },
-];

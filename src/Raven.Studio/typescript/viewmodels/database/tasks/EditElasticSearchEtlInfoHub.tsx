@@ -8,9 +8,25 @@ import FeatureAvailabilitySummaryWrapper, {
     FeatureAvailabilityData,
 } from "components/common/FeatureAvailabilitySummary";
 import { useLimitedFeatureAvailability } from "components/utils/licenseLimitsUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export function EditElasticSearchEtlInfoHub() {
+    const t = useStudioTranslation("editElasticSearchEtlTask");
+    const commonT = useStudioTranslation("common");
     const hasElasticSearchEtl = useAppSelector(licenseSelectors.statusValue("HasElasticSearchEtl"));
+
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("featureAvailability.elasticSearchEtl"),
+            featureIcon: "elastic-search-etl",
+            community: { value: false },
+            professional: { value: false },
+            enterprise: { value: true },
+            quill: { value: true },
+        },
+    ];
+
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
         overwrites: [
@@ -27,63 +43,42 @@ export function EditElasticSearchEtlInfoHub() {
         <AboutViewFloating defaultOpen={hasElasticSearchEtl ? null : "licensing"}>
             <AccordionItemWrapper targetId="about" icon="about" color="info">
                 <p>
-                    An <strong>Elasticsearch ETL</strong> ongoing-task is an ETL (Extract, Transform & Load) process
-                    that transfers data from this RavenDB database to an Elasticsearch destination.
+                    <StudioTrans
+                        ns="editElasticSearchEtlTask"
+                        i18nKey="about.intro"
+                        components={{ strong: <strong /> }}
+                    />
                 </p>
                 <ul>
                     <li>
-                        Data is extracted from documents only.
-                        <br />
-                        Attachments, Counters, Time series, and Revisions are not sent.
+                        <StudioTrans
+                            ns="editElasticSearchEtlTask"
+                            i18nKey="about.documentsOnly"
+                            components={{ br: <br /> }}
+                        />
                     </li>
-                    <li className="margin-top-xxs">
-                        The sent data can be filtered and modified by multiple transformation JavaScript scripts that
-                        are added to the task.
-                    </li>
-                    <li className="margin-top-xxs">
-                        Each script specifies the RavenDB source collection(s) and the destination Elasticsearch
-                        index(es).
-                    </li>
-                    <li className="margin-top-xxs">
-                        The scripts are executed whenever documents in the source database are created, modified, or
-                        deleted.
-                    </li>
-                    <li className="margin-top-xxs">
-                        You can test each script in this view to preview the commands the ETL task would send
-                        Elasticsearch.
-                    </li>
+                    <li className="margin-top-xxs">{t("about.transformationScripts")}</li>
+                    <li className="margin-top-xxs">{t("about.scriptCollections")}</li>
+                    <li className="margin-top-xxs">{t("about.scriptExecution")}</li>
+                    <li className="margin-top-xxs">{t("about.testScripts")}</li>
                 </ul>
                 <hr />
                 <div>
-                    Task definition includes:
+                    {t("about.definitionIncludes")}
                     <ul>
-                        <li>The transformation scripts definitions.</li>
-                        <li>
-                            List of Elasticsearch indexes the ETL task will access, including the property used for the
-                            RavenDB document ID.
-                        </li>
-                        <li>A connection string with URLs to the Elasticsearch nodes and the authentication method.</li>
-                        <li>A responsible node to handle this task can be set.</li>
+                        <li>{t("about.definitionScripts")}</li>
+                        <li>{t("about.definitionIndexes")}</li>
+                        <li>{t("about.definitionConnectionString")}</li>
+                        <li>{t("about.definitionResponsibleNode")}</li>
                     </ul>
                 </div>
                 <hr />
-                <div className="small-label mb-2">useful links</div>
+                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                 <a href={elasticSearchEtlDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - Elasticsearch ETL
+                    <Icon icon="newtab" /> {t("about.docsLink")}
                 </a>
             </AccordionItemWrapper>
             <FeatureAvailabilitySummaryWrapper isUnlimited={hasElasticSearchEtl} data={featureAvailability} />
         </AboutViewFloating>
     );
 }
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "ElasticSearch ETL",
-        featureIcon: "elastic-search-etl",
-        community: { value: false },
-        professional: { value: false },
-        enterprise: { value: true },
-        quill: { value: true },
-    },
-];

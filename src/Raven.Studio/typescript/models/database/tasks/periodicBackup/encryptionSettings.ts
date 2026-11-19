@@ -1,5 +1,8 @@
 ﻿import setupEncryptionKey = require("viewmodels/resources/setupEncryptionKey");
 import jsonUtil = require("common/jsonUtil");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
 
 class encryptionSettings {
     
@@ -32,11 +35,11 @@ class encryptionSettings {
     
     encryptionModes: Array<valueAndLabelItem<Raven.Client.Documents.Operations.Backups.EncryptionMode, string>> = [
         {
-            label: "Encrypt using Database Encryption Key",
+            label: t("backup.encryption.modes.useDatabaseKey"),
             value: "UseDatabaseKey"
         },
         {
-            label: "Provide your own Encryption Key",
+            label: t("backup.encryption.modes.useProvidedKey"),
             value: "UseProvidedKey"
         }
     ];
@@ -158,11 +161,11 @@ class encryptionSettings {
         
         this.keySourceDropdownTitle = ko.pureComputed(() => {
             if (this.encryptedDatabase()) {
-                return this.enableKeySourceDropdown() ? 'Select Encryption Key mode' :
-                                                        'The Database Encryption Key will be used when selecting Snapshot type';
+                return this.enableKeySourceDropdown() ? t("backup.encryption.keySourceTitle.select") :
+                                                        t("backup.encryption.keySourceTitle.snapshotUsesDatabaseKey");
             }
             // db is not encrypted and the dropdown is disabled... 
-            return 'The database is not encrypted. Provide your own Encryption Key for the Backup task.';
+            return t("backup.encryption.keySourceTitle.databaseNotEncrypted");
         });
         
         this.enableKeySourceDropdown = ko.pureComputed(() => {
@@ -196,7 +199,7 @@ class encryptionSettings {
         this.allowUnencryptedBackupForEncryptedDatabase.extend({
             validation: [{
                 validator: (v: boolean) => this.needExplicitConsent() ? v : true,
-                message: "Please confirm you want to perform unencrypted backup of encrypted database"
+                message: t("backup.encryption.confirmUnencryptedBackup")
             }]
         });
 
@@ -206,7 +209,7 @@ class encryptionSettings {
             validation: [{
                 validator: function() {
                     if (self.enabled() &&  !self.backupType()) {
-                        this.message = "Backup Type was not selected. Select Backup Type to continue.";
+                        this.message = t("backup.encryption.backupTypeNotSelected");
                         return false;
                     }
                     
@@ -215,7 +218,7 @@ class encryptionSettings {
                         if (!self.enabled()) {
                             switch (self.backupType()) {
                                 case "Snapshot":
-                                    this.message = "A 'Snapshot' backup-type was selected. An Unencrypted backup can only be defined for Encrypted databases when a 'Backup' backup-type is selected.";
+                                    this.message = t("backup.encryption.snapshotUnencryptedNotAllowed");
                                     return false;
                                 case "Backup":
                                     return true;
@@ -223,7 +226,7 @@ class encryptionSettings {
                         }
                     } else {
                         if (self.enabled() && self.backupType() === "Snapshot" && !self.isServerWideBackupTask) {
-                            this.message = "A 'Snapshot' backup-type was selected. Creating an Encrypted backup for Unencrypted databases is only supported when selecting the 'Backup' backup-type.";
+                            this.message = t("backup.encryption.snapshotEncryptedNotSupported");
                             return false;
                         }
                     }

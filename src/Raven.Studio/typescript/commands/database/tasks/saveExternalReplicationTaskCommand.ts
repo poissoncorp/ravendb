@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksCommands");
 
 class saveExternalReplicationTaskCommand extends commandBase {
    
@@ -11,10 +14,10 @@ class saveExternalReplicationTaskCommand extends commandBase {
     execute(): JQueryPromise<Raven.Client.Documents.Operations.OngoingTasks.ModifyOngoingTaskResult> {
         return this.updateReplication()
             .fail((response: JQueryXHR) => {
-                    this.reportError("Failed to save replication task", response.responseText, response.statusText);
+                    this.reportError(t("replicationSaveFailed"), response.responseText, response.statusText);
             })
             .done(() => {
-                this.reportSuccess(`Saved replication task`);
+                this.reportSuccess(t("replicationSaved"));
             });
     }
 

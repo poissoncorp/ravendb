@@ -23,12 +23,10 @@ import { connectionStringLabels, databaseSettingLabels, ongoingTaskLabels } from
 import classNames from "classnames";
 import { useAppSelector } from "components/store";
 import { licenseSelectors } from "components/common/shell/licenseSlice";
-
-const missingConnectionStringWarning =
-    "This task is selected without its connection string. It will be imported but won't run until a matching " +
-    "connection string exists in this database.";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function ConfigurationToImportSection() {
+    const t = useStudioTranslation("importFromFile");
     const { control, setValue, resetField } = useFormContext<ImportFromFileFormData>();
     const {
         databaseSettings: settingRestrictions,
@@ -117,18 +115,18 @@ export default function ConfigurationToImportSection() {
     };
 
     return (
-        <ImportSection id="configuration-to-import" title="Configuration to import">
+        <ImportSection id="configuration-to-import" title={t("sections.configurationToImport")}>
             <div className="d-flex justify-content-between align-items-center mb-2">
                 <h4 id="database-entities" className="m-0">
-                    Select database entities
+                    {t("configuration.selectEntities")}
                 </h4>
                 <Button variant="link" size="sm" onClick={() => setAllEntities(!areAllEntitiesSelected)}>
-                    {areAllEntitiesSelected ? "Deselect all" : "Select all"}
+                    {areAllEntitiesSelected ? t("deselectAll") : t("selectAll")}
                 </Button>
             </div>
             <div className="card p-4 mb-4">
                 <FormSwitch control={control} name="configuration.isIncludeIndexes" className="pb-1">
-                    Include Indexes
+                    {t("configuration.includeIndexes")}
                 </FormSwitch>
                 <div className="ms-4 d-flex flex-column gap-1">
                     <FormSwitch
@@ -136,20 +134,20 @@ export default function ConfigurationToImportSection() {
                         name="configuration.isIncludeIndexHistory"
                         afterChange={forceIndexesOn}
                     >
-                        Include Index History
+                        {t("configuration.includeIndexHistory")}
                     </FormSwitch>
                     <FormSwitch control={control} name="configuration.isRemoveAnalyzers" afterChange={forceIndexesOn}>
-                        Remove Analyzers
+                        {t("configuration.removeAnalyzers")}
                     </FormSwitch>
                 </div>
                 <hr className="my-1" />
                 <FormSwitch control={control} name="configuration.isIncludeIdentities">
-                    Include Identities
+                    {t("configuration.includeIdentities")}
                 </FormSwitch>
                 <hr className="my-1" />
                 <div className="d-flex justify-content-between align-items-start">
                     <FormSwitch control={control} name="configuration.isIncludeConnectionStringsAndOngoingTasks">
-                        Include Connection Strings &amp; Ongoing Tasks
+                        {t("configuration.includeTasks")}
                     </FormSwitch>
                     <Button
                         variant="link"
@@ -161,7 +159,7 @@ export default function ConfigurationToImportSection() {
                                 : setValue("configuration.isCustomizeOngoingTasks", true, { shouldDirty: true })
                         }
                     >
-                        {isCustomizeTasks ? "Reset to default" : "Customize"}
+                        {isCustomizeTasks ? t("configuration.resetToDefault") : t("customize")}
                     </Button>
                 </div>
                 <Collapse in={isIncludeTasks && isCustomizeTasks}>
@@ -169,13 +167,13 @@ export default function ConfigurationToImportSection() {
                         <div className="row mt-3">
                             <div className="col-md-6">
                                 <div className="import-list-header mb-1">
-                                    <span className="flex-grow-1 fw-semibold">Ongoing tasks</span>
+                                    <span className="flex-grow-1 fw-semibold">{t("configuration.ongoingTasks")}</span>
                                     <div className="d-flex align-items-center gap-2">
-                                        <span>Select all</span>
+                                        <span>{t("selectAll")}</span>
                                         <Form.Check
                                             type="switch"
                                             id="select-all-ongoing-tasks"
-                                            aria-label="Select all ongoing tasks"
+                                            aria-label={t("configuration.selectAllOngoingTasks")}
                                             label=""
                                             className="m-0"
                                             disabled={selectableOngoingTaskKeys.length === 0}
@@ -193,7 +191,7 @@ export default function ConfigurationToImportSection() {
                                                 restriction={ongoingTaskRestrictions[key]}
                                                 warning={
                                                     tasksMissingConnectionStrings.includes(key)
-                                                        ? missingConnectionStringWarning
+                                                        ? t("configuration.missingConnectionString")
                                                         : undefined
                                                 }
                                             >
@@ -205,13 +203,15 @@ export default function ConfigurationToImportSection() {
                             </div>
                             <div className="col-md-6">
                                 <div className="import-list-header mb-1">
-                                    <span className="flex-grow-1 fw-semibold">Connection strings</span>
+                                    <span className="flex-grow-1 fw-semibold">
+                                        {t("configuration.connectionStrings")}
+                                    </span>
                                     <div className="d-flex align-items-center gap-2">
-                                        <span>Select all</span>
+                                        <span>{t("selectAll")}</span>
                                         <Form.Check
                                             type="switch"
                                             id="select-all-connection-strings"
-                                            aria-label="Select all connection strings"
+                                            aria-label={t("configuration.selectAllConnectionStrings")}
                                             label=""
                                             className="m-0"
                                             disabled={selectableConnectionStringKeys.length === 0}
@@ -239,13 +239,13 @@ export default function ConfigurationToImportSection() {
                 </Collapse>
                 {isIncludeTasks && (
                     <Alert variant="info" className="mt-3 mb-0">
-                        <Icon icon="info" color="info" /> Imported ongoing tasks will be disabled by default.
+                        <Icon icon="info" color="info" /> {t("configuration.tasksDisabledInfo")}
                     </Alert>
                 )}
             </div>
 
             <h4 id="database-settings" className="mb-2">
-                Select database settings
+                {t("configuration.selectSettings")}
             </h4>
             <Card className="p-4">
                 <div className="d-flex gap-2">
@@ -255,7 +255,7 @@ export default function ConfigurationToImportSection() {
                         onClick={() => setValue("configuration.isImportAllSettings", true, { shouldDirty: true })}
                     >
                         <Icon icon="database" margin="m-0" />
-                        Import all settings
+                        {t("configuration.importAllSettings")}
                     </button>
                     <button
                         type="button"
@@ -263,19 +263,19 @@ export default function ConfigurationToImportSection() {
                         onClick={() => setValue("configuration.isImportAllSettings", false, { shouldDirty: true })}
                     >
                         <Icon icon="settings" addon="edit" margin="m-0" />
-                        Customize
+                        {t("customize")}
                     </button>
                 </div>
                 {!isImportAllSettings && (
                     <div className="mt-4">
                         <div className="import-list-header mb-1">
-                            <span className="flex-grow-1 fw-semibold">Setting name</span>
+                            <span className="flex-grow-1 fw-semibold">{t("configuration.settingName")}</span>
                             <div className="d-flex align-items-center gap-2">
-                                <span>Select all</span>
+                                <span>{t("selectAll")}</span>
                                 <Form.Check
                                     type="switch"
                                     id="select-all-database-settings"
-                                    aria-label="Select all database settings"
+                                    aria-label={t("configuration.selectAllSettings")}
                                     label=""
                                     className="m-0"
                                     checked={areAllSettingsSelected}

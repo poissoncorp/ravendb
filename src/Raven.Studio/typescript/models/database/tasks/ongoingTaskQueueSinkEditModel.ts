@@ -2,6 +2,9 @@
 import ongoingTaskEditModel = require("models/database/tasks/ongoingTaskEditModel");
 import jsonUtil = require("common/jsonUtil");
 import ongoingTaskQueueSinkScriptModel = require("models/database/tasks/ongoingTaskQueueSinkScriptModel");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
 
 abstract class ongoingTaskQueueSinkEditModel extends ongoingTaskEditModel {
     
@@ -68,7 +71,7 @@ abstract class ongoingTaskQueueSinkEditModel extends ongoingTaskEditModel {
             validation: [
                 {
                     validator: () => this.scripts().length > 0,
-                    message: "Script is Not defined"
+                    message: t("queueSink.scriptNotDefined")
                 }
             ]
         });

@@ -3,6 +3,10 @@ import replicationCertificateModel = require("models/database/tasks/replicationC
 import prefixPathModel = require("models/database/tasks/prefixPathModel");
 import replicationAccessBaseModel = require("models/database/tasks/replicationAccessBaseModel");
 import messagePublisher = require("common/messagePublisher");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
+const tCommon = i18nModule.createTranslator("studioCommon");
 
 class replicationAccessSinkModel extends replicationAccessBaseModel {
 
@@ -28,7 +32,7 @@ class replicationAccessSinkModel extends replicationAccessBaseModel {
         this.serverCertificate(serverCertificate);
         
         this.certificateSourceText = ko.pureComputed(() => {
-            return this.serverCertificateSelected() ? "Use the server certificate" : "Provide your own certificate";
+            return t("replicationAccess.certificateSource", { context: this.serverCertificateSelected() ? "server" : "own" });
         });
         
         this.initValidation();
@@ -41,11 +45,11 @@ class replicationAccessSinkModel extends replicationAccessBaseModel {
             validation: [
                 {
                     validator: () => !this.selectedFileName() || this.certificateExtracted(),
-                    message: "Could not extract certificate from this file"
+                    message: t("replicationAccess.certificateNotExtracted")
                 },
                 {
                     validator: () => this.certificate(),
-                    message: "A certificate with a private key is required"
+                    message: t("replicationAccess.privateKeyRequired")
                 }
             ]
         });
@@ -75,9 +79,9 @@ class replicationAccessSinkModel extends replicationAccessBaseModel {
                 return true;
             } catch ($e) {
                 if (reportErrors) {
-                    const errorMessage = $e instanceof Error && $e.message.includes("private key")
+                    const errorMessage = $e instanceof Error && $e.message === tCommon("certificate.noPrivateKey")
                         ? $e.message
-                        : "Unable to extract certificate from file. Verify file is .pfx containing a single private key and check provided password.";
+                        : t("replicationAccess.extractCertificateFailed");
                     messagePublisher.reportError(errorMessage, $e);
                 }
                 this.certificateExtracted(false);

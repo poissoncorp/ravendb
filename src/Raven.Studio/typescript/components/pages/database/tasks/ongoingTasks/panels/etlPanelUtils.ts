@@ -20,17 +20,20 @@ import {
     healthStatusToBadge,
     parseProcessName,
 } from "components/pages/database/tasks/tasksErrors/utils/tasksErrorsUtils";
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("ongoingTasks");
 
 export type EtlHealthStatus = Raven.Server.Documents.TasksErrors.OngoingTaskHealthStatus;
 
 export function getPopoverMessageForTaskHealth(status: EtlHealthStatus): string {
     switch (status) {
         case "Healthy":
-            return "This task is in good health, with no errors or only a low error rate.";
+            return t("taskDetails.healthPopover.healthy");
         case "Impaired":
-            return "This task needs your attention because it has an increased error rate.";
+            return t("taskDetails.healthPopover.impaired");
         case "Failed":
-            return "This task needs your attention because it has a high error rate.";
+            return t("taskDetails.healthPopover.failed");
         default:
             return assertUnreachable(status);
     }
@@ -100,11 +103,15 @@ export function computeEtlPanelProgress(
     const allProgress = responsibleNodeInfos.flatMap((nodeInfo) => nodeInfo.etlProgress ?? []);
 
     if (allProgress.length === 0) {
-        return { state: "running", icon: disabled ? "stop" : null, label: disabled ? "Disabled" : "?" };
+        return {
+            state: "running",
+            icon: disabled ? "stop" : null,
+            label: disabled ? t("progressCircle.disabled") : "?",
+        };
     }
 
     if (allProgress.every((x) => x.completed) && data.shared.taskState === "Enabled") {
-        return { state: "success", icon: "check", label: "up to date" };
+        return { state: "success", icon: "check", label: t("progressCircle.upToDate") };
     }
 
     const totalItems = allProgress.reduce((acc, p) => acc + p.global.total, 0);
@@ -116,7 +123,7 @@ export function computeEtlPanelProgress(
         state: "running",
         icon: anyDisabled ? "stop" : null,
         progress: percentage,
-        label: anyDisabled ? "Disabled" : "Running",
+        label: anyDisabled ? t("progressCircle.disabled") : t("progressCircle.running"),
     };
 }
 

@@ -43,9 +43,11 @@ import { CellDateWithRelativeTimeWrapper } from "components/common/virtualTable/
 import { DeleteErrorsModal } from "./DeleteModals";
 import { accessManagerSelectors } from "components/common/shell/accessManagerSliceSelectors";
 import { AccessPopover } from "components/common/AccessPopover";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 import EtlTaskStats = Raven.Server.Documents.ETL.Stats.EtlTaskStats;
 
 function useGroupByNoneTableColumns(availableWidth: number, hasProcessErrors: boolean) {
+    const t = useStudioTranslation("tasksErrors");
     const db = useAppSelector(databaseSelectors.activeDatabase);
     const bodyWidth = virtualTableUtils.getTableBodyWidth(availableWidth);
     const getSize = useMemo(() => virtualTableUtils.getCellSizeProvider(bodyWidth - SHOW_WIDTH_SIZE), [bodyWidth]);
@@ -53,12 +55,12 @@ function useGroupByNoneTableColumns(availableWidth: number, hasProcessErrors: bo
     const columns = useMemo<ColumnDef<FlatError>[]>(
         () => [
             {
-                header: "Show",
+                header: t("columns.show"),
                 cell: CellValueButtonWrapper,
                 size: SHOW_WIDTH_SIZE,
             },
             {
-                header: "Task type",
+                header: t("columns.taskType"),
                 accessorKey: "etlType",
                 cell: CellTaskTypeWrapper,
                 size: getSize(5),
@@ -66,32 +68,32 @@ function useGroupByNoneTableColumns(availableWidth: number, hasProcessErrors: bo
                 enableColumnFilter: false,
             },
             {
-                header: "Task",
+                header: t("columns.task"),
                 accessorKey: "etlName",
                 cell: CellTaskWrapper,
                 size: getSize(18),
                 enableColumnFilter: false,
             },
             {
-                header: "Error type",
+                header: t("columns.errorType"),
                 accessorKey: "errorType",
                 cell: CellErrorTypeWrapper,
                 size: getSize(8),
             },
             {
-                header: "Error step",
+                header: t("columns.errorStep"),
                 accessorKey: "Step",
                 cell: CellErrorStepWrapper,
                 size: getSize(8),
             },
             {
-                header: "Date",
+                header: t("columns.date"),
                 accessorKey: "CreatedAt",
                 cell: CellDateWithRelativeTimeWrapper,
                 size: getSize(15),
             },
             {
-                header: "Node",
+                header: t("columns.node"),
                 accessorKey: "nodeTag",
                 cell: CellNodeValueWrapper,
                 size: getSize(3),
@@ -101,7 +103,7 @@ function useGroupByNoneTableColumns(availableWidth: number, hasProcessErrors: bo
             ...(db.isSharded
                 ? [
                       {
-                          header: "Shard",
+                          header: t("columns.shard"),
                           accessorKey: "shardNumber",
                           cell: CellShardValueWrapper,
                           size: getSize(3),
@@ -111,7 +113,7 @@ function useGroupByNoneTableColumns(availableWidth: number, hasProcessErrors: bo
                   ]
                 : []),
             {
-                header: "Document",
+                header: t("columns.document"),
                 accessorKey: "DocumentId",
                 cell: HyperLinkDocumentCellValue,
                 size: getSize(8),
@@ -119,7 +121,7 @@ function useGroupByNoneTableColumns(availableWidth: number, hasProcessErrors: bo
             ...(hasProcessErrors
                 ? [
                       {
-                          header: "Affected Documents",
+                          header: t("columns.affectedDocuments"),
                           accessorKey: "AffectedDocumentsCount",
                           cell: CellAffectedDocumentsWrapper,
                           size: getSize(8),
@@ -127,7 +129,7 @@ function useGroupByNoneTableColumns(availableWidth: number, hasProcessErrors: bo
                   ]
                 : []),
             {
-                header: "Current task health",
+                header: t("columns.currentTaskHealth"),
                 accessorKey: "healthStatus",
                 cell: CellTaskHealthWrapper,
                 size: getSize(8),
@@ -135,14 +137,14 @@ function useGroupByNoneTableColumns(availableWidth: number, hasProcessErrors: bo
                 enableSorting: false,
             },
             {
-                header: "Content",
+                header: t("columns.content"),
                 accessorKey: "Error",
                 cell: CellWithCopyWrapper,
                 size: getSize((db.isSharded ? 20 : 25) - (hasProcessErrors ? 8 : 0)),
                 enableSorting: false,
             },
         ],
-        [db.isSharded, getSize, hasProcessErrors]
+        [db.isSharded, getSize, hasProcessErrors, t]
     );
 
     return columns;
@@ -163,6 +165,7 @@ function GroupByNoneTable({
     width,
     filters,
 }: GroupByNoneTableProps) {
+    const t = useStudioTranslation("tasksErrors");
     const hasDatabaseWriteAccess = useAppSelector(accessManagerSelectors.getHasDatabaseWriteAccess)();
 
     const data = useMemo<FlatError[]>(() => {
@@ -201,7 +204,7 @@ function GroupByNoneTable({
     });
 
     if (data.length === 0) {
-        return <EmptySet>No tasks match the current filters.</EmptySet>;
+        return <EmptySet>{t("table.noMatch")}</EmptySet>;
     }
 
     return (
@@ -210,7 +213,7 @@ function GroupByNoneTable({
                 <AccessPopover accessRequired="DatabaseReadWrite">
                     <Button variant="danger" disabled={!hasDatabaseWriteAccess} onClick={toggleDeleteAllErrorsModal}>
                         <Icon icon="trash" />
-                        <span>Delete all errors</span>
+                        <span>{t("table.deleteAllErrors")}</span>
                     </Button>
                 </AccessPopover>
                 <TableDisplaySettings table={table} />

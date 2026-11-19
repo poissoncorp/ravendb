@@ -3,6 +3,7 @@ import { EmptySet } from "components/common/EmptySet";
 import { TaskWithErrors, TasksFiltersState } from "../utils/tasksErrorsUtils";
 import { filterTasksWithErrors } from "../utils/filterTasksErrors";
 import { TaskPanel } from "./TaskPanel";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 import EtlTaskStats = Raven.Server.Documents.ETL.Stats.EtlTaskStats;
 
 interface GroupByTaskViewProps {
@@ -13,13 +14,14 @@ interface GroupByTaskViewProps {
 }
 
 export function GroupByTaskView({ tasksWithErrors, etlStats, filters, onRefresh }: GroupByTaskViewProps) {
+    const t = useStudioTranslation("tasksErrors");
     const filteredTasksWithErrors = useMemo(
         () => filterTasksWithErrors(tasksWithErrors, etlStats, filters),
         [tasksWithErrors, etlStats, filters]
     );
 
     if (filteredTasksWithErrors.length === 0) {
-        return <EmptySet>No tasks match the current filters.</EmptySet>;
+        return <EmptySet>{t("table.noMatch")}</EmptySet>;
     }
 
     return filteredTasksWithErrors.map((task, index) => (

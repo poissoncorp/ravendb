@@ -1,12 +1,11 @@
 <div class="form-group" data-bind="validationElement: connectionStringName">
-    <label class="control-label">Name<i class="required"></i></label>
+    <label class="control-label"><span data-bind="i18n: 'editAzureQueueStorageEtlTask:newConnectionString.name'"></span><i class="required"></i></label>
     <div class="flex-grow">
-        <input class="form-control" data-bind="textInput: connectionStringName, enable: isNew, attr: { 'title': isNew() ? 'Enter any name of your choice for this connection string' : '' }"
-               placeholder="Enter a name for the connection string" />
+        <input class="form-control" data-bind="textInput: connectionStringName, enable: isNew, i18nAttr: { 'title': isNew() ? 'editAzureQueueStorageEtlTask:newConnectionString.nameTitle' : null, placeholder: 'editAzureQueueStorageEtlTask:newConnectionString.namePlaceholder' }" />
     </div>
 </div>
 <div class="form-group">
-    <label class="control-label">Authentication</label>
+    <label class="control-label" data-bind="i18n: 'editAzureQueueStorageEtlTask:newConnectionString.authentication'"></label>
     <div class="flex-grow">
         <button type="button" class="btn btn-block dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false">
             <span data-bind="text: formatAuthenticationType(authenticationType())"></span>
@@ -22,40 +21,40 @@
 <div data-bind="visible: authenticationType() === 'connectionString', with: connectionStringModel">
     <div class="form-group" data-bind="validationElement: connectionString">
         <label class="control-label">
-            Connection string
+            <span data-bind="i18n: 'editAzureQueueStorageEtlTask:newConnectionString.connectionString'"></span>
             <i class="required"></i>
             <br />
             <br />
             <small id="syntax-help" class="text-primary">
-                Syntax <i class="icon-help"></i>
+                <span data-bind="i18n: 'editAzureQueueStorageEtlTask:newConnectionString.syntax'"></span> <i class="icon-help"></i>
             </small>
         </label>
         <div class="flex-grow">
-            <textarea class="form-control" rows="2" data-bind="textInput: connectionString" placeholder="Enter connection string for Azure Queue Storage"></textarea>
+            <textarea class="form-control" rows="2" data-bind="textInput: connectionString, i18nAttr: { placeholder: 'editAzureQueueStorageEtlTask:newConnectionString.connectionStringPlaceholder' }"></textarea>
         </div>
     </div>
 </div>
 <div data-bind="visible: authenticationType() === 'entraId', with: entraIdModel">
     <div class="form-group" data-bind="validationElement: clientId">
-        <label class="control-label">Client ID<i class="required"></i></label>
+        <label class="control-label"><span data-bind="i18n: 'editAzureQueueStorageEtlTask:newConnectionString.clientId'"></span><i class="required"></i></label>
         <div class="flex-grow">
             <input class="form-control" rows="2" data-bind="textInput: clientId" />
         </div>
     </div>
     <div class="form-group" data-bind="validationElement: clientSecret">
-        <label class="control-label">Client Secret<i class="required"></i></label>
+        <label class="control-label"><span data-bind="i18n: 'editAzureQueueStorageEtlTask:newConnectionString.clientSecret'"></span><i class="required"></i></label>
         <div class="flex-grow">
             <input class="form-control" rows="2" data-bind="textInput: clientSecret" />
         </div>
     </div>
     <div class="form-group" data-bind="validationElement: storageAccountName">
-        <label class="control-label">Storage Account Name<i class="required"></i></label>
+        <label class="control-label"><span data-bind="i18n: 'editAzureQueueStorageEtlTask:newConnectionString.storageAccountName'"></span><i class="required"></i></label>
         <div class="flex-grow">
             <input class="form-control" rows="2" data-bind="textInput: storageAccountName" />
         </div>
     </div>
     <div class="form-group" data-bind="validationElement: tenantId">
-        <label class="control-label">Tenant ID<i class="required"></i></label>
+        <label class="control-label"><span data-bind="i18n: 'editAzureQueueStorageEtlTask:newConnectionString.tenantId'"></span><i class="required"></i></label>
         <div class="flex-grow">
             <input class="form-control" rows="2" data-bind="textInput: tenantId" />
         </div>
@@ -64,7 +63,7 @@
 
 <div data-bind="visible: authenticationType() === 'passwordless', with: passwordlessModel">
     <div class="form-group" data-bind="validationElement: storageAccountName">
-        <label class="control-label">Storage Account Name<i class="required"></i></label>
+        <label class="control-label"><span data-bind="i18n: 'editAzureQueueStorageEtlTask:newConnectionString.storageAccountName'"></span><i class="required"></i></label>
         <div class="flex-grow">
             <input class="form-control" rows="2" data-bind="textInput: storageAccountName" />
         </div>

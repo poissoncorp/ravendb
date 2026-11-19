@@ -3,6 +3,9 @@ import ongoingTaskEditModel = require("models/database/tasks/ongoingTaskEditMode
 import ongoingTaskOlapEtlTransformationModel = require("models/database/tasks/ongoingTaskOlapEtlTransformationModel");
 import ongoingTaskOlapEtlTableModel = require("models/database/tasks/ongoingTaskOlapEtlTableModel");
 import cronEditor = require("viewmodels/common/cronEditor");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
 
 class ongoingTaskOlapEtlEditModel extends ongoingTaskEditModel {
     connectionStringName = ko.observable<string>();
@@ -68,7 +71,7 @@ class ongoingTaskOlapEtlEditModel extends ongoingTaskEditModel {
             validation: [
                 {
                     validator: () => this.transformationScripts().length > 0,
-                    message: "Transformation Script is Not defined"
+                    message: t("validation.transformationScriptNotDefined")
                 }
             ]
         });

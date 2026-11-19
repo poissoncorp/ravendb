@@ -18,8 +18,10 @@ import { Switch } from "components/common/Checkbox";
 import useBoolean from "components/hooks/useBoolean";
 import genUtils from "common/generalUtils";
 import AiTokensUsagePopoverBody from "components/common/AiTokensUsagePopoverBody";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function EditGenAiTaskTestResults() {
+    const t = useStudioTranslation("editGenAiTask");
     const dispatch = useAppDispatch();
 
     const currentStep = useAppSelector(editGenAiTaskSelectors.currentStep);
@@ -35,7 +37,7 @@ export default function EditGenAiTaskTestResults() {
                     <div className="hstack mb-3 justify-content-between">
                         <h3 className="mb-0">
                             <Icon icon="test" />
-                            Context test results
+                            {t("testResults.contextTitle")}
                         </h3>
                         <div className="hstack gap-2">
                             <ButtonWithSpinner
@@ -45,7 +47,7 @@ export default function EditGenAiTaskTestResults() {
                                 icon="reset"
                                 isSpinning={contextTest.status === "loading"}
                             >
-                                Re-run test
+                                {t("testResults.rerun")}
                             </ButtonWithSpinner>
                             <Button
                                 variant="secondary"
@@ -53,12 +55,12 @@ export default function EditGenAiTaskTestResults() {
                                 onClick={() => dispatch(editGenAiTaskActions.isTestOpenSet(false))}
                             >
                                 <Icon icon="cancel" />
-                                Close
+                                {t("testResults.close")}
                             </Button>
                         </div>
                     </div>
                     {contextTest.data?.length === 0 ? (
-                        <EmptySet>No results</EmptySet>
+                        <EmptySet>{t("testResults.noResults")}</EmptySet>
                     ) : (
                         <EditGenAiTaskReadOnlyVirtualList data={contextTest.data} name="playgroundContexts" />
                     )}
@@ -69,7 +71,7 @@ export default function EditGenAiTaskTestResults() {
                     <div className="hstack mb-3 justify-content-between">
                         <h3 className="mb-0">
                             <Icon icon="test" />
-                            Model test results
+                            {t("testResults.modelTitle")}
                         </h3>
                         <div className="hstack gap-2">
                             <ButtonWithSpinner
@@ -79,7 +81,7 @@ export default function EditGenAiTaskTestResults() {
                                 isSpinning={modelInputTest.status === "loading"}
                                 onClick={handleModelInputTest}
                             >
-                                Re-run test
+                                {t("testResults.rerun")}
                             </ButtonWithSpinner>
                             <Button
                                 variant="secondary"
@@ -87,13 +89,13 @@ export default function EditGenAiTaskTestResults() {
                                 onClick={() => dispatch(editGenAiTaskActions.isTestOpenSet(false))}
                             >
                                 <Icon icon="cancel" />
-                                Close
+                                {t("testResults.close")}
                             </Button>
                         </div>
                     </div>
                     <ModelUsage />
                     {modelInputTest.data?.length === 0 ? (
-                        <EmptySet>No results</EmptySet>
+                        <EmptySet>{t("testResults.noResults")}</EmptySet>
                     ) : (
                         <EditGenAiTaskReadOnlyVirtualList data={modelInputTest.data} name="playgroundModelOutputs" />
                     )}
@@ -105,6 +107,7 @@ export default function EditGenAiTaskTestResults() {
 }
 
 function ModelUsage() {
+    const t = useStudioTranslation("editGenAiTask");
     const modelUsage = useAppSelector(editGenAiTaskSelectors.modelUsage);
 
     if (modelUsage.status !== "success") {
@@ -127,7 +130,7 @@ function ModelUsage() {
             >
                 <Badge bg="info">
                     <Icon icon="info" />
-                    Tokens used: {genUtils.formatAiTokens(modelUsage.data.totalTokens)}
+                    {t("testResults.tokensUsed", { tokens: genUtils.formatAiTokens(modelUsage.data.totalTokens) })}
                 </Badge>
             </PopoverWithHoverWrapper>
         </div>
@@ -135,6 +138,7 @@ function ModelUsage() {
 }
 
 function UpdateScriptResult() {
+    const t = useStudioTranslation("editGenAiTask");
     const dispatch = useAppDispatch();
 
     const updateScriptTest = useAppSelector(editGenAiTaskSelectors.updateScriptTest);
@@ -147,7 +151,7 @@ function UpdateScriptResult() {
             <div className="hstack mb-3 justify-content-between">
                 <h3 className="mb-0">
                     <Icon icon="test" />
-                    Update script test results
+                    {t("testResults.updateScriptTitle")}
                 </h3>
                 <div className="hstack gap-2">
                     <ButtonWithSpinner
@@ -157,7 +161,7 @@ function UpdateScriptResult() {
                         isSpinning={updateScriptTest.status === "loading"}
                         onClick={handleUpdateScriptTest}
                     >
-                        Re-run test
+                        {t("testResults.rerun")}
                     </ButtonWithSpinner>
                     <Button
                         variant="secondary"
@@ -165,18 +169,18 @@ function UpdateScriptResult() {
                         onClick={() => dispatch(editGenAiTaskActions.isTestOpenSet(false))}
                     >
                         <Icon icon="cancel" />
-                        Close
+                        {t("testResults.close")}
                     </Button>
                 </div>
             </div>
             {updateScriptTest.data == null ? (
-                <EmptySet>No results</EmptySet>
+                <EmptySet>{t("testResults.noResults")}</EmptySet>
             ) : (
                 <div className="flex-grow-1 update-script-result">
                     <div className="hstack justify-content-between">
-                        <div>Test result</div>
+                        <div>{t("testResults.testResult")}</div>
                         <Switch selected={isSplitDiff} toggleSelection={toggleIsSplitDiff} color="primary">
-                            Split view
+                            {t("testResults.splitView")}
                         </Switch>
                     </div>
                     <SizeGetter
@@ -196,6 +200,7 @@ function UpdateScriptResult() {
 }
 
 function UpdateScriptDiffSplit({ height }: { height: number }) {
+    const t = useStudioTranslation("editGenAiTask");
     const updateScriptTest = useAppSelector(editGenAiTaskSelectors.updateScriptTest);
 
     const oldDoc = useAppSelector(editGenAiTaskSelectors.updateScriptDocumentInput);
@@ -221,7 +226,7 @@ function UpdateScriptDiffSplit({ height }: { height: number }) {
     return (
         <div className="vstack gap-2 update-script-result">
             <div className="diff-wrapper">
-                <div className="diff-header">Original document</div>
+                <div className="diff-header">{t("testResults.originalDocument")}</div>
                 <AceEditor
                     aceRef={oldDocRef}
                     value={oldDoc.data}
@@ -232,7 +237,7 @@ function UpdateScriptDiffSplit({ height }: { height: number }) {
                 />
             </div>
             <div className="diff-wrapper">
-                <div className="diff-header">Modified document</div>
+                <div className="diff-header">{t("testResults.modifiedDocument")}</div>
                 <AceEditor
                     aceRef={newDocRef}
                     value={newDoc}
@@ -247,6 +252,7 @@ function UpdateScriptDiffSplit({ height }: { height: number }) {
 }
 
 function UpdateScriptDiffUnified({ height }: { height: number }) {
+    const t = useStudioTranslation("editGenAiTask");
     const updateScriptTest = useAppSelector(editGenAiTaskSelectors.updateScriptTest);
 
     const oldDoc = useAppSelector(editGenAiTaskSelectors.updateScriptDocumentInput);
@@ -258,7 +264,7 @@ function UpdateScriptDiffUnified({ height }: { height: number }) {
 
     return (
         <div className="diff-wrapper">
-            <div className="diff-header">Modified document</div>
+            <div className="diff-header">{t("testResults.modifiedDocument")}</div>
             <AceUnifiedDiff
                 value1={oldDoc.data}
                 value2={newDoc}

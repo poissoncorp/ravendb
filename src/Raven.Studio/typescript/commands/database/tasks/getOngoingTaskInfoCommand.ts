@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksCommands");
 
 class getOngoingTaskInfoCommand<T extends Raven.Client.Documents.Operations.OngoingTasks.OngoingTaskReplication |
     Raven.Client.Documents.Operations.OngoingTasks.OngoingTaskSubscription |
@@ -43,7 +46,7 @@ class getOngoingTaskInfoCommand<T extends Raven.Client.Documents.Operations.Ongo
         return this.getTaskInfo()
             .fail((response: JQueryXHR) => {
                 if (this.reportFailure) {
-                    this.reportError(`Failed to get info for ${this.taskType} task with id: ${this.taskId}.`, response.responseText, response.statusText);
+                    this.reportError(t("taskInfoFailed", { taskType: this.taskType, taskId: this.taskId }), response.responseText, response.statusText);
                 }
             });
     }

@@ -25,16 +25,18 @@ import { databaseSelectors } from "components/common/shell/databaseSliceSelector
 import { useAppSelector } from "components/store";
 import { accessManagerSelectors } from "components/common/shell/accessManagerSliceSelectors";
 import { Icon } from "components/common/Icon";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type KafkaSinkPanelProps = BaseOngoingTaskPanelProps<OngoingTaskKafkaSinkInfo>;
 
 function Details(props: KafkaSinkPanelProps & { canEdit: boolean }) {
     const { data, canEdit } = props;
+    const t = useStudioTranslation("ongoingTasks");
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
 
     return (
         <RichPanelDetails>
-            <RichPanelDetailItem label="Bootstrap Servers">{data.shared.url}</RichPanelDetailItem>
+            <RichPanelDetailItem label={t("taskDetails.bootstrapServers")}>{data.shared.url}</RichPanelDetailItem>
             <ConnectionStringItem
                 connectionStringDefined
                 canEdit={canEdit}
@@ -48,6 +50,7 @@ function Details(props: KafkaSinkPanelProps & { canEdit: boolean }) {
 
 export function KafkaSinkPanel(props: KafkaSinkPanelProps) {
     const { data, toggleSelection, isSelected, onTaskOperation, isDeleting, isTogglingState } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
     const { forCurrentDatabase } = useAppUrls();
@@ -75,7 +78,7 @@ export function KafkaSinkPanel(props: KafkaSinkPanelProps) {
                 <RichPanelActions>
                     <span>
                         <Icon icon="kafka-sink" />
-                        Kafka Sink
+                        {t("taskType.kafkaSink")}
                     </span>
                     <OngoingTaskResponsibleNode task={data} />
                     <OngoingTaskStatus

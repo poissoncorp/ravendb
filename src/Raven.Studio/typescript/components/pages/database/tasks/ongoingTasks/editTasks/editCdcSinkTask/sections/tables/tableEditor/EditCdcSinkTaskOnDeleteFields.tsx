@@ -9,38 +9,41 @@ import { Icon } from "components/common/Icon";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import Code from "components/common/Code";
 import AceEditor from "components/common/ace/AceEditor";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function EditCdcSinkTaskOnDeleteFields({ path }: { path: RootTablePath | EmbeddedTablePath }) {
+    const t = useStudioTranslation("editCdcSinkTask");
     const { control } = useFormContext<EditCdcSinkTaskFormData>();
 
     return (
         <div>
             <FormGroup>
                 <FormSwitch control={control} name={`${path}.onDelete.ignoreDeletes`}>
-                    Skip deletion
+                    {t("onDelete.skipDeletion")}
                     <PopoverWithHoverWrapper
                         message={
                             <>
                                 <p>
-                                    <strong>Default (OFF):</strong>
-                                    <br />
-                                    DELETE events from the source are applied to RavenDB: root-table documents are
-                                    deleted, embedded items are removed from the parent document, and <code>Value</code>
-                                    -type embedded properties are set to <code>null</code>.
+                                    <StudioTrans
+                                        ns="editCdcSinkTask"
+                                        i18nKey="onDelete.skipDeletionDefault"
+                                        components={{ strong: <strong />, br: <br />, code: <code /> }}
+                                    />
                                 </p>
                                 <p>
-                                    <strong>When enabled:</strong>
-                                    <br />
-                                    DELETE events are <strong>not applied</strong> to the target document. The document,
-                                    embedded item, or <code>Value</code>-type property is kept.
+                                    <StudioTrans
+                                        ns="editCdcSinkTask"
+                                        i18nKey="onDelete.skipDeletionEnabled"
+                                        components={{ strong: <strong />, br: <br />, code: <code /> }}
+                                    />
                                 </p>
                                 <p>
-                                    If a delete patch is configured, it still runs even when <em>Skip deletion</em> is
-                                    on.
-                                    <br />
-                                    You can use it to mark the document as archived,
-                                    <br />
-                                    for example: <code>this.Archived = true</code>.
+                                    <StudioTrans
+                                        ns="editCdcSinkTask"
+                                        i18nKey="onDelete.skipDeletionPatch"
+                                        components={{ em: <em />, br: <br />, code: <code /> }}
+                                    />
                                 </p>
                             </>
                         }
@@ -51,34 +54,46 @@ export default function EditCdcSinkTaskOnDeleteFields({ path }: { path: RootTabl
             </FormGroup>
             <FormGroup marginClass="mb-0">
                 <FormLabel>
-                    Delete patch
+                    {t("onDelete.deletePatch")}
                     <PopoverWithHoverWrapper
                         message={
                             <>
                                 <p>
-                                    A delete patch is a JavaScript snippet that runs when RavenDB processes a{" "}
-                                    <strong>DELETE</strong> event from the source.
+                                    <StudioTrans
+                                        ns="editCdcSinkTask"
+                                        i18nKey="onDelete.deletePatchInfo"
+                                        components={{ strong: <strong /> }}
+                                    />
                                 </p>
                                 <ul>
                                     <li>
-                                        <strong>Root tables:</strong> <code>this</code> is the existing document.
-                                        <br />
-                                        When deletion is not skipped, RavenDB deletes the document after the patch runs.
+                                        <StudioTrans
+                                            ns="editCdcSinkTask"
+                                            i18nKey="onDelete.deletePatchRootTables"
+                                            components={{ strong: <strong />, code: <code />, br: <br /> }}
+                                        />
                                     </li>
                                     <li>
-                                        <strong>Embedded tables:</strong> <code>this</code> is the parent document. When
-                                        deletion is not skipped, the embedded item is removed before the patch runs; use{" "}
-                                        <code>$old</code> to access the removed item.
+                                        <StudioTrans
+                                            ns="editCdcSinkTask"
+                                            i18nKey="onDelete.deletePatchEmbeddedTables"
+                                            components={{ strong: <strong />, code: <code /> }}
+                                        />
                                     </li>
                                 </ul>
                                 <p>
-                                    When <em>Skip deletion</em> is enabled, the automatic deletion or removal is not
-                                    applied, but the patch still runs.
+                                    <StudioTrans
+                                        ns="editCdcSinkTask"
+                                        i18nKey="onDelete.deletePatchSkipDeletion"
+                                        components={{ em: <em /> }}
+                                    />
                                 </p>
                                 <p>
-                                    Use it to mark retained documents as archived, write audit records with{" "}
-                                    <code>put()</code>, or update parent-level aggregates after an embedded item is
-                                    removed.
+                                    <StudioTrans
+                                        ns="editCdcSinkTask"
+                                        i18nKey="onDelete.deletePatchUsage"
+                                        components={{ code: <code /> }}
+                                    />
                                 </p>
                             </>
                         }
@@ -91,7 +106,7 @@ export default function EditCdcSinkTaskOnDeleteFields({ path }: { path: RootTabl
                     name={`${path}.onDelete.patch`}
                     mode="javascript"
                     height="150px"
-                    placeholder={deletePatchPlaceholder}
+                    placeholder={t("onDelete.placeholder")}
                     actions={[
                         { component: <AceEditor.FullScreenAction /> },
                         { component: <AceEditor.FormatAction /> },
@@ -107,37 +122,43 @@ export default function EditCdcSinkTaskOnDeleteFields({ path }: { path: RootTabl
     );
 }
 
-const VariablesLegend = () => (
-    <div className="border border-secondary rounded-2 panel-bg-2 p-3">
-        <div className="mb-2">
-            <strong>Available variables</strong>
+const VariablesLegend = () => {
+    const t = useStudioTranslation("editCdcSinkTask");
+
+    return (
+        <div className="border border-secondary rounded-2 panel-bg-2 p-3">
+            <div className="mb-2">
+                <strong>{t("syntaxHelp.availableVariables")}</strong>
+            </div>
+            <ul className="mb-0">
+                <li>
+                    <StudioTrans
+                        ns="editCdcSinkTask"
+                        i18nKey="onDelete.variableThis"
+                        components={{ code: <code />, br: <br />, strong: <strong />, em: <em /> }}
+                    />
+                </li>
+                <li>
+                    <StudioTrans
+                        ns="editCdcSinkTask"
+                        i18nKey="onDelete.variableRow"
+                        components={{ code: <code />, br: <br /> }}
+                    />
+                </li>
+                <li>
+                    <StudioTrans
+                        ns="editCdcSinkTask"
+                        i18nKey="onDelete.variableOld"
+                        components={{ code: <code />, br: <br />, strong: <strong /> }}
+                    />
+                </li>
+            </ul>
         </div>
-        <ul className="mb-0">
-            <li>
-                <code>this</code> -<br />
-                <strong>root deletes</strong>: the document about to be deleted.
-                <br />
-                <strong>Embedded deletes</strong>: the parent document, with the embedded item already removed.
-                <br />
-                If <em>Skip deletion</em> is on, the item is still there - the deletion hasn&apos;t been applied yet.
-            </li>
-            <li>
-                <code>$row</code> -<br />
-                the raw CDC row from the DELETE event, with all columns as-is from the source database.
-            </li>
-            <li>
-                <code>$old</code> -<br />
-                <strong>root deletes</strong>: the full document (same as <code>this</code>).
-                <br />
-                <strong>Embedded deletes</strong>: the embedded item being removed.
-                <br />
-                Always populated on DELETE.
-            </li>
-        </ul>
-    </div>
-);
+    );
+};
 
 const ArchiveSyntaxHelp = () => {
+    const t = useStudioTranslation("editCdcSinkTask");
     const code = `// Combine with "Skip deletion" to keep the document instead of removing it.
 this.Archived = true;
 this.ArchivedAt = new Date().toISOString();`;
@@ -145,7 +166,7 @@ this.ArchivedAt = new Date().toISOString();`;
     return (
         <div>
             <div className="mb-1">
-                <strong>Archive the document instead of deleting it:</strong>
+                <strong>{t("onDelete.archiveExample")}</strong>
             </div>
             <Code code={code} language="javascript" />
         </div>
@@ -153,6 +174,7 @@ this.ArchivedAt = new Date().toISOString();`;
 };
 
 const AuditTrailSyntaxHelp = () => {
+    const t = useStudioTranslation("editCdcSinkTask");
     const code = `// Use put() to persist an audit record before the document is deleted.
 put('DeletedOrders/' + id(this), {
     OriginalId: id(this),
@@ -164,7 +186,7 @@ put('DeletedOrders/' + id(this), {
     return (
         <div>
             <div className="mb-1">
-                <strong>Write an audit record before deletion:</strong>
+                <strong>{t("onDelete.auditTrailExample")}</strong>
             </div>
             <Code code={code} language="javascript" />
         </div>
@@ -172,6 +194,7 @@ put('DeletedOrders/' + id(this), {
 };
 
 const RecomputeAggregateSyntaxHelp = () => {
+    const t = useStudioTranslation("editCdcSinkTask");
     const code = `// For embedded deletes (without "Skip deletion"): 
 // the item is already removed from this.Lines,
 // so re-summing gives the correct post-deletion total.
@@ -181,7 +204,7 @@ this.TotalQuantity = (this.Lines || [])
     return (
         <div>
             <div className="mb-1">
-                <strong>Recompute a parent aggregate after an embedded item is removed:</strong>
+                <strong>{t("onDelete.recomputeAggregateExample")}</strong>
             </div>
             <Code code={code} language="javascript" />
         </div>
@@ -198,7 +221,3 @@ const deletePatchSyntaxHelp = (
         <RecomputeAggregateSyntaxHelp />
     </div>
 );
-
-const deletePatchPlaceholder = `// Optional. Runs when a DELETE event is processed, even when "Skip deletion" is enabled.
-// e.g.  this.Archived = true;   // combine with "Skip deletion" for soft-delete
-// Click the (?) icon below for syntax and more examples.`;

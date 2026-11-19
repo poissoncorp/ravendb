@@ -1,8 +1,8 @@
-<h3>Destinations</h3>
+<h3 data-bind="i18n: 'editOlapEtlTask:destinations.heading'"></h3>
 <div data-bind="with: localSettings" class="panel padding">
     <div class="toggle margin-left">
         <input id="toggle-local" type="checkbox" data-bind="checked: enabled">
-        <label for="toggle-local">Local</label>
+        <label for="toggle-local" data-bind="i18n: 'editOlapEtlTask:destinations.local'"></label>
     </div>
     <div data-bind="collapse: enabled">
         <div class="row margin-bottom">
@@ -10,7 +10,7 @@
             <div class="col-xs-12 col-sm-6 col-lg-8">
                 <div class="toggle">
                     <input id="localSettingsViaScript" type="checkbox" data-bind="checked: hasConfigurationScript, disable: !!$root.overrideViaExternalScriptDisableReason()">
-                    <label for="localSettingsViaScript" data-bind="attr: { 'title': $root.overrideViaExternalScriptDisableReason() }">Override configuration via external script</label>
+                    <label for="localSettingsViaScript" data-bind="attr: { 'title': $root.overrideViaExternalScriptDisableReason() }, i18n: 'editOlapEtlTask:destinations.overrideViaScript'"></label>
                 </div>
             </div>
         </div>
@@ -34,7 +34,7 @@
                 <div class="col-xs-12 col-sm-6 col-lg-8">
                     <div class="toggle">
                         <input id="s3SettingsViaScript" type="checkbox" data-bind="checked: hasConfigurationScript, disable: !!$root.overrideViaExternalScriptDisableReason()">
-                        <label for="s3SettingsViaScript" data-bind="attr: { 'title': $root.overrideViaExternalScriptDisableReason() }">Override configuration via external script</label>
+                        <label for="s3SettingsViaScript" data-bind="attr: { 'title': $root.overrideViaExternalScriptDisableReason() }, i18n: 'editOlapEtlTask:destinations.overrideViaScript'"></label>
                     </div>
                 </div>
             </div>
@@ -43,7 +43,7 @@
                 <div class="col-xs-12 col-sm-6 col-lg-8">
                     <div class="toggle">
                         <input id="s3CustomHost" type="checkbox" data-bind="checked: useCustomS3Host">
-                        <label for="s3CustomHost">Use a custom S3 host</label>
+                        <label for="s3CustomHost" data-bind="i18n: 'editOlapEtlTask:destinations.useCustomS3Host'"></label>
                     </div>
                 </div>
             </div>
@@ -55,7 +55,7 @@
                 <div class="text-right">
                     <button data-bind="click: _.partial($root.testCredentials, $data), disable: isTestingCredentials, css: { 'btn-spinner': isTestingCredentials }" class="btn btn-info">
                         <i class="icon-rocket"></i>
-                        &nbsp;&nbsp;<span>Test credentials</span>
+                        &nbsp;&nbsp;<span data-bind="i18n: 'editOlapEtlTask:destinations.testCredentials'"></span>
                     </button>
                 </div>
             </div>
@@ -79,7 +79,7 @@
                 <div class="col-xs-12 col-sm-6 col-lg-8">
                     <div class="toggle">
                         <input id="azureSettingsViaScript" type="checkbox" data-bind="checked: hasConfigurationScript, disable: !!$root.overrideViaExternalScriptDisableReason()">
-                        <label for="azureSettingsViaScript" data-bind="attr: { 'title': $root.overrideViaExternalScriptDisableReason() }">Override configuration via external script</label>
+                        <label for="azureSettingsViaScript" data-bind="attr: { 'title': $root.overrideViaExternalScriptDisableReason() }, i18n: 'editOlapEtlTask:destinations.overrideViaScript'"></label>
                     </div>
                 </div>
             </div>
@@ -91,7 +91,7 @@
                 <div class="text-right">
                     <button data-bind="click: _.partial($root.testCredentials, $data), disable: isTestingCredentials, css: { 'btn-spinner': isTestingCredentials }" class="btn btn-info">
                         <i class="icon-rocket"></i>
-                        &nbsp;&nbsp;<span>Test credentials</span>
+                        &nbsp;&nbsp;<span data-bind="i18n: 'editOlapEtlTask:destinations.testCredentials'"></span>
                     </button>
                 </div>
             </div>
@@ -115,7 +115,7 @@
                 <div class="col-xs-12 col-sm-6 col-lg-8">
                     <div class="toggle">
                         <input id="googleSettingsViaScript" type="checkbox" data-bind="checked: hasConfigurationScript, disable: !!$root.overrideViaExternalScriptDisableReason()">
-                        <label for="googleSettingsViaScript" data-bind="attr: { 'title': $root.overrideViaExternalScriptDisableReason() }">Override configuration via external script</label>
+                        <label for="googleSettingsViaScript" data-bind="attr: { 'title': $root.overrideViaExternalScriptDisableReason() }, i18n: 'editOlapEtlTask:destinations.overrideViaScript'"></label>
                     </div>
                 </div>
             </div>
@@ -127,7 +127,7 @@
                 <div class="text-right">
                     <button data-bind="click: _.partial($root.testCredentials, $data), disable: isTestingCredentials, css: { 'btn-spinner': isTestingCredentials }" class="btn btn-info">
                         <i class="icon-rocket"></i>
-                        &nbsp;&nbsp;<span>Test credentials</span>
+                        &nbsp;&nbsp;<span data-bind="i18n: 'editOlapEtlTask:destinations.testCredentials'"></span>
                     </button>
                 </div>
             </div>
@@ -151,7 +151,7 @@
                 <div class="col-xs-12 col-sm-6 col-lg-8">
                     <div class="toggle">
                         <input id="glacierSettingsViaScript" type="checkbox" data-bind="checked: hasConfigurationScript, disable: !!$root.overrideViaExternalScriptDisableReason()">
-                        <label for="glacierSettingsViaScript" data-bind="attr: { 'title': $root.overrideViaExternalScriptDisableReason() }">Override configuration via external script</label>
+                        <label for="glacierSettingsViaScript" data-bind="attr: { 'title': $root.overrideViaExternalScriptDisableReason() }, i18n: 'editOlapEtlTask:destinations.overrideViaScript'"></label>
                     </div>
                 </div>
             </div>
@@ -163,7 +163,7 @@
                 <div class="text-right">
                     <button data-bind="click: _.partial($root.testCredentials, $data), disable: isTestingCredentials, css: { 'btn-spinner': isTestingCredentials }" class="btn btn-info">
                         <i class="icon-rocket"></i>
-                        &nbsp;&nbsp;<span>Test credentials</span>
+                        &nbsp;&nbsp;<span data-bind="i18n: 'editOlapEtlTask:destinations.testCredentials'"></span>
                     </button>
                 </div>
             </div>
@@ -187,7 +187,7 @@
                 <div class="col-xs-12 col-sm-6 col-lg-8">
                     <div class="toggle">
                         <input id="ftpSettingsViaScript" type="checkbox" data-bind="checked: hasConfigurationScript, disable: !!$root.overrideViaExternalScriptDisableReason()">
-                        <label for="ftpSettingsViaScript" data-bind="attr: { 'title': $root.overrideViaExternalScriptDisableReason() }">Override configuration via external script</label>
+                        <label for="ftpSettingsViaScript" data-bind="attr: { 'title': $root.overrideViaExternalScriptDisableReason() }, i18n: 'editOlapEtlTask:destinations.overrideViaScript'"></label>
                     </div>
                 </div>
             </div>
@@ -199,7 +199,7 @@
                 <div class="text-right">
                     <button data-bind="click: _.partial($root.testCredentials, $data), disable: isTestingCredentials, css: { 'btn-spinner': isTestingCredentials }" class="btn btn-info">
                         <i class="icon-rocket"></i>
-                        &nbsp;&nbsp;<span>Test credentials</span>
+                        &nbsp;&nbsp;<span data-bind="i18n: 'editOlapEtlTask:destinations.testCredentials'"></span>
                     </button>
                 </div>
             </div>

@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksCommands");
 
 class saveReplicationHubTaskCommand extends commandBase {
 
@@ -13,10 +16,10 @@ class saveReplicationHubTaskCommand extends commandBase {
 
         return this.put<Raven.Client.Documents.Operations.OngoingTasks.ModifyOngoingTaskResult>(url, JSON.stringify(this.replicationSettings), this.db)
             .fail((response: JQueryXHR) => {
-                this.reportError("Failed to save the Replication Hub task", response.responseText, response.statusText);
+                this.reportError(t("hubTaskSaveFailed"), response.responseText, response.statusText);
             })
             .done(() => {
-                this.reportSuccess(`Replication Hub task was saved successfully`);
+                this.reportSuccess(t("hubTaskSaved"));
             });
     }
 }

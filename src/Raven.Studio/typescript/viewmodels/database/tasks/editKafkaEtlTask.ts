@@ -28,6 +28,9 @@ import licenseModel = require("models/auth/licenseModel");
 import EditKafkaEtlInfoHub = require("viewmodels/database/tasks/EditKafkaEtlInfoHub");
 import typeUtils = require("common/typeUtils");
 import tasksCommonContent = require("models/database/tasks/tasksCommonContent");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("editKafkaEtlTask");
 
 class kafkaTaskTestMode {
     documentId = ko.observable<string>();
@@ -211,6 +214,14 @@ class editKafkaEtlTask extends viewModelBase {
     });
 
     hasQueueEtl = licenseModel.getStatusValue("HasQueueEtl");
+    readonly licenseRestrictedTooltip = `<div class='padding'>${t("licenseRestricted", { upgradeUrl: "https://ravendb.net/l/FLDLO4" })}</div>`;
+    readonly testHintHtml = t("test.hint");
+
+    encryptedNoteHtml = ko.pureComputed(() => {
+        const db = this.activeDatabase();
+        return db ? t("encryptedNote", { name: generalUtils.escapeHtml(db.name) }) : "";
+    });
+
     infoHubView: ReactInKnockout<typeof EditKafkaEtlInfoHub.EditKafkaEtlInfoHub>;
 
     constructor() {

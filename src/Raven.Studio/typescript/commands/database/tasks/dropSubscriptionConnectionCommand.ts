@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksCommands");
 
 class dropSubscriptionConnectionCommand extends commandBase {
 
@@ -25,12 +28,12 @@ class dropSubscriptionConnectionCommand extends commandBase {
  
     execute(): JQueryPromise<void> {
         return this.dropSubscription()
-            .fail((response: JQueryXHR) => { this.reportError(`Failed to drop subscription: ${this.taskName}`, response.responseText, response.statusText); })
+            .fail((response: JQueryXHR) => { this.reportError(t("dropSubscriptionFailed", { taskName: this.taskName }), response.responseText, response.statusText); })
             .done(() => {
                 if (this.workerId) {
-                    this.reportSuccess(`Subscription connection was dropped successfully`);
+                    this.reportSuccess(t("subscriptionConnectionDropped"));
                 } else {
-                    this.reportSuccess(`Subscription ${this.taskName} was dropped successfully`);
+                    this.reportSuccess(t("subscriptionDropped", { taskName: this.taskName }));
                 }
             });
     }

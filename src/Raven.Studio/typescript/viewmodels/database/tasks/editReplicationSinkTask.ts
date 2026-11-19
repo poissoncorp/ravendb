@@ -23,6 +23,9 @@ import database = require("models/resources/database");
 import licenseModel = require("models/auth/licenseModel");
 import EditReplicationSinkInfoHub = require("viewmodels/database/tasks/EditReplicationSinkInfoHub");
 import typeUtils = require("common/typeUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("editReplicationSinkTask");
 
 class editReplicationSinkTask extends shardViewModelBase {
 
@@ -58,6 +61,11 @@ class editReplicationSinkTask extends shardViewModelBase {
     private readonly serverCertificateName = "Server Certificate";
     
     hasPullReplicationAsSink = licenseModel.getStatusValue("HasPullReplicationAsSink");
+    readonly licenseRestrictedTooltip = `<div class='padding'>${t("licenseRestricted", { upgradeUrl: "https://ravendb.net/l/FLDLO4" })}</div>`;
+    readonly selectConnectionStringText = t("connectionString.select");
+    readonly certificateFilePlaceholder = t("certificate.filePlaceholder");
+    readonly useForBothDirectionsHtml = t("paths.useForBothDirections");
+    readonly sameAsHubToSinkHtml = t("paths.sameAsHubToSink");
     infoHubView: ReactInKnockout<typeof EditReplicationSinkInfoHub.EditReplicationSinkInfoHub>
 
     constructor(db: database) {
@@ -220,9 +228,9 @@ class editReplicationSinkTask extends shardViewModelBase {
             {
                 content:
                     "<ul class='no-margin padding'>" +
-                        "<li><small>These ID paths define <strong>what documents the Sink allows the Hub to send</strong>.</small></li>" +
-                        "<li><small>The documents will be sent from the Hub only if these paths are also allowed on the Hub task definition.</small></li>" +
-                        "<li><small>To send all documents under some path use <code>&lt;path&gt;/*</code> or <code>&lt;path&gt;-*</code></small></li>" +
+                        `<li><small>${t("paths.hubToSinkInfo.allowed")}</small></li>` +
+                        `<li><small>${t("paths.hubToSinkInfo.hubDefinition")}</small></li>` +
+                        `<li><small>${t("paths.allChildPathsInfo")}</small></li>` +
                     "</ul>"
             });
 
@@ -230,9 +238,9 @@ class editReplicationSinkTask extends shardViewModelBase {
             {
                 content:
                     "<ul class='no-margin padding'>" +
-                        "<li><small>These ID paths define <strong>what documents are allowed to be sent from this Sink to the Hub</strong>.</small></li>" +
-                        "<li><small>The documents will be sent to the Hub only if these paths are also allowed on the Hub task definition.</small></li>" +
-                        "<li><small>To send all documents under some path use <code>&lt;path&gt;/*</code> or <code>&lt;path&gt;-*</code></small></li>" +
+                        `<li><small>${t("paths.sinkToHubInfo.allowed")}</small></li>` +
+                        `<li><small>${t("paths.sinkToHubInfo.hubDefinition")}</small></li>` +
+                        `<li><small>${t("paths.allChildPathsInfo")}</small></li>` +
                     "</ul>"
             });
 
@@ -240,9 +248,9 @@ class editReplicationSinkTask extends shardViewModelBase {
             {
                 content:
                     "<ul class='no-margin padding'>" +
-                        "<li><small>The certificate is used to authenticate the Sink when connecting to the Hub.</small></li>" +
-                        "<li><small>The Sink keeps both the <strong>public & private keys</strong>.</small></li>" +
-                        "<li><small>The Hub task must contain a matching public key.</small></li>" +
+                        `<li><small>${t("certificate.info.authenticate")}</small></li>` +
+                        `<li><small>${t("certificate.info.keys")}</small></li>` +
+                        `<li><small>${t("certificate.info.matchingKey")}</small></li>` +
                     "</ul>"
             });
         
@@ -250,8 +258,8 @@ class editReplicationSinkTask extends shardViewModelBase {
             {
                 content:
                     "<ul class='no-margin padding'>" +
-                    "<li><small>Download the cluster's server certificate(s) as a *.pfx file.</small></li>" +
-                    "<li><small>Only public keys are downloaded.</small></li>" +
+                    `<li><small>${t("certificate.downloadInfo.serverCertificates")}</small></li>` +
+                    `<li><small>${t("certificate.downloadInfo.publicKeysOnly")}</small></li>` +
                     "</ul>"
             });
     }
@@ -373,7 +381,7 @@ class editReplicationSinkTask extends shardViewModelBase {
             const config = JSON.parse(contents) as pullReplicationExportFileFormat;
             
             if (!config.Database || !config.HubName || !config.TopologyUrls) {
-                messagePublisher.reportError("Invalid configuration format");
+                messagePublisher.reportError(t("importConfigurationInvalid"));
                 return;
             }
 
@@ -383,7 +391,7 @@ class editReplicationSinkTask extends shardViewModelBase {
             
             if (this.canDefineCertificates) {
                 if (!config.AccessName || !config.HubToSinkPrefixes) {
-                    messagePublisher.reportError("Invalid configuration format");
+                    messagePublisher.reportError(t("importConfigurationInvalid"));
                     return;
                 }
 
@@ -434,7 +442,7 @@ class editReplicationSinkTask extends shardViewModelBase {
             }
             
         } catch ($e) {
-            messagePublisher.reportError("Can't parse configuration", $e);
+            messagePublisher.reportError(t("importConfigurationParseFailed"), $e);
             this.editedSinkTask().replicationAccess().certificateExtracted(false);
         }
     }

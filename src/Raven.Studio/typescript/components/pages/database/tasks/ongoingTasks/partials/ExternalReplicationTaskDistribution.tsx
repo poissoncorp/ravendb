@@ -22,6 +22,8 @@ import { ReplicationProgressDetailsSheet } from "components/pages/database/tasks
 import { databaseLocationComparator, withPreventDefault } from "components/utils/common";
 import { ErrorModal } from "components/pages/database/tasks/ongoingTasks/partials/ErrorModal";
 import { SheetPortalOutlet, useViewSheet } from "components/common/splitView/ViewSheet";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import type { StudioTranslate } from "common/i18n/resources";
 
 interface ExternalReplicationTaskDistributionProps {
     task: OngoingTaskExternalReplicationInfo | OngoingTaskReplicationHubInfo | OngoingTaskReplicationSinkInfo;
@@ -37,17 +39,18 @@ interface TaskDistributionRowProps {
     ownerId: string;
 }
 
-function getTaskTypeLabel(taskType: StudioTaskType): string {
+function getTaskTypeLabel(t: StudioTranslate<"ongoingTasks">, taskType: StudioTaskType): string {
     const labels: Partial<Record<StudioTaskType, string>> = {
-        Replication: "External Replication",
-        PullReplicationAsHub: "Replication Hub",
-        PullReplicationAsSink: "Replication Sink",
+        Replication: t("taskType.externalReplication"),
+        PullReplicationAsHub: t("taskType.replicationHub"),
+        PullReplicationAsSink: t("taskType.replicationSink"),
     };
     return labels[taskType] ?? taskType;
 }
 
 function TaskDistributionRow(props: TaskDistributionRowProps) {
     const { nodeInfo, allNodes, sharded, task, isActive, setActiveNodeIndex, ownerId } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     const shard = (
         <div className="top shard">
@@ -126,7 +129,7 @@ function TaskDistributionRow(props: TaskDistributionRowProps) {
                 isActive,
                 <ReplicationProgressDetailsSheet
                     key={ownerId}
-                    taskType={getTaskTypeLabel(task.shared.taskType)}
+                    taskType={getTaskTypeLabel(t, task.shared.taskType)}
                     taskName={task.shared.taskName}
                     allNodes={allNodes}
                     initialNodeIndex={nodeIndex}
@@ -164,6 +167,7 @@ function useCloseOwnedSheetOnUnmount(isSheetOwner: boolean, closeSheet: () => vo
 
 export function ExternalReplicationTaskDistribution(props: ExternalReplicationTaskDistributionProps) {
     const { task } = props;
+    const t = useStudioTranslation("ongoingTasks");
     const sharded = task.nodesInfo.some((x) => x.location.shardNumber != null);
     const [activeNodeIndex, setActiveNodeIndex] = useState<number | null>(null);
     const ownerId = useId();
@@ -196,23 +200,23 @@ export function ExternalReplicationTaskDistribution(props: ExternalReplicationTa
                     <div className="top"></div>
                     {sharded && (
                         <div className="node">
-                            <Icon icon="node" /> Node
+                            <Icon icon="node" /> {t("distribution.node")}
                         </div>
                     )}
                     <div>
-                        <Icon icon="connected" /> Status
+                        <Icon icon="connected" /> {t("distribution.status")}
                     </div>
                     <div>
-                        <Icon icon="etag" /> Last DB Etag
+                        <Icon icon="etag" /> {t("distribution.lastDbEtag")}
                     </div>
                     <div>
-                        <Icon icon="etag" /> Last Sent Etag
+                        <Icon icon="etag" /> {t("distribution.lastSentEtag")}
                     </div>
                     <div>
-                        <Icon icon="warning" /> Error
+                        <Icon icon="warning" /> {t("error")}
                     </div>
                     <div>
-                        <Icon icon="changes" /> State
+                        <Icon icon="changes" /> {t("distribution.state")}
                     </div>
                 </DistributionLegend>
                 {items}
@@ -248,12 +252,14 @@ export function getReplicationProgressState(
     return disabled ? "Disabled" : "Running";
 }
 
-const progressCircleLabels: Record<ReplicationProgressState, string> = {
-    UpToDate: "up to date",
-    Running: "Running",
-    Disabled: "Disabled",
-    Unknown: "?",
-};
+function getProgressCircleLabels(t: StudioTranslate<"ongoingTasks">): Record<ReplicationProgressState, string> {
+    return {
+        UpToDate: t("progressCircle.upToDate"),
+        Running: t("progressCircle.running"),
+        Disabled: t("progressCircle.disabled"),
+        Unknown: "?",
+    };
+}
 
 function getTotalProgress(progress: ReplicationNodeInfo["progress"]): number {
     const totalItems = progress.reduce((acc, current) => acc + current.global.total, 0);
@@ -264,6 +270,8 @@ function getTotalProgress(progress: ReplicationNodeInfo["progress"]): number {
 
 export function ExternalReplicationTaskProgress(props: ExternalReplicationTaskProgressProps) {
     const { nodeInfo, task, onClick } = props;
+    const t = useStudioTranslation("ongoingTasks");
+    const progressCircleLabels = getProgressCircleLabels(t);
 
     const state = getReplicationProgressState(task, nodeInfo);
 
@@ -299,6 +307,8 @@ interface ReplicationTaskSummaryProgressProps {
 }
 
 export function ReplicationTaskSummaryProgress({ task, nodesInfo }: ReplicationTaskSummaryProgressProps) {
+    const t = useStudioTranslation("ongoingTasks");
+    const progressCircleLabels = getProgressCircleLabels(t);
     const notUpToDateState = nodesInfo.map((x) => getReplicationProgressState(task, x)).find((x) => x !== "UpToDate");
 
     if (!notUpToDateState) {

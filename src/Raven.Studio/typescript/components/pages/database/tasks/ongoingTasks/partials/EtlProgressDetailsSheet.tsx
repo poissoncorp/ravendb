@@ -25,6 +25,7 @@ import {
     useNodeSlider,
 } from "components/pages/database/tasks/ongoingTasks/partials/ProgressDetailsSheetShell";
 import "./EtlProgressDetailsSheet.scss";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface EtlProgressDetailsSheetProps {
     task: AnyEtlOngoingTaskInfo;
@@ -104,6 +105,7 @@ interface ScriptPreviewProps {
 }
 
 function ScriptPreview({ task, transformationName, asyncTaskDefinition, onRequestLoad }: ScriptPreviewProps) {
+    const t = useStudioTranslation("ongoingTasks");
     const { value: isOpen, toggle } = useBoolean(false);
 
     const handleToggle = () => {
@@ -116,10 +118,10 @@ function ScriptPreview({ task, transformationName, asyncTaskDefinition, onReques
     return (
         <div>
             <div className="d-flex justify-content-between align-items-center">
-                <h5 className="mb-0">Script preview</h5>
+                <h5 className="mb-0">{t("progressSheet.scriptPreview")}</h5>
                 <Button variant="link" size="xs" className="p-0" onClick={handleToggle}>
                     <Icon icon={isOpen ? "collapse-vertical" : "expand-vertical"} margin="me-1" />
-                    {isOpen ? "Collapse" : "Expand"}
+                    {isOpen ? t("collapse") : t("expand")}
                 </Button>
             </div>
             <AnimatePresence initial={false}>
@@ -140,7 +142,7 @@ function ScriptPreview({ task, transformationName, asyncTaskDefinition, onReques
                             <EtlError error={extractErrorMessage(asyncTaskDefinition.error)} />
                         ) : (
                             <>
-                                <DetailRow label="Task type">
+                                <DetailRow label={t("progressSheet.taskType")}>
                                     <span className="d-flex align-items-center gap-1">
                                         <Icon
                                             icon={TaskUtils.studioTaskTypeToDisplay(task.shared.taskType).icon}
@@ -149,15 +151,17 @@ function ScriptPreview({ task, transformationName, asyncTaskDefinition, onReques
                                         {TaskUtils.studioTaskTypeToDisplay(task.shared.taskType).label}
                                     </span>
                                 </DetailRow>
-                                <DetailRow label="Task name">{task.shared.taskName}</DetailRow>
-                                <DetailRow label="Transformation name">{transformationName}</DetailRow>
-                                <DetailRow label="Collections">
+                                <DetailRow label={t("progressSheet.taskName")}>{task.shared.taskName}</DetailRow>
+                                <DetailRow label={t("progressSheet.transformationName")}>
+                                    {transformationName}
+                                </DetailRow>
+                                <DetailRow label={t("progressSheet.collections")}>
                                     {transform?.ApplyToAllDocuments
-                                        ? "All collections"
+                                        ? t("progressSheet.allCollections")
                                         : (transform?.Collections ?? []).join(", ") || "-"}
                                 </DetailRow>
                                 <div className="pt-2">
-                                    <div className="small detail-label">Transform script</div>
+                                    <div className="small detail-label">{t("progressSheet.transformScript")}</div>
                                     {transform?.Script ? (
                                         <AceEditor
                                             mode="javascript"
@@ -167,10 +171,7 @@ function ScriptPreview({ task, transformationName, asyncTaskDefinition, onReques
                                             isFullScreenLabelHidden
                                         />
                                     ) : (
-                                        <div className="text-muted small">
-                                            No transform script has been defined. Sending documents without any
-                                            modifications.
-                                        </div>
+                                        <div className="text-muted small">{t("progressSheet.noTransformScript")}</div>
                                     )}
                                 </div>
                             </>
@@ -190,12 +191,14 @@ interface ScriptBodyProps {
 }
 
 function ScriptBody({ task, scriptProgress, asyncTaskDefinition, onRequestLoad }: ScriptBodyProps) {
+    const t = useStudioTranslation("ongoingTasks");
+
     return (
         <>
             {scriptProgress.transactionalId && (
                 <div className="d-flex align-items-center gap-1 mb-2">
                     <Icon icon="identities" margin="m-0" />
-                    <small className="small">Transactional ID</small>
+                    <small className="small">{t("transactionalId")}</small>
                     <div className="d-flex align-items-center gap-1 small">
                         <span className="text-truncate" title={scriptProgress.transactionalId}>
                             {scriptProgress.transactionalId}
@@ -204,12 +207,9 @@ function ScriptBody({ task, scriptProgress, asyncTaskDefinition, onRequestLoad }
                             variant="link"
                             size="xs"
                             className="p-0 flex-shrink-0"
-                            title="Copy to clipboard"
+                            title={t("copyToClipboard")}
                             onClick={() =>
-                                copyToClipboard.copy(
-                                    scriptProgress.transactionalId,
-                                    "Transactional Id was copied to clipboard."
-                                )
+                                copyToClipboard.copy(scriptProgress.transactionalId, t("transactionalIdCopied"))
                             }
                         >
                             <Icon icon="copy" margin="m-0" />
@@ -218,10 +218,14 @@ function ScriptBody({ task, scriptProgress, asyncTaskDefinition, onRequestLoad }
                 </div>
             )}
             <NamedProgress name={null} vertical>
-                <NamedProgressItem progress={scriptProgress.documents}>documents</NamedProgressItem>
-                <NamedProgressItem progress={scriptProgress.documentTombstones}>tombstones</NamedProgressItem>
+                <NamedProgressItem progress={scriptProgress.documents}>{t("progressItem.documents")}</NamedProgressItem>
+                <NamedProgressItem progress={scriptProgress.documentTombstones}>
+                    {t("progressItem.tombstones")}
+                </NamedProgressItem>
                 {scriptProgress.counterGroups.total > 0 && (
-                    <NamedProgressItem progress={scriptProgress.counterGroups}>counters</NamedProgressItem>
+                    <NamedProgressItem progress={scriptProgress.counterGroups}>
+                        {t("progressItem.counters")}
+                    </NamedProgressItem>
                 )}
             </NamedProgress>
             <hr className="script-separator" />
@@ -294,9 +298,11 @@ interface EtlProgressBodyProps {
 }
 
 function EtlProgressBody({ task, nodeInfo, asyncTaskDefinition, onRequestScriptDefinitionLoad }: EtlProgressBodyProps) {
+    const t = useStudioTranslation("ongoingTasks");
+
     if (nodeInfo.status === "failure") {
         const error = nodeInfo.details?.error;
-        const headline = error ? getErrorHeadline(error) : "Unable to load task status";
+        const headline = error ? getErrorHeadline(error) : t("progressSheet.unableToLoadStatus");
         return (
             <div className="vstack gap-2 py-2">
                 <div className="text-danger fw-bold">
@@ -319,7 +325,7 @@ function EtlProgressBody({ task, nodeInfo, asyncTaskDefinition, onRequestScriptD
     const progress = nodeInfo.etlProgress ?? [];
 
     if (progress.length === 0 && !hasError) {
-        return <div className="text-muted text-center py-3">No progress data available.</div>;
+        return <div className="text-muted text-center py-3">{t("progressSheet.noProgressData")}</div>;
     }
 
     const isSingleScript = progress.length === 1;

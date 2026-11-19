@@ -4,6 +4,7 @@ import copyToClipboard from "common/copyToClipboard";
 import { Icon } from "components/common/Icon";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import { RichPanelDetailItem } from "components/common/RichPanel";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 const maxVisibleEntries = 10;
 
@@ -13,6 +14,8 @@ interface ReplicationCursorDetailItemProps {
 }
 
 export function ReplicationCursorDetailItem({ label, cursor }: ReplicationCursorDetailItemProps) {
+    const t = useStudioTranslation("ongoingTasks");
+
     if (!cursor) {
         return null;
     }
@@ -29,7 +32,7 @@ export function ReplicationCursorDetailItem({ label, cursor }: ReplicationCursor
     }
 
     const handleCopyToClipboard = () => {
-        copyToClipboard.copy(cursor, `${label} has been copied to clipboard`);
+        copyToClipboard.copy(cursor, t("replicationCursor.copied", { label }));
     };
 
     return (
@@ -45,8 +48,8 @@ export function ReplicationCursorDetailItem({ label, cursor }: ReplicationCursor
                             onClick={handleCopyToClipboard}
                             size="sm"
                             className="mt-2"
-                            title="Copy to clipboard"
-                            aria-label={`Copy ${label} to clipboard`}
+                            title={t("copyToClipboard")}
+                            aria-label={t("replicationCursor.copyAriaLabel", { label })}
                         >
                             <Icon icon="copy-to-clipboard" margin="m-0" />
                         </Button>
@@ -54,7 +57,7 @@ export function ReplicationCursorDetailItem({ label, cursor }: ReplicationCursor
                 }
             >
                 {entries.slice(0, maxVisibleEntries).join(", ")}
-                <span className="text-muted">{` ... (+${hiddenEntriesCount} more)`}</span>
+                <span className="text-muted"> {t("replicationCursor.moreEntries", { count: hiddenEntriesCount })}</span>
             </PopoverWithHoverWrapper>
         </RichPanelDetailItem>
     );

@@ -1,79 +1,99 @@
-﻿class tasksCommonContent {
+﻿import generalUtils = require("common/generalUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
+
+class tasksCommonContent {
         
-    static readonly generalBackupInfo =
-        `<div class="margin-bottom-xs">Differences between Backup and Snapshot:</div> 
+    static get generalBackupInfo(): string {
+        return `<div class="margin-bottom-xs">${t("backup.info.differences")}</div> 
         <ul>
-            <li>Data
+            <li>${t("backup.info.data")}
                 <small><ul>
-                    <li><strong>Backup</strong> includes documents, identities, and index definitions.<br />
-                        It doesn't include index data - indexes are rebuilt from the backed-up definitions when restoring the database.</li>
-                    <li><strong>Snapshot</strong> contains the raw data including the indexes (definitions and data, or definitions only).</li>
+                    <li>${t("backup.info.dataBackup")}</li>
+                    <li>${t("backup.info.dataSnapshot")}</li>
                 </ul></small>
             </li>
         </ul>
-        <div class="margin-bottom-xs">Differences when Snapshot backs up both index definitions and index data:</div>
+        <div class="margin-bottom-xs">${t("backup.info.indexDataDifferences")}</div>
         <ul>
-            <li>Speed
+            <li>${t("backup.info.speed")}
                 <small><ul>
-                   <li><strong>Backup</strong> is usually much faster than a <strong>Snapshot</strong></li>
+                   <li>${t("backup.info.speedDetails")}</li>
                 </ul></small>
             </li>
-            <li>Size
+            <li>${t("backup.info.size")}
                 <small><ul>
-                    <li><strong>Backup</strong> is usually much smaller than <strong>Snapshot</strong></li>
+                    <li>${t("backup.info.sizeDetails")}</li>
                 </ul></small>
             </li>
-            <li>Restore
+            <li>${t("backup.info.restore")}
                 <small><ul>
-                    <li>Restoring a <strong>Snapshot</strong> is usually faster than restoring a <strong>Backup</strong></li>
+                    <li>${t("backup.info.restoreDetails")}</li>
                 </ul></small>
             </li>
         </ul>
-        <div>Notes:</div>
+        <div>${t("backup.info.notes")}</div>
         <ul>
-            <li><small>An incremental Snapshot is the same as an incremental Backup</small></li>
-            <li><small>An incremental Snapshot is not supported in sharded databases</small></li>
+            <li><small>${t("backup.info.incrementalSnapshot")}</small></li>
+            <li><small>${t("backup.info.incrementalSnapshotSharded")}</small></li>
         </ul>`;
+    }
     
-    static readonly backupAgeInfo = 
-        "<ul>" +
-            "<li>Define the minimum time to keep the Backups (and Snapshots) in the system.<br></li>" +
-            "<li>A <strong>Full Backup</strong> that is older than the specified retention time will be deleted by RavenDB server.<br>" +
-            "If <strong>Incremental Backups</strong> exist, the Full Backup, and its incrementals, are removed only if the <em>last incremental</em> is older than the defined retention time.<br></li>"+
-            "<li>The deletion occurs when the backup task is triggered on its schedule.</li>" +
+    static get backupAgeInfo(): string {
+        return "<ul>" +
+            `<li>${t("backup.ageInfo.minimumTime")}<br></li>` +
+            `<li>${t("backup.ageInfo.fullBackupDeleted")}<br>` +
+            `${t("backup.ageInfo.incrementalBackups")}<br></li>` +
+            `<li>${t("backup.ageInfo.deletionSchedule")}</li>` +
         "</ul>";
+    }
  
-    static readonly ftpHostInfo =
-        "To specify the server protocol, prepend the host with protocol identifier (ftp and ftps are supported).<br />" +
-        "If no protocol is specified the default one (ftp://) will be used.<br />" +
-        "You can also enter a complete URL<br />" +
-        "e.g. <strong>ftp://host.name:port/backup-folder/nested-backup-folder</strong>";
+    static get ftpHostInfo(): string {
+        return `${t("backup.ftpHostInfo.protocol")}<br />` +
+            `${t("backup.ftpHostInfo.defaultProtocol")}<br />` +
+            `${t("backup.ftpHostInfo.completeUrl")}<br />` +
+            t("backup.ftpHostInfo.example", { url: "ftp://host.name:port/backup-folder/nested-backup-folder" });
+    }
     
-    static readonly serverwideSnapshotEncryptionInfo =
-        "When selecting the <strong>'Snapshot'</strong> backup-type, encryption is dependant on the database the task is operating on.<br></li>" +
-        "<ul>" +
-            "<li>If the database backed up is <strong>encrypted</strong> - the Snapshot will also be encrypted (using the database key).<br></li>" +
-            "<li>If the database backed up is <strong>not-encrypted</strong> - the Snapshot will not be encrytped as well.</li>" +
-        "</ul>";
+    static get serverwideSnapshotEncryptionInfo(): string {
+        return `${t("backup.serverWideSnapshotEncryption.intro")}<br></li>` +
+            "<ul>" +
+                `<li>${t("backup.serverWideSnapshotEncryption.encrypted")}<br></li>` +
+                `<li>${t("backup.serverWideSnapshotEncryption.notEncrypted")}</li>` +
+            "</ul>";
+    }
     
     static textForPopover(storageName: string, targetOperation: string) : string {
-        return `${storageName} should be created manually in order for this ${targetOperation} to work.<br /> ` +
-            "You can use the 'Test credentials' button to verify its existance.";
+        return `${tasksCommonContent.storageCreatedManuallyText(storageName, targetOperation)}<br /> ` +
+            t("backup.testCredentials");
     }
 
     static textForPopoverGCS(storageName: string, targetOperation: string): string {
-        return `${storageName} should be created manually in order for this ${targetOperation} to work.<br /> ` +
-            "You can use the 'Test credentials' button to verify its existance.<br />" +
-            "<a href='https://cloud.google.com/storage/docs/bucket-naming' target='_blank'>Bucket naming guidelines</a>";
+        return `${tasksCommonContent.storageCreatedManuallyText(storageName, targetOperation)}<br /> ` +
+            `${t("backup.testCredentials")}<br />` +
+            `<a href='https://cloud.google.com/storage/docs/bucket-naming' target='_blank'>${t("backup.bucketNamingGuidelines")}</a>`;
     }
 
-    static readonly externalScriptNotAllowedForNonClusterAdmins =
-        "Setting up the configuration via an external script is not allowed for non cluster admins.";
+    private static storageCreatedManuallyText(storageName: string, targetOperation: string): string {
+        return t("backup.storageCreatedManually", {
+            storageName: generalUtils.escapeHtml(storageName),
+            targetOperation: generalUtils.escapeHtml(targetOperation),
+        });
+    }
 
-    static readonly etlTaskNameLocked = "ETL task name cannot be changed after creation. Delete and recreate the task to use a different name.";
+    static get externalScriptNotAllowedForNonClusterAdmins(): string {
+        return t("externalScriptNotAllowedForNonClusterAdmins");
+    }
+
+    static get etlTaskNameLocked(): string {
+        return t("etlTaskNameLocked");
+    }
 
     // Name can't be changed for any ETL task, but e.g. AI Tasks are not marked as ETL on the UI
-    static readonly taskNameLocked = "Task name cannot be changed after creation. Delete and recreate the task to use a different name.";
+    static get taskNameLocked(): string {
+        return t("taskNameLocked");
+    }
 }
 
 export = tasksCommonContent;

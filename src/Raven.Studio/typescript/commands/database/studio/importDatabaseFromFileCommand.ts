@@ -3,6 +3,9 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
 import database = require("models/resources/database");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("studioCommands");
 
 class importDatabaseFromFileCommand extends commandBase {
 
@@ -36,7 +39,7 @@ class importDatabaseFromFileCommand extends commandBase {
         uploadStatus.subscribe((percent) => this.onUploadProgress(percent));
 
         return this.post(url, formData, this.db, commandBase.getOptionsForImport(isUploading, uploadStatus), 0)
-            .fail((response: JQueryXHR) => this.reportError("Failed to upload data", response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("uploadFailed"), response.responseText, response.statusText));
     }
 }
 

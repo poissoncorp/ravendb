@@ -7,6 +7,7 @@ import {
 import { EditCdcSinkTaskFormData } from "components/pages/database/tasks/ongoingTasks/editTasks/editCdcSinkTask/utils/editCdcSinkTaskValidation";
 import assertUnreachable from "components/utils/assertUnreachable";
 import { useFormContext, useWatch } from "react-hook-form";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type PathFieldName = Extract<
     keyof EditCdcSinkTaskFormData | keyof EditCdcSinkTaskFormData["tables"][number],
@@ -19,6 +20,7 @@ export type EditCdcSinkTaskBreadcrumbItem = CdcActiveTable & {
 };
 
 export default function useEditCdcSinkTaskBreadcrumbs(path: CdcActiveTable["path"]): EditCdcSinkTaskBreadcrumbItem[] {
+    const t = useStudioTranslation("editCdcSinkTask");
     const { control } = useFormContext<EditCdcSinkTaskFormData>();
 
     const parts = path.split(".");
@@ -37,7 +39,7 @@ export default function useEditCdcSinkTaskBreadcrumbs(path: CdcActiveTable["path
 
     return breadcrumbItems.map((item, idx) => ({
         ...item,
-        label: sourceTableNames[idx] || "Unassigned table",
+        label: sourceTableNames[idx] || t("tablesExplorer.unassignedTable"),
         isActive: idx === breadcrumbItems.length - 1,
     }));
 }

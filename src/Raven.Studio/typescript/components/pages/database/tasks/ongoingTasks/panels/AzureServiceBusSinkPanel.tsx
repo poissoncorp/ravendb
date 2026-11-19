@@ -24,6 +24,7 @@ import { databaseSelectors } from "components/common/shell/databaseSliceSelector
 import { useAppSelector } from "components/store";
 import { accessManagerSelectors } from "components/common/shell/accessManagerSliceSelectors";
 import { Icon } from "components/common/Icon";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type AzureServiceBusSinkPanelProps = BaseOngoingTaskPanelProps<OngoingTaskAzureServiceBusSinkInfo>;
 
@@ -46,6 +47,7 @@ function Details(props: AzureServiceBusSinkPanelProps & { canEdit: boolean }) {
 
 export function AzureServiceBusSinkPanel(props: AzureServiceBusSinkPanelProps) {
     const { data, toggleSelection, isSelected, onTaskOperation, isDeleting, isTogglingState } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
     const { forCurrentDatabase } = useAppUrls();
@@ -73,7 +75,7 @@ export function AzureServiceBusSinkPanel(props: AzureServiceBusSinkPanelProps) {
                 <RichPanelActions>
                     <span>
                         <Icon icon="azure" />
-                        Azure Service Bus Sink
+                        {t("taskType.azureServiceBusSink")}
                     </span>
                     <OngoingTaskResponsibleNode task={data} />
                     <OngoingTaskStatus

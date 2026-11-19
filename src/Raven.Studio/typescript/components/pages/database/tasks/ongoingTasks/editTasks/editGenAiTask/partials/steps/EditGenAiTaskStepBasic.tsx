@@ -16,8 +16,11 @@ import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import { aiConnectionStringUtils } from "components/pages/database/settings/connectionStrings/editForms/aiConnectionStringUtils";
 import { connectionStringSelectors } from "components/pages/database/settings/connectionStrings/store/connectionStringsSlice";
 import { mapAiConnectionStringToDto } from "components/pages/database/settings/connectionStrings/store/connectionStringsMapsToDto";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export function EditGenAiTaskStepBasic() {
+    const t = useStudioTranslation("editGenAiTask");
     const hasGenAi = useAppSelector(licenseSelectors.statusValue("HasGenAi"));
 
     const connectionStringTest = useAppSelector(editGenAiTaskSelectors.connectionStringTest);
@@ -26,7 +29,7 @@ export function EditGenAiTaskStepBasic() {
         <div>
             <div className="hstack justify-content-between">
                 <AboutViewHeading
-                    title="Configure GenAI task basic settings"
+                    title={t("basic.title")}
                     marginBottom={2}
                     icon="genai"
                     licenseBadgeText={hasGenAi ? null : "Enterprise AI"}
@@ -34,9 +37,7 @@ export function EditGenAiTaskStepBasic() {
                 <EditGenAiTaskInfoHub />
             </div>
             <p className="mb-4">
-                Configure a GenAI task to analyze and enrich your documents using an LLM.
-                <br />
-                The connection string defined in this step will be used to connect to the selected model.
+                <StudioTrans ns="editGenAiTask" i18nKey="basic.intro" components={{ br: <br /> }} />
             </p>
             <div className={hasGenAi ? "" : "item-disabled pe-none"}>
                 <EditGenAiTaskBasicFields />
@@ -49,6 +50,7 @@ export function EditGenAiTaskStepBasic() {
 }
 
 export function EditGenAiTaskStepBasicFooter() {
+    const t = useStudioTranslation("editGenAiTask");
     const hasGenAi = useAppSelector(licenseSelectors.statusValue("HasGenAi"));
     const dispatch = useAppDispatch();
 
@@ -98,11 +100,7 @@ export function EditGenAiTaskStepBasicFooter() {
             {hasGenAi && (
                 <div className="hstack gap-2">
                     <PopoverWithHoverWrapper
-                        message={
-                            selectedConnection
-                                ? "Test the connection to the specified connection string."
-                                : "Select a connection string to test."
-                        }
+                        message={selectedConnection ? t("basic.testConnectionInfo") : t("basic.selectConnectionToTest")}
                     >
                         <ButtonWithSpinner
                             variant="info"
@@ -112,12 +110,12 @@ export function EditGenAiTaskStepBasicFooter() {
                             disabled={!selectedConnection}
                             icon="test"
                         >
-                            Test connection
+                            {t("basic.testConnection")}
                         </ButtonWithSpinner>
                     </PopoverWithHoverWrapper>
 
                     <Button variant="primary" className="rounded-pill" onClick={handleNext}>
-                        Next <Icon icon="arrow-right" margin="ms-1" />
+                        {t("footer.next")} <Icon icon="arrow-right" margin="ms-1" />
                     </Button>
                 </div>
             )}

@@ -22,6 +22,10 @@ import generalUtils = require("common/generalUtils");
 import fileImporter = require("common/fileImporter");
 import moment = require("moment");
 import sqlConnectionStringSyntax = require("common/helpers/database/sqlConnectionStringSyntax");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("importDatabaseFromSql");
+const commonT = i18nModule.createTranslator("common");
 
 interface exportDataDto {
     Schema: Raven.Server.SqlMigration.Schema.DatabaseSchema,
@@ -74,6 +78,16 @@ class importDatabaseFromSql extends viewModelBase {
     
     testMode = ko.observable<Raven.Server.SqlMigration.Model.MigrationTestMode>("First");
     testPrimaryKeys = ko.observableArray<KnockoutObservable<string>>([]);
+
+    migrateButtonText: KnockoutComputed<string>;
+
+    readonly shardedNotAvailableHtml = t("sharded.notAvailable").replace("<icon/>", `<i class="icon-sharding text-shard m-0"></i>`);
+    readonly pascalCaseHtml = t("advancedOptions.pascalCase");
+    readonly detectManyToManyHtml = t("advancedOptions.detectManyToMany");
+    readonly includeUnsupportedHtml = t("advancedOptions.includeUnsupported");
+    readonly specifySchemasHtml = t("advancedOptions.specifySchemas");
+    readonly selectFileText = t("continueMigration.selectFile");
+    readonly partialMigrationDescriptionHtml = t("settings.partialMigrationDescription");
     
     constructor() {
         super();
@@ -110,7 +124,13 @@ class importDatabaseFromSql extends viewModelBase {
             const start = this.currentPage() * importDatabaseFromSql.pageCount + 1;
             const end = Math.min(total, start + importDatabaseFromSql.pageCount - 1);
             
-            return "Tables " + start.toLocaleString() + "-" + end.toLocaleString() + " out of " + total.toLocaleString() + (this.searchText() ? " - filtered" : "");
+            return t("pagination.location", {
+                page: this.currentPage() + 1,
+                start: start.toLocaleString(),
+                end: end.toLocaleString(),
+                total: total.toLocaleString(),
+                context: this.searchText() ? "filtered" : undefined,
+            });
         });
         
         this.selectedCount = ko.pureComputed(() =>{
@@ -120,6 +140,15 @@ class importDatabaseFromSql extends viewModelBase {
             }
 
             return this.model.getSelectedTablesCount();
+        });
+
+        this.migrateButtonText = ko.pureComputed(() => {
+            const count = this.selectedCount();
+            return t("migration.migrate", {
+                count,
+                formattedCount: count.toLocaleString(),
+                context: this.model.testImport() ? "partial" : undefined,
+            });
         });
         
         this.globalSelectionState = ko.pureComputed<checkbox>(() => {
@@ -207,14 +236,14 @@ class importDatabaseFromSql extends viewModelBase {
         try {
              importedData = JSON.parse(content); 
         } catch (e) {
-            messagePublisher.reportError("Failed to parse json data", undefined, undefined);
+            messagePublisher.reportError(t("errors.parseJsonFailed"), undefined, undefined);
             throw e;
         }
 
         // Check correctness of data
         // eslint-disable-next-line no-prototype-builtins
         if (!importedData.hasOwnProperty('Schema') || !importedData.hasOwnProperty('Configuration')) {
-            messagePublisher.reportError("Invalid SQL migration file format", undefined, undefined);
+            messagePublisher.reportError(t("errors.invalidFileFormat"), undefined, undefined);
         } else {
             this.togglingAll(true);
             
@@ -393,7 +422,7 @@ class importDatabaseFromSql extends viewModelBase {
         popoverUtils.longWithHover($("#editTransform .js-script-popover"),
             {
                 content:
-                "<div class=\"text-center\">Transform scripts are written in JavaScript </div>" +
+                `<div class="text-center">${t("editTransform.transformScriptInfo")} </div>` +
                 "<pre><span class=\"token keyword\">var</span> age = <span class=\"token keyword\">this</span>.Age;<br />" +
                 "<span class=\"token keyword\">if</span> (age > <span class=\"token number\">18</span>)<br />&nbsp;&nbsp;&nbsp;&nbsp;" +
                 "<span class=\"token keyword\">throw </span><span class=\"token string\">'skip'</span>; <span class=\"token comment\">// filter-out</span><br /><br />" +
@@ -471,8 +500,8 @@ class importDatabaseFromSql extends viewModelBase {
     onToggleAllClick(_: any, $event: JQueryMouseEventObject) {
         if (this.model.getSelectedTablesCount()) {
             
-            this.confirmationMessage("Deselect all tables", "To maintain connections integrity, all references with action <strong>'link'</strong> will be set to <strong>'skip'</strong>.<br/> Do you want to proceed? ", {
-                buttons: ["Cancel", "Set references to 'skip' and deselect all"],
+            this.confirmationMessage(t("deselectAll.title"), t("deselectAll.message"), {
+                buttons: [commonT("cancel"), t("deselectAll.confirm")],
                 html: true
             })
                 .done(result => {
@@ -576,7 +605,7 @@ class importDatabaseFromSql extends viewModelBase {
                 documentMetadata.filterMetadata(metaDto);
                 
                 const text = JSON.stringify(result.Document, null, 4);
-                app.showBootstrapDialog(new showDataDialog("Document: " + result.DocumentId, text, "javascript"));
+                app.showBootstrapDialog(new showDataDialog(t("editTransform.testResultTitle", { documentId: result.DocumentId }), text, "javascript"));
             })
             .always(() => this.spinners.test(false));
     }
@@ -618,16 +647,19 @@ class importDatabaseFromSql extends viewModelBase {
             const targetTable = reference.targetTable as rootSqlTable;
 
             targetTable.checked(true);
-            messagePublisher.reportSuccess("Table " + targetTable.tableName + " was selected");
+            messagePublisher.reportSuccess(t("hints.tableSelected", { tableName: targetTable.tableName }));
 
             $(".js-btn-link", $ref).popover('hide');
         });
     }
 
     private provideSelectTablePopoverText(reference: sqlReference) {
-        return '<div class="text-center"><strong class="text-capitalize"><i class="icon-table"></i> ' + reference.targetTable.tableName + '</strong> table is currently not included. <br />'
-            + '<button class="btn btn-sm btn-primary popover-link-ref" data-popover-ref-id="' + reference.id + '">Click here to include <strong>'+ reference.targetTable.tableName +'</strong> to migration</button><br />'
-            + ' before creating link</div>';
+        const tableName = generalUtils.escapeHtml(reference.targetTable.tableName);
+        const tableNotIncluded = t("hints.tableNotIncluded", { tableName })
+            .replace("<strong>", '<strong class="text-capitalize"><i class="icon-table"></i> ');
+        const includeTable = t("hints.includeTable", { tableName })
+            .replace("<button>", '<button class="btn btn-sm btn-primary popover-link-ref" data-popover-ref-id="' + reference.id + '">');
+        return '<div class="text-center">' + tableNotIncluded + ' <br />' + includeTable + '</div>';
     }
     
     private initTableCheckboxHints() {
@@ -660,8 +692,8 @@ class importDatabaseFromSql extends viewModelBase {
     }
 
     private provideTableCheckboxHint(incomingLinksCount: number) {
-        return "This table has <strong>" + incomingLinksCount + "</strong> incoming " + this.pluralize(incomingLinksCount, "link", "links", true) + ". <em><strong>Skip</strong></em> or <em><strong>embed</strong></em> all of them before proceeding.<br/> "
-            + "<small class='text-info'><i class='icon-info'></i>  You can view incoming links by clicking on <i class='icon-sql-many-to-one'></i> button</small>";
+        return t("hints.incomingLinks", { count: incomingLinksCount }) + " " + t("hints.skipOrEmbed") + "<br/> "
+            + "<small class='text-info'><i class='icon-info'></i>  " + t("hints.viewIncomingLinks").replace("<icon/>", "<i class='icon-sql-many-to-one'></i>") + "</small>";
     }
     
     private initUnselectEmbeddedTablesHints() {
@@ -703,16 +735,17 @@ class importDatabaseFromSql extends viewModelBase {
             const targetTable = reference.targetTable as rootSqlTable;
 
             targetTable.checked(false);
-            messagePublisher.reportSuccess("Table " + targetTable.tableName + " was deselected");
+            messagePublisher.reportSuccess(t("hints.tableDeselected", { tableName: targetTable.tableName }));
 
             $(".js-btn-embed", $ref).popover('hide');
         });
     }
     
     private provideDeselectTableHint(reference: sqlReference, targetTable: rootSqlTable) {
-        return "Table <strong>" + targetTable.tableName + "</strong> doesn't have incoming links and it is embed. <br />"
-            + "Probably you can deselect this table to avoid data duplication.<br/>" 
-            + '<button class="btn btn-sm btn-primary popover-embed-ref" data-popover-ref-id="' + reference.id + '">Deselect ' + targetTable.tableName + '</button>';
+        const tableName = generalUtils.escapeHtml(targetTable.tableName);
+        return t("hints.embeddedWithoutLinks", { tableName }) + " <br />"
+            + t("hints.deselectSuggestion") + "<br/>"
+            + '<button class="btn btn-sm btn-primary popover-embed-ref" data-popover-ref-id="' + reference.id + '">' + t("hints.deselectTable", { tableName }) + '</button>';
     }
 
     testConnection() : JQueryPromise<Raven.Server.Web.System.NodeConnectionTestResult> {

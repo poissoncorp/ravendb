@@ -11,6 +11,7 @@ import classNames from "classnames";
 import AceEditor from "components/common/ace/AceEditor";
 import ReactAce from "react-ace";
 import EditGenAiTaskAttachmentsButton from "./EditGenAiTaskAttachmentsButton";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface EditGenAiTaskFormVirtualListProps {
     fields: FieldArrayWithId<EditGenAiTaskFormData, "playgroundContexts" | "playgroundModelOutputs">[];
@@ -25,6 +26,7 @@ export default function EditGenAiTaskFormVirtualList({
     isReadOnly,
     handleRemove,
 }: EditGenAiTaskFormVirtualListProps) {
+    const t = useStudioTranslation("editGenAiTask");
     const dispatch = useAppDispatch();
 
     const hoverIndex = useAppSelector(editGenAiTaskSelectors.hoverIndex);
@@ -40,17 +42,17 @@ export default function EditGenAiTaskFormVirtualList({
 
     const getTooltipText = (): string => {
         if (name === "playgroundContexts") {
-            return "Context object ID";
+            return t("objectList.contextObjectId");
         }
         if (name === "playgroundModelOutputs") {
-            return "Model output object ID";
+            return t("objectList.modelOutputObjectId");
         }
 
         return null;
     };
 
     if (fields.length === 0) {
-        return <EmptySet>Empty list</EmptySet>;
+        return <EmptySet>{t("objectList.empty")}</EmptySet>;
     }
 
     return (

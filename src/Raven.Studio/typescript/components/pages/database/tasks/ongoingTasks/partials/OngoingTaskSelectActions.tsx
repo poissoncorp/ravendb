@@ -9,6 +9,8 @@ import ButtonGroup from "react-bootstrap/ButtonGroup";
 import { OngoingTaskOperationConfirmType } from "../../shared/OngoingTaskOperationConfirm";
 import Button from "react-bootstrap/Button";
 import Dropdown from "react-bootstrap/Dropdown";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface OngoingTaskSelectActionsProps {
     allTasks: number[];
@@ -21,6 +23,8 @@ interface OngoingTaskSelectActionsProps {
 
 export default function OngoingTaskSelectActions(props: OngoingTaskSelectActionsProps) {
     const { allTasks, selectedTasks, setSelectedTasks, onTaskOperation, isTogglingState, isDeleting } = props;
+    const t = useStudioTranslation("ongoingTasks");
+    const tCommon = useStudioTranslation("common");
 
     if (allTasks.length === 0) {
         return null;
@@ -44,35 +48,47 @@ export default function OngoingTaskSelectActions(props: OngoingTaskSelectActions
                 indeterminate={selectionState === "SomeSelected"}
                 toggleSelection={toggleSelectAll}
                 color="primary"
-                title="Select all or none"
+                title={t("selectActions.selectAllTitle")}
                 size="lg"
             >
-                <span className="small-label">Select All</span>
+                <span className="small-label">{t("selectActions.selectAll")}</span>
             </Checkbox>
 
             <SelectionActions active={anythingSelected}>
                 <div className="d-flex align-items-center justify-content-center flex-wrap gap-2">
                     <div className="lead text-nowrap">
-                        <strong className="text-emphasis me-1">{selectedTasks.length}</strong> selected
+                        <StudioTrans
+                            ns="ongoingTasks"
+                            i18nKey="selectActions.selected"
+                            options={{ count: selectedTasks.length }}
+                            components={{ strong: <strong className="text-emphasis me-1" /> }}
+                        />
                     </div>
                     <ButtonGroup className="gap-2 flex-wrap justify-content-center">
                         <Dropdown>
                             <Dropdown.Toggle
                                 variant="secondary"
                                 disabled={!anythingSelected || isTogglingState}
-                                title="Set the status (enabled/disabled) of selected ongoing tasks"
+                                title={t("selectActions.setStateTitle")}
                                 className="rounded-pill"
                             >
-                                {isTogglingState ? <Spinner size="sm" /> : <Icon icon="play" />} Set state
+                                {isTogglingState ? <Spinner size="sm" /> : <Icon icon="play" />}{" "}
+                                {t("selectActions.setState")}
                             </Dropdown.Toggle>
                             <Dropdown.Menu>
-                                <Dropdown.Item title="Enable" onClick={() => onTaskOperation("enable")}>
+                                <Dropdown.Item
+                                    title={t("selectActions.enable")}
+                                    onClick={() => onTaskOperation("enable")}
+                                >
                                     <Icon icon="play" color="success" />
-                                    <span>Enable</span>
+                                    <span>{t("selectActions.enable")}</span>
                                 </Dropdown.Item>
-                                <Dropdown.Item title="Disable" onClick={() => onTaskOperation("disable")}>
+                                <Dropdown.Item
+                                    title={t("selectActions.disable")}
+                                    onClick={() => onTaskOperation("disable")}
+                                >
                                     <Icon icon="stop" color="danger" />
-                                    <span>Disable</span>
+                                    <span>{t("selectActions.disable")}</span>
                                 </Dropdown.Item>
                             </Dropdown.Menu>
                         </Dropdown>
@@ -84,11 +100,11 @@ export default function OngoingTaskSelectActions(props: OngoingTaskSelectActions
                             isSpinning={isDeleting}
                             icon="trash"
                         >
-                            Delete
+                            {tCommon("delete")}
                         </ButtonWithSpinner>
                     </ButtonGroup>
                     <Button onClick={() => setSelectedTasks([])} variant="link">
-                        Cancel
+                        {tCommon("cancel")}
                     </Button>
                 </div>
             </SelectionActions>

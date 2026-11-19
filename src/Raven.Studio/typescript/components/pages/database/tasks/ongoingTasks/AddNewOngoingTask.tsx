@@ -13,12 +13,14 @@ import { RadioToggleWithIcon } from "components/common/toggles/RadioToggle";
 import { AddNewOngoingTaskAboutView } from "components/pages/database/tasks/ongoingTasks/partials/AddNewOngoingTaskAboutView";
 import { AddTaskCardList, TaskCardCategory } from "components/pages/database/tasks/shared/AddTaskCardList";
 import { useTaskCardDisplayMode } from "components/pages/database/tasks/shared/useTaskCardDisplayMode";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface AddNewOngoingTaskQueryParams {
     isAiOnly: boolean;
 }
 
 export default function AddNewOngoingTask({ queryParams }: ReactQueryParamsProps<AddNewOngoingTaskQueryParams>) {
+    const t = useStudioTranslation("ongoingTasks");
     const isAiOnly = queryParams?.isAiOnly;
 
     const { forCurrentDatabase, appUrl } = useAppUrls();
@@ -43,7 +45,7 @@ export default function AddNewOngoingTask({ queryParams }: ReactQueryParamsProps
         <div className="content-margin add-new-ongoing-task d-flex flex-column">
             <div className="d-flex justify-content-between align-items-start">
                 <AboutViewHeading
-                    title={isAiOnly ? "Add AI task" : "Add a database task"}
+                    title={t("addTask.title", { context: isAiOnly ? "ai" : "database" })}
                     icon="tasks"
                     iconAddon="plus"
                     backUrl={isAiOnly ? aiTasksUrl : ongoingTasksUrl}
@@ -71,10 +73,10 @@ export default function AddNewOngoingTask({ queryParams }: ReactQueryParamsProps
                         onReset={resetCategories}
                     />
                     <hr className="my-3" />
-                    <div className="small ms-1 text-muted">Need a cluster-wide task? Check out:</div>
+                    <div className="small ms-1 text-muted">{t("addTask.clusterWideHint")}</div>
                     <a href={serverWideTasksUrl} className="add-new-ongoing-task-nav-item text-decoration-none">
                         <Icon icon="server-wide-tasks" margin="m-0" />
-                        <span>Server-Wide Tasks</span>
+                        <span>{t("serverWideTasks")}</span>
                     </a>
                 </div>
                 <div className="add-new-ongoing-task-content pb-4">
@@ -94,14 +96,16 @@ function TaskSearchInput({
     setSearchText: (value: string) => void;
     className?: string;
 }) {
+    const t = useStudioTranslation("ongoingTasks");
+
     return (
         <div className={className}>
-            <div className="small-label ms-1 mb-1">Search by name</div>
+            <div className="small-label ms-1 mb-1">{t("addTask.searchLabel")}</div>
             <Form.Control
                 type="search"
                 accessKey="/"
-                placeholder="e.g. External Replication"
-                title="Filter tasks"
+                placeholder={t("addTask.searchPlaceholder")}
+                title={t("addTask.searchTitle")}
                 className="filtering-input"
                 value={searchText}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchText(e.target.value)}
@@ -128,12 +132,13 @@ function TaskCategoryFilter({
     onToggle: (categoryName: string) => void;
     onReset: () => void;
 }) {
+    const t = useStudioTranslation("ongoingTasks");
     const hasActiveFilter = selectedCategories.length > 0;
 
     return (
         <div>
             <div className="d-flex justify-content-between align-items-center mb-1">
-                <div className="small-label">Filter by Category</div>
+                <div className="small-label">{t("addTask.categoryFilterLabel")}</div>
                 <Button
                     variant="link"
                     size="xs"
@@ -141,7 +146,7 @@ function TaskCategoryFilter({
                     onClick={onReset}
                     disabled={!hasActiveFilter}
                 >
-                    Reset
+                    {t("reset")}
                     <Icon icon="reset" margin="ms-1" />
                 </Button>
             </div>

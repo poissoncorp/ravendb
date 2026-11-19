@@ -27,6 +27,9 @@ import {
     isTableSupported,
     mapSqlTableToFormData,
 } from "components/pages/database/tasks/ongoingTasks/editTasks/editCdcSinkTask/utils/editCdcSinkTaskSchemaUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import type { StudioTranslate } from "common/i18n/resources";
 
 interface EditCdcSinkTaskDiscoveredTableProps {
     asyncGetSchema: UseAsyncReturn<CdcSinkSchema.CdcSinkSourceSchema, [string[]]>;
@@ -39,6 +42,7 @@ export default function EditCdcSinkTaskDiscoveredTable({
     tablesFieldArray,
     widthPx,
 }: EditCdcSinkTaskDiscoveredTableProps) {
+    const t = useStudioTranslation("editCdcSinkTask");
     const selectableColumns = useSelectableColumns(widthPx);
     const unavailableColumns = useUnavailableColumns(widthPx);
     const sourceSchema = asyncGetSchema.result;
@@ -89,14 +93,14 @@ export default function EditCdcSinkTaskDiscoveredTable({
         return (
             <div className="panel-bg-1 p-2 rounded border border-secondary hstack justify-content-center">
                 <EmptySet compact className="text-muted">
-                    Click &quot;Discover tables&quot; to fetch available tables from the source database.
+                    {t("discovery.notRequested")}
                 </EmptySet>
             </div>
         );
     }
 
     if (asyncGetSchema.status === "error") {
-        return <LoadError error="Unable to discover tables" />;
+        return <LoadError error={t("discovery.loadError")} />;
     }
 
     const selectedRows = selectableTablesTable.getSelectedRowModel().rows;
@@ -128,7 +132,7 @@ export default function EditCdcSinkTaskDiscoveredTable({
             <SchemaAlerts schema={sourceSchema} />
             <div className="vstack gap-2">
                 <div>
-                    <h4 className="mb-1">Available tables</h4>
+                    <h4 className="mb-1">{t("discovery.availableTables")}</h4>
                     <div className="position-relative">
                         <VirtualTable
                             table={selectableTablesTable}
@@ -141,12 +145,17 @@ export default function EditCdcSinkTaskDiscoveredTable({
                                 style={{ bottom: "26px", left: "50%", transform: "translateX(-50%)" }}
                             >
                                 <span>
-                                    <b>{selectedCount}</b> selected
+                                    <StudioTrans
+                                        ns="editCdcSinkTask"
+                                        i18nKey="discovery.selectedCount"
+                                        components={{ b: <b /> }}
+                                        options={{ count: selectedCount }}
+                                    />
                                 </span>
                                 <div className="vr" />
                                 <Button variant="link" onClick={handleAddSelected} className="text-reset p-0">
                                     <Icon icon="plus" className="small" />
-                                    Configure selected tables
+                                    {t("discovery.configureSelectedTables")}
                                 </Button>
                             </div>
                         )}
@@ -156,7 +165,7 @@ export default function EditCdcSinkTaskDiscoveredTable({
                     <div className="mt-2">
                         <h4 className="mb-1">
                             <Icon icon="warning" color="warning" />
-                            Unavailable tables
+                            {t("discovery.unavailableTables")}
                         </h4>
                         <VirtualTable
                             table={unavailableTablesTable}
@@ -191,6 +200,7 @@ function SchemaAlerts({ schema }: SchemaAlertsProps) {
 }
 
 const useSelectableColumns = (widthPx: number): ColumnDef<CdcSinkSchema.CdcSinkSourceTable>[] => {
+    const t = useStudioTranslation("editCdcSinkTask");
     const warningsColumnWidth = 100;
     const bodyWidth = virtualTableUtils.getTableBodyWidth(widthPx - columnCheckbox.size - warningsColumnWidth);
     const getSize = useCallback(virtualTableUtils.getCellSizeProvider(bodyWidth), [bodyWidth]);
@@ -200,28 +210,28 @@ const useSelectableColumns = (widthPx: number): ColumnDef<CdcSinkSchema.CdcSinkS
             columnCheckbox as ColumnDef<CdcSinkSchema.CdcSinkSourceTable>,
             {
                 id: "TableName",
-                header: "Table name",
+                header: t("columns.tableName"),
                 accessorFn: getTableName,
                 cell: CellValueWrapper,
                 size: getSize(50),
             },
             {
                 id: "PrimaryKeys",
-                header: "Primary keys",
+                header: t("columns.primaryKeys"),
                 accessorFn: (x) => x.PrimaryKeyColumns.join(", "),
                 cell: CellValueWrapper,
                 size: getSize(30),
             },
             {
                 id: "ColumnsCount",
-                header: "Columns count",
+                header: t("columns.columnsCount"),
                 accessorFn: (x) => x.Columns.length,
                 cell: CellValueWrapper,
                 size: getSize(20),
             },
             {
                 id: "Warnings",
-                header: "Warnings",
+                header: t("columns.warnings"),
                 accessorFn: (x) => x.Warnings,
                 cell: TableWarningsCell,
                 size: warningsColumnWidth,
@@ -230,11 +240,12 @@ const useSelectableColumns = (widthPx: number): ColumnDef<CdcSinkSchema.CdcSinkS
                 enableColumnFilter: false,
             },
         ],
-        [getSize]
+        [getSize, t]
     );
 };
 
 const useUnavailableColumns = (widthPx: number): ColumnDef<CdcSinkSchema.CdcSinkSourceTable>[] => {
+    const t = useStudioTranslation("editCdcSinkTask");
     const errorColumnWidth = 100;
     const bodyWidth = virtualTableUtils.getTableBodyWidth(widthPx - errorColumnWidth);
     const getSize = useCallback(virtualTableUtils.getCellSizeProvider(bodyWidth), [bodyWidth]);
@@ -243,29 +254,29 @@ const useUnavailableColumns = (widthPx: number): ColumnDef<CdcSinkSchema.CdcSink
         () => [
             {
                 id: "TableName",
-                header: "Table name",
+                header: t("columns.tableName"),
                 accessorFn: getTableName,
                 cell: CellValueWrapper,
                 size: getSize(50),
             },
             {
                 id: "PrimaryKeys",
-                header: "Primary keys",
+                header: t("columns.primaryKeys"),
                 accessorFn: (x) => x.PrimaryKeyColumns.join(", "),
                 cell: CellValueWrapper,
                 size: getSize(30),
             },
             {
                 id: "ColumnsCount",
-                header: "Columns count",
+                header: t("columns.columnsCount"),
                 accessorFn: (x) => x.Columns.length,
                 cell: CellValueWrapper,
                 size: getSize(20),
             },
             {
                 id: "Error",
-                header: "Error",
-                accessorFn: getUnavailableTableMessage,
+                header: t("columns.error"),
+                accessorFn: (table) => getUnavailableTableMessage(table, t),
                 cell: UnavailableTableErrorCell,
                 size: errorColumnWidth,
                 enableSorting: false,
@@ -273,11 +284,12 @@ const useUnavailableColumns = (widthPx: number): ColumnDef<CdcSinkSchema.CdcSink
                 enableColumnFilter: false,
             },
         ],
-        [getSize]
+        [getSize, t]
     );
 };
 
 function TableWarningsCell({ getValue }: { getValue: Getter<unknown> }) {
+    const t = useStudioTranslation("editCdcSinkTask");
     const warnings = getValue<string[]>();
     if (!warnings?.length) {
         return null;
@@ -287,15 +299,17 @@ function TableWarningsCell({ getValue }: { getValue: Getter<unknown> }) {
         <PopoverWithHoverWrapper
             message={<ExpandableListContainer items={warnings} renderItem={(warning) => warning} />}
         >
-            <Icon icon="warning" color="warning" margin="m-0" aria-label="Table warnings" />
+            <Icon icon="warning" color="warning" margin="m-0" aria-label={t("discovery.tableWarnings")} />
         </PopoverWithHoverWrapper>
     );
 }
 
 function UnavailableTableErrorCell({ getValue }: { getValue: Getter<unknown> }) {
+    const t = useStudioTranslation("editCdcSinkTask");
+
     return (
         <PopoverWithHoverWrapper message={getValue<string>()}>
-            <Icon icon="danger" color="danger" margin="m-0" aria-label="CDC setup required" />
+            <Icon icon="danger" color="danger" margin="m-0" aria-label={t("discovery.cdcSetupRequired")} />
         </PopoverWithHoverWrapper>
     );
 }
@@ -304,14 +318,14 @@ function getTableName(table: CdcSinkSchema.CdcSinkSourceTable) {
     return `${table.SourceTableSchema}.${table.SourceTableName}`;
 }
 
-function getUnavailableTableMessage(table: CdcSinkSchema.CdcSinkSourceTable) {
+function getUnavailableTableMessage(table: CdcSinkSchema.CdcSinkSourceTable, t: StudioTranslate<"editCdcSinkTask">) {
     if (table.UnsupportedReason) {
         return table.UnsupportedReason;
     }
 
     if (!table.IsCdcEnabled) {
-        return "CDC is not enabled. Ask a database administrator to enable CDC for this table.";
+        return t("discovery.cdcNotEnabled");
     }
 
-    return "This table cannot be configured for CDC.";
+    return t("discovery.tableNotSupported");
 }

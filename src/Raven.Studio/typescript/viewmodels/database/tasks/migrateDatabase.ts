@@ -12,6 +12,9 @@ import license = require("models/auth/licenseModel");
 import viewHelpers = require("common/helpers/view/viewHelpers");
 import lastUsedAutocomplete = require("common/storage/lastUsedAutocomplete");
 import getMigratorPathConfigurationCommand = require("commands/database/tasks/getMigratorPathConfigurationCommand");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("migrateDatabase");
 
 class migrateDatabase extends viewModelBase {
 
@@ -19,6 +22,9 @@ class migrateDatabase extends viewModelBase {
 
     model = new migrateDatabaseModel();
     completer = defaultAceCompleter.completer();
+
+    readonly shardedNotAvailableHtml = t("sharded.notAvailable").replace("<icon/>", `<i class="icon-sharding text-shard m-0"></i>`);
+    readonly deployToolsHtml = t("migratorPath.deployTools").replace("<a>", `<a href="https://cloud.ravendb.net/portal/" title="RavenDB Cloud">`);
     
     submitButtonEnabled: KnockoutComputed<boolean>;
     submitButtonText: KnockoutComputed<string>;
@@ -76,10 +82,11 @@ class migrateDatabase extends viewModelBase {
         this.submitButtonText = ko.pureComputed(() => {
             const configuration = this.model.activeConfiguration();
             if (configuration && !configuration.migrateAllCollections()) {
-                return `Migrate ${this.pluralize(configuration.selectedCollectionsCount(), 'collection', 'collections')}`;
+                const count = configuration.selectedCollectionsCount();
+                return t("submit.selected", { count, formattedCount: count.toLocaleString() });
             }
 
-            return "Migrate all collections";
+            return t("submit.all");
         });
 
         this.submitButtonEnabled = ko.pureComputed(() => {
@@ -129,14 +136,13 @@ class migrateDatabase extends viewModelBase {
 
         popoverUtils.longWithHover($(".migrator-path small"),
             {
-                content: `<small>For RavenDB version 4.x and up, the <strong>Raven.Migrator</strong> executable can be found in the <strong>Tools</strong> package.<br>
-                          The Tools package can be downloaded from the <a target="_blank" href="http://ravendb.net/download">ravendb.net</a> website.</small>`
+                content: `<small>${t("migratorPath.info").replace("<a>", `<a target="_blank" href="http://ravendb.net/download">`)}</small>`
             });
 
         popoverUtils.longWithHover($("#scriptPopover"),
             {
                 content:
-                    "<div class=\"text-center\">Transform scripts are written in JavaScript </div>" +
+                    `<div class="text-center">${t("transformScript.info")} </div>` +
                         "<pre><span class=\"token keyword\">var</span> name = <span class=\"token keyword\">this.</span>FirstName;<br />" +
                         "<span class=\"token keyword\">if</span> (name === <span class=\"token string\">'Bob'</span>)<br />&nbsp;&nbsp;&nbsp;&nbsp;" +
                         "<span class=\"token keyword\">throw </span><span class=\"token string\">'skip'</span>; <span class=\"token comment\">// filter-out</span><br /><br />" +

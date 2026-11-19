@@ -1,7 +1,6 @@
 import React, { ReactNode } from "react";
 import { OngoingTaskSharedInfo } from "components/models/tasks";
 import assertUnreachable from "components/utils/assertUnreachable";
-import { capitalize } from "lodash";
 import { Icon } from "components/common/Icon";
 import IconName from "typings/server/icons";
 import { ThemeColor } from "components/models/common";
@@ -10,6 +9,9 @@ import Button from "react-bootstrap/Button";
 import OngoingTaskState = Raven.Client.Documents.Operations.OngoingTasks.OngoingTaskState;
 import Modal from "components/common/Modal";
 import classNames from "classnames";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import type { StudioTranslate } from "common/i18n/resources";
 
 export type OngoingTaskOperationConfirmType = "enable" | "disable" | "delete";
 
@@ -37,9 +39,11 @@ interface OngoingTaskOperationConfirmProps {
 }
 
 export default function OngoingTaskOperationConfirm(props: OngoingTaskOperationConfirmProps) {
+    const t = useStudioTranslation("shared");
+    const tCommon = useStudioTranslation("common");
     const { type, taskSharedInfos, toggle, onConfirm } = props;
 
-    const taskGroups = getTaskGroups(type, taskSharedInfos).filter((x) => x.tasks.length > 0);
+    const taskGroups = getTaskGroups(type, taskSharedInfos, t).filter((x) => x.tasks.length > 0);
     const warningMessage = getWarningMessage(taskGroups);
 
     const onSubmit = () => {
@@ -102,19 +106,15 @@ export default function OngoingTaskOperationConfirm(props: OngoingTaskOperationC
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="link" onClick={toggle} className="link-muted">
-                    Cancel
+                    {tCommon("cancel")}
                 </Button>
                 <Button variant={getTypeColor(type)} onClick={onSubmit} className="rounded-pill">
                     <Icon icon={getTypeIcon(type)} />
-                    {getInfinitiveForType(type)}
+                    {t("operationConfirm.submit", { context: type })}
                 </Button>
             </Modal.Footer>
         </Modal>
     );
-}
-
-function getInfinitiveForType(type: OngoingTaskOperationConfirmType) {
-    return capitalize(type);
 }
 
 function getTypeColor(type: OngoingTaskOperationConfirmType): ThemeColor {
@@ -167,7 +167,11 @@ function getStatusIcon(status: OngoingTaskState | DestinationStatus): IconName {
     }
 }
 
-function getTaskGroups(type: OngoingTaskOperationConfirmType, tasks: OperationConfirmTaskInfo[]): TaskGroup[] {
+function getTaskGroups(
+    type: OngoingTaskOperationConfirmType,
+    tasks: OperationConfirmTaskInfo[],
+    t: StudioTranslate<"shared">
+): TaskGroup[] {
     switch (type) {
         case "enable": {
             const affectedTaskGrouped = tasks.reduce(
@@ -189,15 +193,18 @@ function getTaskGroups(type: OngoingTaskOperationConfirmType, tasks: OperationCo
             return [
                 {
                     title: (
-                        <>
-                            You&apos;re about to <strong className="text-success">enable</strong> following tasks
-                        </>
+                        <StudioTrans
+                            ns="shared"
+                            i18nKey="operationConfirm.title"
+                            options={{ context: "enable" }}
+                            components={{ strong: <strong className="text-success" /> }}
+                        />
                     ),
                     tasks: affectedTaskGrouped.enabling,
                     destinationStatus: "Enabled",
                 },
                 {
-                    title: "Skipping already enabled tasks",
+                    title: t("operationConfirm.skipping", { context: "enable" }),
                     tasks: affectedTaskGrouped.skipping,
                 },
             ];
@@ -222,15 +229,18 @@ function getTaskGroups(type: OngoingTaskOperationConfirmType, tasks: OperationCo
             return [
                 {
                     title: (
-                        <>
-                            You&apos;re about to <strong className="text-danger">disable</strong> following tasks
-                        </>
+                        <StudioTrans
+                            ns="shared"
+                            i18nKey="operationConfirm.title"
+                            options={{ context: "disable" }}
+                            components={{ strong: <strong className="text-danger" /> }}
+                        />
                     ),
                     tasks: affectedTaskGrouped.disabling,
                     destinationStatus: "Disabled",
                 },
                 {
-                    title: "Skipping already disabled tasks",
+                    title: t("operationConfirm.skipping", { context: "disable" }),
                     tasks: affectedTaskGrouped.skipping,
                 },
             ];
@@ -239,9 +249,12 @@ function getTaskGroups(type: OngoingTaskOperationConfirmType, tasks: OperationCo
             return [
                 {
                     title: (
-                        <>
-                            You&apos;re about to <strong className="text-danger">delete</strong> following tasks
-                        </>
+                        <StudioTrans
+                            ns="shared"
+                            i18nKey="operationConfirm.title"
+                            options={{ context: "delete" }}
+                            components={{ strong: <strong className="text-danger" /> }}
+                        />
                     ),
                     tasks,
                     destinationStatus: "Removed",
@@ -266,20 +279,23 @@ function getWarningMessage(taskGroups: TaskGroup[]): ReactNode {
     if (subscriptionDisableTasksCount === 0) {
         return (
             <small>
-                Please note, <strong>disabling</strong>
-                {allDisableTasksCount === 1 ? " this task " : " these tasks "}will lead to continuous tombstone
-                accumulation until
-                {allDisableTasksCount === 1 ? " it is " : " they are "}re-enabled or deleted, resulting in increased
-                disk space usage.
+                <StudioTrans
+                    ns="shared"
+                    i18nKey="operationConfirm.disablingWarning"
+                    options={{ count: allDisableTasksCount }}
+                    components={{ strong: <strong /> }}
+                />
             </small>
         );
     }
 
     return (
         <small>
-            Please note, <strong>disabling</strong> the selected tasks (excluding <strong>Subscription</strong> tasks)
-            will lead to continuous tombstone accumulation until they are re-enabled or deleted, which will increase
-            disk space usage. This warning does not apply to Subscription tasks.
+            <StudioTrans
+                ns="shared"
+                i18nKey="operationConfirm.disablingWarningWithSubscriptions"
+                components={{ strong: <strong /> }}
+            />
         </small>
     );
 }

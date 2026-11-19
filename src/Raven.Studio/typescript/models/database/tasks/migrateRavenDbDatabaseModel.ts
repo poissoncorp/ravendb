@@ -1,6 +1,9 @@
 ﻿/// <reference path="../../../../typings/tsd.d.ts"/>
 
 import smugglerDatabaseRecord = require("models/database/tasks/smugglerDatabaseRecord");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
 
 type authenticationMethod = "none" | "apiKey" | "windows";
 
@@ -172,14 +175,14 @@ class migrateRavenDbDatabaseModel {
             const productVersion = this.productVersion();
 
             if (!serverMajorVersion || !buildVersionInt) {
-                return "N/A";
+                return t("migrateRavenDb.versionNotAvailable");
             }
 
             let majorVersion: string;
             const buildVersion = buildVersionInt.toString();
             switch (serverMajorVersion) {
                 case "Unknown":
-                    return "Unknown";
+                    return t("migrateRavenDb.versionUnknown");
                 case "V2":
                     majorVersion = "2.x";
                     break;
@@ -194,10 +197,10 @@ class migrateRavenDbDatabaseModel {
                     majorVersion = productVersion;
                     break;
                 default:
-                    return "N/A";
+                    return t("migrateRavenDb.versionNotAvailable");
             }
 
-            return `${majorVersion} (build: ${buildVersion})`;
+            return t("migrateRavenDb.serverVersion", { majorVersion, buildVersion });
         });
 
         this.isRavenDb = ko.pureComputed(() => {
@@ -239,7 +242,7 @@ class migrateRavenDbDatabaseModel {
 
         this.ravenFsImport = ko.pureComputed(() => this.hasRavenFs() && this.importRavenFs());
 
-        this.resourceTypeName = ko.pureComputed(() => this.ravenFsImport() ? "File system" : "Database");
+        this.resourceTypeName = ko.pureComputed(() => t("migrateRavenDb.resourceType", { context: this.ravenFsImport() ? "fileSystem" : "database" }));
 
         this.showWindowsCredentialInputs = ko.pureComputed(() => {
             const authMethod = this.authenticationMethod();
@@ -342,11 +345,11 @@ class migrateRavenDbDatabaseModel {
             validation: [
                 {
                     validator: () => !this.hasRavenFs() || this.authorized(),
-                    message: "Unauthorized access to the server, please enter your credentials"
+                    message: t("migrateRavenDb.unauthorized")
                 },
                 {
                     validator: (value: string) => value,
-                    message: "This field is required."
+                    message: t("migrateRavenDb.fieldRequired")
                 }
             ]
         });
@@ -411,7 +414,7 @@ class migrateRavenDbDatabaseModel {
             validation: [
                 {
                     validator: () => this.importDefinitionHasIncludes(),
-                    message: "Note: At least one 'include' option must be checked..."
+                    message: t("validation.includeOptionRequired")
                 }
             ]
         });
@@ -420,7 +423,7 @@ class migrateRavenDbDatabaseModel {
             validation: [
                 {
                     validator: () => !this.databaseModel.customizeDatabaseRecordTypes() || this.databaseModel.hasIncludes(),
-                    message: "Note: At least one 'configuration' option must be checked..."
+                    message: t("migrateRavenDb.configurationOptionRequired")
                 }
             ]
         });

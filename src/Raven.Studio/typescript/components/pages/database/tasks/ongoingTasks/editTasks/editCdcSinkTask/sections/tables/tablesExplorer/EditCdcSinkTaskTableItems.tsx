@@ -25,6 +25,10 @@ import {
     getRootTableWarningMessagesFromAnalysis,
     RootTablesAnalysis,
 } from "components/pages/database/tasks/ongoingTasks/editTasks/editCdcSinkTask/utils/editCdcSinkTaskTableWarnings";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { createTranslator } from "common/i18n/i18n";
+
+const translate = createTranslator("editCdcSinkTask");
 
 const { explorerRowHeightPx } = editCdcSinkTaskConstants;
 
@@ -51,6 +55,7 @@ interface IndexedRootTable {
 const emptySchemaKey = "";
 
 export function EditCdcSinkTaskTableItems({ filter, rootFieldIds }: EditCdcSinkTaskTableItemsProps) {
+    const t = useStudioTranslation("editCdcSinkTask");
     const parentRef = useRef<HTMLDivElement>(null);
     const expandedTables = useAppSelector((state) => state.editCdcSinkTask.expandedTables);
     const { control } = useFormContext<EditCdcSinkTaskFormData>();
@@ -78,11 +83,11 @@ export function EditCdcSinkTaskTableItems({ filter, rootFieldIds }: EditCdcSinkT
     const activeSchemaLabel = getActiveSchemaLabel(filteredTables, virtualizer.scrollOffset ?? 0);
 
     if (allTables.length === 0) {
-        return <EmptySet compact>Use the Schema Explorer to discover existing tables or add new manually.</EmptySet>;
+        return <EmptySet compact>{t("tablesExplorer.noTables")}</EmptySet>;
     }
 
     if (filteredTables.length === 0) {
-        return <EmptySet compact>No tables match the filter.</EmptySet>;
+        return <EmptySet compact>{t("tablesExplorer.noMatchingTables")}</EmptySet>;
     }
 
     return (
@@ -149,7 +154,7 @@ export function buildExplorerRows({ allTables, expandedTables, filter, rootField
                 type: "schema",
                 path: `schema:${schema}`,
                 rowKey: `schema:${schema}`,
-                label: schema === emptySchemaKey ? "(default schema)" : schema,
+                label: schema === emptySchemaKey ? translate("tablesExplorer.defaultSchema") : schema,
             },
         ];
 

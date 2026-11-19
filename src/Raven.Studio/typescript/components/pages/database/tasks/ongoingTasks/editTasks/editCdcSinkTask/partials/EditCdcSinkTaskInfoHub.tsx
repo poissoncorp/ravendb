@@ -8,14 +8,30 @@ import { FeatureAvailabilityData } from "components/common/FeatureAvailabilitySu
 import { useLimitedFeatureAvailability } from "components/utils/licenseLimitsUtils";
 import { Icon } from "components/common/Icon";
 import { useRavenLink } from "hooks/useRavenLink";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function EditCdcSinkTaskInfoHub() {
+    const t = useStudioTranslation("editCdcSinkTask");
+    const commonT = useStudioTranslation("common");
     const { appUrl } = useAppUrls();
     const activeDatabaseName = useAppSelector(databaseSelectors.activeDatabaseName);
 
     const hasCdcSink = useAppSelector(licenseSelectors.statusValue("HasCdcSink"));
 
     const cdcSinkOverviewDocsLink = useRavenLink({ hash: "36RFXH" });
+
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("featureAvailability.cdcSinkTask"),
+            featureIcon: "cdc-sink",
+            community: { value: false },
+            professional: { value: false },
+            enterprise: { value: true },
+            enterpriseAi: { value: true },
+            quill: { value: true },
+        },
+    ];
 
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
@@ -32,85 +48,100 @@ export default function EditCdcSinkTaskInfoHub() {
             <AccordionItemWrapper
                 icon="about"
                 color="info"
-                heading="About this view"
-                description="Get additional info on this feature"
+                heading={t("about.heading")}
+                description={t("about.description")}
                 targetId="about-view"
             >
                 <div>
-                    A <strong>CDC Sink task</strong> consumes <strong>Change Data Capture</strong> events from tables in
-                    an external relational database, including inserts, updates, and deletes. Each captured change is
-                    applied as a document operation in RavenDB. Supported source databases include:
-                    <br />
-                    <strong>PostgreSQL, SQL Server, and MySQL / MariaDB</strong>.
+                    <StudioTrans
+                        ns="editCdcSinkTask"
+                        i18nKey="about.intro"
+                        components={{ strong: <strong />, br: <br /> }}
+                    />
                     <hr />
-                    Task configuration includes:
+                    {t("about.configurationIncludes")}
                     <ul>
                         <li className="mt-1">
-                            Provide a SQL{" "}
-                            <a href={appUrl.forConnectionStrings(activeDatabaseName, "Sql")} target="_blank">
-                                connection string
-                            </a>{" "}
-                            that points to the source database where CDC is enabled.
+                            <StudioTrans
+                                ns="editCdcSinkTask"
+                                i18nKey="about.connectionStringItem"
+                                components={{
+                                    a: (
+                                        <a
+                                            href={appUrl.forConnectionStrings(activeDatabaseName, "Sql")}
+                                            target="_blank"
+                                        />
+                                    ),
+                                }}
+                            />
                         </li>
                         <li>
-                            Click &quot;Discover tables&quot; under &quot;Schema Explorer&quot; to{" "}
-                            <strong>fetch the available tables</strong> from the source database.
+                            <StudioTrans
+                                ns="editCdcSinkTask"
+                                i18nKey="about.discoverTablesItem"
+                                components={{ strong: <strong /> }}
+                            />
                         </li>
                         <li>
-                            <strong>Configure how each source table is converted to documents:</strong>
+                            <strong>{t("about.configureTablesItem")}</strong>
                             <ul>
                                 <li className="mt-1">
-                                    <strong>Target collection</strong>
-                                    <br />
-                                    Set the target collection where documents generated from rows in the source table
-                                    will be stored.
+                                    <StudioTrans
+                                        ns="editCdcSinkTask"
+                                        i18nKey="about.targetCollectionItem"
+                                        components={{ strong: <strong />, br: <br /> }}
+                                    />
                                 </li>
                                 <li className="mt-1">
-                                    <strong>Field mappings</strong>
-                                    <br />
-                                    Map source columns to document fields and choose how to store each value:
-                                    <br />
-                                    as a regular property, parsed JSON, or a RavenDB attachment.
+                                    <StudioTrans
+                                        ns="editCdcSinkTask"
+                                        i18nKey="about.fieldMappingsItem"
+                                        components={{ strong: <strong />, br: <br /> }}
+                                    />
                                 </li>
                                 <li className="mt-1">
-                                    <strong>Document ID</strong>
-                                    <br />
-                                    Specify the source primary key column or columns used to uniquely identify a row.
-                                    <br />
-                                    Their values are used to derive the RavenDB document ID.
+                                    <StudioTrans
+                                        ns="editCdcSinkTask"
+                                        i18nKey="about.documentIdItem"
+                                        components={{ strong: <strong />, br: <br /> }}
+                                    />
                                 </li>
                                 <li className="mt-1">
-                                    <strong>Related tables</strong>
-                                    <br />
-                                    When a source table references another table, you can configure how the related row
-                                    is represented in the RavenDB document:
+                                    <StudioTrans
+                                        ns="editCdcSinkTask"
+                                        i18nKey="about.relatedTablesItem"
+                                        components={{ strong: <strong />, br: <br /> }}
+                                    />
                                     <ul>
                                         <li>
-                                            <strong>Embedded table</strong> - include the related row’s data in the main
-                                            document as an embedded object.
+                                            <StudioTrans
+                                                ns="editCdcSinkTask"
+                                                i18nKey="about.embeddedTableItem"
+                                                components={{ strong: <strong /> }}
+                                            />
                                         </li>
                                         <li>
-                                            <strong>Linked table</strong> - store the related row as a separate related
-                                            document.
-                                            <br />
-                                            The related document ID is derived from the linked collection name you
-                                            specify and the join column values.
+                                            <StudioTrans
+                                                ns="editCdcSinkTask"
+                                                i18nKey="about.linkedTableItem"
+                                                components={{ strong: <strong />, br: <br /> }}
+                                            />
                                         </li>
                                     </ul>
                                 </li>
                                 <li className="mt-1">
-                                    <strong>Advanced: On-delete behavior</strong>
-                                    <br />
-                                    Choose whether deletes from the source are ignored, propagated as document
-                                    deletions, or transformed by a custom patch script.
+                                    <StudioTrans
+                                        ns="editCdcSinkTask"
+                                        i18nKey="about.onDeleteItem"
+                                        components={{ strong: <strong />, br: <br /> }}
+                                    />
                                 </li>
                                 <li className="mt-1">
-                                    <strong>Advanced: Patch scripts</strong>
-                                    <br />
-                                    You can define JavaScript snippets that customize how changes are applied before
-                                    they are written to RavenDB. Use a <em>patch script</em> to transform documents on
-                                    inserts and updates, and a <em>delete patch script</em> to customize what happens
-                                    when source rows are deleted.
+                                    <StudioTrans
+                                        ns="editCdcSinkTask"
+                                        i18nKey="about.patchScriptsItem"
+                                        components={{ strong: <strong />, br: <br />, em: <em /> }}
+                                    />
                                 </li>
                             </ul>
                         </li>
@@ -118,43 +149,33 @@ export default function EditCdcSinkTaskInfoHub() {
                 </div>
                 <hr />
                 <p>
-                    <strong>Testing:</strong>
-                    <br />
-                    You can test a table configuration to preview the document that will be generated from a sample row
-                    before saving the task.
+                    <StudioTrans
+                        ns="editCdcSinkTask"
+                        i18nKey="about.testing"
+                        components={{ strong: <strong />, br: <br /> }}
+                    />
                 </p>
                 <p>
-                    <strong>Initial load:</strong>
-                    <br />
-                    By default, the task takes a snapshot of existing rows before streaming new changes.
-                    <br />
-                    Enable <strong>Skip initial load</strong> to stream only new changes.
+                    <StudioTrans
+                        ns="editCdcSinkTask"
+                        i18nKey="about.initialLoad"
+                        components={{ strong: <strong />, br: <br /> }}
+                    />
                 </p>
                 <p>
-                    <strong>Ongoing processing:</strong>
-                    <br />
-                    Once the task is active, every committed change in the source tables is captured and applied to
-                    RavenDB. Progress is tracked using the last processed checkpoint.
+                    <StudioTrans
+                        ns="editCdcSinkTask"
+                        i18nKey="about.ongoingProcessing"
+                        components={{ strong: <strong />, br: <br /> }}
+                    />
                 </p>
                 <hr />
-                <div className="small-label mb-2">useful links</div>
+                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                 <a href={cdcSinkOverviewDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - CDC Sink Overview
+                    <Icon icon="newtab" /> {t("about.docsLink")}
                 </a>
             </AccordionItemWrapper>
             <FeatureAvailabilitySummaryWrapper isUnlimited={hasCdcSink} data={featureAvailability} />
         </AboutViewFloating>
     );
 }
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "CDC Sink task",
-        featureIcon: "cdc-sink",
-        community: { value: false },
-        professional: { value: false },
-        enterprise: { value: true },
-        enterpriseAi: { value: true },
-        quill: { value: true },
-    },
-];

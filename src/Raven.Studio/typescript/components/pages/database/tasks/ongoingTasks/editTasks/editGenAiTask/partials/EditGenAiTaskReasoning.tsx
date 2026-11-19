@@ -17,6 +17,7 @@ import useToolQueryDetails from "components/pages/database/aiHub/aiAgents/hooks/
 import { virtualTableUtils } from "components/common/virtualTable/utils/virtualTableUtils";
 import { DotList } from "components/common/dotList/DotList";
 import { aceEditorUtils } from "components/common/ace/aceEditorUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface Message {
     role: "system" | "user" | "assistant" | "tool";
@@ -45,6 +46,8 @@ interface EditGenAiTaskReasoningProps {
 }
 
 export default function EditGenAiTaskReasoning({ conversationDocument }: EditGenAiTaskReasoningProps) {
+    const t = useStudioTranslation("editGenAiTask");
+
     if (!conversationDocument) {
         return null;
     }
@@ -75,7 +78,11 @@ export default function EditGenAiTaskReasoning({ conversationDocument }: EditGen
         <Accordion defaultActiveKey={null} className="reasoning mb-1">
             <Accordion.Item eventKey="advanced-settings" className="border border-secondary rounded-2 panel-bg-2">
                 <Accordion.Header
-                    as={() => <AccordionButton className="rounded-2 panel-bg-2 fs-5 p-1">Reasoning</AccordionButton>}
+                    as={() => (
+                        <AccordionButton className="rounded-2 panel-bg-2 fs-5 p-1">
+                            {t("reasoning.title")}
+                        </AccordionButton>
+                    )}
                 ></Accordion.Header>
                 <Accordion.Body className="p-2">
                     <DotList
@@ -126,9 +133,11 @@ interface SystemMessageProps {
 }
 
 function SystemMessage({ message }: SystemMessageProps) {
+    const t = useStudioTranslation("editGenAiTask");
+
     return (
         <div>
-            <div>Role: system</div>
+            <div>{t("reasoning.role", { context: "system" })}</div>
             <div
                 className="mt-1 p-2 rounded-2 border border-secondary bg-body overflow-auto"
                 style={{ maxHeight: "200px", whiteSpace: "pre-wrap" }}
@@ -144,6 +153,7 @@ interface UserMessageProps {
 }
 
 function UserMessage({ message }: UserMessageProps) {
+    const t = useStudioTranslation("editGenAiTask");
     const aceRef = useRef<ReactAce>(null);
     const prettifiedContent = aiAgentsUtils.getPrettifiedContent(message.content);
     const contentMode = aceEditorUtils.getAceEditorMode(prettifiedContent);
@@ -156,7 +166,7 @@ function UserMessage({ message }: UserMessageProps) {
 
     return (
         <div>
-            <div>Role: user</div>
+            <div>{t("reasoning.role", { context: "user" })}</div>
             <AceEditor
                 aceRef={aceRef}
                 defaultValue={prettifiedContent}
@@ -184,13 +194,15 @@ interface AssistantMessageProps {
 }
 
 function AssistantMessage({ message, toolMessages, parametersFromUser }: AssistantMessageProps) {
+    const t = useStudioTranslation("editGenAiTask");
+
     if (!message.tool_calls?.length) {
         return null;
     }
 
     return (
         <div>
-            <div className="mb-1">Role: assistant</div>
+            <div className="mb-1">{t("reasoning.role", { context: "assistant" })}</div>
             {message.tool_calls.map((toolCall) => (
                 <AssistantToolResponse
                     key={toolCall.id}
@@ -217,6 +229,7 @@ function AssistantToolResponse({
     toolContent,
     parametersFromUser,
 }: AssistantToolResponseProps) {
+    const t = useStudioTranslation("editGenAiTask");
     const id = useId();
 
     return (
@@ -229,7 +242,7 @@ function AssistantToolResponse({
                                 <div className="p-1 rounded-1 bg-faded-primary border border-primary tool-icon">
                                     <Icon icon="hammer" color="primary" margin="m-0" />
                                 </div>
-                                <div className="text-truncate">Tool call: {name}</div>
+                                <div className="text-truncate">{t("reasoning.toolCall", { name })}</div>
                             </div>
                         </AccordionButton>
                     )}
@@ -257,6 +270,7 @@ interface ToolCallBodyProps {
 }
 
 function ToolCallBody({ name, toolContent, parametersFromUser, parametersFromModel }: ToolCallBodyProps) {
+    const t = useStudioTranslation("editGenAiTask");
     const prettifiedArguments = aiAgentsUtils.getPrettifiedContent(parametersFromModel);
     const argumentsMode = aceEditorUtils.getAceEditorMode(prettifiedArguments);
     const rqlLanguageService = useRqlLanguageService();
@@ -279,23 +293,23 @@ function ToolCallBody({ name, toolContent, parametersFromUser, parametersFromMod
         <div className="vstack gap-2">
             {formQueryTool?.description && (
                 <div>
-                    <small className="text-muted">Description</small>
+                    <small className="text-muted">{t("queryTool.description")}</small>
                     <div>{formQueryTool.description}</div>
                     <hr className="my-1" />
                 </div>
             )}
             <div>
                 <div className="d-flex justify-content-between align-items-end">
-                    <small className="text-muted">Query</small>
+                    <small className="text-muted">{t("queryTool.query")}</small>
                     <Button
                         variant="info"
                         className="rounded-pill mb-1"
                         onClick={linkToQuery}
-                        title="Click to test this query in the Studio's Query View"
+                        title={t("queryTool.testQueryTitle")}
                         size="sm"
                     >
                         <Icon icon="rocket" />
-                        Test query
+                        {t("queryTool.testQuery")}
                     </Button>
                 </div>
                 <AceEditor
@@ -308,7 +322,7 @@ function ToolCallBody({ name, toolContent, parametersFromUser, parametersFromMod
                 />
             </div>
             <div>
-                <small className="text-muted">Parameters filled by LLM</small>
+                <small className="text-muted">{t("reasoning.parametersFilledByLlm")}</small>
                 <AceEditor
                     defaultValue={prettifiedArguments}
                     readOnly
@@ -327,6 +341,7 @@ interface QueryToolResponseContentProps {
 }
 
 function QueryToolResponseContent({ content }: QueryToolResponseContentProps) {
+    const t = useStudioTranslation("editGenAiTask");
     const aceRef = useRef<ReactAce>(null);
 
     const isTable = content.startsWith("[") && content.endsWith("]") && content.length > 2;
@@ -354,7 +369,7 @@ function QueryToolResponseContent({ content }: QueryToolResponseContentProps) {
 
     return (
         <div>
-            <div className="text-emphasis">Results: {tableData.length}</div>
+            <div className="text-emphasis">{t("reasoning.results", { count: tableData.length })}</div>
 
             {isTable ? (
                 <VirtualTable

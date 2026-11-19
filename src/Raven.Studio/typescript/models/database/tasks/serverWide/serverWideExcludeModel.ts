@@ -1,6 +1,9 @@
 ﻿/// <reference path="../../../../../typings/tsd.d.ts"/>
 import databasesManager = require("common/shell/databasesManager");
 import jsonUtil = require("common/jsonUtil");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
 
 class serverWideExcludeModel {
     exclude = ko.observable<boolean>();
@@ -48,7 +51,7 @@ class serverWideExcludeModel {
             validation: [
                 {
                     validator: () => !this.exclude() || this.databasesToExclude().length > 0 || (this.isSnapshot() && this.shardedDatabaseNames().length > 0),
-                    message: "No databases added"
+                    message: t("serverWide.noDatabasesAdded")
                 }
             ]
         });

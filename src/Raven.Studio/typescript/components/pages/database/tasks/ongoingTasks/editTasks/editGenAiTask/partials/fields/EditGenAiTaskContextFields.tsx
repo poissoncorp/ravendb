@@ -12,8 +12,11 @@ import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import { Icon } from "components/common/Icon";
 import AceEditor from "components/common/ace/AceEditor";
 import { contextScriptSamplesTabs } from "../../editGenAiTaskSamplesData";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function EditGenAiTaskContextFields() {
+    const t = useStudioTranslation("editGenAiTask");
     const { control, setValue } = useFormContext<EditGenAiTaskFormData>();
 
     const collectionOptions: SelectOption[] = useAppSelector(collectionsTrackerSelectors.collectionNames).map((x) => ({
@@ -27,8 +30,8 @@ export default function EditGenAiTaskContextFields() {
         <>
             <FormGroup>
                 <FormLabel>
-                    Source collection
-                    <PopoverWithHoverWrapper message="Select the collection to use as the source of documents for the task.">
+                    {t("context.sourceCollection")}
+                    <PopoverWithHoverWrapper message={t("context.sourceCollectionInfo")}>
                         <Icon icon="info" color="info" margin="ms-1" />
                     </PopoverWithHoverWrapper>
                 </FormLabel>
@@ -36,15 +39,14 @@ export default function EditGenAiTaskContextFields() {
             </FormGroup>
             <FormGroup>
                 <FormLabel>
-                    Context generation script
+                    {t("context.script")}
                     <PopoverWithHoverWrapper
                         message={
-                            <>
-                                Use <code>ai.genContext</code> in this script to generate a{" "}
-                                <strong>context object</strong> from the source document.
-                                <br />
-                                Each context object will be passed as a separate input to the model.
-                            </>
+                            <StudioTrans
+                                ns="editGenAiTask"
+                                i18nKey="context.scriptInfo"
+                                components={{ code: <code />, strong: <strong />, br: <br /> }}
+                            />
                         }
                     >
                         <Icon icon="info" color="info" margin="ms-1" />

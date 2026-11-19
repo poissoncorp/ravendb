@@ -11,6 +11,7 @@ import { ProgressCircle } from "components/common/ProgressCircle";
 import { Icon } from "components/common/Icon";
 import { withPreventDefault } from "components/utils/common";
 import { ErrorModal } from "components/pages/database/tasks/ongoingTasks/partials/ErrorModal";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface OngoingEtlTaskDistributionProps {
     task: OngoingTaskSubscriptionInfo;
@@ -70,6 +71,7 @@ function ItemWithTooltip(props: ItemWithTooltipProps) {
 
 export function SubscriptionTaskDistribution(props: OngoingEtlTaskDistributionProps) {
     const { task } = props;
+    const t = useStudioTranslation("ongoingTasks");
     const sharded = task.nodesInfo.some((x) => x.location.shardNumber != null);
 
     const visibleNodes = task.nodesInfo.filter((x) => x.details && x.details.taskConnectionStatus !== "NotOnThisNode");
@@ -90,17 +92,17 @@ export function SubscriptionTaskDistribution(props: OngoingEtlTaskDistributionPr
                     <div className="top"></div>
                     {sharded && (
                         <div className="node">
-                            <Icon icon="node" /> Node
+                            <Icon icon="node" /> {t("distribution.node")}
                         </div>
                     )}
                     <div>
-                        <Icon icon="connected" /> Status
+                        <Icon icon="connected" /> {t("distribution.status")}
                     </div>
                     <div>
-                        <Icon icon="warning" /> Error
+                        <Icon icon="warning" /> {t("error")}
                     </div>
                     <div>
-                        <Icon icon="changes" /> State
+                        <Icon icon="changes" /> {t("distribution.state")}
                     </div>
                 </DistributionLegend>
                 {items}
@@ -116,6 +118,7 @@ interface SubscriptionTaskProgressProps {
 
 export function SubscriptionTaskProgress(props: SubscriptionTaskProgressProps) {
     const { nodeInfo } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     if (nodeInfo.status === "failure") {
         return <ProgressCircle state="running" icon="warning" />;
@@ -123,7 +126,7 @@ export function SubscriptionTaskProgress(props: SubscriptionTaskProgressProps) {
 
     return (
         <ProgressCircle state="running" icon="check">
-            OK
+            {t("progressCircle.ok")}
         </ProgressCircle>
     );
 }

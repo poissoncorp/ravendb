@@ -1,4 +1,8 @@
-﻿interface compressionLevelOption {
+﻿import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
+
+interface compressionLevelOption {
     name: string;
     fullName: System.IO.Compression.CompressionLevel;
 }
@@ -9,18 +13,22 @@ interface compressionAlgorithmLevelOption {
 }
 
 class snapshot {
-    static readonly compressionLevelDictionary: compressionLevelOption[] = [
-        { name: "Optimal", fullName: "Optimal" },
-        { name: "Fastest", fullName: "Fastest" },
-        { name: "No Compression", fullName: "NoCompression" },
-        { name: "Smallest Size", fullName: "SmallestSize" }
-    ];
+    static get compressionLevelDictionary(): compressionLevelOption[] {
+        return [
+            { name: t("backup.compressionLevels.optimal"), fullName: "Optimal" },
+            { name: t("backup.compressionLevels.fastest"), fullName: "Fastest" },
+            { name: t("backup.compressionLevels.noCompression"), fullName: "NoCompression" },
+            { name: t("backup.compressionLevels.smallestSize"), fullName: "SmallestSize" }
+        ];
+    }
 
-    static readonly compressionAlgorithmDictionary: compressionAlgorithmLevelOption[] = [
-        { name: "Default", fullName: null },
-        { name: "Zstd", fullName: "Zstd" },
-        { name: "Deflate", fullName: "Deflate" }
-    ];
+    static get compressionAlgorithmDictionary(): compressionAlgorithmLevelOption[] {
+        return [
+            { name: t("backup.compressionAlgorithms.default"), fullName: null },
+            { name: "Zstd", fullName: "Zstd" },
+            { name: "Deflate", fullName: "Deflate" }
+        ];
+    }
 
     compressionLevelOptions = snapshot.compressionLevelDictionary.map(x => x.name);
 

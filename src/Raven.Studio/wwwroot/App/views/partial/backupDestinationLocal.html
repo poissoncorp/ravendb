@@ -1,5 +1,5 @@
 <div class="row margin-bottom" data-bind="validationElement: folderPath">
-    <label class="control-label col-xs-12 col-sm-6 col-lg-4" data-bind="text: container === 'backup' ? 'Backup directory' : 'Folder path'">
+    <label class="control-label col-xs-12 col-sm-6 col-lg-4" data-bind="i18n: container === 'backup' ? 'editOlapEtlTask:localDestination.backupDirectory' : 'editOlapEtlTask:localDestination.folderPath'">
         <i class="required"></i>
     </label>
     <div class="col-xs-12 col-sm-6 col-lg-8" data-bind="validationElement: folderPath, validationOptions: { insertMessages: false }">
@@ -7,7 +7,7 @@
         <div class="dropdown btn-block">
             <input type="text" class="form-control dropdown-toggle" data-toggle="dropdown"
                    id="localFolderPath"
-                   data-bind="textInput: folderPath, attr: { 'placeholder': $root.serverConfiguration().LocalRootPath ? 'Relative path' : 'Full directory path' }, hasFocus: folderPathHasFocus" />
+                   data-bind="textInput: folderPath, i18nAttr: { placeholder: $root.serverConfiguration().LocalRootPath ? 'editOlapEtlTask:localDestination.relativePathPlaceholder' : 'editOlapEtlTask:localDestination.fullPathPlaceholder' }, hasFocus: folderPathHasFocus" />
             <span class="caret dropdown-toggle" data-toggle="dropdown"></span>
             <ul class="dropdown-menu" data-bind="foreach: $parent.folderPathOptions, autoComplete: '#localFolderPath'">
                 <li data-bind="click: $parent.localPathChanged">
@@ -22,7 +22,7 @@
     <label class="control-label col-xs-12 col-sm-6 col-lg-4"></label>
     <div class="col-xs-12 col-sm-6 col-lg-8" data-bind="visible: $parent.locationInfo().length">
         <div class="text-info bg-info padding padding-sm">
-            <span>The files will be created in:</span><br/>
+            <span data-bind="i18n: 'editOlapEtlTask:localDestination.filesLocation'"></span><br/>
             <div data-bind="if: $parent.spinners.locationInfoLoading">
                 <span class="global-spinner"></span>
             </div>
@@ -30,23 +30,23 @@
                 <ul data-bind="foreach: $parent.locationInfo" class="text-info bg-info">
                     <li>
                         <small>
-                            Node Tag: <strong data-bind="text: NodeTag"></strong>
+                            <span data-bind="i18n: 'editOlapEtlTask:localDestination.nodeTag'"></span> <strong data-bind="text: NodeTag"></strong>
                             <br/>
-                            Path: <strong data-bind="text: $parents[1].localSettings().container() === 'backup' && $parents[1].isServerWide() ? FullPath + '\\{DATABASE-NAME}\\' : FullPath"></strong><br />
+                            <span data-bind="i18n: 'editOlapEtlTask:localDestination.path'"></span> <strong data-bind="text: $parents[1].localSettings().container() === 'backup' && $parents[1].isServerWide() ? FullPath + '\\{DATABASE-NAME}\\' : FullPath"></strong><br />
                                                         
                             <!-- ko if: Error -->
-                            Error: <strong data-bind="text: Error"></strong>
+                            <span data-bind="i18n: 'editOlapEtlTask:localDestination.error'"></span> <strong data-bind="text: Error"></strong>
                             <!-- /ko -->
                             <!-- ko ifnot: Error -->
-                            Free Disk Space:
+                            <span data-bind="i18n: 'editOlapEtlTask:localDestination.freeDiskSpace'"></span>
                             <span data-bind="if: FreeSpaceHumane">
                                                         <strong data-bind="text: FreeSpaceHumane"></strong>
                                                     </span>
                             <span data-bind="if: TotalSpaceHumane">
-                                                        (Total: <strong data-bind="text: TotalSpaceHumane"></strong>)
+                                                        <span data-bind="html: $root.totalSpaceHtml(TotalSpaceHumane)"></span>
                                                     </span>
                             <span data-bind="if: !FreeSpaceHumane">
-                                                        <strong>(Path is unreachable)</strong>
+                                                        <strong data-bind="i18n: 'editOlapEtlTask:localDestination.pathUnreachable'"></strong>
                                                     </span>
                             <!-- /ko -->
                         </small>

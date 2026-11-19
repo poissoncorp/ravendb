@@ -6,6 +6,7 @@ import {
     EditCdcSinkTaskVerification,
     useEditCdcSinkTaskWatchedVerification,
 } from "components/pages/database/tasks/ongoingTasks/editTasks/editCdcSinkTask/hooks/useEditCdcSinkTaskVerification";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface EditCdcSinkTaskFooterProps {
     asyncVerify: EditCdcSinkTaskVerification;
@@ -22,6 +23,8 @@ export default function EditCdcSinkTaskFooter({
     isDisabled,
     onCancel,
 }: EditCdcSinkTaskFooterProps) {
+    const t = useStudioTranslation("editCdcSinkTask");
+    const commonT = useStudioTranslation("common");
     const watchedVerification = useEditCdcSinkTaskWatchedVerification(asyncVerify);
 
     return (
@@ -29,7 +32,7 @@ export default function EditCdcSinkTaskFooter({
             <EditCdcSinkTaskVerificationAlert result={watchedVerification.result} className="px-3 pb-2" />
             <div className="hstack justify-content-between gap-2 py-2 px-3 border-top border-secondary">
                 <Button variant="outline-secondary" className="rounded-pill" onClick={onCancel} disabled={isSubmitting}>
-                    Cancel
+                    {commonT("cancel")}
                 </Button>
                 <div className="hstack gap-2">
                     <EditCdcSinkTaskVerifyButton
@@ -45,7 +48,7 @@ export default function EditCdcSinkTaskFooter({
                         isSpinning={isSubmitting}
                         icon="save"
                     >
-                        Save task configuration
+                        {t("footer.save")}
                     </ButtonWithSpinner>
                 </div>
             </div>

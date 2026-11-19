@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksCommands");
 
 class delayBackupCommand extends commandBase {
     private databaseName: string;
@@ -25,8 +28,8 @@ class delayBackupCommand extends commandBase {
         const url = endpoints.global.adminDatabases.adminBackupTaskDelay + this.urlEncodeArgs(args);
         
         return this.post(url, null, null,  { dataType: undefined })
-            .done(() => this.reportSuccess("Backup was delayed"))
-            .fail(response => this.reportError("Failed to delay backup task", response.responseText, response.statusText));
+            .done(() => this.reportSuccess(t("backupDelayed")))
+            .fail(response => this.reportError(t("backupDelayFailed"), response.responseText, response.statusText));
     }
 }
 

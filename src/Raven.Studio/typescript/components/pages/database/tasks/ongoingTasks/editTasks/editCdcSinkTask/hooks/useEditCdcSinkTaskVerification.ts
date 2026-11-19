@@ -14,7 +14,11 @@ import isEqual from "lodash/isEqual";
 import { useRef } from "react";
 import { useAsyncCallback } from "react-async-hook";
 import { UseFormReturn, useFormContext, useWatch } from "react-hook-form";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { createTranslator } from "common/i18n/i18n";
 import CdcTestResult = Raven.Client.Documents.Operations.CdcSink.Test.CdcTestResult;
+
+const translate = createTranslator("editCdcSinkTask");
 
 const verifiedFields = ["connectionStringName", "postgresPublicationName", "postgresSlotName", "tables"] as const;
 
@@ -41,7 +45,9 @@ export interface EditCdcSinkTaskVerificationStatus {
 
 const requestFailedResult: CdcTestResult = {
     Success: false,
-    Error: "The dry run request failed. Check the Notification Center for details.",
+    get Error() {
+        return translate("verification.requestFailed");
+    },
     CompletedTables: [],
     Warnings: [],
 };
@@ -53,6 +59,7 @@ function pickVerifiedInputs(formData: EditCdcSinkTaskFormData): VerifiedInputs {
 export function useEditCdcSinkTaskVerification(
     editForm: UseFormReturn<EditCdcSinkTaskFormData>
 ): EditCdcSinkTaskVerification {
+    const t = useStudioTranslation("editCdcSinkTask");
     const { tasksService } = useServices();
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const taskId = useAppSelector(editCdcSinkTaskSelectors.taskId);
@@ -75,7 +82,9 @@ export function useEditCdcSinkTaskVerification(
     const asyncVerify = useAsyncCallback(async (formData: EditCdcSinkTaskFormData) => {
         const connection = await findSqlConnection(formData.connectionStringName);
         if (!connection) {
-            messagePublisher.reportError(`Connection string '${formData.connectionStringName}' was not found.`);
+            messagePublisher.reportError(
+                t("verification.connectionStringNotFound", { connectionStringName: formData.connectionStringName })
+            );
             return null;
         }
 

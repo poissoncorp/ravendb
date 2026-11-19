@@ -4,23 +4,21 @@
             <button type="button" class="close" data-bind="click: cancel" aria-hidden="true">
                 <i class="icon-cancel"></i>
             </button>
-            <h4 class="modal-title">Backup Now</h4>
+            <h4 class="modal-title" data-bind="i18n: 'ongoingTasks:periodicBackup.backupNowDialog.title'"></h4>
         </div>
         <div class="modal-body">
-            <div>
-                Please select backup type
-            </div>
+            <div data-bind="i18n: 'ongoingTasks:periodicBackup.backupNowDialog.selectType'"></div>
         </div>
         <div class="modal-footer">
             <div class="text-right">
                 <button data-bind="click: fullBackup, attr: { 'title': fullBackupType }" type="button" class="btn btn-success">
                     <i class="icon-backups"></i><span data-bind="text: fullBackupType"></span>
                 </button>
-                <button data-bind="click: incrementalBackup" type="button" class="btn btn-info" title="Incremental Backup">
-                    <i class="icon-backups"></i><span>Incremental Backup</span>
+                <button data-bind="click: incrementalBackup, i18nAttr: { title: 'ongoingTasks:periodicBackup.backupNowDialog.incremental' }" type="button" class="btn btn-info">
+                    <i class="icon-backups"></i><span data-bind="i18n: 'ongoingTasks:periodicBackup.backupNowDialog.incremental'"></span>
                 </button>
                 <button type="button" class=" btn btn-default" data-bind="click: cancel"><i class="icon-cancel">
-                </i><span>Cancel</span></button>
+                </i><span data-bind="i18n: 'common:cancel'"></span></button>
             </div>
         </div>
     </div>

@@ -1,5 +1,8 @@
 ﻿/// <reference path="../../../../typings/tsd.d.ts"/>
 import generalUtils = require("common/generalUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
 
 class ongoingTaskReplicationHubEditModel {
 
@@ -41,7 +44,7 @@ class ongoingTaskReplicationHubEditModel {
         this.humaneDelayDescription = ko.pureComputed(() => {
             const delayTimeHumane = generalUtils.formatTimeSpan(this.delayReplicationTime() * 1000, true);
             return this.showDelayReplication() && this.delayReplicationTime.isValid() && this.delayReplicationTime() !== 0 ?
-                `Documents will be replicated after a delay time of <strong>${delayTimeHumane}</strong>` : "";
+                t("delayDescription", { delayTimeHumane: generalUtils.escapeHtml(delayTimeHumane) }) : "";
         });
         
         this.replicationMode = ko.pureComputed(() => {
@@ -56,10 +59,10 @@ class ongoingTaskReplicationHubEditModel {
 
         this.stateText = ko.pureComputed(() => {
             if (this.disabled()) {
-                return "Disabled";
+                return t("state.disabled");
             }
             
-            return "Enabled";
+            return t("state.enabled");
         });
     }
     
@@ -112,7 +115,7 @@ class ongoingTaskReplicationHubEditModel {
             validation: [
                 {
                     validator: () => !this.showDelayReplication() || !!this.delayReplicationTime(),
-                    message: "Please enter a value greater than 0"
+                    message: t("validation.valueGreaterThanZero")
                 }
             ],
             min: 0
@@ -122,7 +125,7 @@ class ongoingTaskReplicationHubEditModel {
             validation: [
                 {
                     validator: () => this.replicationMode() !== "None",
-                    message: "Please select at least one replication mode"
+                    message: t("validation.replicationModeRequired")
                 }
             ]
         })

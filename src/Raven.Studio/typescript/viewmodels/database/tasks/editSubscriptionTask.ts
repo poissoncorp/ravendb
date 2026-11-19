@@ -28,6 +28,9 @@ import popoverUtils = require("common/popoverUtils");
 import licenseLimitsUtils = require("components/utils/licenseLimitsUtils");
 import getDatabaseLicenseLimitsUsage = require("commands/licensing/getDatabaseLicenseLimitsUsage");
 import getClusterLicenseLimitsUsage = require("commands/licensing/getClusterLicenseLimitsUsage");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("editSubscriptionTask");
 
 type testTabName = "results" | perCollectionIncludes;
 type fetcherType = (skip: number, take: number) => JQueryPromise<pagedResult<documentObject>>;
@@ -63,6 +66,10 @@ class editSubscriptionTask extends shardViewModelBase {
     clusterLicenseLimitsUsage = ko.observable<Raven.Server.Commercial.LicenseLimitsUsage>();
 
     hasRevisionsInSubscriptions = licenseModel.getStatusValue("HasRevisionsInSubscriptions");
+    readonly revisionsLicenseHtml = t("task.revisionsLicense", { upgradeUrl: "https://ravendb.net/l/FLDLO4" })
+        .replace("<strong>", `<strong class="text-warning"><i class="icon-license"></i><span>`)
+        .replace("</strong>", "</span></strong>")
+        .replace("<subscriptionIcon/>", `<i class="icon-subscription"></i>`);
     maxNumberOfSubscriptionsPerCluster = licenseModel.getStatusValue("MaxNumberOfSubscriptionsPerCluster");
     maxNumberOfSubscriptionsPerDatabase = licenseModel.getStatusValue("MaxNumberOfSubscriptionsPerDatabase");
 
@@ -115,13 +122,13 @@ class editSubscriptionTask extends shardViewModelBase {
 
         this.cloneButtonTitle = ko.pureComputed(() => {
             if (this.databaseLimitStatus() === "limitReached") {
-                return "The database has reached the maximum number of subscriptions allowed by your license per database.";
+                return t("cloneTitle", { context: "databaseLimitReached" });
             }
             if (this.clusterLimitStatus() === "limitReached") {
-                return "The cluster has reached the maximum number of subscriptions allowed by your license per cluster.";
+                return t("cloneTitle", { context: "clusterLimitReached" });
             }
 
-            return "Clone this subscription";
+            return t("cloneTitle");
         });
     }
 
@@ -180,18 +187,12 @@ class editSubscriptionTask extends shardViewModelBase {
                 content:
                     `<div class="margin-bottom-sm margin-top-sm margin-left-xs">
                          <div class="margin-bottom-xs">
-                              Available options:
+                              ${t("archived.availableOptions")}
                          </div>
                          <ul class="small">
-                             <li class="margin-bottom-xs"><strong>Archived Only</strong><br />
-                                 Only archived documents will be included in processing.
-                             </li>
-                             <li class="margin-bottom-xs"><strong>Exclude Archived</strong> (Default behavior)<br />
-                                 Only non-archived documents will be included in processing.
-                             </li>
-                             <li class="margin-bottom-xs"><strong>Include Archived</strong><br />
-                                 Both archived and non-archived documents will be included in processing.
-                             </li>
+                             <li class="margin-bottom-xs">${t("archived.archivedOnlyInfo")}</li>
+                             <li class="margin-bottom-xs">${t("archived.excludeArchivedInfo")}</li>
+                             <li class="margin-bottom-xs">${t("archived.includeArchivedInfo")}</li>
                          </ul>
                      </div>`
             });
@@ -418,17 +419,30 @@ class editSubscriptionTask extends shardViewModelBase {
 
     formatArchivedDataProcessingBehavior(mode: Raven.Client.Documents.DataArchival.ArchivedDataProcessingBehavior) {
         if (!mode) {
-            return "Default";
+            return t("archived.default");
         }
         switch (mode) {
             case "ArchivedOnly":
-                return "Archived Only";
+                return t("archived.archivedOnly");
             case "IncludeArchived":
-                return "Include Archived";
+                return t("archived.includeArchived");
             case "ExcludeArchived":
-                return "Exclude Archived";
+                return t("archived.excludeArchived");
             default:
                 assertUnreachable.default(mode);
+        }
+    }
+
+    formatStartingPointType(type: subscriptionStartType) {
+        switch (type) {
+            case "Beginning of Time":
+                return t("startingPoint.beginningOfTime");
+            case "Latest Document":
+                return t("startingPoint.latestDocument");
+            case "Change Vector":
+                return t("startingPoint.changeVector");
+            default:
+                return type;
         }
     }
     

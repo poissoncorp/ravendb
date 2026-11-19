@@ -26,6 +26,7 @@ import { useAppSelector } from "components/store";
 import { Icon } from "components/common/Icon";
 import { EtlPanelBaseProps, useEtlPanel } from "./etlPanelUtils";
 import { TaskPanelErrors, EtlPanelHealthBadge, EtlPanelProgressItem, EtlPanelToggleButton } from "./EtlPanelComponents";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 import copyToClipboard from "common/copyToClipboard";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 
@@ -33,6 +34,7 @@ type GenAiPanelProps = EtlPanelBaseProps<OngoingTaskGenAiInfo>;
 
 export function GenAiPanel(props: GenAiPanelProps) {
     const { data, toggleSelection, isSelected, onTaskOperation, isDeleting, isTogglingState, etlStats } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     const { forCurrentDatabase } = useAppUrls();
     const editUrl = forCurrentDatabase.editGenAi(data.shared.taskId)();
@@ -91,16 +93,16 @@ export function GenAiPanel(props: GenAiPanelProps) {
             </RichPanelHeader>
             <RichPanelDetails>
                 <EtlPanelToggleButton detailsVisible={detailsVisible} toggleDetails={toggleDetails} />
-                <RichPanelDetailItem label="Type">
+                <RichPanelDetailItem label={t("taskDetails.type")}>
                     <Icon icon="genai" />
-                    GenAI
+                    {t("taskType.genAi")}
                 </RichPanelDetailItem>
                 {identifier && (
-                    <RichPanelDetailItem label="Identifier">
+                    <RichPanelDetailItem label={t("taskDetails.identifier")}>
                         {identifier}
                         <Button
                             variant="link"
-                            onClick={() => copyToClipboard.copy(identifier, "Identifier copied to clipboard")}
+                            onClick={() => copyToClipboard.copy(identifier, t("taskDetails.identifierCopied"))}
                             size="xs"
                         >
                             <Icon icon="copy-to-clipboard" />
@@ -108,7 +110,10 @@ export function GenAiPanel(props: GenAiPanelProps) {
                     </RichPanelDetailItem>
                 )}
                 {nextBatchStartingPoint && (
-                    <RichPanelDetailItem label="Next Batch Starting Point" contentClassName="d-flex align-items-center">
+                    <RichPanelDetailItem
+                        label={t("taskDetails.nextBatchStartingPoint")}
+                        contentClassName="d-flex align-items-center"
+                    >
                         <div className="text-truncate" style={{ maxWidth: "200px" }}>
                             {nextBatchStartingPoint}
                         </div>
@@ -124,7 +129,7 @@ export function GenAiPanel(props: GenAiPanelProps) {
                         <Button
                             variant="link"
                             onClick={() =>
-                                copyToClipboard.copy(nextBatchStartingPoint, "Change vector copied to clipboard")
+                                copyToClipboard.copy(nextBatchStartingPoint, t("taskDetails.changeVectorCopied"))
                             }
                             size="xs"
                         >

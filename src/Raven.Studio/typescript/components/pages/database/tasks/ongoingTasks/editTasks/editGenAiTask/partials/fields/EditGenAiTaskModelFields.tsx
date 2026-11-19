@@ -23,8 +23,11 @@ import useEditGenAiTaskToolsSection from "../../hooks/useEditGenAiTaskToolsSecti
 import useBoolean from "components/hooks/useBoolean";
 import EditGenAiTaskQueryToolItem from "./EditGenAiTaskQueryToolItem";
 import { jsonSchemaSamplesTabs, promptSamplesTabs, sampleObjectSamplesTabs } from "../../editGenAiTaskSamplesData";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function EditGenAiTaskModelFields() {
+    const t = useStudioTranslation("editGenAiTask");
     const { control, setValue } = useFormContext<EditGenAiTaskFormData>();
     const toolsEditor = useEditGenAiTaskToolsSection();
     const { value: isToolsPanelOpen, setValue: setIsToolsPanelOpen, toggle: toggleIsToolsPanelOpen } = useBoolean(true);
@@ -39,14 +42,10 @@ export default function EditGenAiTaskModelFields() {
         <>
             <FormGroup>
                 <FormLabel>
-                    Prompt
+                    {t("model.prompt")}
                     <PopoverWithHoverWrapper
                         message={
-                            <>
-                                Define the instruction that will be sent to the model.
-                                <br />
-                                It will be applied to each context object generated in the previous step.
-                            </>
+                            <StudioTrans ns="editGenAiTask" i18nKey="model.promptInfo" components={{ br: <br /> }} />
                         }
                     >
                         <Icon icon="info" color="info" margin="ms-1" />
@@ -71,7 +70,7 @@ export default function EditGenAiTaskModelFields() {
                                         Message: getRefinePromptMessage(formValues),
                                     }}
                                     acceptResult={(text) => setValue("prompt", text)}
-                                    successMessage="AI refined your prompt based on your input and information from the previous steps."
+                                    successMessage={t("model.aiAssistSuccess")}
                                     closeWindow={toggleIsAiAssistOpen}
                                     right="48px"
                                 />
@@ -98,16 +97,14 @@ export default function EditGenAiTaskModelFields() {
             />
             <div className="hstack mt-3 mb-1">
                 <h3 className="mb-0">
-                    Define query tools
+                    {t("model.queryToolsTitle")}
                     <PopoverWithHoverWrapper
                         message={
-                            <>
-                                Define queries that the LLM can use to retrieve data from the database.
-                                <br />
-                                <br />
-                                These queries are executed in the background by an agent. The LLM does not access the
-                                database directly.
-                            </>
+                            <StudioTrans
+                                ns="editGenAiTask"
+                                i18nKey="model.queryToolsInfo"
+                                components={{ br: <br /> }}
+                            />
                         }
                     >
                         <Icon icon="info-new" />
@@ -124,11 +121,11 @@ export default function EditGenAiTaskModelFields() {
                                 <div className="tool-icon bg-faded-primary border border-primary">
                                     <Icon icon="query" color="primary" margin="m-0" />
                                 </div>
-                                <div>Query tools</div>
+                                <div>{t("model.queryTools")}</div>
                             </div>
                             <Button variant="primary" className="rounded-pill" onClick={toolsEditor.handleAddQuery}>
                                 <Icon icon="plus" />
-                                Add new query tool
+                                {t("model.addQueryTool")}
                             </Button>
                         </div>
                         <div className="vstack">
@@ -151,6 +148,7 @@ export default function EditGenAiTaskModelFields() {
 }
 
 function TracingFields() {
+    const t = useStudioTranslation("editGenAiTask");
     const { control } = useFormContext<EditGenAiTaskFormData>();
 
     const formValues = useWatch({
@@ -161,17 +159,14 @@ function TracingFields() {
         <>
             <FormGroup marginClass="mb-0 mt-2">
                 <FormSwitch control={control} name="isEnableTracing">
-                    Enable conversation documents
+                    {t("model.enableTracing")}
                     <PopoverWithHoverWrapper
                         message={
-                            <>
-                                Toggle on to store the internal interaction between the GenAI Task, the LLM, and the
-                                agent that runs in the background (including query calls and responses) as a
-                                conversation document in the <code>@conversations</code> collection.
-                                <br />
-                                <br />
-                                The document ID will be prefixed with the GenAI Task ID.
-                            </>
+                            <StudioTrans
+                                ns="editGenAiTask"
+                                i18nKey="model.enableTracingInfo"
+                                components={{ code: <code />, br: <br /> }}
+                            />
                         }
                     >
                         <Icon icon="info-new" />
@@ -181,8 +176,8 @@ function TracingFields() {
             {formValues.isEnableTracing && (
                 <FormGroup marginClass="mt-1">
                     <FormSwitch control={control} name="isSetTracingExpiration">
-                        Set conversation documents expiration
-                        <PopoverWithHoverWrapper message="Toggle on to set how long conversation documents are retained.">
+                        {t("model.setTracingExpiration")}
+                        <PopoverWithHoverWrapper message={t("model.setTracingExpirationInfo")}>
                             <Icon icon="info-new" />
                         </PopoverWithHoverWrapper>
                     </FormSwitch>

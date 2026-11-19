@@ -29,6 +29,9 @@ import { databaseSelectors } from "components/common/shell/databaseSliceSelector
 import DatabaseUtils from "components/utils/DatabaseUtils";
 import { accessManagerSelectors } from "components/common/shell/accessManagerSliceSelectors";
 import { clusterSelectors } from "components/common/shell/clusterSlice";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import type { StudioTranslate } from "common/i18n/resources";
 
 interface manualBackupListModel {
     backupType: Raven.Client.Documents.Operations.Backups.BackupType;
@@ -38,11 +41,11 @@ interface manualBackupListModel {
     lastFullBackup: string;
 }
 
-function mapManualBackup(dto: PeriodicBackupStatus): manualBackupListModel {
+function mapManualBackup(dto: PeriodicBackupStatus, t: StudioTranslate<"backups">): manualBackupListModel {
     const destinations: string[] = [];
 
     if (dto.LocalBackup && dto.LocalBackup.BackupDirectory) {
-        destinations.push("Local");
+        destinations.push(t("manualBackup.destinationLocal"));
     }
     if (!dto.UploadToS3.Skipped) {
         destinations.push("S3");
@@ -77,10 +80,15 @@ interface ManualBackupProps {
 }
 
 function ManualBackup(props: ManualBackupProps) {
+    const t = useStudioTranslation("backups");
     const { model } = props;
 
     if (model.status === "failure") {
-        return <div className="bg-danger">Unable to load data: {model.error.responseJSON.Message}</div>;
+        return (
+            <div className="bg-danger">
+                {t("manualBackup.loadError", { message: model.error.responseJSON.Message })}
+            </div>
+        );
     }
 
     if (model.status === "loading" || model.status === "idle") {
@@ -96,41 +104,43 @@ function ManualBackup(props: ManualBackupProps) {
     if (!backup) {
         return (
             <div className="manual-backup">
-                <EmptySet>No manual backup created</EmptySet>
+                <EmptySet>{t("manualBackup.empty")}</EmptySet>
             </div>
         );
     }
 
     const lastFullBackupHumanized = backup.lastFullBackup
         ? genUtils.formatDurationByDate(moment.utc(backup.lastFullBackup), true)
-        : "Never backed up";
+        : t("manualBackup.neverBackedUp");
 
     return (
         <RichPanel className="destination-item recent-backup">
             <RichPanelHeader className="flex-horizontal p-2">
                 <RichPanelDetails className="p-0">
-                    <RichPanelDetailItem label="Recent Backup" title={lastFullBackupHumanized}>
+                    <RichPanelDetailItem label={t("manualBackup.recentBackup")} title={lastFullBackupHumanized}>
                         {lastFullBackupHumanized}
                     </RichPanelDetailItem>
-                    <RichPanelDetailItem label="Type">{backup.backupType}</RichPanelDetailItem>
-                    <RichPanelDetailItem label="Destinations">
-                        {backup.destinations ? backup.destinations.join(", ") : "No destinations defined"}
+                    <RichPanelDetailItem label={t("manualBackup.type")}>
+                        {t("manualBackup.backupType", { context: backup.backupType })}
+                    </RichPanelDetailItem>
+                    <RichPanelDetailItem label={t("manualBackup.destinations")}>
+                        {backup.destinations ? backup.destinations.join(", ") : t("manualBackup.noDestinations")}
                     </RichPanelDetailItem>
                 </RichPanelDetails>
 
                 <FlexGrow />
                 <div className="flex-horizontal align-items-center p-2">
                     {backup.encrypted ? (
-                        <div title="Backup is encrypted">
+                        <div title={t("manualBackup.encrypted")}>
                             <Icon icon="encryption" color="success" margin="m-0" />
                         </div>
                     ) : (
-                        <div title="Backup is not encrypted">
+                        <div title={t("manualBackup.notEncrypted")}>
                             <Icon icon="unlock" color="muted" margin="m-0" />
                         </div>
                     )}
 
-                    <div className="text-node ms-3" title="Cluster node that created this backup">
+                    <div className="text-node ms-3" title={t("manualBackup.nodeTitle")}>
                         <Icon icon="cluster-node" />
                         <span>{backup.nodeTag}</span>
                     </div>
@@ -141,6 +151,8 @@ function ManualBackup(props: ManualBackupProps) {
 }
 
 export function BackupsPage() {
+    const t = useStudioTranslation("backups");
+    const tCommon = useStudioTranslation("common");
     const isClusterAdminOrClusterNode = useAppSelector(accessManagerSelectors.isClusterAdminOrClusterNode);
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
     const hasDatabaseWriteAccess = useAppSelector(accessManagerSelectors.getHasDatabaseWriteAccess)();
@@ -189,7 +201,7 @@ export function BackupsPage() {
                 const manualBackup = await tasksService.getManualBackup(db.name);
 
                 setManualBackup({
-                    data: manualBackup.Status ? mapManualBackup(manualBackup.Status) : null,
+                    data: manualBackup.Status ? mapManualBackup(manualBackup.Status, t) : null,
                     status: "success",
                 });
             } catch (e) {
@@ -200,7 +212,7 @@ export function BackupsPage() {
                 });
             }
         },
-        [db.name, tasksService]
+        [db.name, tasksService, t]
     );
 
     const reload = useCallback(async () => {
@@ -282,37 +294,43 @@ export function BackupsPage() {
                         <Button
                             variant="secondary"
                             onClick={navigateToRestoreDatabase}
-                            title="Navigate to creating a new database from a backup"
+                            title={t("restoreDatabase.title")}
                         >
-                            <Icon icon="restore-backup" /> Restore a database from a backup
+                            <Icon icon="restore-backup" /> {t("restoreDatabase.button")}
                         </Button>
                         <FlexGrow />
                         <AboutViewFloating>
                             <AccordionItemWrapper targetId="1" icon="about" color="info">
                                 <p>
-                                    <strong>Backups</strong> save your data at a specific point in time and allow you to
-                                    restore your database to that point.
+                                    <StudioTrans
+                                        ns="backups"
+                                        i18nKey="about.backups"
+                                        components={{ strong: <strong /> }}
+                                    />
                                 </p>
                                 <div>
-                                    This view enables creating:
+                                    {t("about.viewEnablesCreating")}
                                     <ul>
                                         <li className="margin-top-xxs">
-                                            <strong>Manual Backup</strong>
-                                            <br />
-                                            Create a one-time backup for this database.
+                                            <StudioTrans
+                                                ns="backups"
+                                                i18nKey="about.manualBackup"
+                                                components={{ strong: <strong />, br: <br /> }}
+                                            />
                                         </li>
                                         <li className="margin-top-xxs">
-                                            <strong>Periodic Backups</strong>
-                                            <br />
-                                            Define an ongoing-task that will automatically create periodic backups for
-                                            this database at the defined schedule.
+                                            <StudioTrans
+                                                ns="backups"
+                                                i18nKey="about.periodicBackups"
+                                                components={{ strong: <strong />, br: <br /> }}
+                                            />
                                         </li>
                                     </ul>
                                 </div>
                                 <hr />
-                                <div className="small-label mb-2">useful links</div>
+                                <div className="small-label mb-2">{tCommon("usefulLinks")}</div>
                                 <a href={backupDocsLink} target="_blank">
-                                    <Icon icon="newtab" /> Docs - Backups
+                                    <Icon icon="newtab" /> {t("about.docsLink")}
                                 </a>
                             </AccordionItemWrapper>
                         </AboutViewFloating>
@@ -322,13 +340,17 @@ export function BackupsPage() {
                 <div className="flex-shrink-0">
                     <HrHeader>
                         <Icon icon="backup" />
-                        <span>Manual Backup</span>
+                        <span>{t("manualBackup.heading")}</span>
                     </HrHeader>
 
                     {hasDatabaseAdminAccess && (
                         <div className="mb-3 flex-shrink-0">
-                            <Button variant="primary" title="Backup the database now" onClick={createManualBackup}>
-                                <Icon icon="backup" /> Create a Backup
+                            <Button
+                                variant="primary"
+                                title={t("manualBackup.createTitle")}
+                                onClick={createManualBackup}
+                            >
+                                <Icon icon="backup" /> {t("manualBackup.create")}
                             </Button>
                         </div>
                     )}
@@ -342,17 +364,17 @@ export function BackupsPage() {
                             canNavigateToServerWideTasks && (
                                 <a
                                     className="btn btn-link btn-xs"
-                                    title="Navigate to the Server-Wide Tasks View"
+                                    title={t("periodicBackup.serverWideTasksTitle")}
                                     href={serverWideTasksUrl}
                                 >
-                                    Go to Server-Wide Tasks View
+                                    {t("periodicBackup.serverWideTasksLink")}
                                 </a>
                             )
                         }
                     >
                         <Icon icon="manage-ongoing-tasks" />
                         <span>
-                            Periodic Backup ({backups.length}){" "}
+                            {t("periodicBackup.heading", { count: backups.length })}{" "}
                             {!hasPeriodicBackups && <LicenseRestrictedBadge licenseRequired="Professional +" />}
                         </span>
                     </HrHeader>
@@ -361,9 +383,9 @@ export function BackupsPage() {
                             <Button
                                 variant="primary"
                                 onClick={createNewPeriodicBackupTask}
-                                title="Create an ongoing periodic backup task"
+                                title={t("periodicBackup.createTitle")}
                             >
-                                <Icon icon="backup" /> Create a Periodic Backup
+                                <Icon icon="backup" /> {t("periodicBackup.create")}
                             </Button>
                         </div>
                     )}
@@ -388,7 +410,7 @@ export function BackupsPage() {
                             )}
                         </div>
 
-                        {backups.length === 0 && <EmptySet>No periodic backup tasks created</EmptySet>}
+                        {backups.length === 0 && <EmptySet>{t("periodicBackup.empty")}</EmptySet>}
                     </div>
                 </div>
             </div>

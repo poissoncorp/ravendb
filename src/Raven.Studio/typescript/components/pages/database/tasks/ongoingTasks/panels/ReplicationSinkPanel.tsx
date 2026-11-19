@@ -29,11 +29,13 @@ import { accessManagerSelectors } from "components/common/shell/accessManagerSli
 import { ExternalReplicationTaskDistribution } from "components/pages/database/tasks/ongoingTasks/partials/ExternalReplicationTaskDistribution";
 import { Icon } from "components/common/Icon";
 import { ReplicationCursorDetailItem } from "components/pages/database/tasks/ongoingTasks/partials/ReplicationCursorDetailItem";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type ReplicationSinkPanelProps = BaseOngoingTaskPanelProps<OngoingTaskReplicationSinkInfo>;
 
 function Details(props: ReplicationSinkPanelProps & { canEdit: boolean }) {
     const { data, canEdit } = props;
+    const t = useStudioTranslation("ongoingTasks");
     const connectionStringDefined = !!data.shared.destinationDatabase;
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
 
@@ -41,8 +43,8 @@ function Details(props: ReplicationSinkPanelProps & { canEdit: boolean }) {
 
     return (
         <RichPanelDetails>
-            <RichPanelDetailItem label="Hub Name">{data.shared.hubName}</RichPanelDetailItem>
-            {mode && <RichPanelDetailItem label="Mode">{mode}</RichPanelDetailItem>}
+            <RichPanelDetailItem label={t("replicationSink.hubName")}>{data.shared.hubName}</RichPanelDetailItem>
+            {mode && <RichPanelDetailItem label={t("replicationSink.mode")}>{mode}</RichPanelDetailItem>}
             <ConnectionStringItem
                 connectionStringDefined={connectionStringDefined}
                 canEdit={canEdit}
@@ -51,24 +53,27 @@ function Details(props: ReplicationSinkPanelProps & { canEdit: boolean }) {
                 databaseName={databaseName}
             />
             {data.shared.destinationDatabase && (
-                <RichPanelDetailItem label="Hub Database">{data.shared.destinationDatabase}</RichPanelDetailItem>
+                <RichPanelDetailItem label={t("replicationSink.hubDatabase")}>
+                    {data.shared.destinationDatabase}
+                </RichPanelDetailItem>
             )}
-            <DestinationUrlItem destinationUrl={data.shared.destinationUrl} label="Actual Hub URL" />
+            <DestinationUrlItem destinationUrl={data.shared.destinationUrl} label={t("replicationSink.actualHubUrl")} />
 
             {data.shared.topologyDiscoveryUrls.map((url) => (
-                <RichPanelDetailItem label="Topology Discovery URL" key={url}>
+                <RichPanelDetailItem label={t("replicationSink.topologyDiscoveryUrl")} key={url}>
                     {url}
                 </RichPanelDetailItem>
             ))}
 
-            <ReplicationCursorDetailItem label="Hub Cursor" cursor={data.shared.hubCursor} />
-            <ReplicationCursorDetailItem label="Sink Cursor" cursor={data.shared.sinkCursor} />
+            <ReplicationCursorDetailItem label={t("replicationSink.hubCursor")} cursor={data.shared.hubCursor} />
+            <ReplicationCursorDetailItem label={t("replicationSink.sinkCursor")} cursor={data.shared.sinkCursor} />
         </RichPanelDetails>
     );
 }
 
 export function ReplicationSinkPanel(props: ReplicationSinkPanelProps) {
     const { data, toggleSelection, isSelected, onTaskOperation, isDeleting, isTogglingState } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
     const canEdit = hasDatabaseAdminAccess && !data.shared.serverWide;
@@ -96,7 +101,7 @@ export function ReplicationSinkPanel(props: ReplicationSinkPanelProps) {
                 <RichPanelActions>
                     <span>
                         <Icon icon="pull-replication-agent" />
-                        Replication Sink
+                        {t("taskType.replicationSink")}
                     </span>
                     <OngoingTaskResponsibleNode task={data} />
                     <OngoingTaskStatus

@@ -1,5 +1,8 @@
 ﻿import jsonUtil = require("common/jsonUtil");
 import generalUtils = require("common/generalUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
 
 class retentionPolicy {
     disabled = ko.observable<boolean>(false);
@@ -24,11 +27,11 @@ class retentionPolicy {
         
         this.humaneRetentionDescription = ko.pureComputed(() => {
             if (this.minimumBackupAgeToKeep() === 0) {
-                return "No backups will be removed.";
+                return t("backup.retention.noBackupsRemoved");
             }
 
             const retentionTimeHumane = generalUtils.formatTimeSpan(this.minimumBackupAgeToKeep() * 1000, true);
-            return `Backups that are older than <strong>${retentionTimeHumane}</strong> will be removed on the next scheduled backup task`;
+            return t("backup.retention.backupsRemoved", { retentionTimeHumane: generalUtils.escapeHtml(retentionTimeHumane) });
         });
 
         this.dirtyFlag = new ko.DirtyFlag([
@@ -41,7 +44,7 @@ class retentionPolicy {
         this.minimumBackupAgeToKeep.extend({
             validation: [{
                 validator: (val: number) => !(val < retentionPolicy.oneDay && this.retentionPolicyEnabled()),
-                message: "Retention period must be greater than 1 day"
+                message: t("backup.retention.minimumPeriod")
             }]
         });
     }

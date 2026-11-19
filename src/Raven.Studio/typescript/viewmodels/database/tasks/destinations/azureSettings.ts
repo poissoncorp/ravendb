@@ -4,6 +4,9 @@ import genUtils = require("common/generalUtils");
 import popoverUtils = require("common/popoverUtils");
 import tasksCommonContent = require("models/database/tasks/tasksCommonContent");
 import formDestinationsTypes = require("components/common/formDestinations/utils/formDestinationsTypes");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("azureSettings");
 
 class azureSettings extends backupSettings {
 
@@ -49,7 +52,7 @@ class azureSettings extends backupSettings {
     compositionComplete(view: Element, container: HTMLElement) {
         popoverUtils.longWithHover($(".storage-container-info", container),
             {
-                content: tasksCommonContent.textForPopover("Storage container", this.targetOperation)
+                content: tasksCommonContent.textForPopover(t("storageContainerInfo.storageName"), this.targetOperation)
             });
     }
 
@@ -67,20 +70,20 @@ class azureSettings extends backupSettings {
             validation: [
                 {
                     validator: (storageContainer: string) => storageContainer && storageContainer.length >= 3 && storageContainer.length <= 63,
-                    message: "Container name should be between 3 and 63 characters long"
+                    message: t("validation.containerNameLength")
                 },
                 {
                     validator: (storageContainer: string) => allowedCharactersRegExp.test(storageContainer),
-                    message: "Allowed characters lowercase characters, numbers and dashes"
+                    message: t("validation.allowedCharacters")
                 },
                 {
                     validator: (storageContainer: string) => 
                         storageContainer && storageContainer[0] !== "-" && storageContainer[storageContainer.length - 1] !== "-",
-                    message: "Container name must start and end with a letter or a number"
+                    message: t("validation.containerNameStartEnd")
                 },
                 {
                     validator: (storageContainer: string) => !twoDashesRegExp.test(storageContainer),
-                    message: "Consecutive dashes are not permitted in container names"
+                    message: t("validation.consecutiveDashes")
                 }
             ]
         });

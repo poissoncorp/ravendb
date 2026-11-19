@@ -8,6 +8,8 @@ import Button from "react-bootstrap/Button";
 import { UseAsyncReturn } from "react-async-hook";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface EditCdcSinkTaskDiscoverySchemasModalProps {
     asyncGetSchema: UseAsyncReturn<
@@ -21,6 +23,8 @@ export default function EditCdcSinkTaskDiscoverySchemasModal({
     asyncGetSchema,
     onClose,
 }: EditCdcSinkTaskDiscoverySchemasModalProps) {
+    const t = useStudioTranslation("editCdcSinkTask");
+    const commonT = useStudioTranslation("common");
     const { control, handleSubmit } = useForm<DiscoverySchemasFormData>({
         defaultValues: {
             schemas: [],
@@ -37,29 +41,27 @@ export default function EditCdcSinkTaskDiscoverySchemasModal({
     return (
         <Modal show onHide={onClose} contentClassName="modal-border bulge-primary">
             <Modal.Header onCloseClick={onClose} className="pb-0">
-                <h3 className="m-0">Discover tables</h3>
+                <h3 className="m-0">{t("discovery.discoverTables")}</h3>
             </Modal.Header>
             <Modal.Body>
                 <InnerForm onSubmit={handleSubmit(handleDiscover)} className="vstack gap-3">
                     <RichAlert variant="info">
-                        Leave schemas empty to fetch tables from the default schema of the configured connection.
-                        <br />
-                        Add one or more schemas to fetch tables from specific schemas.
+                        <StudioTrans ns="editCdcSinkTask" i18nKey="discovery.schemasInfo" components={{ br: <br /> }} />
                     </RichAlert>
                     <FormStringValueList
-                        title="Schemas"
-                        addButtonLabel="Add schema"
+                        title={t("discovery.schemas")}
+                        addButtonLabel={t("discovery.addSchema")}
                         control={control}
                         name="schemas"
                         fieldNameAccessor={(idx) => `schemas.${idx}.value`}
                         defaultValue={{ value: "" }}
-                        emptyMessage="No schemas added"
+                        emptyMessage={t("discovery.noSchemas")}
                     />
                 </InnerForm>
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="link" onClick={onClose}>
-                    Cancel
+                    {commonT("cancel")}
                 </Button>
                 <ButtonWithSpinner
                     variant="primary"
@@ -68,7 +70,7 @@ export default function EditCdcSinkTaskDiscoverySchemasModal({
                     className="rounded-pill"
                     icon="search"
                 >
-                    Discover
+                    {t("discovery.discover")}
                 </ButtonWithSpinner>
             </Modal.Footer>
         </Modal>

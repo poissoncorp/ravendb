@@ -16,10 +16,13 @@ import { ConditionalPopover } from "components/common/ConditionalPopover";
 import tasksCommonContent from "models/database/tasks/tasksCommonContent";
 import { FormTaskResponsibleNode } from "components/common/formFields/FormTaskResponsibleNode";
 import { FormTaskConnectionString } from "components/common/formFields/FormTaskConnectionString";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 type OngoingTaskState = Raven.Client.Documents.Operations.OngoingTasks.OngoingTaskState;
 
 export default function EditGenAiTaskBasicFields() {
+    const t = useStudioTranslation("editGenAiTask");
     const isEncrypted = useAppSelector(databaseSelectors.activeDatabase)?.isEncrypted;
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const isEditTask = useAppSelector(editGenAiTaskSelectors.isEditTask);
@@ -30,10 +33,21 @@ export default function EditGenAiTaskBasicFields() {
         setValue("identifier", TaskUtils.getGeneratedIdentifier(formValues.name));
     };
 
+    const stateOptions: SelectOption<OngoingTaskState>[] = [
+        { label: t("basic.stateEnabled"), value: "Enabled" },
+        { label: t("basic.stateDisabled"), value: "Disabled" },
+    ];
+
+    const startingPointTypeOptions: SelectOption<GenAiStartingPoint>[] = [
+        { label: t("basic.startingPointBeginningOfTime"), value: "Beginning of Time" },
+        { label: t("basic.startingPointLatestDocument"), value: "Latest Document" },
+        { label: "Change Vector", value: "Change Vector" },
+    ];
+
     return (
         <>
             <FormGroup>
-                <FormLabel>Task Name</FormLabel>
+                <FormLabel>{t("basic.taskName")}</FormLabel>
                 <ConditionalPopover
                     conditions={{
                         isActive: isEditTask,
@@ -45,7 +59,7 @@ export default function EditGenAiTaskBasicFields() {
                         type="text"
                         control={control}
                         name="name"
-                        placeholder="My task"
+                        placeholder={t("basic.taskNamePlaceholder")}
                         onBlur={() => {
                             if (!formValues.identifier) {
                                 handleGenerateIdentifier();
@@ -57,18 +71,14 @@ export default function EditGenAiTaskBasicFields() {
             </FormGroup>
             <FormGroup>
                 <FormLabel>
-                    Identifier <OptionalLabel />
+                    {t("basic.identifier")} <OptionalLabel />
                     <PopoverWithHoverWrapper
                         message={
-                            <>
-                                A unique identifier for the task.
-                                <br />
-                                Used in the source document metadata to hold an array of unique hashes representing each
-                                model request.
-                                <br />
-                                <br />
-                                If not specified, it will be auto-generated from the task name.
-                            </>
+                            <StudioTrans
+                                ns="editGenAiTask"
+                                i18nKey="basic.identifierInfo"
+                                components={{ br: <br /> }}
+                            />
                         }
                     >
                         <Icon icon="info" color="info" margin="ms-1" id="identifier" />
@@ -84,26 +94,31 @@ export default function EditGenAiTaskBasicFields() {
                             variant="link"
                             className="text-reset px-0"
                             onClick={handleGenerateIdentifier}
-                            title="Click to generate the identifier from the task name"
+                            title={t("basic.regenerateIdentifierTitle")}
                         >
                             <Icon icon="refresh" />
-                            Regenerate
+                            {t("basic.regenerateIdentifier")}
                         </Button>
                     }
                 />
             </FormGroup>
             <FormGroup>
-                <FormLabel>Task State</FormLabel>
+                <FormLabel>{t("basic.taskState")}</FormLabel>
                 <FormSelect control={control} name="state" options={stateOptions} />
             </FormGroup>
             {isEncrypted && (
                 <div className="vstack gap-2">
                     <RichAlert variant="info">
-                        Database <strong>{databaseName}</strong> is encrypted
+                        <StudioTrans
+                            ns="editGenAiTask"
+                            i18nKey="basic.encryptedDatabase"
+                            components={{ strong: <strong /> }}
+                            options={{ databaseName }}
+                        />
                     </RichAlert>
                     <FormGroup>
                         <FormSwitch control={control} name="isAllowEtlOnNonEncryptedChannel">
-                            Allow task on a non-encrypted communication channel
+                            {t("basic.allowNonEncryptedChannel")}
                         </FormSwitch>
                     </FormGroup>
                 </div>
@@ -117,15 +132,15 @@ export default function EditGenAiTaskBasicFields() {
             <FormTaskConnectionString control={control} name="connectionStringName" type="Ai" modelType="Chat" />
             <FormGroup>
                 <FormLabel>
-                    Max concurrency <OptionalLabel />
+                    {t("basic.maxConcurrency")} <OptionalLabel />
                     <PopoverWithHoverWrapper
                         message={
-                            <>
-                                The maximum number of concurrent requests sent to the model (default:{" "}
-                                {editGenAiTaskUtils.defaultMaxConcurrency}).
-                                <br />
-                                Each request includes: a context object, the prompt, and the JSON schema.
-                            </>
+                            <StudioTrans
+                                ns="editGenAiTask"
+                                i18nKey="basic.maxConcurrencyInfo"
+                                components={{ br: <br /> }}
+                                options={{ defaultMaxConcurrency: editGenAiTaskUtils.defaultMaxConcurrency }}
+                            />
                         }
                     >
                         <Icon icon="info" color="info" margin="ms-1" />
@@ -135,12 +150,12 @@ export default function EditGenAiTaskBasicFields() {
             </FormGroup>
             <FormGroup>
                 <FormSwitch control={control} name="isStartingPoint">
-                    Use a defined starting point
+                    {t("basic.useStartingPoint")}
                 </FormSwitch>
             </FormGroup>
             {formValues.isStartingPoint && (
                 <FormGroup>
-                    <FormLabel>Send Documents From</FormLabel>
+                    <FormLabel>{t("basic.sendDocumentsFrom")}</FormLabel>
                     <FormSelect control={control} name="startingPointType" options={startingPointTypeOptions} />
                 </FormGroup>
             )}
@@ -153,14 +168,18 @@ export default function EditGenAiTaskBasicFields() {
                         rows={3}
                         control={control}
                         name="startingPointChangeVector"
-                        placeholder="Enter change vector to start sending documents from"
+                        placeholder={t("basic.changeVectorPlaceholder")}
                     />
                 </FormGroup>
             )}
             {formValues.nextBatchStartingPoint && (
                 <FormGroup>
                     <FormLabel>
-                        Next Batch Starting Point <small className="text-muted fw-light">(read-only)</small>
+                        <StudioTrans
+                            ns="editGenAiTask"
+                            i18nKey="basic.nextBatchStartingPoint"
+                            components={{ small: <small className="text-muted fw-light" /> }}
+                        />
                     </FormLabel>
                     <FormInput
                         as="textarea"
@@ -175,17 +194,3 @@ export default function EditGenAiTaskBasicFields() {
         </>
     );
 }
-
-const stateOptions: SelectOption<OngoingTaskState>[] = (["Enabled", "Disabled"] satisfies OngoingTaskState[]).map(
-    (x) => ({
-        label: x,
-        value: x,
-    })
-);
-
-const startingPointTypeOptions: SelectOption<GenAiStartingPoint>[] = (
-    ["Beginning of Time", "Latest Document", "Change Vector"] satisfies GenAiStartingPoint[]
-).map((x) => ({
-    label: x,
-    value: x,
-}));

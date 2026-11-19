@@ -18,8 +18,11 @@ import CellValue, { CellValueWrapper } from "components/common/virtualTable/cell
 import RichAlert from "components/common/RichAlert";
 import { CellWithCopyWrapper } from "components/common/virtualTable/cells/CellWithCopy";
 import classNames from "classnames";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import type { StudioTranslate } from "common/i18n/resources";
 
 export default function EditGenAiTaskAttachmentsButton({ attachments }: { attachments: GenAiAiAttachment[] }) {
+    const t = useStudioTranslation("editGenAiTask");
     const dialog = useDialog();
 
     if (!attachments || attachments.length === 0) {
@@ -33,7 +36,7 @@ export default function EditGenAiTaskAttachmentsButton({ attachments }: { attach
             title: (
                 <span>
                     <Icon icon="attachment" />
-                    Attachments
+                    {t("attachments.title")}
                 </span>
             ),
             message: (
@@ -54,13 +57,16 @@ export default function EditGenAiTaskAttachmentsButton({ attachments }: { attach
     return (
         <Button
             variant={hasNotFound ? "warning" : "success"}
-            title="Attachments"
+            title={t("attachments.title")}
             onClick={showAttachments}
             size="xs"
             className="rounded-2"
         >
             <Icon icon="attachment" />
-            See attachments ({genUtils.formatNumberToStringFixed(attachments.length, 0)})
+            {t("attachments.seeAttachments", {
+                count: attachments.length,
+                formattedCount: genUtils.formatNumberToStringFixed(attachments.length, 0),
+            })}
             {hasNotFound && <Icon icon="warning" className="ms-1" />}
         </Button>
     );
@@ -73,6 +79,7 @@ interface AttachmentsModalBodyProps {
 }
 
 function AttachmentsModalBody({ attachments, availableWidthInPx, hasNotFound }: AttachmentsModalBodyProps) {
+    const t = useStudioTranslation("editGenAiTask");
     const sortedAttachments = useMemo(
         () =>
             [...attachments].sort((a, b) => {
@@ -87,7 +94,7 @@ function AttachmentsModalBody({ attachments, availableWidthInPx, hasNotFound }: 
         [attachments]
     );
 
-    const columns = useMemo(() => getAttachmentsColumns(availableWidthInPx), [availableWidthInPx]);
+    const columns = useMemo(() => getAttachmentsColumns(availableWidthInPx, t), [availableWidthInPx, t]);
     const heightInPx = useMemo(() => virtualTableUtils.getHeightInPx(attachments.length, 400), [attachments.length]);
 
     const table = useReactTable({
@@ -102,7 +109,7 @@ function AttachmentsModalBody({ attachments, availableWidthInPx, hasNotFound }: 
         <div>
             {hasNotFound && (
                 <RichAlert variant="warning" className="mb-2">
-                    Some attachments could not be found.
+                    {t("attachments.someNotFound")}
                 </RichAlert>
             )}
             <VirtualTable heightInPx={heightInPx} table={table} />
@@ -110,13 +117,17 @@ function AttachmentsModalBody({ attachments, availableWidthInPx, hasNotFound }: 
     );
 }
 
-const getAttachmentsColumns = (availableWidthInPx: number): ColumnDef<GenAiAiAttachment>[] => {
+const getAttachmentsColumns = (
+    availableWidthInPx: number,
+    t: StudioTranslate<"editGenAiTask">
+): ColumnDef<GenAiAiAttachment>[] => {
     const bodyWidth = virtualTableUtils.getTableBodyWidth(availableWidthInPx);
     const getSize = virtualTableUtils.getCellSizeProvider(bodyWidth);
 
     return [
         {
             accessorKey: "Name",
+            header: t("attachments.columns.name"),
             cell: ({ getValue, row }) => {
                 const isFromUser = row.getValue<string>("Source") === "FromUser";
                 return <CellValue value={isFromUser ? "" : getValue()} />;
@@ -125,6 +136,7 @@ const getAttachmentsColumns = (availableWidthInPx: number): ColumnDef<GenAiAiAtt
         },
         {
             accessorKey: "Source",
+            header: t("attachments.columns.source"),
             cell: ({ getValue }) => (
                 <CellValue value={getValue()} className={classNames({ "text-warning": getValue() === "NotFound" })} />
             ),
@@ -132,11 +144,13 @@ const getAttachmentsColumns = (availableWidthInPx: number): ColumnDef<GenAiAiAtt
         },
         {
             accessorKey: "Type",
+            header: t("attachments.columns.type"),
             cell: CellValueWrapper,
             size: getSize(20),
         },
         {
             accessorKey: "Data",
+            header: t("attachments.columns.data"),
             cell: CellWithCopyWrapper,
             size: getSize(30),
         },

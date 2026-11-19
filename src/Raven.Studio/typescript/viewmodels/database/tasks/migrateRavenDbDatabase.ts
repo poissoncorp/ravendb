@@ -11,6 +11,9 @@ import generalUtils = require("common/generalUtils");
 import popoverUtils = require("common/popoverUtils");
 import aceEditorBindingHandler = require("common/bindingHelpers/aceEditorBindingHandler");
 import defaultAceCompleter = require("common/defaultAceCompleter");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("migrateRavenDbDatabase");
 
 class migrateRavenDbDatabase extends viewModelBase {
 
@@ -19,6 +22,9 @@ class migrateRavenDbDatabase extends viewModelBase {
 
     model = new migrateRavenDbDatabaseModel();
     completer = defaultAceCompleter.completer();
+
+    readonly shardedNotAvailableHtml = t("sharded.notAvailable").replace("<icon/>", `<i class="icon-sharding text-shard m-0"></i>`);
+    readonly advancedDisabledReason = t("advanced.disabledReason");
 
     showAdvancedOptions = ko.observable(false);
 
@@ -151,7 +157,7 @@ class migrateRavenDbDatabase extends viewModelBase {
         popoverUtils.longWithHover($("#scriptPopover"),
             {
                 content:
-                    "<div class=\"text-center\">Transform scripts are written in JavaScript </div>" +
+                    `<div class="text-center">${t("advanced.transformScriptInfo")} </div>` +
                         "<pre><span class=\"token keyword\">var</span> name = <span class=\"token keyword\">this.</span>FirstName;<br />" +
                         "<span class=\"token keyword\">if</span> (name === <span class=\"token string\">'Bob'</span>)<br />&nbsp;&nbsp;&nbsp;&nbsp;" +
                         "<span class=\"token keyword\">throw </span><span class=\"token string\">'skip'</span>; <span class=\"token comment\">// filter-out</span><br /><br />" +
@@ -160,7 +166,7 @@ class migrateRavenDbDatabase extends viewModelBase {
             });
         
         popoverUtils.longWithHover($("#js-ongoing-tasks-disabled"), {
-            content: "Imported ongoing tasks will be disabled by default."
+            content: t("include.ongoingTasksDisabled")
         });
     }
 

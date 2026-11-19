@@ -2,7 +2,7 @@
     <div class="align-items-center justify-content-between d-flex gap-2 margin-bottom-md padding-top-xs">
         <div class="flex-horizontal gap-2">
             <i class="icon-snowflake-etl"></i>
-            <h2 data-bind="text: $root.isAddingNewSnowflakeEtlTask() ? 'New Snowflake ETL' : 'Edit Snowflake ETL'" class="mb-0"></h2>
+            <h2 data-bind="i18n: { key: 'editSnowflakeEtlTask:heading', options: { context: $root.isAddingNewSnowflakeEtlTask() ? 'new' : 'edit' } }" class="mb-0"></h2>
             <span class="badge license-restricted-badge enterprise" data-bind="if: !hasSnowflakeEtl">Enterprise</span>
         </div>
         <div class="flex-end margin-right-xs" data-bind="react: $root.infoHubView"></div>
@@ -12,40 +12,39 @@
             <form class="flex-form" data-bind="submit: saveSnowflakeEtl" autocomplete="off">
                 <div class="flex-header">
                     <span data-placement="right" data-toggle="tooltip" data-html="true" data-animation="true"
-                        data-bind="tooltipText: $root.hasSnowflakeEtl ? null : `<div class='padding'>Your current license does not support this feature.<br /><a href='https://ravendb.net/l/FLDLO4' target='_blank'>Upgrade your plan</a> to access.</div>`">
+                        data-bind="tooltipText: $root.hasSnowflakeEtl ? null : $root.licenseRestrictedTooltip">
                         <button type="submit" class="btn btn-primary" data-bind="disable: $root.spinners.save() || !$root.dirtyFlag().isDirty(), css: { 'btn-spinner': $root.spinners.save }">
-                            <i class="icon-save"></i><span>Save</span>
+                            <i class="icon-save"></i><span data-bind="i18n: 'common:save'"></span>
                         </button>
                     </span>
                     <button data-bind="click: cancelOperation" class="btn btn-default">
-                        <i class="icon-cancel"></i><span>Cancel</span>
+                        <i class="icon-cancel"></i><span data-bind="i18n: 'common:cancel'"></span>
                     </button>
                 </div>
                 <div class="panel" data-bind="css: { 'pe-none item-disabled': !$root.hasSnowflakeEtl }">
                     <div data-bind="with: editedSnowflakeEtl">
                         <div class="panel-body">
                             <div class="form-group margin-top" data-bind="validationElement: taskName">
-                                <label for="taskName" class="control-label">Task Name</label>
+                                <label for="taskName" class="control-label" data-bind="i18n: 'editSnowflakeEtlTask:task.nameLabel'"></label>
                                 <div class="flex-grow">
                                     <input
                                         type="text"
                                         class="form-control"
                                         id="taskName"
-                                        placeholder="Enter a descriptive name for the Snowflake ETL task (optional)"
-                                        data-bind="textInput: taskName, disable: !!$root.taskNameDisabledReason(), attr: { title: $root.taskNameDisabledReason() }"
+                                        data-bind="textInput: taskName, disable: !!$root.taskNameDisabledReason(), attr: { title: $root.taskNameDisabledReason() }, i18nAttr: { placeholder: 'editSnowflakeEtlTask:task.namePlaceholder' }"
                                     >
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="control-label">Task State</label>
+                                <label class="control-label" data-bind="i18n: 'editSnowflakeEtlTask:task.stateLabel'"></label>
                                 <div class="flex-grow">
                                     <button type="button" class="btn btn-block dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false">
                                         <span data-bind="text: stateText()"></span>
                                         <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu">
-                                        <li><a href="#" data-bind="click: _.partial($root.setState, 'Enabled')"><span>Enabled</span></a></li>
-                                        <li><a href="#" data-bind="click: _.partial($root.setState, 'Disabled')"><span>Disabled</span></a></li>
+                                        <li><a href="#" data-bind="click: _.partial($root.setState, 'Enabled')"><span data-bind="i18n: 'editSnowflakeEtlTask:task.stateEnabled'"></span></a></li>
+                                        <li><a href="#" data-bind="click: _.partial($root.setState, 'Disabled')"><span data-bind="i18n: 'editSnowflakeEtlTask:task.stateDisabled'"></span></a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -54,23 +53,23 @@
                                     <label class="control-label">&nbsp;</label>
                                     <div class="bg-info inline-block padding padding-xs small">
                                         <i class="icon-info"></i>
-                                        Note: Database <strong data-bind="text: $root.db.name"></strong> is encrypted
+                                        <span data-bind="html: $root.encryptedDatabaseNote"></span>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="control-label">&nbsp;</label>
                                     <div class="toggle">
                                         <input id="toggle-non-encrypted-channel" type="checkbox" data-bind="checked: allowEtlOnNonEncryptedChannel">
-                                        <label for="toggle-non-encrypted-channel">Allow ETL on a non-encrypted communication channel</label>
+                                        <label for="toggle-non-encrypted-channel" data-bind="i18n: 'editSnowflakeEtlTask:task.allowNonEncryptedChannel'"></label>
                                     </div>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="control-label">&nbsp;</label>
-                                <div class="toggle" data-placement="right" data-toggle="tooltip" data-bind="attr: { title: $root.db.isSharded() ? 'Not supported in sharded databases' : 'Toggle on to set a responsible node for the task'  }"
+                                <div class="toggle" data-placement="right" data-toggle="tooltip" data-bind="i18nAttr: { title: $root.db.isSharded() ? 'editSnowflakeEtlTask:task.responsibleNodeShardedTitle' : 'editSnowflakeEtlTask:task.responsibleNodeTitle' }"
                                      data-animation="true">
                                     <input id="responsibleNode" type="checkbox" data-bind="checked: manualChooseMentor, disable: $root.possibleMentors().length === 0 || $root.db.isSharded()">
-                                    <label for="responsibleNode">Set responsible node</label>
+                                    <label for="responsibleNode" data-bind="i18n: 'editSnowflakeEtlTask:task.responsibleNodeToggle'"></label>
                                 </div>
                             </div>
                             <div data-bind="compose: $root.taskResponsibleNodeSectionView"></div>
@@ -78,7 +77,7 @@
                                 <label class="control-label">&nbsp;</label>
                                 <div class="toggle">
                                     <input id="createNewString" type="checkbox" data-bind="checked: $root.createNewConnectionString">
-                                    <label for="createNewString">Create a new Snowflake connection string</label>
+                                    <label for="createNewString" data-bind="i18n: 'editSnowflakeEtlTask:task.createNewConnectionString'"></label>
                                 </div>
                             </div>
                             <div data-bind="collapse: $root.createNewConnectionString, with: $root.newConnectionString">
@@ -87,11 +86,11 @@
                                 </div>
                             </div>
                             <div class="form-group" data-bind="validationOptions: { insertMessages: false }, validationElement: connectionStringName, visible: !$root.createNewConnectionString()">
-                                <label class="control-label">Connection String</label>
+                                <label class="control-label" data-bind="i18n: 'editSnowflakeEtlTask:task.connectionStringLabel'"></label>
                                 <div class="flex-grow">
                                     <button class="btn btn-block dropdown-toggle text-left" type="button" data-toggle="dropdown"
                                             data-bind="textInput: connectionStringName, disable: $root.snowflakeEtlConnectionStringsNames().length === 0">
-                                        <span data-bind="text: connectionStringName() || 'Select a connection string'"></span>
+                                        <span data-bind="visible: connectionStringName, text: connectionStringName"></span><span data-bind="visible: !connectionStringName(), i18n: 'editSnowflakeEtlTask:task.selectConnectionString'"></span>
                                         <span class="caret dropdown-toggle" data-toggle="dropdown"></span>
                                     </button>
                                     <ul class="dropdown-menu"
@@ -107,14 +106,14 @@
                                 <div class="flex-grow margin-top">
                                     <button type="button" class="btn btn-info" data-bind="click: $root.toggleAdvancedArea">
                                         <i class="icon-settings"></i>
-                                        <span data-bind="text: $root.showAdvancedOptions() ? 'Close Advanced' : 'Advanced'"></span>
+                                        <span data-bind="i18n: $root.showAdvancedOptions() ? 'editSnowflakeEtlTask:task.closeAdvanced' : 'editSnowflakeEtlTask:task.advanced'"></span>
                                     </button>
                                 </div>
                                 <div>
-                                    <button class="btn btn-default btn-info" title="Test the New connection string connection"
-                                            data-bind="click: $root.onTestConnectionSnowflake, disable: !$root.connectionStringDefined() || $root.spinners.test(), css: { 'btn-spinner': $root.spinners.test }">
+                                    <button class="btn btn-default btn-info"
+                                            data-bind="click: $root.onTestConnectionSnowflake, disable: !$root.connectionStringDefined() || $root.spinners.test(), css: { 'btn-spinner': $root.spinners.test }, i18nAttr: { title: 'editSnowflakeEtlTask:task.testConnectionTitle' }">
                                         <i class="icon-rocket"></i>
-                                        <span>Test Connection</span>
+                                        <span data-bind="i18n: 'editSnowflakeEtlTask:task.testConnection'"></span>
                                     </button>
                                 </div>
                             </div>
@@ -122,13 +121,11 @@
                         <div data-bind="collapse: $root.showAdvancedOptions">
                             <div class="panel-body">
                                 <div class="form-group" data-bind="validationElement: commandTimeout">
-                                    <label for="commandTimeout" class="control-label">Command Timeout</label>
+                                    <label for="commandTimeout" class="control-label" data-bind="i18n: 'editSnowflakeEtlTask:advanced.commandTimeoutLabel'"></label>
                                     <div class="flex-grow">
                                         <div class="input-group">
-                                            <input type="number" min="0" class="form-control" placeholder="Use default value" id="commandTimeout" data-bind="numericInput: commandTimeout" autocomplete="off">
-                                            <div class="input-group-addon">
-                                                seconds
-                                            </div>
+                                            <input type="number" min="0" class="form-control" id="commandTimeout" data-bind="numericInput: commandTimeout, i18nAttr: { placeholder: 'editSnowflakeEtlTask:advanced.commandTimeoutPlaceholder' }" autocomplete="off">
+                                            <div class="input-group-addon" data-bind="i18n: 'editSnowflakeEtlTask:advanced.seconds'"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -137,28 +134,28 @@
                     </div>
                     <div class="panel-addon" data-bind="with: testConnectionResult">
                         <div class="padding bg-success small" data-bind="visible: Success">
-                            <div>Successfully connected to the server</div>
+                            <div data-bind="i18n: 'editSnowflakeEtlTask:testConnection.success'"></div>
                         </div>
                         <div class="padding bg-danger small"
                              data-bind="visible: !Success">
-                            Connection test failed: <span data-bind="text: $root.fullErrorDetailsVisible() ? Error : $root.shortErrorText()"></span>
+                            <span data-bind="i18n: { key: 'editSnowflakeEtlTask:testConnection.failed', options: { error: $root.fullErrorDetailsVisible() ? Error : $root.shortErrorText() } }"></span>
                             <div>
                                 <a href="#" 
-                                   data-bind="click: $root.fullErrorDetailsVisible.toggle.bind($root.fullErrorDetailsVisible), text: $root.fullErrorDetailsVisible() ? 'hide details' : 'show details'">
+                                   data-bind="click: $root.fullErrorDetailsVisible.toggle.bind($root.fullErrorDetailsVisible), i18n: $root.fullErrorDetailsVisible() ? 'editSnowflakeEtlTask:testConnection.hideDetails' : 'editSnowflakeEtlTask:testConnection.showDetails'">
                                 </a>
                             </div>
                         </div>
                     </div>
                     <div class="panel-addon" data-bind="visible: $root.snowflakeEtlConnectionStringsNames().length === 0 && !$root.createNewConnectionString()">
                         <div class="padding bg-warning small">
-                            <i class="icon-warning"></i>&nbsp;&nbsp;No connection strings have been defined yet
+                            <i class="icon-warning"></i>&nbsp;&nbsp;<span data-bind="i18n: 'editSnowflakeEtlTask:testConnection.noConnectionStrings'"></span>
                         </div>
                     </div>
                 </div>
             </form>
             <div class="flex-horizontal flex-header margin-top" data-bind="css: { 'pe-none item-disabled': !$root.hasSnowflakeEtl }">
-                <div class="flex-grow"><h3>Snowflake Tables</h3></div>
-                <div><button type="button" class="btn btn-info" data-bind="click: addNewSnowflakeTable, disable: showEditSnowflakeTableArea()"><i class="icon-plus"></i><span>Add Table</span></button></div>
+                <div class="flex-grow"><h3 data-bind="i18n: 'editSnowflakeEtlTask:snowflakeTables.heading'"></h3></div>
+                <div><button type="button" class="btn btn-info" data-bind="click: addNewSnowflakeTable, disable: showEditSnowflakeTableArea()"><i class="icon-plus"></i><span data-bind="i18n: 'editSnowflakeEtlTask:snowflakeTables.add'"></span></button></div>
             </div>
             <div class="snowflake-tables-list margin-bottom" data-bind="css: { 'pe-none item-disabled': !$root.hasSnowflakeEtl }">
                 <!-- Snowflake table edit area -->
@@ -167,19 +164,19 @@
                         <div class="flex-grow" data-bind="validationElement: tableName"> 
                             <!-- todo 1: why not red on the FIRST Time ? only after saving at least once.. -->
                             <!-- todo 2: where to place the message - if placed it has an offset, so for now msg is removed... -->
-                            <input type="text" class="form-control input-sm" placeholder="Table name"
-                                   data-bind="textInput: tableName">
+                            <input type="text" class="form-control input-sm"
+                                   data-bind="textInput: tableName, i18nAttr: { placeholder: 'editSnowflakeEtlTask:snowflakeTables.tableNamePlaceholder' }">
                         </div>
                         <div class="flex-grow margin-right margin-right-sm" data-bind="validationElement: documentIdColumn">
-                            <input type="text" class="form-control input-sm" placeholder="Document Id Column Name" data-bind="textInput: documentIdColumn">
+                            <input type="text" class="form-control input-sm" data-bind="textInput: documentIdColumn, i18nAttr: { placeholder: 'editSnowflakeEtlTask:snowflakeTables.documentIdColumnPlaceholder' }">
                         </div>
                         <div class="flex-shrink-0 toggle input-sm">
                             <input id="toggle1" class="styled" type="checkbox" data-bind="checked: insertOnlyMode">
-                            <label for="toggle1">Insert only</label>
+                            <label for="toggle1" data-bind="i18n: 'editSnowflakeEtlTask:snowflakeTables.insertOnly'"></label>
                         </div>
                         <div class="flex-shrink-0">
-                            <button type="button" class="btn btn-success btn-sm" title="Add this snowflake table" data-bind="click: $root.saveEditedSnowflakeTable"><i class="icon-tick"></i></button>
-                            <button type="button" class="btn btn-default btn-sm" title="Cancel" data-bind="click: $root.cancelEditedSnowflakeTable"><i class="icon-cancel"></i></button>
+                            <button type="button" class="btn btn-success btn-sm" data-bind="click: $root.saveEditedSnowflakeTable, i18nAttr: { title: 'editSnowflakeEtlTask:snowflakeTables.saveTitle' }"><i class="icon-tick"></i></button>
+                            <button type="button" class="btn btn-default btn-sm" data-bind="click: $root.cancelEditedSnowflakeTable, i18nAttr: { title: 'common:cancel' }"><i class="icon-cancel"></i></button>
                         </div>
                     </div>
                 </div>
@@ -187,7 +184,7 @@
                     <i class="icon-lg icon-empty-set"></i>
                     <div data-bind="with: editedSnowflakeEtl()">
                         <h3 class="margin-top margin-top-sm" 
-                            data-bind="css: { 'text-danger': !snowflakeTables.isValid() && snowflakeTables.isModified() }">No Snowflake Tables have been defined
+                            data-bind="css: { 'text-danger': !snowflakeTables.isValid() && snowflakeTables.isModified() }, i18n: 'editSnowflakeEtlTask:snowflakeTables.empty'">
                         </h3>
                     </div>
                 </div>
@@ -196,26 +193,26 @@
                         <div class="padding padding-sm flex-horizontal item">
                             <div class="row flex-grow">
                                 <div class="col-sm-4">
-                                    <div class="widthlabel"><label class="superscript">Table</label><strong data-bind="text: tableName"></strong><span class="text-warning" data-bind="visible: dirtyFlag().isDirty">&nbsp;*</span></div>
+                                    <div class="widthlabel"><label class="superscript" data-bind="i18n: 'editSnowflakeEtlTask:snowflakeTables.tableLabel'"></label><strong data-bind="text: tableName"></strong><span class="text-warning" data-bind="visible: dirtyFlag().isDirty">&nbsp;*</span></div>
                                 </div>
                                 <div class="col-sm-4">
-                                    <div class="widthlabel"><label class="superscript">Document Id Column</label><strong data-bind="text: documentIdColumn"></strong></div>
+                                    <div class="widthlabel"><label class="superscript" data-bind="i18n: 'editSnowflakeEtlTask:snowflakeTables.documentIdColumnLabel'"></label><strong data-bind="text: documentIdColumn"></strong></div>
                                 </div>
-                                <div class="col-sm-4" data-bind="if: insertOnlyMode">Insert only</div>
+                                <div class="col-sm-4" data-bind="if: insertOnlyMode"><span data-bind="i18n: 'editSnowflakeEtlTask:snowflakeTables.insertOnly'"></span></div>
                             </div>
                             <div class="flex-shrink-0">
-                                <button type="button" class="btn btn-default btn-sm" title="Edit this Snowflake table" data-bind="click: $root.editSnowflakeTable.bind($data)"><i class="icon-edit"></i></button>
-                                <button type="button" class="btn btn-danger btn-sm" title="Remove this Snowflake table" data-bind="click: $root.deleteSnowflakeTable.bind($data)"><i class="icon-trash"></i></button>
+                                <button type="button" class="btn btn-default btn-sm" data-bind="click: $root.editSnowflakeTable.bind($data), i18nAttr: { title: 'editSnowflakeEtlTask:snowflakeTables.editTitle' }"><i class="icon-edit"></i></button>
+                                <button type="button" class="btn btn-danger btn-sm" data-bind="click: $root.deleteSnowflakeTable.bind($data), i18nAttr: { title: 'editSnowflakeEtlTask:snowflakeTables.removeTitle' }"><i class="icon-trash"></i></button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="flex-horizontal flex-header" data-bind="css: { 'pe-none item-disabled': !$root.hasSnowflakeEtl }">
-                <div class="flex-grow"><h3>Transform Scripts</h3></div>
+                <div class="flex-grow"><h3 data-bind="i18n: 'editSnowflakeEtlTask:scripts.heading'"></h3></div>
                 <div>
                     <button type="button" class="btn btn-info" data-bind="click: addNewTransformation, disable: $root.showEditTransformationArea">
-                        <i class="icon-plus"></i><span>Add Transformation Script</span>
+                        <i class="icon-plus"></i><span data-bind="i18n: 'editSnowflakeEtlTask:scripts.add'"></span>
                     </button>
                 </div> 
             </div>
@@ -224,7 +221,7 @@
                 <div class="text-center text-muted" data-bind="visible: transformationScripts().length === 0 && !$root.showEditTransformationArea()">
                     <i class="icon-lg icon-empty-set"></i>
                     <h3 class="margin-top margin-top-sm"
-                        data-bind="css: { 'text-danger': !transformationScripts.isValid() && transformationScripts.isModified() }">No Transformation Scripts have been defined
+                        data-bind="css: { 'text-danger': !transformationScripts.isValid() && transformationScripts.isModified() }, i18n: 'editSnowflakeEtlTask:scripts.empty'">
                     </h3>
                 </div>
                 <div class="transformation-scripts-list" data-bind="foreach: transformationScripts">
@@ -232,27 +229,27 @@
                         <div class="padding padding-sm">
                             <div class="flex-horizontal">
                                 <div class="flex-grow info">
-                                    <div class="transformer-name" title="Transformation script name">
+                                    <div class="transformer-name" data-bind="i18nAttr: { title: 'editSnowflakeEtlTask:scripts.nameTitle' }">
                                         <span data-bind="text: name"></span>
                                         <span class="text-warning" data-bind="visible: dirtyFlag().isDirty">*</span>
                                     </div>
                                     <div class="collections">
-                                        Collections:
-                                        <span class="etl-collections" title="The Collections transformed"
-                                              data-bind="foreach: transformScriptCollections, visible: !applyScriptForAllCollections() && transformScriptCollections().length">
+                                        <span data-bind="i18n: 'editSnowflakeEtlTask:scripts.collectionsLabel'"></span>
+                                        <span class="etl-collections"
+                                              data-bind="foreach: transformScriptCollections, visible: !applyScriptForAllCollections() && transformScriptCollections().length, i18nAttr: { title: 'editSnowflakeEtlTask:scripts.collectionsTitle' }">
                                             <span data-bind="text: $data, attr: { class: 'collection-color-' + $parent.getCollectionEntry($data) }"></span>
                                         </span>
-                                        <span class="etl-collections" data-bind="visible: applyScriptForAllCollections" title="The Collections transformed">
-                                            <span>All collections</span>
+                                        <span class="etl-collections" data-bind="visible: applyScriptForAllCollections, i18nAttr: { title: 'editSnowflakeEtlTask:scripts.collectionsTitle' }">
+                                            <span data-bind="i18n: 'editSnowflakeEtlTask:scripts.allCollections'"></span>
                                         </span>
                                     </div>
                                 </div>
                                 <div class="actions">
                                     <button type="button" data-bind="click: $root.editTransformationScript.bind($root, $data)"
-                                            class="btn btn-default"><i class="icon-edit" title="Edit script"></i>
+                                            class="btn btn-default"><i class="icon-edit" data-bind="i18nAttr: { title: 'editSnowflakeEtlTask:scripts.editTitle' }"></i>
                                     </button>
                                     <button type="button" data-bind="click: $root.removeTransformationScript"
-                                            class="btn btn-danger"><i class="icon-trash" title="Delete script"></i>
+                                            class="btn btn-danger"><i class="icon-trash" data-bind="i18nAttr: { title: 'editSnowflakeEtlTask:scripts.deleteTitle' }"></i>
                                     </button>
                                 </div>
                             </div>
@@ -265,14 +262,14 @@
             <div class="flex-grow">
                 <div class="panel padding" data-bind="if: $root.showEditTransformationArea">
                     <div class="flex-horizontal margin-bottom" data-bind="validationElement: name">
-                        <label class="control-label"><strong>Name:</strong></label>
+                        <label class="control-label"><strong data-bind="i18n: 'editSnowflakeEtlTask:script.nameLabel'"></strong></label>
                         <div class="flex-grow margin-left">
-                            <input type="text" class="form-control" placeholder="Enter script name" autocomplete="off"
-                                   data-bind="textInput: name, disable: $root.enableTestArea() || !isNew()" />
+                            <input type="text" class="form-control" autocomplete="off"
+                                   data-bind="textInput: name, disable: $root.enableTestArea() || !isNew(), i18nAttr: { placeholder: 'editSnowflakeEtlTask:script.namePlaceholder' }" />
                         </div>
                     </div>
-                    <label><strong>Script:</strong></label>
-                    <span class="pull-right"><a href="#" data-bind="click: $root.syntaxHelp"><small>Syntax <i class="icon-help"></i></small></a></span>
+                    <label><strong data-bind="i18n: 'editSnowflakeEtlTask:script.scriptLabel'"></strong></label>
+                    <span class="pull-right"><a href="#" data-bind="click: $root.syntaxHelp"><small><span data-bind="i18n: 'editSnowflakeEtlTask:script.syntax'"></span> <i class="icon-help"></i></small></a></span>
                     <div data-bind="validationElement: script">
                             <pre class="form-control editor"
                                  data-bind="aceEditor: { code: script, fontSize: '14px', lang: 'ace/mode/javascript' }, validationOptions: { errorsAsTitle: false }, validationElement: script" style="height: 300px;"></pre>
@@ -284,8 +281,8 @@
                         <div class="flex-horizontal margin-bottom-sm">
                             <div class="flex-grow">
                                 <div class="dropdown btn-block flex-grow">
-                                    <input class="form-control dropdown-toggle" placeholder="Select (or enter) a collection" data-toggle="dropdown" autocomplete="off"
-                                           data-bind="textInput: inputCollection, attr: { id: 'collectionNameInput' }, disable: $root.collections().length === 0" />
+                                    <input class="form-control dropdown-toggle" data-toggle="dropdown" autocomplete="off"
+                                           data-bind="textInput: inputCollection, attr: { id: 'collectionNameInput' }, disable: $root.collections().length === 0, i18nAttr: { placeholder: 'editSnowflakeEtlTask:script.collectionPlaceholder' }" />
                                     <span class="caret dropdown-toggle" data-toggle="dropdown"></span>
                                     <ul class="dropdown-menu" role="menu" style="display: none;"
                                         data-bind="autoComplete: '#collectionNameInput', foreach: $root.createCollectionNameAutoCompleter(transformScriptCollections, inputCollection)">
@@ -303,34 +300,34 @@
                             </div>
                             <div>
                                 <button class="btn btn-info" data-bind="click: addCollection, enable: inputCollection() && canAddCollection()">
-                                    <i class="icon-plus"></i><span>Add Collection</span>
+                                    <i class="icon-plus"></i><span data-bind="i18n: 'editSnowflakeEtlTask:script.addCollection'"></span>
                                 </button>
                             </div>
                         </div>
                         <div data-bind="visible: transformScriptCollections().length" class="margin-top-sm">
-                            <label><strong>Collections Selected:</strong></label>
+                            <label><strong data-bind="i18n: 'editSnowflakeEtlTask:script.selectedCollectionsLabel'"></strong></label>
                             <ul class="well collection-list" data-bind="foreach: transformScriptCollections">
                                 <li>
                                     <div class="name" data-bind="text: $data"></div>
-                                    <a title="Remove collection" href="#" data-bind="click: $parent.removeCollection.bind($parent, $data)"><i class="icon-trash"></i></a>
+                                    <a href="#" data-bind="click: $parent.removeCollection.bind($parent, $data), i18nAttr: { title: 'editSnowflakeEtlTask:script.removeCollectionTitle' }"><i class="icon-trash"></i></a>
                                 </li>
                             </ul>
                         </div>
                     </div>
                     <div class="toggle margin-top margin-bottom" data-bind="visible: !isNew() && !$root.enableTestArea()">
                         <input id="reset" type="checkbox" data-bind="checked: resetScript">
-                        <label for="reset">Apply script to documents from beginning of time (Reset)</label>
+                        <label for="reset" data-bind="i18n: 'editSnowflakeEtlTask:script.reset'"></label>
                     </div>
                     <div class="flex-horizontal margin-top">
                         <div data-bind="visible: !$root.enableTestArea()">
-                            <button type="button" class="btn btn-success" data-bind="click: $root.saveEditedTransformation, attr: { title : (isNew() ? 'Add' : 'Update') + ' this transformation script' }">
-                                <i class="icon-tick"></i> <span data-bind="text: isNew() ? 'Add' : 'Update'"></span>
+                            <button type="button" class="btn btn-success" data-bind="click: $root.saveEditedTransformation, i18nAttr: { title: { key: 'editSnowflakeEtlTask:script.saveTitle', options: { context: isNew() ? 'add' : 'update' } } }">
+                                <i class="icon-tick"></i> <span data-bind="i18n: { key: 'editSnowflakeEtlTask:script.save', options: { context: isNew() ? 'add' : 'update' } }"></span>
                             </button>
-                            <button type="button" title="Cancel" class="btn btn-default" data-bind="click: $root.cancelEditedTransformation"><i class="icon-cancel"></i> <span>Cancel</span></button>
+                            <button type="button" class="btn btn-default" data-bind="click: $root.cancelEditedTransformation, i18nAttr: { title: 'common:cancel' }"><i class="icon-cancel"></i> <span data-bind="i18n: 'common:cancel'"></span></button>
                         </div>
                         <div class="flex-separator"></div>
-                        <button type="button" class="btn btn-info" data-bind="click: $root.toggleTestArea, visible: !$root.enableTestArea()" title="Click to open the test area">
-                            <i class="icon-rocket"></i> <span>Test script</span>
+                        <button type="button" class="btn btn-info" data-bind="click: $root.toggleTestArea, visible: !$root.enableTestArea(), i18nAttr: { title: 'editSnowflakeEtlTask:script.testTitle' }">
+                            <i class="icon-rocket"></i> <span data-bind="i18n: 'editSnowflakeEtlTask:script.test'"></span>
                         </button>
                     </div>
                 </div>
@@ -338,10 +335,10 @@
                     <div class="panel">
                         <div class="panel-body flex-form" data-bind="with: $root.test">
                             <div class="form-group flex-horizontal margin-top">
-                                <label class="control-label">Document ID</label>
+                                <label class="control-label" data-bind="i18n: 'editSnowflakeEtlTask:test.documentId'"></label>
                                 <div class="flex-grow" data-bind="validationElement: documentId">
-                                    <input type="text" id="documentId" data-bind="textInput: documentId" class="form-control" placeholder="Document ID" autocomplete="off"
-                                           title="This field is required." data-orig-title=""/><span class="help-block" style="display: none;"></span>
+                                    <input type="text" id="documentId" data-bind="textInput: documentId, i18nAttr: { placeholder: 'editSnowflakeEtlTask:test.documentId', title: 'editSnowflakeEtlTask:test.documentIdRequired' }" class="form-control" autocomplete="off"
+                                           data-orig-title=""/><span class="help-block" style="display: none;"></span>
                                     <ul class="documentIdAutocomplete dropdown-menu autocomplete-list" role="menu"
                                         data-bind="autoComplete: '#documentId', foreach: docsIdsAutocompleteResults">
                                         <li role="presentation" data-bind="click: _.partial($parent.onAutocompleteOptionSelected, $data)">
@@ -352,20 +349,20 @@
                                     </ul>
                                 </div>
                                 <button class="btn btn-default" type="button"
-                                        data-bind="click: previewDocument, css: { 'btn-spinner': spinners.preview }, disable: spinners.preview() || !documentId()" title="Show document preview">
-                                    <i class="icon-import"></i> <span>Load document</span>
+                                        data-bind="click: previewDocument, css: { 'btn-spinner': spinners.preview }, disable: spinners.preview() || !documentId(), i18nAttr: { title: 'editSnowflakeEtlTask:test.loadDocumentTitle' }">
+                                    <i class="icon-import"></i> <span data-bind="i18n: 'editSnowflakeEtlTask:test.loadDocument'"></span>
                                 </button>
                             </div>
                             <div class="form-group">
-                                <label class="control-label">Mode:</label>
+                                <label class="control-label" data-bind="i18n: 'editSnowflakeEtlTask:test.modeLabel'"></label>
                                 <div class="flex-grow">
                                     <button class="btn btn-block dropdown-toggle text-left" data-toggle="dropdown">
-                                        <span data-bind="text: testDelete() ? 'Document delete' : 'Document put / update'"></span>
+                                        <span data-bind="i18n: testDelete() ? 'editSnowflakeEtlTask:test.modeDelete' : 'editSnowflakeEtlTask:test.modePutUpdate'"></span>
                                         <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu">
-                                        <li><a href="#" data-bind="click: _.partial(testDelete, false)">Document put / update</a></li>
-                                        <li><a href="#" data-bind="click: _.partial(testDelete, true)">Document delete</a></li>
+                                        <li><a href="#" data-bind="click: _.partial(testDelete, false), i18n: 'editSnowflakeEtlTask:test.modePutUpdate'"></a></li>
+                                        <li><a href="#" data-bind="click: _.partial(testDelete, true), i18n: 'editSnowflakeEtlTask:test.modeDelete'"></a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -374,9 +371,8 @@
                                 <div class="toggle margin-bottom">
                                     <input id="performRolledBackTransaction" class="styled" type="checkbox" data-bind="checked: performRolledBackTransaction">
                                     <label for="performRolledBackTransaction" data-placement="top" data-toggle="tooltip" 
-                                           title="Option checked:<br />All generated SQL statements will be executed against the target Snowflake database. This transaction will be rolled back when done. <br />
-Option unchecked: <Br />No execution will take place, only generate the SQL statements. " data-html="true" data-animation="true">
-                                        Execute and rollback the test transaction
+                                           data-html="true" data-animation="true"
+                                           data-bind="i18n: 'editSnowflakeEtlTask:test.rollback', i18nAttr: { title: 'editSnowflakeEtlTask:test.rollbackTitle' }">
                                     </label>
                                 </div>
                             </div>
@@ -384,10 +380,10 @@ Option unchecked: <Br />No execution will take place, only generate the SQL stat
                                 <div class="flex-separator"></div>
                                 <button type="button" class="btn btn-primary margin-right margin-right-sm" data-bind="click: runTest, css: { 'btn-spinner': spinners.test }, disable: spinners.test()">
                                     <i class="icon-rocket"></i>
-                                    <span>Test</span>
+                                    <span data-bind="i18n: 'editSnowflakeEtlTask:test.run'"></span>
                                 </button>
                                 <button type="button" class="btn btn-info" data-bind="click: $root.toggleTestArea">
-                                    <i class="icon-cancel"></i> <span>Close Test Area</span>
+                                    <i class="icon-cancel"></i> <span data-bind="i18n: 'editSnowflakeEtlTask:test.closeTestArea'"></span>
                                 </button>
                             </div>
                         </div>
@@ -399,71 +395,71 @@ Option unchecked: <Br />No execution will take place, only generate the SQL stat
     <div class="test-container flex-grow flex-vertical" data-bind="with: test, css: { 'pe-none item-disabled': !$root.hasSnowflakeEtl }">
         <div class="absolute-center text-center z-1" data-bind="visible: !testAlreadyExecuted() && !loadedDocument()">
             <i class="icon-info icon-xl"></i>
-            Choose <strong>Document ID</strong> used for test and click <strong>Test</strong> button.
+            <span data-bind="html: $root.testInstructionsHtml"></span>
         </div>
         <div class="tabs">
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" data-bind="visible: loadedDocument">
                     <a href="#documentPreview" role="tab" data-toggle="tab">
-                        <i class="icon-preview"></i><span>Document Preview</span>
+                        <i class="icon-preview"></i><span data-bind="i18n: 'editSnowflakeEtlTask:test.documentPreviewTab'"></span>
                     </a>
                 </li>
                 <li role="presentation" data-bind="visible: testAlreadyExecuted">
                     <a href="#testResults" role="tab" data-toggle="tab">
-                        <i class="icon-admin-logs"></i><span>Test Results</span>
+                        <i class="icon-admin-logs"></i><span data-bind="i18n: 'editSnowflakeEtlTask:test.testResultsTab'"></span>
                     </a>
                 </li>
                 <li role="presentation" data-bind="visible: warningsCount">
                     <a href="#warnings" role="tab" data-toggle="tab">
-                        <i class="icon-exclamation"></i><span>Warnings</span><span class="label label-warning margin-left margin-left-sm" data-bind="text: warningsCount || ''"></span>
+                        <i class="icon-exclamation"></i><span data-bind="i18n: 'editSnowflakeEtlTask:test.warningsTab'"></span><span class="label label-warning margin-left margin-left-sm" data-bind="text: warningsCount || ''"></span>
                     </a>
                 </li>
                 <li role="presentation" data-bind="visible: debugOutput().length">
                     <a href="#debugOutput" role="tab" data-toggle="tab">
-                        <i class="icon-administrator-js-console"></i><span>Debug output</span><span class="label label-info margin-left margin-left-sm" data-bind="text: debugOutput().length || ''"></span>
+                        <i class="icon-administrator-js-console"></i><span data-bind="i18n: 'editSnowflakeEtlTask:test.debugOutputTab'"></span><span class="label label-info margin-left margin-left-sm" data-bind="text: debugOutput().length || ''"></span>
                     </a>
                 </li>
             </ul>
         </div>
         <div class="tab-content flex-grow">
             <div role="tabpanel" class="tab-pane fade" id="documentPreview">
-                <div class="margin-bottom margin-bottom-sm">Document ID: <strong data-bind="text: loadedDocumentId"></strong></div>
+                <div class="margin-bottom margin-bottom-sm"><span data-bind="i18n: 'editSnowflakeEtlTask:test.loadedDocumentIdLabel'"></span> <strong data-bind="text: loadedDocumentId"></strong></div>
                 <pre data-bind="html: loadedDocument"></pre>
             </div>
             <div role="tabpanel" class="tab-pane fade" id="warnings">
                 <div class="transformation-errors" data-bind="visible: transformationErrors().length">
-                    <h3>Transformation Script Errors:</h3>
+                    <h3 data-bind="i18n: 'editSnowflakeEtlTask:test.transformationErrors'"></h3>
                     <div data-bind="foreach: transformationErrors">
                         <pre class="margin-left margin-bottom margin-bottom-sm" data-bind="text: Error"></pre>
                     </div>
                 </div>
                 <div class="process-error" data-bind="if: processError()">
-                    <h3>Process Error:</h3>
+                    <h3 data-bind="i18n: 'editSnowflakeEtlTask:test.processError'"></h3>
                     <pre class="margin-left margin-bottom margin-bottom-sm" data-bind="text: processError().Error"></pre>
                 </div>
                 <div class="load-errors" data-bind="visible: loadErrors().length">
-                    <h3>Load Errors:</h3>
+                    <h3 data-bind="i18n: 'editSnowflakeEtlTask:test.loadErrors'"></h3>
                     <div data-bind="foreach: loadErrors">
                         <pre class="margin-left margin-bottom margin-bottom-sm" data-bind="text: Error"></pre>
                     </div>
                 </div>
                 <div class="slow-sqls" data-bind="visible: slowSqlWarnings().length">
-                    <h3>Slow SQL:</h3>
+                    <h3 data-bind="i18n: 'editSnowflakeEtlTask:test.slowSql'"></h3>
                     <div data-bind="foreach: slowSqlWarnings">
                         <div class="sql-warning">
-                            <div class="duration text-info" data-bind="text: 'Statement took: ' + Duration.toLocaleString() + ' ms'"></div>
+                            <div class="duration text-info" data-bind="i18n: { key: 'editSnowflakeEtlTask:test.statementDuration', options: { duration: Duration.toLocaleString() } }"></div>
                             <pre data-bind="text: Statement"></pre>
                         </div>
                     </div>
                 </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" id="testResults">
-                <h3>Generated SQL statements:</h3>
+                <h3 data-bind="i18n: 'editSnowflakeEtlTask:test.generatedStatements'"></h3>
                 <div data-bind="foreach: testResults">
                     <div class="test-output panel">
                         <pre data-bind="text: CommandText"></pre>
                         
-                        <h4 class="margin-left" data-bind="visible: Params && Params.length"><strong>Parameters:</strong></h4>
+                        <h4 class="margin-left" data-bind="visible: Params && Params.length"><strong data-bind="i18n: 'editSnowflakeEtlTask:test.parameters'"></strong></h4>
                         <dl class="dl-horizontal" data-bind="foreach: Params">
                             <dt data-bind="text: Key, attr: { title: Key }"></dt>
                             <dd data-bind="text: Value"></dd>
@@ -471,7 +467,7 @@ Option unchecked: <Br />No execution will take place, only generate the SQL stat
                     </div>
                 </div>
                 <div data-bind="visible: !testResults().length">
-                    <i class="icon-info"></i> <span>Simulation returned empty result.</span>
+                    <i class="icon-info"></i> <span data-bind="i18n: 'editSnowflakeEtlTask:test.emptyResult'"></span>
                 </div>
             </div>
             <div role="tabpanel" class="tab-pane fade" id="debugOutput">

@@ -7,8 +7,10 @@ import { editCdcSinkTaskUtils } from "components/pages/database/tasks/ongoingTas
 import { EditCdcSinkTaskFormData } from "components/pages/database/tasks/ongoingTasks/editTasks/editCdcSinkTask/utils/editCdcSinkTaskValidation";
 import { useAppDispatch, useAppSelector } from "components/store";
 import { UseFormReturn } from "react-hook-form";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export function useEditCdcSinkTaskRawViewSync(editForm: UseFormReturn<EditCdcSinkTaskFormData>) {
+    const t = useStudioTranslation("editCdcSinkTask");
     const dispatch = useAppDispatch();
     const isRawView = useAppSelector(editCdcSinkTaskSelectors.isRawView);
     const rawViewContent = useAppSelector(editCdcSinkTaskSelectors.rawViewContent);
@@ -23,10 +25,7 @@ export function useEditCdcSinkTaskRawViewSync(editForm: UseFormReturn<EditCdcSin
             editForm.reset(formData, { keepDefaultValues: true });
             return true;
         } catch (error) {
-            messagePublisher.reportError(
-                "The raw configuration cannot be converted. Please fix the JSON and try again.",
-                error
-            );
+            messagePublisher.reportError(t("rawView.rawConfigConversionError"), error);
             return false;
         }
     };
@@ -37,7 +36,7 @@ export function useEditCdcSinkTaskRawViewSync(editForm: UseFormReturn<EditCdcSin
         }
 
         dispatch(editCdcSinkTaskActions.rawViewClosed());
-        messagePublisher.reportWarning("The configuration has validation errors. Please fix them in the form view.");
+        messagePublisher.reportWarning(t("rawView.validationErrorsWarning"));
     };
 
     return { applyRawViewContent, revealValidationErrors };

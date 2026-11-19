@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksCommands");
 
 class getCronExpressionOccurrenceCommand extends commandBase {
     constructor(private cronExpression: string,
@@ -21,7 +24,7 @@ class getCronExpressionOccurrenceCommand extends commandBase {
             this.urlEncodeArgs(args);
 
         return this.query<Raven.Server.Web.Studio.StudioTasksHandler.NextCronExpressionOccurrence>(url, null)
-            .fail((response: JQueryXHR) => this.reportError(`Failed to get next occurrence of cron expression`, response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("cronOccurrenceFailed"), response.responseText, response.statusText));
     }
 }
 

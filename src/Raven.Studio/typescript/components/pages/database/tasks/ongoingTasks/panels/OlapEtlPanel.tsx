@@ -26,11 +26,13 @@ import { useAppSelector } from "components/store";
 import { Icon } from "components/common/Icon";
 import { EtlPanelBaseProps, useEtlPanel } from "./etlPanelUtils";
 import { TaskPanelErrors, EtlPanelHealthBadge, EtlPanelProgressItem, EtlPanelToggleButton } from "./EtlPanelComponents";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type OlapEtlPanelProps = EtlPanelBaseProps<OngoingTaskOlapEtlInfo>;
 
 export function OlapEtlPanel(props: OlapEtlPanelProps) {
     const { data, toggleSelection, isSelected, onTaskOperation, isDeleting, isTogglingState, etlStats } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     const { forCurrentDatabase } = useAppUrls();
     const editUrl = forCurrentDatabase.editOlapEtl(data.shared.taskId)();
@@ -86,7 +88,7 @@ export function OlapEtlPanel(props: OlapEtlPanelProps) {
             </RichPanelHeader>
             <RichPanelDetails>
                 <EtlPanelToggleButton detailsVisible={detailsVisible} toggleDetails={toggleDetails} />
-                <RichPanelDetailItem label="Type">
+                <RichPanelDetailItem label={t("taskDetails.type")}>
                     <Icon icon="olap-etl" />
                     OLAP ETL
                 </RichPanelDetailItem>
@@ -98,13 +100,21 @@ export function OlapEtlPanel(props: OlapEtlPanelProps) {
                     databaseName={databaseName}
                 />
                 {data.shared.destinations.map((dst) => (
-                    <RichPanelDetailItem data-testid="destination" label="Destination" key={dst} title={dst}>
+                    <RichPanelDetailItem
+                        data-testid="destination"
+                        label={t("taskDetails.destination")}
+                        key={dst}
+                        title={dst}
+                    >
                         <div className="text-truncate" style={{ maxWidth: "200px" }}>
                             {dst}
                         </div>
                     </RichPanelDetailItem>
                 ))}
-                <RichPanelDetailItem label="Destination Description" title={data.shared.destinationDescription}>
+                <RichPanelDetailItem
+                    label={t("taskDetails.destinationDescription")}
+                    title={data.shared.destinationDescription}
+                >
                     <div className="text-truncate" style={{ maxWidth: "200px" }}>
                         {data.shared.destinationDescription}
                     </div>

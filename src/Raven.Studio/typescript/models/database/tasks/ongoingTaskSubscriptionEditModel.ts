@@ -1,6 +1,9 @@
 ﻿/// <reference path="../../../../typings/tsd.d.ts"/>
 import ongoingTaskEditModel = require("models/database/tasks/ongoingTaskEditModel");
 import jsonUtil = require("common/jsonUtil");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
 
 class ongoingTaskSubscriptionEditModel extends ongoingTaskEditModel {
 
@@ -142,7 +145,7 @@ class ongoingTaskSubscriptionEditModel extends ongoingTaskEditModel {
                         const goodState3 = !this.setStartingPoint();
                         return goodState1 || goodState2 || goodState3;
                     },
-                    message: "Please enter change vector"
+                    message: t("subscription.changeVectorRequired")
                 }]
         });
 

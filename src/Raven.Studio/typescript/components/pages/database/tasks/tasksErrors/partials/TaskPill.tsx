@@ -5,6 +5,7 @@ import Badge from "react-bootstrap/Badge";
 import { TaskWithErrors, getHealthStatusFromStats, healthStatusToBadge } from "../utils/tasksErrorsUtils";
 import { ThemeColor } from "components/models/common";
 import { databaseLocationComparator } from "components/utils/common";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 import EtlTaskStats = Raven.Server.Documents.ETL.Stats.EtlTaskStats;
 
 export interface TaskPillProps {
@@ -61,8 +62,12 @@ export function TaskPillGroupMessage({
         <div className="task-pill-message">
             <div className="d-flex align-items-center gap-2 mb-2">
                 <div>
-                    <b className="flex-grow text-nowrap">{etlTaskStatsList.length}</b>{" "}
-                    {etlTaskStatsList.length === 1 ? "task" : "tasks"}
+                    <StudioTrans
+                        ns="tasksErrors"
+                        i18nKey="pillGroup.tasks"
+                        components={{ b: <b className="flex-grow text-nowrap" /> }}
+                        options={{ count: etlTaskStatsList.length }}
+                    />
                 </div>
                 <Badge bg={bg} className="rounded-pill">
                     <Icon icon={icon} />
@@ -103,7 +108,12 @@ function TaskPillRow({ nodeTag, shardNumber, taskName, errorCount }: TaskPillRow
             </div>
             <span className="small text-muted ms-auto text-nowrap flex-shrink-0">
                 <Icon icon="warning" color="danger" margin="m-0" />
-                <b> {errorCount}</b> {errorCount === 1 ? "error" : "errors"}
+                <StudioTrans
+                    ns="tasksErrors"
+                    i18nKey="pillGroup.errors"
+                    components={{ b: <b /> }}
+                    options={{ count: errorCount }}
+                />
             </span>
         </div>
     );

@@ -17,8 +17,11 @@ import ReactAce from "react-ace";
 import { useRef } from "react";
 import EditGenAiTaskCancelButton from "../EditGenAiTaskCancelButton";
 import { updateScriptSamplesTabs } from "../../editGenAiTaskSamplesData";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export function EditGenAiTaskStepUpdate() {
+    const t = useStudioTranslation("editGenAiTask");
     const { control, setValue } = useFormContext<EditGenAiTaskFormData>();
 
     const scriptRef = useRef<ReactAce>(null);
@@ -26,26 +29,22 @@ export function EditGenAiTaskStepUpdate() {
     return (
         <>
             <div className="hstack justify-content-between">
-                <AboutViewHeading title="Provide update script" marginBottom={2} icon="genai" />
+                <AboutViewHeading title={t("update.title")} marginBottom={2} icon="genai" />
                 <EditGenAiTaskInfoHub />
             </div>
             <p className="mb-4">
-                The &quot;update script&quot; provided in this step will be used to modify your source documents based
-                on the content of the model’s output objects.
-                <br />
-                Use the playground to test the effect of the script on a sample source document.
+                <StudioTrans ns="editGenAiTask" i18nKey="update.intro" components={{ br: <br /> }} />
             </p>
             <FormGroup>
                 <FormLabel>
-                    Update script
+                    {t("update.updateScript")}
                     <PopoverWithHoverWrapper
                         message={
-                            <>
-                                Provide a script to update your source documents using the model&apos;s response.
-                                <br />
-                                You can refer to <code>$input</code> (the context object) and <code>$output</code> (the
-                                model&apos;s response object) within the script.
-                            </>
+                            <StudioTrans
+                                ns="editGenAiTask"
+                                i18nKey="update.updateScriptInfo"
+                                components={{ br: <br />, code: <code /> }}
+                            />
                         }
                     >
                         <Icon icon="info" color="info" margin="ms-1" />
@@ -75,6 +74,7 @@ export function EditGenAiTaskStepUpdate() {
 }
 
 export function EditGenAiTaskStepUpdateFooter() {
+    const t = useStudioTranslation("editGenAiTask");
     const dispatch = useAppDispatch();
     const { control, trigger } = useFormContext<EditGenAiTaskFormData>();
     const formValues = useWatch<EditGenAiTaskFormData>({ control });
@@ -106,7 +106,7 @@ export function EditGenAiTaskStepUpdateFooter() {
                     className="rounded-pill"
                     onClick={() => dispatch(editGenAiTaskActions.currentStepSet("modelInput"))}
                 >
-                    <Icon icon="arrow-left" /> Back
+                    <Icon icon="arrow-left" /> {t("footer.back")}
                 </Button>
             </div>
             <div className="hstack gap-2">
@@ -114,32 +114,24 @@ export function EditGenAiTaskStepUpdateFooter() {
                     conditions={[
                         {
                             isActive: !formValues.playgroundDocument,
-                            message:
-                                "To test the the update script, select or provide a sample document in the playground.",
+                            message: t("update.testDisabledNoDocument"),
                         },
                         {
                             isActive: formValues.playgroundContexts.length === 0,
-                            message:
-                                "To test the update script, either generate context objects in the 'Generate context objects' step or enter custom ones using Edit mode.",
+                            message: t("update.testDisabledNoContexts"),
                         },
                         {
                             isActive: formValues.playgroundModelOutputs.length === 0,
-                            message:
-                                "To test the update script, either generate model output objects in the previous step or enter custom ones here using Edit mode.",
+                            message: t("update.testDisabledNoModelOutputs"),
                         },
                         {
                             isActive: formValues.playgroundContexts.length !== formValues.playgroundModelOutputs.length,
-                            message:
-                                "To test the update script, the number of context objects and model output objects must be the same.",
+                            message: t("update.testDisabledCountMismatch"),
                         },
                         {
                             isActive: true,
                             message: (
-                                <>
-                                    Click to test the update script.
-                                    <br />
-                                    The updated sample source document will be shown in the results pane.
-                                </>
+                                <StudioTrans ns="editGenAiTask" i18nKey="update.testInfo" components={{ br: <br /> }} />
                             ),
                         },
                     ]}
@@ -152,12 +144,12 @@ export function EditGenAiTaskStepUpdateFooter() {
                         icon="test"
                         disabled={isTestButtonDisabled}
                     >
-                        Test update script
+                        {t("update.test")}
                     </ButtonWithSpinner>
                 </ConditionalPopover>
 
                 <Button variant="primary" className="rounded-pill" onClick={handleNext}>
-                    Next <Icon icon="arrow-right" margin="ms-1" />
+                    {t("footer.next")} <Icon icon="arrow-right" margin="ms-1" />
                 </Button>
             </div>
         </div>

@@ -11,21 +11,20 @@ import { useEditGenAiTaskTests } from "../../hooks/useEditGenAiTaskTests";
 import { ConditionalPopover } from "components/common/ConditionalPopover";
 import EditGenAiTaskInfoHub from "../../EditGenAiTaskInfoHub";
 import EditGenAiTaskCancelButton from "../EditGenAiTaskCancelButton";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export function EditGenAiTaskStepContext() {
+    const t = useStudioTranslation("editGenAiTask");
+
     return (
         <>
             <div className="hstack justify-content-between">
-                <AboutViewHeading title="Generate context objects" marginBottom={2} icon="genai" />
+                <AboutViewHeading title={t("context.title")} marginBottom={2} icon="genai" />
                 <EditGenAiTaskInfoHub />
             </div>
             <p className="mb-4">
-                The context objects generated in this step will be used as input for the model.
-                <br />
-                Each context object will be sent in a separate request, along with the prompt and JSON schema defined in
-                the next step.
-                <br />
-                Use the playground to test the context generation script on a sample document.
+                <StudioTrans ns="editGenAiTask" i18nKey="context.intro" components={{ br: <br /> }} />
             </p>
             <EditGenAiTaskContextFields />
         </>
@@ -33,6 +32,7 @@ export function EditGenAiTaskStepContext() {
 }
 
 export function EditGenAiTaskStepContextFooter() {
+    const t = useStudioTranslation("editGenAiTask");
     const dispatch = useAppDispatch();
     const { control, trigger } = useFormContext<EditGenAiTaskFormData>();
     const formValues = useWatch<EditGenAiTaskFormData>({ control });
@@ -61,7 +61,7 @@ export function EditGenAiTaskStepContextFooter() {
                     className="rounded-pill"
                     onClick={() => dispatch(editGenAiTaskActions.currentStepSet("basic"))}
                 >
-                    <Icon icon="arrow-left" /> Back
+                    <Icon icon="arrow-left" /> {t("footer.back")}
                 </Button>
             </div>
             <div className="hstack gap-2">
@@ -69,17 +69,16 @@ export function EditGenAiTaskStepContextFooter() {
                     conditions={[
                         {
                             isActive: !formValues.playgroundDocument,
-                            message:
-                                "To test the context generation script, select or provide a sample document in the playground.",
+                            message: t("context.testDisabledNoDocument"),
                         },
                         {
                             isActive: true,
                             message: (
-                                <>
-                                    Click to test the context generation script on the sample document.
-                                    <br />
-                                    The resulting context object(s) will be shown in the results pane.
-                                </>
+                                <StudioTrans
+                                    ns="editGenAiTask"
+                                    i18nKey="context.testInfo"
+                                    components={{ br: <br /> }}
+                                />
                             ),
                         },
                     ]}
@@ -92,12 +91,12 @@ export function EditGenAiTaskStepContextFooter() {
                         disabled={isTestButtonDisabled}
                         icon="test"
                     >
-                        Test context
+                        {t("context.test")}
                     </ButtonWithSpinner>
                 </ConditionalPopover>
 
                 <Button variant="primary" className="rounded-pill" onClick={handleNext}>
-                    Next <Icon icon="arrow-right" margin="ms-1" />
+                    {t("footer.next")} <Icon icon="arrow-right" margin="ms-1" />
                 </Button>
             </div>
         </div>

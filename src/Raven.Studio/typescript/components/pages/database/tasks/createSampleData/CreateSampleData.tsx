@@ -19,8 +19,11 @@ import { databaseSelectors } from "components/common/shell/databaseSliceSelector
 import collectionsTracker from "common/helpers/database/collectionsTracker";
 import activeDatabaseTracker from "common/shell/activeDatabaseTracker";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 function CreateSampleData() {
+    const t = useStudioTranslation("createSampleData");
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const { tasksService } = useServices();
 
@@ -59,17 +62,13 @@ function CreateSampleData() {
             <div className="scroll">
                 <div className="center">
                     <div className="flex-vertical flex-center text-center">
-                        <p className="lead text-emphasis margin-bottom">
-                            This action populates the database with various collections, .json documents, indexes, and
-                            document extensions such as time series, counters, attachments, and revisions.
-                        </p>
+                        <p className="lead text-emphasis margin-bottom">{t("intro")}</p>
                         <p className="small">
-                            The{" "}
-                            <a href={docsLink} target="_blank">
-                                RavenDB documentation
-                            </a>{" "}
-                            includes numerous examples that are based on this sample data. This is a simple and
-                            effective way to familiarize yourself with RavenDB features and experiment with the data.
+                            <StudioTrans
+                                ns="createSampleData"
+                                i18nKey="docsInfo"
+                                components={{ a: <a href={docsLink} target="_blank" /> }}
+                            />
                         </p>
                         <div className="margin-top margin-bottom-sm">
                             <ButtonWithSpinner
@@ -85,15 +84,15 @@ function CreateSampleData() {
                                     asyncCreateSampleData.status === "success"
                                 }
                             >
-                                {asyncCreateSampleData.status === "success"
-                                    ? "Sample data created"
-                                    : "Create sample data"}
+                                {t("createButton", {
+                                    context: asyncCreateSampleData.status === "success" ? "success" : "idle",
+                                })}
                             </ButtonWithSpinner>
 
                             {asyncFetchCollectionsStats.status === "success" && !canCreateSampleData && (
                                 <div className="padding padding-xs margin-top-sm text-warning">
                                     <Icon icon="warning" />
-                                    Requires an empty database
+                                    {t("requiresEmptyDatabase")}
                                 </div>
                             )}
 
@@ -101,7 +100,7 @@ function CreateSampleData() {
                                 <div className="padding padding-xs margin-top-sm">
                                     <a href={appUrl.forDocuments("", databaseName)}>
                                         <Icon icon="arrow-thin-right" />
-                                        Go to documents
+                                        {t("goToDocuments")}
                                     </a>
                                 </div>
                             )}
@@ -112,7 +111,8 @@ function CreateSampleData() {
                             className="rounded-pill margin-bottom-md"
                             onClick={toggleCodeSample}
                         >
-                            <Icon icon="hash" /> {isCodeSampleOpen ? "Hide" : "Show"} C# classes
+                            <Icon icon="hash" />{" "}
+                            {t("codeSample.toggle", { context: isCodeSampleOpen ? "hide" : "show" })}
                         </Button>
                     </div>
                     <Collapse in={isCodeSampleOpen}>
@@ -120,7 +120,7 @@ function CreateSampleData() {
                             <Card className="sample-code">
                                 <Card.Body>
                                     <div className="sample-code-header">
-                                        <h3>Sample data C# code</h3>
+                                        <h3>{t("codeSample.title")}</h3>
                                         {asyncGetSampleDataClasses.result && (
                                             <Button
                                                 variant="secondary"
@@ -128,11 +128,11 @@ function CreateSampleData() {
                                                 onClick={() =>
                                                     copyToClipboard.copy(
                                                         asyncGetSampleDataClasses.result,
-                                                        "Copied C# classes to clipboard."
+                                                        t("codeSample.copied")
                                                     )
                                                 }
                                             >
-                                                <Icon icon="copy" /> <span>Copy C# classes</span>
+                                                <Icon icon="copy" /> <span>{t("codeSample.copy")}</span>
                                             </Button>
                                         )}
                                     </div>
@@ -143,7 +143,7 @@ function CreateSampleData() {
                                     )}
                                     {asyncGetSampleDataClasses.error && (
                                         <LoadError
-                                            error="Unable to load sample data classes"
+                                            error={t("codeSample.loadError")}
                                             refresh={asyncGetSampleDataClasses.execute}
                                         />
                                     )}

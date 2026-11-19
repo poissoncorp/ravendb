@@ -3,8 +3,11 @@ import ongoingTaskEditModel = require("models/database/tasks/ongoingTaskEditMode
 import TaskUtils = require("components/utils/TaskUtils");
 import TimeInSeconds = require("common/constants/timeInSeconds");
 import genUtils = require("common/generalUtils");
+import i18nModule = require("common/i18n/i18n");
 
 type EmbeddingsSource = "script" | "paths";
+
+const t = i18nModule.createTranslator("tasksModels");
 
 const defaultChunkingMethod: Raven.Client.Documents.Operations.AI.ChunkingMethod = "PlainTextSplit";
 const defaultEmbeddingsCacheForQueryingExpiration = TimeInSeconds.TimeInSeconds.Day * 14;
@@ -23,12 +26,12 @@ class ongoingTaskEmbeddingsGenerationEditModel extends ongoingTaskEditModel {
     maxTokensPerChunkDefaultValue: KnockoutObservable<number>;
 
     chunkingMethodOptions: valueAndLabelItem<Raven.Client.Documents.Operations.AI.ChunkingMethod, string>[] = [
-        { value: "PlainTextSplit", label: "Plain Text: Split" },
-        { value: "PlainTextSplitLines", label: "Plain Text: Split Lines" },
-        { value: "PlainTextSplitParagraphs", label: "Plain Text: Split Paragraphs" },
-        { value: "MarkDownSplitLines", label: "Markdown: Split Lines" },
-        { value: "MarkDownSplitParagraphs", label: "Markdown: Split Paragraphs" },
-        { value: "HtmlStrip", label: "HTML: Strip" },
+        { value: "PlainTextSplit", label: t("embeddingsGeneration.chunkingMethods.plainTextSplit") },
+        { value: "PlainTextSplitLines", label: t("embeddingsGeneration.chunkingMethods.plainTextSplitLines") },
+        { value: "PlainTextSplitParagraphs", label: t("embeddingsGeneration.chunkingMethods.plainTextSplitParagraphs") },
+        { value: "MarkDownSplitLines", label: t("embeddingsGeneration.chunkingMethods.markdownSplitLines") },
+        { value: "MarkDownSplitParagraphs", label: t("embeddingsGeneration.chunkingMethods.markdownSplitParagraphs") },
+        { value: "HtmlStrip", label: t("embeddingsGeneration.chunkingMethods.htmlStrip") },
     ];
 
     // path configuration inputs
@@ -54,9 +57,9 @@ class ongoingTaskEmbeddingsGenerationEditModel extends ongoingTaskEditModel {
 
     quantizationType = ko.observable<Raven.Client.Documents.Indexes.Vector.VectorEmbeddingType>("Single");
     quantizationTypeOptions: valueAndLabelItem<Raven.Client.Documents.Indexes.Vector.VectorEmbeddingType, string>[] = [
-        { value: "Single", label: "Single (no quantization)" },
-        { value: "Int8", label: "Int8" },
-        { value: "Binary", label: "Binary" }
+        { value: "Single", label: t("embeddingsGeneration.quantizationTypes.single") },
+        { value: "Int8", label: t("embeddingsGeneration.quantizationTypes.int8") },
+        { value: "Binary", label: t("embeddingsGeneration.quantizationTypes.binary") }
     ];
     quantizationTypeLabel: KnockoutComputed<string>;
 
@@ -139,29 +142,29 @@ class ongoingTaskEmbeddingsGenerationEditModel extends ongoingTaskEditModel {
         });
 
         this.quantizationTypeLabel = ko.pureComputed(() => {
-            return this.quantizationTypeOptions.find(x => x.value === this.quantizationType())?.label || "Select quantization type";
+            return this.quantizationTypeOptions.find(x => x.value === this.quantizationType())?.label || t("embeddingsGeneration.selectQuantizationType");
         });
 
         this.queryingChunkingMethodLabel = ko.pureComputed(() => {
-            return this.chunkingMethodOptions.find(x => x.value === this.queryingChunkingMethod())?.label || "Select chunking method";
+            return this.chunkingMethodOptions.find(x => x.value === this.queryingChunkingMethod())?.label || t("embeddingsGeneration.selectChunkingMethod");
         });
 
         this.transformationChunkingMethodLabel = ko.pureComputed(() => {
-            return this.chunkingMethodOptions.find(x => x.value === this.transformationChunkingMethod())?.label || "Select chunking method";
+            return this.chunkingMethodOptions.find(x => x.value === this.transformationChunkingMethod())?.label || t("embeddingsGeneration.selectChunkingMethod");
         });
 
         this.pathConfigurationChunkingMethodLabel = ko.pureComputed(() => {
-            return this.chunkingMethodOptions.find(x => x.value === this.pathConfigurationChunkingMethod())?.label || "Select chunking method";
+            return this.chunkingMethodOptions.find(x => x.value === this.pathConfigurationChunkingMethod())?.label || t("embeddingsGeneration.selectChunkingMethod");
         });
 
         this.embeddingsSourceLabel = ko.pureComputed(() => {
             const source = this.embeddingsSource();
 
             if (source === "script") {
-                return "Script";
+                return t("embeddingsGeneration.embeddingsSource.script");
             }
             if (source === "paths") {
-                return "Paths";
+                return t("embeddingsGeneration.embeddingsSource.paths");
             }
             return genUtils.assertUnreachable(source);
         });
@@ -219,7 +222,7 @@ class ongoingTaskEmbeddingsGenerationEditModel extends ongoingTaskEditModel {
             validation: [
                 {
                     validator: () => /^[a-z0-9-]+$/.test(this.identifier()),
-                    message: "Only lowercase letters (a-z), numbers (0-9) and hyphens (-) are allowed."
+                    message: t("embeddingsGeneration.identifierFormat")
                 }
             ]
         });
@@ -233,7 +236,7 @@ class ongoingTaskEmbeddingsGenerationEditModel extends ongoingTaskEditModel {
                 {
                     onlyIf: () => this.embeddingsSource() === "paths",
                     validator: () => this.embeddingPathConfigurations().length > 0,
-                    message: "At least one path is required"
+                    message: t("embeddingsGeneration.pathRequired")
                 }
             ]
         });
@@ -256,7 +259,7 @@ class ongoingTaskEmbeddingsGenerationEditModel extends ongoingTaskEditModel {
                         const maxTokensPerChunk = this.queryingMaxTokensPerChunk() ?? this.maxTokensPerChunkDefaultValue();
                         return overlapTokens <= maxTokensPerChunk;
                     },
-                    message: "Overlap tokens must be less than or equal to max tokens per chunk"
+                    message: t("embeddingsGeneration.overlapTokensTooLarge")
                 }
             ]
         });
@@ -288,7 +291,7 @@ class ongoingTaskEmbeddingsGenerationEditModel extends ongoingTaskEditModel {
                         const maxTokensPerChunk = this.transformationMaxTokensPerChunk() ?? this.maxTokensPerChunkDefaultValue();
                         return overlapTokens <= maxTokensPerChunk;
                     },
-                    message: "Overlap tokens must be less than or equal to max tokens per chunk"
+                    message: t("embeddingsGeneration.overlapTokensTooLarge")
                 }
             ]
         });
@@ -325,7 +328,7 @@ class ongoingTaskEmbeddingsGenerationEditModel extends ongoingTaskEditModel {
                 {
                     onlyIf: () => this.embeddingsSource() === "paths",
                     validator: () => !this.embeddingPathConfigurations().map(x => x.Path).includes(this.pathConfigurationPath()),
-                    message: "Path already exists"
+                    message: t("embeddingsGeneration.pathExists")
                 }
             ]
         });
@@ -350,7 +353,7 @@ class ongoingTaskEmbeddingsGenerationEditModel extends ongoingTaskEditModel {
                         const maxTokensPerChunk = this.pathConfigurationMaxTokensPerChunk() ?? this.maxTokensPerChunkDefaultValue();
                         return overlapTokens <= maxTokensPerChunk;
                     },
-                    message: "Overlap tokens must be less than or equal to max tokens per chunk"
+                    message: t("embeddingsGeneration.overlapTokensTooLarge")
                 }
             ]
         });

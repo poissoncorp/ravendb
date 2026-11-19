@@ -1,10 +1,15 @@
 ﻿/// <reference path="../../../../typings/tsd.d.ts"/>
 import collectionsTracker = require("common/helpers/database/collectionsTracker");
 import jsonUtil = require("common/jsonUtil");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
 
 class ongoingTaskRavenEtlTransformationModel {
     
-    static readonly applyToAllCollectionsText = "Apply to All Collections";
+    static get applyToAllCollectionsText(): string {
+        return t("applyToAllCollections");
+    }
     
     name = ko.observable<string>();
     script = ko.observable<string>();
@@ -85,7 +90,7 @@ class ongoingTaskRavenEtlTransformationModel {
             validation: [
                 {
                     validator: () => this.applyScriptForAllCollections() || this.transformScriptCollections().length > 0,
-                    message: "At least one collection is required"
+                    message: t("validation.collectionRequired")
                 }
             ]
         });

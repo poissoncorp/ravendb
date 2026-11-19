@@ -26,11 +26,13 @@ import { useAppSelector } from "components/store";
 import { Icon } from "components/common/Icon";
 import { EtlPanelBaseProps, useEtlPanel } from "./etlPanelUtils";
 import { TaskPanelErrors, EtlPanelHealthBadge, EtlPanelProgressItem, EtlPanelToggleButton } from "./EtlPanelComponents";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type KafkaEtlPanelProps = EtlPanelBaseProps<OngoingTaskKafkaEtlInfo>;
 
 export function KafkaEtlPanel(props: KafkaEtlPanelProps) {
     const { data, toggleSelection, isSelected, onTaskOperation, isDeleting, isTogglingState, etlStats } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     const { forCurrentDatabase } = useAppUrls();
     const editUrl = forCurrentDatabase.editKafkaEtl(data.shared.taskId)();
@@ -86,7 +88,7 @@ export function KafkaEtlPanel(props: KafkaEtlPanelProps) {
             </RichPanelHeader>
             <RichPanelDetails>
                 <EtlPanelToggleButton detailsVisible={detailsVisible} toggleDetails={toggleDetails} />
-                <RichPanelDetailItem label="Type">
+                <RichPanelDetailItem label={t("taskDetails.type")}>
                     <Icon icon="kafka-etl" />
                     Kafka ETL
                 </RichPanelDetailItem>
@@ -97,7 +99,7 @@ export function KafkaEtlPanel(props: KafkaEtlPanelProps) {
                     connectionStringType="Kafka"
                     databaseName={databaseName}
                 />
-                <RichPanelDetailItem label="Bootstrap Servers">{data.shared.url}</RichPanelDetailItem>
+                <RichPanelDetailItem label={t("taskDetails.bootstrapServers")}>{data.shared.url}</RichPanelDetailItem>
                 <EtlPanelHealthBadge taskHealth={taskHealth} />
                 <TaskPanelErrors
                     errorCount={errorCount}

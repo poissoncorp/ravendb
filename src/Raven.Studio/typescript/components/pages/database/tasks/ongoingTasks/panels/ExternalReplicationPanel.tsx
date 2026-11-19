@@ -27,11 +27,13 @@ import { useAppSelector } from "components/store";
 import { accessManagerSelectors } from "components/common/shell/accessManagerSliceSelectors";
 import { ExternalReplicationTaskDistribution } from "components/pages/database/tasks/ongoingTasks/partials/ExternalReplicationTaskDistribution";
 import { Icon } from "components/common/Icon";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type ExternalReplicationPanelProps = BaseOngoingTaskPanelProps<OngoingTaskExternalReplicationInfo>;
 
 function Details(props: ExternalReplicationPanelProps & { canEdit: boolean }) {
     const { data, canEdit } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     const showDelayReplication = data.shared.delayReplicationTime > 0;
     const delayHumane = genUtils.formatTimeSpan(1000 * (data.shared.delayReplicationTime ?? 0), true);
@@ -41,7 +43,7 @@ function Details(props: ExternalReplicationPanelProps & { canEdit: boolean }) {
     return (
         <RichPanelDetails>
             {showDelayReplication && (
-                <RichPanelDetailItem label="Replication Delay Time">{delayHumane}</RichPanelDetailItem>
+                <RichPanelDetailItem label={t("taskDetails.replicationDelayTime")}>{delayHumane}</RichPanelDetailItem>
             )}
             <ConnectionStringItem
                 connectionStringDefined={!!data.shared.destinationDatabase}
@@ -51,13 +53,16 @@ function Details(props: ExternalReplicationPanelProps & { canEdit: boolean }) {
                 databaseName={databaseName}
             />
             {connectionStringDefined && (
-                <RichPanelDetailItem label="Destination Database">
+                <RichPanelDetailItem label={t("taskDetails.destinationDatabase")}>
                     {data.shared.destinationDatabase}
                 </RichPanelDetailItem>
             )}
-            <DestinationUrlItem destinationUrl={data.shared.destinationUrl} label="Actual Destination URL" />
+            <DestinationUrlItem
+                destinationUrl={data.shared.destinationUrl}
+                label={t("taskDetails.actualDestinationUrl")}
+            />
             {data.shared.topologyDiscoveryUrls?.length > 0 && (
-                <RichPanelDetailItem label="Topology Discovery URLs">
+                <RichPanelDetailItem label={t("taskDetails.topologyDiscoveryUrls")}>
                     {data.shared.topologyDiscoveryUrls.join(", ")}
                 </RichPanelDetailItem>
             )}
@@ -67,6 +72,7 @@ function Details(props: ExternalReplicationPanelProps & { canEdit: boolean }) {
 
 export function ExternalReplicationPanel(props: ExternalReplicationPanelProps) {
     const { data, toggleSelection, isSelected, onTaskOperation, isDeleting, isTogglingState } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
     const { forCurrentDatabase } = useAppUrls();
@@ -94,7 +100,7 @@ export function ExternalReplicationPanel(props: ExternalReplicationPanelProps) {
                 <RichPanelActions>
                     <span>
                         <Icon icon="external-replication" />
-                        External Replication
+                        {t("taskType.externalReplication")}
                     </span>
                     <OngoingTaskResponsibleNode task={data} />
                     <OngoingTaskStatus

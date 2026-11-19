@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksCommands");
 
 class getReplicationHubTaskInfoCommand extends commandBase {
 
@@ -18,7 +21,7 @@ class getReplicationHubTaskInfoCommand extends commandBase {
         
         return this.query<Raven.Client.Documents.Operations.Replication.PullReplicationDefinitionAndCurrentConnections>(url, null, this.db)
             .fail((response: JQueryXHR) => {
-                this.reportError(`Failed to get info for Replication Hub task with id: ${this.taskId}. `, response.responseText, response.statusText);
+                this.reportError(t("hubTaskInfoFailed", { taskId: this.taskId }), response.responseText, response.statusText);
             });
     }
 }

@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksCommands");
 
 class saveEtlTaskCommand<T extends Raven.Client.Documents.Operations.ETL.RavenEtlConfiguration | 
                                    Raven.Client.Documents.Operations.ETL.SQL.SqlEtlConfiguration |
@@ -17,23 +20,23 @@ class saveEtlTaskCommand<T extends Raven.Client.Documents.Operations.ETL.RavenEt
 
     execute(): JQueryPromise<Raven.Client.Documents.Operations.OngoingTasks.ModifyOngoingTaskResult> {
 
-        const taskLabel = this.getTaskLabel();
+        const taskLabelOptions = this.getTaskLabelOptions();
 
         return this.updateEtl()
             .fail((response: JQueryXHR) => {
-                this.reportError(`Failed to save ${taskLabel} task`, response.responseText, response.statusText);
+                this.reportError(t("etlSaveFailed", taskLabelOptions), response.responseText, response.statusText);
             })
             .done(() => {
-                this.reportSuccess(`Saved ${taskLabel} task`); 
+                this.reportSuccess(t("etlSaved", taskLabelOptions)); 
             });
     }
 
-    private getTaskLabel(): string {
+    private getTaskLabelOptions(): { etlType: string; context?: "embeddingsGeneration" } {
         if (this.payload.EtlType === "EmbeddingsGeneration") {
-            return "Embeddings Generation";
+            return { etlType: this.payload.EtlType, context: "embeddingsGeneration" };
         }
 
-        return `${this.payload.EtlType.toUpperCase()} ETL`;
+        return { etlType: this.payload.EtlType.toUpperCase() };
     }
 
     private updateEtl(): JQueryPromise<Raven.Client.Documents.Operations.OngoingTasks.ModifyOngoingTaskResult> {

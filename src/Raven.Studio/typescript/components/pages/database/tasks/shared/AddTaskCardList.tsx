@@ -10,6 +10,7 @@ import { useEventsCollector } from "hooks/useEventsCollector";
 import LicenseRestrictedBadge, { LicenseBadgeText } from "components/common/LicenseRestrictedBadge";
 import IconName from "typings/server/icons";
 import { OngoingTaskFilterType } from "components/pages/database/tasks/ongoingTasks/partials/OngoingTasksFilter";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export type TaskCardDisplayMode = "expanded" | "compact";
 
@@ -45,8 +46,10 @@ interface AddTaskCardListProps {
 }
 
 export function AddTaskCardList({ categories, isAiOnly, displayMode = "expanded" }: AddTaskCardListProps) {
+    const t = useStudioTranslation("shared");
+
     if (categories.length === 0) {
-        return <EmptySet>No tasks match your filter criteria</EmptySet>;
+        return <EmptySet>{t("addTask.noMatch")}</EmptySet>;
     }
 
     const isCompact = displayMode === "compact";

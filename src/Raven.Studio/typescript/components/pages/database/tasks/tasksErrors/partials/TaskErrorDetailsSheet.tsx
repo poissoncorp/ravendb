@@ -13,8 +13,15 @@ import { useAppSelector } from "components/store";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
 import genUtils from "common/generalUtils";
 import moment from "moment";
-import { FlatError, getStepIcon, getTaskTypeDisplay, healthStatusToBadge } from "../utils/tasksErrorsUtils";
+import {
+    FlatError,
+    getStepIcon,
+    getStepLabel,
+    getTaskTypeDisplay,
+    healthStatusToBadge,
+} from "../utils/tasksErrorsUtils";
 import Code from "components/common/Code";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface SheetDetailRowProps {
     children: ReactNode;
@@ -45,6 +52,7 @@ export default function TaskErrorDetailsSheet({
     allErrors = [],
     initialIndex = 0,
 }: TaskErrorDetailsSheetProps) {
+    const t = useStudioTranslation("tasksErrors");
     const dbName = useAppSelector(databaseSelectors.activeDatabaseName);
 
     const { currentIndex, direction, navigate, hasPrevious, hasNext } = useSheetSlideNavigation(
@@ -62,14 +70,14 @@ export default function TaskErrorDetailsSheet({
             <ViewSheet.Header>
                 <h3 className="mb-0">
                     <Icon icon="warning" color="warning" />
-                    Task error details
+                    {t("details.title")}
                 </h3>
             </ViewSheet.Header>
             <ViewSheet.Body className="m-2">
                 <SheetSlideTransition currentIndex={currentIndex} direction={direction} className="vstack gap-0">
                     {error.etlName && error.transformationName ? (
                         <SheetDetailRow>
-                            <div className="small">Task name/Script name</div>
+                            <div className="small">{t("details.taskName")}</div>
                             <div className="d-flex align-items-center text-right">
                                 {taskTypeIcon && <Icon icon={taskTypeIcon} />}
                                 <div>
@@ -80,7 +88,7 @@ export default function TaskErrorDetailsSheet({
                     ) : (
                         error.TaskName && (
                             <SheetDetailRow>
-                                <div className="small">Task name/Script name</div>
+                                <div className="small">{t("details.taskName")}</div>
                                 <div className="d-flex align-items-center">
                                     {taskTypeIcon && <Icon icon={taskTypeIcon} />}
                                     <div>{error.TaskName}</div>
@@ -90,7 +98,7 @@ export default function TaskErrorDetailsSheet({
                     )}
 
                     <SheetDetailRow>
-                        <div className="small">Task type</div>
+                        <div className="small">{t("details.taskType")}</div>
                         <div className="d-flex align-items-center">
                             {taskTypeIcon && <Icon icon={taskTypeIcon} />}
                             {taskTypeLabel}
@@ -99,44 +107,44 @@ export default function TaskErrorDetailsSheet({
 
                     {error.errorType && (
                         <SheetDetailRow>
-                            <div className="small">Error type</div>
+                            <div className="small">{t("details.errorType")}</div>
                             <Badge
                                 bg={error.errorType === "Item" ? "secondary" : "info"}
                                 className="rounded-pill cell-value"
                             >
                                 <Icon icon={error.errorType === "Item" ? "tasks" : "hammer-driver"} />
-                                {error.errorType === "Item" ? "Item Error" : "Process Error"}
+                                {error.errorType === "Item" ? t("errorType.item") : t("errorType.process")}
                             </Badge>
                         </SheetDetailRow>
                     )}
 
                     {error.Step && (
                         <SheetDetailRow>
-                            <div className="small">Error step</div>
+                            <div className="small">{t("details.errorStep")}</div>
                             <div>
                                 {stepIcon && <Icon icon={stepIcon} />}
-                                {error.Step}
+                                {getStepLabel(error.Step)}
                             </div>
                         </SheetDetailRow>
                     )}
 
                     {error.errorType === "Item" && error.DocumentId && (
                         <SheetDetailRow>
-                            <div className="small">Document ID</div>
+                            <div className="small">{t("details.documentId")}</div>
                             <CellDocumentId id={error.DocumentId} databaseName={dbName} hasHyperlink />
                         </SheetDetailRow>
                     )}
 
                     {error.errorType === "Process" && error.AffectedDocumentsCount != null && (
                         <SheetDetailRow>
-                            <div className="small">Affected Documents</div>
+                            <div className="small">{t("details.affectedDocuments")}</div>
                             <div>{error.AffectedDocumentsCount}</div>
                         </SheetDetailRow>
                     )}
 
                     {error.CreatedAt && (
                         <SheetDetailRow>
-                            <div className="small">Date</div>
+                            <div className="small">{t("details.date")}</div>
                             <div className="vstack align-items-end">
                                 <span>{moment(error.CreatedAt).format(genUtils.dateFormat)}</span>
                                 <small className="text-muted">
@@ -148,7 +156,7 @@ export default function TaskErrorDetailsSheet({
 
                     {error.healthStatus && (
                         <SheetDetailRow>
-                            <div className="small">Current task health</div>
+                            <div className="small">{t("details.currentTaskHealth")}</div>
                             <Badge bg={bg} className="rounded-pill">
                                 <Icon icon={icon} />
                                 {label}
@@ -157,7 +165,7 @@ export default function TaskErrorDetailsSheet({
                     )}
 
                     <SheetDetailRow className="border-bottom-0">
-                        <div className="small">Localization</div>
+                        <div className="small">{t("details.localization")}</div>
                         <div className="d-flex align-items-center gap-2">
                             <div className="d-flex align-items-center justify-content-center">
                                 <Icon icon="node" color="node" />

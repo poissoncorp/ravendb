@@ -5,8 +5,10 @@ import { Icon } from "components/common/Icon";
 import { DatabaseSettingKey, ImportFromFileFormData, databaseSettingKeys } from "../importFromFileValidation";
 import { useMinPeriodWarning } from "../useMinPeriodWarning";
 import { useImportRestrictions } from "../useImportRestrictions";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function MinPeriodWarningAlert() {
+    const t = useStudioTranslation("importFromFile");
     const { control, setValue } = useFormContext<ImportFromFileFormData>();
     const { databaseSettings: settingRestrictions } = useImportRestrictions();
     const warnings = useMinPeriodWarning();
@@ -39,12 +41,9 @@ export default function MinPeriodWarningAlert() {
     return (
         <div className="import-info-panel mt-3">
             <h4 className="hstack gap-1 mb-1">
-                <Icon icon="license" margin="m-0" /> Frequency limited by your license
+                <Icon icon="license" margin="m-0" /> {t("selectFile.minPeriod.title")}
             </h4>
-            <div>
-                Your license limits the frequency of the following settings. If this file carries a shorter frequency,
-                the whole import will fail - turn a setting off to leave it out of the import.
-            </div>
+            <div>{t("selectFile.minPeriod.description")}</div>
             <div className="d-flex flex-column gap-1 mt-2">
                 {warnings.map(({ key, label, minPeriodInHours }) => (
                     <Form.Check
@@ -55,7 +54,7 @@ export default function MinPeriodWarningAlert() {
                         disabled={!file}
                         checked={isImportAllSettings || !!databaseSettings?.[key]}
                         onChange={(e) => setSettingIncluded(key, e.target.checked)}
-                        label={`${label} (min. ${minPeriodInHours} hours)`}
+                        label={t("selectFile.minPeriod.setting", { label, count: minPeriodInHours })}
                     />
                 ))}
             </div>

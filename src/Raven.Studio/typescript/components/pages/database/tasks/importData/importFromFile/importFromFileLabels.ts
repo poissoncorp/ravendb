@@ -1,48 +1,121 @@
 import IconName from "../../../../../../../typings/server/icons";
 import { ConnectionStringKey, DatabaseSettingKey, OngoingTaskKey } from "./importFromFileValidation";
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("importFromFile");
 
 export const databaseSettingLabels: Record<DatabaseSettingKey, string> = {
-    settings: "Settings",
-    conflictSolverConfig: "Conflict Solver Configuration",
-    client: "Client Configuration",
-    revisions: "Revisions Configuration",
-    refresh: "Document Refresh",
-    expiration: "Document Expiration",
-    documentsCompression: "Documents Compression",
-    schemaValidation: "Document Schema",
-    dataArchival: "Data Archival",
-    timeSeries: "Time Series Configuration",
-    sorters: "Custom Sorters",
-    analyzers: "Custom Analyzers",
-    postgreSqlIntegration: "PostgreSQL Integration",
+    get settings() {
+        return t("labels.databaseSettings.settings");
+    },
+    get conflictSolverConfig() {
+        return t("labels.databaseSettings.conflictSolverConfig");
+    },
+    get client() {
+        return t("labels.databaseSettings.client");
+    },
+    get revisions() {
+        return t("labels.databaseSettings.revisions");
+    },
+    get refresh() {
+        return t("labels.databaseSettings.refresh");
+    },
+    get expiration() {
+        return t("labels.databaseSettings.expiration");
+    },
+    get documentsCompression() {
+        return t("labels.databaseSettings.documentsCompression");
+    },
+    get schemaValidation() {
+        return t("labels.databaseSettings.schemaValidation");
+    },
+    get dataArchival() {
+        return t("labels.databaseSettings.dataArchival");
+    },
+    get timeSeries() {
+        return t("labels.databaseSettings.timeSeries");
+    },
+    get sorters() {
+        return t("labels.databaseSettings.sorters");
+    },
+    get analyzers() {
+        return t("labels.databaseSettings.analyzers");
+    },
+    get postgreSqlIntegration() {
+        return t("labels.databaseSettings.postgreSqlIntegration");
+    },
 };
 
 export const ongoingTaskLabels: Record<OngoingTaskKey, string> = {
-    periodicBackups: "Periodic Backups",
-    externalReplications: "External Replications",
-    ravenEtls: "RavenDB ETLs",
-    sqlEtls: "SQL ETLs",
-    snowflakeEtls: "Snowflake ETLs",
-    olapEtls: "OLAP ETLs",
-    elasticSearchEtls: "Elasticsearch ETLs",
-    queueEtls: "Queue ETLs (Kafka, RabbitMQ, Azure Queue Storage, Amazon SQS)",
-    hubReplications: "Replication Hubs",
-    sinkReplications: "Replication Sinks",
-    embeddingsGeneration: "Embeddings Generation",
-    genAi: "GenAI",
-    cdcSinks: "CDC Sinks",
-    aiAgents: "AI Agents",
-    remoteAttachments: "Remote Attachments",
+    get periodicBackups() {
+        return t("labels.ongoingTasks.periodicBackups");
+    },
+    get externalReplications() {
+        return t("labels.ongoingTasks.externalReplications");
+    },
+    get ravenEtls() {
+        return t("labels.ongoingTasks.ravenEtls");
+    },
+    get sqlEtls() {
+        return t("labels.ongoingTasks.sqlEtls");
+    },
+    get snowflakeEtls() {
+        return t("labels.ongoingTasks.snowflakeEtls");
+    },
+    get olapEtls() {
+        return t("labels.ongoingTasks.olapEtls");
+    },
+    get elasticSearchEtls() {
+        return t("labels.ongoingTasks.elasticSearchEtls");
+    },
+    get queueEtls() {
+        return t("labels.ongoingTasks.queueEtls");
+    },
+    get hubReplications() {
+        return t("labels.ongoingTasks.hubReplications");
+    },
+    get sinkReplications() {
+        return t("labels.ongoingTasks.sinkReplications");
+    },
+    get embeddingsGeneration() {
+        return t("labels.ongoingTasks.embeddingsGeneration");
+    },
+    get genAi() {
+        return t("labels.ongoingTasks.genAi");
+    },
+    get cdcSinks() {
+        return t("labels.ongoingTasks.cdcSinks");
+    },
+    get aiAgents() {
+        return t("labels.ongoingTasks.aiAgents");
+    },
+    get remoteAttachments() {
+        return t("labels.ongoingTasks.remoteAttachments");
+    },
 };
 
 export const connectionStringLabels: Record<ConnectionStringKey, string> = {
-    ravenConnectionStrings: "RavenDB Connection Strings",
-    sqlConnectionStrings: "SQL Connection Strings",
-    snowflakeConnectionStrings: "Snowflake Connection Strings",
-    olapConnectionStrings: "OLAP Connection Strings",
-    elasticSearchConnectionStrings: "Elasticsearch Connection Strings",
-    queueConnectionStrings: "Queue Connection Strings (Kafka, RabbitMQ, Azure Queue Storage, Amazon SQS)",
-    aiConnectionStrings: "AI Connection Strings",
+    get ravenConnectionStrings() {
+        return t("labels.connectionStrings.ravenConnectionStrings");
+    },
+    get sqlConnectionStrings() {
+        return t("labels.connectionStrings.sqlConnectionStrings");
+    },
+    get snowflakeConnectionStrings() {
+        return t("labels.connectionStrings.snowflakeConnectionStrings");
+    },
+    get olapConnectionStrings() {
+        return t("labels.connectionStrings.olapConnectionStrings");
+    },
+    get elasticSearchConnectionStrings() {
+        return t("labels.connectionStrings.elasticSearchConnectionStrings");
+    },
+    get queueConnectionStrings() {
+        return t("labels.connectionStrings.queueConnectionStrings");
+    },
+    get aiConnectionStrings() {
+        return t("labels.connectionStrings.aiConnectionStrings");
+    },
 };
 
 export const databaseSettingIcons: Record<DatabaseSettingKey, IconName> = {

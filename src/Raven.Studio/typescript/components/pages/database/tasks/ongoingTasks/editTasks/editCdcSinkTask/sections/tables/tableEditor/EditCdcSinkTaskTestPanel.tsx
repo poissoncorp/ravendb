@@ -26,6 +26,7 @@ import ExpandableListContainer from "components/common/ExpandableListContainer";
 import FormStringValueList from "components/common/formFields/FormStringValueList";
 import { connectionStringSelectors } from "components/pages/database/settings/connectionStrings/store/connectionStringsSlice";
 import { mapSqlConnectionStringToDto } from "components/pages/database/settings/connectionStrings/store/connectionStringsMapsToDto";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type TestCdcSinkRowSelector = Raven.Client.Documents.Operations.CdcSink.Test.TestCdcSinkRowSelector;
 
@@ -35,6 +36,7 @@ interface EditCdcSinkTaskTestPanelProps {
 }
 
 export default function EditCdcSinkTaskTestPanel({ editForm, path }: EditCdcSinkTaskTestPanelProps) {
+    const t = useStudioTranslation("editCdcSinkTask");
     const taskId = useAppSelector(editCdcSinkTaskSelectors.taskId);
     const sqlConnections = useAppSelector(connectionStringSelectors.connectionsByType("Sql"));
     const table = editForm.watch(path);
@@ -75,6 +77,11 @@ export default function EditCdcSinkTaskTestPanel({ editForm, path }: EditCdcSink
 
     const handleSubmit = testForm.handleSubmit(asyncTest.execute);
 
+    const rowSelectorOptions: SelectOption<TestCdcSinkRowSelector>[] = [
+        { value: "First", label: t("testPanel.rowSelectorFirst") },
+        { value: "ByPrimaryKey", label: t("testPanel.rowSelectorByPrimaryKey") },
+    ];
+
     const rowSelector = useWatch({
         control: testForm.control,
         name: "rowSelector",
@@ -95,7 +102,7 @@ export default function EditCdcSinkTaskTestPanel({ editForm, path }: EditCdcSink
                 <ViewSheet.Header>
                     <h5 className="mb-0">
                         <Icon icon="map" />
-                        Test mapping
+                        {t("testPanel.title")}
                     </h5>
                 </ViewSheet.Header>
                 <ViewSheet.Body className="vstack gap-2">
@@ -112,7 +119,7 @@ export default function EditCdcSinkTaskTestPanel({ editForm, path }: EditCdcSink
                             <Accordion.Header
                                 as={() => (
                                     <AccordionButton className="rounded-2 panel-bg-2 fs-5 p-1">
-                                        Settings
+                                        {t("testPanel.settings")}
                                         <FormErrorIcon
                                             control={testForm.control}
                                             paths={["maxRows", "rowSelector", "primaryKeyValues"]}
@@ -123,7 +130,7 @@ export default function EditCdcSinkTaskTestPanel({ editForm, path }: EditCdcSink
                             <Accordion.Body className="p-2">
                                 <div className="vstack gap-2">
                                     <FormGroup marginClass="m-0">
-                                        <FormLabel>Row selector</FormLabel>
+                                        <FormLabel>{t("testPanel.rowSelector")}</FormLabel>
                                         <FormSelect
                                             control={testForm.control}
                                             name="rowSelector"
@@ -132,14 +139,14 @@ export default function EditCdcSinkTaskTestPanel({ editForm, path }: EditCdcSink
                                     </FormGroup>
                                     {rowSelector === "First" && (
                                         <FormGroup marginClass="m-0">
-                                            <FormLabel>Max rows</FormLabel>
+                                            <FormLabel>{t("testPanel.maxRows")}</FormLabel>
                                             <FormInput type="number" control={testForm.control} name="maxRows" />
                                         </FormGroup>
                                     )}
                                     {rowSelector === "ByPrimaryKey" && (
                                         <FormStringValueList
-                                            title="Primary key values"
-                                            addButtonLabel="Add primary key value"
+                                            title={t("testPanel.primaryKeyValues")}
+                                            addButtonLabel={t("testPanel.addPrimaryKeyValue")}
                                             control={testForm.control}
                                             name="primaryKeyValues"
                                             fieldNameAccessor={(idx) => `primaryKeyValues.${idx}.value`}
@@ -148,7 +155,7 @@ export default function EditCdcSinkTaskTestPanel({ editForm, path }: EditCdcSink
                                         />
                                     )}
                                     <FormSwitch control={testForm.control} name="isSimulateOnDelete">
-                                        Simulate on delete
+                                        {t("testPanel.simulateOnDelete")}
                                     </FormSwitch>
                                 </div>
                             </Accordion.Body>
@@ -164,7 +171,7 @@ export default function EditCdcSinkTaskTestPanel({ editForm, path }: EditCdcSink
                         isSpinning={asyncTest.loading}
                         icon="test"
                     >
-                        Run test
+                        {t("testPanel.runTest")}
                     </ButtonWithSpinner>
                 </ViewSheet.Footer>
             </InnerForm>
@@ -177,6 +184,8 @@ interface TestResultProps {
 }
 
 function TestResult({ asyncTest }: TestResultProps) {
+    const t = useStudioTranslation("editCdcSinkTask");
+
     if (asyncTest.status === "not-requested" || asyncTest.status === "loading") {
         return (
             <LazyLoad active className="h-100">
@@ -186,7 +195,7 @@ function TestResult({ asyncTest }: TestResultProps) {
     }
 
     if (asyncTest.status === "error") {
-        return <LoadError error="Failed to test table" />;
+        return <LoadError error={t("testPanel.loadError")} />;
     }
 
     return (
@@ -226,8 +235,3 @@ const testSchema = yup.object({
 });
 
 type TestFormData = yup.InferType<typeof testSchema>;
-
-const rowSelectorOptions: SelectOption<TestCdcSinkRowSelector>[] = [
-    { value: "First", label: "First row" },
-    { value: "ByPrimaryKey", label: "Primary Key" },
-];

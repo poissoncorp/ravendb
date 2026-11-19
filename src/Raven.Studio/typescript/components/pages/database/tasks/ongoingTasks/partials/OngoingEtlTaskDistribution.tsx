@@ -36,6 +36,8 @@ import { accessManagerSelectors } from "components/common/shell/accessManagerSli
 import EtlTaskStats = Raven.Server.Documents.ETL.Stats.EtlTaskStats;
 import Spinner from "react-bootstrap/Spinner";
 import copyToClipboard from "common/copyToClipboard";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface OngoingEtlTaskDistributionProps {
     task: AnyEtlOngoingTaskInfo;
@@ -76,6 +78,7 @@ interface TransactionalIdCellProps {
 }
 
 function TransactionalIdCell({ txId, hasProgress, noTopBorder = false }: TransactionalIdCellProps) {
+    const t = useStudioTranslation("ongoingTasks");
     const borderClass = noTopBorder ? "border-top-0" : undefined;
 
     if (!txId) {
@@ -84,7 +87,7 @@ function TransactionalIdCell({ txId, hasProgress, noTopBorder = false }: Transac
         ) : (
             <div className="d-flex align-items-center justify-content-center gap-1 text-muted">
                 <Spinner animation="border" size="sm" />
-                <small>Loading...</small>
+                <small>{t("loading")}</small>
             </div>
         );
     }
@@ -103,8 +106,8 @@ function TransactionalIdCell({ txId, hasProgress, noTopBorder = false }: Transac
                 variant="link"
                 size="xs"
                 className="p-0 flex-shrink-0"
-                onClick={() => copyToClipboard.copy(txId, "Transactional Id was copied to clipboard.")}
-                title="Copy to clipboard"
+                onClick={() => copyToClipboard.copy(txId, t("transactionalIdCopied"))}
+                title={t("copyToClipboard")}
             >
                 <Icon icon="copy" margin="m-0" />
             </Button>
@@ -118,6 +121,7 @@ interface TransactionalIdCellsProps {
 }
 
 function TransactionalIdCells({ txIdLayout, nodeInfo }: TransactionalIdCellsProps) {
+    const t = useStudioTranslation("ongoingTasks");
     const { scripts, isSingleScript } = txIdLayout;
     const hasProgress = !!nodeInfo.etlProgress?.length;
 
@@ -125,7 +129,7 @@ function TransactionalIdCells({ txIdLayout, nodeInfo }: TransactionalIdCellsProp
         return (
             <div className="d-flex align-items-center justify-content-center gap-1 text-muted">
                 <Spinner animation="border" size="sm" />
-                <small>Loading...</small>
+                <small>{t("loading")}</small>
             </div>
         );
     }
@@ -151,12 +155,13 @@ interface TransactionalIdLegendProps {
 }
 
 function TransactionalIdLegend({ txIdLayout }: TransactionalIdLegendProps) {
+    const t = useStudioTranslation("ongoingTasks");
     const { scripts } = txIdLayout;
 
     if (scripts.length <= 1) {
         return (
             <div className="pe-1">
-                <Icon icon="identities" /> Transactional ID
+                <Icon icon="identities" /> {t("transactionalId")}
             </div>
         );
     }
@@ -164,7 +169,7 @@ function TransactionalIdLegend({ txIdLayout }: TransactionalIdLegendProps) {
     return (
         <>
             <div className="pe-1">
-                <Icon icon="identities" /> Transactional IDs
+                <Icon icon="identities" /> {t("distribution.transactionalIds")}
             </div>
             {scripts.map((script) => (
                 <div key={script} className="border-top-0 ps-3">
@@ -184,6 +189,7 @@ function ConnectionStatusCell({
     nextBatchRetryTime,
     onRetrySuccess,
 }: ConnectionStatusCellProps) {
+    const t = useStudioTranslation("ongoingTasks");
     const { tasksService } = useServices();
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const hasDatabaseWriteAccess = useAppSelector(accessManagerSelectors.getHasDatabaseWriteAccess)();
@@ -208,12 +214,16 @@ function ConnectionStatusCell({
                         <div className="vstack">
                             <div className="hstack gap-1">
                                 <Icon icon="clock" margin="m-0" />
-                                Next batch retry time:{" "}
-                                <b>
-                                    {nextBatchRetryTime
-                                        ? moment(nextBatchRetryTime).format(genUtils.dateFormat)
-                                        : "N/A"}
-                                </b>
+                                <StudioTrans
+                                    ns="ongoingTasks"
+                                    i18nKey="distribution.nextBatchRetryTime"
+                                    options={{
+                                        time: nextBatchRetryTime
+                                            ? moment(nextBatchRetryTime).format(genUtils.dateFormat)
+                                            : t("notAvailable"),
+                                    }}
+                                    components={{ b: <b /> }}
+                                />
                             </div>
                             {nextBatchRetryTime && (
                                 <small className="text-right">
@@ -232,7 +242,7 @@ function ConnectionStatusCell({
                                 onClick={retryBatch.execute}
                                 disabled={isRetryDisabled}
                             >
-                                Retry now
+                                {t("distribution.retryNow")}
                             </ButtonWithSpinner>
                             <Button
                                 variant="secondary"
@@ -242,7 +252,7 @@ function ConnectionStatusCell({
                                 disabled={!hasErrors}
                             >
                                 <Icon icon="preview" />
-                                View error
+                                {t("distribution.viewError")}
                             </Button>
                         </div>
                     </div>
@@ -424,6 +434,8 @@ interface EtlErrorCountCellProps {
 }
 
 function EtlErrorCountCell({ hasError, errorCount, taskHealth, goToTaskErrors }: EtlErrorCountCellProps) {
+    const t = useStudioTranslation("ongoingTasks");
+
     if (hasError || errorCount > 0) {
         return (
             <strong>
@@ -440,10 +452,7 @@ function EtlErrorCountCell({ hasError, errorCount, taskHealth, goToTaskErrors }:
 
     if (taskHealth === "Failed" || taskHealth === "Impaired") {
         return (
-            <PopoverWithHoverWrapper
-                message="No errors are currently stored. The health status reflects recent error activity and will recover automatically as new batches complete successfully."
-                placement="top"
-            >
+            <PopoverWithHoverWrapper message={t("distribution.noStoredErrors")} placement="top">
                 -
             </PopoverWithHoverWrapper>
         );
@@ -473,6 +482,7 @@ function getTxIdLayout(task: AnyEtlOngoingTaskInfo, visibleNodes: OngoingEtlTask
 
 export function OngoingEtlTaskDistribution(props: OngoingEtlTaskDistributionProps) {
     const { task, etlStats } = props;
+    const t = useStudioTranslation("ongoingTasks");
     const sharded = task.nodesInfo.some((x) => x.location.shardNumber != null);
     const [activeNodeIndex, setActiveNodeIndex] = useState<number | null>(null);
     const ownerId = useId();
@@ -516,21 +526,21 @@ export function OngoingEtlTaskDistribution(props: OngoingEtlTaskDistributionProp
                     <div className="top"></div>
                     {sharded && (
                         <div className="node">
-                            <Icon icon="node" /> Node
+                            <Icon icon="node" /> {t("distribution.node")}
                         </div>
                     )}
                     <div>
-                        <Icon icon="connected" /> Connection status
+                        <Icon icon="connected" /> {t("distribution.connectionStatus")}
                     </div>
                     <div>
-                        <Icon icon="warning" /> Errors
+                        <Icon icon="warning" /> {t("distribution.errors")}
                     </div>
                     <div>
-                        <Icon icon="healthcheck" /> Health status
+                        <Icon icon="healthcheck" /> {t("distribution.healthStatus")}
                     </div>
                     {txIdLayout && <TransactionalIdLegend txIdLayout={txIdLayout} />}
                     <div>
-                        <Icon icon="changes" /> State
+                        <Icon icon="changes" /> {t("distribution.state")}
                     </div>
                 </DistributionLegend>
                 {items}
@@ -547,6 +557,7 @@ interface OngoingEtlTaskProgressProps {
 
 export function OngoingEtlTaskProgress(props: OngoingEtlTaskProgressProps) {
     const { nodeInfo, task, onClick } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     const disabled = task.shared.taskState === "Disabled";
 
@@ -554,7 +565,7 @@ export function OngoingEtlTaskProgress(props: OngoingEtlTaskProgressProps) {
         return (
             <ClickableProgress onClick={onClick}>
                 <ProgressCircle icon={disabled ? "stop" : null} state="running" onClick={onClick}>
-                    {disabled ? "Disabled" : "?"}
+                    {disabled ? t("progressCircle.disabled") : "?"}
                 </ProgressCircle>
             </ClickableProgress>
         );
@@ -564,7 +575,7 @@ export function OngoingEtlTaskProgress(props: OngoingEtlTaskProgressProps) {
         return (
             <ClickableProgress onClick={onClick}>
                 <ProgressCircle state="success" icon="check" onClick={onClick}>
-                    up to date
+                    {t("progressCircle.upToDate")}
                 </ProgressCircle>
             </ClickableProgress>
         );
@@ -580,7 +591,7 @@ export function OngoingEtlTaskProgress(props: OngoingEtlTaskProgressProps) {
     return (
         <ClickableProgress onClick={onClick}>
             <ProgressCircle state="running" icon={anyDisabled ? "stop" : null} progress={percentage} onClick={onClick}>
-                {anyDisabled ? "Disabled" : "Running"}
+                {anyDisabled ? t("progressCircle.disabled") : t("progressCircle.running")}
             </ProgressCircle>
         </ClickableProgress>
     );

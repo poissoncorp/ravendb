@@ -12,6 +12,7 @@ import ButtonGroup from "react-bootstrap/ButtonGroup";
 import { Icon } from "components/common/Icon";
 import { OngoingInternalReplicationNodeInfo } from "components/models/tasks";
 import useBoolean from "hooks/useBoolean";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 import { InternalReplicationTaskDistribution } from "components/pages/database/tasks/ongoingTasks/partials/InternalReplicationTaskDistribution";
 
 type InternalReplicationPanelProps = {
@@ -21,6 +22,7 @@ type InternalReplicationPanelProps = {
 
 export function InternalReplicationPanel(props: InternalReplicationPanelProps) {
     const { data, onToggleDetails } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     const { value: detailsVisible, toggle: toggleDetailsVisible } = useBoolean(false);
 
@@ -33,12 +35,12 @@ export function InternalReplicationPanel(props: InternalReplicationPanelProps) {
         <RichPanel>
             <RichPanelHeader>
                 <RichPanelInfo>
-                    <RichPanelName>Internal Replication</RichPanelName>
+                    <RichPanelName>{t("taskType.internalReplication")}</RichPanelName>
                 </RichPanelInfo>
                 <RichPanelActions>
                     <div className="actions">
                         <ButtonGroup>
-                            <Button variant="secondary" onClick={toggleDetails} title="Click for details">
+                            <Button variant="secondary" onClick={toggleDetails} title={t("taskDetails.toggleTitle")}>
                                 <Icon icon={detailsVisible ? "fold" : "unfold"} margin="m-0" />
                             </Button>
                         </ButtonGroup>

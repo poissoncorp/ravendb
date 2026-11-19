@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
 import Schema = Raven.Client.Documents.Operations.CdcSink.Schema;
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksCommands");
 
 export default class getCdcSinkTaskSchemaCommand extends commandBase {
     constructor(
@@ -15,7 +18,7 @@ export default class getCdcSinkTaskSchemaCommand extends commandBase {
 
         return this.post<Schema.CdcSinkSourceSchema>(url, JSON.stringify(this.payload), this.db).fail(
             (response: JQueryXHR) => {
-                this.reportError("Failed to get CDC Sink task schema", response.responseText, response.statusText);
+                this.reportError(t("cdcSinkSchemaFailed"), response.responseText, response.statusText);
             }
         );
     }

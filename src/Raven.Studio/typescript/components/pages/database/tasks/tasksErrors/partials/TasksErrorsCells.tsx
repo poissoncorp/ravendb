@@ -19,11 +19,13 @@ import {
     getPopoverMessageForErrorType,
     getPopoverMessageForTaskHealth,
     getStepIcon,
+    getStepLabel,
     getTaskTypeDisplay,
     healthStatusToBadge,
     taskHasTransformations,
 } from "../utils/tasksErrorsUtils";
 import colorsManager from "common/colorsManager";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export { CellWithCopyWrapper };
 
@@ -38,12 +40,13 @@ export const CellErrorStepWrapper = ({ getValue }: CellContext<FlatError, TaskEr
     return (
         <div className="cell-value value-string">
             {stepIcon && <Icon icon={stepIcon} />}
-            <CellValue value={value} />
+            <CellValue value={getStepLabel(value)} />
         </div>
     );
 };
 
 export const CellErrorTypeWrapper = ({ getValue }: CellContext<FlatError, "Item" | "Process">) => {
+    const t = useStudioTranslation("tasksErrors");
     const value = getValue();
     return (
         <PopoverWithHoverWrapper
@@ -53,7 +56,7 @@ export const CellErrorTypeWrapper = ({ getValue }: CellContext<FlatError, "Item"
         >
             <Badge bg={value === "Item" ? "secondary" : "info"} className="rounded-pill cell-value">
                 <Icon icon={value === "Item" ? "tasks" : "hammer-driver"} />
-                {value === "Item" ? "Item Error" : "Process Error"}
+                {value === "Item" ? t("errorType.item") : t("errorType.process")}
             </Badge>
         </PopoverWithHoverWrapper>
     );

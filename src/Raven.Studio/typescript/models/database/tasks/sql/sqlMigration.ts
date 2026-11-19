@@ -5,6 +5,9 @@ import rootSqlTable = require("models/database/tasks/sql/rootSqlTable");
 import sqlColumn = require("models/database/tasks/sql/sqlColumn");
 import sqlReference = require("models/database/tasks/sql/sqlReference");
 import typeUtils = require("common/typeUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
 
 class sqlMigration {
 
@@ -164,7 +167,7 @@ class sqlMigration {
             case "MsSQL":
                 return "Microsoft SQL Server (Microsoft.Data.SqlClient)";
             case "MySQL_MySql_Data":
-                return "DEPRECATED: MySQL Server (MySql.Data.MySqlClient)";
+                return t("sqlMigration.mySqlDataProvider");
             case "MySQL_MySqlConnector":
                 return "MySQL Server (MySqlConnector.MySqlConnectorFactory)";
             case "NpgSQL":

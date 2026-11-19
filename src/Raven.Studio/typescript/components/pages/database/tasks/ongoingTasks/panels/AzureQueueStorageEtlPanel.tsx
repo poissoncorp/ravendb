@@ -26,11 +26,13 @@ import { useAppSelector } from "components/store";
 import { Icon } from "components/common/Icon";
 import { EtlPanelBaseProps, useEtlPanel } from "./etlPanelUtils";
 import { TaskPanelErrors, EtlPanelHealthBadge, EtlPanelProgressItem, EtlPanelToggleButton } from "./EtlPanelComponents";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type AzureQueueStorageEtlPanelProps = EtlPanelBaseProps<OngoingTaskAzureQueueStorageEtlInfo>;
 
 export function AzureQueueStorageEtlPanel(props: AzureQueueStorageEtlPanelProps) {
     const { data, toggleSelection, isSelected, onTaskOperation, isDeleting, isTogglingState, etlStats } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     const { forCurrentDatabase } = useAppUrls();
     const editUrl = forCurrentDatabase.editAzureQueueStorageEtl(data.shared.taskId)();
@@ -86,9 +88,9 @@ export function AzureQueueStorageEtlPanel(props: AzureQueueStorageEtlPanelProps)
             </RichPanelHeader>
             <RichPanelDetails>
                 <EtlPanelToggleButton detailsVisible={detailsVisible} toggleDetails={toggleDetails} />
-                <RichPanelDetailItem label="Type">
+                <RichPanelDetailItem label={t("taskDetails.type")}>
                     <Icon icon="azure-queue-storage-etl" />
-                    Azure Queue Storage ETL
+                    {t("taskType.azureQueueStorageEtl")}
                 </RichPanelDetailItem>
                 <ConnectionStringItem
                     connectionStringDefined

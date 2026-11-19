@@ -10,34 +10,42 @@ import { databaseSelectors } from "components/common/shell/databaseSliceSelector
 import DatabaseUtils from "components/utils/DatabaseUtils";
 import { EtlHealthStatus, GroupByType, TasksFiltersState } from "../utils/tasksErrorsUtils";
 import { useUrlFilters } from "components/hooks/useUrlFilters";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import type { StudioTranslate } from "common/i18n/resources";
 
 export type { TasksFiltersState };
 
-export const taskHealthOptions: SelectOption<EtlHealthStatus>[] = [
-    { label: "Healthy", value: "Healthy" },
-    { label: "Failed", value: "Failed" },
-    { label: "Impaired", value: "Impaired" },
-];
+export function getTaskHealthOptions(t: StudioTranslate<"tasksErrors">): SelectOption<EtlHealthStatus>[] {
+    return [
+        { label: t("health.healthy"), value: "Healthy" },
+        { label: t("health.failed"), value: "Failed" },
+        { label: t("health.impaired"), value: "Impaired" },
+    ];
+}
 
-export const taskTypeOptions: SelectOption<StudioTaskType>[] = [
-    { label: "RavenDB ETL", value: "RavenEtl" },
-    { label: "SQL ETL", value: "SqlEtl" },
-    { label: "Snowflake ETL", value: "SnowflakeEtl" },
-    { label: "Azure Queue Storage ETL", value: "AzureQueueStorageQueueEtl" },
-    { label: "OLAP ETL", value: "OlapEtl" },
-    { label: "Kafka ETL", value: "KafkaQueueEtl" },
-    { label: "Elastic Search ETL", value: "ElasticSearchEtl" },
-    { label: "RabbitMQ ETL", value: "RabbitQueueEtl" },
-    { label: "Amazon SQS ETL", value: "AmazonSqsQueueEtl" },
-    { label: "Embeddings Generation", value: "EmbeddingsGeneration" },
-    { label: "GenAI", value: "GenAi" },
-    { label: "CDC Sink", value: "CdcSink" },
-];
+export function getTaskTypeOptions(t: StudioTranslate<"tasksErrors">): SelectOption<StudioTaskType>[] {
+    return [
+        { label: "RavenDB ETL", value: "RavenEtl" },
+        { label: "SQL ETL", value: "SqlEtl" },
+        { label: "Snowflake ETL", value: "SnowflakeEtl" },
+        { label: t("filters.taskTypes.azureQueueStorageEtl"), value: "AzureQueueStorageQueueEtl" },
+        { label: "OLAP ETL", value: "OlapEtl" },
+        { label: "Kafka ETL", value: "KafkaQueueEtl" },
+        { label: t("filters.taskTypes.elasticSearchEtl"), value: "ElasticSearchEtl" },
+        { label: "RabbitMQ ETL", value: "RabbitQueueEtl" },
+        { label: t("filters.taskTypes.amazonSqsEtl"), value: "AmazonSqsQueueEtl" },
+        { label: t("filters.taskTypes.embeddingsGeneration"), value: "EmbeddingsGeneration" },
+        { label: t("filters.taskTypes.genAi"), value: "GenAi" },
+        { label: t("filters.taskTypes.cdcSink"), value: "CdcSink" },
+    ];
+}
 
-export const groupByOptions: InputItem<GroupByType>[] = [
-    { value: "task", label: "Task", badgeColor: "secondary" },
-    { value: "none", label: "None", badgeColor: "secondary" },
-];
+export function getGroupByOptions(t: StudioTranslate<"tasksErrors">): InputItem<GroupByType>[] {
+    return [
+        { value: "task", label: t("filters.groupByTask"), badgeColor: "secondary" },
+        { value: "none", label: t("filters.groupByNone"), badgeColor: "secondary" },
+    ];
+}
 
 export function useTasksFilters(
     buildUrl: (filters: TasksFiltersState) => string,
@@ -74,15 +82,19 @@ export function TasksFilters({
     filters,
     updateFilters,
 }: TasksFiltersProps) {
+    const t = useStudioTranslation("tasksErrors");
     const db = useAppSelector(databaseSelectors.activeDatabase);
+    const taskHealthOptions = useMemo(() => getTaskHealthOptions(t), [t]);
+    const taskTypeOptions = useMemo(() => getTaskTypeOptions(t), [t]);
+    const groupByOptions = useMemo(() => getGroupByOptions(t), [t]);
 
     const nodeOptions = useMemo(() => {
         const tags: string[] = db.isSharded
             ? _.uniq(DatabaseUtils.getLocations(db).map((l) => l.nodeTag)).sort()
             : db.nodes.map((node) => node.tag);
 
-        return tags.map((tag) => ({ label: `Node ${tag}`, value: tag }));
-    }, [db]);
+        return tags.map((tag) => ({ label: t("filters.nodeOption", { tag }), value: tag }));
+    }, [db, t]);
 
     const shardOptions = useMemo(() => {
         if (!db.isSharded) {
@@ -94,19 +106,19 @@ export function TasksFilters({
                 .filter((n) => n != null)
         );
 
-        return shardNumbers.map((n) => ({ label: `Shard #${n}`, value: String(n) }));
-    }, [db]);
+        return shardNumbers.map((n) => ({ label: t("filters.shardOption", { number: n }), value: String(n) }));
+    }, [db, t]);
 
     return (
         <div className="hstack flex-wrap align-items-end gap-2 my-3 justify-content-start">
             <div className="flex-grow">
-                <div className="small-label ms-1 mb-1">Filter by task/script name</div>
+                <div className="small-label ms-1 mb-1">{t("filters.searchLabel")}</div>
                 <div className="clearable-input">
                     <Form.Control
                         type="text"
                         accessKey="/"
-                        placeholder="e.g. MyPeriodicBackupTask"
-                        title="Filter ongoing tasks"
+                        placeholder={t("filters.searchPlaceholder")}
+                        title={t("filters.searchTitle")}
                         className="filtering-input"
                         value={filters.searchText}
                         onChange={(e: ChangeEvent<HTMLInputElement>) => updateFilters({ searchText: e.target.value })}
@@ -121,7 +133,7 @@ export function TasksFilters({
                 </div>
             </div>
             <div className="TaskErrorFilter">
-                <div className="small-label ms-1 mb-1">Filter by node</div>
+                <div className="small-label ms-1 mb-1">{t("filters.nodeLabel")}</div>
                 <Select
                     isMulti
                     isClearable
@@ -132,7 +144,7 @@ export function TasksFilters({
             </div>
             {db.isSharded && (
                 <div className="TaskErrorFilter">
-                    <div className="small-label ms-1 mb-1">Filter by shard</div>
+                    <div className="small-label ms-1 mb-1">{t("filters.shardLabel")}</div>
                     <Select
                         isMulti
                         isClearable
@@ -145,7 +157,7 @@ export function TasksFilters({
                 </div>
             )}
             <div className="TaskErrorFilter">
-                <div className="small-label ms-1 mb-1">Filter by task type</div>
+                <div className="small-label ms-1 mb-1">{t("filters.taskTypeLabel")}</div>
                 <Select
                     isMulti
                     isClearable
@@ -159,7 +171,7 @@ export function TasksFilters({
                 />
             </div>
             <div className="TaskErrorFilter">
-                <div className="small-label ms-1 mb-1">Filter by task health</div>
+                <div className="small-label ms-1 mb-1">{t("filters.healthLabel")}</div>
                 <Select
                     isMulti
                     isClearable
@@ -173,7 +185,7 @@ export function TasksFilters({
                 />
             </div>
             <div>
-                <div className="small-label ms-1 mb-1">Group by</div>
+                <div className="small-label ms-1 mb-1">{t("filters.groupByLabel")}</div>
                 <MultiRadioToggle<GroupByType>
                     inputItems={groupByOptions}
                     selectedItem={selectedGroupByType}

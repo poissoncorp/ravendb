@@ -8,8 +8,10 @@ import ImportSection from "./ImportSection";
 import { ImportFromFileFormData } from "../importFromFileValidation";
 import Code from "components/common/Code";
 import Card from "react-bootstrap/Card";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function ImportProcessingSection() {
+    const t = useStudioTranslation("importFromFile");
     const { control } = useFormContext<ImportFromFileFormData>();
 
     const isUseTransformScript = useWatch({ control, name: "processing.isUseTransformScript" });
@@ -19,17 +21,17 @@ export default function ImportProcessingSection() {
     return (
         <ImportSection
             id="import-processing"
-            title="Import processing & security"
+            title={t("sections.importProcessing")}
             errorPaths={["processing.transformScript", "processing.maxReadOpsPerSecond", "processing.encryptionKey"]}
         >
-            <h4 className="mb-2">Data transformation and integrity</h4>
+            <h4 className="mb-2">{t("processing.transformation")}</h4>
             <div className="card p-4 mb-4">
                 <FormSwitch control={control} name="processing.isUseTransformScript">
-                    Use transform script{" "}
+                    {t("processing.useTransformScript")}{" "}
                     <PopoverWithHoverWrapper
                         message={
                             <>
-                                <div className="mb-1 text-center">Transform scripts are written in JavaScript</div>
+                                <div className="mb-1 text-center">{t("processing.transformScriptInfo")}</div>
                                 <Code code={codeSample} language="javascript" />
                             </>
                         }
@@ -46,11 +48,11 @@ export default function ImportProcessingSection() {
                 </Collapse>
             </div>
 
-            <h4 className="mb-2">Import optimization &amp; security</h4>
+            <h4 className="mb-2">{t("processing.optimization")}</h4>
             <Card className="p-4">
                 <FormGroup marginClass="mb-0">
                     <FormSwitch control={control} name="processing.isSetMaxReadOpsPerSecond">
-                        Set max read operations per second
+                        {t("processing.setMaxReadOps")}
                     </FormSwitch>
                     <Collapse in={isSetMaxReadOps}>
                         <div className="mt-3">
@@ -58,7 +60,7 @@ export default function ImportProcessingSection() {
                                 control={control}
                                 name="processing.maxReadOpsPerSecond"
                                 type="number"
-                                placeholder="Max read operations per second"
+                                placeholder={t("processing.maxReadOpsPlaceholder")}
                             />
                         </div>
                     </Collapse>
@@ -66,7 +68,7 @@ export default function ImportProcessingSection() {
                 <hr className="my-1" />
                 <FormGroup marginClass="mb-0">
                     <FormSwitch control={control} name="processing.isEncrypted">
-                        Imported file is encrypted
+                        {t("processing.isEncrypted")}
                     </FormSwitch>
                     <Collapse in={isEncrypted}>
                         <div className="mt-3">
@@ -75,10 +77,10 @@ export default function ImportProcessingSection() {
                                 name="processing.encryptionKey"
                                 type="password"
                                 passwordPreview
-                                placeholder="Key"
+                                placeholder={t("processing.keyPlaceholder")}
                                 autoComplete="off"
                             />
-                            <div className="small text-muted mt-1">Encryption Key (Base64 Encoding)</div>
+                            <div className="small text-muted mt-1">{t("processing.keyHint")}</div>
                         </div>
                     </Collapse>
                 </FormGroup>

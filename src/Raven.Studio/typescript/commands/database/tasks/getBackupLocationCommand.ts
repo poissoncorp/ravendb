@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
 import database = require("models/resources/database");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksCommands");
 
 class getBackupLocationCommand extends commandBase {
 
@@ -23,7 +26,7 @@ class getBackupLocationCommand extends commandBase {
 
         return this.query<Raven.Server.Web.Studio.DataDirectoryResult>(url, null, this.database)
             .fail((response: JQueryXHR) =>
-                this.reportError("Failed to calculate the full backup path", response.responseText, response.statusText));
+                this.reportError(t("backupLocationFailed"), response.responseText, response.statusText));
     }
 }
 

@@ -4,14 +4,14 @@
             <button type="button" class="close" data-bind="click: close" aria-hidden="true">
                 <i class="icon-cancel"></i>
             </button>
-            <h4 class="modal-title">Incoming link references for table <strong class="margin-left margin-sm"><i class="icon-table"></i> <span data-bind="text: table.tableName"></span></strong></h4>
+            <h4 class="modal-title"><span data-bind="i18n: 'importDatabaseFromSql:referenceUsage.title'"></span> <strong class="margin-left margin-sm"><i class="icon-table"></i> <span data-bind="text: table.tableName"></span></strong></h4>
         </div>
         <div class="modal-body max-height">
             <table style="width:100%" class="margin-bottom table table-striped">
                 <thead>
                     <tr>
-                        <th>Reference path</th>
-                        <th>Action</th>
+                        <th data-bind="i18n: 'importDatabaseFromSql:referenceUsage.referencePath'"></th>
+                        <th data-bind="i18n: 'importDatabaseFromSql:referenceUsage.action'"></th>
                     </tr>
                 </thead>
                 <tbody data-bind="foreach: $root.references">
@@ -24,15 +24,15 @@
                         <div class="btn-group link-actions">
                             <button class="btn btn-sm btn-default"
                                     data-bind="css: { active: action() === 'skip' }, click: _.partial($root.onActionClicked, $data, 'skip')">
-                                <i class="icon-skip"></i> <span>skip</span>
+                                <i class="icon-skip"></i> <span data-bind="i18n: 'importDatabaseFromSql:references.actions.skip'"></span>
                             </button>
                             <button class="btn btn-sm btn-default"
                                     data-bind="css: { active: action() === 'link' }, click: _.partial($root.onActionClicked, $data, 'link')">
-                                <i class="icon-link"></i> <span>link</span>
+                                <i class="icon-link"></i> <span data-bind="i18n: 'importDatabaseFromSql:references.actions.link'"></span>
                             </button>
                             <button class="btn btn-sm btn-default"
                                     data-bind="css: { active: action() === 'embed' }, click: _.partial($root.onActionClicked, $data, 'embed')">
-                                <i class="icon-embed"></i> <span>embed</span>
+                                <i class="icon-embed"></i> <span data-bind="i18n: 'importDatabaseFromSql:references.actions.embed'"></span>
                             </button>
                         </div>
                     </td>
@@ -41,7 +41,7 @@
             </table>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-bind="click: close">Close</button>
+            <button type="button" class="btn btn-default" data-bind="click: close, i18n: 'importDatabaseFromSql:close'"></button>
         </div>
     </div>
 </div>
@@ -57,16 +57,16 @@
         </div>
         <div class="flex-horizontal" data-bind="visible: type === 'OneToMany'">
 
-            <div class="margin-right" title="primary key">
+            <div class="margin-right" data-bind="i18nAttr: { title: 'importDatabaseFromSql:references.primaryKey' }">
                 <span class="key-type primary"><i class="icon-key"></i></span>
                 <span data-bind="text: joinColumns.join(', ')"></span>
             </div>
 
-            <div class="margin-right" title="one-to-many relation">
+            <div class="margin-right" data-bind="i18nAttr: { title: 'importDatabaseFromSql:references.oneToMany' }">
                 <i data-bind="attr: { class: getTypeClass() }"></i>
             </div>
 
-            <div class="margin-right" title="foreign key">
+            <div class="margin-right" data-bind="i18nAttr: { title: 'importDatabaseFromSql:references.foreignKey' }">
                 <span class="text-muted"><span class="key-type foreign"><i class="icon-key"></i></span></span>
                 <span data-bind="text: joinColumns.join(', ')"></span>
             </div>
@@ -84,7 +84,7 @@
                 <span data-bind="text: joinColumns.join(', ')"></span>
             </div>
 
-            <div class="margin-right" title="one-to-many relation">
+            <div class="margin-right" data-bind="i18nAttr: { title: 'importDatabaseFromSql:references.oneToMany' }">
                 <i data-bind="attr: { class: getTypeClass() }"></i>
             </div>
             

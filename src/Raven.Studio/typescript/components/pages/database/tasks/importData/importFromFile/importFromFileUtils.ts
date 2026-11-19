@@ -9,11 +9,14 @@ import {
 } from "./importFromFileValidation";
 import endpoints = require("endpoints");
 import appUrl = require("common/appUrl");
+import { createTranslator } from "common/i18n/i18n";
 
 type DatabaseItemType = Raven.Client.Documents.Smuggler.DatabaseItemType;
 type DatabaseRecordItemType = Raven.Client.Documents.Smuggler.DatabaseRecordItemType;
 type ImportOptions = Raven.Client.Documents.Smuggler.DatabaseSmugglerImportOptions;
 type ImportConfiguration = ImportFromFileFormData["configuration"];
+
+const t = createTranslator("importFromFile");
 
 export type ImportCommandType = "PowerShell" | "Cmd" | "Bash";
 
@@ -419,13 +422,13 @@ export function getItemsToWarnAbout(formData: Pick<ImportFromFileFormData, "docu
     }
     const items: string[] = [];
     if (d.isIncludeCounters) {
-        items.push("Counters");
+        items.push(t("data.withoutDocumentsItems.counters"));
     }
     if (d.isIncludeTimeSeries) {
-        items.push("Time Series");
+        items.push(t("data.withoutDocumentsItems.timeSeries"));
     }
     if (d.isIncludeRevisions) {
-        items.push("Revisions");
+        items.push(t("data.withoutDocumentsItems.revisions"));
     }
     return items;
 }

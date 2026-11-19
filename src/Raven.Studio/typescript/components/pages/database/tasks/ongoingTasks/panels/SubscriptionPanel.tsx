@@ -31,6 +31,7 @@ import { useAppSelector } from "components/store";
 import { accessManagerSelectors } from "components/common/shell/accessManagerSliceSelectors";
 import RichAlert from "components/common/RichAlert";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type SubscriptionPanelProps = BaseOngoingTaskPanelProps<OngoingTaskSubscriptionInfo> & {
     refreshSubscriptionInfo: () => void;
@@ -44,6 +45,7 @@ interface ChangeVectorInfoProps {
 
 function ChangeVectorInfo(props: ChangeVectorInfoProps) {
     const { info } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     if (
         info.changeVectorForNextBatchStartingPointPerShard &&
@@ -52,8 +54,8 @@ function ChangeVectorInfo(props: ChangeVectorInfoProps) {
         return (
             <div className="p-3 change-vector-popover">
                 <div className="change-vector-grid mb-1">
-                    <strong>Shard</strong>
-                    <strong>Change vector</strong>
+                    <strong>{t("subscription.shard")}</strong>
+                    <strong>{t("subscription.changeVector")}</strong>
                 </div>
                 {Object.keys(info.changeVectorForNextBatchStartingPointPerShard).map((shard) => {
                     const vector = info.changeVectorForNextBatchStartingPointPerShard[shard];
@@ -105,30 +107,34 @@ function ChangeVectorInfo(props: ChangeVectorInfoProps) {
 
     return (
         <div className="p-3 change-vector-popover">
-            <div className="change-vector-item">not yet available</div>
+            <div className="change-vector-item">{t("subscription.changeVectorNotAvailable")}</div>
         </div>
     );
 }
 
 function Details(props: SubscriptionPanelProps) {
     const { data, refreshSubscriptionInfo } = props;
+    const t = useStudioTranslation("ongoingTasks");
+    const tCommon = useStudioTranslation("common");
 
     const lastBatchAckTime = data.shared.lastBatchAckTime
         ? moment.utc(data.shared.lastBatchAckTime).local().format(genUtils.dateFormat)
-        : "N/A";
+        : t("notAvailable");
 
     const lastClientConnectionTime = data.shared.lastClientConnectionTime
         ? moment.utc(data.shared.lastClientConnectionTime).local().format(genUtils.dateFormat)
-        : "N/A";
+        : t("notAvailable");
 
     const [changeVectorInfoElement, setChangeVectorInfoElement] = useState<HTMLElement>();
 
     return (
         <RichPanelDetails>
-            <RichPanelDetailItem label="Last Batch Ack Time">{lastBatchAckTime}</RichPanelDetailItem>
-            <RichPanelDetailItem label="Last Client Connection Time">{lastClientConnectionTime}</RichPanelDetailItem>
+            <RichPanelDetailItem label={t("subscription.lastBatchAckTime")}>{lastBatchAckTime}</RichPanelDetailItem>
+            <RichPanelDetailItem label={t("subscription.lastClientConnectionTime")}>
+                {lastClientConnectionTime}
+            </RichPanelDetailItem>
             <RichPanelDetailItem
-                label="Change vector for next batch"
+                label={t("subscription.changeVectorForNextBatch")}
                 className="d-flex flex-horizontal align-self-baseline"
             >
                 <i ref={setChangeVectorInfoElement} className="icon-info text-info ms-1"></i>
@@ -142,7 +148,7 @@ function Details(props: SubscriptionPanelProps) {
             <div>
                 <Button variant="secondary" onClick={refreshSubscriptionInfo}>
                     <Icon icon="refresh" />
-                    Refresh
+                    {tCommon("refresh")}
                 </Button>
             </div>
         </RichPanelDetails>
@@ -157,6 +163,7 @@ interface ConnectedClientsProps {
 
 function ConnectedClients(props: ConnectedClientsProps) {
     const { connections, dropSubscription, refreshSubscriptionInfo } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     if (!connections) {
         return null;
@@ -176,38 +183,38 @@ function ConnectedClients(props: ConnectedClientsProps) {
 
     return (
         <div className="m-3 p-2 connected-clients-section">
-            <h3>Connected clients</h3>
+            <h3>{t("subscription.connectedClients")}</h3>
             {connections.Results.length > 0 && (
                 <div className="mb-2">
-                    <div className="small-label">Subscription Mode</div>
+                    <div className="small-label">{t("subscription.subscriptionMode")}</div>
                     <div>{connections.SubscriptionMode}</div>
                 </div>
             )}
             <div className="connected-clients-items">
-                {connections.Results.length === 0 && <div>No clients connected</div>}
+                {connections.Results.length === 0 && <div>{t("subscription.noClientsConnected")}</div>}
                 {connections.Results.map((connection) => (
                     <div key={connection.ClientUri} className="text-center py-2 connected-client">
                         <div className="pb-1">
                             <Icon icon="client" color="primary" className="mb-1" />
                         </div>
                         <div className="p-2">
-                            <div className="small-label">Connection Strategy</div>
+                            <div className="small-label">{t("subscription.connectionStrategy")}</div>
                             <span>{connection.Strategy}</span>
                         </div>
                         <div className="p-2">
-                            <div className="small-label">Client URI</div>
+                            <div className="small-label">{t("subscription.clientUri")}</div>
                             <span>{connection.ClientUri}</span>
                         </div>
                         <div>
                             <Button
                                 variant="outline-danger"
-                                title="Disconnect client from this subscription (unsubscribe client)"
+                                title={t("subscription.disconnectTitle")}
                                 onClick={() => disconnectSubscription(connection.WorkerId)}
                                 size="xs"
                                 className="rounded-pill mt-2"
                             >
                                 <Icon icon="disconnected" />
-                                Disconnect
+                                {t("subscription.disconnect")}
                             </Button>
                         </div>
                     </div>
@@ -229,6 +236,7 @@ export function SubscriptionPanel(props: SubscriptionPanelProps) {
         isDeleting,
         isTogglingState,
     } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     const hasDatabaseWriteAccess = useAppSelector(accessManagerSelectors.getHasDatabaseWriteAccess)();
     const { forCurrentDatabase } = useAppUrls();
@@ -256,7 +264,7 @@ export function SubscriptionPanel(props: SubscriptionPanelProps) {
                 <RichPanelActions>
                     <span>
                         <Icon icon="subscriptions" />
-                        Subscription
+                        {t("taskType.subscription")}
                     </span>
                     <OngoingTaskResponsibleNode task={data} />
                     <OngoingTaskStatus

@@ -3,6 +3,7 @@ import { ViewSheet } from "components/common/splitView/ViewSheet";
 import { SheetSlideDirection, SheetSlideTransition } from "components/common/splitView/SheetSlideNavigation";
 import { Icon } from "components/common/Icon";
 import { NodeLocationTabs } from "components/pages/database/tasks/ongoingTasks/partials/NodeLocationSelect";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export function useNodeSlider(initialNodeIndex: number, onNodeChange?: (index: number) => void) {
     const [selectedIndex, setSelectedIndex] = useState(initialNodeIndex);
@@ -26,7 +27,7 @@ export function useNodeSlider(initialNodeIndex: number, onNodeChange?: (index: n
 
 interface ProgressDetailsSheetShellProps {
     className?: string;
-    title: ReactNode;
+    title: string;
     locations: { nodeTag: string; shardNumber?: number }[];
     selectedIndex: number;
     direction: SheetSlideDirection;
@@ -43,6 +44,8 @@ export function ProgressDetailsSheetShell({
     onNodeChange,
     children,
 }: ProgressDetailsSheetShellProps) {
+    const t = useStudioTranslation("ongoingTasks");
+
     return (
         <ViewSheet className={className}>
             <ViewSheet.Header isPinHidden isCloseHidden className="pb-0">
@@ -50,7 +53,7 @@ export function ProgressDetailsSheetShell({
                     <div className="d-flex justify-content-between align-items-center">
                         <div className="d-flex align-items-center gap-1">
                             <Icon icon="ongoing-tasks" margin="me-0" color="primary" />
-                            <h4 className="mb-0">{title} details</h4>
+                            <h4 className="mb-0">{t("progressSheet.heading", { title })}</h4>
                         </div>
                         <div className="d-flex align-items-center">
                             <ViewSheet.PinButton />

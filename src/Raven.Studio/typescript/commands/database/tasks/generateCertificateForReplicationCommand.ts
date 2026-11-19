@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksCommands");
 
 class generateCertificateForReplicationCommand extends commandBase {
 
@@ -17,7 +20,7 @@ class generateCertificateForReplicationCommand extends commandBase {
 
         return this.post<Raven.Server.Documents.Handlers.PullReplicationHandler.PullReplicationCertificate>(url, null, this.db, undefined, 20000)
             .fail((response: JQueryXHR) => {
-                this.reportError("Failed to generate a certificate for replication", response.responseText, response.statusText);
+                this.reportError(t("replicationCertificateFailed"), response.responseText, response.statusText);
             });
     }
 }

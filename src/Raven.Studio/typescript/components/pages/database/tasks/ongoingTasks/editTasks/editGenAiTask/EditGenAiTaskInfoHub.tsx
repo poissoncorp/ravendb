@@ -8,8 +8,12 @@ import { FeatureAvailabilityData } from "components/common/FeatureAvailabilitySu
 import { useLimitedFeatureAvailability } from "components/utils/licenseLimitsUtils";
 import { Icon } from "components/common/Icon";
 import { useRavenLink } from "components/hooks/useRavenLink";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function EditGenAiTaskInfoHub() {
+    const t = useStudioTranslation("editGenAiTask");
+    const commonT = useStudioTranslation("common");
     const { appUrl } = useAppUrls();
     const activeDatabaseName = useAppSelector(databaseSelectors.activeDatabaseName);
 
@@ -17,6 +21,18 @@ export default function EditGenAiTaskInfoHub() {
 
     const genAiOverviewDocsLink = useRavenLink({ hash: "GEHC2I" });
     const genAiCreateTaskDocsLink = useRavenLink({ hash: "HTGCZZ" });
+
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("featureAvailability.genAi"),
+            featureIcon: "genai",
+            community: { value: false },
+            professional: { value: false },
+            enterprise: { value: false },
+            enterpriseAi: { value: true },
+            quill: { value: true },
+        },
+    ];
 
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
@@ -33,89 +49,87 @@ export default function EditGenAiTaskInfoHub() {
             <AccordionItemWrapper icon="about" color="info" targetId="about-view">
                 <div>
                     <p>
-                        You can configure a <strong>GenAI task</strong> to analyze and enrich your documents using{" "}
-                        <strong>LLMs</strong>.
-                        <br />
-                        The task can automatically update existing documents or create new ones based on AI-generated
-                        content.
+                        <StudioTrans
+                            ns="editGenAiTask"
+                            i18nKey="about.intro"
+                            components={{ strong: <strong />, br: <br /> }}
+                        />
                     </p>
                     <hr />
-                    Task configuration includes:
+                    {t("about.configurationIncludes")}
                     <br />
                     <br />
                     <p>
-                        <strong>AI service and model:</strong>
-                        <br />
-                        Select a{" "}
-                        <a href={appUrl.forAiConnectionStrings(activeDatabaseName)} target="_blank">
-                            connection string{" "}
-                        </a>{" "}
-                        that defines the AI provider and model to connect to.
+                        <StudioTrans
+                            ns="editGenAiTask"
+                            i18nKey="about.aiServiceAndModel"
+                            components={{
+                                strong: <strong />,
+                                br: <br />,
+                                a: <a href={appUrl.forAiConnectionStrings(activeDatabaseName)} target="_blank" />,
+                            }}
+                        />
                     </p>
                     <div>
-                        <strong>Define MODEL INPUT:</strong>
+                        <strong>{t("about.defineModelInput")}</strong>
                         <ul>
                             <li className="mt-1">
-                                <strong>Context objects</strong>
-                                <br /> Provide a script to create context objects from each document in the source
-                                collection. These will be the input objects for the model.
+                                <StudioTrans
+                                    ns="editGenAiTask"
+                                    i18nKey="about.contextObjects"
+                                    components={{ strong: <strong />, br: <br /> }}
+                                />
                             </li>
                             <li className="mt-1">
-                                <strong>Prompt</strong>
-                                <br /> Define the instruction sent to the model.
-                                <br /> It will be applied to each context object.
+                                <StudioTrans
+                                    ns="editGenAiTask"
+                                    i18nKey="about.prompt"
+                                    components={{ strong: <strong />, br: <br /> }}
+                                />
                             </li>
                             <li className="mt-1">
-                                <strong>JSON schema</strong>
-                                <br /> Specify the expected format of the output objects the model should generate.
-                                <br /> An output object will be returned for each input context object.
+                                <StudioTrans
+                                    ns="editGenAiTask"
+                                    i18nKey="about.jsonSchema"
+                                    components={{ strong: <strong />, br: <br /> }}
+                                />
                             </li>
                         </ul>
                     </div>
                     <p>
-                        <strong>Handle MODEL OUTPUT:</strong>
-                        <br /> Provide an &quot;update script&quot; that will process each output object returned by the
-                        model.
-                        <br /> You can modify existing documents or create new ones based on the generated results, as
-                        needed.
+                        <StudioTrans
+                            ns="editGenAiTask"
+                            i18nKey="about.handleModelOutput"
+                            components={{ strong: <strong />, br: <br /> }}
+                        />
                     </p>
                 </div>
                 <hr />
                 <p>
-                    <strong>Testing:</strong>
-                    <br />
-                    You can test the task definition at any stage using any source document.
-                    <br /> Use the playground to provide custom context objects and/or model output,
-                    <br /> and preview the full flow before saving the task.
+                    <StudioTrans
+                        ns="editGenAiTask"
+                        i18nKey="about.testing"
+                        components={{ strong: <strong />, br: <br /> }}
+                    />
                 </p>
                 <p>
-                    <strong>Ongoing processing:</strong>
-                    <br /> Once the task is active, any modification to a document in the selected collection
-                    <br /> will trigger the task to retrieve content from the model and apply the update script.
+                    <StudioTrans
+                        ns="editGenAiTask"
+                        i18nKey="about.ongoingProcessing"
+                        components={{ strong: <strong />, br: <br /> }}
+                    />
                 </p>
                 <hr />
-                <div className="small-label mb-2">useful links</div>
+                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                 <a href={genAiOverviewDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - GenAI Task Overview
+                    <Icon icon="newtab" /> {t("about.overviewDocsLink")}
                 </a>
                 <br />
                 <a href={genAiCreateTaskDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - Create GenAI Task
+                    <Icon icon="newtab" /> {t("about.createTaskDocsLink")}
                 </a>
             </AccordionItemWrapper>
             <FeatureAvailabilitySummaryWrapper isUnlimited={hasGenAi} data={featureAvailability} />
         </AboutViewFloating>
     );
 }
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "GenAI",
-        featureIcon: "genai",
-        community: { value: false },
-        professional: { value: false },
-        enterprise: { value: false },
-        enterpriseAi: { value: true },
-        quill: { value: true },
-    },
-];

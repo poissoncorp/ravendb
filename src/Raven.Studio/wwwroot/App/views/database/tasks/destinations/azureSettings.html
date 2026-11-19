@@ -1,31 +1,31 @@
 <div class="row margin-bottom" data-bind="validationElement: storageContainer">
     <label class="control-label col-xs-12 col-sm-6 col-lg-4">
-        Storage container <i class="required"></i> <small><i class="storage-container-info icon-info text-info"></i></small>
+        <span data-bind="i18n: 'azureSettings:storageContainer'"></span> <i class="required"></i> <small><i class="storage-container-info icon-info text-info"></i></small>
     </label>
     <div class="col-xs-12 col-sm-6 col-lg-8">
         <input data-bind="textInput: storageContainer" type="text" class="form-control" />
     </div>
 </div>
 <div class="row margin-bottom" data-bind="validationElement: remoteFolderName">
-    <label class="control-label col-xs-12 col-sm-6 col-lg-4">Remote folder name</label>
+    <label class="control-label col-xs-12 col-sm-6 col-lg-4" data-bind="i18n: 'azureSettings:remoteFolderName'"></label>
     <div class="col-xs-12 col-sm-6 col-lg-8">
         <input data-bind="textInput: remoteFolderName" type="text" class="form-control" />
     </div>
 </div>
 <div class="row margin-bottom" data-bind="validationElement: accountName">
-    <label class="control-label col-xs-12 col-sm-6 col-lg-4">Account name <i class="required"></i></label>
+    <label class="control-label col-xs-12 col-sm-6 col-lg-4"><span data-bind="i18n: 'azureSettings:accountName'"></span> <i class="required"></i></label>
     <div class="col-xs-12 col-sm-6 col-lg-8">
         <input data-bind="textInput: accountName" class="form-control" />
     </div>
 </div>
 <div class="row margin-bottom">
-    <label class="control-label col-xs-12 col-sm-6 col-lg-4">Authentication</label>
+    <label class="control-label col-xs-12 col-sm-6 col-lg-4" data-bind="i18n: 'azureSettings:authentication'"></label>
     <div class="col-xs-12 col-sm-6 col-lg-8">
         <div class="radio-toggle">
             <input type="radio" id="azureAuthTypeAccountKey" name="azureAuthType" value="accountKey" data-bind="checked: authType">
-            <label for="azureAuthTypeAccountKey">Account key</label>
+            <label for="azureAuthTypeAccountKey" data-bind="i18n: 'azureSettings:accountKey'"></label>
             <input type="radio" id="azureAuthTypeSasToken" name="azureAuthType" value="sasToken" data-bind="checked: authType">
-            <label for="azureAuthTypeSasToken">SAS token</label>
+            <label for="azureAuthTypeSasToken" data-bind="i18n: 'azureSettings:sasToken'"></label>
             <div class="toggle-knob">
                 <i class="icon-key m-0"></i><i class="icon-lock m-0"></i>
             </div>
@@ -33,28 +33,28 @@
     </div>
 </div>
 <div class="row margin-bottom" data-bind="validationElement: accountKey, visible: authType() === 'accountKey'">
-    <label class="control-label col-xs-12 col-sm-6 col-lg-4">Account key <i class="required"></i></label>
+    <label class="control-label col-xs-12 col-sm-6 col-lg-4"><span data-bind="i18n: 'azureSettings:accountKey'"></span> <i class="required"></i></label>
     <div class="col-xs-12 col-sm-6 col-lg-8" >
         <div class="input-group flex-grow">
             <input data-bind="textInput: accountKey, attr: { type: isKeyHidden() ? 'password' : 'text' }" class="form-control" />
-            <button type="button" class="btn btn-default" data-bind="click: toggleIsKeyHidden, visible: isKeyHidden()" title="View hidden characters">
+            <button type="button" class="btn btn-default" data-bind="click: toggleIsKeyHidden, visible: isKeyHidden(), i18nAttr: { title: 'azureSettings:viewHiddenCharactersTitle' }">
                 <i class="icon-preview"></i>
             </button>
-            <button type="button" class="btn btn-info" data-bind="click: toggleIsKeyHidden, visible: !isKeyHidden()" title="Hide characters">
+            <button type="button" class="btn btn-info" data-bind="click: toggleIsKeyHidden, visible: !isKeyHidden(), i18nAttr: { title: 'azureSettings:hideCharactersTitle' }">
                 <i class="icon-preview-off"></i>
             </button>
         </div>
     </div>
 </div>
 <div class="row margin-bottom" data-bind="validationElement: sasToken, visible: authType() === 'sasToken'">
-    <label class="control-label col-xs-12 col-sm-6 col-lg-4">SAS token <i class="required"></i></label>
+    <label class="control-label col-xs-12 col-sm-6 col-lg-4"><span data-bind="i18n: 'azureSettings:sasToken'"></span> <i class="required"></i></label>
     <div class="col-xs-12 col-sm-6 col-lg-8">
         <div class="input-group flex-grow">
             <input data-bind="textInput: sasToken, attr: { type: isSasTokenHidden() ? 'password' : 'text' }" class="form-control" />
-            <button type="button" class="btn btn-default" data-bind="click: toggleIsSasTokenHidden, visible: isSasTokenHidden()" title="View hidden characters">
+            <button type="button" class="btn btn-default" data-bind="click: toggleIsSasTokenHidden, visible: isSasTokenHidden(), i18nAttr: { title: 'azureSettings:viewHiddenCharactersTitle' }">
                 <i class="icon-preview"></i>
             </button>
-            <button type="button" class="btn btn-info" data-bind="click: toggleIsSasTokenHidden, visible: !isSasTokenHidden()" title="Hide characters">
+            <button type="button" class="btn btn-info" data-bind="click: toggleIsSasTokenHidden, visible: !isSasTokenHidden(), i18nAttr: { title: 'azureSettings:hideCharactersTitle' }">
                 <i class="icon-preview-off"></i>
             </button>
         </div>

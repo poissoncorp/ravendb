@@ -9,8 +9,10 @@ import EditCdcSinkTaskPatchAdvancedField from "./EditCdcSinkTaskPatchAdvancedFie
 import FormStringValueList from "components/common/formFields/FormStringValueList";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import { Icon } from "components/common/Icon";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function EditCdcSinkTaskRootTableEditor({ path }: { path: RootTablePath }) {
+    const t = useStudioTranslation("editCdcSinkTask");
     const { control } = useFormContext<EditCdcSinkTaskFormData>();
 
     const patch = useWatch({ control, name: `${path}.patch` });
@@ -23,17 +25,17 @@ export default function EditCdcSinkTaskRootTableEditor({ path }: { path: RootTab
         <div>
             <div className="grid">
                 <FormGroup className="g-col-4">
-                    <FormLabel>Source schema</FormLabel>
+                    <FormLabel>{t("tableEditor.sourceSchema")}</FormLabel>
                     <FormInput type="text" control={control} name={`${path}.sourceTableSchema`} />
                 </FormGroup>
                 <FormGroup className="g-col-4">
-                    <FormLabel>Source table</FormLabel>
+                    <FormLabel>{t("tableEditor.sourceTable")}</FormLabel>
                     <FormInput type="text" control={control} name={`${path}.sourceTableName`} />
                 </FormGroup>
                 <FormGroup className="g-col-4">
                     <FormLabel>
-                        Target collection
-                        <PopoverWithHoverWrapper message="The RavenDB collection where documents generated from rows in the source table will be stored.">
+                        {t("tableEditor.root.targetCollection")}
+                        <PopoverWithHoverWrapper message={t("tableEditor.root.targetCollectionInfo")}>
                             <Icon icon="info-new" margin="ms-1" />
                         </PopoverWithHoverWrapper>
                     </FormLabel>
@@ -43,13 +45,13 @@ export default function EditCdcSinkTaskRootTableEditor({ path }: { path: RootTab
             <FormStringValueList
                 title={
                     <>
-                        Primary key columns
-                        <PopoverWithHoverWrapper message="Columns that uniquely identify each source row. Their values are used to derive the RavenDB document ID.">
+                        {t("tableEditor.primaryKeyColumns")}
+                        <PopoverWithHoverWrapper message={t("tableEditor.root.primaryKeyColumnsInfo")}>
                             <Icon icon="info-new" margin="ms-1" />
                         </PopoverWithHoverWrapper>
                     </>
                 }
-                addButtonLabel="Add primary key column"
+                addButtonLabel={t("tableEditor.addPrimaryKeyColumn")}
                 control={control}
                 name={`${path}.primaryKeyColumns`}
                 fieldNameAccessor={(idx) => `${path}.primaryKeyColumns.${idx}.value`}

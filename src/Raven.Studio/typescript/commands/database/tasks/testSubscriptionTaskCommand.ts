@@ -2,6 +2,9 @@ import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
 import document = require("models/database/documents/document");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksCommands");
 
 class testSubscriptionTaskCommand extends commandBase {
 
@@ -12,7 +15,7 @@ class testSubscriptionTaskCommand extends commandBase {
     execute(): JQueryPromise<testSubscriptionPagedResult<document>> {
         return this.testSubscription()
             .fail((response: JQueryXHR) => {
-                this.reportError("Failed to test subscription task", response.responseText, response.statusText);
+                this.reportError(t("subscriptionTestFailed"), response.responseText, response.statusText);
             });
     }
 

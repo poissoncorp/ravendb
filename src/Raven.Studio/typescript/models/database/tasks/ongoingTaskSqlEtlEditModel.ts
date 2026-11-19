@@ -2,6 +2,9 @@
 import ongoingTaskEditModel = require("models/database/tasks/ongoingTaskEditModel");
 import ongoingTaskSqlEtlTransformationModel = require("models/database/tasks/ongoingTaskSqlEtlTransformationModel");
 import ongoingTaskSqlEtlTableModel = require("models/database/tasks/ongoingTaskSqlEtlTableModel");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
 
 class ongoingTaskSqlEtlEditModel extends ongoingTaskEditModel {
     connectionStringName = ko.observable<string>();
@@ -69,7 +72,7 @@ class ongoingTaskSqlEtlEditModel extends ongoingTaskEditModel {
             validation: [
                 {
                     validator: () => this.sqlTables().length > 0,
-                    message: "SQL table is Not defined"
+                    message: t("sqlEtl.tableNotDefined")
                 }
             ]
         });
@@ -78,7 +81,7 @@ class ongoingTaskSqlEtlEditModel extends ongoingTaskEditModel {
             validation: [
                 {
                     validator: () => this.transformationScripts().length > 0,
-                    message: "Transformation Script is Not defined"
+                    message: t("validation.transformationScriptNotDefined")
                 }
             ]
         });

@@ -15,6 +15,7 @@ import { useFormContext } from "react-hook-form";
 import { FormErrorIcon } from "components/common/Form";
 import { editCdcSinkTaskConstants } from "components/pages/database/tasks/ongoingTasks/editTasks/editCdcSinkTask/utils/editCdcSinkTaskConstants";
 import { EditCdcSinkTaskTableWarningIcon } from "./EditCdcSinkTaskTableWarningIcon";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 const { expandButtonWidthPx } = editCdcSinkTaskConstants;
 
@@ -25,12 +26,13 @@ export function EditCdcSinkTaskRootTableItem({
     hasChildren,
     warningMessages,
 }: ExplorerRowRootTable) {
+    const t = useStudioTranslation("editCdcSinkTask");
     const dispatch = useAppDispatch();
     const tableActions = useEditCdcSinkTaskTableActions();
     const isActive = useAppSelector(editCdcSinkTaskSelectors.isActiveTable(path));
     const { control } = useFormContext<EditCdcSinkTaskFormData>();
 
-    const label = table.sourceTableName || "Unassigned table";
+    const label = table.sourceTableName || t("tablesExplorer.unassignedTable");
     const isDisabled = table.disabled;
 
     const handleClick = () => {
@@ -52,7 +54,7 @@ export function EditCdcSinkTaskRootTableItem({
                     variant="link"
                     className="text-body p-0"
                     onClick={handleToggleExpanded}
-                    title={isExpanded ? "Collapse table" : "Expand table"}
+                    title={isExpanded ? t("tablesExplorer.collapseTable") : t("tablesExplorer.expandTable")}
                     style={{ width: expandButtonWidthPx, minWidth: expandButtonWidthPx }}
                 >
                     <Icon icon={isExpanded ? "chevron-down" : "chevron-right"} className="font-size-12" margin="m-0" />
@@ -79,26 +81,27 @@ export function EditCdcSinkTaskRootTableItem({
                     isCaretHidden
                     variant="link"
                     className="text-body px-1"
-                    title="Table actions"
+                    title={t("tablesExplorer.tableActions")}
                     size="xs"
                 >
                     <Icon icon="more" margin="m-0" />
                 </Dropdown.Toggle>
                 <DropdownPortalMenu>
                     <Dropdown.Item onClick={() => tableActions.addEmbeddedTable(path)}>
-                        <Icon icon="embed" /> Add new embedded table
+                        <Icon icon="embed" /> {t("tablesExplorer.addEmbeddedTable")}
                     </Dropdown.Item>
                     <Dropdown.Item onClick={() => tableActions.addLinkedTable(path)}>
-                        <Icon icon="link" /> Add new linked table
+                        <Icon icon="link" /> {t("tablesExplorer.addLinkedTable")}
                     </Dropdown.Item>
                     <Dropdown.Item onClick={() => tableActions.toggleRootTableDisabled(path)}>
-                        <Icon icon={isDisabled ? "play" : "stop"} /> {isDisabled ? "Enable" : "Disable"}
+                        <Icon icon={isDisabled ? "play" : "stop"} />{" "}
+                        {isDisabled ? t("tablesExplorer.enable") : t("tablesExplorer.disable")}
                     </Dropdown.Item>
                     <Dropdown.Item
                         className="text-danger"
                         onClick={() => tableActions.removeTable({ path, type: "root" })}
                     >
-                        <Icon icon="trash" /> Remove
+                        <Icon icon="trash" /> {t("tablesExplorer.remove")}
                     </Dropdown.Item>
                 </DropdownPortalMenu>
             </DropdownWithPortalMenu>

@@ -1,4 +1,7 @@
 import IconName from "typings/server/icons";
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("importFromFile");
 
 export interface SectionNavItem {
     id: string;
@@ -8,26 +11,62 @@ export interface SectionNavItem {
 }
 
 export const sectionNav: SectionNavItem[] = [
-    { id: "select-file", label: "Select file to import", icon: "folder" },
+    {
+        id: "select-file",
+        get label() {
+            return t("sections.selectFile");
+        },
+        icon: "folder",
+    },
     {
         id: "data-to-import",
-        label: "Data to import",
+        get label() {
+            return t("sections.dataToImport");
+        },
         icon: "document",
         children: [
-            { id: "collections-to-import", label: "Collections to import" },
-            { id: "documents-and-extensions", label: "Documents and extensions" },
+            {
+                id: "collections-to-import",
+                get label() {
+                    return t("sections.collectionsToImport");
+                },
+            },
+            {
+                id: "documents-and-extensions",
+                get label() {
+                    return t("sections.documentsAndExtensions");
+                },
+            },
         ],
     },
     {
         id: "configuration-to-import",
-        label: "Configuration to import",
+        get label() {
+            return t("sections.configurationToImport");
+        },
         icon: "database",
         children: [
-            { id: "database-entities", label: "Database entities" },
-            { id: "database-settings", label: "Database settings" },
+            {
+                id: "database-entities",
+                get label() {
+                    return t("sections.databaseEntities");
+                },
+            },
+            {
+                id: "database-settings",
+                get label() {
+                    return t("sections.databaseSettings");
+                },
+            },
         ],
     },
-    { id: "import-processing", label: "Import processing & security", icon: "settings" },
+    {
+        id: "import-processing",
+        get label() {
+            return t("sections.importProcessing");
+        },
+        icon: "settings",
+    },
 ];
 
 export const sectionIds = sectionNav.flatMap((item) => [item.id, ...(item.children?.map((child) => child.id) ?? [])]);

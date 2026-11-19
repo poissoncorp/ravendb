@@ -30,6 +30,7 @@ import { useAppSelector } from "components/store";
 import { Icon } from "components/common/Icon";
 import { ReplicationHubSinksHeader } from "../partials/ReplicationHubSinksHeader";
 import { getSinkKey, useReplicationHubSinks } from "../partials/useReplicationHubSinks";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface ReplicationHubPanelProps extends BaseOngoingTaskPanelProps<OngoingTaskHubDefinitionInfo> {
     connectedSinks: OngoingTaskReplicationHubInfo[];
@@ -81,6 +82,7 @@ function restoreSinkPosition(sinksList: HTMLElement, { sinkIndex, top }: SinkPos
 
 function Details(props: ReplicationHubPanelProps & { canEdit: boolean }) {
     const { connectedSinks, data } = props;
+    const t = useStudioTranslation("ongoingTasks");
     const sinksState = useReplicationHubSinks(connectedSinks);
     const { visibleSinks, expandedSinkKeys, toggleSinkExpanded, toggleAllExpanded } = sinksState;
 
@@ -113,12 +115,16 @@ function Details(props: ReplicationHubPanelProps & { canEdit: boolean }) {
     return (
         <div>
             <RichPanelDetails>
-                {delayHumane && <RichPanelDetailItem label="Replication Delay Time">{delayHumane}</RichPanelDetailItem>}
-                <RichPanelDetailItem label="Replication Mode">
+                {delayHumane && (
+                    <RichPanelDetailItem label={t("replicationHub.delayTime")}>{delayHumane}</RichPanelDetailItem>
+                )}
+                <RichPanelDetailItem label={t("replicationHub.mode")}>
                     {formatReplicationMode(data.shared.taskMode)}
                 </RichPanelDetailItem>
-                <RichPanelDetailItem label="Has Filtering">
-                    {data.shared.hasFiltering ? "True" : "False"}
+                <RichPanelDetailItem label={t("replicationHub.hasFiltering")}>
+                    {data.shared.hasFiltering
+                        ? t("replicationHub.hasFilteringYes")
+                        : t("replicationHub.hasFilteringNo")}
                 </RichPanelDetailItem>
             </RichPanelDetails>
             {connectedSinks.length > 0 && (
@@ -144,16 +150,19 @@ function Details(props: ReplicationHubPanelProps & { canEdit: boolean }) {
                             />
                         );
                     })}
-                    {visibleSinks.length === 0 && <EmptySet>No sinks match the selected filters</EmptySet>}
+                    {visibleSinks.length === 0 && <EmptySet>{t("replicationHub.noMatchingSinks")}</EmptySet>}
                 </div>
             )}
-            <div className="margin-left">{connectedSinks.length === 0 && <EmptySet>No sinks connected</EmptySet>}</div>
+            <div className="margin-left">
+                {connectedSinks.length === 0 && <EmptySet>{t("replicationHub.noSinks")}</EmptySet>}
+            </div>
         </div>
     );
 }
 
 export function ReplicationHubDefinitionPanel(props: ReplicationHubPanelProps) {
     const { data, toggleSelection, isSelected, onTaskOperation, isDeleting, isTogglingState } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
 
@@ -180,7 +189,7 @@ export function ReplicationHubDefinitionPanel(props: ReplicationHubPanelProps) {
                 <RichPanelActions>
                     <span>
                         <Icon icon="pull-replication-hub" />
-                        Replication Hub
+                        {t("taskType.replicationHub")}
                     </span>
                     <OngoingTaskStatus
                         task={data}

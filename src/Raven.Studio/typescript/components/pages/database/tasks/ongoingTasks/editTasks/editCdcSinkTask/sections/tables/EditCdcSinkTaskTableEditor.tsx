@@ -23,8 +23,10 @@ import { useViewSheet } from "components/common/splitView/ViewSheet";
 import EditCdcSinkTaskTestPanel from "components/pages/database/tasks/ongoingTasks/editTasks/editCdcSinkTask/sections/tables/tableEditor/EditCdcSinkTaskTestPanel";
 import { useEffect } from "react";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function EditCdcSinkTaskTableEditor() {
+    const t = useStudioTranslation("editCdcSinkTask");
     const activeTable = useAppSelector(editCdcSinkTaskSelectors.activeTable);
     const viewSheet = useViewSheet();
 
@@ -38,13 +40,14 @@ export default function EditCdcSinkTaskTableEditor() {
     }, [activeTable, viewSheet]);
 
     if (!activeTable) {
-        return <EmptySet className="text-muted">Select a table to view its configuration details.</EmptySet>;
+        return <EmptySet className="text-muted">{t("tableEditor.noActiveTable")}</EmptySet>;
     }
 
     return <ActiveTableEditor key={activeTable.path} activeTable={activeTable} />;
 }
 
 function ActiveTableEditor({ activeTable }: { activeTable: CdcActiveTable }) {
+    const t = useStudioTranslation("editCdcSinkTask");
     const dispatch = useAppDispatch();
     const editForm = useFormContext<EditCdcSinkTaskFormData>();
     const breadcrumbItems = useEditCdcSinkTaskBreadcrumbs(activeTable.path);
@@ -101,10 +104,10 @@ function ActiveTableEditor({ activeTable }: { activeTable: CdcActiveTable }) {
                 </div>
                 <div className="ms-auto hstack gap-2 align-items-center">
                     {activeTable.type === "root" && (
-                        <PopoverWithHoverWrapper message="Preview documents generated from sample rows.">
+                        <PopoverWithHoverWrapper message={t("tableEditor.testInfo")}>
                             <Button variant="info" disabled={isRootTableDisabled} onClick={handleOpenRootTableTest}>
                                 <Icon icon="rocket" />
-                                Test
+                                {t("tableEditor.test")}
                             </Button>
                         </PopoverWithHoverWrapper>
                     )}

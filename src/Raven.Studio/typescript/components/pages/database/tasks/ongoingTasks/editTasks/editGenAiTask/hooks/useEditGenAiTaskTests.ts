@@ -5,10 +5,12 @@ import { editGenAiTaskSelectors, editGenAiTaskActions } from "../store/editGenAi
 import { editGenAiTaskUtils } from "../utils/editGenAiTaskUtils";
 import { EditGenAiTaskFormData, GenAiAiAttachment } from "../utils/editGenAiTaskValidation";
 import messagePublisher from "common/messagePublisher";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type GenAiResultItem = Raven.Server.Documents.ETL.Providers.AI.GenAi.GenAiResultItem;
 
 export function useEditGenAiTaskTests() {
+    const t = useStudioTranslation("editGenAiTask");
     const dispatch = useAppDispatch();
     const { control, trigger, setValue } = useFormContext<EditGenAiTaskFormData>();
     const formValues = useWatch<EditGenAiTaskFormData>({ control });
@@ -42,7 +44,7 @@ export function useEditGenAiTaskTests() {
 
         if (result.TransformationErrors?.length > 0) {
             messagePublisher.reportError(
-                "Failed to create context objects",
+                t("context.testFailed"),
                 result.TransformationErrors.map((x) => x.Error).join("\n")
             );
             return;

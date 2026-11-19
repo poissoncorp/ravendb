@@ -6,9 +6,24 @@ import FeatureAvailabilitySummaryWrapper, {
 } from "components/common/FeatureAvailabilitySummary";
 import { useLimitedFeatureAvailability } from "components/utils/licenseLimitsUtils";
 import React from "react";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export function EditRabbitMqSinkTaskInfoHub() {
+    const t = useStudioTranslation("editRabbitMqSinkTask");
     const hasQueueSink = useAppSelector(licenseSelectors.statusValue("HasQueueSink"));
+
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("featureAvailability.rabbitMqSink"),
+            featureIcon: "rabbitmq-sink",
+            community: { value: false },
+            professional: { value: false },
+            enterprise: { value: true },
+            quill: { value: true },
+        },
+    ];
+
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
         overwrites: [
@@ -23,46 +38,37 @@ export function EditRabbitMqSinkTaskInfoHub() {
         <AboutViewFloating defaultOpen={hasQueueSink ? null : "licensing"}>
             <AccordionItemWrapper targetId="about" icon="about" color="info">
                 <p>
-                    Define a <strong>RabbitMQ Sink</strong> ongoing-task in order to consume and process incoming
-                    messages from RabbitMQ queues.
+                    <StudioTrans ns="editRabbitMqSinkTask" i18nKey="about.task" components={{ strong: <strong /> }} />
                 </p>
                 <p>
-                    Add one or more <strong>scripts</strong> that Load, Put, or Delete documents in RavenDB based on the
-                    incoming messages:
+                    <StudioTrans
+                        ns="editRabbitMqSinkTask"
+                        i18nKey="about.scripts"
+                        components={{ strong: <strong /> }}
+                    />
                 </p>
                 <ul>
                     <li className="margin-top-sm">
-                        In the task definition:
-                        <br />
-                        Define the connection string.
+                        <StudioTrans
+                            ns="editRabbitMqSinkTask"
+                            i18nKey="about.taskDefinitionItem"
+                            components={{ br: <br /> }}
+                        />
                     </li>
                     <li className="margin-top-xxs">
-                        In the script definition:
-                        <br />
-                        Define the RabbitMQ queue the script will subscribe to.
-                        <br />
-                        The script can be tested to preview the resulting documents.
+                        <StudioTrans
+                            ns="editRabbitMqSinkTask"
+                            i18nKey="about.scriptDefinitionItem"
+                            components={{ br: <br /> }}
+                        />
                     </li>
-                    <li className="margin-top-xxs">Incoming messages are expected only as JSON.</li>
+                    <li className="margin-top-xxs">{t("about.jsonItem")}</li>
                 </ul>
                 <p>
-                    A database with a defined RabbitMQ Sink task will Not become idle,
-                    <br />
-                    ensuring continuous processing of incoming messages.
+                    <StudioTrans ns="editRabbitMqSinkTask" i18nKey="about.notIdle" components={{ br: <br /> }} />
                 </p>
             </AccordionItemWrapper>
             <FeatureAvailabilitySummaryWrapper isUnlimited={hasQueueSink} data={featureAvailability} />
         </AboutViewFloating>
     );
 }
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "RabbitMQ Sink",
-        featureIcon: "rabbitmq-sink",
-        community: { value: false },
-        professional: { value: false },
-        enterprise: { value: true },
-        quill: { value: true },
-    },
-];

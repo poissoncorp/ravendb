@@ -27,11 +27,13 @@ import { useAppSelector } from "components/store";
 import { Icon } from "components/common/Icon";
 import { EtlPanelBaseProps, useEtlPanel } from "./etlPanelUtils";
 import { TaskPanelErrors, EtlPanelHealthBadge, EtlPanelProgressItem, EtlPanelToggleButton } from "./EtlPanelComponents";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type RavenEtlPanelProps = EtlPanelBaseProps<OngoingTaskRavenEtlInfo>;
 
 export function RavenEtlPanel(props: RavenEtlPanelProps) {
     const { data, toggleSelection, isSelected, onTaskOperation, isDeleting, isTogglingState, etlStats } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     const { forCurrentDatabase } = useAppUrls();
     const editUrl = forCurrentDatabase.editRavenEtl(data.shared.taskId)();
@@ -88,7 +90,7 @@ export function RavenEtlPanel(props: RavenEtlPanelProps) {
             </RichPanelHeader>
             <RichPanelDetails>
                 <EtlPanelToggleButton detailsVisible={detailsVisible} toggleDetails={toggleDetails} />
-                <RichPanelDetailItem label="Type">
+                <RichPanelDetailItem label={t("taskDetails.type")}>
                     <Icon icon="ravendb-etl" />
                     RavenDB ETL
                 </RichPanelDetailItem>
@@ -99,14 +101,17 @@ export function RavenEtlPanel(props: RavenEtlPanelProps) {
                     connectionStringType="Raven"
                     databaseName={databaseName}
                 />
-                <RichPanelDetailItem label="Destination Database" title={data.shared.destinationDatabase}>
+                <RichPanelDetailItem
+                    label={t("taskDetails.destinationDatabase")}
+                    title={data.shared.destinationDatabase}
+                >
                     <div className="text-truncate" style={{ maxWidth: "200px" }}>
                         {data.shared.destinationDatabase}
                     </div>
                 </RichPanelDetailItem>
                 <DestinationUrlItem destinationUrl={data.shared.destinationUrl} />
                 <RichPanelDetailItem
-                    label="Topology Discovery URLs"
+                    label={t("taskDetails.topologyDiscoveryUrls")}
                     title={data.shared.topologyDiscoveryUrls.join(", ")}
                 >
                     <div className="text-truncate" style={{ maxWidth: "200px" }}>

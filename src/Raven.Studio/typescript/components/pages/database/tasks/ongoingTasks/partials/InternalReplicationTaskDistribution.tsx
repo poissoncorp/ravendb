@@ -19,6 +19,7 @@ import {
 import { withPreventDefault } from "components/utils/common";
 import { ErrorModal } from "components/pages/database/tasks/ongoingTasks/partials/ErrorModal";
 import { SheetPortalOutlet, useViewSheet } from "components/common/splitView/ViewSheet";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface TaskDistributionRowProps {
     nodeInfo: Omit<OngoingInternalReplicationNodeInfo, "progress">;
@@ -42,6 +43,7 @@ function TaskDistributionRow(props: TaskDistributionRowProps) {
         setActiveNodeIndex,
         ownerId,
     } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     const shard = (
         <div className="top shard">
@@ -111,7 +113,7 @@ function TaskDistributionRow(props: TaskDistributionRowProps) {
                 isActive,
                 <ReplicationProgressDetailsSheet
                     key={ownerId}
-                    taskType="Internal Replication"
+                    taskType={t("taskType.internalReplication")}
                     allNodes={allSyntheticNodes}
                     initialNodeIndex={syntheticNodeIndex}
                     onNodeChange={setActiveNodeIndex}
@@ -151,6 +153,7 @@ interface InternalEntry {
 
 export function InternalReplicationTaskDistribution(props: InternalReplicationTaskDistributionProps) {
     const { data } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     const sharded = data.some((x) => x.location.shardNumber != null);
     const [activeNodeIndex, setActiveNodeIndex] = useState<number | null>(null);
@@ -208,20 +211,20 @@ export function InternalReplicationTaskDistribution(props: InternalReplicationTa
                     <div className="top"></div>
                     {sharded && (
                         <div className="node">
-                            <Icon icon="node" /> Node
+                            <Icon icon="node" /> {t("distribution.node")}
                         </div>
                     )}
                     <div>
-                        <Icon icon="etag" /> Last DB Etag
+                        <Icon icon="etag" /> {t("distribution.lastDbEtag")}
                     </div>
                     <div>
-                        <Icon icon="etag" /> Last Sent Etag
+                        <Icon icon="etag" /> {t("distribution.lastSentEtag")}
                     </div>
                     <div>
-                        <Icon icon="warning" /> Error
+                        <Icon icon="warning" /> {t("error")}
                     </div>
                     <div>
-                        <Icon icon="changes" /> State
+                        <Icon icon="changes" /> {t("distribution.state")}
                     </div>
                 </DistributionLegend>
                 {items}
@@ -237,6 +240,7 @@ interface InternalReplicationTaskProgressProps {
 
 export function InternalReplicationTaskProgress(props: InternalReplicationTaskProgressProps) {
     const { progress, onClick } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     if (!progress) {
         return (
@@ -250,7 +254,7 @@ export function InternalReplicationTaskProgress(props: InternalReplicationTaskPr
         return (
             <ClickableProgress onClick={onClick}>
                 <ProgressCircle state="success" icon="check" onClick={onClick}>
-                    up to date
+                    {t("progressCircle.upToDate")}
                 </ProgressCircle>
             </ClickableProgress>
         );
@@ -265,7 +269,7 @@ export function InternalReplicationTaskProgress(props: InternalReplicationTaskPr
     return (
         <ClickableProgress onClick={onClick}>
             <ProgressCircle state="running" icon={null} progress={percentage} onClick={onClick}>
-                Running
+                {t("progressCircle.running")}
             </ProgressCircle>
         </ClickableProgress>
     );

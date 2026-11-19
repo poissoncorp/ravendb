@@ -2,6 +2,9 @@
 import ongoingTaskEditModel = require("models/database/tasks/ongoingTaskEditModel");
 import ongoingTaskQueueEtlTransformationModel = require("models/database/tasks/ongoingTaskQueueEtlTransformationModel");
 import jsonUtil = require("common/jsonUtil");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
 
 class queueOptionsModel {
     queueName = ko.observable<string>();
@@ -110,7 +113,7 @@ abstract class ongoingTaskQueueEtlEditModel extends ongoingTaskEditModel {
             validation: [
                 {
                     validator: () => this.transformationScripts().length > 0,
-                    message: "Transformation Script is Not defined"
+                    message: t("validation.transformationScriptNotDefined")
                 }
             ]
         });
@@ -122,7 +125,7 @@ abstract class ongoingTaskQueueEtlEditModel extends ongoingTaskEditModel {
                         const names = this.optionsPerQueue().map(x => x.queueName()).filter(x => !!x);
                         return new Set(names).size === this.optionsPerQueue().filter(x => !!x.queueName()).length;
                     },
-                    message: "Duplicate queue names"
+                    message: t("queueEtl.duplicateQueueNames")
                 }
             ]
         }); 

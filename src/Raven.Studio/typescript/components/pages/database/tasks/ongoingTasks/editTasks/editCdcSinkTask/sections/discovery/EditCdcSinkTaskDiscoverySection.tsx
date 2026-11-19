@@ -15,12 +15,15 @@ import EditCdcSinkTaskDiscoverySchemasModal from "components/pages/database/task
 import { useAppDispatch } from "components/store";
 import { editCdcSinkTaskActions } from "components/pages/database/tasks/ongoingTasks/editTasks/editCdcSinkTask/store/editCdcSinkTaskSlice";
 import { useEffect } from "react";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface EditCdcSinkTaskDiscoverySectionProps {
     tablesFieldArray: UseFieldArrayReturn<EditCdcSinkTaskFormData, "tables", "id">;
 }
 
 export default function EditCdcSinkTaskDiscoverySection({ tablesFieldArray }: EditCdcSinkTaskDiscoverySectionProps) {
+    const t = useStudioTranslation("editCdcSinkTask");
     const { tasksService } = useServices();
     const dispatch = useAppDispatch();
     const { value: isPanelOpen, toggle: toggleIsPanelOpen, setTrue: openPanel } = useBoolean(true);
@@ -67,25 +70,22 @@ export default function EditCdcSinkTaskDiscoverySection({ tablesFieldArray }: Ed
             <div className="hstack align-items-end gap-2">
                 <div>
                     <div className="hstack align-items-center">
-                        <h3 className="m-0">Schema Explorer</h3>
+                        <h3 className="m-0">{t("discovery.title")}</h3>
                         <CollapseButton isExpanded={isPanelOpen} toggle={toggleIsPanelOpen} />
                     </div>
                     <div className="mb-1">
-                        Discover existing tables from the configured connection.
-                        <br />
-                        After tables are shown, select the ones you want and click &quot;Configure selected tables&quot;
-                        to add them below.
+                        <StudioTrans ns="editCdcSinkTask" i18nKey="discovery.description" components={{ br: <br /> }} />
                     </div>
                 </div>
                 <ConditionalPopover
                     conditions={[
                         {
                             isActive: !connectionStringName,
-                            message: "A connection string is required to discover tables.",
+                            message: t("discovery.connectionStringRequired"),
                         },
                         {
                             isActive: !!connectionStringName,
-                            message: "Click to fetch tables from the source database.",
+                            message: t("discovery.discoverTablesInfo"),
                         },
                     ]}
                     className="ms-auto"
@@ -98,7 +98,7 @@ export default function EditCdcSinkTaskDiscoverySection({ tablesFieldArray }: Ed
                         isSpinning={asyncGetSchema.loading}
                         icon="search"
                     >
-                        Discover tables
+                        {t("discovery.discoverTables")}
                     </ButtonWithSpinner>
                 </ConditionalPopover>
                 {isSchemasModalOpen && (

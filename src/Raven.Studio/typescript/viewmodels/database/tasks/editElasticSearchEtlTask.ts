@@ -29,6 +29,9 @@ import licenseModel = require("models/auth/licenseModel");
 import EditElasticSearchEtlInfoHub = require("viewmodels/database/tasks/EditElasticSearchEtlInfoHub");
 import typeUtils = require("common/typeUtils");
 import tasksCommonContent = require("models/database/tasks/tasksCommonContent");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("editElasticSearchEtlTask");
 
 class elasticSearchTaskTestMode {
 
@@ -216,8 +219,14 @@ class editElasticSearchEtlTask extends shardViewModelBase {
     hasElasticSearchEtl = licenseModel.getStatusValue("HasElasticSearchEtl");
     infoHubView: ReactInKnockout<typeof EditElasticSearchEtlInfoHub.EditElasticSearchEtlInfoHub>;
 
+    readonly licenseRestrictedTooltipHtml = `<div class='padding'>${t("licenseRestricted", { upgradeUrl: "https://ravendb.net/l/FLDLO4" })}</div>`;
+    readonly selectConnectionStringText = t("task.selectConnectionString");
+    readonly testInstructionsHtml = t("test.instructions");
+    readonly encryptedDatabaseHtml: string;
+
     constructor(db: database) {
         super(db);
+        this.encryptedDatabaseHtml = t("task.encryptedDatabase", { databaseName: generalUtils.escapeHtml(this.db.name) });
         this.bindToCurrentInstance("useConnectionString",
             "onTestConnectionElasticSearch",
             "removeTransformationScript",
@@ -692,9 +701,10 @@ class editElasticSearchEtlTask extends shardViewModelBase {
         if (existingElasticSearchIndex && (elasticIndexToSave.isNew() || existingElasticSearchIndex.indexName() !== this.elasticSearchIndexSelectedForEdit().indexName()))
         {
             // Elastic Index name exists - offer to overwrite
-            this.confirmationMessage(`Index ${generalUtils.escapeHtml(existingElasticSearchIndex.indexName())} already exists in Elastic Search index list`,
-                `Do you want to overwrite index ${generalUtils.escapeHtml(existingElasticSearchIndex.indexName())} data ?`, {
-                    buttons: ["No", "Yes, overwrite"],
+            const indexName = generalUtils.escapeHtml(existingElasticSearchIndex.indexName());
+            this.confirmationMessage(t("indexes.overwriteConfirm.title", { indexName }),
+                t("indexes.overwriteConfirm.message", { indexName }), {
+                    buttons: [t("indexes.overwriteConfirm.cancel"), t("indexes.overwriteConfirm.confirm")],
                     html: true
                 })
                 .done(result => {

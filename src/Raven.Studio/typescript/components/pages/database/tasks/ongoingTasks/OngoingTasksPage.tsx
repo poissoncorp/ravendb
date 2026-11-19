@@ -77,6 +77,9 @@ import { GenAiPanel } from "./panels/GenAiPanel";
 import { useDatabaseWideAsync } from "components/hooks/useDatabaseWideAsync";
 import genUtils from "common/generalUtils";
 import { TaskErrorsWithLocation } from "components/pages/database/tasks/tasksErrors/utils/tasksErrorsUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import type { StudioTranslate } from "common/i18n/resources";
 import EtlTaskProgress = Raven.Server.Documents.ETL.Stats.EtlTaskProgress;
 import ReplicationTaskProgress = Raven.Server.Documents.Replication.Stats.ReplicationTaskProgress;
 import InternalReplicationTaskProgress = Raven.Server.Documents.Replication.Stats.InternalReplicationTaskProgress;
@@ -110,6 +113,7 @@ const etlAndAiTaskTypes = genUtils.exhaustiveStringTuple<EtlOrAiOngoingTaskType>
 );
 
 export function OngoingTasksPage({ isAiOnly = false }: OngoingTasksPageProps = {}) {
+    const t = useStudioTranslation("ongoingTasks");
     const db = useAppSelector(databaseSelectors.activeDatabase);
 
     const { tasksService } = useServices();
@@ -239,7 +243,7 @@ export function OngoingTasksPage({ isAiOnly = false }: OngoingTasksPageProps = {
         [dispatch]
     );
 
-    const filteredTasks = getFilteredTasks(tasks, filter);
+    const filteredTasks = getFilteredTasks(t, tasks, filter);
 
     const {
         internalReplications,
@@ -353,7 +357,7 @@ export function OngoingTasksPage({ isAiOnly = false }: OngoingTasksPageProps = {
             dispatch({
                 type: "SubscriptionConnectionDetailsLoaded",
                 subscriptionId: taskId,
-                loadError: "Failed to get client connection details",
+                loadError: t("connectionDetailsLoadError"),
             });
 
             return;
@@ -383,7 +387,7 @@ export function OngoingTasksPage({ isAiOnly = false }: OngoingTasksPageProps = {
             dispatch({
                 type: "SubscriptionConnectionDetailsLoaded",
                 subscriptionId: taskId,
-                loadError: "Failed to get client connection details",
+                loadError: t("connectionDetailsLoadError"),
             });
         }
     };
@@ -452,18 +456,20 @@ export function OngoingTasksPage({ isAiOnly = false }: OngoingTasksPageProps = {
                     iconAddon="warning"
                     className="mb-3"
                 >
-                    Cluster {subscriptionsClusterLimitStatus === "limitReached" ? "reached" : "is reaching"} the{" "}
-                    <strong>maximum number of subscriptions</strong> allowed per cluster by your license{" "}
-                    <strong>
-                        ({subscriptionsServerCount}/{subscriptionsClusterLimit})
-                    </strong>
-                    <br />
-                    <strong>
-                        <a href={upgradeLicenseLink} target="_blank">
-                            Upgrade your license
-                        </a>{" "}
-                    </strong>
-                    to add more
+                    <StudioTrans
+                        ns="ongoingTasks"
+                        i18nKey="subscriptionsLimit.cluster"
+                        options={{
+                            context: subscriptionsClusterLimitStatus,
+                            used: subscriptionsServerCount,
+                            limit: subscriptionsClusterLimit,
+                        }}
+                        components={{
+                            strong: <strong />,
+                            br: <br />,
+                            a: <a href={upgradeLicenseLink} target="_blank" />,
+                        }}
+                    />
                 </RichAlert>
             )}
 
@@ -474,18 +480,20 @@ export function OngoingTasksPage({ isAiOnly = false }: OngoingTasksPageProps = {
                     iconAddon="warning"
                     className="mb-3"
                 >
-                    Database {subscriptionsDatabaseLimitStatus === "limitReached" ? "reached" : "is reaching"} the{" "}
-                    <strong>maximum number of subscriptions</strong> allowed per database by your license{" "}
-                    <strong>
-                        ({subscriptionsDatabaseCount}/{subscriptionsDatabaseLimit})
-                    </strong>
-                    <br />
-                    <strong>
-                        <a href={upgradeLicenseLink} target="_blank">
-                            Upgrade your license
-                        </a>{" "}
-                    </strong>
-                    to add more
+                    <StudioTrans
+                        ns="ongoingTasks"
+                        i18nKey="subscriptionsLimit.database"
+                        options={{
+                            context: subscriptionsDatabaseLimitStatus,
+                            used: subscriptionsDatabaseCount,
+                            limit: subscriptionsDatabaseLimit,
+                        }}
+                        components={{
+                            strong: <strong />,
+                            br: <br />,
+                            a: <a href={upgradeLicenseLink} target="_blank" />,
+                        }}
+                    />
                 </RichAlert>
             )}
 
@@ -516,9 +524,7 @@ export function OngoingTasksPage({ isAiOnly = false }: OngoingTasksPageProps = {
             <Row className="gy-sm">
                 <div className="flex-vertical">
                     <div className="scroll flex-grow">
-                        {relevantTasksCount === 0 && !showInternalReplication && (
-                            <EmptySet>No tasks have been created for this Database Group.</EmptySet>
-                        )}
+                        {relevantTasksCount === 0 && !showInternalReplication && <EmptySet>{t("empty")}</EmptySet>}
                         {showInternalReplication && internalReplications.length > 0 && (
                             <InternalReplicationPanel
                                 onToggleDetails={startTrackingInternalReplicationProgress}
@@ -530,7 +536,7 @@ export function OngoingTasksPage({ isAiOnly = false }: OngoingTasksPageProps = {
                                 {!isAiOnly && (
                                     <HrHeader count={ai.length}>
                                         <Icon icon="ai" />
-                                        AI
+                                        {t("sections.ai")}
                                     </HrHeader>
                                 )}
 
@@ -559,7 +565,7 @@ export function OngoingTasksPage({ isAiOnly = false }: OngoingTasksPageProps = {
                                 {replications.length > 0 && (
                                     <div key="replications" data-testid="replications">
                                         <HrHeader className="replication" count={replications.length}>
-                                            <Icon icon="replication" /> Replication
+                                            <Icon icon="replication" /> {t("sections.replication")}
                                         </HrHeader>
 
                                         {externalReplications.map((x) => (
@@ -595,7 +601,7 @@ export function OngoingTasksPage({ isAiOnly = false }: OngoingTasksPageProps = {
                                     <div key="backups" data-testid="backups">
                                         <HrHeader className="periodic-backup" count={backups.length}>
                                             <Icon icon="backup" />
-                                            Backups
+                                            {t("sections.backups")}
                                         </HrHeader>
 
                                         {backups.map((x) => (
@@ -621,7 +627,7 @@ export function OngoingTasksPage({ isAiOnly = false }: OngoingTasksPageProps = {
                                             }
                                         >
                                             <Icon icon="subscriptions" />
-                                            Subscriptions
+                                            {t("sections.subscriptions")}
                                             {subscriptionsDatabaseLimitStatus !== "notReached" && (
                                                 <CounterBadge
                                                     count={subscriptionsDatabaseCount}
@@ -670,7 +676,7 @@ export function OngoingTasksPage({ isAiOnly = false }: OngoingTasksPageProps = {
                                     <div key="etls" data-testid="etls">
                                         <HrHeader className="etl" count={etls.length}>
                                             <Icon icon="etl" />
-                                            ETL (RavenDB ⇛ TARGET)
+                                            {t("sections.etl")}
                                         </HrHeader>
 
                                         {ravenEtls.map((x) => (
@@ -760,7 +766,7 @@ export function OngoingTasksPage({ isAiOnly = false }: OngoingTasksPageProps = {
                                     <div key="sinks" data-testid="sinks">
                                         <HrHeader className="hub-sink-replication" count={sinks.length}>
                                             <Icon icon="hub-sink-replication" />
-                                            SINK (SOURCE ⇛ RavenDB)
+                                            {t("sections.sink")}
                                         </HrHeader>
 
                                         {kafkaSinks.map((x) => (
@@ -843,12 +849,16 @@ function filterOngoingTask(sharedInfo: OngoingTaskSharedInfo, filter: OngoingTas
     );
 }
 
-function getFilteredTasks(state: OngoingTasksState, filter: OngoingTasksFilterCriteria) {
+function getFilteredTasks(
+    t: StudioTranslate<"ongoingTasks">,
+    state: OngoingTasksState,
+    filter: OngoingTasksFilterCriteria
+) {
     const filteredTasks = state.tasks.filter((x) => filterOngoingTask(x.shared, filter));
 
     const internalReplicationVisible =
         (filter.types.length === 0 || filter.types.includes("Replication")) &&
-        nameMatch("Internal Replication", filter.searchText);
+        nameMatch(t("taskType.internalReplication"), filter.searchText);
 
     const filteredReplications = internalReplicationVisible ? state.internalReplication : [];
 

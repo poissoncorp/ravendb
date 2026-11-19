@@ -11,19 +11,20 @@ import { useEditGenAiTaskTests } from "../../hooks/useEditGenAiTaskTests";
 import { ConditionalPopover } from "components/common/ConditionalPopover";
 import EditGenAiTaskInfoHub from "../../EditGenAiTaskInfoHub";
 import EditGenAiTaskCancelButton from "../EditGenAiTaskCancelButton";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export function EditGenAiTaskStepModel() {
+    const t = useStudioTranslation("editGenAiTask");
+
     return (
         <>
             <div className="hstack justify-content-between">
-                <AboutViewHeading title="Define prompt & JSON schema" marginBottom={2} icon="genai" />
+                <AboutViewHeading title={t("model.title")} marginBottom={2} icon="genai" />
                 <EditGenAiTaskInfoHub />
             </div>
             <p className="mb-4">
-                The prompt and schema defined in this step will be used as input to the model for each context object
-                generated in the previous step.
-                <br />
-                Use the playground to test the model&apos;s output on this input.
+                <StudioTrans ns="editGenAiTask" i18nKey="model.intro" components={{ br: <br /> }} />
             </p>
             <EditGenAiTaskModelFields />
         </>
@@ -31,6 +32,7 @@ export function EditGenAiTaskStepModel() {
 }
 
 export function EditGenAiTaskStepModelFooter() {
+    const t = useStudioTranslation("editGenAiTask");
     const dispatch = useAppDispatch();
 
     const modelInputTest = useAppSelector(editGenAiTaskSelectors.modelInputTest);
@@ -65,7 +67,7 @@ export function EditGenAiTaskStepModelFooter() {
                     className="rounded-pill"
                     onClick={() => dispatch(editGenAiTaskActions.currentStepSet("context"))}
                 >
-                    <Icon icon="arrow-left" /> Back
+                    <Icon icon="arrow-left" /> {t("footer.back")}
                 </Button>
             </div>
             <div className="hstack gap-2">
@@ -73,18 +75,12 @@ export function EditGenAiTaskStepModelFooter() {
                     conditions={[
                         {
                             isActive: formValues.playgroundContexts.length === 0,
-                            message:
-                                "To test the model output, either generate context objects in the previous step or enter custom ones here using Edit mode.",
+                            message: t("model.testDisabledNoContexts"),
                         },
                         {
                             isActive: true,
                             message: (
-                                <>
-                                    Click to test the model output using the combined input: context objects, prompt,
-                                    and schema.
-                                    <br />
-                                    The resulting output object(s) will be shown in the results pane.
-                                </>
+                                <StudioTrans ns="editGenAiTask" i18nKey="model.testInfo" components={{ br: <br /> }} />
                             ),
                         },
                     ]}
@@ -97,12 +93,12 @@ export function EditGenAiTaskStepModelFooter() {
                         icon="test"
                         disabled={formValues.playgroundContexts.length === 0}
                     >
-                        Test model
+                        {t("model.test")}
                     </ButtonWithSpinner>
                 </ConditionalPopover>
 
                 <Button variant="primary" className="rounded-pill" onClick={handleNext}>
-                    Next <Icon icon="arrow-right" margin="ms-1" />
+                    {t("footer.next")} <Icon icon="arrow-right" margin="ms-1" />
                 </Button>
             </div>
         </div>

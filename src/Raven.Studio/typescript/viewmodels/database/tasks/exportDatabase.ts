@@ -18,6 +18,9 @@ import setupEncryptionKey = require("viewmodels/resources/setupEncryptionKey");
 import viewHelpers = require("common/helpers/view/viewHelpers");
 import shardViewModelBase = require("viewmodels/shardViewModelBase");
 import DatabaseUtils = require("components/utils/DatabaseUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("exportDatabase");
 
 class exportDatabase extends shardViewModelBase {
 
@@ -148,7 +151,7 @@ class exportDatabase extends shardViewModelBase {
         popoverUtils.longWithHover($("#scriptPopover"),
             {
                 content:
-                    "<div class=\"text-center\">Transform scripts are written in JavaScript </div>" +
+                    `<div class="text-center">${t("advanced.transformScriptInfo")} </div>` +
                         "<pre><span class=\"token keyword\">var</span> name = <span class=\"token keyword\">this.</span>FirstName;<br />" +
                         "<span class=\"token keyword\">if</span> (name === <span class=\"token string\">'Bob'</span>)<br />&nbsp;&nbsp;&nbsp;&nbsp;" +
                         "<span class=\"token keyword\">throw </span><span class=\"token string\">'skip'</span>; <span class=\"token comment\">// filter-out</span><br /><br />" +
@@ -159,13 +162,13 @@ class exportDatabase extends shardViewModelBase {
         popoverUtils.longWithHover($("#skipCorruptedDataPopover"), {
             content: 
             "<div>" +
-                "<strong>Checked</strong>: continues export despite corrupted data and logs errors in the report. <br />" +
-                "<strong>Unchecked</strong>: halts export upon encountering corrupted data." +
+                `${t("advanced.skipCorruptedDataInfo.checked")} <br />` +
+                t("advanced.skipCorruptedDataInfo.unchecked") +
                 "</div>"
         })
 
         popoverUtils.longWithHover($("#js-ongoing-tasks-disabled"), {
-            content: "Imported ongoing tasks will be disabled by default."
+            content: t("clusterEntities.ongoingTasksDisabledInfo")
         });
     }
 
@@ -204,7 +207,7 @@ class exportDatabase extends shardViewModelBase {
             .execute()
             .done(() => this.startDownload(exportArg))
             .fail((response: JQueryXHR) => {
-                messagePublisher.reportError("Invalid export options", response.responseText, response.statusText);
+                messagePublisher.reportError(t("errors.invalidOptions"), response.responseText, response.statusText);
                 exportDatabase.isExporting(false);
             });
     }
@@ -212,7 +215,7 @@ class exportDatabase extends shardViewModelBase {
     private getNextOperationId(db: database): JQueryPromise<number> {
         return new getNextOperationIdCommand(db).execute()
             .fail((response: JQueryXHR) => {
-                messagePublisher.reportError("Could not get next task id.", response.responseText, response.statusText);
+                messagePublisher.reportError(t("errors.nextOperationIdFailed"), response.responseText, response.statusText);
                 exportDatabase.isExporting(false);
             });
     }
@@ -237,18 +240,18 @@ class exportDatabase extends shardViewModelBase {
 
                 notificationCenter.instance.monitorOperation(db, operationId)
                     .fail((exception: Raven.Client.Documents.Operations.OperationExceptionResult) => {
-                        messagePublisher.reportError("Could not export database: " + exception.Message, exception.Error, null, false);
+                        messagePublisher.reportError(t("errors.exportFailed", { message: exception.Message }), exception.Error, null, false);
                     }).always(() => exportDatabase.isExporting(false));
             });
     }
 
     getCommandTypeLabel(cmdType: commandLineType) {
-        return `Export Command - ${cmdType}`;
+        return t("advanced.commandType", { commandType: cmdType });
     }
 
     getCompressionAlgorithmLabel(algorithm: Raven.Client.Documents.Smuggler.ExportCompressionAlgorithm | null) {
         if (!algorithm) {
-            return "Default";
+            return t("advanced.compressionAlgorithmDefault");
         }
         
         return algorithm;
@@ -256,7 +259,7 @@ class exportDatabase extends shardViewModelBase {
 
     copyCommandToClipboard() {
         const command = this.effectiveCommand();
-        copyToClipboard.copy(command, "Export command was copied to clipboard.");
+        copyToClipboard.copy(command, t("advanced.commandCopied"));
     }
     
     getCommand(commandType: commandLineType) {

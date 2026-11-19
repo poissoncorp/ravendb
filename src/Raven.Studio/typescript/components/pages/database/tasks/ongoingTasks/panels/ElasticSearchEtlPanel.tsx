@@ -26,11 +26,13 @@ import { useAppSelector } from "components/store";
 import { Icon } from "components/common/Icon";
 import { EtlPanelBaseProps, useEtlPanel } from "./etlPanelUtils";
 import { TaskPanelErrors, EtlPanelHealthBadge, EtlPanelProgressItem, EtlPanelToggleButton } from "./EtlPanelComponents";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type ElasticSearchEtlPanelProps = EtlPanelBaseProps<OngoingTaskElasticSearchEtlInfo>;
 
 export function ElasticSearchEtlPanel(props: ElasticSearchEtlPanelProps) {
     const { data, toggleSelection, isSelected, onTaskOperation, isDeleting, isTogglingState, etlStats } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     const { forCurrentDatabase } = useAppUrls();
     const editUrl = forCurrentDatabase.editElasticSearchEtl(data.shared.taskId)();
@@ -86,7 +88,7 @@ export function ElasticSearchEtlPanel(props: ElasticSearchEtlPanelProps) {
             </RichPanelHeader>
             <RichPanelDetails>
                 <EtlPanelToggleButton detailsVisible={detailsVisible} toggleDetails={toggleDetails} />
-                <RichPanelDetailItem label="Type">
+                <RichPanelDetailItem label={t("taskDetails.type")}>
                     <Icon icon="elastic-search-etl" />
                     Elasticsearch ETL
                 </RichPanelDetailItem>
@@ -98,7 +100,7 @@ export function ElasticSearchEtlPanel(props: ElasticSearchEtlPanelProps) {
                     databaseName={databaseName}
                 />
                 {data.shared.nodesUrls.map((nodeUrl) => (
-                    <RichPanelDetailItem label="Node URL" key={nodeUrl}>
+                    <RichPanelDetailItem label={t("taskDetails.nodeUrl")} key={nodeUrl}>
                         {nodeUrl}
                     </RichPanelDetailItem>
                 ))}

@@ -6,14 +6,9 @@
                 <div class="lead">
                     <div class="vstack gap-3">
                         <span>
-                            <div class="rounded-pill badge bg-faded-warning">
-                                Feature not available
-                            </div>
+                            <div class="rounded-pill badge bg-faded-warning" data-bind="i18n: 'importCollectionFromCsv:sharded.featureNotAvailable'"></div>
                         </span>
-                        <span>
-                            Import documents from a CSV file into a collection is not available for
-                            <i class="icon-sharding text-shard m-0"></i> sharded databases
-                        </span>
+                        <span data-bind="html: $root.shardedNotAvailableHtml"></span>
                     </div>
                 </div>
             </div>
@@ -22,20 +17,20 @@
     <div class="panel" data-bind="visible: !$root.activeDatabase().isSharded()">
         <div class="panel-body">
             <form class="flex-form" data-bind="submit: importCsv">
-                <h3>Import documents from a CSV file into a collection</h3>
+                <h3 data-bind="i18n: 'importCollectionFromCsv:title'"></h3>
                 <div class="row">
                     <div class="col-lg-6">
                         <hr class="margin-top"/>
-                        <h4>Define source and destintaion</h4>
+                        <h4 data-bind="i18n: 'importCollectionFromCsv:source.title'"></h4>
                         <div class="form-group margin-top margin-left">
-                            <label for="importCsvFilePicker" class="control-label">Import from File<i class="required"></i></label>
+                            <label for="importCsvFilePicker" class="control-label"><span data-bind="i18n: 'importCollectionFromCsv:source.importFromFile'"></span><i class="required"></i></label>
                             <div class="flex-grow">
                                 <div class="input-group file-input" data-bind="validationElement: importedFileName">
                                     <input type="file" accept=".csv" id="importCsvFilePicker" data-bind="event: { change: _.partial(fileSelected, $element.value) }, disable: isImporting" tabindex="-1">
-                                    <span class="static-name form-control" data-bind="text: importedFileName() || 'Select file...'"></span>
+                                    <span class="static-name form-control" data-bind="text: importedFileName() || selectFileText"></span>
                                     <span class="input-group-btn">
                                     <label for="importCsvFilePicker" class="btn btn-default">
-                                        <i class="icon-document"></i><span>Browse</span>
+                                        <i class="icon-document"></i><span data-bind="i18n: 'importCollectionFromCsv:source.browse'"></span>
                                     </label>
                                 </span>
                                     <p class="help-block" data-bind="validationMessage: importedFileName"></p>
@@ -46,45 +41,45 @@
                                     </div>
                                     <div>
                                         <ul class="no-margin">
-                                            <li><small>CSV file must contain headers.</small></li>
-                                            <li><small>Each column will be treated as a property.</small></li>
+                                            <li><small data-bind="i18n: 'importCollectionFromCsv:source.headersRequired'"></small></li>
+                                            <li><small data-bind="i18n: 'importCollectionFromCsv:source.columnsAsProperties'"></small></li>
                                         </ul>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="form-group margin-top margin-left">
-                            <label for="csvImportCollection" class="control-label">Import to Collection</label>
+                            <label for="csvImportCollection" class="control-label" data-bind="i18n: 'importCollectionFromCsv:source.importToCollection'"></label>
                             <div class="flex-grow">
-                                <input placeholder="Enter collection name (only if doesn't exist in file)" class="form-control" type="text" name="csvImportCollection" id="csvImportCollection" 
-                                       data-bind="textInput: customCollectionName" autocomplete="off" />
+                                <input class="form-control" type="text" name="csvImportCollection" id="csvImportCollection" 
+                                       data-bind="textInput: customCollectionName, i18nAttr: { placeholder: 'importCollectionFromCsv:source.collectionPlaceholder' }" autocomplete="off" />
                                 <div class="bg-info text-info padding padding-xs margin-top margin-top-sm flex-horizontal">
                                     <div class="flex-start">
                                         <small><i class="icon-info"></i></small>
                                     </div>
                                     <div>
                                         <ul class="no-margin">
-                                            <li><small>The Collection name will be derived from the CSV file column <strong>@metadata.@collection</strong> - if it exists.</small></li>
-                                            <li><small>Else, you can enter a collection name here.</small></li>
-                                            <li><small>If not specified, then the collection name will be derived from the CSV file name.</small></li>
+                                            <li><small data-bind="html: collectionFromColumnHtml"></small></li>
+                                            <li><small data-bind="i18n: 'importCollectionFromCsv:source.collectionFromInput'"></small></li>
+                                            <li><small data-bind="i18n: 'importCollectionFromCsv:source.collectionFromFileName'"></small></li>
                                         </ul>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <hr class="margin-top margin-top-md"/>
-                        <h4>CSV options</h4>
+                        <h4 data-bind="i18n: 'importCollectionFromCsv:csvOptions.title'"></h4>
                         <div class="margin-left margin-top">
                             <div class="form-group">
-                                <label class="control-label">Fields Delimiter</label>
+                                <label class="control-label" data-bind="i18n: 'importCollectionFromCsv:csvOptions.fieldsDelimiter'"></label>
                                 <div class="flex-grow" data-bind="with: csvConfig">
                                     <button class="btn btn-block dropdown-toggle text-left" data-toggle="dropdown">
-                                        <span data-bind="text: delimiter"></span>
+                                        <span data-bind="text: $root.getDelimiterLabel(delimiter())"></span>
                                         <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu" data-bind="foreach: constructor.possibleDelimiters">
                                         <li>
-                                            <a href="#" data-bind="text: $data, click: _.partial($parent.delimiter)"></a>
+                                            <a href="#" data-bind="text: $root.getDelimiterLabel($data), click: _.partial($parent.delimiter)"></a>
                                         </li>
                                     </ul>
                                 </div>
@@ -92,15 +87,15 @@
                         </div>
                         <div class="margin-left">
                             <div class="form-group" data-bind="with: csvConfig">
-                                <label class="control-label">Text Qualifier</label>
+                                <label class="control-label" data-bind="i18n: 'importCollectionFromCsv:csvOptions.textQualifier'"></label>
                                 <div class="flex-grow">
                                     <button class="btn btn-block dropdown-toggle text-left" data-toggle="dropdown">
-                                        <span data-bind="text: quote"></span>
+                                        <span data-bind="text: $root.getQuoteLabel(quote())"></span>
                                         <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu" data-bind="foreach: constructor.possibleQuoteChars">
                                         <li>
-                                            <a href="#" data-bind="text: $data, click: _.partial($parent.quote)"></a>
+                                            <a href="#" data-bind="text: $root.getQuoteLabel($data), click: _.partial($parent.quote)"></a>
                                         </li>
                                     </ul>
                                 </div>
@@ -108,15 +103,15 @@
                         </div>
                         <div class="margin-left">
                             <div class="form-group" data-bind="with: csvConfig">
-                                <label class="control-label">Whitespace</label>
+                                <label class="control-label" data-bind="i18n: 'importCollectionFromCsv:csvOptions.whitespace'"></label>
                                 <div class="flex-grow">
                                     <button class="btn btn-block dropdown-toggle text-left" data-toggle="dropdown">
-                                        <span data-bind="text: trimOption"></span>
+                                        <span data-bind="text: $root.getTrimOptionLabel(trimOption())"></span>
                                         <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu" data-bind="foreach: constructor.possibleTrimOptions">
                                         <li>
-                                            <a href="#" data-bind="text: $data, click: _.partial($parent.trimOption)"></a>
+                                            <a href="#" data-bind="text: $root.getTrimOptionLabel($data), click: _.partial($parent.trimOption)"></a>
                                         </li>
                                     </ul>
                                 </div>
@@ -127,11 +122,11 @@
                                 <label class="control-label margin-left margin-left-sm"></label>      
                                 <div class="toggle">
                                     <input id="allowComments" type="checkbox" data-bind="checked: allowComments"/>
-                                    <label for="allowComments">Allow Comments</label>
+                                    <label for="allowComments" data-bind="i18n: 'importCollectionFromCsv:csvOptions.allowComments'"></label>
                                 </div>
                                 <div class="flex-grow margin-left" data-bind="validationElement: commentCharacter">
-                                    <input type="text" class="form-control" placeholder="Enter comment character"
-                                           data-bind="textInput: commentCharacter, disable: !allowComments()" autocomplete="off">
+                                    <input type="text" class="form-control"
+                                           data-bind="textInput: commentCharacter, disable: !allowComments(), i18nAttr: { placeholder: 'importCollectionFromCsv:csvOptions.commentCharacterPlaceholder' }" autocomplete="off">
                                 </div>
                             </div>
                         </div>
@@ -142,7 +137,7 @@
                     <div class="progress-bar progress-bar-primary progress-bar-striped" role="progressbar" data-bind="style: { width: uploadStatus() + '%' }"> <span class="sr-only" data-bind="text: uploadStatus() + '%'"></span> </div>
                 </div>
                 <div>
-                    <button class="btn btn-primary" type="submit" data-bind="css: { 'btn-spinner': isImporting() }"><span class="icon-import"></span> <span>Import Collection</span></button>                  
+                    <button class="btn btn-primary" type="submit" data-bind="css: { 'btn-spinner': isImporting() }"><span class="icon-import"></span> <span data-bind="i18n: 'importCollectionFromCsv:importCollection'"></span></button>                  
                 </div>
             </form>
         </div>

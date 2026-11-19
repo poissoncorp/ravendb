@@ -26,11 +26,13 @@ import { useAppSelector } from "components/store";
 import { Icon } from "components/common/Icon";
 import { EtlPanelBaseProps, useEtlPanel } from "./etlPanelUtils";
 import { TaskPanelErrors, EtlPanelHealthBadge, EtlPanelProgressItem, EtlPanelToggleButton } from "./EtlPanelComponents";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type SqlEtlPanelProps = EtlPanelBaseProps<OngoingTaskSqlEtlInfo>;
 
 export function SqlEtlPanel(props: SqlEtlPanelProps) {
     const { data, toggleSelection, isSelected, onTaskOperation, isDeleting, isTogglingState, etlStats } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     const { forCurrentDatabase } = useAppUrls();
     const editUrl = forCurrentDatabase.editSqlEtl(data.shared.taskId)();
@@ -87,7 +89,7 @@ export function SqlEtlPanel(props: SqlEtlPanelProps) {
             </RichPanelHeader>
             <RichPanelDetails>
                 <EtlPanelToggleButton detailsVisible={detailsVisible} toggleDetails={toggleDetails} />
-                <RichPanelDetailItem label="Type">
+                <RichPanelDetailItem label={t("taskDetails.type")}>
                     <Icon icon="sql-etl" />
                     SQL ETL
                 </RichPanelDetailItem>
@@ -99,7 +101,7 @@ export function SqlEtlPanel(props: SqlEtlPanelProps) {
                     databaseName={databaseName}
                 />
                 {connectionStringDefined && (
-                    <RichPanelDetailItem label="Destination" title="Destination <database>@<server>">
+                    <RichPanelDetailItem label={t("taskDetails.destination")} title={t("taskDetails.destinationTitle")}>
                         {(data.shared.destinationDatabase ?? "") + "@" + (data.shared.destinationServer ?? "")}
                     </RichPanelDetailItem>
                 )}

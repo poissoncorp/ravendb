@@ -16,8 +16,10 @@ import Card from "react-bootstrap/Card";
 import classNames from "classnames";
 import { useAppSelector } from "components/store";
 import { licenseSelectors } from "components/common/shell/licenseSlice";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function DataToImportSection() {
+    const t = useStudioTranslation("importFromFile");
     const { control, setValue } = useFormContext<ImportFromFileFormData>();
     const documents = useWatch({ control, name: "documents" });
     const { documentToggles: documentToggleRestrictions } = useImportRestrictions();
@@ -43,9 +45,9 @@ export default function DataToImportSection() {
     };
 
     return (
-        <ImportSection id="data-to-import" title="Data to import">
+        <ImportSection id="data-to-import" title={t("sections.dataToImport")}>
             <h4 id="collections-to-import" className="mb-2">
-                Choose collections to import
+                {t("data.chooseCollections")}
             </h4>
             <Card className="mb-4 p-4">
                 <div className="d-flex gap-2">
@@ -55,7 +57,7 @@ export default function DataToImportSection() {
                         onClick={() => setValue("collections.isImportAllCollections", true, { shouldDirty: true })}
                     >
                         <Icon icon="documents" margin="m-0" />
-                        Import all collections
+                        {t("data.importAllCollections")}
                     </button>
                     <button
                         type="button"
@@ -63,7 +65,7 @@ export default function DataToImportSection() {
                         onClick={() => setValue("collections.isImportAllCollections", false, { shouldDirty: true })}
                     >
                         <Icon icon="document-group" addon="edit" margin="m-0" />
-                        Customize imported collections
+                        {t("data.customizeCollections")}
                     </button>
                 </div>
                 {!isImportAll && <CollectionsToImportPicker />}
@@ -71,43 +73,43 @@ export default function DataToImportSection() {
 
             <div className="d-flex justify-content-between align-items-center mb-2">
                 <h4 id="documents-and-extensions" className="m-0">
-                    Select documents and extensions
+                    {t("data.selectDocuments")}
                 </h4>
                 <Button variant="link" size="sm" onClick={() => setAllDocuments(!areAllDocumentsSelected)}>
-                    {areAllDocumentsSelected ? "Deselect all" : "Select all"}
+                    {areAllDocumentsSelected ? t("deselectAll") : t("selectAll")}
                 </Button>
             </div>
             <Card className="p-4">
                 <FormSwitch control={control} name="documents.isIncludeDocuments" className="pb-1">
-                    Include Documents
+                    {t("data.includeDocuments")}
                 </FormSwitch>
                 <div className="ms-4 d-flex flex-column gap-1">
                     <FormSwitch control={control} name="documents.isIncludeAttachments" afterChange={forceDocumentsOn}>
-                        Include Attachments
+                        {t("data.includeAttachments")}
                     </FormSwitch>
                     <FormSwitch control={control} name="documents.isIncludeCounters" afterChange={forceDocumentsOn}>
-                        Include Counters
+                        {t("data.includeCounters")}
                     </FormSwitch>
                     <FormSwitch control={control} name="documents.isIncludeRevisions" afterChange={forceDocumentsOn}>
-                        Include Revisions
+                        {t("data.includeRevisions")}
                     </FormSwitch>
                     <FormSwitch control={control} name="documents.isIncludeTimeSeries" afterChange={forceDocumentsOn}>
-                        Include Time Series
+                        {t("data.includeTimeSeries")}
                     </FormSwitch>
                     <FormSwitch control={control} name="documents.isIncludeTimeSeriesDeletedRanges">
-                        Include Time Series Deleted Ranges
+                        {t("data.includeTimeSeriesDeletedRanges")}
                     </FormSwitch>
                     <FormSwitch control={control} name="documents.isIncludeLegacyAttachments">
-                        Include Legacy Attachments
+                        {t("data.includeLegacyAttachments")}
                     </FormSwitch>
                     <FormSwitch control={control} name="documents.isIncludeDocumentsTombstones">
-                        Include Documents Tombstones
+                        {t("data.includeDocumentsTombstones")}
                     </FormSwitch>
                 </div>
                 <hr className="my-1" />
                 <FormSwitch control={control} name="documents.isIncludeArtificialDocuments">
-                    Include Artificial Documents{" "}
-                    <PopoverWithHoverWrapper message="Importing artificial documents might cause import error of Map-Reduce indexes with OutputReduceToCollection.">
+                    {t("data.includeArtificialDocuments")}{" "}
+                    <PopoverWithHoverWrapper message={t("data.artificialDocumentsInfo")}>
                         <span onClick={(e) => e.preventDefault()}>
                             <Icon icon="info" color="info" margin="ms-1" />
                         </span>
@@ -119,23 +121,23 @@ export default function DataToImportSection() {
                     name="documents.isIncludeArchivedDocuments"
                     restriction={documentToggleRestrictions.isIncludeArchivedDocuments}
                 >
-                    Include Archived Documents
+                    {t("data.includeArchivedDocuments")}
                 </RestrictedSwitch>
                 <hr className="my-1" />
                 <FormSwitch control={control} name="documents.isIncludeExpiredDocuments">
-                    Include Expired Documents
+                    {t("data.includeExpiredDocuments")}
                 </FormSwitch>
                 <hr className="my-1" />
                 <FormSwitch control={control} name="documents.isIncludeConflicts">
-                    Include Conflicts
+                    {t("data.includeConflicts")}
                 </FormSwitch>
                 <hr className="my-1" />
                 <FormSwitch control={control} name="documents.isIncludeCompareExchange">
-                    Include Compare Exchange
+                    {t("data.includeCompareExchange")}
                 </FormSwitch>
                 <hr className="my-1" />
                 <FormSwitch control={control} name="documents.isIncludeCompareExchangeTombstones">
-                    Include Compare Exchange Tombstones
+                    {t("data.includeCompareExchangeTombstones")}
                 </FormSwitch>
                 <hr className="my-1" />
                 <RestrictedSwitch
@@ -143,14 +145,13 @@ export default function DataToImportSection() {
                     name="documents.isIncludeSubscriptions"
                     warning={subscriptionsLimitWarning}
                 >
-                    Include Subscriptions
+                    {t("data.includeSubscriptions")}
                 </RestrictedSwitch>
 
                 {itemsToWarnAbout.length > 0 && (
                     <Alert variant="warning" className="mt-3 mb-0">
-                        <Icon icon="warning" color="warning" /> You are importing {itemsToWarnAbout.join(", ")} data
-                        without including the Documents. The documents will be needed when importing this exported file
-                        to another database.
+                        <Icon icon="warning" color="warning" />{" "}
+                        {t("data.withoutDocumentsWarning", { items: itemsToWarnAbout.join(", ") })}
                     </Alert>
                 )}
             </Card>

@@ -2,6 +2,9 @@ import dialogViewModelBase = require("viewmodels/dialogViewModelBase");
 import copyToClipboard = require("common/copyToClipboard");
 import viewModelBase = require("viewmodels/viewModelBase");
 import prismjs = require("prismjs");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("queueSinkSyntax");
 
 class queueSinkSyntax extends dialogViewModelBase {
     
@@ -19,7 +22,7 @@ class queueSinkSyntax extends dialogViewModelBase {
 
     copySample(sampleTitle: string) {
         const sampleText = queueSinkSyntax.samples.find(x => x.title === sampleTitle).text;
-        copyToClipboard.copy(sampleText, "Sample has been copied to clipboard");
+        copyToClipboard.copy(sampleText, t("samples.copied"));
     }
 
     private static assignCollectionCode = `this['@metadata']['@collection'] = 'Users'; 
@@ -37,12 +40,16 @@ put(this.Id.toString(), item)`;
     
     static readonly samples: Array<sampleCode> = [
         {
-            title: "Assign collection and put document",
+            get title() {
+                return t("samples.assignCollection");
+            },
             text: queueSinkSyntax.assignCollectionCode,
             html: prismjs.highlight(queueSinkSyntax.assignCollectionCode, prismjs.languages.javascript, "js")
         },
         {
-            title: "Map and put document",
+            get title() {
+                return t("samples.mapAndPut");
+            },
             text: queueSinkSyntax.mapAndPutCode,
             html: prismjs.highlight(queueSinkSyntax.mapAndPutCode, prismjs.languages.javascript, "js")
         }

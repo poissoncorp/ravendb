@@ -5,12 +5,14 @@ import ProgressBar from "react-bootstrap/ProgressBar";
 import { EditGenAiTaskStep } from "../hooks/useEditGenAiTaskSteps";
 import { editGenAiTaskActions } from "../store/editGenAiTaskSlice";
 import { useAppDispatch } from "components/store";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface EditGenAiTaskStepsProps {
     steps: EditGenAiTaskStep[];
 }
 
 export default function EditGenAiTaskSteps({ steps }: EditGenAiTaskStepsProps) {
+    const t = useStudioTranslation("editGenAiTask");
     const dispatch = useAppDispatch();
 
     const currentStepIdx = steps.findIndex((x) => x.isCurrent);
@@ -18,9 +20,7 @@ export default function EditGenAiTaskSteps({ steps }: EditGenAiTaskStepsProps) {
     return (
         <>
             <div className="mb-3">
-                <span>
-                    {currentStepIdx}/{4} steps completed
-                </span>
+                <span>{t("steps.progress", { count: currentStepIdx, total: 4 })}</span>
                 <ProgressBar
                     now={currentStepIdx}
                     max={4}

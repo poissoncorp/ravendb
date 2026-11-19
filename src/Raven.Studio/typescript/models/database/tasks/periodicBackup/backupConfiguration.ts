@@ -13,6 +13,9 @@ import snapshot = require("models/database/tasks/periodicBackup/snapshot");
 import encryptionSettings = require("models/database/tasks/periodicBackup/encryptionSettings");
 import generalUtils = require("common/generalUtils");
 import backupSettings = require("models/database/tasks/periodicBackup/backupSettings");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
 
 type TargetOperation = "PeriodicBackup" | "ManualBackup";
 
@@ -26,10 +29,12 @@ abstract class backupConfiguration {
     static readonly defaultFullBackupFrequency = "0 2 * * 0";
     static readonly defaultIncrementalBackupFrequency = "0 2 * * *";
 
-    static readonly backupUploadModeDictionary: backupUploadModeOption[] = [
-        { name: "Default", fullName: "Default" },
-        { name: "Direct Upload", fullName: "DirectUpload" }
-    ];
+    static get backupUploadModeDictionary(): backupUploadModeOption[] {
+        return [
+            { name: t("backup.uploadModes.default"), fullName: "Default" },
+            { name: t("backup.uploadModes.directUpload"), fullName: "DirectUpload" }
+        ];
+    }
 
     taskId = ko.observable<number>();
     isManualBackup = ko.observable<boolean>(false);
@@ -87,8 +92,9 @@ abstract class backupConfiguration {
 
         this.localSettings(!dto.LocalSettings ? localSettings.empty("backup") : new localSettings(dto.LocalSettings, "backup"));
         this.s3Settings(!dto.S3Settings ? s3Settings.empty(serverLimits.AllowedAwsRegions, targetOperation) : new s3Settings(dto.S3Settings, serverLimits.AllowedAwsRegions, targetOperation));
-        this.azureSettings(!dto.AzureSettings ? azureSettings.empty("Backup") : new azureSettings(dto.AzureSettings, "Backup"));
-        this.googleCloudSettings(!dto.GoogleCloudSettings ? googleCloudSettings.empty("Backup") : new googleCloudSettings(dto.GoogleCloudSettings, "Backup"));
+        const backupTargetOperation = t("backup.targetOperation");
+        this.azureSettings(!dto.AzureSettings ? azureSettings.empty(backupTargetOperation) : new azureSettings(dto.AzureSettings, backupTargetOperation));
+        this.googleCloudSettings(!dto.GoogleCloudSettings ? googleCloudSettings.empty(backupTargetOperation) : new googleCloudSettings(dto.GoogleCloudSettings, backupTargetOperation));
         this.glacierSettings(!dto.GlacierSettings ? glacierSettings.empty(serverLimits.AllowedAwsRegions, targetOperation) : new glacierSettings(dto.GlacierSettings, serverLimits.AllowedAwsRegions, targetOperation));
         this.ftpSettings(!dto.FtpSettings ? ftpSettings.empty("Backup") : new ftpSettings(dto.FtpSettings, "Backup"));
         this.isServerWide(isServerWide);
@@ -151,7 +157,7 @@ abstract class backupConfiguration {
             validation: [
                 {
                     validator: () => this.hasDestination(),
-                    message: "No destination is defined"
+                    message: t("backup.noDestination")
                 }
             ]
         });

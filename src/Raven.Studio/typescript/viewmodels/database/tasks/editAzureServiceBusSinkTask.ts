@@ -24,6 +24,9 @@ import typeUtils = require("common/typeUtils");
 import EditConnectionStrings = require("components/pages/database/settings/connectionStrings/EditConnectionStrings");
 import connectionStringsSlice = require("components/pages/database/settings/connectionStrings/store/connectionStringsSlice");
 import storeCompat = require("components/storeCompat");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("editAzureServiceBusSinkTask");
 
 class azureServiceBusTaskTestMode {
     db: KnockoutObservable<database>;
@@ -106,6 +109,8 @@ class editAzureServiceBusSinkTask extends viewModelBase {
     patchDebugActionsDeletedView = require("views/database/patch/patchDebugActionsDeleted.html");
 
     hasQueueSink = licenseModel.getStatusValue("HasQueueSink");
+    readonly licenseRestrictedTooltip = `<div class='padding'>${t("licenseRestricted", { upgradeUrl: "https://ravendb.net/l/FLDLO4" })}</div>`;
+    readonly testHintHtml = t("test.hint");
 
     static readonly scriptNamePrefix = "Script_";
 

@@ -6,6 +6,7 @@ import Form from "react-bootstrap/Form";
 import { FormLabel } from "components/common/Form";
 import { Icon } from "components/common/Icon";
 import React from "react";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface ChangeVectorDetailsProps {
     sourceDatabaseChangeVector: string;
@@ -14,9 +15,10 @@ interface ChangeVectorDetailsProps {
 
 export function ChangeVectorDetails(props: ChangeVectorDetailsProps) {
     const { sourceDatabaseChangeVector, lastAcceptedChangeVectorFromDestination } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     const handleCopyToClipboard = (value: string) => {
-        copyToClipboard.copy(value, "Item has been copied to clipboard");
+        copyToClipboard.copy(value, t("changeVectorDetails.itemCopied"));
     };
 
     const sourceDatabaseChangeVectorFormatted = sourceDatabaseChangeVector
@@ -35,7 +37,7 @@ export function ChangeVectorDetails(props: ChangeVectorDetailsProps) {
             {sourceDatabaseChangeVectorFormatted && (
                 <div className="mb-2">
                     <FormLabel htmlFor="sourceDatabaseCv" className="mb-0 md-label">
-                        Source database CV
+                        {t("changeVectorDetails.sourceDatabaseCv")}
                     </FormLabel>
                     <InputGroup>
                         <Form.Control
@@ -53,7 +55,7 @@ export function ChangeVectorDetails(props: ChangeVectorDetailsProps) {
                             }
                             variant="primary"
                             size="sm"
-                            title="Copy to clipboard"
+                            title={t("copyToClipboard")}
                         >
                             <Icon icon="copy-to-clipboard" margin="m-0" />
                         </Button>
@@ -64,7 +66,7 @@ export function ChangeVectorDetails(props: ChangeVectorDetailsProps) {
             {lastAcceptedChangeVectorFromDestinationFormatted && (
                 <div>
                     <FormLabel htmlFor="lastAcceptedCV" className="mb-0 md-label">
-                        Last accepted CV (from destination)
+                        {t("changeVectorDetails.lastAcceptedCv")}
                     </FormLabel>
                     <InputGroup>
                         <Form.Control
@@ -82,7 +84,7 @@ export function ChangeVectorDetails(props: ChangeVectorDetailsProps) {
                             }
                             variant="primary"
                             size="sm"
-                            title="Copy to clipboard"
+                            title={t("copyToClipboard")}
                         >
                             <Icon icon="copy-to-clipboard" margin="m-0" />
                         </Button>

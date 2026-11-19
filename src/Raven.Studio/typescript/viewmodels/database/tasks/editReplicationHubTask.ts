@@ -29,6 +29,10 @@ import database = require("models/resources/database");
 import DatabaseUtils = require("components/utils/DatabaseUtils");
 import licenseModel = require("models/auth/licenseModel");
 import EditReplicationHubInfoHub = require("viewmodels/database/tasks/EditReplicationHubInfoHub");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("editReplicationHubTask");
+const commonT = i18nModule.createTranslator("common");
 
 class editReplicationHubTask extends shardViewModelBase {
 
@@ -55,6 +59,9 @@ class editReplicationHubTask extends shardViewModelBase {
     };
 
     hasPullReplicationAsHub = licenseModel.getStatusValue("HasPullReplicationAsHub");
+    readonly licenseRestrictedTooltip = `<div class='padding'>${t("licenseRestricted", { upgradeUrl: "https://ravendb.net/l/FLDLO4" })}</div>`;
+    readonly useForBothDirectionsHtml = t("paths.useForBothDirections");
+    readonly sameAsHubToSinkHtml = t("paths.sameAsHubToSink");
 
     infoHubView: ReactInKnockout<typeof EditReplicationHubInfoHub.EditReplicationHubInfoHub>;
 
@@ -152,10 +159,10 @@ class editReplicationHubTask extends shardViewModelBase {
             {
                 content:
                     "<ul class='margin-bottom margin-bottom-xs'>" +
-                        "<li><small>Check this toggle in order to be able to define filtering on this Replication Hub task.</small></li>" +
-                        "<li><small>You will be able to define the replication filtering when editing the task after saving this configuration.</small></li>" +
+                        `<li><small>${t("task.filteringInfo.toggle")}</small></li>` +
+                        `<li><small>${t("task.filteringInfo.editLater")}</small></li>` +
                         "<li><small class='text-warning'><i class='icon-warning'></i>" +
-                            "<span>Note: This parameter cannot be modified after saving this configuration.</span></small>" +
+                            `<span>${t("task.filteringInfo.note")}</span></small>` +
                         "</li>" +
                     "</ul>"
             });
@@ -351,15 +358,15 @@ class editReplicationHubTask extends shardViewModelBase {
     }
 
     warnAboutUnsavedChanges() {
-        return this.confirmationMessage("Unsaved changes",
-            "You have unsaved changes. How do you want to proceed?",
-            { buttons: ["Cancel", "Continue"] })
+        return this.confirmationMessage(t("unsavedChanges.title"),
+            t("unsavedChanges.message"),
+            { buttons: [commonT("cancel"), t("unsavedChanges.continue")] })
     }
 
     deleteReplicationAccessItem(accessItemToDelete: replicationAccessHubModel) {
-        this.confirmationMessage("Are you sure?",
-            `Delete Replication Access <strong>${genUtils.escapeHtml(accessItemToDelete.replicationAccessName())}</strong>?`, {
-                buttons: ["Cancel", "Delete"],
+        this.confirmationMessage(t("deleteAccess.title"),
+            t("deleteAccess.message", { name: genUtils.escapeHtml(accessItemToDelete.replicationAccessName()) }), {
+                buttons: [commonT("cancel"), commonT("delete")],
                 html: true
             })
             .done(result => {
@@ -392,22 +399,22 @@ class editReplicationHubTask extends shardViewModelBase {
         
         popoverUtils.longWithHover($(uploadCertificateSelector),
             {
-                content: "<small>Upload your own certificate (<strong>Public key</strong>)</small>",
+                content: `<small>${t("certificate.uploadInfo")}</small>`,
                 trigger: "hover"
             });
         
         popoverUtils.longWithHover($("#generate-certificate"),
             {
-                content: "<small>RavenDB will generate a certificate for you (<strong>Public & private keys</strong>)</small>"
+                content: `<small>${t("certificate.generateInfo")}</small>`
             });
         
         popoverUtils.longWithHover($("#hub-to-sink-info"),
             {
                 content:
                     "<ul class='no-margin padding'>" +
-                        "<li><small>These ID paths define <strong>what docments are allowed to be sent from the Hub.</strong></small></li>" +
-                        "<li><small>You can further restrict this list when defining a Sink task that receives data from this Hub.</small></li>" +
-                        "<li><small>To send all documents under some path use <code>&lt;path&gt;/*</code> or <code>&lt;path&gt;-*</code></small></li>" +
+                        `<li><small>${t("paths.hubToSinkInfo.allowed")}</small></li>` +
+                        `<li><small>${t("paths.hubToSinkInfo.restrict")}</small></li>` +
+                        `<li><small>${t("paths.allChildPathsInfo")}</small></li>` +
                     "</ul>"
             });
 
@@ -415,9 +422,9 @@ class editReplicationHubTask extends shardViewModelBase {
             {
                 content:
                     "<ul class='no-margin padding'>" +
-                        "<li><small>These ID paths define <strong>what docments are allowed to be sent to this Hub.</strong></small></li>" +
-                        "<li><small>You can further restrict this list when defining a Sink task that sends data to this Hub.</small></li>" +
-                        "<li><small>To send all documents under some path use <code>&lt;path&gt;/*</code> or <code>&lt;path&gt;-*</code></small></li>" +
+                        `<li><small>${t("paths.sinkToHubInfo.allowed")}</small></li>` +
+                        `<li><small>${t("paths.sinkToHubInfo.restrict")}</small></li>` +
+                        `<li><small>${t("paths.allChildPathsInfo")}</small></li>` +
                     "</ul>"
             });
     }
@@ -437,23 +444,20 @@ class editReplicationHubTask extends shardViewModelBase {
             
             // *** Handle pfx ***
             
-            const errMsg = "The .pfx file uploaded contains multiple certificates. <br>" +
-                "Extract each certificate and upload a single certificate per Replication Access Item.<br><br>" +
-                "i.e. If your Sink task spans multiple RavenDb nodes, each having a different certificate, " +
-                "then the Hub task must be defined with multiple Replication Access Items, one per certificate.";
+            const errMsg = t("certificate.multipleMessage");
             
             try {
                 const certAsBase64 = forge.util.encode64(data);
                 const certificatesArray = certificateUtils.extractCertificatesFromPkcs12(certAsBase64, undefined);
 
                 if (certificatesArray.length > 1) {
-                    viewHelpers.confirmationMessage("Multiple certificates", errMsg, {html: true, buttons: ["Ok"]});
+                    viewHelpers.confirmationMessage(t("certificate.multipleTitle"), errMsg, {html: true, buttons: [t("certificate.multipleOk")]});
                 } else {
                     const publicKey = certificatesArray[0];
                     certificateModel =  new replicationCertificateModel(publicKey, certAsBase64);
                 }
             } catch ($ex1) {
-                messagePublisher.reportError("Unable to upload certificate", $ex1);
+                messagePublisher.reportError(t("certificate.uploadFailed"), $ex1);
             }
             
         } catch {
@@ -461,7 +465,7 @@ class editReplicationHubTask extends shardViewModelBase {
             try {
                 certificateModel = new replicationCertificateModel(data);
             } catch ($ex2) {
-                messagePublisher.reportError("Unable to upload certificate", $ex2);
+                messagePublisher.reportError(t("certificate.uploadFailed"), $ex2);
             }
         }
         

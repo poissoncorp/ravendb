@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksCommands");
 
 class backupNowManualCommand extends commandBase {
     constructor(private db: database | string, private manualBackupDto: Raven.Client.Documents.Operations.Backups.BackupConfiguration) {
@@ -13,8 +16,8 @@ class backupNowManualCommand extends commandBase {
         const payload = this.manualBackupDto;
 
         return this.post(url, JSON.stringify(payload), this.db)
-            .done(() => this.reportSuccess("A manual backup has been started successfully"))
-            .fail(response => this.reportError("Failed to start the manual backup", response.responseText, response.statusText));
+            .done(() => this.reportSuccess(t("manualBackupStarted")))
+            .fail(response => this.reportError(t("manualBackupStartFailed"), response.responseText, response.statusText));
     }
 }
 

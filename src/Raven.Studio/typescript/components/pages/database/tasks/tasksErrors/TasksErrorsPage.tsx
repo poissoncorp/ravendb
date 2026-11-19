@@ -24,6 +24,8 @@ import { GroupByNoneView } from "./partials/GroupByNoneView";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import appUrl from "common/appUrl";
 import { ThemeColor } from "components/models/common";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 import EtlTaskStats = Raven.Server.Documents.ETL.Stats.EtlTaskStats;
 
 interface TasksErrorsPageQueryParams {
@@ -43,6 +45,7 @@ export default function TasksErrorsPage({
     queryParams,
     aiOnly,
 }: ReactQueryParamsProps<TasksErrorsPageQueryParams> & TasksErrorsPageProps) {
+    const t = useStudioTranslation("tasksErrors");
     const { isLoading, hasAnyError, handleRefresh, tasksWithErrors, flattenAllEtlStats } = useTasksErrorsData();
 
     if (isLoading) {
@@ -57,10 +60,10 @@ export default function TasksErrorsPage({
         <div className="content-padding tasks-errors-page">
             <div className="d-flex flex-column gap-2 flex-shrink-0">
                 <div className="d-flex justify-content-between">
-                    <AboutViewHeading marginBottom={0} title="Task Errors" icon="tasks-errors" />
+                    <AboutViewHeading marginBottom={0} title={t("title")} icon="tasks-errors" />
                     <TasksErrorsAboutView />
                 </div>
-                {tasksWithErrors.length > 0 && <div>Analyze and get more details about your task errors.</div>}
+                {tasksWithErrors.length > 0 && <div>{t("description")}</div>}
             </div>
             <TasksErrorsPageBody
                 tasksWithErrors={tasksWithErrors}
@@ -116,6 +119,7 @@ function TasksErrorsPageBody({
     initialGroupBy,
     onRefresh,
 }: TasksErrorsPageBodyProps) {
+    const t = useStudioTranslation("tasksErrors");
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const [selectedGroupByType, setSelectedGroupByType] = useState<GroupByType>(initialGroupBy ?? "task");
 
@@ -138,12 +142,7 @@ function TasksErrorsPageBody({
     );
 
     if (tasksWithErrors.length === 0) {
-        return (
-            <EmptySet>
-                Your ongoing tasks are running smoothly. You can monitor and resolve any future task errors in this
-                view.
-            </EmptySet>
-        );
+        return <EmptySet>{t("empty")}</EmptySet>;
     }
 
     return (
@@ -151,7 +150,12 @@ function TasksErrorsPageBody({
             <div className="border-1 align-items-center d-flex w-100 bg-dark border-secondary border p-1 my-2 rounded flex-shrink-0">
                 <Icon icon="tasks" />
                 <span className="flex-grow">
-                    <b>{tasksWithErrors.length ?? 0}</b> {tasksWithErrors.length === 1 ? "task" : "tasks"} with errors
+                    <StudioTrans
+                        ns="tasksErrors"
+                        i18nKey="tasksWithErrors"
+                        components={{ b: <b /> }}
+                        options={{ count: tasksWithErrors.length ?? 0 }}
+                    />
                 </span>
                 <div className="d-flex gap-1 pills-container">
                     {getPillGroups(flattenAllEtlStats).map((group) => (

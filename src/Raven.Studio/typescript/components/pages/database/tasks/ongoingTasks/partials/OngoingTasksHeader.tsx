@@ -22,6 +22,9 @@ import { useOngoingTasksOperations } from "components/pages/database/tasks/share
 import OngoingTaskOperationConfirm from "components/pages/database/tasks/shared/OngoingTaskOperationConfirm";
 import { useAppUrls } from "hooks/useAppUrls";
 import AiTasksInfoHub from "components/pages/database/aiHub/aiTasks/AiTasksInfoHub";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import type { StudioTranslate } from "common/i18n/resources";
 
 interface OngoingTasksHeaderProps {
     tasks: OngoingTasksState;
@@ -53,6 +56,7 @@ function useStickyHeaderHeightVariable(stickyHeaderRef: RefObject<HTMLDivElement
 }
 
 export function OngoingTasksHeader(props: OngoingTasksHeaderProps) {
+    const t = useStudioTranslation("ongoingTasks");
     const { forCurrentDatabase } = useAppUrls();
     const {
         tasks,
@@ -96,7 +100,7 @@ export function OngoingTasksHeader(props: OngoingTasksHeaderProps) {
                                     className="rounded-pill"
                                 >
                                     <Icon icon="ongoing-tasks" addon="plus" />
-                                    {isAiOnly ? "Add AI Task" : "Add a Database Task"}
+                                    {t("header.addTask", { context: isAiOnly ? "ai" : "database" })}
                                 </Button>
                             </div>
                         </>
@@ -108,10 +112,10 @@ export function OngoingTasksHeader(props: OngoingTasksHeaderProps) {
                         <a
                             className="btn btn-link btn-sm"
                             href={serverWideTasksUrl}
-                            title="Go to the Server-Wide Tasks view"
+                            title={t("header.serverWideTasksTitle")}
                         >
                             <Icon icon="server-wide-tasks" />
-                            Server-Wide Tasks
+                            {t("serverWideTasks")}
                         </a>
                     )}
 
@@ -123,7 +127,7 @@ export function OngoingTasksHeader(props: OngoingTasksHeaderProps) {
                         <OngoingTasksFilter
                             filter={filter}
                             setFilter={setFilter}
-                            filterByStatusOptions={getFilterByStatusOptions(tasks, hasInternalReplication)}
+                            filterByStatusOptions={getFilterByStatusOptions(t, tasks, hasInternalReplication)}
                             tasksCount={allTasksCount}
                             isAiOnly={isAiOnly}
                         />
@@ -146,6 +150,8 @@ export function OngoingTasksHeader(props: OngoingTasksHeaderProps) {
 }
 
 function AboutView() {
+    const t = useStudioTranslation("ongoingTasks");
+    const tCommon = useStudioTranslation("common");
     const ongoingTasksDocsLink = useRavenLink({ hash: "K4ZTNA" });
 
     return (
@@ -154,35 +160,36 @@ function AboutView() {
                 <div>
                     <ul>
                         <li>
-                            <strong>Ongoing-tasks are work tasks assigned to the database</strong>.
-                            <br /> A few examples are: Executing a periodic backup of the database, replicating to
-                            another RavenDB instance, or transferring data to external frameworks such as Kafka,
-                            RabbitMQ, Azure Queue Storage etc.
+                            <StudioTrans
+                                ns="ongoingTasks"
+                                i18nKey="about.intro"
+                                components={{ strong: <strong />, br: <br /> }}
+                            />
                         </li>
                         <li className="mt-1">
-                            <strong>This view lists all ongoing tasks defined for the database.</strong>
-                            <br /> Click the &quot;Add a Database Task&quot; button to view all available tasks and
-                            select from the list.
+                            <StudioTrans
+                                ns="ongoingTasks"
+                                i18nKey="about.thisView"
+                                components={{ strong: <strong />, br: <br /> }}
+                            />
                         </li>
                         <li className="mt-1">
-                            <strong>Running in the background</strong>,<br /> each ongoing task is handled by a
-                            designated node from the Database-Group nodes:
+                            <StudioTrans
+                                ns="ongoingTasks"
+                                i18nKey="about.background"
+                                components={{ strong: <strong />, br: <br /> }}
+                            />
                             <ul className="margin-top-xxs">
-                                <li>
-                                    For each task, you can specify which node will be responsible for the task and
-                                    whether the cluster may assign a different node when that node is down.
-                                </li>
-                                <li className="margin-top-xxs">
-                                    If not specified, the cluster will decide which node will handle the task.
-                                </li>
+                                <li>{t("about.responsibleNode")}</li>
+                                <li className="margin-top-xxs">{t("about.clusterDecides")}</li>
                             </ul>
                         </li>
                     </ul>
                 </div>
                 <hr />
-                <div className="small-label mb-2">useful links</div>
+                <div className="small-label mb-2">{tCommon("usefulLinks")}</div>
                 <a href={ongoingTasksDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - Ongoing Tasks
+                    <Icon icon="newtab" /> {t("about.docsLink")}
                 </a>
             </AccordionItemWrapper>
         </AboutViewFloating>
@@ -190,6 +197,7 @@ function AboutView() {
 }
 
 function getFilterByStatusOptions(
+    t: StudioTranslate<"ongoingTasks">,
     state: OngoingTasksState,
     hasInternalReplication: boolean
 ): InputItem<OngoingTaskFilterType>[] {
@@ -221,24 +229,24 @@ function getFilterByStatusOptions(
         switch (filterType) {
             case "AI":
                 return {
-                    label: filterType,
+                    label: t("filterType.ai"),
                     value: filterType,
                     count: aiCount,
                 };
             case "Replication":
                 return {
-                    label: filterType,
+                    label: t("filterType.replication"),
                     value: filterType,
                     count: replicationCount,
                 };
             case "ETL":
-                return { label: filterType, value: filterType, count: etlCount };
+                return { label: t("filterType.etl"), value: filterType, count: etlCount };
             case "Sink":
-                return { label: filterType, value: filterType, count: sinkCount };
+                return { label: t("filterType.sink"), value: filterType, count: sinkCount };
             case "Backup":
-                return { label: filterType, value: filterType, count: backupCount };
+                return { label: t("filterType.backup"), value: filterType, count: backupCount };
             case "Subscription":
-                return { label: filterType, value: filterType, count: subscriptionCount };
+                return { label: t("filterType.subscription"), value: filterType, count: subscriptionCount };
             default:
                 assertUnreachable(filterType);
         }

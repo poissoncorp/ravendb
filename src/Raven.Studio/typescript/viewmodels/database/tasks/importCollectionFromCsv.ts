@@ -6,6 +6,9 @@ import eventsCollector = require("common/eventsCollector");
 import getNextOperationIdCommand = require("commands/database/studio/getNextOperationIdCommand");
 import importFromCsvCommand = require("commands/database/studio/importFromCsvCommand");
 import EVENTS = require("common/constants/events");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("importCollectionFromCsv");
 
 type delimiters = "Comma" | "Semicolon" | "Tab" | "Space";
 type quoteChars = "Double quote" | "Single quote";
@@ -86,6 +89,10 @@ class importCollectionFromCsv extends viewModelBase {
     
     customCollectionName = ko.observable<string>();
 
+    readonly shardedNotAvailableHtml = t("sharded.notAvailable").replace("<icon/>", `<i class="icon-sharding text-shard m-0"></i>`);
+    readonly selectFileText = t("source.selectFile");
+    readonly collectionFromColumnHtml = t("source.collectionFromColumn");
+
     validationGroup = ko.validatedObservable({
         importedFileName: this.importedFileName,
         commentCharacter: this.csvConfig.commentCharacter
@@ -118,7 +125,7 @@ class importCollectionFromCsv extends viewModelBase {
             validation: [
                 {
                     validator: (val: string) => !this.csvConfig.allowComments() || (val && _.trim(val).length === 1),
-                    message: 'Please enter only one character for the comment character'
+                    message: t("csvOptions.commentCharacterInvalid")
                 }
             ]
         });
@@ -160,10 +167,43 @@ class importCollectionFromCsv extends viewModelBase {
             });
     }
 
+    getDelimiterLabel(delimiter: delimiters): string {
+        switch (delimiter) {
+            case "Comma":
+                return t("csvOptions.delimiters.comma");
+            case "Semicolon":
+                return t("csvOptions.delimiters.semicolon");
+            case "Tab":
+                return t("csvOptions.delimiters.tab");
+            case "Space":
+                return t("csvOptions.delimiters.space");
+        }
+    }
+
+    getQuoteLabel(quote: quoteChars): string {
+        switch (quote) {
+            case "Double quote":
+                return t("csvOptions.quoteChars.doubleQuote");
+            case "Single quote":
+                return t("csvOptions.quoteChars.singleQuote");
+        }
+    }
+
+    getTrimOptionLabel(trimOption: trimOptions): string {
+        switch (trimOption) {
+            case "No trimming":
+                return t("csvOptions.trimOptions.noTrimming");
+            case "Trim whitespace around fields":
+                return t("csvOptions.trimOptions.trimAroundFields");
+            case "Trim whitespace inside strings":
+                return t("csvOptions.trimOptions.trimInsideStrings");
+        }
+    }
+
     private getNextOperationId(db: database): JQueryPromise<number> {
         return new getNextOperationIdCommand(db).execute()
             .fail((qXHR, textStatus, errorThrown) => {
-                messagePublisher.reportError("Could not get next task id.", errorThrown);
+                messagePublisher.reportError(t("nextOperationIdFailed"), errorThrown);
                 this.isUploading(false);
             });
     }

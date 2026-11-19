@@ -2,12 +2,12 @@
 <div class="panel">
     <div class="panel-body">
         <form data-bind="submit: startExport">
-            <h3>Export your database to a .ravendbdump file</h3>
+            <h3 data-bind="i18n: 'exportDatabase:title'"></h3>
             <div class="row">
                 <div class="col-sm-12 col-lg-6">
                     <div class="form-group">
                         <div class="input-group">
-                            <div class="input-group-addon">Destination File Name:</div>
+                            <div class="input-group-addon" data-bind="i18n: 'exportDatabase:fileNameLabel'"></div>
                             <input class="form-control" data-bind="textInput: model.exportFileName"/>
                         </div>
                     </div>
@@ -16,88 +16,88 @@
             <div data-bind="with: model">
                 <div class="row">
                     <div class="col-lg-3">
-                        <h4>Documents and Extensions:</h4>
+                        <h4 data-bind="i18n: 'exportDatabase:documents.title'"></h4>
                         <div class="margin-left">
                             <div class="toggle">
                                 <input id="toggleDocuments" type="checkbox" data-bind="checked: includeDocuments" />
-                                <label for="toggleDocuments">Include Documents</label>
+                                <label for="toggleDocuments" data-bind="i18n: 'exportDatabase:documents.includeDocuments'"></label>
                             </div>
                             <div class="margin-left">
                                 <div class="toggle">
                                     <input id="toggleAttachments" type="checkbox"
                                            data-bind="checked: includeAttachments" />
-                                    <label for="toggleAttachments">Include Attachments</label>
+                                    <label for="toggleAttachments" data-bind="i18n: 'exportDatabase:documents.includeAttachments'"></label>
                                 </div>
                                 <div class="toggle">
                                     <input id="toggleCounters" type="checkbox"
                                            data-bind="checked: includeCounters" />
-                                    <label for="toggleCounters">Include Counters</label>
+                                    <label for="toggleCounters" data-bind="i18n: 'exportDatabase:documents.includeCounters'"></label>
                                 </div>
                                 <div class="toggle">
                                     <input id="toggleTimeSeries" type="checkbox"
                                            data-bind="checked: includeTimeSeries" />
-                                    <label for="toggleTimeSeries">Include Time Series</label>
+                                    <label for="toggleTimeSeries" data-bind="i18n: 'exportDatabase:documents.includeTimeSeries'"></label>
                                 </div>
                             <div class="toggle">
                                 <input id="toggleRevisions" type="checkbox" data-bind="checked: includeRevisionDocuments" />
-                                    <label for="toggleRevisions">Include Revisions</label>
+                                    <label for="toggleRevisions" data-bind="i18n: 'exportDatabase:documents.includeRevisions'"></label>
                                 </div>
                             </div>
                             <div class="toggle">
                                 <input id="toggleArtificial" type="checkbox"
                                        data-bind="checked: includeArtificialDocuments" />
-                                <label for="toggleArtificial">Include Artificial Documents</label>
+                                <label for="toggleArtificial" data-bind="i18n: 'exportDatabase:documents.includeArtificialDocuments'"></label>
                             </div>
                             <div class="toggle">
                                 <input id="toggleArchived" type="checkbox"
                                        data-bind="checked: includeArchivedDocuments" />
-                                <label for="toggleArchived">Include Archived Documents</label>
+                                <label for="toggleArchived" data-bind="i18n: 'exportDatabase:documents.includeArchivedDocuments'"></label>
                             </div>
                             <div class="toggle">
                                 <input id="toggleConflicts" type="checkbox" data-bind="checked: includeConflicts" />
-                                <label for="toggleConflicts">Include Conflicts</label>
+                                <label for="toggleConflicts" data-bind="i18n: 'exportDatabase:documents.includeConflicts'"></label>
                             </div>
                             <div class="toggle">
                                 <input id="importTimeSeriesDeletedRanges" type="checkbox" data-bind="checked: includeTimeSeriesDeletedRanges" />
-                                <label for="importTimeSeriesDeletedRanges" class="margin-right margin-right-sm">Include Time Series Deleted Ranges</label>
+                                <label for="importTimeSeriesDeletedRanges" class="margin-right margin-right-sm" data-bind="i18n: 'exportDatabase:documents.includeTimeSeriesDeletedRanges'"></label>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-5">
-                        <h4>Cluster Entities:</h4>
+                        <h4 data-bind="i18n: 'exportDatabase:clusterEntities.title'"></h4>
                         <div class="margin-left">
                             <div class="toggle">
                                 <input id="toggleIndexes" type="checkbox" data-bind="checked: includeIndexes" />
-                                <label for="toggleIndexes">Include Indexes</label>
+                                <label for="toggleIndexes" data-bind="i18n: 'exportDatabase:clusterEntities.includeIndexes'"></label>
                             </div>
                             <div class="margin-left">
                                 <div class="toggle">
                                     <input id="toggleIndexHistory" type="checkbox"
                                            data-bind="checked: databaseModel.includeIndexHistory, enable: includeIndexes" />
-                                    <label for="toggleIndexHistory">Include Index History</label>
+                                    <label for="toggleIndexHistory" data-bind="i18n: 'exportDatabase:clusterEntities.includeIndexHistory'"></label>
                                 </div>
                                 <div class="toggle">
                                     <input id="toggleAnalyzers" type="checkbox" 
                                            data-bind="checked: removeAnalyzers, enable: includeIndexes" />
-                                    <label for="toggleAnalyzers">Remove Analyzers</label>
+                                    <label for="toggleAnalyzers" data-bind="i18n: 'exportDatabase:clusterEntities.removeAnalyzers'"></label>
                                 </div>
                             </div>
                             <div class="toggle">
                                 <input id="toggleIdentities" type="checkbox" data-bind="checked: includeIdentities" />
-                                <label for="toggleIdentities">Include Identities</label>
+                                <label for="toggleIdentities" data-bind="i18n: 'exportDatabase:clusterEntities.includeIdentities'"></label>
                             </div>
                             <div class="toggle">
                                 <input id="toggleCmpXch" type="checkbox" data-bind="checked: includeCompareExchange" />
-                                <label for="toggleCmpXch">Include Compare Exchange</label>
+                                <label for="toggleCmpXch" data-bind="i18n: 'exportDatabase:clusterEntities.includeCompareExchange'"></label>
                             </div>
                             <div class="toggle">
                                 <input id="toggleSubscriptions" type="checkbox" data-bind="checked: includeSubscriptions" />
-                                <label for="toggleSubscriptions" class="margin-right margin-right-sm">Include Subscriptions</label>
+                                <label for="toggleSubscriptions" class="margin-right margin-right-sm" data-bind="i18n: 'exportDatabase:clusterEntities.includeSubscriptions'"></label>
                             </div>
                             <div class="toggle">
                                 <input id="toggleConfiguration" type="checkbox" data-bind="checked: includeDatabaseRecord" />
-                                <label for="toggleConfiguration" class="margin-right margin-right-sm">Include Configuration and Ongoing Tasks</label>
-                                <button class="btn btn-default btn-sm margin-right margin-right-sm" data-bind="enable: includeDatabaseRecord, click: $root.customizeConfigurationClicked">Customize</button>
+                                <label for="toggleConfiguration" class="margin-right margin-right-sm" data-bind="i18n: 'exportDatabase:clusterEntities.includeConfiguration'"></label>
+                                <button class="btn btn-default btn-sm margin-right margin-right-sm" data-bind="enable: includeDatabaseRecord, click: $root.customizeConfigurationClicked, i18n: 'exportDatabase:clusterEntities.customize'"></button>
                                 <small id="js-ongoing-tasks-disabled"><i class="icon-info text-info"></i></small>
                             </div>
                         </div>
@@ -115,7 +115,7 @@
                     <div class="col-lg-6">
                         <div class="toggle">
                             <input id="toggleEncryption" type="checkbox" data-bind="checked: encryptOutput" />
-                            <label for="toggleEncryption">Encrypt exported file</label>
+                            <label for="toggleEncryption" data-bind="i18n: 'exportDatabase:encryptExportedFile'"></label>
                         </div>
                     </div>
                 </div>
@@ -129,7 +129,7 @@
             </div>
             <div id="export-advanced" data-bind="collapse: showAdvancedOptions">
                 <hr />
-                <h3>Advanced</h3>
+                <h3 data-bind="i18n: 'exportDatabase:advanced.title'"></h3>
                 <div class="margin-left">
                     <!-- TODO: see issue 8493 ! -->
                     <!--<div class="toggle">
@@ -138,21 +138,19 @@
                     </div>-->
                     <div class="toggle">
                         <input id="Collections" type="checkbox" data-bind="checked: model.includeAllCollections" />
-                        <label for="Collections">Export all collections</label>
+                        <label for="Collections" data-bind="i18n: 'exportDatabase:advanced.exportAllCollections'"></label>
                     </div>
-                    <div data-bind="visible: !collections().length && !model.includeAllCollections()">
-                        No collections available
-                    </div>
+                    <div data-bind="visible: !collections().length && !model.includeAllCollections(), i18n: 'exportDatabase:advanced.noCollections'"></div>
                     <div id="collapseCollections" data-bind="collapse: !model.includeAllCollections(), visible: collections().length">
                         <div class="border">
                             <div class="row">
                                 <div class="col-sm-6">
-                                    <h4>Select collections:</h4>
+                                    <h4 data-bind="i18n: 'exportDatabase:advanced.selectCollections'"></h4>
                                 </div>
                                 <div class="col-sm-6">
                                     <div class="input-group input-group-sm">
                                         <span class="input-group-addon"><span class="glyphicon glyphicon-filter" aria-hidden="true"></span></span>
-                                        <input class="form-control" placeholder="Filter" data-bind="textInput: filter" />
+                                        <input class="form-control" data-bind="textInput: filter, i18nAttr: { placeholder: 'exportDatabase:advanced.filterPlaceholder' }" />
                                     </div>
                                 </div>
                             </div>
@@ -172,7 +170,7 @@
                     <div class="form-group">
                         <div class="toggle">
                             <input id="useTransformScript" type="checkbox" data-bind="checked: showTransformScript" />
-                            <label for="useTransformScript" class="margin-right margin-right-sm">Use Transform script </label>
+                            <label for="useTransformScript" class="margin-right margin-right-sm" data-bind="i18n: 'exportDatabase:advanced.useTransformScript'"></label>
                             <a id="scriptPopover" tabindex="0"><small><i class="icon-info text-info"></i></small></a>
                         </div>
                         <div data-bind="collapse: showTransformScript">
@@ -184,7 +182,7 @@
                         </div>
                         <div class="toggle">
                             <input id="skipCorruptedData" type="checkbox" data-bind="checked: model.skipCorruptedData" />
-                            <label for="skipCorruptedData" class="margin-right margin-right-sm">Skip Corrupted Data </label>
+                            <label for="skipCorruptedData" class="margin-right margin-right-sm" data-bind="i18n: 'exportDatabase:advanced.skipCorruptedData'"></label>
                             <a id="skipCorruptedDataPopover" tabindex="0"><small><i class="icon-info text-info"></i></small></a>
                         </div>
                         <div data-bind="with: model.databaseModel">
@@ -192,23 +190,23 @@
                         </div>
                         <div class="toggle">
                             <input id="isSetMaxReadOpsPerSecond" type="checkbox" data-bind="checked: model.isSetMaxReadOpsPerSecond" />
-                            <label for="isSetMaxReadOpsPerSecond" class="margin-right margin-right-sm">Set Max Read Operations Per Second </label>
+                            <label for="isSetMaxReadOpsPerSecond" class="margin-right margin-right-sm" data-bind="i18n: 'exportDatabase:advanced.setMaxReadOpsPerSecond'"></label>
                         </div>
                         <div data-bind="collapse: model.isSetMaxReadOpsPerSecond">
                             <div class="input-group margin-right">
-                                <input id="maxReadOpsPerSecond" type="number" min="1" class="form-control input-border" data-bind="numericInput: model.maxReadOpsPerSecond" placeholder="Max read operations per second" />
+                                <input id="maxReadOpsPerSecond" type="number" min="1" class="form-control input-border" data-bind="numericInput: model.maxReadOpsPerSecond, i18nAttr: { placeholder: 'exportDatabase:advanced.maxReadOpsPerSecondPlaceholder' }" />
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
-                        Compression Algorithm: 
+                        <span data-bind="i18n: 'exportDatabase:advanced.compressionAlgorithm'"></span>
                         <div class="btn-group margin-left-xs">
                             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                                 <span data-bind="text: getCompressionAlgorithmLabel(model.compressionAlgorithm())"></span>
                                 <span class="caret margin-left margin-left-xs"></span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a href="#" data-bind="click: model.compressionAlgorithm.bind(model.compressionAlgorithm, null)"><span>Default</span></a></li>
+                                <li><a href="#" data-bind="click: model.compressionAlgorithm.bind(model.compressionAlgorithm, null)"><span data-bind="i18n: 'exportDatabase:advanced.compressionAlgorithmDefault'"></span></a></li>
                                 <!-- ko foreach: $root.compressionAlgorithms -->
                                 <li><a href="#" data-bind="click: $root.model.compressionAlgorithm.bind($root.model.compressionAlgorithm, $data)"><span data-bind="text: $data"></span></a></li>
                                 <!-- /ko -->
@@ -228,7 +226,7 @@
                         <div class="flex-grow">
                             <input onClick="this.select();" class="form-control" readonly data-bind="value: effectiveCommand" />
                         </div>
-                        <button class="btn btn-default" data-bind="click: copyCommandToClipboard" title="Copy export command to clipboard">
+                        <button class="btn btn-default" data-bind="click: copyCommandToClipboard, i18nAttr: { title: 'exportDatabase:advanced.copyCommandTitle' }">
                             <i class="icon-copy-to-clipboard"></i>
                         </button>
                     </div>
@@ -240,17 +238,17 @@
                     <div class="bg-warning text-warning padding padding-xs margin-bottom flex-horizontal">
                         <div class="flex-start"><small><i class="icon-warning"></i></small></div>
                         <div>
-                            <small>Note: You are exporting <span data-bind="text: model.itemsToWarnAbout"></span> data without including the Documents.</small><br>
-                            <small>The documents will be needed when importing this exported file to another database.</small>
+                            <small data-bind="i18n: { key: 'exportDatabase:warning.exportingWithoutDocuments', options: { items: model.itemsToWarnAbout } }"></small><br>
+                            <small data-bind="i18n: 'exportDatabase:warning.documentsNeeded'"></small>
                         </div>
                     </div>
                 </div>
             </div>
             <button class="btn btn-default" type="button" data-bind="click: showAdvancedOptions.toggle.bind(showAdvancedOptions)">
-                <span data-bind="text: showAdvancedOptions() ? 'Close ' : ''"></span>Advanced
+                <span data-bind="i18n: { key: 'exportDatabase:toggleAdvanced', options: { context: showAdvancedOptions() ? 'close' : 'open' } }"></span>
             </button>
             <button class="btn btn-primary" type="submit" data-bind="disable: isExporting, css: { 'btn-spinner': isExporting() }">
-                <i class="icon-export"></i> <span>Export Database</span>
+                <i class="icon-export"></i> <span data-bind="i18n: 'exportDatabase:exportDatabase'"></span>
             </button>
         </form>
     </div>

@@ -6,14 +6,9 @@
                 <div class="lead">
                     <div class="vstack gap-3">
                         <span>
-                            <div class="rounded-pill badge bg-faded-warning">
-                                Feature not available
-                            </div>
+                            <div class="rounded-pill badge bg-faded-warning" data-bind="i18n: 'migrateDatabase:sharded.featureNotAvailable'"></div>
                         </span>
-                        <span>
-                            Migrate data from another database is not available for
-                            <i class="icon-sharding text-shard m-0"></i> sharded databases
-                        </span>
+                        <span data-bind="html: shardedNotAvailableHtml"></span>
                     </div>
                 </div>
             </div>
@@ -24,9 +19,9 @@
             <form class="flex-form" data-bind="submit: migrateDb" autocomplete="off">
                 <div class="row">
                     <div class="col-sm-9 col-lg-7 col-xl-6">
-                        <h3>Migrate data from another database</h3>
+                        <h3 data-bind="i18n: 'migrateDatabase:title'"></h3>
                         <div class="bg-warning text-warning padding padding-xs margin-top margin-bottom">
-                            <small><i class="icon-warning"></i><span>Note: Migration will overwrite any existing documents.</span></small>
+                            <small><i class="icon-warning"></i><span data-bind="i18n: 'migrateDatabase:overwriteWarning'"></span></small>
                         </div>
                     </div>
                 </div>
@@ -34,19 +29,19 @@
                     <div class="col-sm-8 col-lg-6 margin-top">
                         <div class="form-group" data-bind="validationElement: migratorFullPath">
                             <label class="control-label migrator-path">
-                                Migrator Path
+                                <span data-bind="i18n: 'migrateDatabase:migratorPath.label'"></span>
                                 <small data-bind="visible: !migratorPathInConfiguration() && !$root.suggestDeployingToolsForCloudProduct()"><i class="icon-info text-info"></i></small>
                             </label>
                             <div class="flex-grow has-feedback">
                                 <div data-bind="visible: migratorPathInConfiguration" class="form-control-static">
-                                    <small><i class="icon-info margin-right-xs"></i>Path for Raven.Migrator executable was defined by administrator</small>
+                                    <small><i class="icon-info margin-right-xs"></i><span data-bind="i18n: 'migrateDatabase:migratorPath.definedByAdministrator'"></span></small>
                                 </div>
                                 <div data-bind="visible: $root.suggestDeployingToolsForCloudProduct">
-                                    <small><i class="icon-info margin-right-xs"></i>Please deploy RavenDB Tools via <a href="https://cloud.ravendb.net/portal/" title="RavenDB Cloud">RavenDB Cloud Portal</a></small>
+                                    <small><i class="icon-info margin-right-xs"></i><span data-bind="html: $root.deployToolsHtml"></span></small>
                                 </div>
-                                <input data-bind="textInput: migratorFullPath, visible: !migratorPathInConfiguration() && !$root.suggestDeployingToolsForCloudProduct()" 
-                                       id="migratorFullPath" type="text" class="form-control" placeholder="Enter the full path of the directory containing the Raven.Migrator executable" />
-                                <span class="glyphicon glyphicon-ok text-success form-control-feedback" title="Raven.Migrator was found under specified path" data-bind="visible: migratorFullPath() && migratorFullPath.isValid() && !migratorFullPath.isValidating()"></span>
+                                <input data-bind="textInput: migratorFullPath, visible: !migratorPathInConfiguration() && !$root.suggestDeployingToolsForCloudProduct(), i18nAttr: { placeholder: 'migrateDatabase:migratorPath.placeholder' }"
+                                       id="migratorFullPath" type="text" class="form-control" />
+                                <span class="glyphicon glyphicon-ok text-success form-control-feedback" data-bind="visible: migratorFullPath() && migratorFullPath.isValid() && !migratorFullPath.isValidating(), i18nAttr: { title: 'migrateDatabase:migratorPath.foundTitle' }"></span>
                                 <ul class="dropdown-menu" role="menu"
                                     data-bind="autoComplete: '#migratorFullPath', foreach: $root.migratorPathAutocomplete.createCompleter()">
                                     <li role="presentation" data-bind="click: _.partial($root.migratorPathAutocomplete.complete, $data)">
@@ -58,7 +53,7 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="control-label">Database Source</label>
+                            <label class="control-label" data-bind="i18n: 'migrateDatabase:databaseSource'"></label>
                             <div class="flex-grow">
                                 <div class="form-control-static">Azure Cosmos DB</div>
                             </div>
@@ -66,15 +61,15 @@
                         <!-- ko with: cosmosDbConfiguration -->
                         <div data-bind="if: $parent.showCosmosDbOptions">
                             <div class="form-group" data-bind="validationElement: azureEndpointUrl">
-                                <label class="control-label">Azure Endpoint URL</label>
+                                <label class="control-label" data-bind="i18n: 'migrateDatabase:azureEndpointUrl'"></label>
                                 <div class="flex-grow">
-                                    <input data-bind="textInput: azureEndpointUrl" type="text" class="form-control" placeholder="Azure Endpoint URL" />
+                                    <input data-bind="textInput: azureEndpointUrl, i18nAttr: { placeholder: 'migrateDatabase:azureEndpointUrl' }" type="text" class="form-control" />
                                 </div>
                             </div>
                             <div class="form-group" data-bind="validationElement: primaryKey">
-                                <label class="control-label">Primary Key</label>
+                                <label class="control-label" data-bind="i18n: 'migrateDatabase:primaryKey'"></label>
                                 <div class="flex-grow">
-                                    <input data-bind="textInput: primaryKey" type="text" class="form-control" placeholder="Primary Key" />
+                                    <input data-bind="textInput: primaryKey, i18nAttr: { placeholder: 'migrateDatabase:primaryKey' }" type="text" class="form-control" />
                                 </div>
                             </div>
                         </div>
@@ -85,7 +80,7 @@
                                 <span data-bind="visible: $root.spinners.getDatabaseNames">
                                     <i class="global-spinner spinner-xs"></i>
                                 </span>
-                                Database Name
+                                <span data-bind="i18n: 'migrateDatabase:databaseName'"></span>
                             </label>
                             <div class="flex-grow">
                                 <div class="dropdown btn-block">
@@ -93,8 +88,7 @@
                                            class="form-control dropdown-toggle"
                                            data-toggle="dropdown"
                                            id="database-name"
-                                           placeholder="Database Name"
-                                           data-bind="textInput: databaseName, hasFocus: $root.databaseNameHasFocus">
+                                           data-bind="textInput: databaseName, hasFocus: $root.databaseNameHasFocus, i18nAttr: { placeholder: 'migrateDatabase:databaseName' }">
                                     <ul class="dropdown-menu" data-bind="foreach: createDatabaseNamesAutoCompleter(), autoComplete: '#database-name'">
                                         <li data-bind="click: $parent.selectDatabaseName.bind($parent, $data)">
                                             <a href="#" data-bind="text: $data"></a>
@@ -111,13 +105,11 @@
                             </label>
                             <div class="toggle">
                                 <input class="styled" type="checkbox" id="migrate-all-collections" data-bind="checked: migrateAllCollections, disable: !hasCollectionsToMigrate()">
-                                <label for="migrate-all-collections">
-                                    Migrate all collections
-                                </label>
+                                <label for="migrate-all-collections" data-bind="i18n: 'migrateDatabase:migrateAllCollections'"></label>
                             </div>
                         </div>
                         <div class="form-group" data-bind="if: hasCollectionsToMigrate && !migrateAllCollections()">
-                            <label class="control-label">Collections</label>
+                            <label class="control-label" data-bind="i18n: 'migrateDatabase:collections'"></label>
                             <div class="flex-grow">
                                 <div class="prop-table">
                                     <!-- ko foreach: collectionsToMigrate -->
@@ -146,7 +138,7 @@
                             </label>
                             <div class="toggle">
                                 <input class="styled" type="checkbox" id="use-transform-script" data-bind="checked: showTransformScript">
-                                <label for="use-transform-script" class="margin-right">Use Transform script</label>
+                                <label for="use-transform-script" class="margin-right" data-bind="i18n: 'migrateDatabase:transformScript.toggle'"></label>
                             </div>
                         </div>
                         <div class="form-group">

@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksCommands");
 
 class deleteOngoingTaskCommand extends commandBase {
     
@@ -29,7 +32,7 @@ class deleteOngoingTaskCommand extends commandBase {
                                                        endpoints.databases.ongoingTasks.adminTasks;
 
         return this.del<Raven.Client.Documents.Operations.OngoingTasks.ModifyOngoingTaskResult>(url + this.urlEncodeArgs(args), null, this.db)
-            .fail((response: JQueryXHR) => this.reportError(`Failed to delete ${this.taskType}`, response.responseText));
+            .fail((response: JQueryXHR) => this.reportError(t("deleteTaskFailed", { taskType: this.taskType }), response.responseText));
     }
 }
 

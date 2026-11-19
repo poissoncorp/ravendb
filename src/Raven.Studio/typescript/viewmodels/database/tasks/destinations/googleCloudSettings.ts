@@ -3,6 +3,23 @@ import jsonUtil = require("common/jsonUtil");
 import genUtils = require("common/generalUtils");
 import popoverUtils = require("common/popoverUtils");
 import tasksCommonContent = require("models/database/tasks/tasksCommonContent");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("googleCloudSettings");
+
+const GOOGLE_CREDENTIALS_EXAMPLE = `{
+    "type": "service_account",
+    "project_id": "test-raven-237012",
+    "private_key_id": "12345678123412341234123456789101",
+    "private_key": "-----BEGIN PRIVATE KEY-----\\abCse=\\n-----END PRIVATE KEY-----\\n",
+    "client_email": "raven@test-raven-237012-237012.iam.gserviceaccount.com",
+    "client_id": "111390682349634407434",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/viewonly%40test-raven-237012.iam.gserviceaccount.com"
+  }
+        `;
 
 class googleCloudSettings extends backupSettings {
 
@@ -12,6 +29,7 @@ class googleCloudSettings extends backupSettings {
     remoteFolderName = ko.observable<string>();
     googleCredentialsJson = ko.observable<string>();
     credentialsVisible = ko.observable<boolean>(true);
+    credentialsExample = GOOGLE_CREDENTIALS_EXAMPLE;
 
     targetOperation: string;
     
@@ -45,7 +63,7 @@ class googleCloudSettings extends backupSettings {
     compositionComplete(view: Element, container: HTMLElement) {
         popoverUtils.longWithHover($(".bucket-gcs-info", container),
             {
-                content: tasksCommonContent.textForPopoverGCS("Bucket", this.targetOperation)
+                content: tasksCommonContent.textForPopoverGCS(t("bucketInfo.storageName"), this.targetOperation)
             });
     }
     
@@ -61,22 +79,21 @@ class googleCloudSettings extends backupSettings {
             validation: [
                 {
                     validator: (bucket: string) => bucket && bucket.length >= 3 && bucket.length <= 222,
-                    message: "Bucket name must contain 3 to 63 characters." +
-                        "Names containing dots can contain up to 222 characters, but each dot-separated component can be no longer than 63 characters"
+                    message: t("validation.bucketNameLength")
                 },
                 {
                     validator: (bucket: string) => allowedCharactersRegExp.test(bucket),
-                    message: "Bucket name must contain only lowercase letters, numbers, dashes (-), underscores (_), and dots (.)"
+                    message: t("validation.allowedCharacters")
                 },
                 {
                     validator: (bucket: string) => bucket && allowedBeginningCharactersRegExp.test(bucket[0]) && allowedBeginningCharactersRegExp.test(bucket[bucket.length - 1]),
-                    message: "Bucket name must start and end with a number or letter"
+                    message: t("validation.bucketNameStartEnd")
                 },
                 {
                     validator: (bucket: string) => !firstDashRuleRegExp.test(bucket) && !secondDashRuleRegExp.test(bucket) &&
                         !thirdDashRuleRegExp.test(bucket) && !fourthDashesRegExp.test(bucket) &&
                         !fifthDashesRegExp.test(bucket),
-                    message: "Dashes, periods and underscores are not permitted to be adjacent to another"
+                    message: t("validation.adjacentSpecialCharacters")
                 }
             ]
         });
@@ -88,15 +105,15 @@ class googleCloudSettings extends backupSettings {
             validation: [
                 {
                     validator: (json: string) => json && json.includes("\"type\""),
-                    message: "Google credentials json is missing 'type' field"
+                    message: t("validation.missingType")
                 },
                 {
                     validator: (json: string) => json && json.includes("\"private_key\""),
-                    message: "Google credentials json is missing 'private_key' field"
+                    message: t("validation.missingPrivateKey")
                 },
                 {
                     validator: (json: string) => json && json.includes("\"client_email\""),
-                    message: "Google credentials json is missing 'client_email' field"
+                    message: t("validation.missingClientEmail")
                 }
             ]
         });

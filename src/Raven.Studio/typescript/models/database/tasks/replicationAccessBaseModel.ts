@@ -2,6 +2,9 @@
 import replicationCertificateModel = require("models/database/tasks/replicationCertificateModel");
 import prefixPathModel = require("models/database/tasks/prefixPathModel");
 import jsonUtil = require("common/jsonUtil");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
 
 class replicationAccessBaseModel {
     replicationAccessName = ko.observable<string>();
@@ -66,7 +69,7 @@ class replicationAccessBaseModel {
             validation: [
                 {
                     validator: () => !this.filteringPathsRequired() || this.getHubToSinkPrefixesToSave().length,
-                    message: "Please add at least one filtering path"
+                    message: t("replicationAccess.filteringPathRequired")
                 }
             ]
         })
@@ -75,7 +78,7 @@ class replicationAccessBaseModel {
             validation: [
                 {
                     validator: () => !this.filteringPathsRequired() || this.samePrefixesForBothDirections() || this.getSinkToHubPrefixesToSave().length,
-                    message: "Please add at least one filtering path, or use the Hub to Sink paths"
+                    message: t("replicationAccess.filteringPathOrHubToSinkRequired")
                 }
             ]
         })
@@ -89,7 +92,7 @@ class replicationAccessBaseModel {
     }
     
     getSingleDocumentPatternWarning() {
-        return "Path patterns that do not end with * (asterisk) will match only a single document";
+        return t("replicationAccess.singleDocumentPatternWarning");
     }
 
     addHubToSinkInputPrefixWithBlink() {

@@ -17,8 +17,11 @@ import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import { editGenAiTaskUtils } from "../../utils/editGenAiTaskUtils";
 import moment from "moment";
 import genUtils from "common/generalUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export function EditGenAiTaskStepSummary() {
+    const t = useStudioTranslation("editGenAiTask");
     const dispatch = useAppDispatch();
 
     const isEditTask = useAppSelector(editGenAiTaskSelectors.isEditTask);
@@ -26,35 +29,40 @@ export function EditGenAiTaskStepSummary() {
     const { control } = useFormContext<EditGenAiTaskFormData>();
     const formValues = useWatch({ control });
 
+    const taskStateLabels: Partial<Record<Raven.Client.Documents.Operations.OngoingTasks.OngoingTaskState, string>> = {
+        Enabled: t("basic.stateEnabled"),
+        Disabled: t("basic.stateDisabled"),
+    };
+
     return (
         <>
             <div className="hstack justify-content-between">
-                <AboutViewHeading title="Review task configuration" marginBottom={2} icon="genai" />
+                <AboutViewHeading title={t("summary.title")} marginBottom={2} icon="genai" />
                 <EditGenAiTaskInfoHub />
             </div>
             <p className="mb-4">
-                This step summarizes your task configuration.
-                <br />
-                Please review all settings before saving the task.
+                <StudioTrans ns="editGenAiTask" i18nKey="summary.intro" components={{ br: <br /> }} />
             </p>
             <div className="hstack justify-content-between">
-                <div>Basic settings</div>
+                <div>{t("summary.basicSettings")}</div>
                 <Button variant="link" onClick={() => dispatch(editGenAiTaskActions.currentStepSet("basic"))} size="sm">
-                    <Icon icon="edit" /> Edit
+                    <Icon icon="edit" /> {t("summary.edit")}
                 </Button>
             </div>
             <div className="panel-bg-1 p-3 rounded-2 mt-1">
                 <div className="hstack justify-content-between">
-                    <div>Task name</div>
+                    <div>{t("summary.taskName")}</div>
                     <div>{formValues.name}</div>
                 </div>
                 <div className="hstack justify-content-between">
-                    <div>Task state</div>
-                    <div className={getBooleanColorClass(formValues.state === "Enabled")}>{formValues.state}</div>
+                    <div>{t("summary.taskState")}</div>
+                    <div className={getBooleanColorClass(formValues.state === "Enabled")}>
+                        {taskStateLabels[formValues.state] ?? formValues.state}
+                    </div>
                 </div>
                 {formValues.responsibleNode && (
                     <div className="hstack justify-content-between">
-                        <div>Responsible node</div>
+                        <div>{t("summary.responsibleNode")}</div>
                         <div>
                             <Icon icon="node" color="node" />
                             {formValues.responsibleNode}
@@ -62,69 +70,73 @@ export function EditGenAiTaskStepSummary() {
                     </div>
                 )}
                 <div className="hstack justify-content-between">
-                    <div>Connection string</div>
+                    <div>{t("summary.connectionString")}</div>
                     <div>{formValues.connectionStringName}</div>
                 </div>
                 <div className="hstack justify-content-between">
-                    <div>Max concurrency</div>
+                    <div>{t("summary.maxConcurrency")}</div>
                     <div>{formValues.maxConcurrency || editGenAiTaskUtils.defaultMaxConcurrency}</div>
                 </div>
             </div>
             <div className="hstack justify-content-between mt-4">
-                <div>Context input</div>
+                <div>{t("summary.contextInput")}</div>
                 <Button
                     variant="link"
                     onClick={() => dispatch(editGenAiTaskActions.currentStepSet("context"))}
                     size="sm"
                 >
-                    <Icon icon="edit" /> Edit
+                    <Icon icon="edit" /> {t("summary.edit")}
                 </Button>
             </div>
             <div className="panel-bg-1 p-3 rounded-2 mt-1">
                 <div className="hstack justify-content-between">
-                    <div>Source collection</div>
+                    <div>{t("summary.sourceCollection")}</div>
                     <div>{formValues.collectionName}</div>
                 </div>
-                <RowWithPreview label="Context generation script" value={formValues.script} mode="javascript" />
+                <RowWithPreview
+                    label={t("summary.contextGenerationScript")}
+                    value={formValues.script}
+                    mode="javascript"
+                />
             </div>
             <div className="hstack justify-content-between mt-4">
-                <div>Prompt & schema</div>
+                <div>{t("summary.promptAndSchema")}</div>
                 <Button
                     variant="link"
                     onClick={() => dispatch(editGenAiTaskActions.currentStepSet("modelInput"))}
                     size="sm"
                 >
-                    <Icon icon="edit" /> Edit
+                    <Icon icon="edit" /> {t("summary.edit")}
                 </Button>
             </div>
             <div className="panel-bg-1 p-3 rounded-2 mt-1">
                 <div className="hstack justify-content-between">
-                    <div>Prompt</div>
+                    <div>{t("summary.prompt")}</div>
                     <div style={{ maxWidth: 200 }} className="text-truncate" title={formValues.prompt}>
                         {formValues.prompt}
                     </div>
                 </div>
                 {formValues.sampleObject && !formValues.jsonSchema && (
-                    <RowWithPreview label="Sample object" value={formValues.sampleObject} mode="json" />
+                    <RowWithPreview label={t("summary.sampleObject")} value={formValues.sampleObject} mode="json" />
                 )}
                 {formValues.jsonSchema && (
-                    <RowWithPreview label="JSON schema" value={formValues.jsonSchema} mode="json" />
+                    <RowWithPreview label={t("summary.jsonSchema")} value={formValues.jsonSchema} mode="json" />
                 )}
                 {formValues.queries?.length > 0 && (
                     <div className="hstack justify-content-between">
-                        <div>Query tools</div>
+                        <div>{t("summary.queryTools")}</div>
                         <div>{formValues.queries.length}</div>
                     </div>
                 )}
                 <div className="hstack justify-content-between">
-                    <div>Conversation documents</div>
+                    <div>{t("summary.conversationDocuments")}</div>
                     <div className={getBooleanColorClass(formValues.isEnableTracing)}>
-                        {formValues.isEnableTracing ? "Enabled" : "Disabled"}
+                        {formValues.isEnableTracing ? t("summary.enabled") : t("summary.disabled")}
                     </div>
                 </div>
                 {formValues.isSetTracingExpiration && (
                     <div className="hstack justify-content-between">
-                        <div>Conversation documents expiration</div>
+                        <div>{t("summary.conversationDocumentsExpiration")}</div>
                         <div>
                             {genUtils.formatDuration(
                                 moment.duration(formValues.tracingExpirationInSeconds, "seconds"),
@@ -135,33 +147,30 @@ export function EditGenAiTaskStepSummary() {
                 )}
             </div>
             <div className="hstack justify-content-between mt-4">
-                <div>Document update</div>
+                <div>{t("summary.documentUpdate")}</div>
                 <Button
                     variant="link"
                     onClick={() => dispatch(editGenAiTaskActions.currentStepSet("updateScript"))}
                     size="sm"
                 >
-                    <Icon icon="edit" /> Edit
+                    <Icon icon="edit" /> {t("summary.edit")}
                 </Button>
             </div>
             <div className="panel-bg-1 p-3 rounded-2 mt-1">
-                <RowWithPreview label="Update script" value={formValues.updateScript} mode="javascript" />
+                <RowWithPreview label={t("summary.updateScript")} value={formValues.updateScript} mode="javascript" />
             </div>
             {isEditTask && (
                 <div className="hstack justify-content-end mt-4">
                     <FormGroup>
                         <FormSwitch control={control} name="isResetScript">
-                            Reprocess all documents
+                            {t("summary.reprocessAll")}
                             <PopoverWithHoverWrapper
                                 message={
-                                    <>
-                                        If enabled, the task will attempt to reprocess all documents from the source
-                                        collection.
-                                        <br />
-                                        <br />
-                                        Note: Documents will not be reprocessed if the hash in their metadata exactly
-                                        matches the hash generated from the current task configuration.
-                                    </>
+                                    <StudioTrans
+                                        ns="editGenAiTask"
+                                        i18nKey="summary.reprocessAllInfo"
+                                        components={{ br: <br /> }}
+                                    />
                                 }
                             >
                                 <Icon icon="info" color="info" margin="ms-1" />
@@ -175,6 +184,8 @@ export function EditGenAiTaskStepSummary() {
 }
 
 export function EditGenAiTaskStepSummaryFooter() {
+    const t = useStudioTranslation("editGenAiTask");
+    const commonT = useStudioTranslation("common");
     const dispatch = useAppDispatch();
 
     return (
@@ -186,18 +197,19 @@ export function EditGenAiTaskStepSummaryFooter() {
                     className="rounded-pill"
                     onClick={() => dispatch(editGenAiTaskActions.currentStepSet("updateScript"))}
                 >
-                    <Icon icon="arrow-left" /> Back
+                    <Icon icon="arrow-left" /> {t("summary.back")}
                 </Button>
             </div>
 
             <Button type="submit" variant="primary" className="rounded-pill">
-                Save <Icon icon="save" margin="ms-1" />
+                {commonT("save")} <Icon icon="save" margin="ms-1" />
             </Button>
         </div>
     );
 }
 
 function RowWithPreview(props: { label: string; value: string; mode: AceEditorMode }) {
+    const t = useStudioTranslation("editGenAiTask");
     const { value: isOpen, toggle: toggleIsOpen } = useBoolean(false);
 
     return (
@@ -206,7 +218,7 @@ function RowWithPreview(props: { label: string; value: string; mode: AceEditorMo
                 <div>{props.label}</div>
                 <Button variant="link" size="xs" onClick={toggleIsOpen} className="pe-0">
                     <Icon icon={isOpen ? "collapse-vertical" : "expand-vertical"} />
-                    {isOpen ? "Collapse" : "Show"}
+                    {isOpen ? t("summary.collapse") : t("summary.show")}
                 </Button>
             </div>
             <Collapse in={isOpen} mountOnEnter unmountOnExit>

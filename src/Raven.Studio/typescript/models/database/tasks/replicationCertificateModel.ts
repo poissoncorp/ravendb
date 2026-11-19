@@ -1,6 +1,9 @@
 ﻿/// <reference path="../../../../typings/tsd.d.ts"/>
 import certificateUtils = require("common/certificateUtils");
 import moment = require("moment");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
 
 class replicationCertificateModel {
 
@@ -33,7 +36,7 @@ class replicationCertificateModel {
         const dateFormatted = expirationMoment.format("YYYY-MM-DD");
         
         if (expirationMoment.isBefore()) {
-            this.expirationText("Expired " + dateFormatted);
+            this.expirationText(t("replicationAccess.certificateExpired", { date: dateFormatted }));
             this.expirationIcon("icon-danger");
             this.expirationClass("text-danger");
         } else {

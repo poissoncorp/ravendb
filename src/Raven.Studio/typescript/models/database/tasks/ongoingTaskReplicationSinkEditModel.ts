@@ -3,6 +3,9 @@ import ongoingTaskEditModel = require("models/database/tasks/ongoingTaskEditMode
 import replicationCertificateModel = require("models/database/tasks/replicationCertificateModel");
 import replicationAccessSinkModel = require("models/database/tasks/replicationAccessSinkModel");
 import prefixPathModel = require("models/database/tasks/prefixPathModel");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
 
 class ongoingTaskReplicationSinkEditModel extends ongoingTaskEditModel {
 
@@ -94,7 +97,7 @@ class ongoingTaskReplicationSinkEditModel extends ongoingTaskEditModel {
             validation: [
                 {
                     validator: () => this.replicationMode() !== "None",
-                    message: "Please select at least one replication mode"
+                    message: t("validation.replicationModeRequired")
                 }
             ]
         })

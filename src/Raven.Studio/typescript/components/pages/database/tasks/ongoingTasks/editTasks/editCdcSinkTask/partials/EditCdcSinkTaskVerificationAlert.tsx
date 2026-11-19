@@ -4,7 +4,11 @@ import useBoolean from "components/hooks/useBoolean";
 import EditCdcSinkTaskWarningMessage from "components/pages/database/tasks/ongoingTasks/editTasks/editCdcSinkTask/partials/EditCdcSinkTaskWarningMessage";
 import classNames from "classnames";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { createTranslator } from "common/i18n/i18n";
 import CdcTestResult = Raven.Client.Documents.Operations.CdcSink.Test.CdcTestResult;
+
+const translate = createTranslator("editCdcSinkTask");
 
 interface EditCdcSinkTaskVerificationAlertProps {
     result: CdcTestResult;
@@ -12,6 +16,8 @@ interface EditCdcSinkTaskVerificationAlertProps {
 }
 
 export default function EditCdcSinkTaskVerificationAlert({ result, className }: EditCdcSinkTaskVerificationAlertProps) {
+    const t = useStudioTranslation("editCdcSinkTask");
+
     if (!result || (result.Success && result.Warnings.length === 0)) {
         return null;
     }
@@ -19,18 +25,14 @@ export default function EditCdcSinkTaskVerificationAlert({ result, className }: 
     return (
         <div className={classNames("vstack gap-2", className)}>
             {!result.Success && (
-                <RichAlert
-                    variant="danger"
-                    title="Data source verification failed for the configured tables."
-                    className="mb-0"
-                >
+                <RichAlert variant="danger" title={t("verification.failedTitle")} className="mb-0">
                     <VerificationErrorItem error={result.Error} />
                 </RichAlert>
             )}
             {result.Warnings.length > 0 && (
                 <RichAlert
                     variant="warning"
-                    title={result.Success ? "Data source verification passed with warnings." : null}
+                    title={result.Success ? t("verification.passedWithWarningsTitle") : null}
                     className="mb-0"
                 >
                     <ExpandableListContainer
@@ -44,6 +46,7 @@ export default function EditCdcSinkTaskVerificationAlert({ result, className }: 
 }
 
 function VerificationErrorItem({ error }: { error: string }) {
+    const t = useStudioTranslation("editCdcSinkTask");
     const { value: isDetailsShown, toggle: toggleDetails } = useBoolean(false);
     const formattedError = formatDryRunError(error);
 
@@ -58,7 +61,7 @@ function VerificationErrorItem({ error }: { error: string }) {
                         </pre>
                     )}
                     <Button variant="link" size="sm" className="p-0" onClick={toggleDetails}>
-                        {isDetailsShown ? "Hide details" : "Show details"}
+                        {isDetailsShown ? t("verification.hideDetails") : t("verification.showDetails")}
                     </Button>
                 </>
             )}
@@ -79,7 +82,8 @@ export function formatDryRunError(error: string): CdcSinkVerificationError {
     const detailsLines = detailsStart === -1 ? [] : lines.slice(detailsStart);
 
     const exceptionTypePrefix = /^[\w.`]+(Exception|Error)( \(0x[0-9A-F]+\))?:\s*/;
-    const message = messageLines.join("\n").replace(exceptionTypePrefix, "").trim() || "The CDC dry run failed.";
+    const message =
+        messageLines.join("\n").replace(exceptionTypePrefix, "").trim() || translate("verification.dryRunFailed");
     const details = detailsLines.join("\n").trim();
 
     return details ? { message, details } : { message };

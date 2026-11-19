@@ -1,6 +1,7 @@
 import { useAppSelector } from "components/store";
 import { editGenAiTaskSelectors } from "../store/editGenAiTaskSlice";
 import { ReactNode } from "react";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 import { EditGenAiTaskStepBasic, EditGenAiTaskStepBasicFooter } from "../partials/steps/EditGenAiTaskStepBasic";
 import { EditGenAiTaskStepContext, EditGenAiTaskStepContextFooter } from "../partials/steps/EditGenAiTaskStepContext";
 import { EditGenAiTaskStepModel, EditGenAiTaskStepModelFooter } from "../partials/steps/EditGenAiTaskStepModel";
@@ -18,40 +19,41 @@ export interface EditGenAiTaskStep {
 }
 
 export function useEditGenAiTaskSteps(): EditGenAiTaskStep[] {
+    const t = useStudioTranslation("editGenAiTask");
     const currentStep = useAppSelector(editGenAiTaskSelectors.currentStep);
 
     return [
         {
             id: "basic",
-            title: "Configure basic settings",
+            title: t("steps.basic"),
             component: <EditGenAiTaskStepBasic />,
             footer: <EditGenAiTaskStepBasicFooter />,
             isCurrent: currentStep === "basic",
         },
         {
             id: "context",
-            title: "Generate context objects",
+            title: t("steps.context"),
             component: <EditGenAiTaskStepContext />,
             footer: <EditGenAiTaskStepContextFooter />,
             isCurrent: currentStep === "context",
         },
         {
             id: "modelInput",
-            title: "Define prompt & JSON schema",
+            title: t("steps.modelInput"),
             component: <EditGenAiTaskStepModel />,
             footer: <EditGenAiTaskStepModelFooter />,
             isCurrent: currentStep === "modelInput",
         },
         {
             id: "updateScript",
-            title: "Provide update script",
+            title: t("steps.updateScript"),
             component: <EditGenAiTaskStepUpdate />,
             footer: <EditGenAiTaskStepUpdateFooter />,
             isCurrent: currentStep === "updateScript",
         },
         {
             id: "summary",
-            title: "Review task configuration",
+            title: t("steps.summary"),
             component: <EditGenAiTaskStepSummary />,
             footer: <EditGenAiTaskStepSummaryFooter />,
             isCurrent: currentStep === "summary",

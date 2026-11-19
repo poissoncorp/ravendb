@@ -8,10 +8,33 @@ import FeatureAvailabilitySummaryWrapper, {
     FeatureAvailabilityData,
 } from "components/common/FeatureAvailabilitySummary";
 import { useLimitedFeatureAvailability } from "components/utils/licenseLimitsUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export function EditPeriodicBackupTaskInfoHub() {
+    const t = useStudioTranslation("editPeriodicBackupTask");
+    const commonT = useStudioTranslation("common");
     const hasPeriodicBackups = useAppSelector(licenseSelectors.statusValue("HasPeriodicBackup"));
     const hasSnapshotBackups = useAppSelector(licenseSelectors.statusValue("HasSnapshotBackups"));
+
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("featureAvailability.periodic.periodicBackups"),
+            featureIcon: "periodic-backup",
+            community: { value: false },
+            professional: { value: true },
+            enterprise: { value: true },
+            quill: { value: true },
+        },
+        {
+            featureName: t("featureAvailability.periodic.snapshotBackups"),
+            featureIcon: "snapshot-backup",
+            community: { value: false },
+            professional: { value: false },
+            enterprise: { value: true },
+            quill: { value: true },
+        },
+    ];
 
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
@@ -33,30 +56,33 @@ export function EditPeriodicBackupTaskInfoHub() {
         <AboutViewFloating defaultOpen={hasPeriodicBackups ? null : "licensing"}>
             <AccordionItemWrapper targetId="about" icon="about" color="info">
                 <p>
-                    Define an ongoing-task that will automatically create periodic backups for this database at the
-                    defined <strong>schedule</strong>.
+                    <StudioTrans
+                        ns="editPeriodicBackupTask"
+                        i18nKey="about.periodic.intro"
+                        components={{ strong: <strong /> }}
+                    />
                 </p>
                 <div>
-                    Configuration options available:
+                    {t("about.configurationOptions")}
                     <ul>
-                        <li>Customize the backup type (Backup or Snapshot)</li>
-                        <li>Select full and/or incremental backups</li>
-                        <li>Set the backups retention period</li>
-                        <li>Specify destinations, where the backup files will be stored</li>
-                        <li>Opt for backup data encryption to enhance data security</li>
+                        <li>{t("about.backupTypeItem")}</li>
+                        <li>{t("about.periodic.backupKindsItem")}</li>
+                        <li>{t("about.periodic.retentionItem")}</li>
+                        <li>{t("about.periodic.destinationsItem")}</li>
+                        <li>{t("about.encryptionItem")}</li>
                     </ul>
                 </div>
                 <div>
-                    In addition:
+                    {t("about.periodic.inAddition")}
                     <ul>
-                        <li>The task state can be disabled as needed</li>
-                        <li>You can set a responsible node to handle this task</li>
+                        <li>{t("about.periodic.taskStateItem")}</li>
+                        <li>{t("about.periodic.responsibleNodeItem")}</li>
                     </ul>
                 </div>
                 <hr />
-                <div className="small-label mb-2">useful links</div>
+                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                 <a href={backupsDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - Backups
+                    <Icon icon="newtab" /> {t("about.docsLink")}
                 </a>
             </AccordionItemWrapper>
             <FeatureAvailabilitySummaryWrapper
@@ -67,22 +93,3 @@ export function EditPeriodicBackupTaskInfoHub() {
         </AboutViewFloating>
     );
 }
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "Periodic Backups",
-        featureIcon: "periodic-backup",
-        community: { value: false },
-        professional: { value: true },
-        enterprise: { value: true },
-        quill: { value: true },
-    },
-    {
-        featureName: "Snapshot Backups",
-        featureIcon: "snapshot-backup",
-        community: { value: false },
-        professional: { value: false },
-        enterprise: { value: true },
-        quill: { value: true },
-    },
-];

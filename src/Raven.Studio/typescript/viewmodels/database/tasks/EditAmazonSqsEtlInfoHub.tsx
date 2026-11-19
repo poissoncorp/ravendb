@@ -6,9 +6,24 @@ import FeatureAvailabilitySummaryWrapper, {
     FeatureAvailabilityData,
 } from "components/common/FeatureAvailabilitySummary";
 import { useLimitedFeatureAvailability } from "components/utils/licenseLimitsUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export function EditAmazonSqsEtlInfoHub() {
+    const t = useStudioTranslation("editAmazonSqsEtlTask");
     const hasQueueEtl = useAppSelector(licenseSelectors.statusValue("HasQueueEtl"));
+
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("featureAvailability.amazonSqsEtl"),
+            featureIcon: "amazon-sqs-etl",
+            community: { value: false },
+            professional: { value: false },
+            enterprise: { value: true },
+            quill: { value: true },
+        },
+    ];
+
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
         overwrites: [
@@ -23,42 +38,29 @@ export function EditAmazonSqsEtlInfoHub() {
         <AboutViewFloating defaultOpen={hasQueueEtl ? null : "licensing"}>
             <AccordionItemWrapper targetId="about" icon="about" color="info">
                 <p>
-                    An <strong>Amazon SQS ETL</strong> ongoing-task is an ETL (Extract, Transform & Load) process that
-                    transfers data from this RavenDB database to Amazon SQS.
+                    <StudioTrans ns="editAmazonSqsEtlTask" i18nKey="about.task" components={{ strong: <strong /> }} />
                 </p>
                 <ul>
                     <li>
-                        Data is extracted from documents only.
-                        <br />
-                        Attachments, Counters, Time series, and Revisions are not sent.
+                        <StudioTrans
+                            ns="editAmazonSqsEtlTask"
+                            i18nKey="about.documentsOnlyItem"
+                            components={{ br: <br /> }}
+                        />
                     </li>
-                    <li className="margin-top-xxs">
-                        The sent data can be filtered and modified by multiple transformation JavaScript scripts that
-                        are added to the task.
-                    </li>
-                    <li className="margin-top-xxs">
-                        Each script specifies the RavenDB source collection(s) and the destination queues(s).
-                    </li>
-                    <li className="margin-top-xxs">
-                        The scripts are executed whenever documents in the source database are created or modified
-                        (excluding deletes).
-                    </li>
-                    <li className="margin-top-xxs">
-                        You can test each script in this view to preview the messages that will be sent by the ETL task
-                        to the destination.
-                    </li>
+                    <li className="margin-top-xxs">{t("about.filterItem")}</li>
+                    <li className="margin-top-xxs">{t("about.collectionsItem")}</li>
+                    <li className="margin-top-xxs">{t("about.executionItem")}</li>
+                    <li className="margin-top-xxs">{t("about.testItem")}</li>
                 </ul>
                 <hr />
                 <div>
-                    Task definition includes:
+                    {t("about.taskDefinition")}
                     <ul>
-                        <li>A connection string to the Amazon SQS server.</li>
-                        <li>The transformation scripts definitions.</li>
-                        <li>
-                            Per queue, select whether processed documents will be deleted from your source RavenDB
-                            database.
-                        </li>
-                        <li>A responsible node to handle this task can be set.</li>
+                        <li>{t("about.connectionStringItem")}</li>
+                        <li>{t("about.scriptsItem")}</li>
+                        <li>{t("about.deleteItem")}</li>
+                        <li>{t("about.responsibleNodeItem")}</li>
                     </ul>
                 </div>
                 <hr />
@@ -73,14 +75,3 @@ export function EditAmazonSqsEtlInfoHub() {
         </AboutViewFloating>
     );
 }
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "Amazon SQS ETL",
-        featureIcon: "amazon-sqs-etl",
-        community: { value: false },
-        professional: { value: false },
-        enterprise: { value: true },
-        quill: { value: true },
-    },
-];

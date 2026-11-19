@@ -13,9 +13,11 @@ import Select, {
     SingleValueWithIcon,
 } from "components/common/select/Select";
 import { SortDirection } from "components/models/common";
-import pluralizeHelpers from "common/helpers/text/pluralizeHelpers";
-import { ReplicationHubSinksState, SinkSortField, sinkSortFields } from "./useReplicationHubSinks";
+import { getSinkSortFields, ReplicationHubSinksState, SinkSortField } from "./useReplicationHubSinks";
 import "./ReplicationHubSinksHeader.scss";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import type { StudioTranslate } from "common/i18n/resources";
 
 interface ReplicationHubSinksHeaderProps {
     sinksState: ReplicationHubSinksState;
@@ -23,6 +25,7 @@ interface ReplicationHubSinksHeaderProps {
 }
 
 export function ReplicationHubSinksHeader({ sinksState, onToggleAllExpanded }: ReplicationHubSinksHeaderProps) {
+    const t = useStudioTranslation("ongoingTasks");
     const { filterCategories, hasActiveFilters, totalSinksCount, visibleSinks, areAllVisibleSinksExpanded } =
         sinksState;
 
@@ -30,18 +33,20 @@ export function ReplicationHubSinksHeader({ sinksState, onToggleAllExpanded }: R
         <>
             <div className="replication-hub-sinks-header d-flex align-items-center justify-content-between gap-2">
                 <div className="d-flex align-items-center gap-2">
-                    <h4 className="mb-0">Replication sinks</h4>
+                    <h4 className="mb-0">{t("sinksHeader.title")}</h4>
                     <Badge pill bg="secondary">
                         {totalSinksCount}
                     </Badge>
                 </div>
                 <ButtonGroup size="sm" className="sinks-header-actions">
                     <SortDropdown sinksState={sinksState} />
-                    <FilterMenu categories={filterCategories} title="Filter sinks" />
+                    <FilterMenu categories={filterCategories} title={t("sinksHeader.filterTitle")} />
                     <Button
                         variant="secondary"
                         onClick={onToggleAllExpanded}
-                        title={areAllVisibleSinksExpanded ? "Collapse all sinks" : "Expand all sinks"}
+                        title={t("sinksHeader.toggleAllTitle", {
+                            context: areAllVisibleSinksExpanded ? "collapse" : "expand",
+                        })}
                     >
                         <Icon icon={areAllVisibleSinksExpanded ? "fold" : "unfold"} margin="m-0" />
                     </Button>
@@ -49,49 +54,65 @@ export function ReplicationHubSinksHeader({ sinksState, onToggleAllExpanded }: R
             </div>
             <FilterChips categories={filterCategories} className="replication-hub-sinks-chips">
                 <span className="sinks-results-count">
-                    <strong>{visibleSinks.length}</strong> of{" "}
-                    {pluralizeHelpers.pluralize(totalSinksCount, "sink", "sinks")}
+                    <StudioTrans
+                        ns="ongoingTasks"
+                        i18nKey="sinksHeader.resultsCount"
+                        options={{
+                            count: totalSinksCount,
+                            visible: visibleSinks.length,
+                            total: totalSinksCount.toLocaleString(),
+                        }}
+                        components={{ strong: <strong /> }}
+                    />
                 </span>
             </FilterChips>
             <div className="visually-hidden" role="status">
                 {hasActiveFilters
-                    ? `${visibleSinks.length} of ${pluralizeHelpers.pluralize(totalSinksCount, "sink", "sinks")} shown`
+                    ? t("sinksHeader.resultsStatus", {
+                          count: totalSinksCount,
+                          visible: visibleSinks.length,
+                          total: totalSinksCount.toLocaleString(),
+                      })
                     : ""}
             </div>
         </>
     );
 }
 
-function getSortFieldInfo(field: SinkSortField) {
-    return sinkSortFields.find((x) => x.field === field);
+function getSortFieldInfo(t: StudioTranslate<"ongoingTasks">, field: SinkSortField) {
+    return getSinkSortFields(t).find((x) => x.field === field);
 }
 
 const sortMenuPopperConfig = { modifiers: [{ name: "offset", options: { offset: [0, 7] } }] };
 
-const sortFieldOptions: SelectOptionWithIcon<SinkSortField>[] = sinkSortFields.map(({ field, label, icon }) => ({
-    value: field,
-    label,
-    icon,
-}));
+function getSortFieldOptions(t: StudioTranslate<"ongoingTasks">): SelectOptionWithIcon<SinkSortField>[] {
+    return getSinkSortFields(t).map(({ field, label, icon }) => ({
+        value: field,
+        label,
+        icon,
+    }));
+}
 
-const sortDirectionOptions: SelectOption<SortDirection>[] = [
-    { value: "asc", label: "Ascending" },
-    { value: "desc", label: "Descending" },
-];
-
-const statusSortDirectionOptions: SelectOption<SortDirection>[] = [
-    { value: "asc", label: "Problems first" },
-    { value: "desc", label: "Healthy first" },
-];
-
-function getSortDirectionOptions(field: SinkSortField) {
-    return field === "status" ? statusSortDirectionOptions : sortDirectionOptions;
+function getSortDirectionOptions(
+    t: StudioTranslate<"ongoingTasks">,
+    field: SinkSortField
+): SelectOption<SortDirection>[] {
+    return field === "status"
+        ? [
+              { value: "asc", label: t("sinksHeader.problemsFirst") },
+              { value: "desc", label: t("sinksHeader.healthyFirst") },
+          ]
+        : [
+              { value: "asc", label: t("sinksHeader.ascending") },
+              { value: "desc", label: t("sinksHeader.descending") },
+          ];
 }
 
 function SortDropdown({ sinksState }: { sinksState: ReplicationHubSinksState }) {
+    const t = useStudioTranslation("ongoingTasks");
     const { sort } = sinksState;
-    const fieldLabel = getSortFieldInfo(sort.field).label;
-    const directionLabel = getSortDirectionOptions(sort.field).find((x) => x.value === sort.direction).label;
+    const fieldLabel = getSortFieldInfo(t, sort.field).label;
+    const directionLabel = getSortDirectionOptions(t, sort.field).find((x) => x.value === sort.direction).label;
     const isDirectionSpelledOut = sort.field === "status";
 
     return (
@@ -100,9 +121,9 @@ function SortDropdown({ sinksState }: { sinksState: ReplicationHubSinksState }) 
                 as={CustomDropdownToggle}
                 isCaretHidden
                 className="sinks-sort-button"
-                title={`Sorted by ${fieldLabel}, ${directionLabel.toLowerCase()}`}
+                title={t("sinksHeader.sortedByTitle", { field: fieldLabel, direction: directionLabel.toLowerCase() })}
             >
-                <span className="sinks-sort-button-label">Sort by:</span>
+                <span className="sinks-sort-button-label">{t("sinksHeader.sortByLabel")}</span>
                 <span className="sinks-sort-button-value">{fieldLabel}</span>
                 {isDirectionSpelledOut ? (
                     <span>, {directionLabel.toLowerCase()}</span>
@@ -132,17 +153,24 @@ function useEscapeClosesOnlyOpenList() {
 }
 
 function SortMenu({ sinksState }: { sinksState: ReplicationHubSinksState }) {
+    const t = useStudioTranslation("ongoingTasks");
     const { sort, setSort, isDefaultSort, resetSort } = sinksState;
-    const directionOptions = getSortDirectionOptions(sort.field);
+    const sortFieldOptions = getSortFieldOptions(t);
+    const directionOptions = getSortDirectionOptions(t, sort.field);
     const fieldListEscape = useEscapeClosesOnlyOpenList();
     const directionListEscape = useEscapeClosesOnlyOpenList();
 
     return (
         <>
-            <MenuHeader title="Sort" actionLabel="Reset" isActionVisible={!isDefaultSort} onAction={resetSort} />
+            <MenuHeader
+                title={t("sinksHeader.sortMenuTitle")}
+                actionLabel={t("reset")}
+                isActionVisible={!isDefaultSort}
+                onAction={resetSort}
+            />
             <div className="sinks-sort-selects filter-menu-field">
                 <Select<SelectOptionWithIcon<SinkSortField>>
-                    aria-label="Sort by"
+                    aria-label={t("sinksHeader.sortFieldAriaLabel")}
                     className="sinks-sort-field-select"
                     options={sortFieldOptions}
                     value={sortFieldOptions.find((x) => x.value === sort.field)}
@@ -153,7 +181,7 @@ function SortMenu({ sinksState }: { sinksState: ReplicationHubSinksState }) {
                     {...fieldListEscape}
                 />
                 <Select<SelectOption<SortDirection>>
-                    aria-label="Sort direction"
+                    aria-label={t("sinksHeader.sortDirectionAriaLabel")}
                     className="sinks-sort-direction-select"
                     options={directionOptions}
                     value={directionOptions.find((x) => x.value === sort.direction)}

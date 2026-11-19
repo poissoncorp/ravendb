@@ -4,6 +4,9 @@ import database = require("models/resources/database");
 import retentionPolicy = require("models/database/tasks/periodicBackup/retentionPolicy");
 import backupConfiguration = require("models/database/tasks/periodicBackup/backupConfiguration");
 import savePeriodicBackupConfigurationCommand = require("commands/database/tasks/savePeriodicBackupConfigurationCommand");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
 
 class periodicBackupConfiguration extends backupConfiguration {
 
@@ -67,10 +70,10 @@ class periodicBackupConfiguration extends backupConfiguration {
 
         this.stateText = ko.pureComputed(() => {
             if (this.disabled()) {
-                return "Disabled";
+                return t("state.disabled");
             }
 
-            return "Enabled";
+            return t("state.enabled");
         });
 
         this.dirtyFlag = new ko.DirtyFlag([
@@ -107,7 +110,7 @@ class periodicBackupConfiguration extends backupConfiguration {
             validation: [
                 {
                     validator: (e: boolean) => this.fullBackupEnabled() || e,
-                    message: "Please select either full or incremental backup"
+                    message: t("backup.fullOrIncrementalRequired")
                 }
             ]
         });
@@ -143,7 +146,7 @@ class periodicBackupConfiguration extends backupConfiguration {
     }
 
     getTitleForView(isNew: boolean) {
-        return isNew ? "New Periodic Backup" : "Edit Periodic Backup";
+        return t("backup.title", { context: isNew ? "new" : "edit" });
     }
 
     getFullBackupFrequency() {

@@ -3,6 +3,9 @@ import {
     FormLinkedTable,
     FormRootTable,
 } from "components/pages/database/tasks/ongoingTasks/editTasks/editCdcSinkTask/utils/editCdcSinkTaskTypes";
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("editCdcSinkTask");
 
 export interface RootTablesAnalysis {
     // Disabled roots are counted too: replay and the test endpoint resolve them, so a duplicate
@@ -87,7 +90,7 @@ export function getDuplicateRootTableErrors(
         return [
             {
                 index,
-                message: `Source table ${sourceTableLabel} is already configured as another root table. CDC Sink can process a source table only once.`,
+                message: t("tableWarnings.duplicateRootTable", { sourceTableLabel }),
             },
         ];
     });
@@ -142,8 +145,7 @@ export function getEmbeddedRootTableConflictWarningFromAnalysis(
         return null;
     }
 
-    return `This source table is already configured as a root table.
-CDC Sink can process a source table only once, so embedded updates may be routed to the root table instead.`;
+    return t("tableWarnings.embeddedRootTableConflict");
 }
 
 function getMissingRelatedCollectionIssue(
@@ -190,24 +192,27 @@ export function getMissingRelatedCollectionWarningFromAnalysis(
     const sourceTableLabel = getSourceTableLabel(linkedTable);
 
     if (issue.type === "missingRootTable") {
-        return `Related documents in the "${linkedCollectionName}" collection will not be created because ${sourceTableLabel} is not configured as a root table.`;
+        return t("tableWarnings.relatedCollectionMissingRootTable", { linkedCollectionName, sourceTableLabel });
     }
 
     if (issue.type === "disabledRootTable") {
-        return `Related documents in the "${linkedCollectionName}" collection will not be created because the ${sourceTableLabel} root table is disabled.`;
+        return t("tableWarnings.relatedCollectionDisabledRootTable", { linkedCollectionName, sourceTableLabel });
     }
 
-    const configuredCollectionsLabel =
-        issue.configuredCollectionNames.length > 0
-            ? `targets ${formatCollectionNames(issue.configuredCollectionNames)} instead`
-            : "targets a different collection";
+    if (issue.configuredCollectionNames.length === 0) {
+        return t("tableWarnings.relatedCollectionDifferentTarget", { linkedCollectionName, sourceTableLabel });
+    }
 
-    return `Related documents in the "${linkedCollectionName}" collection will not be created because the ${sourceTableLabel} root table ${configuredCollectionsLabel}.`;
+    return t("tableWarnings.relatedCollectionOtherTarget", {
+        linkedCollectionName,
+        sourceTableLabel,
+        collectionNames: formatCollectionNames(issue.configuredCollectionNames),
+        count: issue.configuredCollectionNames.length,
+    });
 }
 
 function formatCollectionNames(collectionNames: string[]) {
-    const quotedNames = collectionNames.map((name) => `"${name}"`).join(", ");
-    return collectionNames.length === 1 ? `the ${quotedNames} collection` : `the ${quotedNames} collections`;
+    return collectionNames.map((name) => `"${name}"`).join(", ");
 }
 
 export function analyzeRootTables(rootTables: ReadonlyArray<RootTableAnalysisInput>): RootTablesAnalysis {

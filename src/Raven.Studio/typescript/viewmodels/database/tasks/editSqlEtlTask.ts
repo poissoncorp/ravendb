@@ -29,7 +29,10 @@ import licenseModel = require("models/auth/licenseModel");
 import EditSqlEtlInfoHub = require("viewmodels/database/tasks/EditSqlEtlInfoHub");
 import typeUtils = require("common/typeUtils");
 import tasksCommonContent = require("models/database/tasks/tasksCommonContent");
+import i18nModule = require("common/i18n/i18n");
 import SqlEtlConfiguration = Raven.Client.Documents.Operations.ETL.SQL.SqlEtlConfiguration;
+
+const t = i18nModule.createTranslator("editSqlEtlTask");
 
 class sqlTaskTestMode {
     
@@ -227,7 +230,13 @@ class editSqlEtlTask extends shardViewModelBase {
     newConnectionString = ko.observable<connectionStringSqlEtlModel>();
     
     hasSqlEtl = licenseModel.getStatusValue("HasSqlEtl");
+    readonly licenseRestrictedTooltip = `<div class='padding'>${t("licenseRestricted", { upgradeUrl: "https://ravendb.net/l/FLDLO4" })}</div>`;
+    readonly testInstructionsHtml = t("test.instructions");
     infoHubView: ReactInKnockout<typeof EditSqlEtlInfoHub.EditSqlEtlInfoHub>;
+
+    get encryptedDatabaseNote() {
+        return t("task.encryptedNote", { database: generalUtils.escapeHtml(this.db.name) });
+    }
 
     constructor(db: database) {
         super(db);
@@ -769,9 +778,10 @@ class editSqlEtlTask extends shardViewModelBase {
         if (existingSqlTable && (sqlTableToSave.isNew() || existingSqlTable.tableName() !== this.sqlTableSelectedForEdit().tableName()))
         {
             // Table name exists - offer to overwrite
-            this.confirmationMessage(`Table ${generalUtils.escapeHtml(existingSqlTable.tableName())} already exists in SQL Tables list`,
-                                     `Do you want to overwrite table ${generalUtils.escapeHtml(existingSqlTable.tableName())} data ?`, {
-                    buttons: ["No", "Yes, overwrite"],
+            const tableName = generalUtils.escapeHtml(existingSqlTable.tableName());
+            this.confirmationMessage(t("sqlTables.overwriteTitle", { tableName }),
+                                     t("sqlTables.overwriteMessage", { tableName }), {
+                    buttons: [t("sqlTables.overwriteNo"), t("sqlTables.overwriteYes")],
                     html: true
                 })
                 .done(result => {

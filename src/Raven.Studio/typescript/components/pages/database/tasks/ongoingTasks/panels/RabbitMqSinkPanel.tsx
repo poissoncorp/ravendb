@@ -24,6 +24,7 @@ import { databaseSelectors } from "components/common/shell/databaseSliceSelector
 import { useAppSelector } from "components/store";
 import { accessManagerSelectors } from "components/common/shell/accessManagerSliceSelectors";
 import { Icon } from "components/common/Icon";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type RabbitMqSinkPanelProps = BaseOngoingTaskPanelProps<OngoingTaskRabbitMqSinkInfo>;
 
@@ -46,6 +47,7 @@ function Details(props: RabbitMqSinkPanelProps & { canEdit: boolean }) {
 
 export function RabbitMqSinkPanel(props: RabbitMqSinkPanelProps) {
     const { data, toggleSelection, isSelected, onTaskOperation, isDeleting, isTogglingState } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
     const { forCurrentDatabase } = useAppUrls();
@@ -73,7 +75,7 @@ export function RabbitMqSinkPanel(props: RabbitMqSinkPanelProps) {
                 <RichPanelActions>
                     <span>
                         <Icon icon="rabbitmq-sink" />
-                        RabbitMQ Sink
+                        {t("taskType.rabbitMqSink")}
                     </span>
                     <OngoingTaskResponsibleNode task={data} />
                     <OngoingTaskStatus

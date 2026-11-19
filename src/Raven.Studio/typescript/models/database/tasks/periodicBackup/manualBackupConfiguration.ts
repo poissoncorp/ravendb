@@ -4,6 +4,9 @@ import database = require("models/resources/database");
 import backupConfiguration = require("models/database/tasks/periodicBackup/backupConfiguration");
 import backupNowManualCommand = require("commands/database/tasks/backupNowManualCommand");
 import notificationCenter = require("common/notifications/notificationCenter");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
 
 class manualBackupConfiguration extends backupConfiguration {
 
@@ -47,7 +50,7 @@ class manualBackupConfiguration extends backupConfiguration {
     }
 
     getTitleForView() {
-        return "Create a Backup";
+        return t("backup.title", { context: "manual" });
     }
 
     toDto(): Raven.Client.Documents.Operations.Backups.BackupConfiguration {

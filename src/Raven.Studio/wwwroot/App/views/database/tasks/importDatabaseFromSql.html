@@ -6,14 +6,9 @@
                 <div class="lead">
                     <div class="vstack gap-3">
                         <span>
-                            <div class="rounded-pill badge bg-faded-warning">
-                                Feature not available
-                            </div>
+                            <div class="rounded-pill badge bg-faded-warning" data-bind="i18n: 'importDatabaseFromSql:sharded.featureNotAvailable'"></div>
                         </span>
-                        <span>
-                            Import documents from a SQL database into the current RavenDB database is not available for
-                            <i class="icon-sharding text-shard m-0"></i> sharded databases
-                        </span>
+                        <span data-bind="html: $root.shardedNotAvailableHtml"></span>
                     </div>
                 </div>
             </div>
@@ -22,15 +17,15 @@
     <div class="panel" data-bind="if: inFirstStep, visible: !$root.activeDatabase().isSharded() && inFirstStep">
         <div class="panel-body">
             <form class="flex-form" data-bind="submit: nextStep">
-                <h3>Import documents from a SQL database into the current RavenDB database</h3>
+                <h3 data-bind="i18n: 'importDatabaseFromSql:title'"></h3>
                 <div class="row">
                     <div class="col-lg-6">
-                        <h4>Create new import configuration</h4>
+                        <h4 data-bind="i18n: 'importDatabaseFromSql:newImport.title'"></h4>
                         <hr />
                         <div class="margin-top" data-bind="with: model">
                             <div class="form-group">
                                 <div>
-                                    <label class="control-label">SQL database driver</label>
+                                    <label class="control-label" data-bind="i18n: 'importDatabaseFromSql:newImport.databaseDriver'"></label>
                                 </div>
                                 <div class="flex-grow">
                                     <button class="btn btn-block dropdown-toggle text-left" data-toggle="dropdown">
@@ -47,11 +42,7 @@
                                     <div class="has-warning" data-bind="visible: databaseType() === 'MySQL_MySql_Data'">
                                         <div class="help-block">
                                             <i class="icon-warning"></i> 
-                                            <span>
-                                                This connector is deprecated. 
-                                                MySqlConnector will be used instead. 
-                                                Please update Factory to: MySqlConnector.MySqlConnectorFactory.
-                                            </span>
+                                            <span data-bind="i18n: 'importDatabaseFromSql:newImport.mySqlDataDeprecated'"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -60,21 +51,19 @@
                                 <div class="form-group"
                                      data-bind="validationElement: connectionString">
                                     <label class="control-label">
-                                        Connection string<i class="required"></i>
+                                        <span data-bind="i18n: 'importDatabaseFromSql:newImport.connectionString'"></span><i class="required"></i>
                                         <br />
                                         <br />
-                                        <small id="js-mssql-syntax" class="text-primary">Syntax <i class="icon-help"></i></small>
+                                        <small id="js-mssql-syntax" class="text-primary"><span data-bind="i18n: 'importDatabaseFromSql:newImport.syntax'"></span> <i class="icon-help"></i></small>
                                     </label>
                                     <div class="flex-grow">
                                         <textarea class="form-control"
-                                                  data-bind="textInput: connectionString" rows="3"
-                                                  title="The connection string for the SQL server"
-                                                  placeholder="Enter the complete connection string for the Microsoft SQL Server">
+                                                  data-bind="textInput: connectionString, i18nAttr: { title: 'importDatabaseFromSql:newImport.connectionStringTitle.msSql', placeholder: 'importDatabaseFromSql:newImport.connectionStringPlaceholder.msSql' }" rows="3">
                                         </textarea>
                                         <div>
                                             <small>
                                                 <i class="icon-info"></i>
-                                                Please include database name in your connection string.
+                                                <span data-bind="i18n: 'importDatabaseFromSql:newImport.includeDatabaseName'"></span>
                                             </small>
                                         </div>
                                     </div>
@@ -84,21 +73,19 @@
                                 <div class="form-group"
                                      data-bind="validationElement: connectionString">
                                     <label class="control-label">
-                                        Connection string<i class="required"></i>
+                                        <span data-bind="i18n: 'importDatabaseFromSql:newImport.connectionString'"></span><i class="required"></i>
                                         <br />
                                         <br />
-                                        <small id="js-mysql-syntax" class="text-primary">Syntax <i class="icon-help"></i></small>
+                                        <small id="js-mysql-syntax" class="text-primary"><span data-bind="i18n: 'importDatabaseFromSql:newImport.syntax'"></span> <i class="icon-help"></i></small>
                                     </label>
                                     <div class="flex-grow">
                                         <textarea class="form-control"
-                                                  data-bind="textInput: connectionString" rows="3"
-                                                  title="The connection string for the MySQL server"
-                                                  placeholder="Enter the complete connection string for the MySQL Server">
+                                                  data-bind="textInput: connectionString, i18nAttr: { title: 'importDatabaseFromSql:newImport.connectionStringTitle.mySql', placeholder: 'importDatabaseFromSql:newImport.connectionStringPlaceholder.mySql' }" rows="3">
                                         </textarea>
                                         <div>
                                             <small>
                                                 <i class="icon-info"></i>
-                                                Please include database name in your connection string.
+                                                <span data-bind="i18n: 'importDatabaseFromSql:newImport.includeDatabaseName'"></span>
                                             </small>
                                         </div>
                                     </div>
@@ -108,21 +95,19 @@
                                 <div class="form-group"
                                      data-bind="validationElement: connectionString">
                                     <label class="control-label">
-                                        Connection string<i class="required"></i>
+                                        <span data-bind="i18n: 'importDatabaseFromSql:newImport.connectionString'"></span><i class="required"></i>
                                         <br />
                                         <br />
-                                        <small id="js-npgsql-syntax" class="text-primary">Syntax <i class="icon-help"></i></small>
+                                        <small id="js-npgsql-syntax" class="text-primary"><span data-bind="i18n: 'importDatabaseFromSql:newImport.syntax'"></span> <i class="icon-help"></i></small>
                                     </label>
                                     <div class="flex-grow">
                                         <textarea class="form-control"
-                                                  data-bind="textInput: connectionString" rows="3"
-                                                  title="The connection string for the PostgreSQL"
-                                                  placeholder="Enter the complete connection string for the PostgreSQL">
+                                                  data-bind="textInput: connectionString, i18nAttr: { title: 'importDatabaseFromSql:newImport.connectionStringTitle.npgSql', placeholder: 'importDatabaseFromSql:newImport.connectionStringPlaceholder.npgSql' }" rows="3">
                                         </textarea>
                                         <div>
                                             <small>
                                                 <i class="icon-info"></i>
-                                                Please include database name in your connection string.
+                                                <span data-bind="i18n: 'importDatabaseFromSql:newImport.includeDatabaseName'"></span>
                                             </small>
                                         </div>
                                     </div>
@@ -132,21 +117,19 @@
                                 <div class="form-group"
                                      data-bind="validationElement: connectionString">
                                     <label class="control-label">
-                                        Connection string<i class="required"></i>
+                                        <span data-bind="i18n: 'importDatabaseFromSql:newImport.connectionString'"></span><i class="required"></i>
                                         <br />
                                         <br />
-                                        <small id="js-oracle-syntax" class="text-primary">Syntax <i class="icon-help"></i></small>
+                                        <small id="js-oracle-syntax" class="text-primary"><span data-bind="i18n: 'importDatabaseFromSql:newImport.syntax'"></span> <i class="icon-help"></i></small>
                                     </label>
                                     <div class="flex-grow">
                                         <textarea class="form-control"
-                                                  data-bind="textInput: connectionString" rows="3"
-                                                  title="The connection string for the Oracle Database"
-                                                  placeholder="Enter the complete connection string for the Oracle Database">
+                                                  data-bind="textInput: connectionString, i18nAttr: { title: 'importDatabaseFromSql:newImport.connectionStringTitle.oracle', placeholder: 'importDatabaseFromSql:newImport.connectionStringPlaceholder.oracle' }" rows="3">
                                         </textarea>
                                         <div>
                                             <small>
                                                 <i class="icon-info"></i>
-                                                Please include database name in your connection string.
+                                                <span data-bind="i18n: 'importDatabaseFromSql:newImport.includeDatabaseName'"></span>
                                             </small>
                                         </div>
                                     </div>
@@ -155,32 +138,31 @@
                             <div class="form-group flex-horizontal">
                                 <div>
                                     <button class="btn btn-default" type="button"
-                                            data-bind="click: $root.showAdvancedOptions.toggle.bind($root.showAdvancedOptions)">
-                                        Advanced
+                                            data-bind="click: $root.showAdvancedOptions.toggle.bind($root.showAdvancedOptions), i18n: 'importDatabaseFromSql:newImport.advanced'">
                                     </button>
                                 </div>
                                 <div>
                                     <button class="btn btn-primary" type="submit"
                                             data-bind="disable: $root.spinners.schema, css: { 'btn-spinner': $root.spinners.schema }">
-                                        <span class="icon-import"></span> <span>Create new import</span>
+                                        <span class="icon-import"></span> <span data-bind="i18n: 'importDatabaseFromSql:newImport.createNewImport'"></span>
                                     </button>
                                 </div>
                                 <div class="flex-separator"></div>
                                 <div>
-                                    <button class="btn btn-default btn-info" title="Test the connection string connection"
-                                            data-bind="click: $root.testConnection, disable: $root.spinners.testConnection(), css: { 'btn-spinner': $root.spinners.testConnection }">
+                                    <button class="btn btn-default btn-info"
+                                            data-bind="click: $root.testConnection, disable: $root.spinners.testConnection(), css: { 'btn-spinner': $root.spinners.testConnection }, i18nAttr: { title: 'importDatabaseFromSql:newImport.testConnectionTitle' }">
                                         <i class="icon-rocket"></i>
-                                        <span>Test Connection</span>
+                                        <span data-bind="i18n: 'importDatabaseFromSql:newImport.testConnection'"></span>
                                     </button>
                                 </div>
                             </div>
                             <div data-bind="collapse: $root.showAdvancedOptions">
-                                <h3>Advanced options</h3>
+                                <h3 data-bind="i18n: 'importDatabaseFromSql:advancedOptions.title'"></h3>
                                 <div class="form-group">
                                     <label class="control-label">&nbsp;</label>
                                     <div class="toggle">
                                         <input id="pascalCase" type="checkbox" data-bind="checked: advanced.usePascalCase">
-                                        <label for="pascalCase">Convert property names to <strong>PascalCase</strong></label>
+                                        <label for="pascalCase" data-bind="html: $root.pascalCaseHtml"></label>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -188,7 +170,7 @@
                                     <div class="toggle">
                                         <input id="removeId" type="checkbox" data-bind="checked: advanced.trimSuffix">
                                         <label for="removeId">
-                                            Trim suffix from property names:
+                                            <span data-bind="i18n: 'importDatabaseFromSql:advancedOptions.trimSuffix'"></span>
                                             <input class="form-control suffix-input input-sm" data-bind="textInput: advanced.suffixToTrim" />
                                         </label>
                                     </div>
@@ -197,14 +179,14 @@
                                     <label class="control-label">&nbsp;</label>
                                     <div class="toggle">
                                         <input id="manyToMany" type="checkbox" data-bind="checked: advanced.detectManyToMany">
-                                        <label for="manyToMany">Detect <strong>many-to-many</strong> relationships</label>
+                                        <label for="manyToMany" data-bind="html: $root.detectManyToManyHtml"></label>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="control-label">&nbsp;</label>
                                     <div class="toggle">
                                         <input id="includeUnsupported" type="checkbox" data-bind="checked: advanced.includeUnsupported">
-                                        <label for="includeUnsupported">Include <strong>unsupported</strong> data types</label>
+                                        <label for="includeUnsupported" data-bind="html: $root.includeUnsupportedHtml"></label>
                                     </div>
                                 </div>
                                 <div class="form-group" data-bind="visible: databaseType() === 'NpgSQL'">
@@ -212,7 +194,7 @@
                                     <div class="toggle">
                                         <input id="includeSchemaList" type="checkbox" data-bind="checked: npgSql.includeSchemas">
                                         <label for="includeSchemaList">
-                                            Specify schemas to use <small>(comma separated)</small>
+                                            <span data-bind="html: $root.specifySchemasHtml"></span>
                                             <input class="form-control" placeholder="public" data-bind="textInput: npgSql.schemas, enable: npgSql.includeSchemas" />
                                         </label>
                                     </div>
@@ -221,31 +203,31 @@
                         </div>
                         <div data-bind="with: testConnectionResult">
                             <div class="padding bg-success small" data-bind="visible: Success">
-                                <div>Successfully connected to the server</div>
+                                <div data-bind="i18n: 'importDatabaseFromSql:testConnection.success'"></div>
                             </div>
                             <div class="padding bg-danger small"
                                  data-bind="visible: !Success">
-                                Connection test failed: <span data-bind="text: $root.fullErrorDetailsVisible() ? Error : $root.shortErrorText()"></span>
+                                <span data-bind="i18n: { key: 'importDatabaseFromSql:testConnection.failed', options: { error: $root.fullErrorDetailsVisible() ? Error : $root.shortErrorText() } }"></span>
                                 <div>
                                     <a href="#"
-                                       data-bind="click: $root.fullErrorDetailsVisible.toggle.bind($root.fullErrorDetailsVisible), text: $root.fullErrorDetailsVisible() ? 'hide details' : 'show details'">
+                                       data-bind="click: $root.fullErrorDetailsVisible.toggle.bind($root.fullErrorDetailsVisible), i18n: { key: 'importDatabaseFromSql:testConnection.details', options: { context: $root.fullErrorDetailsVisible() ? 'hide' : 'show' } }">
                                     </a>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="col-lg-6">
-                        <h4>Continue existing migration</h4>
+                        <h4 data-bind="i18n: 'importDatabaseFromSql:continueMigration.title'"></h4>
                         <hr />
-                        <div class="bg-info padding padding-xs margin-bottom"><small><i class="icon-info"></i> Note: Use this option if you have exported migration file</small></div>
+                        <div class="bg-info padding padding-xs margin-bottom"><small><i class="icon-info"></i> <span data-bind="i18n: 'importDatabaseFromSql:continueMigration.note'"></span></small></div>
                         <div class="row form-group">
                             <div class="col-lg-12">
                                 <div class="input-group file-input" data-bind="validationElement: importedFileName">
                                     <input type="file" id="jsImportSqlFilePicker" data-bind="event: { change: _.partial(fileSelected, $element.value) }" tabindex="-1">
-                                    <span class="static-name form-control" data-bind="text: importedFileName() || 'Select file...'"></span>
+                                    <span class="static-name form-control" data-bind="text: importedFileName() || selectFileText"></span>
                                     <span class="input-group-btn">
                                         <label for="jsImportSqlFilePicker" class="btn btn-default">
-                                            <i class="icon-document"></i><span>Browse</span>
+                                            <i class="icon-document"></i><span data-bind="i18n: 'importDatabaseFromSql:continueMigration.browse'"></span>
                                         </label>
                                     </span>
                                     <p class="help-block" data-bind="validationMessage: importedFileName"></p>
@@ -254,7 +236,7 @@
                         </div>
                         <button class="btn btn-primary" type="button"
                                 data-bind="click: continueWithFile">
-                            <span class="icon-import"></span> <span>Continue using configuration file</span>
+                            <span class="icon-import"></span> <span data-bind="i18n: 'importDatabaseFromSql:continueMigration.continueWithFile'"></span>
                         </button>
                     </div>
                 </div>
@@ -265,35 +247,35 @@
             <div class="flex-header flex-horizontal">
                 <div class="panel panel-default flex-grow no-margin">
                     <div class="padding padding-sm flex-horizontal">
-                        <div class="checkbox checkbox-default checkbox-inline align-checkboxes hidden-fullscreen" title="Select all or none">
+                        <div class="checkbox checkbox-default checkbox-inline align-checkboxes hidden-fullscreen" data-bind="i18nAttr: { title: 'importDatabaseFromSql:migration.selectAllTitle' }">
                             <input type="checkbox" class="styled" data-bind="click: onToggleAllClick, checkboxTriple: globalSelectionState, event: { change: toggleSelectAll }" />
                             <label></label>
                         </div>
                         <button class="btn btn-primary hidden-fullscreen"
                                 data-bind="click: $root.migrate, disable: $root.spinners.importing() || !$root.selectedCount(), css: { 'btn-spinner': $root.spinners.importing }">
                             <i class="icon-import"></i>
-                            <span>Migrate <span data-bind="text: $root.pluralize(selectedCount(), 'table', 'tables')"></span> </span><span data-bind="visible: model.testImport">(partial)</span>
+                            <span data-bind="text: $root.migrateButtonText"></span>
                         </button>
                         <div>
-                            <input type="text" accesskey="/" class="form-control filter-input" placeholder="Filter" title="Filter tables (Alt+/)" data-bind="textInput: $root.searchText" />
+                            <input type="text" accesskey="/" class="form-control filter-input" data-bind="textInput: $root.searchText, i18nAttr: { placeholder: 'importDatabaseFromSql:migration.filterPlaceholder', title: 'importDatabaseFromSql:migration.filterTitle' }" />
                         </div>
                         <div class="flex-separator"></div>
                         <div>
                             <button class="btn btn-default hidden-fullscreen" data-bind="click: exportConfiguration">
                                 <i class="icon-export"></i>
-                                <span>Export configuration</span>
+                                <span data-bind="i18n: 'importDatabaseFromSql:migration.exportConfiguration'"></span>
                             </button>
                             <button data-bind="click: enterFullScreen" class="btn btn-default hidden-fullscreen">
                                 <i class="icon-fullscreen"></i>
-                                <span>Full screen mode</span>
+                                <span data-bind="i18n: 'importDatabaseFromSql:migration.fullScreen'"></span>
                             </button>
                             <button class="btn btn-default exit-button" data-bind="click: exitFullScreen">
                                 <i class="icon-exit-fullscreen"></i>
-                                <span>Exit full screen</span>
+                                <span data-bind="i18n: 'importDatabaseFromSql:migration.exitFullScreen'"></span>
                             </button>
                             <div class="dropdown">
                                 <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                    <i class="icon-settings"></i><span>Settings</span>
+                                    <i class="icon-settings"></i><span data-bind="i18n: 'importDatabaseFromSql:migration.settings'"></span>
                                     <span class="caret"></span>
                                 </button>
                                 <div class="dropdown-menu settings-menu dropdown-menu-right" data-bind="dropdownPanel: true, template: { name: 'migration-settings-template' }">
@@ -312,10 +294,10 @@
                                 <label data-bind="attr: { for: 'table_' + $index() }">&nbsp;</label>
                             </div>
                             <div class="flex-horizontal flex-wrap table-header">
-                                <span class="with-top-label" data-label="Schema" data-bind="text: tableSchema"></span>
-                                <span class="with-top-label js-sql-table-name" data-label="Table" data-bind="text: tableName"></span>
+                                <span class="with-top-label" data-bind="text: tableSchema, i18nAttr: { 'data-label': 'importDatabaseFromSql:table.schema' }"></span>
+                                <span class="with-top-label js-sql-table-name" data-bind="text: tableName, i18nAttr: { 'data-label': 'importDatabaseFromSql:table.table' }"></span>
                                 <i class="icon-arrow-filled-right"></i>
-                                <div class="with-top-label raven-property-name inline-edit" data-bind="css: { 'edit-disabled': !checked() }" data-label="Collection">
+                                <div class="with-top-label raven-property-name inline-edit" data-bind="css: { 'edit-disabled': !checked() }, i18nAttr: { 'data-label': 'importDatabaseFromSql:table.collection' }">
                                     <span class="static" data-bind="text: collectionName"></span>
                                     <input class="form-control input-sm" data-bind="textInput: collectionName" />
                                 </div>
@@ -323,22 +305,22 @@
                             <div class="flex-separator"></div>
                             <div class="customizations flex-horizontal" data-bind="visible: checked">
                                 <div data-bind="visible: customizeQuery" class="margin-right nobr">
-                                    <i title="Filtering is enabled" class="icon-tick text-success"></i>
-                                    <span>filtering</span>
+                                    <i class="icon-tick text-success" data-bind="i18nAttr: { title: 'importDatabaseFromSql:table.filteringEnabled' }"></i>
+                                    <span data-bind="i18n: 'importDatabaseFromSql:table.filtering'"></span>
                                 </div>
                                 <div data-bind="visible: transformResults" class="margin-right nobr">
-                                    <i title="Transform script is enabled" class="icon-tick text-success"></i>
-                                    <span>transform</span>
+                                    <i class="icon-tick text-success" data-bind="i18nAttr: { title: 'importDatabaseFromSql:table.transformEnabled' }"></i>
+                                    <span data-bind="i18n: 'importDatabaseFromSql:table.transform'"></span>
                                 </div>
                             </div>
                             <div data-bind="visible: checked">
-                                <button class="btn btn-default" title="Show incoming links" data-bind="click: $root.showIncomingReferences">
+                                <button class="btn btn-default" data-bind="click: $root.showIncomingReferences, i18nAttr: { title: 'importDatabaseFromSql:table.showIncomingLinks' }">
                                     <i class="icon-sql-many-to-one"></i>
                                     <span data-bind="text: $root.createLinksCount($data)"></span>
                                 </button>
                                 <button class="btn btn-default" data-bind="click: $root.enterEditMode, css: { active: $data === $root.itemBeingEdited() }">
                                     <i class="icon-edit"></i>
-                                    <span>Filter / Transform</span>
+                                    <span data-bind="i18n: 'importDatabaseFromSql:table.filterTransform'"></span>
                                 </button>
                             </div>
                         </div>
@@ -346,11 +328,11 @@
                             <div class="panel-body">
                                 <div class="table-warning has-error" data-bind="visible: hasDuplicateProperties">
                                     <div class="help-block">
-                                        <i class="icon-warning"></i> This document contains duplicate property names
+                                        <i class="icon-warning"></i> <span data-bind="i18n: 'importDatabaseFromSql:table.duplicateProperties'"></span>
                                     </div>
                                 </div>
                                 <div class="document-id">
-                                    <span class="text-muted"><i class="icon-sql-document-id"></i> Document ID:</span>
+                                    <span class="text-muted"><i class="icon-sql-document-id"></i> <span data-bind="i18n: 'importDatabaseFromSql:table.documentId'"></span></span>
                                     <span data-bind="text: documentIdTemplate"></span>
                                 </div>
                                 <div class="object-container" data-bind="template: { name: 'object-template' }">
@@ -362,7 +344,7 @@
             </div>
             <div class="flex-footer panel-default" data-bind="visible: $root.pageCount() > 1">
                 <div class="panel-body flex-horizontal">
-                    <div>Page <span data-bind="text: $root.currentPage() + 1"></span> <span data-bind="text: '(' + $root.currentLocationHumane() + ')'"></span></div>
+                    <div data-bind="text: $root.currentLocationHumane"></div>
                     <div data-bind="foreach: _.range(0, $root.pageCount())">
                         <button class="btn btn-sm" data-bind="text: $data + 1, click: _.partial($root.setCurrentPage, $data), css: { 'active': $root.currentPage() === $data }"></button>
                     </div>
@@ -372,15 +354,15 @@
                 <div class="padding">
                     <div>
                         <label>
-                            <strong>SQL Table:</strong> <span data-bind="text: tableSchema"></span> / <span data-bind="text: tableName"></span>
+                            <strong data-bind="i18n: 'importDatabaseFromSql:editTransform.sqlTable'"></strong> <span data-bind="text: tableSchema"></span> / <span data-bind="text: tableName"></span>
                         </label>
                     </div>
                     <div class="toggle">
                         <input id="customizeQuery" type="checkbox" data-bind="checked: customizeQuery">
-                        <label for="customizeQuery">Filter source table records</label>
+                        <label for="customizeQuery" data-bind="i18n: 'importDatabaseFromSql:editTransform.filterRecords'"></label>
                     </div>
                     <div data-bind="collapse: customizeQuery">
-                        <label><strong>SQL Query:</strong></label>
+                        <label><strong data-bind="i18n: 'importDatabaseFromSql:editTransform.sqlQuery'"></strong></label>
                         <div data-bind="validationElement: query">
                             <pre class="form-control editor"
                                  data-bind="aceEditor: { code: query, fontSize: '14px', lang: $root.aceEditorLangMode(), completer: $root.completer }, validationOptions: { errorsAsTitle: false }, validationElement: query" style="height: 200px;"></pre>
@@ -391,11 +373,11 @@
                     </div>
                     <div class="toggle">
                         <input id="transformResults" type="checkbox" data-bind="checked: transformResults">
-                        <label for="transformResults">Transform documents <small class="js-script-popover"><i class="icon-info text-info"></i></small></label>
+                        <label for="transformResults"><span data-bind="i18n: 'importDatabaseFromSql:editTransform.transformDocuments'"></span> <small class="js-script-popover"><i class="icon-info text-info"></i></small></label>
                     </div>
                     <div data-bind="collapse: transformResults">
                         <label>
-                            <strong>Script:</strong>
+                            <strong data-bind="i18n: 'importDatabaseFromSql:editTransform.script'"></strong>
                         </label>
                         <div data-bind="validationElement: patchScript">
                             <pre class="form-control editor"
@@ -408,27 +390,26 @@
                     <hr />
                     <div class="flex-form">
                         <div class="form-group">
-                            <label class="control-label">Test mode:</label>
+                            <label class="control-label" data-bind="i18n: 'importDatabaseFromSql:editTransform.testMode'"></label>
                             <div class="flex-grow">
                                 <div class="btn-group">
                                     <button type="button" class="btn dropdown-toggle" data-toggle="dropdown">
                                         <span data-bind="visible: testMode() === 'First'">
-                                            <span>Use first record matching query</span>
+                                            <span data-bind="i18n: 'importDatabaseFromSql:editTransform.useFirstRecord'"></span>
                                         </span>
                                         <span data-bind="visible: testMode() === 'ByPrimaryKey'">
-                                            <span>Specify primary key values to use</span>
+                                            <span data-bind="i18n: 'importDatabaseFromSql:editTransform.specifyPrimaryKeys'"></span>
                                         </span>
                                         <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu">
                                         <li>
                                             <a href="#" data-bind="click: _.partial(testMode, 'First')">
-                                                <span>Use first record matching query</span>
+                                                <span data-bind="i18n: 'importDatabaseFromSql:editTransform.useFirstRecord'"></span>
                                             </a>
                                         </li>
                                         <li>
-                                            <a href="#" data-bind="click: _.partial(testMode, 'ByPrimaryKey')">
-                                                Specify primary key values to use
+                                            <a href="#" data-bind="click: _.partial(testMode, 'ByPrimaryKey'), i18n: 'importDatabaseFromSql:editTransform.specifyPrimaryKeys'">
                                             </a>
                                         </li>
                                     </ul>
@@ -445,10 +426,10 @@
                         </div>
                     </div>
                     <div class="margin-top text-right">
-                        <button title="Test" class="btn btn-primary" data-bind="click: $root.runTest, disable: $root.spinners.test, css: { 'btn-spinner': $root.spinners.test }">
-                            <i class="icon-rocket"></i><span>Test</span>
+                        <button class="btn btn-primary" data-bind="click: $root.runTest, disable: $root.spinners.test, css: { 'btn-spinner': $root.spinners.test }, i18nAttr: { title: 'importDatabaseFromSql:editTransform.test' }">
+                            <i class="icon-rocket"></i><span data-bind="i18n: 'importDatabaseFromSql:editTransform.test'"></span>
                         </button>
-                        <button title="Close" class="btn btn-default" data-bind="click: $root.closeEditedTransformation"><i class="icon-cancel"></i> <span>Close</span></button>
+                        <button class="btn btn-default" data-bind="click: $root.closeEditedTransformation, i18nAttr: { title: 'importDatabaseFromSql:close' }"><i class="icon-cancel"></i> <span data-bind="i18n: 'importDatabaseFromSql:close'"></span></button>
                     </div>
                 </div>
             </div>
@@ -476,44 +457,44 @@
         <!-- ko foreach: references -->
         <div class="reference-item" data-bind="attr: { 'data-ref-id': id }">
                 <div class="relation" data-bind="visible: type === 'OneToMany'">
-                    <div class="key" title="primary key">
+                    <div class="key" data-bind="i18nAttr: { title: 'importDatabaseFromSql:references.primaryKey' }">
                         <span class="key-type primary"><i class="icon-key"></i></span>
                         <strong>
                             <span data-bind="text: $parent.getPrimaryKeyColumnNames().join(',')"> </span>
                         </strong>
                     </div>
-                    <div class="relation-type" title="one-to-many relation">
+                    <div class="relation-type" data-bind="i18nAttr: { title: 'importDatabaseFromSql:references.oneToMany' }">
                         <i data-bind="attr: { class: getTypeClass() }"></i>
                     </div>
-                    <div class="from" title="from foreign key">
+                    <div class="from" data-bind="i18nAttr: { title: 'importDatabaseFromSql:references.fromForeignKey' }">
                         <span class="text-muted"> <span class="key-type foreign"><i class="icon-key"></i></span></span>
                         <span data-bind="text: joinColumns.join(', ')"></span>
                     </div>
                     <div class="in">
                         <strong>
-                            <a href="#" class="nobr" data-bind="attr: { title: 'Navigate to reverse reference in ' + targetTable.tableName + ' table'}, click: $root.goToReverseReference">
+                            <a href="#" class="nobr" data-bind="i18nAttr: { title: { key: 'importDatabaseFromSql:references.navigateToReverse', options: { tableName: targetTable.tableName } } }, click: $root.goToReverseReference">
                                 <i class="icon-table"></i> <span data-bind="text: targetTable.tableName"></span>
                             </a>
                         </strong>
                     </div>
                 </div>
                 <div class="relation" data-bind="visible: type === 'ManyToOne'">
-                    <div  class="key" title="foreign key">
+                    <div  class="key" data-bind="i18nAttr: { title: 'importDatabaseFromSql:references.foreignKey' }">
                         <span class="key-type foreign"><i class="icon-key"></i></span>
                         <strong>
                             <span data-bind="text: joinColumns.join(', ')"></span>
                         </strong>
                     </div>
-                    <div class="relation-type" title="many-to-one relation">
+                    <div class="relation-type" data-bind="i18nAttr: { title: 'importDatabaseFromSql:references.manyToOne' }">
                         <i data-bind="attr: { class: getTypeClass() }"></i>
                     </div>
-                    <div class="from" title="from primary key">
+                    <div class="from" data-bind="i18nAttr: { title: 'importDatabaseFromSql:references.fromPrimaryKey' }">
                         <span class="text-muted"> <span class="key-type primary"><i class="icon-key"></i></span></span>
                         <span data-bind="text: targetTable.getPrimaryKeyColumnNames().join(',')"></span>
                     </div>
-                    <div class="in" title="in table">
+                    <div class="in" data-bind="i18nAttr: { title: 'importDatabaseFromSql:references.inTable' }">
                         <strong>
-                            <a href="#" class="nobr" data-bind="attr: { title: 'Navigate to reverse reference in ' + targetTable.tableName + ' table'}, click: $root.goToReverseReference">
+                            <a href="#" class="nobr" data-bind="i18nAttr: { title: { key: 'importDatabaseFromSql:references.navigateToReverse', options: { tableName: targetTable.tableName } } }, click: $root.goToReverseReference">
                                 <i class="icon-table"></i>
                                 <span data-bind="text: targetTable.tableName"></span>
                             </a>
@@ -522,9 +503,9 @@
                 </div>
                 <div class="actions-container">
                     <div class="btn-group link-actions">
-                        <button class="btn btn-sm btn-default" data-bind="css: { active: action() === 'skip' }, click: _.partial($root.onActionClicked, $data, 'skip')"><i class="icon-skip"></i> <span>skip</span></button>
-                        <button class="btn btn-sm btn-default js-btn-link" data-bind="css: { active: action() === 'link', disabled: !canLinkTargetTable() }, click: _.partial($root.onActionClicked, $data, 'link')"><div><i class="icon-link"></i> <span>link</span></div></button>
-                        <button class="btn btn-sm btn-default js-btn-embed" data-bind="css: { active: action() === 'embed' }, click: _.partial($root.onActionClicked, $data, 'embed')"><i class="icon-embed"></i> <span>embed</span></button>
+                        <button class="btn btn-sm btn-default" data-bind="css: { active: action() === 'skip' }, click: _.partial($root.onActionClicked, $data, 'skip')"><i class="icon-skip"></i> <span data-bind="i18n: 'importDatabaseFromSql:references.actions.skip'"></span></button>
+                        <button class="btn btn-sm btn-default js-btn-link" data-bind="css: { active: action() === 'link', disabled: !canLinkTargetTable() }, click: _.partial($root.onActionClicked, $data, 'link')"><div><i class="icon-link"></i> <span data-bind="i18n: 'importDatabaseFromSql:references.actions.link'"></span></div></button>
+                        <button class="btn btn-sm btn-default js-btn-embed" data-bind="css: { active: action() === 'embed' }, click: _.partial($root.onActionClicked, $data, 'embed')"><i class="icon-embed"></i> <span data-bind="i18n: 'importDatabaseFromSql:references.actions.embed'"></span></button>
                     </div>
                     <span class="arrow" data-bind="visible: effectiveInnerTable() || effectiveLinkTable()">
                         <i class="icon-arrow-filled-right"></i>
@@ -546,18 +527,18 @@
                     </div>
                     <div data-bind="with: effectiveInnerTable, visible: action() === 'embed'">
                         <div class="d-flex align-items-center gap-3 margin-left">
-                            <div class="small-label">SQL keys</div>
+                            <div class="small-label" data-bind="i18n: 'importDatabaseFromSql:references.sqlKeys'"></div>
                             <div class="btn-group link-actions">
-                                <button class="btn btn-sm btn-default" title="Skip @sql-keys" 
-                                        data-bind="css: { active: sqlKeysStorage() === 'None' }, click: _.partial(sqlKeysStorage, 'None')">
+                                <button class="btn btn-sm btn-default"
+                                        data-bind="css: { active: sqlKeysStorage() === 'None' }, click: _.partial(sqlKeysStorage, 'None'), i18nAttr: { title: 'importDatabaseFromSql:references.skipSqlKeys' }">
                                     <i class="icon-skip"></i>
                                 </button>
-                                <button class="btn btn-sm btn-default" title="Put @sql-keys as a nested document property" 
-                                        data-bind="css: { active: sqlKeysStorage() === 'AsNestedDocumentProperty' }, click: _.partial(sqlKeysStorage, 'AsNestedDocumentProperty')">
+                                <button class="btn btn-sm btn-default"
+                                        data-bind="css: { active: sqlKeysStorage() === 'AsNestedDocumentProperty' }, click: _.partial(sqlKeysStorage, 'AsNestedDocumentProperty'), i18nAttr: { title: 'importDatabaseFromSql:references.sqlKeysAsNestedProperty' }">
                                     <i class="icon-nested-document-property"></i>
                                 </button>
-                                <button class="btn btn-sm btn-default" title="Put @sql-keys in document metadata" 
-                                        data-bind="css: { active: sqlKeysStorage() === 'OnDocumentMetadata' }, click: _.partial(sqlKeysStorage, 'OnDocumentMetadata')">
+                                <button class="btn btn-sm btn-default"
+                                        data-bind="css: { active: sqlKeysStorage() === 'OnDocumentMetadata' }, click: _.partial(sqlKeysStorage, 'OnDocumentMetadata'), i18nAttr: { title: 'importDatabaseFromSql:references.sqlKeysInMetadata' }">
                                     <i class="icon-document-metadata"></i>
                                 </button>
                             </div>
@@ -578,13 +559,13 @@
 <script type="text/html" id="migration-settings-template">
     <form class="flex-form padding" data-bind="with: model">
         <div class="form-group" data-bind="validationElement: batchSize">
-            <label class="control-label">Batch size</label>
+            <label class="control-label" data-bind="i18n: 'importDatabaseFromSql:settings.batchSize'"></label>
             <div class="flex-grow">
-                <input class="form-control" placeholder="Migration batch size" data-bind="numericInput: batchSize">
+                <input class="form-control" data-bind="numericInput: batchSize, i18nAttr: { placeholder: 'importDatabaseFromSql:settings.batchSizePlaceholder' }">
             </div>
         </div>
         <div class="form-group">
-            <label class="control-label">Convert binary columns to attachments</label>
+            <label class="control-label" data-bind="i18n: 'importDatabaseFromSql:settings.binaryToAttachments'"></label>
             <div class="flex-grow">
                 <div class="toggle">
                     <input type="checkbox" class="styled" data-bind="checked: binaryToAttachment">
@@ -593,7 +574,7 @@
             </div>
         </div>
         <div class="form-group no-margin">
-            <label class="control-label">Partial migration <br /><small class="text-muted">limits maximum number of documents<br /> per each table</small></label>
+            <label class="control-label"><span data-bind="i18n: 'importDatabaseFromSql:settings.partialMigration'"></span> <br /><small class="text-muted" data-bind="html: $root.partialMigrationDescriptionHtml"></small></label>
             <div class="flex-grow">
                 <div class="toggle">
                     <input type="checkbox" class="styled" data-bind="checked: testImport">
@@ -602,15 +583,14 @@
             </div>
         </div>
         <div class="form-group" data-bind="validationElement: maxDocumentsToImportPerTable, visible: testImport">
-            <label class="control-label left-indent">Maximum rows to process<br /><small class="text-muted">per SQL table</small></label>
+            <label class="control-label left-indent"><span data-bind="i18n: 'importDatabaseFromSql:settings.maxRows'"></span><br /><small class="text-muted" data-bind="i18n: 'importDatabaseFromSql:settings.maxRowsDescription'"></small></label>
             <div class="flex-grow">
-                <input class="form-control" placeholder="Migration batch size" data-bind="numericInput: maxDocumentsToImportPerTable">
+                <input class="form-control" data-bind="numericInput: maxDocumentsToImportPerTable, i18nAttr: { placeholder: 'importDatabaseFromSql:settings.batchSizePlaceholder' }">
             </div>
         </div>
         <div class="flex-horizontal">
             <div class="flex-separator"></div>
-            <button class="btn btn-default btn-sm close-panel">
-                Close
+            <button class="btn btn-default btn-sm close-panel" data-bind="i18n: 'importDatabaseFromSql:close'">
             </button>
         </div>
     </form>

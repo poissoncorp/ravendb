@@ -9,8 +9,11 @@ import { Switch } from "components/common/Checkbox";
 import { FormInput } from "components/common/Form";
 import InnerForm from "components/common/InnerForm";
 import { ImportFromFileFormData } from "../importFromFileValidation";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import type { StudioTranslate } from "common/i18n/resources";
 
 export default function CollectionsToImportPicker() {
+    const t = useStudioTranslation("importFromFile");
     const { control: importControl, setValue, getValues } = useFormContext<ImportFromFileFormData>();
 
     const includedCollections = useWatch({ control: importControl, name: "collections.includedCollections" }) ?? [];
@@ -21,7 +24,7 @@ export default function CollectionsToImportPicker() {
     const [addedCount, setAddedCount] = useState(0);
 
     const addCollectionForm = useForm({
-        resolver: yupResolver(getAddCollectionSchema(manualCollections)),
+        resolver: yupResolver(getAddCollectionSchema(manualCollections, t)),
         defaultValues: { collectionName: "" },
     });
     const { control: addControl, handleSubmit, setValue: setAddValue, clearErrors, setFocus } = addCollectionForm;
@@ -79,17 +82,17 @@ export default function CollectionsToImportPicker() {
                         type="text"
                         control={addControl}
                         name="collectionName"
-                        placeholder="Type a collection name from the imported file"
+                        placeholder={t("collections.namePlaceholder")}
                     />
                     <Button variant="secondary" className="text-nowrap" onClick={handleSubmit(addCollection)}>
-                        <Icon icon="plus" /> Add
+                        <Icon icon="plus" /> {t("collections.addButton")}
                     </Button>
                 </InputGroup>
             </InnerForm>
             <div className="import-list-header mb-2">
-                <span className="flex-grow-1 fw-semibold">Collection name</span>
+                <span className="flex-grow-1 fw-semibold">{t("collections.nameHeader")}</span>
                 <div className="d-flex align-items-center gap-2">
-                    <span>Select all</span>
+                    <span>{t("selectAll")}</span>
                     <Switch
                         id="select-all-collections"
                         className="m-0"
@@ -102,9 +105,7 @@ export default function CollectionsToImportPicker() {
             </div>
             <div className="import-collections-list">
                 {manualCollections.length === 0 && (
-                    <div className="import-list-item text-muted">
-                        No collections added. Type a collection name from the imported file above and click Add.
-                    </div>
+                    <div className="import-list-item text-muted">{t("collections.empty")}</div>
                 )}
                 {manualCollections.map((name) => (
                     <div key={name} className="import-list-item">
@@ -120,7 +121,7 @@ export default function CollectionsToImportPicker() {
                             variant="link"
                             size="sm"
                             className="p-0 text-danger"
-                            title="Remove collection"
+                            title={t("collections.removeTitle")}
                             onClick={() => removeCollection(name)}
                         >
                             <Icon icon="trash" margin="m-0" />
@@ -136,13 +137,13 @@ interface AddCollectionFormData {
     collectionName: string;
 }
 
-const getAddCollectionSchema = (existingCollections: string[]) =>
+const getAddCollectionSchema = (existingCollections: string[], t: StudioTranslate<"importFromFile">) =>
     yup.object({
         collectionName: yup
             .string()
             .trim()
-            .required("Enter a collection name")
-            .test("not-duplicate", "This collection is already on the list", (value) =>
+            .required(t("collections.nameRequired"))
+            .test("not-duplicate", t("collections.nameDuplicate"), (value) =>
                 existingCollections.every((name) => name.toLowerCase() !== value?.toLowerCase())
             ),
     });

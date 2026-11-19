@@ -17,6 +17,8 @@ import DatabaseUtils from "components/utils/DatabaseUtils";
 import { TaskWithErrors, TransformationWithErrors, TaskCategory } from "../utils/tasksErrorsUtils";
 import footer from "common/shell/footer";
 import useDeleteConfirmation from "hooks/useDeleteConfirmation";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 type DeleteErrorsModalProps =
     | {
@@ -38,6 +40,8 @@ type DeleteErrorsModalProps =
 
 export function DeleteErrorsModal(props: DeleteErrorsModalProps) {
     const { toggle, onRefresh, mode } = props;
+    const t = useStudioTranslation("tasksErrors");
+    const commonT = useStudioTranslation("common");
     const db = useAppSelector(databaseSelectors.activeDatabase);
     const { tasksService } = useServices();
 
@@ -93,18 +97,18 @@ export function DeleteErrorsModal(props: DeleteErrorsModalProps) {
                     )
                 )
             );
-            messagePublisher.reportSuccess("Task errors were deleted.");
+            messagePublisher.reportSuccess(t("deleteModal.deleted"));
             footer.default.refreshStats();
             toggle();
             onRefresh();
         } catch (e) {
-            messagePublisher.reportError("Failed to delete task errors.", e?.responseText, e?.statusText);
+            messagePublisher.reportError(t("deleteModal.deleteFailed"), e?.responseText, e?.statusText);
         }
     });
 
     const toggleIsRequireTypedConfirm = async () => {
         if (!asyncGlobalSettings.result) {
-            messagePublisher.reportError("Failed to load studio global settings");
+            messagePublisher.reportError(t("deleteModal.loadSettingsFailed"));
             return;
         }
 
@@ -118,7 +122,9 @@ export function DeleteErrorsModal(props: DeleteErrorsModalProps) {
                 <h3>
                     <Icon icon="trash" color="danger" />
                     <span>
-                        {mode === "task" ? `Delete all errors for task ${props.etlName}?` : "Delete all errors?"}
+                        {mode === "task"
+                            ? t("deleteModal.taskTitle", { taskName: props.etlName })
+                            : t("deleteModal.allTitle")}
                     </span>
                 </h3>
             </Modal.Header>
@@ -126,34 +132,45 @@ export function DeleteErrorsModal(props: DeleteErrorsModalProps) {
                 {mode === "task" ? (
                     <>
                         <p>
-                            You are about to delete all <b>{props.errorsCount} errors</b> from <b>{props.etlName}</b>{" "}
-                            task.
+                            <StudioTrans
+                                ns="tasksErrors"
+                                i18nKey="deleteModal.taskDescription"
+                                components={{ b: <b /> }}
+                                options={{ count: props.errorsCount, taskName: props.etlName }}
+                            />
                         </p>
                         <RichAlert variant="info" icon="info">
-                            While the current task errors will be deleted, a task in an <b>Error state</b> will not be
-                            set back to the <b>Normal</b> state.
+                            <StudioTrans
+                                ns="tasksErrors"
+                                i18nKey="deleteModal.errorStateInfo"
+                                components={{ b: <b /> }}
+                            />
                         </RichAlert>
                     </>
                 ) : (
                     <p>
-                        You are about to delete errors from <b>{props.tasksWithErrors.length}</b>{" "}
-                        {props.tasksWithErrors.length === 1 ? "task" : "tasks"}.
+                        <StudioTrans
+                            ns="tasksErrors"
+                            i18nKey="deleteModal.allDescription"
+                            components={{ b: <b /> }}
+                            options={{ count: props.tasksWithErrors.length }}
+                        />
                     </p>
                 )}
                 {isRequireTypedConfirm && (
                     <FormGroup className="mt-3">
-                        <FormLabel className="fw-bold">Type DELETE to confirm</FormLabel>
+                        <FormLabel className="fw-bold">{t("deleteModal.typeToConfirm")}</FormLabel>
                         <Form.Control placeholder="DELETE" value={confirmText} onChange={handleTextChange} />
                     </FormGroup>
                 )}
             </Modal.Body>
             <Modal.Footer className="hstack justify-content-between">
                 <Switch selected={isRequireTypedConfirm} toggleSelection={toggleIsRequireTypedConfirm} color="primary">
-                    Require typed confirmation
+                    {t("deleteModal.requireTypedConfirmation")}
                 </Switch>
                 <div className="hstack gap-2 flex-grow-1 justify-content-end">
                     <Button variant="link" onClick={toggle} className="link-muted">
-                        Cancel
+                        {commonT("cancel")}
                     </Button>
                     <ButtonWithSpinner
                         isSpinning={asyncDeleteErrors.loading}
@@ -162,7 +179,7 @@ export function DeleteErrorsModal(props: DeleteErrorsModalProps) {
                         className="rounded-pill"
                         disabled={!isConfirmed || asyncDeleteErrors.loading}
                     >
-                        Delete
+                        {commonT("delete")}
                     </ButtonWithSpinner>
                 </div>
             </Modal.Footer>

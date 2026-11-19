@@ -34,6 +34,8 @@ import {
     getTaskErrorCountByLocation,
 } from "components/pages/database/tasks/ongoingTasks/panels/etlPanelUtils";
 import { TaskErrorsWithLocation } from "components/pages/database/tasks/tasksErrors/utils/tasksErrorsUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import type { StudioTranslate } from "common/i18n/resources";
 
 type CdcSinkPanelProps = BaseOngoingTaskPanelProps<OngoingTaskCdcSinkInfo> & {
     taskErrors?: TaskErrorsWithLocation[];
@@ -41,13 +43,14 @@ type CdcSinkPanelProps = BaseOngoingTaskPanelProps<OngoingTaskCdcSinkInfo> & {
 
 function Details(props: CdcSinkPanelProps & { canEdit: boolean }) {
     const { data, canEdit } = props;
+    const t = useStudioTranslation("ongoingTasks");
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const { appUrl } = useAppUrls();
 
-    const lastBatchTime = formatDate(data.shared.lastBatchTime);
-    const lastActivityTime = formatDate(data.shared.lastActivityTime);
-    const secondsSinceLastBatch = formatSeconds(data.shared.secondsSinceLastBatch);
-    const secondsSinceLastActivity = formatSeconds(data.shared.secondsSinceLastActivity);
+    const lastBatchTime = formatDate(t, data.shared.lastBatchTime);
+    const lastActivityTime = formatDate(t, data.shared.lastActivityTime);
+    const secondsSinceLastBatch = formatSeconds(t, data.shared.secondsSinceLastBatch);
+    const secondsSinceLastActivity = formatSeconds(t, data.shared.secondsSinceLastActivity);
     const configuration = data.shared.configuration;
     const tables = configuration?.Tables ?? [];
     const enabledTables = tables.filter((x) => !x.Disabled).length;
@@ -81,15 +84,17 @@ function Details(props: CdcSinkPanelProps & { canEdit: boolean }) {
                         connectionStringType="Sql"
                         databaseName={databaseName}
                     />
-                    <RichPanelDetailItem label="Factory name">{data.shared.factoryName}</RichPanelDetailItem>
-                    <RichPanelDetailItem label="Skip initial load">
-                        {configuration?.SkipInitialLoad ? "Yes" : "No"}
+                    <RichPanelDetailItem label={t("cdcSink.factoryName")}>
+                        {data.shared.factoryName}
                     </RichPanelDetailItem>
-                    <RichPanelDetailItem label="Last checkpoint" contentClassName="text-break">
-                        {data.shared.lastCheckpoint || "N/A"}
+                    <RichPanelDetailItem label={t("cdcSink.skipInitialLoad")}>
+                        {configuration?.SkipInitialLoad ? t("yes") : t("no")}
                     </RichPanelDetailItem>
-                    <RichPanelDetailItem label="Tables">
-                        {enabledTables} / {tables.length} enabled
+                    <RichPanelDetailItem label={t("cdcSink.lastCheckpoint")} contentClassName="text-break">
+                        {data.shared.lastCheckpoint || t("notAvailable")}
+                    </RichPanelDetailItem>
+                    <RichPanelDetailItem label={t("cdcSink.tables")}>
+                        {t("cdcSink.tablesEnabled", { enabled: enabledTables, total: tables.length })}
                     </RichPanelDetailItem>
                     <TaskPanelErrors
                         errorCount={errorCount}
@@ -98,12 +103,14 @@ function Details(props: CdcSinkPanelProps & { canEdit: boolean }) {
                     />
                 </div>
                 <div className="hstack">
-                    <RichPanelDetailItem label="Last batch time">{lastBatchTime}</RichPanelDetailItem>
-                    <RichPanelDetailItem label="Time since last batch">{secondsSinceLastBatch}</RichPanelDetailItem>
+                    <RichPanelDetailItem label={t("cdcSink.lastBatchTime")}>{lastBatchTime}</RichPanelDetailItem>
+                    <RichPanelDetailItem label={t("cdcSink.timeSinceLastBatch")}>
+                        {secondsSinceLastBatch}
+                    </RichPanelDetailItem>
                 </div>
                 <div className="hstack">
-                    <RichPanelDetailItem label="Last activity time">{lastActivityTime}</RichPanelDetailItem>
-                    <RichPanelDetailItem label="Time since last activity">
+                    <RichPanelDetailItem label={t("cdcSink.lastActivityTime")}>{lastActivityTime}</RichPanelDetailItem>
+                    <RichPanelDetailItem label={t("cdcSink.timeSinceLastActivity")}>
                         {secondsSinceLastActivity}
                     </RichPanelDetailItem>
                 </div>
@@ -114,6 +121,7 @@ function Details(props: CdcSinkPanelProps & { canEdit: boolean }) {
 
 export function CdcSinkPanel(props: CdcSinkPanelProps) {
     const { data, toggleSelection, isSelected, onTaskOperation, isDeleting, isTogglingState } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
     const { forCurrentDatabase } = useAppUrls();
@@ -151,7 +159,7 @@ export function CdcSinkPanel(props: CdcSinkPanelProps) {
                 <RichPanelActions>
                     <span>
                         <Icon icon="cdc-sink" />
-                        CDC Sink
+                        {t("taskType.cdcSink")}
                     </span>
                     <OngoingTaskResponsibleNode task={data} />
                     <OngoingTaskStatus
@@ -180,10 +188,10 @@ export function CdcSinkPanel(props: CdcSinkPanelProps) {
     );
 }
 
-function formatDate(date?: string): string {
-    return date ? moment.utc(date).local().format(genUtils.dateFormat) : "N/A";
+function formatDate(t: StudioTranslate<"ongoingTasks">, date?: string): string {
+    return date ? moment.utc(date).local().format(genUtils.dateFormat) : t("notAvailable");
 }
 
-function formatSeconds(seconds?: number): string {
-    return seconds != null ? genUtils.formatDuration(moment.duration(seconds, "seconds"), true, 2) : "N/A";
+function formatSeconds(t: StudioTranslate<"ongoingTasks">, seconds?: number): string {
+    return seconds != null ? genUtils.formatDuration(moment.duration(seconds, "seconds"), true, 2) : t("notAvailable");
 }

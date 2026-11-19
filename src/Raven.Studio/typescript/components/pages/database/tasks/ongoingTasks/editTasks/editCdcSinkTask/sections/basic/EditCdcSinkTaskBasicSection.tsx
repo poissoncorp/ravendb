@@ -12,10 +12,13 @@ import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import { Icon } from "components/common/Icon";
 import { FormTaskConnectionString } from "components/common/formFields/FormTaskConnectionString";
 import { connectionStringSelectors } from "components/pages/database/settings/connectionStrings/store/connectionStringsSlice";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 type OngoingTaskState = Raven.Client.Documents.Operations.OngoingTasks.OngoingTaskState;
 
 export default function EditCdcSinkTaskBasicSection() {
+    const t = useStudioTranslation("editCdcSinkTask");
     const { value: isPanelOpen, setValue: setIsPanelOpen, toggle: toggleIsPanelOpen } = useBoolean(true);
     const { control } = useFormContext<EditCdcSinkTaskFormData>();
 
@@ -30,10 +33,15 @@ export default function EditCdcSinkTaskBasicSection() {
         (selectedConnection && "factoryName" in selectedConnection && selectedConnection.factoryName === "Npgsql") ||
         Boolean(postgresPublicationName || postgresSlotName);
 
+    const taskStateOptions: SelectOption<OngoingTaskState>[] = [
+        { value: "Enabled", label: t("basic.stateEnabled") },
+        { value: "Disabled", label: t("basic.stateDisabled") },
+    ];
+
     return (
         <div>
             <div className="hstack align-items-center">
-                <h3 className="m-0">Configure basic settings</h3>
+                <h3 className="m-0">{t("basic.title")}</h3>
                 <FormErrorIcon
                     control={control}
                     paths={["name", "connectionStringName", "responsibleNode"]}
@@ -41,28 +49,29 @@ export default function EditCdcSinkTaskBasicSection() {
                 />
                 <CollapseButton isExpanded={isPanelOpen} toggle={toggleIsPanelOpen} />
             </div>
-            <div className="mb-1">Specify the task name, select a connection string, and configure task options.</div>
+            <div className="mb-1">{t("basic.description")}</div>
             <Collapse in={isPanelOpen} mountOnEnter unmountOnExit>
                 <div>
                     <div className="panel-bg-1 p-3 rounded-2 border border-secondary">
                         <FormGroup>
-                            <FormLabel>Task Name</FormLabel>
-                            <FormInput type="text" control={control} name="name" placeholder="My CDC Sink task" />
+                            <FormLabel>{t("basic.taskName")}</FormLabel>
+                            <FormInput
+                                type="text"
+                                control={control}
+                                name="name"
+                                placeholder={t("basic.taskNamePlaceholder")}
+                            />
                         </FormGroup>
                         <FormGroup>
-                            <FormLabel>Task State</FormLabel>
+                            <FormLabel>{t("basic.taskState")}</FormLabel>
                             <FormSelect control={control} name="state" options={taskStateOptions} />
                         </FormGroup>
                         <FormTaskConnectionString control={control} name="connectionStringName" type="Sql" />
                         {hasPostgresSettings && (
                             <>
-                                <RichAlert variant="info">
-                                    For PostgreSQL connections, you can specify a custom publication name and
-                                    replication slot name. Leave these fields empty to let the server auto-generate both
-                                    values.
-                                </RichAlert>
+                                <RichAlert variant="info">{t("basic.postgresInfo")}</RichAlert>
                                 <FormGroup className="mt-2">
-                                    <FormLabel>Publication Name</FormLabel>
+                                    <FormLabel>{t("basic.publicationName")}</FormLabel>
                                     <FormInput
                                         type="text"
                                         control={control}
@@ -71,7 +80,7 @@ export default function EditCdcSinkTaskBasicSection() {
                                     />
                                 </FormGroup>
                                 <FormGroup>
-                                    <FormLabel>Slot Name</FormLabel>
+                                    <FormLabel>{t("basic.slotName")}</FormLabel>
                                     <FormInput
                                         type="text"
                                         control={control}
@@ -89,15 +98,14 @@ export default function EditCdcSinkTaskBasicSection() {
                         />
                         <FormGroup>
                             <FormSwitch control={control} name="skipInitialLoad">
-                                Skip initial load
+                                {t("basic.skipInitialLoad")}
                                 <PopoverWithHoverWrapper
                                     message={
-                                        <>
-                                            By default, the task takes a snapshot of existing rows before streaming new
-                                            changes.
-                                            <br />
-                                            Enable this option to stream only new changes.
-                                        </>
+                                        <StudioTrans
+                                            ns="editCdcSinkTask"
+                                            i18nKey="basic.skipInitialLoadInfo"
+                                            components={{ br: <br /> }}
+                                        />
                                     }
                                 >
                                     <Icon icon="info-new" margin="ms-1" />
@@ -110,8 +118,3 @@ export default function EditCdcSinkTaskBasicSection() {
         </div>
     );
 }
-
-const taskStateOptions: SelectOption<OngoingTaskState>[] = [
-    { value: "Enabled", label: "Enabled" },
-    { value: "Disabled", label: "Disabled" },
-];

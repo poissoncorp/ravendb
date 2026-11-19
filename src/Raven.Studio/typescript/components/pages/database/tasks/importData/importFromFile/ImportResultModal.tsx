@@ -14,6 +14,8 @@ import useBoolean from "components/hooks/useBoolean";
 import genUtils from "common/generalUtils";
 import { ThemeColor } from "components/models/common";
 import moment from "moment";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import type { StudioTranslate } from "common/i18n/resources";
 
 type SmugglerResult = Raven.Client.Documents.Smuggler.SmugglerResult;
 type Counts = Raven.Client.Documents.Smuggler.SmugglerProgressBase.Counts;
@@ -48,7 +50,8 @@ export default function ImportResultModal({
     endTime,
     onClose,
 }: ImportResultModalProps) {
-    const rows = buildRows(progress);
+    const t = useStudioTranslation("importFromFile");
+    const rows = buildRows(progress, t);
     const duration = genUtils.formatAsTimeSpan(moment(endTime ?? undefined).diff(moment(startTime)));
 
     const { value: isDetailsVisible, setTrue: showDetails, toggle: toggleDetails } = useBoolean(false);
@@ -77,27 +80,26 @@ export default function ImportResultModal({
         <Modal size="lg" show onHide={onClose} className="modal-border bulge-primary">
             <Modal.Header closeButton onCloseClick={onClose} className="pb-0">
                 <h3 className="mb-0">
-                    <Icon icon="import-database" color="primary" /> Database import
+                    <Icon icon="import-database" color="primary" /> {t("result.title")}
                 </h3>
             </Modal.Header>
             <Modal.Body>
                 <div className="import-result-row">
-                    <span className="text-muted">Date</span>
+                    <span className="text-muted">{t("result.date")}</span>
                     <span>{moment(startTime).format("YYYY MMMM Do, h:mm A")}</span>
                 </div>
                 <div className="import-result-row">
-                    <span className="text-muted">Duration</span>
+                    <span className="text-muted">{t("result.duration")}</span>
                     <span>{duration}</span>
                 </div>
                 <div className="import-result-row">
-                    <span className="text-muted">Status</span>
+                    <span className="text-muted">{t("result.status")}</span>
                     <OperationStatusBadge status={status} />
                 </div>
                 {status === "InProgress" && progress?.ShardNumber != null && (
                     <Alert variant="info" className="mt-3 mb-0">
                         <Icon icon="info" />
-                        Report contains progress for shard #{progress.ShardNumber} only. Full report will be available
-                        when operation is done for all shards.
+                        {t("result.shardProgressInfo", { shardNumber: progress.ShardNumber })}
                     </Alert>
                 )}
                 {rows.length > 0 && (
@@ -105,10 +107,10 @@ export default function ImportResultModal({
                         <thead>
                             <tr>
                                 <th></th>
-                                <th>Status</th>
-                                <th>Read</th>
-                                <th>Skipped</th>
-                                <th>Errors</th>
+                                <th>{t("result.columns.status")}</th>
+                                <th>{t("result.columns.read")}</th>
+                                <th>{t("result.columns.skipped")}</th>
+                                <th>{t("result.columns.errors")}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -121,7 +123,7 @@ export default function ImportResultModal({
                 <Collapse in={isDetailsVisible} onEntered={() => scrollToBottom(logRef.current)}>
                     <div>
                         <Badge bg="info" className="mt-3">
-                            All dates are in UTC
+                            {t("result.utcBadge")}
                         </Badge>
                         <div ref={logRef} role="log" className="import-result-log mt-2" onScroll={handleLogScroll}>
                             <Code code={messages.join("\n")} language="plaintext" whiteSpace="pre-wrap" />
@@ -131,10 +133,10 @@ export default function ImportResultModal({
             </Modal.Body>
             <Modal.Footer>
                 <Button onClick={onClose} variant="link" className="link-muted">
-                    Close
+                    {t("close")}
                 </Button>
                 <Button variant="secondary" onClick={toggleDetails}>
-                    <Icon icon="preview" /> {isDetailsVisible ? "Hide details" : "Show details"}
+                    <Icon icon="preview" /> {isDetailsVisible ? t("result.hideDetails") : t("result.showDetails")}
                 </Button>
             </Modal.Footer>
         </Modal>
@@ -142,26 +144,28 @@ export default function ImportResultModal({
 }
 
 function OperationStatusBadge({ status }: { status: OperationStatus }) {
+    const t = useStudioTranslation("importFromFile");
+
     switch (status) {
         case "Completed":
             return (
                 <Badge bg="success">
-                    <Icon icon="check" /> Completed
+                    <Icon icon="check" /> {t("result.operationStatus.completed")}
                 </Badge>
             );
         case "Faulted":
             return (
                 <Badge bg="danger">
-                    <Icon icon="cancel" /> Failed
+                    <Icon icon="cancel" /> {t("result.operationStatus.failed")}
                 </Badge>
             );
         case "Canceled":
-            return <Badge bg="warning">Canceled</Badge>;
+            return <Badge bg="warning">{t("result.operationStatus.canceled")}</Badge>;
         case "InProgress":
             return (
                 <Badge bg="info" className="d-inline-flex align-items-center">
-                    <Spinner className="me-1" style={{ width: "0.85em", height: "0.85em", borderWidth: "0.15em" }} /> In
-                    progress
+                    <Spinner className="me-1" style={{ width: "0.85em", height: "0.85em", borderWidth: "0.15em" }} />{" "}
+                    {t("result.operationStatus.inProgress")}
                 </Badge>
             );
         default:
@@ -170,7 +174,8 @@ function OperationStatusBadge({ status }: { status: OperationStatus }) {
 }
 
 function ImportResultTableRow({ row, operationStatus }: { row: ImportResultRow; operationStatus: OperationStatus }) {
-    const rowStatus = getRowStatus(row, operationStatus);
+    const t = useStudioTranslation("importFromFile");
+    const rowStatus = getRowStatus(row, operationStatus, t);
     return (
         <tr className={classNames({ "import-result-nested": row.isNested })}>
             <td className={classNames("import-result-name", { "ps-4": row.isNested })}>
@@ -191,53 +196,67 @@ function ImportResultTableRow({ row, operationStatus }: { row: ImportResultRow; 
     );
 }
 
-function buildRows(progress: ImportProgress | null): ImportResultRow[] {
+function buildRows(progress: ImportProgress | null, t: StudioTranslate<"importFromFile">): ImportResultRow[] {
     if (!progress) {
         return [];
     }
     return [
-        { name: "Database Record", isNested: false, counts: progress.DatabaseRecord },
-        { name: "Documents", isNested: false, counts: progress.Documents },
-        { name: "Attachments", isNested: true, counts: progress.Documents?.Attachments, parent: progress.Documents },
-        { name: "Counters", isNested: true, counts: progress.Counters },
-        { name: "Time Series", isNested: true, counts: progress.TimeSeries },
-        { name: "Tombstones", isNested: true, counts: progress.Tombstones },
-        { name: "Revisions", isNested: false, counts: progress.RevisionDocuments },
+        { name: t("result.rows.databaseRecord"), isNested: false, counts: progress.DatabaseRecord },
+        { name: t("result.rows.documents"), isNested: false, counts: progress.Documents },
         {
-            name: "Attachments",
+            name: t("result.rows.attachments"),
+            isNested: true,
+            counts: progress.Documents?.Attachments,
+            parent: progress.Documents,
+        },
+        { name: t("result.rows.counters"), isNested: true, counts: progress.Counters },
+        { name: t("result.rows.timeSeries"), isNested: true, counts: progress.TimeSeries },
+        { name: t("result.rows.tombstones"), isNested: true, counts: progress.Tombstones },
+        { name: t("result.rows.revisions"), isNested: false, counts: progress.RevisionDocuments },
+        {
+            name: t("result.rows.attachments"),
             isNested: true,
             counts: progress.RevisionDocuments?.Attachments,
             parent: progress.RevisionDocuments,
         },
-        { name: "Conflicts", isNested: false, counts: progress.Conflicts },
-        { name: "Indexes", isNested: false, counts: progress.Indexes },
-        { name: "Identities", isNested: false, counts: progress.Identities },
-        { name: "Compare Exchange", isNested: false, counts: progress.CompareExchange },
-        { name: "Compare Exchange Tombstones", isNested: true, counts: progress.CompareExchangeTombstones },
-        { name: "Subscriptions", isNested: false, counts: progress.Subscriptions },
-        { name: "Time Series Deleted Ranges", isNested: false, counts: progress.TimeSeriesDeletedRanges },
+        { name: t("result.rows.conflicts"), isNested: false, counts: progress.Conflicts },
+        { name: t("result.rows.indexes"), isNested: false, counts: progress.Indexes },
+        { name: t("result.rows.identities"), isNested: false, counts: progress.Identities },
+        { name: t("result.rows.compareExchange"), isNested: false, counts: progress.CompareExchange },
+        {
+            name: t("result.rows.compareExchangeTombstones"),
+            isNested: true,
+            counts: progress.CompareExchangeTombstones,
+        },
+        { name: t("result.rows.subscriptions"), isNested: false, counts: progress.Subscriptions },
+        { name: t("result.rows.timeSeriesDeletedRanges"), isNested: false, counts: progress.TimeSeriesDeletedRanges },
     ].filter((row) => row.counts != null);
 }
 
 function getRowStatus(
     { counts, parent }: ImportResultRow,
-    operationStatus: OperationStatus
+    operationStatus: OperationStatus,
+    t: StudioTranslate<"importFromFile">
 ): { label: string; icon: JSX.Element; color?: ThemeColor } {
     if (counts.Skipped) {
-        return { label: "Skipped", icon: <Icon icon="skip" color="warning" />, color: "warning" };
+        return { label: t("result.rowStatus.skipped"), icon: <Icon icon="skip" color="warning" />, color: "warning" };
     }
     if (counts.Processed) {
         return counts.ErroredCount > 0
-            ? { label: "Processed with errors", icon: <Icon icon="warning" color="warning" />, color: "warning" }
-            : { label: "Processed", icon: <Icon icon="check" color="success" />, color: "success" };
+            ? {
+                  label: t("result.rowStatus.processedWithErrors"),
+                  icon: <Icon icon="warning" color="warning" />,
+                  color: "warning",
+              }
+            : { label: t("result.rowStatus.processed"), icon: <Icon icon="check" color="success" />, color: "success" };
     }
     if (operationStatus === "InProgress") {
         const isStarted = !!(counts.StartTime ?? parent?.StartTime);
         return isStarted
-            ? { label: "Processing", icon: <Spinner size="sm" className="me-2" /> }
-            : { label: "Pending", icon: <Icon icon="waiting" /> };
+            ? { label: t("result.rowStatus.processing"), icon: <Spinner size="sm" className="me-2" /> }
+            : { label: t("result.rowStatus.pending"), icon: <Icon icon="waiting" /> };
     }
-    return { label: "Not processed", icon: <Icon icon="cancel" color="danger" />, color: "danger" };
+    return { label: t("result.rowStatus.notProcessed"), icon: <Icon icon="cancel" color="danger" />, color: "danger" };
 }
 
 function getSkippedCount(counts: Counts): string {

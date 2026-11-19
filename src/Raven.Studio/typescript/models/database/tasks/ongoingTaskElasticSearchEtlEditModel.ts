@@ -2,6 +2,9 @@
 import ongoingTaskEditModel = require("models/database/tasks/ongoingTaskEditModel");
 import ongoingTaskElasticSearchEtlTransformationModel = require("models/database/tasks/ongoingTaskElasticSearchEtlTransformationModel");
 import ongoingTaskElasticSearchEtlIndexModel = require("models/database/tasks/ongoingTaskElasticSearchEtlIndexModel");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
 
 class ongoingTaskElasticSearchEtlEditModel extends ongoingTaskEditModel {
     connectionStringName = ko.observable<string>();
@@ -56,7 +59,7 @@ class ongoingTaskElasticSearchEtlEditModel extends ongoingTaskEditModel {
             validation: [
                 {
                     validator: () => this.elasticIndexes().length > 0,
-                    message: "Elasticsearch index is Not defined"
+                    message: t("elasticSearchEtl.indexNotDefined")
                 }
             ]
         });
@@ -65,7 +68,7 @@ class ongoingTaskElasticSearchEtlEditModel extends ongoingTaskEditModel {
             validation: [
                 {
                     validator: () => this.transformationScripts().length > 0,
-                    message: "Transformation Script is Not defined"
+                    message: t("validation.transformationScriptNotDefined")
                 }
             ]
         });

@@ -9,12 +9,14 @@ import { buildImportCurlCommand, ImportCommandType } from "./importFromFileUtils
 import { useImportRestrictions } from "./useImportRestrictions";
 import { useAppSelector } from "components/store";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface ImportCommandModalProps {
     onClose: () => void;
 }
 
 export default function ImportCommandModal({ onClose }: ImportCommandModalProps) {
+    const t = useStudioTranslation("importFromFile");
     const { control } = useFormContext<ImportFromFileFormData>();
     const formData = useWatch({ control });
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
@@ -35,11 +37,11 @@ export default function ImportCommandModal({ onClose }: ImportCommandModalProps)
         <Modal size="lg" show onHide={onClose} className="modal-border bulge-primary">
             <Modal.Header closeButton onCloseClick={onClose} className="pb-2">
                 <h3 className="mb-0">
-                    <Icon icon="console" color="primary" /> Import command
+                    <Icon icon="console" color="primary" /> {t("command.title")}
                 </h3>
             </Modal.Header>
             <Modal.Body className="pt-0">
-                <p className="text-muted mb-4">Select your shell and copy the command to import the database dump.</p>
+                <p className="text-muted mb-4">{t("command.description")}</p>
                 <div className="d-flex gap-1 mb-2">
                     {commandTypes.map((type) => (
                         <Button
@@ -56,7 +58,7 @@ export default function ImportCommandModal({ onClose }: ImportCommandModalProps)
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={onClose}>
-                    <Icon icon="close" /> Close
+                    <Icon icon="close" /> {t("close")}
                 </Button>
             </Modal.Footer>
         </Modal>

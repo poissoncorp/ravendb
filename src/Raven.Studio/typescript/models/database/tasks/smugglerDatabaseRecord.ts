@@ -3,6 +3,9 @@
 import popoverUtils = require("common/popoverUtils");
 import accessManager = require("common/shell/accessManager");
 import activeDatabaseTracker = require("common/shell/activeDatabaseTracker");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
 
 class smugglerDatabaseRecord {
     isAdminAccessOrAbove = ko.pureComputed(() => accessManager.default.adminAccessOrAboveForDatabase(activeDatabaseTracker.default.database()));
@@ -67,50 +70,50 @@ class smugglerDatabaseRecord {
             .forEach(selector => {
                 popoverUtils.longWithHover($(selector),
                     {
-                        content: `RavenDB Connection strings were not selected.`,
+                        content: t("smugglerDatabaseRecord.connectionStringsNotSelected.ravenDb"),
                         placement: 'right'
                     });
             });
 
         popoverUtils.longWithHover($(".js-warning-sql-etl"),
             {
-                content: `SQL Connection strings were not selected.`,
+                content: t("smugglerDatabaseRecord.connectionStringsNotSelected.sql"),
                 placement: 'right'
             });
 
         popoverUtils.longWithHover($(".js-warning-snowflake-etl"),
             {
-                content: `Snowflake Connection strings were not selected.`,
+                content: t("smugglerDatabaseRecord.connectionStringsNotSelected.snowflake"),
                 placement: 'right'
             });
 
         popoverUtils.longWithHover($(".js-warning-olap-etl"),
             {
-                content: `OLAP Connection strings were not selected.`,
+                content: t("smugglerDatabaseRecord.connectionStringsNotSelected.olap"),
                 placement: 'right'
             });
 
         popoverUtils.longWithHover($(".js-warning-elastic-search-etl"),
             {
-                content: `Elasticsearch Connection strings were not selected.`,
+                content: t("smugglerDatabaseRecord.connectionStringsNotSelected.elasticsearch"),
                 placement: 'right'
             });
 
         popoverUtils.longWithHover($(".js-warning-queue-etl"),
             {
-                content: `Queue Connection strings were not selected.`,
+                content: t("smugglerDatabaseRecord.connectionStringsNotSelected.queue"),
                 placement: 'right'
             });
         
         popoverUtils.longWithHover($(".js-warning-ai-connection-strings"),
             {
-                content: `AI Connection strings were not selected.`,
+                content: t("smugglerDatabaseRecord.connectionStringsNotSelected.ai"),
                 placement: 'right'
             });
         
         popoverUtils.longWithHover($(".js-warning-cdc-sink"),
             {
-                content: `SQL Connection strings were not selected.`,
+                content: t("smugglerDatabaseRecord.connectionStringsNotSelected.sql"),
                 placement: 'right'
             });
     }

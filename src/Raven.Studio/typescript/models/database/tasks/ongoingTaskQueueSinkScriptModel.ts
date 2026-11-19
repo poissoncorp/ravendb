@@ -1,5 +1,8 @@
 ﻿/// <reference path="../../../../typings/tsd.d.ts"/>
 import jsonUtil = require("common/jsonUtil");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
 
 class ongoingTaskQueueSinkScriptModel {
     
@@ -64,7 +67,7 @@ class ongoingTaskQueueSinkScriptModel {
             validation: [
                 {
                     validator: () => this.queues().length > 0,
-                    message: "At least one queue is required"
+                    message: t("queueSink.queueRequired")
                 }
             ]
         });

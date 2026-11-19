@@ -15,12 +15,17 @@ import {
     getVisibleNodes,
     ReplicationTaskSummaryProgress,
 } from "../partials/ExternalReplicationTaskDistribution";
-import { getSinkConnectionStatus, getSinkError, sinkConnectionStatusLabels } from "../partials/useReplicationHubSinks";
+import {
+    getSinkConnectionStatus,
+    getSinkConnectionStatusLabels,
+    getSinkError,
+} from "../partials/useReplicationHubSinks";
 import { ErrorModal } from "../partials/ErrorModal";
 import { Icon } from "components/common/Icon";
 import useBoolean from "components/hooks/useBoolean";
 import Button from "react-bootstrap/Button";
 import Collapse from "react-bootstrap/Collapse";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface ReplicationHubConnectedSinkPanelProps {
     data: OngoingTaskReplicationHubInfo;
@@ -30,6 +35,7 @@ interface ReplicationHubConnectedSinkPanelProps {
 
 export function ReplicationHubConnectedSinkPanel(props: ReplicationHubConnectedSinkPanelProps) {
     const { data, isExpanded, toggleExpanded } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     const visibleNodes = getVisibleNodes(data);
     const connectionStatus = getSinkConnectionStatus(data);
@@ -39,14 +45,17 @@ export function ReplicationHubConnectedSinkPanel(props: ReplicationHubConnectedS
         <RichPanel className="well">
             <RichPanelHeader>
                 <RichPanelInfo>
-                    <RichPanelName size="sm" title={"Sink database: " + data.shared.destinationDatabase}>
+                    <RichPanelName
+                        size="sm"
+                        title={t("connectedSink.nameTitle", { database: data.shared.destinationDatabase })}
+                    >
                         {data.shared.destinationDatabase}
                     </RichPanelName>
                 </RichPanelInfo>
                 <RichPanelActions>
                     <span>
                         <Icon icon="pull-replication-agent" />
-                        Replication Sink
+                        {t("taskType.replicationSink")}
                     </span>
                     <OngoingTaskResponsibleNode task={data} />
                 </RichPanelActions>
@@ -56,16 +65,22 @@ export function ReplicationHubConnectedSinkPanel(props: ReplicationHubConnectedS
                     <Button
                         variant="secondary"
                         onClick={toggleExpanded}
-                        title={`${isExpanded ? "Collapse" : "Expand"} distribution details for ${data.shared.destinationDatabase}`}
+                        title={t("connectedSink.toggleDetailsTitle", {
+                            context: isExpanded ? "collapse" : "expand",
+                            database: data.shared.destinationDatabase,
+                        })}
                         className="btn-toggle-panel rounded-pill"
                     >
                         <Icon icon={isExpanded ? "fold" : "unfold"} margin="m-0" />
                     </Button>
                 </RichPanelDetailItem>
-                <DestinationUrlItem destinationUrl={data.shared.destinationUrl} label="Actual Sink URL" />
+                <DestinationUrlItem
+                    destinationUrl={data.shared.destinationUrl}
+                    label={t("connectedSink.actualSinkUrl")}
+                />
                 {connectionStatus && (
-                    <RichPanelDetailItem label="Replication Status">
-                        {sinkConnectionStatusLabels[connectionStatus]}
+                    <RichPanelDetailItem label={t("connectedSink.replicationStatus")}>
+                        {getSinkConnectionStatusLabels(t)[connectionStatus]}
                     </RichPanelDetailItem>
                 )}
                 {error && <SinkErrorItem error={error} />}
@@ -85,6 +100,7 @@ export function ReplicationHubConnectedSinkPanel(props: ReplicationHubConnectedS
 }
 
 function SinkErrorItem({ error }: { error: string }) {
+    const t = useStudioTranslation("ongoingTasks");
     const { value: isErrorModalOpen, toggle: toggleErrorModal } = useBoolean(false);
 
     return (
@@ -93,10 +109,10 @@ function SinkErrorItem({ error }: { error: string }) {
                 variant="link"
                 onClick={toggleErrorModal}
                 className="d-flex gap-1 align-items-center p-0"
-                title="Show error details"
+                title={t("connectedSink.errorDetailsTitle")}
             >
                 <Icon icon="warning" color="danger" margin="m-0" />
-                <span className="text-danger">Error</span>
+                <span className="text-danger">{t("error")}</span>
             </Button>
             {isErrorModalOpen && <ErrorModal toggleErrorModal={toggleErrorModal} error={error} />}
         </RichPanelDetailItem>

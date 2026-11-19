@@ -13,6 +13,8 @@ import {
     getVisibleNodes,
     ReplicationProgressState,
 } from "./ExternalReplicationTaskDistribution";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import type { StudioTranslate } from "common/i18n/resources";
 import OngoingTaskConnectionStatus = Raven.Client.Documents.Operations.OngoingTasks.OngoingTaskConnectionStatus;
 
 export type SinkSortField = "databaseName" | "url" | "status" | "node";
@@ -37,29 +39,37 @@ interface SinkSortFieldInfo {
     icon: IconName;
 }
 
-export const sinkSortFields: SinkSortFieldInfo[] = [
-    { field: "databaseName", label: "Sink database name", icon: "database" },
-    { field: "url", label: "Actual sink URL", icon: "server" },
-    { field: "status", label: "Replication status", icon: "connected" },
-    { field: "node", label: "Node processing the sink", icon: "node" },
-];
+export function getSinkSortFields(t: StudioTranslate<"ongoingTasks">): SinkSortFieldInfo[] {
+    return [
+        { field: "databaseName", label: t("sinkFilters.databaseName"), icon: "database" },
+        { field: "url", label: t("sinkFilters.url"), icon: "server" },
+        { field: "status", label: t("sinkFilters.status"), icon: "connected" },
+        { field: "node", label: t("sinkFilters.node"), icon: "node" },
+    ];
+}
 
 const defaultSinkSort: SinkSort = { field: "status", direction: "asc" };
 
-const sinkReplicationStateLabels: Record<ReplicationProgressState, string> = {
-    UpToDate: "Up to date",
-    Running: "Running",
-    Disabled: "Disabled",
-    Unknown: "Unknown",
-};
+function getSinkReplicationStateLabels(t: StudioTranslate<"ongoingTasks">): Record<ReplicationProgressState, string> {
+    return {
+        UpToDate: t("sinkReplicationState.upToDate"),
+        Running: t("sinkReplicationState.running"),
+        Disabled: t("sinkReplicationState.disabled"),
+        Unknown: t("sinkReplicationState.unknown"),
+    };
+}
 
-export const sinkConnectionStatusLabels: Record<OngoingTaskConnectionStatus, string> = {
-    None: "None",
-    Active: "Active",
-    NotActive: "Not active",
-    Reconnect: "Reconnect",
-    NotOnThisNode: "Not on this node",
-};
+export function getSinkConnectionStatusLabels(
+    t: StudioTranslate<"ongoingTasks">
+): Record<OngoingTaskConnectionStatus, string> {
+    return {
+        None: t("sinkConnectionStatus.none"),
+        Active: t("sinkConnectionStatus.active"),
+        NotActive: t("sinkConnectionStatus.notActive"),
+        Reconnect: t("sinkConnectionStatus.reconnect"),
+        NotOnThisNode: t("sinkConnectionStatus.notOnThisNode"),
+    };
+}
 
 const emptyFilters: SinkFilters = {
     databaseName: "",
@@ -79,6 +89,7 @@ function toFilterOptions<T extends string>(labels: Record<T, string>) {
 }
 
 function getSinkFilterCategories(
+    t: StudioTranslate<"ongoingTasks">,
     filters: SinkFilters,
     updateFilters: (partialFilters: Partial<SinkFilters>) => void,
     nodeTags: string[]
@@ -88,58 +99,58 @@ function getSinkFilterCategories(
     return [
         {
             key: "databaseName",
-            label: "Sink database name",
+            label: t("sinkFilters.databaseName"),
             icon: "database",
             type: "text",
             value: filters.databaseName,
-            placeholder: "e.g. Orders",
+            placeholder: t("sinkFilters.databaseNamePlaceholder"),
             onChange: (databaseName) => updateFilters({ databaseName }),
         },
         {
             key: "state",
-            label: "Replication state",
+            label: t("sinkFilters.state"),
             icon: "changes",
             type: "checkboxList",
-            options: toFilterOptions(sinkReplicationStateLabels),
+            options: toFilterOptions(getSinkReplicationStateLabels(t)),
             selectedValues: filters.states,
             onChange: (states) => updateFilters({ states }),
         } satisfies CheckboxListFilterCategory<ReplicationProgressState>,
         {
             key: "status",
-            label: "Replication status",
+            label: t("sinkFilters.status"),
             icon: "connected",
             type: "checkboxList",
-            options: toFilterOptions(sinkConnectionStatusLabels),
+            options: toFilterOptions(getSinkConnectionStatusLabels(t)),
             selectedValues: filters.statuses,
             onChange: (statuses) => updateFilters({ statuses }),
         } satisfies CheckboxListFilterCategory<OngoingTaskConnectionStatus>,
         {
             key: "hasErrors",
-            label: "Has errors",
+            label: t("sinkFilters.hasErrors"),
             icon: "warning",
             type: "singleChoice",
             options: [
-                { value: true, label: "Yes" },
-                { value: false, label: "No" },
+                { value: true, label: t("yes") },
+                { value: false, label: t("no") },
             ],
             selectedValue: filters.hasErrors,
             onChange: (hasErrors) => updateFilters({ hasErrors }),
         } satisfies SingleChoiceFilterCategory<boolean>,
         {
             key: "url",
-            label: "Actual sink URL",
+            label: t("sinkFilters.url"),
             icon: "server",
             type: "text",
             value: filters.url,
-            placeholder: "e.g. sink.example.com",
+            placeholder: t("sinkFilters.urlPlaceholder"),
             onChange: (url) => updateFilters({ url }),
         },
         {
             key: "node",
-            label: "Node processing the sink",
+            label: t("sinkFilters.node"),
             icon: "node",
             type: "checkboxList",
-            options: nodeTagOptions.map((x) => ({ value: x, label: `Node ${x}` })),
+            options: nodeTagOptions.map((x) => ({ value: x, label: t("sinkFilters.nodeOption", { nodeTag: x }) })),
             selectedValues: filters.nodeTags,
             onChange: (selectedNodeTags) => updateFilters({ nodeTags: selectedNodeTags }),
         },
@@ -234,6 +245,7 @@ function compareByField(a: OngoingTaskReplicationHubInfo, b: OngoingTaskReplicat
 }
 
 export function useReplicationHubSinks(connectedSinks: OngoingTaskReplicationHubInfo[]) {
+    const t = useStudioTranslation("ongoingTasks");
     const [filters, setFilters] = useState<SinkFilters>(emptyFilters);
     const [sort, setSort] = useState<SinkSort>(defaultSinkSort);
     const [expandedSinkKeys, setExpandedSinkKeys] = useState<string[]>([]);
@@ -261,7 +273,7 @@ export function useReplicationHubSinks(connectedSinks: OngoingTaskReplicationHub
         setFilters((current) => ({ ...current, ...partialFilters }));
     };
 
-    const filterCategories = getSinkFilterCategories(filters, updateFilters, nodeTags);
+    const filterCategories = getSinkFilterCategories(t, filters, updateFilters, nodeTags);
     const hasActiveFilters = filterCategories.some(isFilterCategoryActive);
     const totalSinksCount = connectedSinks.length;
 

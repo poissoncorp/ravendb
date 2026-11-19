@@ -3,6 +3,9 @@ import appUrl = require("common/appUrl");
 import durandalRouter = require("plugins/router");
 import shardingContext = require("viewmodels/common/sharding/shardingContext");
 import viewModelBase = require("viewmodels/viewModelBase");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("importParent");
 
 class importParent extends viewModelBase {
 
@@ -28,7 +31,7 @@ class importParent extends viewModelBase {
                 {
                     route: 'databases/tasks/import/migrateRavenDB',
                     moduleId: this.wrapModuleId(require('viewmodels/database/tasks/migrateRavenDbDatabase')),
-                    title: 'Import database from another RavenDB',
+                    title: t("routes.migrateRavenDb"),
                     nav: false,
                     dynamicHash: appUrl.forCurrentDatabase().migrateRavenDbDatabaseUrl,
                     requiredAccess: "DatabaseReadWrite"
@@ -36,7 +39,7 @@ class importParent extends viewModelBase {
                 {
                     route: 'databases/tasks/import/csv',
                     moduleId: this.wrapModuleId(require('viewmodels/database/tasks/importCollectionFromCsv')),
-                    title: 'Import collection from CSV file',
+                    title: t("routes.importCsv"),
                     nav: false,
                     dynamicHash: appUrl.forCurrentDatabase().importCollectionFromCsv,
                     requiredAccess: "DatabaseReadWrite"
@@ -44,7 +47,7 @@ class importParent extends viewModelBase {
                 {
                     route: 'databases/tasks/import/sql',
                     moduleId: this.wrapModuleId(require('viewmodels/database/tasks/importDatabaseFromSql')),
-                    title: 'Import from SQL Database',
+                    title: t("routes.importSql"),
                     nav: false,
                     dynamicHash: appUrl.forCurrentDatabase().importDatabaseFromSql,
                     requiredAccess: "DatabaseReadWrite"
@@ -52,7 +55,7 @@ class importParent extends viewModelBase {
                 {
                     route: 'databases/tasks/import/migrate',
                     moduleId: this.wrapModuleId(require('viewmodels/database/tasks/migrateDatabase')),
-                    title: 'Migrate database',
+                    title: t("routes.migrate"),
                     nav: false,
                     dynamicHash: appUrl.forCurrentDatabase().migrateDatabaseUrl,
                     requiredAccess: "DatabaseReadWrite"

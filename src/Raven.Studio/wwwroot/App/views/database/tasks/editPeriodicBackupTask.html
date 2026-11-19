@@ -15,39 +15,39 @@
     </div>
     <div class="toolbar" data-bind="with: $root">
         <span data-placement="right" data-toggle="tooltip" data-html="true" data-animation="true"
-                    data-bind="tooltipText: $root.hasPeriodicBackup ? null : `<div class='padding'>Your current license does not support this feature.<br /><a href='https://ravendb.net/l/FLDLO4' target='_blank'>Upgrade your plan</a> to access.</div>`">
+                    data-bind="tooltipText: $root.hasPeriodicBackup ? null : $root.licenseRestrictedTooltip">
             <button data-bind="click: onSubmit, enable: dirtyFlag().isDirty" type="submit" class="btn btn-primary">
-                <i class="icon-save"></i><span data-bind="text: configuration().backupOperation === 'manual' ? 'Backup Now' : 'Save'"></span>
+                <i class="icon-save"></i><span data-bind="i18n: configuration().backupOperation === 'manual' ? 'editPeriodicBackupTask:backupNow' : 'common:save'"></span>
             </button>
         </span>
         <button data-bind="click: cancelOperation" class="btn btn-default">
-            <i class="icon-cancel"></i><span>Cancel</span>
+            <i class="icon-cancel"></i><span data-bind="i18n: 'common:cancel'"></span>
         </button>
     </div>
     <div data-bind="css: { 'pe-none item-disabled': !$root.hasPeriodicBackup && backupOperation === 'periodic' }">
         <div class="panel">
             <div class="padding">
                 <div class="row margin-bottom" data-bind="validationElement: name, if: backupOperation === 'periodic'">
-                    <label class="control-label col-sm-4 col-lg-2">Task Name</label>
+                    <label class="control-label col-sm-4 col-lg-2" data-bind="i18n: 'editPeriodicBackupTask:task.nameLabel'"></label>
                     <div class="col-sm-4">
-                        <input data-bind="textInput: name" id="taskName" type="text" class="form-control" placeholder="Enter a descriptive name for the Backup Task (optional)" />
+                        <input data-bind="textInput: name, i18nAttr: { placeholder: 'editPeriodicBackupTask:task.namePlaceholder' }" id="taskName" type="text" class="form-control" />
                     </div>
                 </div>
                 <div class="row margin-bottom" data-bind="if: backupOperation === 'periodic'">
-                    <label class="control-label col-sm-4 col-lg-2">Task State</label>
+                    <label class="control-label col-sm-4 col-lg-2" data-bind="i18n: 'editPeriodicBackupTask:task.stateLabel'"></label>
                     <div class="col-sm-4">
                         <button type="button" class="btn btn-block dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false">
                             <span data-bind="text: stateText()"></span>
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a href="#" data-bind="click: _.partial($root.setState, 'Enabled')"><span>Enabled</span></a></li>
-                            <li><a href="#" data-bind="click: _.partial($root.setState, 'Disabled')"><span>Disabled</span></a></li>
+                            <li><a href="#" data-bind="click: _.partial($root.setState, 'Enabled')"><span data-bind="i18n: 'editPeriodicBackupTask:task.stateEnabled'"></span></a></li>
+                            <li><a href="#" data-bind="click: _.partial($root.setState, 'Disabled')"><span data-bind="i18n: 'editPeriodicBackupTask:task.stateDisabled'"></span></a></li>
                         </ul>
                     </div>
                 </div>
             <div class="row margin-bottom">
-                <label class="control-label col-sm-4 col-lg-2">Backup Upload Mode</label>
+                <label class="control-label col-sm-4 col-lg-2" data-bind="i18n: 'editPeriodicBackupTask:task.backupUploadMode'"></label>
                 <div class="col-sm-4">
                     <div class="dropdown btn-block">
                         <button class="btn btn-block dropdown-toggle text-left" type="button" data-toggle="dropdown">
@@ -61,17 +61,17 @@
                 </div>
             </div>
                 <div class="row margin-bottom" data-bind="validationElement: backupType">
-                    <label class="control-label col-sm-4 col-lg-2">Backup Type <i class="required"></i> <small><i class="backup-info icon-info text-info"></i></small></label>
+                    <label class="control-label col-sm-4 col-lg-2"><span data-bind="i18n: 'editPeriodicBackupTask:task.backupType'"></span> <i class="required"></i> <small><i class="backup-info icon-info text-info"></i></small></label>
                     <div class="col-sm-4" data-bind="validationOptions: { insertMessages: false }">
                         <div class="dropdown btn-block">
                             <button class="btn btn-block dropdown-toggle text-left" type="button" data-toggle="dropdown" data-bind="disable: $root.db.isSharded()">
-                                <span data-bind="text: backupType() || 'Select backup type..'"></span>
+                                <span data-bind="text: backupType() ? $root.backupTypeText(backupType()) : $root.backupTypePlaceholder"></span>
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" data-bind="foreach: backupOptions">
                                 <li class="position-relative">
                                     <a href="#" data-bind="css: { 'item-disabled pe-none': !$root.hasSnapshotBackups && $data === 'Snapshot' }, click: $parent.useBackupType.bind($parent, $data)">
-                                        <span data-bind="text: $data"></span>
+                                        <span data-bind="text: $root.backupTypeText($data)"></span>
                                         <!-- ko if: !$root.hasSnapshotBackups && $data === 'Snapshot' -->
                                         <span class="badge license-restricted-badge enterprise margin-left-xxs">Enterprise</span>
                                         <!-- /ko -->
@@ -79,7 +79,7 @@
                                 </li>
                             </ul>
                             <div class="bg-warning padding-left-xxs" data-bind="visible: $root.db.isSharded()">
-                                <small>Snapshot is not supported in <i class="icon-sharding text-shard"></i> Sharded Databases</small>
+                                <small data-bind="html: $root.snapshotNotSupportedInShardedHtml"></small>
                             </div>
                         </div>
                         <span class="help-block" data-bind="validationMessage: backupType"></span>
@@ -87,7 +87,7 @@
                 </div>
                 <div data-bind="collapse: isSnapshot, with: snapshot">
                     <div class="row margin-bottom">
-                    <label class="control-label col-sm-4 col-lg-2">Compression Algorithm</label>
+                    <label class="control-label col-sm-4 col-lg-2" data-bind="i18n: 'editPeriodicBackupTask:task.compressionAlgorithm'"></label>
                         <div class="col-sm-4">
                             <div class="dropdown btn-block">
                                 <button class="btn btn-block dropdown-toggle text-left" type="button" data-toggle="dropdown">
@@ -101,7 +101,7 @@
                     </div>
                 </div>
                 <div class="row margin-bottom">
-                    <label class="control-label col-sm-4 col-lg-2">Compression Level</label>
+                    <label class="control-label col-sm-4 col-lg-2" data-bind="i18n: 'editPeriodicBackupTask:task.compressionLevel'"></label>
                     <div class="col-sm-4">
                         <div class="dropdown btn-block">
                             <button class="btn btn-block dropdown-toggle text-left" type="button" data-toggle="dropdown">
@@ -124,10 +124,10 @@
                     <div class="row">
                         <div class="col-sm-4 col-sm-offset-4 col-lg-offset-2">
                             <div class="toggle">
-                                <div class="toggle" data-placement="right" data-toggle="tooltip" data-bind="attr: { title: $root.db.isSharded() ? 'Not supported in sharded databases' : 'Toggle on to set a responsible node for the task'  }"
+                                <div class="toggle" data-placement="right" data-toggle="tooltip" data-bind="i18nAttr: { title: $root.db.isSharded() ? 'editPeriodicBackupTask:task.responsibleNodeShardedTitle' : 'editPeriodicBackupTask:task.responsibleNodeTitle' }"
                                      data-animation="true">
                                     <input id="responsibleNode" type="checkbox" data-bind="checked: manualChooseMentor, disable: $root.possibleMentors().length === 0 || $root.db.isSharded()">
-                                    <label for="responsibleNode">Set responsible node</label>
+                                    <label for="responsibleNode" data-bind="i18n: 'editPeriodicBackupTask:task.responsibleNodeToggle'"></label>
                                 </div>
                             </div>
                         </div>
@@ -139,17 +139,17 @@
                     <div class="row">
                         <div class="col-sm-4 col-sm-offset-4 col-lg-offset-2">
                             <div class="toggle">
-                                <div class="toggle" data-placement="right" data-toggle="tooltip" title="This setting is used to limit the impact of backup operations on the database performance.">
+                                <div class="toggle" data-placement="right" data-toggle="tooltip" data-bind="i18nAttr: { title: 'editPeriodicBackupTask:task.maxReadOpsTitle' }">
                                     <input id="isSetMaxReadOpsPerSecond" type="checkbox" data-bind="checked: isSetMaxReadOpsPerSecond">
-                                    <label for="isSetMaxReadOpsPerSecond">Set max read operations per second</label>
+                                    <label for="isSetMaxReadOpsPerSecond" data-bind="i18n: 'editPeriodicBackupTask:task.maxReadOpsToggle'"></label>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="row" data-bind="validationElement: maxReadOpsPerSecond, collapse: isSetMaxReadOpsPerSecond">
-                        <label class="control-label col-sm-4 col-lg-2">Max Read Operations Per Second</label>
+                        <label class="control-label col-sm-4 col-lg-2" data-bind="i18n: 'editPeriodicBackupTask:task.maxReadOpsLabel'"></label>
                         <div class="col-sm-4">
-                            <input type="number" data-bind="numericInput: maxReadOpsPerSecond" class="form-control" placeholder="Enter the max read operations per second" min="1" />
+                            <input type="number" data-bind="numericInput: maxReadOpsPerSecond, i18nAttr: { placeholder: 'editPeriodicBackupTask:task.maxReadOpsPlaceholder' }" class="form-control" min="1" />
                         </div>
                     </div>
                 </div>
@@ -158,10 +158,10 @@
                         <div class="col-sm-4 col-sm-offset-4 col-lg-offset-2">
                             <div class="toggle">
                                 <div class="toggle" data-placement="right" data-toggle="tooltip"
-                                     title="Back up index definitions only. Indexes will be rebuilt from these definitions upon Restore."
+                                     data-bind="i18nAttr: { title: 'editPeriodicBackupTask:task.excludeIndexesTitle' }"
                                      data-animation="true">
                                     <input id="excludeIndexes" type="checkbox" data-bind="checked: excludeIndexes">
-                                    <label for="excludeIndexes">Exclude indexes data</label>
+                                    <label for="excludeIndexes" data-bind="i18n: 'editPeriodicBackupTask:task.excludeIndexes'"></label>
                                 </div>
                             </div>
                         </div>
@@ -170,25 +170,25 @@
             </div>
         </div>
         <div data-bind="if: backupOperation === 'periodic'">
-            <h3 class="margin-bottom margin-bottom-xs">Schedule</h3>
+            <h3 class="margin-bottom margin-bottom-xs" data-bind="i18n: 'editPeriodicBackupTask:schedule.heading'"></h3>
             <div class="panel">
                 <div class="padding">
                     <div class="row margin-bottom" data-bind="validationElement: fullBackupFrequency">
-                        <label class="control-label col-xs-12 col-sm-4 col-lg-2">Full</label>
+                        <label class="control-label col-xs-12 col-sm-4 col-lg-2" data-bind="i18n: 'editPeriodicBackupTask:schedule.full'"></label>
                         <div class="col-xs-6 col-sm-4">
                             <div class="toggle" data-bind="validationOptions: { insertMessages: false }">
                                 <input id="fullBackupToggle" type="checkbox" data-bind="checked: fullBackupEnabled">
-                                <label for="fullBackupToggle">Enable full backup</label>
+                                <label for="fullBackupToggle" data-bind="i18n: 'editPeriodicBackupTask:schedule.enableFull'"></label>
                             </div>
                             <div data-bind="compose: { model: $root.fullBackupCronEditor }, visible: fullBackupEnabled"></div>
                         </div>
                     </div>
                     <div class="row margin-bottom" data-bind="validationElement: incrementalBackupFrequency">
-                        <label class="control-label col-xs-12 col-sm-4 col-lg-2">Incremental</label>
+                        <label class="control-label col-xs-12 col-sm-4 col-lg-2" data-bind="i18n: 'editPeriodicBackupTask:schedule.incremental'"></label>
                         <div class="col-xs-6 col-sm-4">
                             <div class="toggle" data-bind="validationOptions: { insertMessages: false }">
                                 <input id="incrementalBackupToggle" type="checkbox" data-bind="checked: incrementalBackupEnabled">
-                                <label for="incrementalBackupToggle">Enable incremental backup</label>
+                                <label for="incrementalBackupToggle" data-bind="i18n: 'editPeriodicBackupTask:schedule.enableIncremental'"></label>
                             </div>
                             <div data-bind="validationElement: incrementalBackupEnabled">
                                 <div class="help-block" data-bind="validationMessage: incrementalBackupEnabled"></div>
@@ -200,18 +200,18 @@
             </div>
         </div>
         <div data-bind="if: backupOperation === 'periodic'">
-            <h3 class="margin-bottom margin-bottom-xs">Retention Policy</h3>
+            <h3 class="margin-bottom margin-bottom-xs" data-bind="i18n: 'editPeriodicBackupTask:retention.heading'"></h3>
             <div class="panel" data-bind="with: retentionPolicy">
                 <div class="padding">
                     <div class="toggle">
                         <input id="limit-backups-by-age" type="checkbox" data-bind="checked: retentionPolicyEnabled">
-                        <label for="limit-backups-by-age">Limit # of backups by age</label>
+                        <label for="limit-backups-by-age" data-bind="i18n: 'editPeriodicBackupTask:retention.limitByAge'"></label>
                     </div>
                     <div class="row collapse" data-bind="collapse: retentionPolicyEnabled">
                         <div class="col-sm-8 col-lg-6 margin-top margin-bottom">
                             <div class="row" data-bind="validationElement: minimumBackupAgeToKeep">
                                 <label class="control-label col-xs-12 col-sm-6 col-lg-4">
-                                    Minimum retention time <small><i class="backup-age-info icon-info text-info"></i></small>
+                                    <span data-bind="i18n: 'editPeriodicBackupTask:retention.minimumRetentionTime'"></span> <small><i class="backup-age-info icon-info text-info"></i></small>
                                 </label>
                                 <div class="col-xs-12 col-sm-6 col-lg-8">
                                     <input type="text" class="form-control" data-bind="durationPicker: minimumBackupAgeToKeep, durationPickerOptions: { showDays: true }" />
@@ -236,13 +236,13 @@
                 </div>
             </div>
         </div>
-        <h3 class="margin-bottom margin-bottom-xs">Encryption</h3>
+        <h3 class="margin-bottom margin-bottom-xs" data-bind="i18n: 'editPeriodicBackupTask:encryption.heading'"></h3>
         <div class="panel" data-bind="with: encryptionSettings, css: { 'item-disabled pe-none': !$root.hasPeriodicBackup && backupOperation === 'manual' }">
             <div class="padding">
                 <div class="flex-horizontal" data-bind="validationElement: enabled">
                     <div class="toggle" data-bind="validationOptions: { insertMessages: false }">
                         <input id="toggle-encryption" type="checkbox" data-bind="checked: enabled">
-                        <label for="toggle-encryption">Encrypt backup</label>
+                        <label for="toggle-encryption" data-bind="i18n: 'editPeriodicBackupTask:encryption.encryptBackup'"></label>
                     </div>
                     <span class="badge license-restricted-badge professional" data-bind="if: !$root.hasPeriodicBackup && $parent.backupOperation === 'manual'">Professional +</span>
                     <span class="help-block margin-left" data-bind="validationMessage: enabled"></span>
@@ -251,20 +251,20 @@
                     <div class="flex-horizontal" data-bind="validationElement: allowUnencryptedBackupForEncryptedDatabase">
                         <div class="toggle margin-right" data-bind="validationOptions: { insertMessages: false }">
                             <input id="toggle-unencrypted-backup" type="checkbox" data-bind="checked: allowUnencryptedBackupForEncryptedDatabase">
-                            <label for="toggle-unencrypted-backup">Allow unencrypted backup for encrypted database</label>
+                            <label for="toggle-unencrypted-backup" data-bind="i18n: 'editPeriodicBackupTask:encryption.allowUnencrypted'"></label>
                         </div>
                         <span class="help-block" data-bind="validationMessage: allowUnencryptedBackupForEncryptedDatabase"></span>
                     </div>
                 </div>
                 <div data-bind="collapse: showKeySourceDropdown()">
                     <div class="row margin-bottom" data-bind="validationElement: mode">
-                        <label class="control-label col-sm-4 col-lg-2">Encryption Mode<i class="required"></i></label>
+                        <label class="control-label col-sm-4 col-lg-2"><span data-bind="i18n: 'editPeriodicBackupTask:encryption.modeLabel'"></span><i class="required"></i></label>
                         <div class="col-sm-4" data-bind="validationOptions: { insertMessages: false }">
                             <div class="dropdown btn-block has-disable-reason"
                                  data-bind="attr: { 'data-original-title': enableKeySourceDropdown() ? '' : keySourceDropdownTitle }" data-placement="bottom">
                                 <button class="btn btn-block dropdown-toggle text-left" type="button" data-toggle="dropdown" title=""
                                         data-bind="enable: enableKeySourceDropdown, attr: { 'title': keySourceDropdownTitle }">
-                                    <span data-bind="text: labelFor(mode()) || 'Select encryption key type..'"></span>
+                                    <span data-bind="text: labelFor(mode()) || $root.encryptionModePlaceholder"></span>
                                     <span class="caret"></span>
                                 </button>
                                 <ul class="dropdown-menu" data-bind="foreach: encryptionModes">
@@ -277,16 +277,16 @@
                 </div>
                 <div data-bind="collapse: showOriginalKeySection">
                     <div class="row">
-                        <label class="control-label col-sm-4 col-lg-2">Current Encryption Key</label>
+                        <label class="control-label col-sm-4 col-lg-2" data-bind="i18n: 'editPeriodicBackupTask:encryption.currentKey'"></label>
                         <div class="col-sm-4">
-                            <input type="text" data-bind="textInput: originalKey" class="form-control margin-bottom" disabled title="This key is currently in use"/>
+                            <input type="text" data-bind="textInput: originalKey, i18nAttr: { title: 'editPeriodicBackupTask:encryption.currentKeyTitle' }" class="form-control margin-bottom" disabled/>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-sm-4 col-sm-offset-4 col-lg-offset-2">
                             <div class="toggle margin-bottom">
                                 <input id="toggleChangeKey" type="checkbox" data-bind="checked: changeKeyRequest">
-                                <label for="toggleChangeKey">Change encryption key</label>
+                                <label for="toggleChangeKey" data-bind="i18n: 'editPeriodicBackupTask:encryption.changeKey'"></label>
                             </div>
                         </div>
                     </div>
@@ -295,8 +295,8 @@
                     <div class="row">
                         <div class="col-sm-12 col-lg-6">
                             <div>
-                                <h3 data-bind="visible: !changeKeyRequest()">Encryption Key Configuration</h3>
-                                <h3 data-bind="visible: changeKeyRequest">Select New Encryption Key</h3>
+                                <h3 data-bind="visible: !changeKeyRequest(), i18n: 'editPeriodicBackupTask:encryption.keyConfigurationHeading'"></h3>
+                                <h3 data-bind="visible: changeKeyRequest, i18n: 'editPeriodicBackupTask:encryption.selectNewKeyHeading'"></h3>
                             </div>
                             <hr />
                             <div data-bind="with: encryptionSection">

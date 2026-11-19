@@ -13,8 +13,11 @@ import { useMemo } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import { Icon } from "components/common/Icon";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function EditCdcSinkTaskLinkedTableEditor({ path }: { path: LinkedTablePath }) {
+    const t = useStudioTranslation("editCdcSinkTask");
     const { control } = useFormContext<EditCdcSinkTaskFormData>();
     const linkedTable = useWatch({ control, name: path });
     const rootTables = useWatch({ control, name: "tables" });
@@ -38,28 +41,28 @@ export default function EditCdcSinkTaskLinkedTableEditor({ path }: { path: Linke
             ))}
             <div className="grid mb-3">
                 <FormGroup className="g-col-6" marginClass="m-0">
-                    <FormLabel>Source schema</FormLabel>
+                    <FormLabel>{t("tableEditor.sourceSchema")}</FormLabel>
                     <FormSelectAutocomplete
                         control={control}
                         name={`${path}.sourceTableSchema`}
                         options={sourceSchemaOptions}
-                        placeholder="Select or enter source schema"
+                        placeholder={t("tableEditor.sourceSchemaPlaceholder")}
                     />
                 </FormGroup>
                 <FormGroup className="g-col-6" marginClass="m-0">
-                    <FormLabel>Source table</FormLabel>
+                    <FormLabel>{t("tableEditor.sourceTable")}</FormLabel>
                     <FormSelectAutocomplete
                         control={control}
                         name={`${path}.sourceTableName`}
                         options={sourceTableOptions}
                         afterSelect={handleSourceTableChange}
-                        placeholder="Select or enter source table"
+                        placeholder={t("tableEditor.sourceTablePlaceholder")}
                     />
                 </FormGroup>
                 <FormGroup className="g-col-6" marginClass="m-0">
                     <FormLabel>
-                        Target property
-                        <PopoverWithHoverWrapper message="The RavenDB document field that will hold the reference to the linked (related) document.">
+                        {t("tableEditor.targetProperty")}
+                        <PopoverWithHoverWrapper message={t("tableEditor.linked.targetPropertyInfo")}>
                             <Icon icon="info-new" margin="ms-1" />
                         </PopoverWithHoverWrapper>
                     </FormLabel>
@@ -67,15 +70,14 @@ export default function EditCdcSinkTaskLinkedTableEditor({ path }: { path: Linke
                 </FormGroup>
                 <FormGroup className="g-col-6" marginClass="m-0">
                     <FormLabel>
-                        Linked collection
+                        {t("tableEditor.linked.linkedCollection")}
                         <PopoverWithHoverWrapper
                             message={
-                                <>
-                                    The RavenDB collection name for the related documents.
-                                    <br />
-                                    The related document ID is derived from this collection name and the join column
-                                    values.
-                                </>
+                                <StudioTrans
+                                    ns="editCdcSinkTask"
+                                    i18nKey="tableEditor.linked.linkedCollectionInfo"
+                                    components={{ br: <br /> }}
+                                />
                             }
                         >
                             <Icon icon="info-new" margin="ms-1" />
@@ -87,13 +89,13 @@ export default function EditCdcSinkTaskLinkedTableEditor({ path }: { path: Linke
             <FormStringValueList
                 title={
                     <>
-                        Join columns
-                        <PopoverWithHoverWrapper message="The foreign key columns used to join this linked table to the parent table. Their values, combined with the linked collection name, form the related document ID.">
+                        {t("tableEditor.joinColumns")}
+                        <PopoverWithHoverWrapper message={t("tableEditor.linked.joinColumnsInfo")}>
                             <Icon icon="info-new" margin="ms-1" />
                         </PopoverWithHoverWrapper>
                     </>
                 }
-                addButtonLabel="Add join column"
+                addButtonLabel={t("tableEditor.addJoinColumn")}
                 control={control}
                 name={`${path}.joinColumns`}
                 fieldNameAccessor={(idx) => `${path}.joinColumns.${idx}.value`}

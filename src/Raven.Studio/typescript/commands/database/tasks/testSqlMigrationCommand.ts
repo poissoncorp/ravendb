@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksCommands");
 
 class testSqlMigrationCommand extends commandBase {
     
@@ -12,7 +15,7 @@ class testSqlMigrationCommand extends commandBase {
         const url = endpoints.databases.sqlMigration.adminSqlMigrationTest;
         return this.post<operationIdDto>(url, JSON.stringify(this.dto), this.db)
             .fail((response: JQueryXHR) => {
-                this.reportError(`Failed to perform test`, response.responseText, response.statusText);
+                this.reportError(t("sqlMigrationTestFailed"), response.responseText, response.statusText);
             });
     }
 }

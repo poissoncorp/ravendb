@@ -2,7 +2,7 @@
     <div class="align-items-center justify-content-between d-flex gap-2 margin-bottom-md padding-top-xs">
         <div class="flex-horizontal gap-2">
             <i class="icon-ai-etl"></i>
-            <h2 data-bind="text: $root.isAddingNewEtlTask() ? 'New Embeddings Generation' : 'Edit Embeddings Generation'" class="mb-0"></h2>
+            <h2 data-bind="i18n: { key: 'editEmbeddingsGenerationTask:heading', options: { context: $root.isAddingNewEtlTask() ? 'new' : 'edit' } }" class="mb-0"></h2>
         </div>
         <div class="flex-end margin-right-xs" data-bind="react: $root.infoHubView"></div>
     </div>
@@ -12,52 +12,51 @@
                 <div class="flex-header">
                     <span data-placement="right" data-toggle="tooltip" data-html="true" data-animation="true">
                         <button type="submit" class="btn btn-primary" data-bind="disable: $root.spinners.save(), !$root.dirtyFlag().isDirty(), css: { 'btn-spinner': $root.spinners.save }"> 
-                            <i class="icon-save"></i><span>Save</span>
+                            <i class="icon-save"></i><span data-bind="i18n: 'common:save'"></span>
                         </button>
                     </span>
                     <button data-bind="click: cancelOperation" class="btn btn-default">
-                        <i class="icon-cancel"></i><span>Cancel</span>
+                        <i class="icon-cancel"></i><span data-bind="i18n: 'common:cancel'"></span>
                     </button>
                 </div>
                 <div class="panel">
                     <div data-bind="with: editedEmbeddingsGeneration">
                         <div class="panel-body">
                             <div class="form-group" data-bind="validationElement: taskName">
-                                <label for="taskName" class="control-label">Task Name</label>
+                                <label for="taskName" class="control-label" data-bind="i18n: 'editEmbeddingsGenerationTask:task.nameLabel'"></label>
                                 <div class="flex-grow">
                                     <input
                                         type="text"
                                         class="form-control"
                                         id="taskName"
-                                        placeholder="Enter a descriptive name for the AI task"
-                                        data-bind="textInput: taskName, event: { blur: generateIdentifierOnNameBlur }, disable: !!$root.taskNameDisabledReason(), attr: { title: $root.taskNameDisabledReason() }"
+                                        data-bind="textInput: taskName, event: { blur: generateIdentifierOnNameBlur }, disable: !!$root.taskNameDisabledReason(), attr: { title: $root.taskNameDisabledReason() }, i18nAttr: { placeholder: 'editEmbeddingsGenerationTask:task.namePlaceholder' }"
                                     >
                                 </div>
                             </div>
                             <div class="form-group" data-bind="validationElement: identifier">
                                 <label for="identifier" class="control-label task-identifier">
-                                    Identifier <i class="icon-info text-info"></i>
+                                    <span data-bind="i18n: 'editEmbeddingsGenerationTask:task.identifierLabel'"></span> <i class="icon-info text-info"></i>
                                 </label>
                                 <div class="flex-horizontal w-100">
                                     <div class="flex-grow">
-                                        <input type="text" class="form-control" id="identifier" placeholder="Enter an identifier (optional)" data-bind="textInput: identifier">
+                                        <input type="text" class="form-control" id="identifier" data-bind="textInput: identifier, i18nAttr: { placeholder: 'editEmbeddingsGenerationTask:task.identifierPlaceholder' }">
                                     </div>
-                                    <button class="btn btn-default" data-bind="click: generateIdentifier" title="Click to generate the identifier from the task name">
+                                    <button class="btn btn-default" data-bind="click: generateIdentifier, i18nAttr: { title: 'editEmbeddingsGenerationTask:task.regenerateIdentifierTitle' }">
                                         <i class="icon-refresh"></i>
-                                        <span>Regenerate</span>
+                                        <span data-bind="i18n: 'editEmbeddingsGenerationTask:task.regenerateIdentifier'"></span>
                                     </button>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="control-label">Task State</label>
+                                <label class="control-label" data-bind="i18n: 'editEmbeddingsGenerationTask:task.stateLabel'"></label>
                                 <div class="flex-grow">
                                     <button type="button" class="btn btn-block dropdown-toggle text-left" data-toggle="dropdown" aria-expanded="false">
                                         <span data-bind="text: stateText()"></span>
                                         <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu">
-                                        <li><a href="#" data-bind="click: _.partial($root.setState, 'Enabled')"><span>Enabled</span></a></li>
-                                        <li><a href="#" data-bind="click: _.partial($root.setState, 'Disabled')"><span>Disabled</span></a></li>
+                                        <li><a href="#" data-bind="click: _.partial($root.setState, 'Enabled')"><span data-bind="i18n: 'editEmbeddingsGenerationTask:task.stateEnabled'"></span></a></li>
+                                        <li><a href="#" data-bind="click: _.partial($root.setState, 'Disabled')"><span data-bind="i18n: 'editEmbeddingsGenerationTask:task.stateDisabled'"></span></a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -67,22 +66,22 @@
                                     <label class="control-label">&nbsp;</label>
                                     <div class="bg-info inline-block padding padding-xs small">
                                         <i class="icon-info"></i>
-                                        Note: Database <strong data-bind="text: $root.db.name"></strong> is encrypted
+                                        <span data-bind="html: $root.encryptedDatabaseHtml"></span>
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="control-label">&nbsp;</label>
                                     <div class="toggle">
                                         <input id="toggle-non-encrypted-channel" type="checkbox" data-bind="checked: allowEtlOnNonEncryptedChannel">
-                                        <label for="toggle-non-encrypted-channel">Allow task on a non-encrypted communication channel</label>
+                                        <label for="toggle-non-encrypted-channel" data-bind="i18n: 'editEmbeddingsGenerationTask:task.allowNonEncryptedChannel'"></label>
                                     </div>
                                 </div>
                             </div>
                             <div class="form-group margin-bottom-xxs" style="padding-left: 4.3px;">
-                                <div class="toggle" data-placement="right" data-toggle="tooltip" data-bind="attr: { title: $root.db.isSharded() ? 'Not supported in sharded databases' : 'Toggle on to set a responsible node for the task'  }"
+                                <div class="toggle" data-placement="right" data-toggle="tooltip" data-bind="i18nAttr: { title: $root.db.isSharded() ? 'editEmbeddingsGenerationTask:task.responsibleNodeShardedTitle' : 'editEmbeddingsGenerationTask:task.responsibleNodeTitle' }"
                                      data-animation="true">
                                     <input id="responsibleNode" type="checkbox" data-bind="checked: manualChooseMentor, disable: $root.possibleMentors().length === 0 || $root.db.isSharded()">
-                                    <label for="responsibleNode">Set responsible node</label>
+                                    <label for="responsibleNode" data-bind="i18n: 'editEmbeddingsGenerationTask:task.responsibleNodeToggle'"></label>
                                 </div>
                             </div>
                             <div data-bind="compose: $root.taskResponsibleNodeSectionView"></div>
@@ -90,11 +89,11 @@
                                 <div data-bind="react: $root.newConnectionStringView"></div>
                             </div>
                             <div class="form-group" data-bind="validationOptions: { insertMessages: false }">
-                                <label class="control-label">Connection String</label>
+                                <label class="control-label" data-bind="i18n: 'editEmbeddingsGenerationTask:task.connectionStringLabel'"></label>
                                 <div class="flex-horizontal flex-grow">
                                     <button class="btn btn-block dropdown-toggle text-left" type="button" data-toggle="dropdown"
                                             data-bind="textInput: connectionStringName, disable: $root.connectionStringsNames().length === 0 || !$root.isAddingNewEtlTask()">
-                                        <span data-bind="text: connectionStringName() || 'Select a connection string'"></span>
+                                        <span data-bind="text: connectionStringName() || $root.selectConnectionStringText"></span>
                                         <span class="caret dropdown-toggle" data-toggle="dropdown"></span>
                                     </button>
                                     <ul class="dropdown-menu"
@@ -105,7 +104,7 @@
                                     </ul>
                                     <button class="btn btn-default mb-0 margin-left-xxs" data-bind="visible: $root.isAddingNewEtlTask(), click: $root.toggleIsNewConnectionStringOpen">
                                         <i class="icon-plus"></i>
-                                        <span>Create a new AI connection string</span>
+                                        <span data-bind="i18n: 'editEmbeddingsGenerationTask:task.createConnectionString'"></span>
                                     </button>
                                 </div>
                                 <div data-bind="validationOptions: { errorsAsTitle: false }, validationElement: connectionStringName">
@@ -114,24 +113,24 @@
                             </div>
                             <div class="flex-horizontal margin-top-sm">
                                 <div class="flex-grow"></div>
-                                <button class="btn btn-default btn-info" title="Test the connection to AI service"
-                                        data-bind="click: $root.testConnection, disable: !connectionStringName() || $root.spinners.testConnection(), css: { 'btn-spinner': $root.spinners.testConnection }">
+                                <button class="btn btn-default btn-info"
+                                        data-bind="click: $root.testConnection, disable: !connectionStringName() || $root.spinners.testConnection(), css: { 'btn-spinner': $root.spinners.testConnection }, i18nAttr: { title: 'editEmbeddingsGenerationTask:testConnection.title' }">
                                     <i class="icon-rocket"></i>
-                                    <span>Test Connection</span>
+                                    <span data-bind="i18n: 'editEmbeddingsGenerationTask:testConnection.button'"></span>
                                 </button>
                             </div>
                         </div>
                     </div>
                     <div class="panel-addon" data-bind="with: testConnectionResult">
                         <div class="padding bg-success small" data-bind="visible: Success">
-                            <div>Successfully connected to the server</div>
+                            <div data-bind="i18n: 'editEmbeddingsGenerationTask:testConnection.success'"></div>
                         </div>
                         <div class="padding bg-danger small"
                              data-bind="visible: !Success">
-                            Connection test failed: <span data-bind="text: $root.fullErrorDetailsVisible() ? Error : $root.shortErrorText()"></span>
+                            <span data-bind="i18n: { key: 'editEmbeddingsGenerationTask:testConnection.failed', options: { error: $root.fullErrorDetailsVisible() ? Error : $root.shortErrorText() } }"></span>
                             <div>
                                 <a href="#"
-                                   data-bind="click: $root.fullErrorDetailsVisible.toggle.bind($root.fullErrorDetailsVisible), text: $root.fullErrorDetailsVisible() ? 'hide details' : 'show details'">
+                                   data-bind="click: $root.fullErrorDetailsVisible.toggle.bind($root.fullErrorDetailsVisible), i18n: $root.fullErrorDetailsVisible() ? 'editEmbeddingsGenerationTask:testConnection.hideDetails' : 'editEmbeddingsGenerationTask:testConnection.showDetails'">
                                 </a>
                             </div>
                         </div>
@@ -142,14 +141,12 @@
                         <div class="form-group">
                             <div class="toggle" data-placement="right">
                                 <input id="documentExpiration" type="checkbox" data-bind="checked: enableDocumentExpiration">
-                                <label for="documentExpiration">Enable document expiration</label>
+                                <label for="documentExpiration" data-bind="i18n: 'editEmbeddingsGenerationTask:documentExpiration.enable'"></label>
                             </div>
                         </div>
                         <div class="text-info bg-info flex-horizontal padding padding-sm">
                             <span class="flex-start"><i class="icon-info"></i></span>
-                            <div class="margin-left margin-left-sm">
-                                Embeddings created by this task will be cached.<br/>
-                                To ensure they expire and are deleted after the specified duration, enable 'document expiration'.
+                            <div class="margin-left margin-left-sm" data-bind="html: $root.documentExpirationInfoHtml">
                             </div>
                         </div>
                     </div>
@@ -160,11 +157,11 @@
             <div class="flex-grow">
                 <div class="panel padding">
                     <div class="margin-bottom-sm">
-                        <label class="control-label">Collection</label>
+                        <label class="control-label" data-bind="i18n: 'editEmbeddingsGenerationTask:source.collectionLabel'"></label>
                         <div class="flex-horizontal flex-grow" data-bind="validationElement: collectionInput">
                             <div class="btn-block position-relative">
-                                <input class="form-control dropdown-toggle text-left" placeholder="Select (or enter) a collection" data-toggle="dropdown" autocomplete="off"
-                                data-bind="textInput: collectionInput, attr: { id: 'collectionNameInput' }" />
+                                <input class="form-control dropdown-toggle text-left" data-toggle="dropdown" autocomplete="off"
+                                data-bind="textInput: collectionInput, attr: { id: 'collectionNameInput' }, i18nAttr: { placeholder: 'editEmbeddingsGenerationTask:source.collectionPlaceholder' }" />
                             </div>
                             <ul class="dropdown-menu" role="menu" style="display: none;" data-bind="autoComplete: '#collectionNameInput', foreach: $root.createCollectionNameAutoCompleter()">
                                 <li role="presentation" data-bind="click: _.partial($parent.collectionInput, $data)">
@@ -177,29 +174,29 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="control-label">Embeddings Source</label>
+                        <label class="control-label" data-bind="i18n: 'editEmbeddingsGenerationTask:source.embeddingsSourceLabel'"></label>
                         <div class="flex-grow">
                             <button class="btn btn-block dropdown-toggle text-left" type="button" data-toggle="dropdown" data-bind="textInput: embeddingsSourceLabel">
-                                <span data-bind="text: embeddingsSourceLabel() || 'Select a embeddings source'"></span>
+                                <span data-bind="text: embeddingsSourceLabel() || $root.selectEmbeddingsSourceText"></span>
                                 <span class="caret dropdown-toggle" data-toggle="dropdown"></span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a href="#" data-bind="click: _.partial(embeddingsSource, 'script')"><span>Script</span></a></li>
-                                <li><a href="#" data-bind="click: _.partial(embeddingsSource, 'paths')"><span>Paths</span></a></li>
+                                <li><a href="#" data-bind="click: _.partial(embeddingsSource, 'script')"><span data-bind="i18n: 'editEmbeddingsGenerationTask:source.script'"></span></a></li>
+                                <li><a href="#" data-bind="click: _.partial(embeddingsSource, 'paths')"><span data-bind="i18n: 'editEmbeddingsGenerationTask:source.paths'"></span></a></li>
                             </ul>
                         </div>
                     </div>    
                     <div data-bind="if: embeddingsSource() === 'paths'">
                         <div class="form-group">
-                            <label class="control-label">Path Configurations</label>
+                            <label class="control-label" data-bind="i18n: 'editEmbeddingsGenerationTask:source.pathConfigurations'"></label>
                             <div class="padding panel-bg-1">
                                 <div class="flex-horizontal gap-1">
                                     <div class="form-group flex-grow" data-bind="validationElement: pathConfigurationPath">
-                                        <label class="control-label">Source Text Path</label>
-                                        <input type="text" class="form-control" placeholder="Enter Source Text Path" data-bind="textInput: pathConfigurationPath" />
+                                        <label class="control-label" data-bind="i18n: 'editEmbeddingsGenerationTask:source.sourceTextPath'"></label>
+                                        <input type="text" class="form-control" data-bind="textInput: pathConfigurationPath, i18nAttr: { placeholder: 'editEmbeddingsGenerationTask:source.sourceTextPathPlaceholder' }" />
                                     </div>
                                     <div class="form-group flex-grow" data-bind="validationElement: pathConfigurationChunkingMethod">
-                                        <label class="control-label">Chunking Method</label>
+                                        <label class="control-label" data-bind="i18n: 'editEmbeddingsGenerationTask:chunking.chunkingMethod'"></label>
                                         <div class="flex-grow">
                                             <button class="btn btn-block dropdown-toggle text-left" type="button" data-toggle="dropdown" data-bind="textInput: pathConfigurationChunkingMethodLabel">
                                                 <span data-bind="text: pathConfigurationChunkingMethodLabel"></span>
@@ -211,15 +208,15 @@
                                         </div>
                                     </div>
                                     <div class="form-group flex-grow" data-bind="validationElement: pathConfigurationMaxTokensPerChunk">
-                                        <label class="control-label">Max Tokens per Chunk</label>
+                                        <label class="control-label" data-bind="i18n: 'editEmbeddingsGenerationTask:chunking.maxTokensPerChunk'"></label>
                                         <div class="flex-grow">
-                                            <input type="number" class="form-control" data-bind="numericInput: pathConfigurationMaxTokensPerChunk, attr: { placeholder: `Default: ${maxTokensPerChunkDefaultValue()}` }" min="1"/>
+                                            <input type="number" class="form-control" data-bind="numericInput: pathConfigurationMaxTokensPerChunk, i18nAttr: { placeholder: { key: 'editEmbeddingsGenerationTask:chunking.defaultPlaceholder', options: { value: maxTokensPerChunkDefaultValue } } }" min="1"/>
                                         </div>
                                     </div>
                                     <div class="form-group flex-grow" data-bind="validationElement: pathConfigurationOverlapTokens">
-                                        <label class="control-label">Overlap Tokens</label>
+                                        <label class="control-label" data-bind="i18n: 'editEmbeddingsGenerationTask:chunking.overlapTokens'"></label>
                                         <div class="flex-grow">
-                                            <input type="number" class="form-control" placeholder="Default: 0" data-bind="numericInput: pathConfigurationOverlapTokens, attr: { disabled: !canUseOverlapTokensForPathConfiguration() }"/>
+                                            <input type="number" class="form-control" data-bind="numericInput: pathConfigurationOverlapTokens, attr: { disabled: !canUseOverlapTokensForPathConfiguration() }, i18nAttr: { placeholder: { key: 'editEmbeddingsGenerationTask:chunking.defaultPlaceholder', options: { value: 0 } } }"/>
                                         </div>
                                     </div>
                                 </div>
@@ -230,7 +227,7 @@
                                 <div class="d-flex margin-top-xs">
                                     <div class="flex-grow"></div>
                                     <button class="btn btn-info" data-bind="click: addEmbeddingsPathConfiguration">
-                                        <i class="icon-plus"></i><span>Add path configuration</span>
+                                        <i class="icon-plus"></i><span data-bind="i18n: 'editEmbeddingsGenerationTask:source.addPathConfiguration'"></span>
                                     </button>
                                 </div>
 
@@ -238,10 +235,10 @@
                                     <table class="table table-striped">
                                         <thead>
                                             <tr>
-                                                <th>Path</th>
-                                                <th>Chunking Method</th>
-                                                <th>Max Tokens per Chunk</th>
-                                                <th>Overlap Tokens</th>
+                                                <th data-bind="i18n: 'editEmbeddingsGenerationTask:source.pathColumn'"></th>
+                                                <th data-bind="i18n: 'editEmbeddingsGenerationTask:chunking.chunkingMethod'"></th>
+                                                <th data-bind="i18n: 'editEmbeddingsGenerationTask:chunking.maxTokensPerChunk'"></th>
+                                                <th data-bind="i18n: 'editEmbeddingsGenerationTask:chunking.overlapTokens'"></th>
                                                 <th></th>
                                             </tr>
                                         </thead>
@@ -252,7 +249,7 @@
                                                 <td data-bind="text: ChunkingOptions.MaxTokensPerChunk"></td>
                                                 <td data-bind="text: ChunkingOptions.OverlapTokens ?? 0"></td>
                                                 <td class="actions">
-                                                    <a title="Remove path" href="#" data-bind="click: $parent.removeEmbeddingsPathConfiguration.bind($parent, Path)"><i class="icon-trash"></i></a>
+                                                    <a href="#" data-bind="click: $parent.removeEmbeddingsPathConfiguration.bind($parent, Path), i18nAttr: { title: 'editEmbeddingsGenerationTask:source.removePathTitle' }"><i class="icon-trash"></i></a>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -263,8 +260,8 @@
                     </div>
                     <div data-bind="visible: embeddingsSource() === 'script'">
                         <div class="form-group">
-                            <label>Script</label>
-                            <span class="pull-right"><a href="#" data-bind="click: $root.syntaxHelp"><small>Syntax <i class="icon-help"></i></small></a></span>
+                            <label data-bind="i18n: 'editEmbeddingsGenerationTask:source.scriptLabel'"></label>
+                            <span class="pull-right"><a href="#" data-bind="click: $root.syntaxHelp"><small><span data-bind="i18n: 'editEmbeddingsGenerationTask:source.syntax'"></span> <i class="icon-help"></i></small></a></span>
                             <div data-bind="validationElement: script">
                                 <pre class="form-control editor"
                                 data-bind="aceEditor: { code: script, fontSize: '14px', lang: 'ace/mode/javascript' }, validationOptions: { errorsAsTitle: false }, validationElement: script" style="height: 300px;"></pre>
@@ -275,7 +272,7 @@
                         </div>
                         <div class="form-group">
                             <label class="control-label">
-                                Chunking Method
+                                <span data-bind="i18n: 'editEmbeddingsGenerationTask:chunking.chunkingMethod'"></span>
                                 <i class="icon-info text-info chunking-method"></i>
                             </label>
                             <div class="flex-grow">
@@ -290,25 +287,25 @@
                         </div>
                         <div class="form-group" data-bind="validationElement: transformationMaxTokensPerChunk">
                             <label class="control-label">
-                                Max Tokens per Chunk
+                                <span data-bind="i18n: 'editEmbeddingsGenerationTask:chunking.maxTokensPerChunk'"></span>
                                 <i class="icon-info text-info max-tokens-per-chunk"></i>
                             </label>
                             <div class="flex-grow">
-                                <input type="number" class="form-control" data-bind="numericInput: transformationMaxTokensPerChunk, attr: { placeholder: `Default: ${maxTokensPerChunkDefaultValue()}` }" min="1"/>
+                                <input type="number" class="form-control" data-bind="numericInput: transformationMaxTokensPerChunk, i18nAttr: { placeholder: { key: 'editEmbeddingsGenerationTask:chunking.defaultPlaceholder', options: { value: maxTokensPerChunkDefaultValue } } }" min="1"/>
                             </div>
                         </div>
                         <div class="form-group" data-bind="validationElement: transformationOverlapTokens">
                             <label class="control-label">
-                                Overlap Tokens
+                                <span data-bind="i18n: 'editEmbeddingsGenerationTask:chunking.overlapTokens'"></span>
                                 <i class="icon-info text-info overlap-tokens"></i>
                             </label>
                             <div class="flex-grow">
-                                <input type="number" class="form-control" placeholder="Default: 0" data-bind="numericInput: transformationOverlapTokens, attr: { disabled: !canUseOverlapTokensForTransformation() }" min="0"/>
+                                <input type="number" class="form-control" data-bind="numericInput: transformationOverlapTokens, attr: { disabled: !canUseOverlapTokensForTransformation() }, i18nAttr: { placeholder: { key: 'editEmbeddingsGenerationTask:chunking.defaultPlaceholder', options: { value: 0 } } }" min="0"/>
                             </div>
                         </div>
                     </div>
                     <div class="margin-top-sm">
-                        <label class="control-label">Quantization
+                        <label class="control-label"><span data-bind="i18n: 'editEmbeddingsGenerationTask:quantization.label'"></span>
                             <i class="icon-info text-info quantization"></i>
                         </label>
                         <div class="flex-grow">
@@ -323,7 +320,7 @@
                     </div>
                     <div class="margin-top-sm">
                         <div>
-                            <label class="control-label">Embeddings Cache Expiration
+                            <label class="control-label"><span data-bind="i18n: 'editEmbeddingsGenerationTask:cacheExpiration.label'"></span>
                                 <i class="icon-info text-info embeddings-cache-expiration"></i>
                             </label>
                         </div>
@@ -334,13 +331,13 @@
                     </div>
                     <div class="toggle margin-top-sm mb-0" data-bind="visible: !isNew()">
                         <input id="reset" type="checkbox" data-bind="checked: resetScript">
-                        <label for="reset">Regenerate embeddings for all documents</label>
+                        <label for="reset" data-bind="i18n: 'editEmbeddingsGenerationTask:regenerateEmbeddings'"></label>
                     </div>
                 </div>
                 <div class="panel margin-top-xs">
                     <div class="panel-heading padding" data-bind="click: toggleQueryingAccordion" style="cursor: pointer;">
                         <h3 class="panel-title">
-                            Querying
+                            <span data-bind="i18n: 'editEmbeddingsGenerationTask:querying.title'"></span>
                             <i class="icon-info text-info querying"></i>
                             <span class="pull-right toggle-icon" data-bind="css: { 'icon-chevron-down': !isQueryingOpen(), 'icon-chevron-up': isQueryingOpen() }"></span>
                         </h3>
@@ -348,7 +345,7 @@
                     <div id="queryingPanel" class="panel-collapse" data-bind="css: { 'collapse': !isQueryingOpen(), 'in': isQueryingOpen() }">
                         <div class="panel-body pt-0">
                             <div class="form-group">
-                                <label class="control-label">Chunking Method</label>
+                                <label class="control-label" data-bind="i18n: 'editEmbeddingsGenerationTask:chunking.chunkingMethod'"></label>
                                 <div class="flex-grow">
                                     <button class="btn btn-block dropdown-toggle text-left" type="button" data-toggle="dropdown" data-bind="textInput: queryingChunkingMethodLabel">
                                         <span data-bind="text: queryingChunkingMethodLabel"></span>
@@ -360,20 +357,20 @@
                                 </div>
                             </div>
                             <div class="form-group" data-bind="validationElement: queryingMaxTokensPerChunk">
-                                <label class="control-label">Max Tokens per Chunk</label>
+                                <label class="control-label" data-bind="i18n: 'editEmbeddingsGenerationTask:chunking.maxTokensPerChunk'"></label>
                                 <div class="flex-grow">
-                                    <input type="number" class="form-control" data-bind="numericInput: queryingMaxTokensPerChunk, attr: { placeholder: `Default: ${maxTokensPerChunkDefaultValue()}` }" min="1"/>
+                                    <input type="number" class="form-control" data-bind="numericInput: queryingMaxTokensPerChunk, i18nAttr: { placeholder: { key: 'editEmbeddingsGenerationTask:chunking.defaultPlaceholder', options: { value: maxTokensPerChunkDefaultValue } } }" min="1"/>
                                 </div>
                             </div>
                             <div class="form-group" data-bind="validationElement: queryingOverlapTokens">
-                                <label class="control-label">Overlap Tokens</label>
+                                <label class="control-label" data-bind="i18n: 'editEmbeddingsGenerationTask:chunking.overlapTokens'"></label>
                                 <div class="flex-grow">
-                                    <input type="number" class="form-control" placeholder="Default: 0" data-bind="numericInput: queryingOverlapTokens, attr: { disabled: !canUseOverlapTokens() }" min="0"/>
+                                    <input type="number" class="form-control" data-bind="numericInput: queryingOverlapTokens, attr: { disabled: !canUseOverlapTokens() }, i18nAttr: { placeholder: { key: 'editEmbeddingsGenerationTask:chunking.defaultPlaceholder', options: { value: 0 } } }" min="0"/>
                                 </div>
                             </div>
                             <div class="form-group mb-0">
                                 <div>
-                                    <label class="control-label">Embeddings Cache Expiration</label>
+                                    <label class="control-label" data-bind="i18n: 'editEmbeddingsGenerationTask:cacheExpiration.label'"></label>
                                 </div>
                                 <div class="flex-grow" data-bind="validationElement: embeddingsCacheForQueryingExpiration">
                                     <input type="text" class="form-control" data-bind="durationPicker: embeddingsCacheForQueryingExpiration, durationPickerOptions: { showDays: true, showSeconds: true }" />

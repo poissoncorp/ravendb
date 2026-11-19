@@ -2,6 +2,9 @@ import dialogViewModelBase = require("viewmodels/dialogViewModelBase");
 import copyToClipboard = require("common/copyToClipboard");
 import prismjs = require("prismjs");
 import genUtils = require("common/generalUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("transformationScriptSyntax");
 
 class transformationScriptSyntax extends dialogViewModelBase {
 
@@ -10,6 +13,8 @@ class transformationScriptSyntax extends dialogViewModelBase {
     etlType = ko.observable<StudioEtlType>();
     
     dialogContainer: Element;
+
+    readonly loadToOptionHtml = t("rabbitMq.loadToOption");
 
     constructor(etlType: StudioEtlType) {
         super();
@@ -87,12 +92,14 @@ class transformationScriptSyntax extends dialogViewModelBase {
                 genUtils.assertUnreachable(type, "Unknown studioEtlType: " + type);
         }
         
-        copyToClipboard.copy(sampleText, "Sample has been copied to clipboard", this.dialogContainer);
+        copyToClipboard.copy(sampleText, t("sampleCopied"), this.dialogContainer);
     }
 
     static readonly ravenEtlSamples: Array<sampleCode> = [
         {
-            title: "Simple Transformation Script",
+            get title() {
+                return t("raven.simple");
+            },
             text:
 `loadToNewEmployees ({
     Name: this.LastName + " some new data..",
@@ -105,7 +112,9 @@ class transformationScriptSyntax extends dialogViewModelBase {
 <span class="token punctuation">})</span>;`
         },
         {
-            title: "Transformation Script with custom logic for counters",
+            get title() {
+                return t("raven.counters");
+            },
             text:
 `loadToUsers ({
     Name: this.Name + " some new data.."
@@ -124,7 +133,9 @@ function <span class="token keyword">loadCountersOf<span class="token string">Us
 }`
         },
         {
-            title: "Transformation Script with custom logic for documents deletion",
+            get title() {
+                return t("raven.deletions");
+            },
             text:
 `loadToUsers ({
     Name: this.Name + " some new data.."

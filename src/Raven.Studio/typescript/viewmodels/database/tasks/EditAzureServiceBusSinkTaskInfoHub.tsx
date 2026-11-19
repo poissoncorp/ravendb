@@ -6,9 +6,24 @@ import FeatureAvailabilitySummaryWrapper, {
 } from "components/common/FeatureAvailabilitySummary";
 import { useLimitedFeatureAvailability } from "components/utils/licenseLimitsUtils";
 import React from "react";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export function EditAzureServiceBusSinkTaskInfoHub() {
+    const t = useStudioTranslation("editAzureServiceBusSinkTask");
     const hasQueueSink = useAppSelector(licenseSelectors.statusValue("HasQueueSink"));
+
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("featureAvailability.azureServiceBusSink"),
+            featureIcon: "azure-service-bus",
+            community: { value: false },
+            professional: { value: false },
+            enterprise: { value: true },
+            quill: { value: true },
+        },
+    ];
+
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
         overwrites: [
@@ -23,46 +38,41 @@ export function EditAzureServiceBusSinkTaskInfoHub() {
         <AboutViewFloating defaultOpen={hasQueueSink ? null : "licensing"}>
             <AccordionItemWrapper targetId="about" icon="about" color="info">
                 <p>
-                    Define an <strong>Azure Service Bus Sink</strong> ongoing-task in order to consume and process
-                    incoming messages from Azure Service Bus queues.
+                    <StudioTrans
+                        ns="editAzureServiceBusSinkTask"
+                        i18nKey="about.task"
+                        components={{ strong: <strong /> }}
+                    />
                 </p>
                 <p>
-                    Add one or more <strong>scripts</strong> that Load, Put, or Delete documents in RavenDB based on the
-                    incoming messages:
+                    <StudioTrans
+                        ns="editAzureServiceBusSinkTask"
+                        i18nKey="about.scripts"
+                        components={{ strong: <strong /> }}
+                    />
                 </p>
                 <ul>
                     <li className="margin-top-sm">
-                        In the task definition:
-                        <br />
-                        Define the connection string (connection string and queue name).
+                        <StudioTrans
+                            ns="editAzureServiceBusSinkTask"
+                            i18nKey="about.taskDefinitionItem"
+                            components={{ br: <br /> }}
+                        />
                     </li>
                     <li className="margin-top-xxs">
-                        In the script definition:
-                        <br />
-                        Define the Azure Service Bus queue the script will subscribe to.
-                        <br />
-                        The script can be tested to preview the resulting documents.
+                        <StudioTrans
+                            ns="editAzureServiceBusSinkTask"
+                            i18nKey="about.scriptDefinitionItem"
+                            components={{ br: <br /> }}
+                        />
                     </li>
-                    <li className="margin-top-xxs">Incoming messages are expected only as JSON.</li>
+                    <li className="margin-top-xxs">{t("about.jsonItem")}</li>
                 </ul>
                 <p>
-                    A database with a defined Azure Service Bus Sink task will Not become idle,
-                    <br />
-                    ensuring continuous processing of incoming messages.
+                    <StudioTrans ns="editAzureServiceBusSinkTask" i18nKey="about.notIdle" components={{ br: <br /> }} />
                 </p>
             </AccordionItemWrapper>
             <FeatureAvailabilitySummaryWrapper isUnlimited={hasQueueSink} data={featureAvailability} />
         </AboutViewFloating>
     );
 }
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "Azure Service Bus Sink",
-        featureIcon: "azure-service-bus",
-        community: { value: false },
-        professional: { value: false },
-        enterprise: { value: true },
-        quill: { value: true },
-    },
-];

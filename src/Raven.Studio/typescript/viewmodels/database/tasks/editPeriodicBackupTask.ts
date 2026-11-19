@@ -19,6 +19,9 @@ import EditPeriodicBackupTaskInfoHub = require("./EditPeriodicBackupTaskInfoHub"
 import EditManualBackupTaskInfoHub = require("./EditManualBackupTaskInfoHub");
 import store = require("components/store");
 import databaseSliceSelectors = require("components/common/shell/databaseSliceSelectors");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("editPeriodicBackupTask");
 
 type backupConfigurationClass = manualBackupConfiguration | periodicBackupConfiguration;
 
@@ -59,6 +62,11 @@ class editPeriodicBackupTask extends shardViewModelBase {
     serverConfiguration = ko.observable<periodicBackupServerLimitsResponse>();
 
     overrideViaExternalScriptDisableReason: KnockoutComputed<string>;
+
+    readonly licenseRestrictedTooltip = `<div class='padding'>${t("licenseRestricted", { upgradeUrl: "https://ravendb.net/l/FLDLO4" })}</div>`;
+    readonly backupTypePlaceholder = t("task.backupTypePlaceholder");
+    readonly snapshotNotSupportedInShardedHtml = t("task.snapshotNotSupportedInSharded").replace("<icon/>", `<i class="icon-sharding text-shard"></i>`);
+    readonly encryptionModePlaceholder = t("encryption.modePlaceholder");
 
     constructor(db: database) {
         super(db);
@@ -167,14 +175,18 @@ class editPeriodicBackupTask extends shardViewModelBase {
         }
         return true;
     }
-    
+
+    backupTypeText(backupType: Raven.Client.Documents.Operations.Backups.BackupType): string {
+        return t("task.backupTypeOption", { context: backupType === "Snapshot" ? "snapshot" : "backup" });
+    }
+
     compositionComplete() {
         super.compositionComplete();
         
         $('.edit-backup [data-toggle="tooltip"]').tooltip();
         
         $(".edit-backup .js-option-disabled").tooltip({
-            title: "Destination was disabled by administrator",
+            title: t("destinationDisabled"),
             placement: "right"
         });
 

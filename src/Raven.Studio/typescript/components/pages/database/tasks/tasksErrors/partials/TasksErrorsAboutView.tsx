@@ -2,84 +2,108 @@ import React from "react";
 import { AboutViewFloating, AccordionItemWrapper } from "components/common/AboutView";
 import { Icon } from "components/common/Icon";
 import { useRavenLink } from "components/hooks/useRavenLink";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function TasksErrorsAboutView() {
+    const t = useStudioTranslation("tasksErrors");
+    const commonT = useStudioTranslation("common");
     const taskErrorsOverviewDocsLink = useRavenLink({ hash: "17261M" });
 
     return (
         <AboutViewFloating>
             <AccordionItemWrapper icon="about" color="info">
                 <p>
-                    This view displays recent errors from your ongoing tasks, including <strong>ETL tasks</strong>{" "}
-                    (RavenDB, SQL, OLAP, ElasticSearch, Kafka, RabbitMQ, Azure Queue Storage, Amazon SQS, Snowflake),{" "}
-                    <strong>AI tasks</strong> (Embeddings Generation, GenAI), and <strong>CDC Sinks</strong>.
+                    <StudioTrans ns="tasksErrors" i18nKey="about.intro" components={{ strong: <strong /> }} />
                 </p>
-                <h4>Error types</h4>
+                <h4>{t("about.errorTypesHeading")}</h4>
                 <ul>
                     <li>
-                        <strong>Item error</strong> - An error that occurred while processing a single document. The
-                        document was skipped, and the task continued processing the remaining documents.
+                        <StudioTrans ns="tasksErrors" i18nKey="about.itemError" components={{ strong: <strong /> }} />
                     </li>
                     <li>
-                        <strong>Process error</strong> - An error that occurred while processing a batch and may affect
-                        multiple documents.
+                        <StudioTrans
+                            ns="tasksErrors"
+                            i18nKey="about.processError"
+                            components={{ strong: <strong /> }}
+                        />
                     </li>
                 </ul>
-                <h4>Error steps</h4>
+                <h4>{t("about.errorStepsHeading")}</h4>
                 <ul>
                     <li>
-                        <strong>Transformation</strong> - Error during the transformation script execution.
+                        <StudioTrans
+                            ns="tasksErrors"
+                            i18nKey="about.transformationStep"
+                            components={{ strong: <strong /> }}
+                        />
                     </li>
                     <li>
-                        <strong>Load</strong> - Error while loading data to the destination.
+                        <StudioTrans ns="tasksErrors" i18nKey="about.loadStep" components={{ strong: <strong /> }} />
                     </li>
                     <li>
-                        <strong>Model Inference</strong> - Error during communication with the AI model (AI tasks only).
+                        <StudioTrans
+                            ns="tasksErrors"
+                            i18nKey="about.modelInferenceStep"
+                            components={{ strong: <strong /> }}
+                        />
                     </li>
                     <li>
-                        <strong>Persistence</strong> - Error while saving results back to the database (AI tasks only).
+                        <StudioTrans
+                            ns="tasksErrors"
+                            i18nKey="about.persistenceStep"
+                            components={{ strong: <strong /> }}
+                        />
                     </li>
                     <li>
-                        <strong>Configuration</strong> - Error related to task configuration.
+                        <StudioTrans
+                            ns="tasksErrors"
+                            i18nKey="about.configurationStep"
+                            components={{ strong: <strong /> }}
+                        />
                     </li>
                 </ul>
-                <h4>Task health</h4>
+                <h4>{t("about.taskHealthHeading")}</h4>
                 <ul>
                     <li className="mb-2">
-                        Each task has a health status based on its recent error rate
-                        <br />
-                        (calculated using an exponentially weighted moving average):
+                        <StudioTrans ns="tasksErrors" i18nKey="about.healthStatus" components={{ br: <br /> }} />
                         <ul>
                             <li>
-                                <strong>Healthy</strong> - No errors, or only a low error rate.
+                                <StudioTrans
+                                    ns="tasksErrors"
+                                    i18nKey="about.healthy"
+                                    components={{ strong: <strong /> }}
+                                />
                             </li>
                             <li>
-                                <strong>Impaired</strong> - An increased error rate that needs attention.
+                                <StudioTrans
+                                    ns="tasksErrors"
+                                    i18nKey="about.impaired"
+                                    components={{ strong: <strong /> }}
+                                />
                             </li>
                             <li>
-                                <strong>Failed</strong> - A high error rate that needs immediate attention.
+                                <StudioTrans
+                                    ns="tasksErrors"
+                                    i18nKey="about.failed"
+                                    components={{ strong: <strong /> }}
+                                />
                             </li>
                         </ul>
                     </li>
-                    <li>The health status recovers automatically as new batches complete successfully.</li>
+                    <li>{t("about.healthRecovery")}</li>
                 </ul>
-                <h4>Error storage</h4>
+                <h4>{t("about.errorStorageHeading")}</h4>
                 <ul>
-                    <li className="mb-2">
-                        Errors are persisted on disk. A maximum of 500 item errors and 500 process errors are stored per
-                        task. Older errors are automatically removed when this limit is reached.
-                    </li>
+                    <li className="mb-2">{t("about.storageLimit")}</li>
                     <li>
-                        You can manually delete the current task errors.
-                        <br />
-                        However, deleting the errors will not reset a task in an Error state back to the Normal state.
-                        The task health will recover gradually as new batches complete successfully.
+                        <StudioTrans ns="tasksErrors" i18nKey="about.manualDelete" components={{ br: <br /> }} />
                     </li>
                 </ul>
                 <hr />
-                <div className="small-label mb-2">useful links</div>
+                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                 <a href={taskErrorsOverviewDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - Task Errors Overview
+                    <Icon icon="newtab" /> {t("about.docsLink")}
                 </a>
             </AccordionItemWrapper>
         </AboutViewFloating>

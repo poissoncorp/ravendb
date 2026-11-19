@@ -9,26 +9,28 @@ import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import { Icon } from "components/common/Icon";
 import AceEditor from "components/common/ace/AceEditor";
 import Code from "components/common/Code";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function EditCdcSinkTaskPatchAdvancedField({ path }: { path: RootTablePath | EmbeddedTablePath }) {
+    const t = useStudioTranslation("editCdcSinkTask");
     const { control } = useFormContext<EditCdcSinkTaskFormData>();
 
     return (
         <FormGroup marginClass="mb-0">
             <FormLabel>
-                Patch
+                {t("patch.label")}
                 <PopoverWithHoverWrapper
                     message={
                         <>
                             <p>
-                                A patch is a JavaScript snippet that runs on <strong>INSERT</strong> and{" "}
-                                <strong>UPDATE</strong> AFTER column mapping is applied and before the document is
-                                written to RavenDB.
+                                <StudioTrans
+                                    ns="editCdcSinkTask"
+                                    i18nKey="patch.info"
+                                    components={{ strong: <strong /> }}
+                                />
                             </p>
-                            <p>
-                                Use it when the mapped document needs additional changes, such as computed fields,
-                                aggregate values, metadata updates, or data loaded from related documents.
-                            </p>
+                            <p>{t("patch.usage")}</p>
                         </>
                     }
                 >
@@ -40,7 +42,7 @@ export default function EditCdcSinkTaskPatchAdvancedField({ path }: { path: Root
                 name={`${path}.patch`}
                 mode="javascript"
                 height="150px"
-                placeholder={patchPlaceholder}
+                placeholder={t("patch.placeholder")}
                 actions={[
                     { component: <AceEditor.FullScreenAction /> },
                     { component: <AceEditor.FormatAction /> },
@@ -55,18 +57,15 @@ export default function EditCdcSinkTaskPatchAdvancedField({ path }: { path: Root
     );
 }
 
-const patchPlaceholder = `// Optional. Transforms 'this' (the document) AFTER column mapping for INSERT and UPDATE events.
-// e.g. this.FullName = $row.first_name + ' ' + $row.last_name;
-// Click the (?) icon on the right for syntax help and more examples.`;
-
 const ComputeFieldSyntaxHelp = () => {
+    const t = useStudioTranslation("editCdcSinkTask");
     const code = `// $row contains the raw CDC row with all columns as-is from the source database
 this.FullName = ($row.first_name + ' ' + $row.last_name).trim();`;
 
     return (
         <div>
             <div className="mb-1">
-                <strong>Compute a field from source columns:</strong>
+                <strong>{t("patch.computeFieldExample")}</strong>
             </div>
             <Code code={code} language="javascript" />
         </div>
@@ -74,13 +73,14 @@ this.FullName = ($row.first_name + ' ' + $row.last_name).trim();`;
 };
 
 const UnmappedColumnSyntaxHelp = () => {
+    const t = useStudioTranslation("editCdcSinkTask");
     const code = `// (base_price and tax_rate are not in the column mapping)
 this.FinalPrice = $row.base_price * (1 + $row.tax_rate);`;
 
     return (
         <div>
             <div className="mb-1">
-                <strong>Computed field from an unmapped columns:</strong>
+                <strong>{t("patch.unmappedColumnExample")}</strong>
             </div>
             <Code code={code} language="javascript" />
         </div>
@@ -97,7 +97,11 @@ this.RunningTotal = (this.RunningTotal || 0) + (newAmount - oldAmount);`;
         <div>
             <div className="mb-1">
                 <strong>
-                    Delta computation using <code>$old</code>:
+                    <StudioTrans
+                        ns="editCdcSinkTask"
+                        i18nKey="patch.deltaComputationExample"
+                        components={{ code: <code /> }}
+                    />
                 </strong>
             </div>
             <Code code={code} language="javascript" />
@@ -106,6 +110,7 @@ this.RunningTotal = (this.RunningTotal || 0) + (newAmount - oldAmount);`;
 };
 
 const ConditionalEnrichmentSyntaxHelp = () => {
+    const t = useStudioTranslation("editCdcSinkTask");
     const code = `if ($row.status === 'VIP') {
     this.Priority = 'High';
     this.Discount = 0.15;
@@ -114,7 +119,7 @@ const ConditionalEnrichmentSyntaxHelp = () => {
     return (
         <div>
             <div className="mb-1">
-                <strong>Conditionally enrich the document:</strong>
+                <strong>{t("patch.conditionalEnrichmentExample")}</strong>
             </div>
             <Code code={code} language="javascript" />
         </div>
@@ -122,6 +127,7 @@ const ConditionalEnrichmentSyntaxHelp = () => {
 };
 
 const LoadRelatedDocumentSyntaxHelp = () => {
+    const t = useStudioTranslation("editCdcSinkTask");
     const code = `const customer = load('Customers/' + $row.customer_id);
 if (customer) {
     this.CustomerName = customer.Name;
@@ -131,37 +137,43 @@ if (customer) {
     return (
         <div>
             <div className="mb-1">
-                <strong>Load a related document:</strong>
+                <strong>{t("patch.loadRelatedDocumentExample")}</strong>
             </div>
             <Code code={code} language="javascript" />
         </div>
     );
 };
 
-const VariablesLegend = () => (
-    <div className="border border-secondary rounded-2 panel-bg-2 p-3">
-        <div className="mb-2">
-            <strong>Available variables</strong>
+const VariablesLegend = () => {
+    const t = useStudioTranslation("editCdcSinkTask");
+
+    return (
+        <div className="border border-secondary rounded-2 panel-bg-2 p-3">
+            <div className="mb-2">
+                <strong>{t("syntaxHelp.availableVariables")}</strong>
+            </div>
+            <ul className="mb-0">
+                <li>
+                    <StudioTrans
+                        ns="editCdcSinkTask"
+                        i18nKey="patch.variableThis"
+                        components={{ code: <code />, br: <br /> }}
+                    />
+                </li>
+                <li>
+                    <StudioTrans ns="editCdcSinkTask" i18nKey="patch.variableRow" components={{ code: <code /> }} />
+                </li>
+                <li>
+                    <StudioTrans
+                        ns="editCdcSinkTask"
+                        i18nKey="patch.variableOld"
+                        components={{ code: <code />, br: <br />, strong: <strong /> }}
+                    />
+                </li>
+            </ul>
         </div>
-        <ul className="mb-0">
-            <li>
-                <code>this</code> - the document AFTER column mapping has been applied
-                <br />
-                (already contains the new values from the CDC row).
-            </li>
-            <li>
-                <code>$row</code> - the raw CDC row with all columns as-is from the source database.
-            </li>
-            <li>
-                <code>$old</code> - the state stored in RavenDB BEFORE the CDC event was processed
-                <br />(<strong>for root patches</strong>: the full document; <strong>for embedded patches</strong>: the
-                matched embedded item).
-                <br />
-                Null for inserts.
-            </li>
-        </ul>
-    </div>
-);
+    );
+};
 
 const patchSyntaxHelp = (
     <div className="vstack gap-2">

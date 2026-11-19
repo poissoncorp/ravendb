@@ -1,6 +1,9 @@
 ﻿/// <reference path="../../../../typings/tsd.d.ts"/>
 import generalUtils = require("common/generalUtils");
 import ongoingTaskEditModel = require("models/database/tasks/ongoingTaskEditModel"); 
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
 
 class ongoingTaskReplicationEditModel extends ongoingTaskEditModel {
        
@@ -30,7 +33,7 @@ class ongoingTaskReplicationEditModel extends ongoingTaskEditModel {
         this.humaneDelayDescription = ko.pureComputed(() => {
             const delayTimeHumane = generalUtils.formatTimeSpan(this.delayReplicationTime() * 1000, true);
             return this.showDelayReplication() && this.delayReplicationTime.isValid() && this.delayReplicationTime() !== 0 ?
-                `Documents will be replicated after a delay time of <strong>${delayTimeHumane}</strong>` : "";
+                t("delayDescription", { delayTimeHumane: generalUtils.escapeHtml(delayTimeHumane) }) : "";
         });
     }
     
@@ -73,7 +76,7 @@ class ongoingTaskReplicationEditModel extends ongoingTaskEditModel {
             validation: [
                 {
                     validator: () => !this.showDelayReplication() || !!this.delayReplicationTime(),
-                    message: "Please enter a value greater than 0"
+                    message: t("validation.valueGreaterThanZero")
                 }
             ],
             min: 0

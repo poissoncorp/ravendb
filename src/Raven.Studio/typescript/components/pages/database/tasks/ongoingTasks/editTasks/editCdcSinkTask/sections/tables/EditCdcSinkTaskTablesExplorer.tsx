@@ -14,12 +14,14 @@ import { getRootTablePath } from "components/pages/database/tasks/ongoingTasks/e
 import { EditCdcSinkTaskTableItems } from "components/pages/database/tasks/ongoingTasks/editTasks/editCdcSinkTask/sections/tables/tablesExplorer/EditCdcSinkTaskTableItems";
 import { Switch } from "components/common/Checkbox";
 import { CustomDropdownToggle } from "components/common/Dropdown";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface EditCdcSinkTaskTablesExplorerProps {
     tablesFieldArray: UseFieldArrayReturn<EditCdcSinkTaskFormData, "tables", "id">;
 }
 
 export default function EditCdcSinkTaskTablesExplorer({ tablesFieldArray }: EditCdcSinkTaskTablesExplorerProps) {
+    const t = useStudioTranslation("editCdcSinkTask");
     const dispatch = useAppDispatch();
     const isFieldMappingExpandedByDefault = useAppSelector(editCdcSinkTaskSelectors.isFieldMappingExpandedByDefault);
     const [filter, setFilter] = useState("");
@@ -63,12 +65,12 @@ export default function EditCdcSinkTaskTablesExplorer({ tablesFieldArray }: Edit
     return (
         <div className="vstack gap-2 h-100">
             <div className="hstack">
-                <div className="me-auto">Tables</div>
+                <div className="me-auto">{t("tablesExplorer.title")}</div>
                 <Button
                     variant="link"
                     size="xs"
                     className="text-body"
-                    title="Add new root table"
+                    title={t("tablesExplorer.addRootTable")}
                     onClick={handleAddRootTable}
                 >
                     <Icon icon="plus" margin="m-0" />
@@ -77,7 +79,7 @@ export default function EditCdcSinkTaskTablesExplorer({ tablesFieldArray }: Edit
                     variant="link"
                     size="xs"
                     className="text-body"
-                    title="Collapse all tables"
+                    title={t("tablesExplorer.collapseAll")}
                     onClick={() => handleExpandedSet(false)}
                 >
                     <Icon icon="collapse-vertical" margin="m-0" />
@@ -86,7 +88,7 @@ export default function EditCdcSinkTaskTablesExplorer({ tablesFieldArray }: Edit
                     variant="link"
                     size="xs"
                     className="text-body"
-                    title="Expand all tables"
+                    title={t("tablesExplorer.expandAll")}
                     onClick={() => handleExpandedSet(true)}
                 >
                     <Icon icon="expand-vertical" margin="m-0" />
@@ -97,7 +99,7 @@ export default function EditCdcSinkTaskTablesExplorer({ tablesFieldArray }: Edit
                         isCaretHidden
                         variant="link"
                         className="text-body"
-                        title="Table settings"
+                        title={t("tablesExplorer.settings")}
                         size="xs"
                     >
                         <Icon icon="settings" margin="m-0" />
@@ -113,7 +115,7 @@ export default function EditCdcSinkTaskTablesExplorer({ tablesFieldArray }: Edit
                                     )
                                 }
                             >
-                                Expand field mapping
+                                {t("tablesExplorer.expandFieldMapping")}
                             </Switch>
                         </Dropdown.ItemText>
                     </Dropdown.Menu>
@@ -122,7 +124,7 @@ export default function EditCdcSinkTaskTablesExplorer({ tablesFieldArray }: Edit
             <Form.Control
                 type="text"
                 size="sm"
-                placeholder="Filter tables"
+                placeholder={t("tablesExplorer.filterPlaceholder")}
                 value={filter}
                 onChange={(e: ChangeEvent<HTMLInputElement>) => setFilter(e.target.value)}
             />

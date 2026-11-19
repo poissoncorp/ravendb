@@ -1,5 +1,8 @@
 ﻿import backupSettings = require("models/database/tasks/periodicBackup/backupSettings");
 import jsonUtil = require("common/jsonUtil");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
 
 abstract class amazonSettings extends backupSettings {
     awsAccessKey = ko.observable<string>();
@@ -12,40 +15,42 @@ abstract class amazonSettings extends backupSettings {
     
     allowedRegions: Array<string>;
 
-    static availableAwsRegionEndpointsStatic = [
-        { label: "Africa (Cape Town)", value: "af-south-1", hasS3: true, hasGlacier: true },
-        { label: "Asia Pacific (Hong Kong)", value: "ap-east-1", hasS3: true, hasGlacier: true },
-        { label: "Asia Pacific (Hyderabad)", value: "ap-south-2", hasS3: true, hasGlacier: false },
-        { label: "Asia Pacific (Jakarta)", value: "ap-southeast-3", hasS3: true, hasGlacier: true },
-        { label: "Asia Pacific (Melbourne)", value: "ap-southeast-4", hasS3: true, hasGlacier: false },
-        { label: "Asia Pacific (Mumbai)", value: "ap-south-1", hasS3: true, hasGlacier: true },
-        { label: "Asia Pacific (Osaka)", value: "ap-northeast-3", hasS3: true, hasGlacier: true },
-        { label: "Asia Pacific (Seoul)", value: "ap-northeast-2", hasS3: true, hasGlacier: true },
-        { label: "Asia Pacific (Singapore)", value: "ap-southeast-1", hasS3: true, hasGlacier: true },
-        { label: "Asia Pacific (Sydney)", value: "ap-southeast-2", hasS3: true, hasGlacier: true },
-        { label: "Asia Pacific (Tokyo)", value: "ap-northeast-1", hasS3: true, hasGlacier: true },
-        { label: "Canada (Central)", value: "ca-central-1", hasS3: true, hasGlacier: true },
-        { label: "China (Beijing)", value: "cn-north-1", hasS3: true, hasGlacier: true },
-        { label: "China (Ningxia)", value: "cn-northwest-1", hasS3: true, hasGlacier: true },
-        { label: "Europe (Frankfurt)", value: "eu-central-1", hasS3: true, hasGlacier: true },
-        { label: "Europe (Ireland)", value: "eu-west-1", hasS3: true, hasGlacier: true },
-        { label: "Europe (London)", value: "eu-west-2", hasS3: true, hasGlacier: true },
-        { label: "Europe (Milan)", value: "eu-south-1", hasS3: true, hasGlacier: true },
-        { label: "Europe (Paris)", value: "eu-west-3", hasS3: true, hasGlacier: true },
-        { label: "Europe (Stockholm)", value: "eu-north-1", hasS3: true, hasGlacier: true },
-        { label: "Europe (Spain)", value: "eu-south-2", hasS3: true, hasGlacier: false },
-        { label: "Europe (Zurich)", value: "eu-central-2", hasS3: true, hasGlacier: false },
-        { label: "Israel (Tel Aviv)", value: "il-central-1", hasS3: true, hasGlacier: true },
-        { label: "Middle East (Bahrain)", value: "me-south-1", hasS3: true, hasGlacier: true },
-        { label: "Middle East (UAE)", value: "me-central-1", hasS3: true, hasGlacier: false },
-        { label: "South America (São Paulo)", value: "sa-east-1", hasS3: true, hasGlacier: true },
-        { label: "US East (N. Virginia)", value: "us-east-1", hasS3: true, hasGlacier: true },
-        { label: "US East (Ohio)", value: "us-east-2", hasS3: true, hasGlacier: true },
-        { label: "US West (N. California)", value: "us-west-1", hasS3: true, hasGlacier: true },
-        { label: "US West (Oregon)", value: "us-west-2", hasS3: true, hasGlacier: true },
-        { label: "AWS GovCloud (US-East)", value: "us-gov-east-1", hasS3: true, hasGlacier: true },
-        { label: "AWS GovCloud (US-West)", value: "us-gov-west-1", hasS3: true, hasGlacier: true }
-    ];
+    static get availableAwsRegionEndpointsStatic() {
+        return [
+            { label: t("backup.awsRegions.afSouth1"), value: "af-south-1", hasS3: true, hasGlacier: true },
+            { label: t("backup.awsRegions.apEast1"), value: "ap-east-1", hasS3: true, hasGlacier: true },
+            { label: t("backup.awsRegions.apSouth2"), value: "ap-south-2", hasS3: true, hasGlacier: false },
+            { label: t("backup.awsRegions.apSoutheast3"), value: "ap-southeast-3", hasS3: true, hasGlacier: true },
+            { label: t("backup.awsRegions.apSoutheast4"), value: "ap-southeast-4", hasS3: true, hasGlacier: false },
+            { label: t("backup.awsRegions.apSouth1"), value: "ap-south-1", hasS3: true, hasGlacier: true },
+            { label: t("backup.awsRegions.apNortheast3"), value: "ap-northeast-3", hasS3: true, hasGlacier: true },
+            { label: t("backup.awsRegions.apNortheast2"), value: "ap-northeast-2", hasS3: true, hasGlacier: true },
+            { label: t("backup.awsRegions.apSoutheast1"), value: "ap-southeast-1", hasS3: true, hasGlacier: true },
+            { label: t("backup.awsRegions.apSoutheast2"), value: "ap-southeast-2", hasS3: true, hasGlacier: true },
+            { label: t("backup.awsRegions.apNortheast1"), value: "ap-northeast-1", hasS3: true, hasGlacier: true },
+            { label: t("backup.awsRegions.caCentral1"), value: "ca-central-1", hasS3: true, hasGlacier: true },
+            { label: t("backup.awsRegions.cnNorth1"), value: "cn-north-1", hasS3: true, hasGlacier: true },
+            { label: t("backup.awsRegions.cnNorthwest1"), value: "cn-northwest-1", hasS3: true, hasGlacier: true },
+            { label: t("backup.awsRegions.euCentral1"), value: "eu-central-1", hasS3: true, hasGlacier: true },
+            { label: t("backup.awsRegions.euWest1"), value: "eu-west-1", hasS3: true, hasGlacier: true },
+            { label: t("backup.awsRegions.euWest2"), value: "eu-west-2", hasS3: true, hasGlacier: true },
+            { label: t("backup.awsRegions.euSouth1"), value: "eu-south-1", hasS3: true, hasGlacier: true },
+            { label: t("backup.awsRegions.euWest3"), value: "eu-west-3", hasS3: true, hasGlacier: true },
+            { label: t("backup.awsRegions.euNorth1"), value: "eu-north-1", hasS3: true, hasGlacier: true },
+            { label: t("backup.awsRegions.euSouth2"), value: "eu-south-2", hasS3: true, hasGlacier: false },
+            { label: t("backup.awsRegions.euCentral2"), value: "eu-central-2", hasS3: true, hasGlacier: false },
+            { label: t("backup.awsRegions.ilCentral1"), value: "il-central-1", hasS3: true, hasGlacier: true },
+            { label: t("backup.awsRegions.meSouth1"), value: "me-south-1", hasS3: true, hasGlacier: true },
+            { label: t("backup.awsRegions.meCentral1"), value: "me-central-1", hasS3: true, hasGlacier: false },
+            { label: t("backup.awsRegions.saEast1"), value: "sa-east-1", hasS3: true, hasGlacier: true },
+            { label: t("backup.awsRegions.usEast1"), value: "us-east-1", hasS3: true, hasGlacier: true },
+            { label: t("backup.awsRegions.usEast2"), value: "us-east-2", hasS3: true, hasGlacier: true },
+            { label: t("backup.awsRegions.usWest1"), value: "us-west-1", hasS3: true, hasGlacier: true },
+            { label: t("backup.awsRegions.usWest2"), value: "us-west-2", hasS3: true, hasGlacier: true },
+            { label: t("backup.awsRegions.usGovEast1"), value: "us-gov-east-1", hasS3: true, hasGlacier: true },
+            { label: t("backup.awsRegions.usGovWest1"), value: "us-gov-west-1", hasS3: true, hasGlacier: true }
+        ];
+    }
 
     availableAwsRegionEndpoints = amazonSettings.availableAwsRegionEndpointsStatic;
     
@@ -104,12 +109,12 @@ abstract class amazonSettings extends backupSettings {
                     validator: (awsRegionName: string) => !this.isRegionRequired() ||
                                                           (awsRegionName && (this.isRegionFound(awsRegionName) || !this.allowedRegions)),
                                                           // Allow custom regions only if administrator didn't restrict regions (if this.allowedRegions is null)
-                    message: "Invalid region"
+                    message: t("backup.invalidRegion")
                 },
                 {
                     validator: (awsRegionName: string) => !this.isRegionRequired() || 
                                                           (awsRegionName && awsRegionName.includes("-") && !awsRegionName.startsWith("-") && !awsRegionName.endsWith("-")),
-                    message: "AWS Region must include a '-' and cannot start or end with it"
+                    message: t("backup.regionFormat")
                 }
             ]
         });

@@ -39,6 +39,9 @@ import activeDatabaseTracker = require("common/shell/activeDatabaseTracker");
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
 import { accessManagerSelectors } from "components/common/shell/accessManagerSliceSelectors";
 import { ConditionalPopover } from "components/common/ConditionalPopover";
+import { createTranslator } from "common/i18n/i18n";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import type { StudioTranslate } from "common/i18n/resources";
 
 interface PeriodicBackupPanelProps extends BaseOngoingTaskPanelProps<OngoingTaskPeriodicBackupInfo> {
     forceReload: () => void;
@@ -46,29 +49,33 @@ interface PeriodicBackupPanelProps extends BaseOngoingTaskPanelProps<OngoingTask
     sourceView: EditPeriodicBackupTaskSourceView;
 }
 
-const neverBackedUpText = "Never backed up";
-
 export function formatBackupType(backupType: BackupType, isFull: boolean) {
+    const t = createTranslator("ongoingTasks");
+
     if (!isFull) {
-        return "Incremental";
+        return t("periodicBackup.backupType.incremental");
     }
     switch (backupType) {
         case "Snapshot":
-            return "Snapshot";
+            return t("periodicBackup.backupType.snapshot");
         case "Backup":
-            return "Full Backup";
+            return t("periodicBackup.backupType.full");
         default:
             assertUnreachable(backupType);
     }
 }
 
-function findBackupNowBlockReason(data: OngoingTaskPeriodicBackupInfo, runningOnAnotherNode: boolean): string {
+function findBackupNowBlockReason(
+    t: StudioTranslate<"ongoingTasks">,
+    data: OngoingTaskPeriodicBackupInfo,
+    runningOnAnotherNode: boolean
+): string {
     if (!data.shared.nextBackup) {
-        return "No backup destinations";
+        return t("periodicBackup.noBackupDestinations");
     }
 
     if (runningOnAnotherNode) {
-        return "Backup in progress on node " + data.shared.responsibleNodeTag;
+        return t("periodicBackup.backupInProgressOnNode", { nodeTag: data.shared.responsibleNodeTag });
     }
 
     return null;
@@ -76,14 +83,15 @@ function findBackupNowBlockReason(data: OngoingTaskPeriodicBackupInfo, runningOn
 
 function Details(props: PeriodicBackupPanelProps) {
     const { data, forceReload } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     const backupDestinationsHumanized = data.shared.backupDestinations.length
         ? data.shared.backupDestinations.join(", ")
-        : "No destinations defined";
+        : t("periodicBackup.noDestinationsDefined");
 
     const lastFullBackupHumanized = data.shared.lastFullBackup
         ? genUtils.formatDurationByDate(moment.utc(data.shared.lastFullBackup), true)
-        : neverBackedUpText;
+        : t("periodicBackup.neverBackedUp");
 
     const lastIncrementalBackupHumanized = data.shared.lastIncrementalBackup
         ? genUtils.formatDurationByDate(moment.utc(data.shared.lastIncrementalBackup), true)
@@ -92,7 +100,7 @@ function Details(props: PeriodicBackupPanelProps) {
     const nextBackupHumanized = useMemo(() => {
         const nextBackup = data.shared.nextBackup;
         if (!nextBackup) {
-            return "N/A";
+            return t("notAvailable");
         }
 
         const now = timeHelpers.utcNowWithSecondPrecision();
@@ -101,11 +109,13 @@ function Details(props: PeriodicBackupPanelProps) {
         const backupTypeText = formatBackupType(data.shared.backupType, nextBackup.IsFull);
         const formatDuration = genUtils.formatDuration(moment.duration(diff), true, 2, true);
         const originalDate = nextBackup.OriginalBackupTime;
-        const originalDateText = originalDate
-            ? ", delayed backup from: " + genUtils.formatUtcDateAsLocal(originalDate)
-            : "";
-        return `in ${formatDuration} (${backupTypeText}) ${originalDateText}`;
-    }, [data.shared]);
+        return t("periodicBackup.nextBackup", {
+            context: originalDate ? "delayed" : undefined,
+            duration: formatDuration,
+            backupType: backupTypeText,
+            date: originalDate ? genUtils.formatUtcDateAsLocal(originalDate) : "",
+        });
+    }, [data.shared, t]);
 
     const localNodeTag = useAppSelector(clusterSelectors.localNodeTag);
 
@@ -120,13 +130,16 @@ function Details(props: PeriodicBackupPanelProps) {
         }
 
         const fromDuration = genUtils.formatDurationByDate(moment.utc(onGoingBackup.StartTime), true);
-        return `${fromDuration} (${formatBackupType(data.shared.backupType, onGoingBackup.IsFull)})`;
-    }, [data.shared, onGoingBackup]);
+        return t("periodicBackup.backupStartedValue", {
+            duration: fromDuration,
+            backupType: formatBackupType(data.shared.backupType, onGoingBackup.IsFull),
+        });
+    }, [data.shared, onGoingBackup, t]);
 
     const retentionPolicyHumanized = useMemo(() => {
         const disabled = data.shared.retentionPolicy ? data.shared.retentionPolicy.Disabled : true;
         if (disabled) {
-            return "No backups will be removed";
+            return t("periodicBackup.noBackupsRemoved");
         }
 
         const retentionPolicyPeriod = data.shared.retentionPolicy
@@ -134,9 +147,9 @@ function Details(props: PeriodicBackupPanelProps) {
             : "0.0:00:00";
 
         return genUtils.formatTimeSpan(retentionPolicyPeriod, true);
-    }, [data.shared]);
+    }, [data.shared, t]);
 
-    const backupNowBlockReason = findBackupNowBlockReason(data, runningOnAnotherNode);
+    const backupNowBlockReason = findBackupNowBlockReason(t, data, runningOnAnotherNode);
 
     const backupNowInProgress = !!onGoingBackup;
     const neverBackedUp = !data.shared.lastFullBackup;
@@ -187,21 +200,27 @@ function Details(props: PeriodicBackupPanelProps) {
         app.showBootstrapDialog(backupNowViewModel);
     };
 
-    const backupTypeLabel = formatBackupType(data.shared.backupType, true);
-
     return (
         <RichPanelDetails>
-            <RichPanelDetailItem label="Destinations">{backupDestinationsHumanized}</RichPanelDetailItem>
-            <RichPanelDetailItem label="Last executed on node">
-                {data.shared.lastExecutingNodeTag || "N/A"}
+            <RichPanelDetailItem label={t("periodicBackup.destinations")}>
+                {backupDestinationsHumanized}
             </RichPanelDetailItem>
-            <RichPanelDetailItem label={"Last " + backupTypeLabel}>{lastFullBackupHumanized}</RichPanelDetailItem>
+            <RichPanelDetailItem label={t("periodicBackup.lastExecutedOnNode")}>
+                {data.shared.lastExecutingNodeTag || t("notAvailable")}
+            </RichPanelDetailItem>
+            <RichPanelDetailItem
+                label={t("periodicBackup.lastBackup", {
+                    context: data.shared.backupType === "Snapshot" ? "snapshot" : "full",
+                })}
+            >
+                {lastFullBackupHumanized}
+            </RichPanelDetailItem>
             {lastIncrementalBackupHumanized && (
-                <RichPanelDetailItem label="Last Incremental Backup">
+                <RichPanelDetailItem label={t("periodicBackup.lastIncrementalBackup")}>
                     {lastIncrementalBackupHumanized}
                 </RichPanelDetailItem>
             )}
-            <RichPanelDetailItem label="Next Estimated Backup">
+            <RichPanelDetailItem label={t("periodicBackup.nextEstimatedBackup")}>
                 {nextBackupHumanized}
                 {backupNowVisible && (
                     <Badge
@@ -214,29 +233,39 @@ function Details(props: PeriodicBackupPanelProps) {
                             "bg-warning": !backupNowInProgress && neverBackedUp,
                         })}
                         disabled={!!backupNowBlockReason}
-                        title={backupNowBlockReason ?? "Click to trigger the backup task now"}
+                        title={backupNowBlockReason ?? t("periodicBackup.backupNowTitle")}
                         bg="secondary"
                     >
                         <Icon icon="backup" />
-                        <span>{isResponsible && backupNowInProgress ? "Show backup progress" : "Backup now"}</span>
+                        <span>
+                            {isResponsible && backupNowInProgress
+                                ? t("periodicBackup.showBackupProgress")
+                                : t("periodicBackup.backupNow")}
+                        </span>
                     </Badge>
                 )}
             </RichPanelDetailItem>
             {onGoingBackupHumanized && (
-                <RichPanelDetailItem label="Backup Started">{onGoingBackupHumanized}</RichPanelDetailItem>
+                <RichPanelDetailItem label={t("periodicBackup.backupStarted")}>
+                    {onGoingBackupHumanized}
+                </RichPanelDetailItem>
             )}
-            <RichPanelDetailItem label="Retention Policy">{retentionPolicyHumanized}</RichPanelDetailItem>
+            <RichPanelDetailItem label={t("periodicBackup.retentionPolicy")}>
+                {retentionPolicyHumanized}
+            </RichPanelDetailItem>
         </RichPanelDetails>
     );
 }
 
 function BackupEncryption(props: { encrypted: boolean }) {
+    const t = useStudioTranslation("ongoingTasks");
+
     return (
         <div>
             {props.encrypted ? (
-                <Icon icon="encryption" color="success" title="Backup is encrypted" margin="m-0" />
+                <Icon icon="encryption" color="success" title={t("periodicBackup.encrypted")} margin="m-0" />
             ) : (
-                <Icon icon="unlock" color="muted" title="Backup is not encrypted" margin="m-0" />
+                <Icon icon="unlock" color="muted" title={t("periodicBackup.notEncrypted")} margin="m-0" />
             )}
         </div>
     );
@@ -245,6 +274,7 @@ function BackupEncryption(props: { encrypted: boolean }) {
 export function PeriodicBackupPanel(props: PeriodicBackupPanelProps) {
     const { data, allowSelect, toggleSelection, isSelected, onTaskOperation, isDeleting, isTogglingState, sourceView } =
         props;
+    const t = useStudioTranslation("ongoingTasks");
 
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
     const { forCurrentDatabase } = useAppUrls();
@@ -275,14 +305,14 @@ export function PeriodicBackupPanel(props: PeriodicBackupPanelProps) {
                 <RichPanelActions>
                     <span>
                         <Icon icon="periodic-backup" />
-                        Periodic Backup
+                        {t("taskType.periodicBackup")}
                     </span>
                     <OngoingTaskResponsibleNode task={data} />
                     <BackupEncryption encrypted={data.shared.encrypted} />
                     <ConditionalPopover
                         conditions={{
                             isActive: isServerWide,
-                            message: "Status can be managed on the Server-Wide Tasks page",
+                            message: t("periodicBackup.serverWideStatusInfo"),
                         }}
                     >
                         <OngoingTaskStatus

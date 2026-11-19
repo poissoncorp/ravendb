@@ -15,6 +15,7 @@ import { useFormContext } from "react-hook-form";
 import { FormErrorIcon } from "components/common/Form";
 import { editCdcSinkTaskConstants } from "components/pages/database/tasks/ongoingTasks/editTasks/editCdcSinkTask/utils/editCdcSinkTaskConstants";
 import { EditCdcSinkTaskTableWarningIcon } from "./EditCdcSinkTaskTableWarningIcon";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 const { expandButtonWidthPx, nestedTableIndentPx } = editCdcSinkTaskConstants;
 
@@ -25,12 +26,13 @@ export function EditCdcSinkTaskLinkedTableItem({
     isRootDisabled,
     warningMessages,
 }: ExplorerRowLinkedTable) {
+    const t = useStudioTranslation("editCdcSinkTask");
     const dispatch = useAppDispatch();
     const tableActions = useEditCdcSinkTaskTableActions();
     const isActive = useAppSelector(editCdcSinkTaskSelectors.isActiveTable(path));
     const { control } = useFormContext<EditCdcSinkTaskFormData>();
 
-    const label = table.sourceTableName || "Unassigned table";
+    const label = table.sourceTableName || t("tablesExplorer.unassignedTable");
 
     const handleClick = () => {
         if (!isActive) {
@@ -62,7 +64,7 @@ export function EditCdcSinkTaskLinkedTableItem({
                     isCaretHidden
                     variant="link"
                     className="text-body px-1"
-                    title="Table actions"
+                    title={t("tablesExplorer.tableActions")}
                     size="xs"
                 >
                     <Icon icon="more" margin="m-0" />
@@ -72,7 +74,7 @@ export function EditCdcSinkTaskLinkedTableItem({
                         className="text-danger"
                         onClick={() => tableActions.removeTable({ path, type: "linked" })}
                     >
-                        <Icon icon="trash" /> Remove
+                        <Icon icon="trash" /> {t("tablesExplorer.remove")}
                     </Dropdown.Item>
                 </DropdownPortalMenu>
             </DropdownWithPortalMenu>

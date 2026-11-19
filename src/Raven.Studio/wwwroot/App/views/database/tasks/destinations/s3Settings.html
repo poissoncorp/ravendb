@@ -2,10 +2,10 @@
     <div class="col-xs-offset-12 col-sm-offset-6 col-lg-offset-4">
         <div class="toggle margin-left">
             <input id="s3ForcePathStyle" type="checkbox" data-bind="checked: forcePathStyle">
-            <label for="s3ForcePathStyle">Force path style</label>
+            <label for="s3ForcePathStyle" data-bind="i18n: 's3Settings:forcePathStyle'"></label>
             <small data-toggle="tooltip" 
                    data-animation="true" 
-                   title="Whether to force path style URLs for S3 objects (e.g., https://{Server-URL}/{Bucket-Name} instead of {https://{Bucket-Name}.{Server-URL})">
+                   data-bind="i18nAttr: { title: 's3Settings:forcePathStyleTitle' }">
                 <i class="icon-info text-info"></i>
             </small>
         </div>
@@ -13,10 +13,10 @@
     <div class="col-xs-offset-12 col-sm-offset-6 col-lg-offset-4">
         <div class="toggle margin-left">
             <input id="disableChecksumValidation" type="checkbox" data-bind="checked: disableChecksumValidation">
-            <label for="disableChecksumValidation">Disable Checksum Validation</label>
+            <label for="disableChecksumValidation" data-bind="i18n: 's3Settings:disableChecksumValidation'"></label>
             <small data-toggle="tooltip"
                    data-animation="true"
-                   title="Disables S3 checksum validation for uploads">
+                   data-bind="i18nAttr: { title: 's3Settings:disableChecksumValidationTitle' }">
                 <i class="icon-info text-info"></i>
             </small>
         </div>
@@ -25,7 +25,7 @@
 
 <div class="row margin-bottom" data-bind="validationElement: customServerUrl, collapse: useCustomS3Host">
     <label class="control-label col-xs-12 col-sm-6 col-lg-4">
-        Custom server URL <i class="required"></i>
+        <span data-bind="i18n: 's3Settings:customServerUrl'"></span> <i class="required"></i>
     </label>
     <div class="col-xs-12 col-sm-6 col-lg-8" data-bind="validationElement: customServerUrl">
         <input data-bind="textInput: customServerUrl" type="text" class="form-control" />
@@ -33,22 +33,22 @@
 </div>
 <div class="row margin-bottom" data-bind="validationElement: bucketName">
     <label class="control-label col-xs-12 col-sm-6 col-lg-4">
-        Bucket name <i class="required"></i> <small><i class="icon-info text-info bucket-info"></i></small>
+        <span data-bind="i18n: 's3Settings:bucketName'"></span> <i class="required"></i> <small><i class="icon-info text-info bucket-info"></i></small>
     </label>
     <div class="col-xs-12 col-sm-6 col-lg-8" data-bind="validationElement: bucketName">
         <input data-bind="textInput: bucketName" type="text" class="form-control" />
     </div>
 </div>
 <div class="row margin-bottom" data-bind="validationElement: remoteFolderName">
-    <label class="control-label col-xs-12 col-sm-6 col-lg-4">Remote folder name</label>
+    <label class="control-label col-xs-12 col-sm-6 col-lg-4" data-bind="i18n: 's3Settings:remoteFolderName'"></label>
     <div class="col-xs-12 col-sm-6 col-lg-8">
         <input data-bind="textInput: remoteFolderName" type="text" class="form-control" />
     </div>
 </div>
 <div class="row margin-bottom" data-bind="validationElement: storageClass, visible: targetOperation !== 'OLAP'">
-    <label class="control-label col-xs-12 col-sm-6 col-lg-4">Storage class</label>
+    <label class="control-label col-xs-12 col-sm-6 col-lg-4" data-bind="i18n: 's3Settings:storageClass'"></label>
     <div class="col-xs-12 col-sm-6 col-lg-8">
-        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" title="Select storage class">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" data-bind="i18nAttr: { title: 's3Settings:storageClassTitle' }">
             <span data-bind="text: storageClassLabel"></span>&nbsp;&nbsp;<span class="caret"></span>
         </button>
         <ul class="dropdown-menu margin-left-sm" data-bind="foreach: storageClassOptions">
@@ -59,19 +59,18 @@
     </div>
 </div>
 <div class="row margin-bottom" data-bind="visible: useCustomS3Host">
-    <label class="control-label col-xs-12 col-sm-6 col-lg-4">Region</label>
+    <label class="control-label col-xs-12 col-sm-6 col-lg-4" data-bind="i18n: 's3Settings:region'"></label>
     <div class="col-xs-12 col-sm-6 col-lg-8">
         <input type="text" class="form-control" data-bind="textInput: selectedAwsRegion">
     </div>
 </div>
 <div class="row margin-bottom" data-bind="visible: !useCustomS3Host(), validationElement: awsRegionName">
-    <label class="control-label col-xs-12 col-sm-6 col-lg-4">Region <i class="required"></i></label>
+    <label class="control-label col-xs-12 col-sm-6 col-lg-4"><span data-bind="i18n: 's3Settings:region'"></span> <i class="required"></i></label>
     <div class="col-xs-12 col-sm-6 col-lg-8" data-bind="validationOptions: { insertMessages: false }">
         <div class="dropdown btn-block">
             <input type="text" class="form-control dropdown-toggle" data-toggle="dropdown"
                    id="s3RegionInput"
-                   data-bind="textInput: selectedAwsRegion"
-                   placeholder="Select an AWS region">
+                   data-bind="textInput: selectedAwsRegion, i18nAttr: { placeholder: 's3Settings:regionPlaceholder' }">
             <span class="caret dropdown-toggle" data-toggle="dropdown"></span>
             <ul class="dropdown-menu" data-bind="foreach: createAwsRegionAutoCompleter(true), autoComplete: '#' + 's3RegionInput'">
                 <li data-bind="click: $parent.useAwsRegion.bind($parent, $data)">
@@ -93,24 +92,24 @@
     <div class="col-xs-12 col-sm-6 col-lg-8">
         <div class="input-group flex-grow">
             <input data-bind="textInput: awsSecretKey, attr: { type: isSecretHidden() ? 'password' : 'text' }" class="form-control" />
-            <button type="button" class="btn btn-default" data-bind="click: toggleIsSecretHidden, visible: isSecretHidden()" title="View hidden characters">
+            <button type="button" class="btn btn-default" data-bind="click: toggleIsSecretHidden, visible: isSecretHidden(), i18nAttr: { title: 's3Settings:viewHiddenCharactersTitle' }">
                 <i class="icon-preview"></i>
             </button>
-            <button type="button" class="btn btn-info" data-bind="click: toggleIsSecretHidden, visible: !isSecretHidden()" title="Hide characters">
+            <button type="button" class="btn btn-info" data-bind="click: toggleIsSecretHidden, visible: !isSecretHidden(), i18nAttr: { title: 's3Settings:hideCharactersTitle' }">
                 <i class="icon-preview-off"></i>
             </button>
         </div>
     </div>
 </div>
 <div class="row margin-bottom"  data-bind="visible: targetOperation === 'ManualBackup'">
-    <label class="control-label col-xs-12 col-sm-6 col-lg-4">Session token</label>
+    <label class="control-label col-xs-12 col-sm-6 col-lg-4" data-bind="i18n: 's3Settings:sessionToken'"></label>
     <div class="col-xs-12 col-sm-6 col-lg-8">
         <div class="input-group flex-grow">
             <input data-bind="textInput: awsSessionToken, attr: { type: isSessionTokenHidden() ? 'password' : 'text' }" class="form-control" />
-            <button type="button" class="btn btn-default" data-bind="click: toggleIsSessionTokenHidden, visible: isSessionTokenHidden()" title="View hidden characters">
+            <button type="button" class="btn btn-default" data-bind="click: toggleIsSessionTokenHidden, visible: isSessionTokenHidden(), i18nAttr: { title: 's3Settings:viewHiddenCharactersTitle' }">
                 <i class="icon-preview"></i>
             </button>
-            <button type="button" class="btn btn-info" data-bind="click: toggleIsSessionTokenHidden, visible: !isSessionTokenHidden()" title="Hide characters">
+            <button type="button" class="btn btn-info" data-bind="click: toggleIsSessionTokenHidden, visible: !isSessionTokenHidden(), i18nAttr: { title: 's3Settings:hideCharactersTitle' }">
                 <i class="icon-preview-off"></i>
             </button>
         </div>

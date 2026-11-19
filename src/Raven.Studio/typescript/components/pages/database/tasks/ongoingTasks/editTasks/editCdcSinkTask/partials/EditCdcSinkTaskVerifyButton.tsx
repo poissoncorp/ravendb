@@ -3,6 +3,8 @@ import { RavenButtonVariants } from "react-bootstrap/Button";
 import IconName from "typings/server/icons";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import { EditCdcSinkTaskWatchedVerification } from "components/pages/database/tasks/ongoingTasks/editTasks/editCdcSinkTask/hooks/useEditCdcSinkTaskVerification";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import type { StudioTranslate } from "common/i18n/resources";
 
 interface EditCdcSinkTaskVerifyButtonProps {
     verification: EditCdcSinkTaskWatchedVerification;
@@ -15,10 +17,11 @@ export default function EditCdcSinkTaskVerifyButton({
     onVerify,
     isDisabled,
 }: EditCdcSinkTaskVerifyButtonProps) {
-    const buttonData = getStatusButtonData(verification);
+    const t = useStudioTranslation("editCdcSinkTask");
+    const buttonData = getStatusButtonData(verification, t);
 
     return (
-        <PopoverWithHoverWrapper message="Runs the CDC flow once against the source database, reading one row from each configured table. Nothing is saved in RavenDB. CDC objects the run needs on the source database are created temporarily and removed afterwards.">
+        <PopoverWithHoverWrapper message={t("verification.buttonInfo")}>
             <ButtonWithSpinner
                 type="button"
                 variant={buttonData.variant}
@@ -34,22 +37,25 @@ export default function EditCdcSinkTaskVerifyButton({
     );
 }
 
-function getStatusButtonData({ loading, error, result }: EditCdcSinkTaskWatchedVerification): {
+function getStatusButtonData(
+    { loading, error, result }: EditCdcSinkTaskWatchedVerification,
+    t: StudioTranslate<"editCdcSinkTask">
+): {
     label: string;
     icon: IconName;
     variant: RavenButtonVariants;
 } {
     if (loading) {
-        return { label: "Verifying tables...", icon: "shield", variant: "outline-info" };
+        return { label: t("verification.verifying"), icon: "shield", variant: "outline-info" };
     }
     if (error || (result && !result.Success)) {
-        return { label: "Verification failed", icon: "danger", variant: "outline-danger" };
+        return { label: t("verification.failed"), icon: "danger", variant: "outline-danger" };
     }
     if (result?.Warnings.length) {
-        return { label: "Tables verified with warnings", icon: "warning", variant: "outline-warning" };
+        return { label: t("verification.verifiedWithWarnings"), icon: "warning", variant: "outline-warning" };
     }
     if (result) {
-        return { label: "Tables verified", icon: "check", variant: "outline-success" };
+        return { label: t("verification.verified"), icon: "check", variant: "outline-success" };
     }
-    return { label: "Verify tables", icon: "shield", variant: "outline-info" };
+    return { label: t("verification.verify"), icon: "shield", variant: "outline-info" };
 }

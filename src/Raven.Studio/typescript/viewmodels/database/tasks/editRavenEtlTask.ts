@@ -30,6 +30,9 @@ import licenseModel = require("models/auth/licenseModel");
 import EditRavenEtlInfoHub = require("viewmodels/database/tasks/EditRavenEtlInfoHub");
 import typeUtils = require("common/typeUtils");
 import tasksCommonContent = require("models/database/tasks/tasksCommonContent");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("editRavenEtlTask");
 
 type resultItem = {
     header: string;
@@ -196,7 +199,7 @@ class editRavenEtlTask extends shardViewModelBase {
     ravenEtlConnectionStringsDetails = ko.observableArray<Raven.Client.Documents.Operations.ETL.RavenConnectionString>([]);
 
     possibleMentors = ko.observableArray<string>([]);
-    loadRequestTimeoutPlaceholder = ko.observable<string>("Use database default timeout");
+    loadRequestTimeoutPlaceholder = ko.observable<string>(t("task.loadRequestTimeoutPlaceholder"));
 
     testConnectionResult = ko.observable<Raven.Server.Web.System.NodeConnectionTestResult>();
     
@@ -221,8 +224,14 @@ class editRavenEtlTask extends shardViewModelBase {
     hasRavenEtl = licenseModel.getStatusValue("HasRavenEtl");
     infoHubView: ReactInKnockout<typeof EditRavenEtlInfoHub.EditRavenEtlInfoHub>;
 
+    readonly licenseRestrictedTooltipHtml = `<div class='padding'>${t("licenseRestricted", { upgradeUrl: "https://ravendb.net/l/FLDLO4" })}</div>`;
+    readonly selectConnectionStringText = t("task.selectConnectionString");
+    readonly testInstructionsHtml = t("test.instructions");
+    readonly encryptedDatabaseHtml: string;
+
     constructor(db: database) {
         super(db);
+        this.encryptedDatabaseHtml = t("task.encryptedDatabase", { databaseName: generalUtils.escapeHtml(this.db.name) });
         
         aceEditorBindingHandler.install();
         this.bindToCurrentInstance("useConnectionString", "onTestConnectionRaven", "removeTransformationScript",
@@ -305,7 +314,7 @@ class editRavenEtlTask extends shardViewModelBase {
                 const effectiveValue = entry.effectiveValue();
 
                 if (effectiveValue) {
-                    this.loadRequestTimeoutPlaceholder(`Use database default timeout (${effectiveValue}s)`);
+                    this.loadRequestTimeoutPlaceholder(t("task.loadRequestTimeoutPlaceholderWithDefault", { seconds: effectiveValue }));
                 }
             });
     }

@@ -14,6 +14,7 @@ import {
     useNodeSlider,
 } from "components/pages/database/tasks/ongoingTasks/partials/ProgressDetailsSheetShell";
 import "./ReplicationProgressDetailsSheet.scss";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export interface ReplicationProgressSheetNodeDetails {
     error: string;
@@ -63,9 +64,11 @@ interface ReplicationProgressBodyProps {
 }
 
 function ReplicationProgressBody({ nodeInfo, isDebugInfoExpanded, onToggleDebugInfo }: ReplicationProgressBodyProps) {
+    const t = useStudioTranslation("ongoingTasks");
+
     if (nodeInfo.status === "failure") {
         const error = nodeInfo.details?.error;
-        const headline = error ? getErrorHeadline(error) : "Unable to load task status";
+        const headline = error ? getErrorHeadline(error) : t("progressSheet.unableToLoadStatus");
         return (
             <div className="vstack gap-2 py-2">
                 <div className="text-danger fw-bold">
@@ -92,7 +95,7 @@ function ReplicationProgressBody({ nodeInfo, isDebugInfoExpanded, onToggleDebugI
     const hasDebugInfo = !!sourceDatabaseCV || !!lastAcceptedCV;
 
     if (progress.length === 0 && !hasError && !hasDebugInfo) {
-        return <EmptySet compact>No progress data available.</EmptySet>;
+        return <EmptySet compact>{t("progressSheet.noProgressData")}</EmptySet>;
     }
 
     return (
@@ -100,16 +103,34 @@ function ReplicationProgressBody({ nodeInfo, isDebugInfoExpanded, onToggleDebugI
             {hasError && <ReplicationError error={nodeInfo.details.error} />}
             {progress.map((singleProgress, index) => (
                 <div key={"progress-" + index} className="vstack gap-2">
-                    <h4 className="mb-0">Replication process overview</h4>
+                    <h4 className="mb-0">{t("progressSheet.replicationOverview")}</h4>
                     <div className="replication-progress-grid">
-                        <ReplicationProgressCard label="documents" progress={singleProgress.documents} />
-                        <ReplicationProgressCard label="tombstones" progress={singleProgress.documentTombstones} />
-                        <ReplicationProgressCard label="revisions" progress={singleProgress.revisions} />
-                        <ReplicationProgressCard label="attachments" progress={singleProgress.attachments} />
-                        <ReplicationProgressCard label="counters" progress={singleProgress.counterGroups} />
-                        <ReplicationProgressCard label="time-series" progress={singleProgress.timeSeries} />
                         <ReplicationProgressCard
-                            label="time-series deleted ranges"
+                            label={t("progressItem.documents")}
+                            progress={singleProgress.documents}
+                        />
+                        <ReplicationProgressCard
+                            label={t("progressItem.tombstones")}
+                            progress={singleProgress.documentTombstones}
+                        />
+                        <ReplicationProgressCard
+                            label={t("progressItem.revisions")}
+                            progress={singleProgress.revisions}
+                        />
+                        <ReplicationProgressCard
+                            label={t("progressItem.attachments")}
+                            progress={singleProgress.attachments}
+                        />
+                        <ReplicationProgressCard
+                            label={t("progressItem.counters")}
+                            progress={singleProgress.counterGroups}
+                        />
+                        <ReplicationProgressCard
+                            label={t("progressItem.timeSeries")}
+                            progress={singleProgress.timeSeries}
+                        />
+                        <ReplicationProgressCard
+                            label={t("progressItem.timeSeriesDeletedRanges")}
                             progress={singleProgress.timeSeriesDeletedRanges}
                         />
                     </div>
@@ -119,17 +140,17 @@ function ReplicationProgressBody({ nodeInfo, isDebugInfoExpanded, onToggleDebugI
             {hasDebugInfo && (
                 <div className="vstack gap-2">
                     <div className="d-flex align-items-center justify-content-between">
-                        <h4 className="mb-0">Debug info</h4>
+                        <h4 className="mb-0">{t("progressSheet.debugInfo")}</h4>
                         <Button variant="link" size="xs" onClick={onToggleDebugInfo} className="p-0">
                             {isDebugInfoExpanded ? (
                                 <>
                                     <Icon icon="collapse-vertical" margin="me-1" />
-                                    Collapse
+                                    {t("collapse")}
                                 </>
                             ) : (
                                 <>
                                     <Icon icon="expand-vertical" margin="me-1" />
-                                    Expand
+                                    {t("expand")}
                                 </>
                             )}
                         </Button>

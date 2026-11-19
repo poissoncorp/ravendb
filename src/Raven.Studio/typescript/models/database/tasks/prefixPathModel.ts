@@ -1,4 +1,8 @@
-﻿class prefixPathModel {
+﻿import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
+
+class prefixPathModel {
     path = ko.observable<string>();
     validationGroup: KnockoutValidationGroup;
 
@@ -36,7 +40,7 @@
                         
                         return true;
                     },
-                    message: "When using '*' as the last character, the previous character must be '/' or '-'"
+                    message: t("replicationAccess.prefixPathWildcard")
                 }
             ]
         });

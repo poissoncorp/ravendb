@@ -2,6 +2,9 @@
 import replicationCertificateModel = require("models/database/tasks/replicationCertificateModel");
 import prefixPathModel = require("models/database/tasks/prefixPathModel");
 import replicationAccessBaseModel = require("models/database/tasks/replicationAccessBaseModel");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
 
 class replicationAccessHubModel extends replicationAccessBaseModel {
   
@@ -56,20 +59,20 @@ class replicationAccessHubModel extends replicationAccessBaseModel {
             const h2s = this.hubToSinkPrefixes().length;
             const s2h = this.sinkToHubPrefixes().length
 
-            let text = "";
-
-            if (h2s) {
-                text = `Hub to Sink (${h2s} path${h2s > 1 ? "s" : ""})`
-            }
-
             if (h2s && s2h) {
-                text += ", ";
+                return t("replicationAccess.bothDirectionsPaths", {
+                    hubToSink: t("replicationAccess.hubToSinkPaths", { count: h2s }),
+                    sinkToHub: t("replicationAccess.sinkToHubPaths", { count: s2h }),
+                });
+            }
+            if (h2s) {
+                return t("replicationAccess.hubToSinkPaths", { count: h2s });
             }
             if (s2h) {
-                text += `Sink to Hub (${s2h} path${s2h > 1 ? "s" : ""})`
+                return t("replicationAccess.sinkToHubPaths", { count: s2h });
             }
 
-            return text;
+            return "";
         })
     }
     
@@ -83,7 +86,7 @@ class replicationAccessHubModel extends replicationAccessBaseModel {
                                      this.usingExistingCertificate() ||
                                      !this.certificate() ||
                                      this.certificateInfoWasSavedForSinkTask(),
-                    message: "Export the Access Configuration or download the certificate before saving."
+                    message: t("replicationAccess.exportBeforeSaving")
                 }
             ]
         });

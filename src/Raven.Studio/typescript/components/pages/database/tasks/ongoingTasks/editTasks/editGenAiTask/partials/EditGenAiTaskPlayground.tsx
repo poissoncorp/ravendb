@@ -31,10 +31,13 @@ import { SelectOption } from "components/common/select/Select";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import AceEditor from "components/common/ace/AceEditor";
 import ReactAce from "react-ace";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 type PlaygroundTab = "document" | "context" | "modelOutput";
 
 export default function EditGenAiTaskPlayground() {
+    const t = useStudioTranslation("editGenAiTask");
     const dispatch = useAppDispatch();
 
     const documentRef = useRef<ReactAce>(null);
@@ -96,18 +99,17 @@ export default function EditGenAiTaskPlayground() {
     const handleEditModeToggle = async (isSelected: boolean): Promise<boolean> => {
         if (isSelected) {
             const isConfirmed = await confirm({
-                title: "You’re about to enter Playground edit mode",
+                title: t("playground.editModeConfirm.title"),
                 message: (
-                    <>
-                        While in Playground edit mode, you can modify the selected content as you wish.
-                        <br />
-                        Be aware that any changes made to the content in this mode will NOT be saved to the original
-                        element.
-                    </>
+                    <StudioTrans
+                        ns="editGenAiTask"
+                        i18nKey="playground.editModeConfirm.message"
+                        components={{ br: <br /> }}
+                    />
                 ),
                 actionColor: "warning",
                 confirmIcon: "arrow-right",
-                confirmText: "Enter edit mode",
+                confirmText: t("playground.editModeConfirm.confirm"),
                 icon: "edited",
                 size: "lg",
             });
@@ -162,8 +164,8 @@ export default function EditGenAiTaskPlayground() {
         <div className="playground">
             <div className="hstack">
                 <div>
-                    Playground
-                    <PopoverWithHoverWrapper message="Use the playground to select/enter sample content for testing the outcome of this configuration step.">
+                    {t("playground.title")}
+                    <PopoverWithHoverWrapper message={t("playground.titleInfo")}>
                         <Icon icon="info" color="info" margin="ms-1" />
                     </PopoverWithHoverWrapper>
                 </div>
@@ -175,7 +177,7 @@ export default function EditGenAiTaskPlayground() {
                         onClick={() => dispatch(editGenAiTaskActions.isPlaygroundCollapsedToggled())}
                     >
                         <Icon icon={isPlaygroundCollapsed ? "expand-vertical" : "collapse-vertical"} />
-                        {isPlaygroundCollapsed ? "Expand" : "Collapse"}
+                        {isPlaygroundCollapsed ? t("playground.expand") : t("playground.collapse")}
                     </Button>
                 </div>
             </div>
@@ -189,14 +191,11 @@ export default function EditGenAiTaskPlayground() {
                                         conditions={{
                                             isActive: currentStep !== "context" && currentStep !== "updateScript",
                                             message: (
-                                                <>
-                                                    The selected document has no effect on testing in this step.
-                                                    <br />
-                                                    <br />
-                                                    The test uses the context objects (generated in the previous
-                                                    playground step or customized here), along with the prompt and JSON
-                                                    schema.
-                                                </>
+                                                <StudioTrans
+                                                    ns="editGenAiTask"
+                                                    i18nKey="playground.documentTabInactiveInfo"
+                                                    components={{ br: <br /> }}
+                                                />
                                             ),
                                         }}
                                     >
@@ -208,7 +207,7 @@ export default function EditGenAiTaskPlayground() {
                                             })}
                                         >
                                             <Icon icon="document" />
-                                            Document
+                                            {t("playground.documentTab")}
                                         </Nav.Link>
                                     </ConditionalPopover>
                                 </Nav.Item>
@@ -216,7 +215,7 @@ export default function EditGenAiTaskPlayground() {
                                     <Nav.Item onClick={() => setActiveTab("context")}>
                                         <Nav.Link eventKey="context" className="no-decor">
                                             <Icon icon="indent" />
-                                            Context input
+                                            {t("playground.contextTab")}
                                         </Nav.Link>
                                     </Nav.Item>
                                 )}
@@ -225,8 +224,7 @@ export default function EditGenAiTaskPlayground() {
                                         <ConditionalPopover
                                             conditions={{
                                                 isActive: currentStep !== "updateScript",
-                                                message:
-                                                    "This configuration doesn’t give any additional context to the active step.",
+                                                message: t("playground.modelOutputTabInactiveInfo"),
                                             }}
                                         >
                                             <Nav.Link
@@ -236,7 +234,7 @@ export default function EditGenAiTaskPlayground() {
                                                 })}
                                             >
                                                 <Icon icon="resources" />
-                                                Model output
+                                                {t("playground.modelOutputTab")}
                                             </Nav.Link>
                                         </ConditionalPopover>
                                     </Nav.Item>
@@ -250,16 +248,14 @@ export default function EditGenAiTaskPlayground() {
                                     color="info"
                                     className="mb-0"
                                 >
-                                    Edit mode
+                                    {t("playground.editMode")}
                                     <PopoverWithHoverWrapper
                                         message={
-                                            <>
-                                                When in &quot;Edit mode&quot;, you can modify the content in the
-                                                Playground as you wish.
-                                                <br />
-                                                Be aware that any changes made to the content in this mode will NOT be
-                                                saved to the original element.
-                                            </>
+                                            <StudioTrans
+                                                ns="editGenAiTask"
+                                                i18nKey="playground.editModeInfo"
+                                                components={{ br: <br /> }}
+                                            />
                                         }
                                     >
                                         <Icon icon="info" color="info" margin="ms-1" />
@@ -280,11 +276,11 @@ export default function EditGenAiTaskPlayground() {
                                                     dispatch(editGenAiTaskActions.isDocumentInfoVisibleSet(false))
                                                 }
                                             >
-                                                In this playground area, you can select a document in order to test the
-                                                outcome of the context generation script and view the resulting context
-                                                object(s).
-                                                <br />
-                                                Choose an existing document or manually enter a new one (Edit mode).
+                                                <StudioTrans
+                                                    ns="editGenAiTask"
+                                                    i18nKey="playground.documentInfo"
+                                                    components={{ br: <br /> }}
+                                                />
                                             </RichAlert>
                                         )}
                                         {errors.playgroundDocument && (
@@ -293,11 +289,11 @@ export default function EditGenAiTaskPlayground() {
                                             </FormValidationMessage>
                                         )}
                                         <FormGroup>
-                                            <FormLabel>Select a document from the source collection</FormLabel>
+                                            <FormLabel>{t("playground.selectDocument")}</FormLabel>
                                             <FormSelectAutocomplete
                                                 control={control}
                                                 name="documentId"
-                                                placeholder="E.g. Posts/01"
+                                                placeholder={t("playground.selectDocumentPlaceholder")}
                                                 options={asyncGetDocumentIdOptions.result ?? []}
                                                 isLoading={asyncGetDocumentIdOptions.loading}
                                                 onChange={handleDocumentIdChange}
@@ -305,7 +301,7 @@ export default function EditGenAiTaskPlayground() {
                                         </FormGroup>
                                         <Button variant="link" onClick={handleProvideContentManually} size="sm">
                                             <Icon icon="edit" />
-                                            Or enter a document manually
+                                            {t("playground.enterDocumentManually")}
                                         </Button>
                                     </div>
                                 )}
@@ -319,7 +315,12 @@ export default function EditGenAiTaskPlayground() {
                                         >
                                             {formValues.documentId && (
                                                 <div>
-                                                    Selected document: <strong>{formValues.documentId}</strong>
+                                                    <StudioTrans
+                                                        ns="editGenAiTask"
+                                                        i18nKey="playground.selectedDocument"
+                                                        components={{ strong: <strong /> }}
+                                                        options={{ documentId: formValues.documentId }}
+                                                    />
                                                 </div>
                                             )}
                                             <Button
@@ -328,7 +329,7 @@ export default function EditGenAiTaskPlayground() {
                                                 onClick={() => setValue("playgroundDocument", "")}
                                             >
                                                 <Icon icon="reset" />
-                                                Reset selection
+                                                {t("playground.resetSelection")}
                                             </Button>
                                         </div>
                                         <FormAceEditor
@@ -365,27 +366,17 @@ export default function EditGenAiTaskPlayground() {
                                         className="mb-3"
                                         onCancel={() => dispatch(editGenAiTaskActions.isContextInfoVisibleSet(false))}
                                     >
-                                        This playground area shows the context objects generated in the previous step.
-                                        <br />
-                                        Alternatively, you can enter custom context objects manually using Edit mode.
-                                        <br />
-                                        You can then test the model’s response based on the combined input: the context
-                                        objects, and the prompt and schema defined in this step.
+                                        <StudioTrans
+                                            ns="editGenAiTask"
+                                            i18nKey="playground.contextInfo"
+                                            components={{ br: <br /> }}
+                                        />
                                     </RichAlert>
                                 )}
                                 <FormGroup className="hstack justify-content-end" marginClass="mb-2">
                                     <FormSwitch control={control} name="isForceSendingCachedObjects">
-                                        Force reprocess
-                                        <PopoverWithHoverWrapper
-                                            message={
-                                                <>
-                                                    When enabled, clicking &quot;Test model&quot; will send a test
-                                                    request to the model even if the sample document and context objects
-                                                    (from the playground), and the prompt and JSON schema (from the task
-                                                    definition) haven’t changed.
-                                                </>
-                                            }
-                                        >
+                                        {t("playground.forceReprocess")}
+                                        <PopoverWithHoverWrapper message={t("playground.forceReprocessInfo")}>
                                             <Icon icon="info" color="info" margin="ms-1" />
                                         </PopoverWithHoverWrapper>
                                     </FormSwitch>
@@ -404,7 +395,7 @@ export default function EditGenAiTaskPlayground() {
                                         className="mb-2"
                                     >
                                         <Icon icon="plus" />
-                                        Add new context object
+                                        {t("playground.addContextObject")}
                                     </Button>
                                 )}
                                 <div
@@ -428,13 +419,11 @@ export default function EditGenAiTaskPlayground() {
                                             dispatch(editGenAiTaskActions.isModelInputInfoVisibleSet(false))
                                         }
                                     >
-                                        This playground area shows the model output objects generated in the previous
-                                        step.
-                                        <br />
-                                        Alternatively, you can enter custom output objects manually using Edit mode.
-                                        <br />
-                                        You can then test to see how the &quot;update script&quot; would affect the
-                                        document that was selected in the first playground step.
+                                        <StudioTrans
+                                            ns="editGenAiTask"
+                                            i18nKey="playground.modelOutputInfo"
+                                            components={{ br: <br /> }}
+                                        />
                                     </RichAlert>
                                 )}
                                 {isPlaygroundEditMode && (
@@ -449,7 +438,7 @@ export default function EditGenAiTaskPlayground() {
                                         className="mb-2"
                                     >
                                         <Icon icon="plus" />
-                                        Add new output object
+                                        {t("playground.addOutputObject")}
                                     </Button>
                                 )}
                                 <div

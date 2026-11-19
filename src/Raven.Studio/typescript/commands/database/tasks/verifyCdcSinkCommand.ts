@@ -2,6 +2,9 @@ import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
 import CdcTestRequest = Raven.Client.Documents.Operations.CdcSink.Test.CdcTestRequest;
 import CdcTestResult = Raven.Client.Documents.Operations.CdcSink.Test.CdcTestResult;
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksCommands");
 
 export default class verifyCdcSinkCommand extends commandBase {
     constructor(
@@ -16,7 +19,7 @@ export default class verifyCdcSinkCommand extends commandBase {
 
         return this.post<CdcTestResult>(url, JSON.stringify(this.payload), this.db).fail(
             (response: JQueryXHR) => {
-                this.reportError("Failed to verify CDC Sink tables", response.responseText, response.statusText);
+                this.reportError(t("cdcSinkVerifyFailed"), response.responseText, response.statusText);
             }
         );
     }

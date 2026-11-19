@@ -1,13 +1,16 @@
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { FieldPath } from "react-hook-form";
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("importFromFile");
 
 function getJavaScriptSyntaxError(script: string): string | null {
     try {
         new Function(script);
         return null;
     } catch (e) {
-        return e instanceof SyntaxError ? `Invalid JavaScript: ${e.message}` : null;
+        return e instanceof SyntaxError ? t("validation.invalidJavaScript", { message: e.message }) : null;
     }
 }
 
@@ -106,13 +109,15 @@ const processingSchema = yup.object({
     transformScript: yup.string().when("isUseTransformScript", {
         is: true,
         then: (schema) =>
-            schema.required("Transform script is required when enabled").test("valid-javascript", (value, ctx) => {
-                if (!value?.trim()) {
-                    return true; // "required" above already covers the empty case
-                }
-                const error = getJavaScriptSyntaxError(value);
-                return error ? ctx.createError({ message: error }) : true;
-            }),
+            schema
+                .required(() => t("validation.transformScriptRequired"))
+                .test("valid-javascript", (value, ctx) => {
+                    if (!value?.trim()) {
+                        return true; // "required" above already covers the empty case
+                    }
+                    const error = getJavaScriptSyntaxError(value);
+                    return error ? ctx.createError({ message: error }) : true;
+                }),
     }),
     isSetMaxReadOpsPerSecond: yup.boolean(),
     maxReadOpsPerSecond: yup
@@ -120,23 +125,23 @@ const processingSchema = yup.object({
         .nullable()
         .when("isSetMaxReadOpsPerSecond", {
             is: true,
-            then: (schema) => schema.min(1, "Value must be at least 1").required("Value is required"),
+            then: (schema) =>
+                schema.min(1, () => t("validation.minValue")).required(() => t("validation.valueRequired")),
         }),
     isEncrypted: yup.boolean(),
     encryptionKey: yup.string().when("isEncrypted", {
         is: true,
-        then: (schema) => schema.required("Encryption key is required"),
+        then: (schema) => schema.required(() => t("validation.encryptionKeyRequired")),
     }),
 });
 
 export const importFromFileSchema = yup.object({
     file: yup
         .mixed<File>()
-        .required("Select a file to import")
+        .required(() => t("validation.fileRequired"))
         .test(
             "not-snapshot",
-            "The selected file is a RavenDB Snapshot file and cannot be imported. " +
-                "Use the 'Restore' option (under Create New Database) in order to restore data from a RavenDB Snapshot file.",
+            () => t("validation.snapshotFile"),
             (file) => {
                 if (!file) {
                     return true;

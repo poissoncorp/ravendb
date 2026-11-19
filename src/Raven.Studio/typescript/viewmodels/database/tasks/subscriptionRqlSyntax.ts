@@ -1,11 +1,16 @@
 import dialogViewModelBase = require("viewmodels/dialogViewModelBase");
 import copyToClipboard = require("common/copyToClipboard");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("editSubscriptionTask");
 
 class subscriptionRqlSyntax extends dialogViewModelBase {
 
     view = require("views/database/tasks/subscriptionRqlSyntax.html");
-    
+
     dialogContainer: Element;
+
+    readonly noteHtml = t("rqlSyntax.note");
 
     compositionComplete() {
         super.compositionComplete();
@@ -15,12 +20,14 @@ class subscriptionRqlSyntax extends dialogViewModelBase {
 
     copySample(sampleTitle: string) {
         const sampleText = subscriptionRqlSyntax.samples.find(x => x.title === sampleTitle).text;
-        copyToClipboard.copy(sampleText, "Sample has been copied to clipboard", this.dialogContainer);
+        copyToClipboard.copy(sampleText, t("rqlSyntax.copied"), this.dialogContainer);
     }
 
     static readonly samples: Array<sampleCode> = [
         {
-            title: "A subscription for all documents in a collection:",
+            get title() {
+                return t("rqlSyntax.allDocuments");
+            },
             text: 
 `from Orders`,
             html:
@@ -28,7 +35,9 @@ class subscriptionRqlSyntax extends dialogViewModelBase {
 <span class="token keyword">from</span><span class="token string"> Orders</span>`
         }, 
         {
-            title: "A subscription for projected (partial) document data:",
+            get title() {
+                return t("rqlSyntax.projection");
+            },
             text:
 `from Orders as o
 load o.Company as c
@@ -51,7 +60,9 @@ select
 <span class="token punctuation">}</span>`
         },       
         {
-            title: "A subscription that filters documents:",
+            get title() {
+                return t("rqlSyntax.filter");
+            },
             text:
 `declare function getOrderLinesSum(doc) {
     var sum = 0;
@@ -77,7 +88,9 @@ Where getOrderLinesSum(o) > 100
 <span class="token keyword">where</span> getOrderLinesSum(o) &gt; 100`
         },
         {
-            title: "A subscription for document revisions:",
+            get title() {
+                return t("rqlSyntax.revisions");
+            },
             text:
 `From Orders (Revisions = true)`,
             html:

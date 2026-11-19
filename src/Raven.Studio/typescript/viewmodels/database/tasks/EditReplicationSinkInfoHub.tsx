@@ -8,9 +8,25 @@ import FeatureAvailabilitySummaryWrapper, {
     FeatureAvailabilityData,
 } from "components/common/FeatureAvailabilitySummary";
 import { useLimitedFeatureAvailability } from "components/utils/licenseLimitsUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export function EditReplicationSinkInfoHub() {
+    const t = useStudioTranslation("editReplicationSinkTask");
+    const commonT = useStudioTranslation("common");
     const hasPullReplicationAsSink = useAppSelector(licenseSelectors.statusValue("HasPullReplicationAsSink"));
+
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("featureAvailability.replicationSink"),
+            featureIcon: "pull-replication-agent",
+            community: { value: false },
+            professional: { value: true },
+            enterprise: { value: true },
+            quill: { value: true },
+        },
+    ];
+
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
         overwrites: [
@@ -27,67 +43,62 @@ export function EditReplicationSinkInfoHub() {
         <AboutViewFloating defaultOpen={hasPullReplicationAsSink ? null : "licensing"}>
             <AccordionItemWrapper targetId="about" icon="about" color="info">
                 <div>
-                    Define a <strong>Replication Sink</strong> task for opening a communication channel between this
-                    database and a central Replication Hub that is located in another RavenDB cluster.
+                    <StudioTrans
+                        ns="editReplicationSinkTask"
+                        i18nKey="about.definition"
+                        components={{ strong: <strong /> }}
+                    />
                     <ul className="margin-top-xxs">
-                        <li>The connection to the Hub is always initiated by the Sink.</li>
-                        <li>Multiple Sinks can connect to the same Replication Hub.</li>
-                        <li>Data replication can be bi-directional.</li>
-                        <li>
-                            Only documents and their related data (attachments, revisions, counters & time series) will
-                            be replicated.
-                        </li>
+                        <li>{t("about.initiatedBySink")}</li>
+                        <li>{t("about.multipleSinks")}</li>
+                        <li>{t("about.bidirectional")}</li>
+                        <li>{t("about.replicatedData")}</li>
                     </ul>
                 </div>
                 <hr />
                 <div>
-                    When running with a SECURE server:
+                    {t("about.secureServer")}
                     <ul>
                         <li className="margin-top-xxs">
-                            <strong>Replication Access</strong>:
-                            <br />
-                            Set up a Replication Access definition on the Sink task with a certificate that will be used
-                            by the Sink task to authenticate and establish a connection with the Replication Hub.
+                            <StudioTrans
+                                ns="editReplicationSinkTask"
+                                i18nKey="about.replicationAccess"
+                                components={{ strong: <strong />, br: <br /> }}
+                            />
                         </li>
                         <li className="margin-top-xxs">
-                            <strong>Filtered Replication</strong>:
-                            <br />
-                            Within the Access definition, you can filter the documents that will be replicated by their
-                            ID paths.
+                            <StudioTrans
+                                ns="editReplicationSinkTask"
+                                i18nKey="about.filteredReplication"
+                                components={{ strong: <strong />, br: <br /> }}
+                            />
                         </li>
                         <li className="margin-top-xxs">
-                            <strong>Sink to Hub Replication</strong> is only available with a secure server.
+                            <StudioTrans
+                                ns="editReplicationSinkTask"
+                                i18nKey="about.sinkToHub"
+                                components={{ strong: <strong /> }}
+                            />
                         </li>
                     </ul>
                 </div>
                 <hr />
                 <div>
-                    Task definition includes:
+                    {t("about.taskDefinition")}
                     <ul className="margin-top-xxs">
-                        <li>A connection string to the Replication Hub.</li>
-                        <li>Setting the replication direction.</li>
-                        <li>The Replication Access definition.</li>
-                        <li>A responsible node to handle this task can be set.</li>
+                        <li>{t("about.connectionString")}</li>
+                        <li>{t("about.direction")}</li>
+                        <li>{t("about.accessDefinition")}</li>
+                        <li>{t("about.responsibleNode")}</li>
                     </ul>
                 </div>
                 <hr />
-                <div className="small-label mb-2">useful links</div>
+                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                 <a href={replicationSinkDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - Replication Sink
+                    <Icon icon="newtab" /> {t("about.docsLink")}
                 </a>
             </AccordionItemWrapper>
             <FeatureAvailabilitySummaryWrapper isUnlimited={hasPullReplicationAsSink} data={featureAvailability} />
         </AboutViewFloating>
     );
 }
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "Replication Sink",
-        featureIcon: "pull-replication-agent",
-        community: { value: false },
-        professional: { value: true },
-        enterprise: { value: true },
-        quill: { value: true },
-    },
-];

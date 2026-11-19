@@ -12,6 +12,8 @@ import EditGenAiTaskAttachmentsButton from "./EditGenAiTaskAttachmentsButton";
 import EditGenAiTaskReasoning from "./EditGenAiTaskReasoning";
 import RichAlert from "components/common/RichAlert";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface EditGenAiTaskReadOnlyVirtualListProps {
     data: {
@@ -62,16 +64,20 @@ export default function EditGenAiTaskReadOnlyVirtualList({ data, name }: EditGen
                         >
                             {name === "playgroundModelOutputs" && !entry.value && (
                                 <RichAlert variant="info" className="mb-1">
-                                    Model output is cached. You can{" "}
-                                    <Button
-                                        variant="link"
-                                        className="text-decoration-underline text-emphasis p-0"
-                                        size="sm"
-                                        onClick={() => setValue("isForceSendingCachedObjects", true)}
-                                    >
-                                        enable &quot;Force reprocess&quot;
-                                    </Button>{" "}
-                                    and test again to see the results.
+                                    <StudioTrans
+                                        ns="editGenAiTask"
+                                        i18nKey="objectList.modelOutputCached"
+                                        components={{
+                                            button: (
+                                                <Button
+                                                    variant="link"
+                                                    className="text-decoration-underline text-emphasis p-0"
+                                                    size="sm"
+                                                    onClick={() => setValue("isForceSendingCachedObjects", true)}
+                                                />
+                                            ),
+                                        }}
+                                    />
                                 </RichAlert>
                             )}
                             {entry.conversationDocument && (
@@ -101,16 +107,17 @@ interface EditorWrapperProps {
 }
 
 function EditorWrapper({ rowIndex, name, rowKey, value, attachments }: EditorWrapperProps) {
+    const t = useStudioTranslation("editGenAiTask");
     const dispatch = useAppDispatch();
 
     const hoverIndex = useAppSelector(editGenAiTaskSelectors.hoverIndex);
 
     const getTooltipText = (): string => {
         if (name === "playgroundContexts") {
-            return "Context object ID";
+            return t("objectList.contextObjectId");
         }
         if (name === "playgroundModelOutputs") {
-            return "Model output object ID";
+            return t("objectList.modelOutputObjectId");
         }
 
         return null;

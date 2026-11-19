@@ -6,6 +6,9 @@ import TaskUtils from "components/utils/TaskUtils";
 import EtlTaskStats = Raven.Server.Documents.ETL.Stats.EtlTaskStats;
 import TaskErrors = Raven.Server.Documents.TasksErrors.TaskErrors;
 import { ThemeColor } from "components/models/common";
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("tasksErrors");
 
 export type TaskErrorStep = Raven.Server.Documents.TasksErrors.TaskErrorStep;
 export type EtlHealthStatus = Raven.Server.Documents.TasksErrors.OngoingTaskHealthStatus;
@@ -213,18 +216,18 @@ export function getTaskPillColor(stats: EtlTaskStats["Stats"]): `bg-${ThemeColor
 interface HealthStatusBadge {
     bg: RavenBadgeBgVariants;
     icon: IconName;
-    label: EtlHealthStatus | "Unknown";
+    label: string;
 }
 export function healthStatusToBadge(status?: EtlHealthStatus): HealthStatusBadge {
     switch (status) {
         case "Failed":
-            return { bg: "danger", icon: "close", label: "Failed" };
+            return { bg: "danger", icon: "close", label: t("health.failed") };
         case "Impaired":
-            return { bg: "warning", icon: "warning", label: "Impaired" };
+            return { bg: "warning", icon: "warning", label: t("health.impaired") };
         case "Healthy":
-            return { bg: "success", icon: "check", label: "Healthy" };
+            return { bg: "success", icon: "check", label: t("health.healthy") };
         default:
-            return { bg: "secondary", icon: "help", label: "Unknown" };
+            return { bg: "secondary", icon: "help", label: t("health.unknown") };
     }
 }
 
@@ -244,6 +247,27 @@ export function getStepIcon(step: TaskErrorStep): IconName {
             return "save";
         case "Unknown":
             return "help";
+        default:
+            return assertUnreachable(step);
+    }
+}
+
+export function getStepLabel(step: TaskErrorStep): string {
+    switch (step) {
+        case "Transformation":
+            return t("errorStep.transformation");
+        case "Load":
+            return t("errorStep.load");
+        case "Configuration":
+            return t("errorStep.configuration");
+        case "Extraction":
+            return t("errorStep.extraction");
+        case "ModelInference":
+            return t("errorStep.modelInference");
+        case "Persistence":
+            return t("errorStep.persistence");
+        case "Unknown":
+            return t("errorStep.unknown");
         default:
             return assertUnreachable(step);
     }
@@ -274,9 +298,9 @@ export function resolveStudioTaskType(
 export function getPopoverMessageForErrorType(errorType: "Item" | "Process"): string {
     switch (errorType) {
         case "Item":
-            return "An error that occurred while processing a single document. The document was skipped, and the task continues processing the remaining documents.";
+            return t("errorTypePopover.item");
         case "Process":
-            return "An error that occurred at the batch level, potentially affecting multiple documents in the batch.";
+            return t("errorTypePopover.process");
         default:
             return assertUnreachable(errorType);
     }
@@ -285,11 +309,11 @@ export function getPopoverMessageForErrorType(errorType: "Item" | "Process"): st
 export function getPopoverMessageForTaskHealth(status: EtlHealthStatus): string {
     switch (status) {
         case "Healthy":
-            return "This task is in good health, with no errors or only a low error rate.";
+            return t("healthPopover.healthy");
         case "Impaired":
-            return "This task needs your attention because it has an increased error rate.";
+            return t("healthPopover.impaired");
         case "Failed":
-            return "This task needs your attention because it has a high error rate.";
+            return t("healthPopover.failed");
         default:
             return assertUnreachable(status);
     }

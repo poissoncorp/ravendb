@@ -13,7 +13,6 @@ import RichAlert from "components/common/RichAlert";
 import { Icon } from "components/common/Icon";
 import Button from "react-bootstrap/Button";
 import Modal from "components/common/Modal";
-import pluralizeHelpers from "common/helpers/text/pluralizeHelpers";
 import { useAppSelector } from "components/store";
 import { editCdcSinkTaskSelectors } from "components/pages/database/tasks/ongoingTasks/editTasks/editCdcSinkTask/store/editCdcSinkTaskSlice";
 import { useEditCdcSinkTaskTableActions } from "components/pages/database/tasks/ongoingTasks/editTasks/editCdcSinkTask/hooks/useEditCdcSinkTaskTableActions";
@@ -30,23 +29,25 @@ import { virtualTableUtils } from "components/common/virtualTable/utils/virtualT
 import { columnCheckbox } from "components/common/virtualTable/utils/commonColumnDefs";
 import { CellValueWrapper } from "components/common/virtualTable/cells/CellValue";
 import { useResizeObserver } from "hooks/useResizeObserver";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface EditCdcSinkTaskTablesSectionProps {
     tablesFieldArray: UseFieldArrayReturn<EditCdcSinkTaskFormData, "tables", "id">;
 }
 
 export default function EditCdcSinkTaskTablesSection({ tablesFieldArray }: EditCdcSinkTaskTablesSectionProps) {
+    const t = useStudioTranslation("editCdcSinkTask");
     const { value: isPanelOpen, toggle: togglePanel, setTrue: openPanel } = useBoolean(true);
     const { control } = useFormContext<EditCdcSinkTaskFormData>();
 
     return (
         <div className="mt-3 vstack pb-3" style={{ minHeight: tablesFieldArray.fields.length > 0 ? "100%" : "300px" }}>
             <div className="hstack align-items-center">
-                <h3 className="m-0">Configured Tables</h3>
+                <h3 className="m-0">{t("tables.title")}</h3>
                 <FormErrorIcon control={control} paths={["tables"]} onError={openPanel} />
                 <CollapseButton isExpanded={isPanelOpen} toggle={togglePanel} />
             </div>
-            <div className="mb-1">Configure how source tables are mapped to target collections.</div>
+            <div className="mb-1">{t("tables.description")}</div>
             <Collapse in={isPanelOpen} mountOnEnter unmountOnExit>
                 <TablesPanel tablesFieldArray={tablesFieldArray} />
             </Collapse>
@@ -84,6 +85,7 @@ function TablesPanel({ tablesFieldArray }: EditCdcSinkTaskTablesSectionProps) {
 }
 
 function MissingRelatedTablesAlert() {
+    const t = useStudioTranslation("editCdcSinkTask");
     const sourceSchema = useAppSelector(editCdcSinkTaskSelectors.sourceSchema);
     const tableActions = useEditCdcSinkTaskTableActions();
     const {
@@ -103,9 +105,6 @@ function MissingRelatedTablesAlert() {
         return null;
     }
 
-    const isSingleTable = relatedSourceTables.length === 1;
-    const tableLabel = isSingleTable ? "table" : "tables";
-
     const handleAddTables = (tablesToAdd: CdcSinkSourceTable[]) => {
         if (tablesToAdd.length === 0) {
             return;
@@ -119,9 +118,7 @@ function MissingRelatedTablesAlert() {
             <RichAlert variant="warning" className="mb-3">
                 <div className="d-flex align-items-center gap-2">
                     <div className="flex-grow-1 min-width-0">
-                        Linked tables reference {relatedSourceTables.length} source {tableLabel} that{" "}
-                        {isSingleTable ? "is not configured as a root table" : "are not configured as root tables"}.
-                        Related documents for the referenced {tableLabel} will not be created.
+                        {t("tables.missingRelatedTables", { count: relatedSourceTables.length })}
                     </div>
                     <Button
                         variant="warning"
@@ -130,9 +127,7 @@ function MissingRelatedTablesAlert() {
                         onClick={openAddTablesModal}
                     >
                         <Icon icon="plus" />
-                        {isSingleTable
-                            ? `Add root ${tableLabel}`
-                            : `Add ${relatedSourceTables.length} root ${tableLabel}`}
+                        {t("tables.addMissingRootTables", { count: relatedSourceTables.length })}
                     </Button>
                 </div>
             </RichAlert>
@@ -154,6 +149,8 @@ interface AddRelatedTablesModalProps {
 }
 
 function AddRelatedTablesModal({ sourceTables, onAdd, onClose }: AddRelatedTablesModalProps) {
+    const t = useStudioTranslation("editCdcSinkTask");
+    const commonT = useStudioTranslation("common");
     const tableWrapperRef = useRef<HTMLDivElement>(null);
     const { width } = useResizeObserver({ ref: tableWrapperRef });
     const columns = useAddRelatedTablesColumns(width ?? 0);
@@ -177,7 +174,6 @@ function AddRelatedTablesModal({ sourceTables, onAdd, onClose }: AddRelatedTable
     });
 
     const selectedSourceTables = table.getSelectedRowModel().rows.map((row) => row.original);
-    const selectedTablesLabel = pluralizeHelpers.pluralize(selectedSourceTables.length, "root table", "root tables");
 
     const handleAdd = () => {
         onAdd(selectedSourceTables);
@@ -187,7 +183,7 @@ function AddRelatedTablesModal({ sourceTables, onAdd, onClose }: AddRelatedTable
     return (
         <Modal show onHide={onClose} contentClassName="modal-border bulge-primary" size="lg">
             <Modal.Header onCloseClick={onClose} className="pb-0">
-                <h3 className="m-0">Add root tables</h3>
+                <h3 className="m-0">{t("tables.addRootTablesTitle")}</h3>
             </Modal.Header>
             <Modal.Body className="vstack gap-3">
                 <div ref={tableWrapperRef}>
@@ -199,7 +195,7 @@ function AddRelatedTablesModal({ sourceTables, onAdd, onClose }: AddRelatedTable
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="link" onClick={onClose}>
-                    Cancel
+                    {commonT("cancel")}
                 </Button>
                 <Button
                     variant="primary"
@@ -208,7 +204,7 @@ function AddRelatedTablesModal({ sourceTables, onAdd, onClose }: AddRelatedTable
                     disabled={selectedSourceTables.length === 0}
                 >
                     <Icon icon="plus" />
-                    Add {selectedTablesLabel}
+                    {t("tables.addSelectedRootTables", { count: selectedSourceTables.length })}
                 </Button>
             </Modal.Footer>
         </Modal>
@@ -216,6 +212,7 @@ function AddRelatedTablesModal({ sourceTables, onAdd, onClose }: AddRelatedTable
 }
 
 function useAddRelatedTablesColumns(widthPx: number) {
+    const t = useStudioTranslation("editCdcSinkTask");
     const dynamicWidth = widthPx ? widthPx - columnCheckbox.size : 0;
     const bodyWidth = virtualTableUtils.getTableBodyWidth(dynamicWidth);
     const getSize = useCallback(virtualTableUtils.getCellSizeProvider(bodyWidth), [bodyWidth]);
@@ -225,12 +222,12 @@ function useAddRelatedTablesColumns(widthPx: number) {
             columnCheckbox as ColumnDef<CdcSinkSourceTable>,
             {
                 id: "TableName",
-                header: "Table name",
+                header: t("columns.tableName"),
                 accessorFn: getSourceTableOptionLabel,
                 cell: CellValueWrapper,
                 size: getSize(100),
             },
         ],
-        [getSize]
+        [getSize, t]
     );
 }

@@ -45,6 +45,8 @@ import {
     getServerWideShortName,
     serverWideConnectionStringPrefix,
 } from "components/pages/database/settings/connectionStrings/connectionStringsUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { createTranslator } from "common/i18n/i18n";
 import ModifyOngoingTaskResult = Raven.Client.Documents.Operations.OngoingTasks.ModifyOngoingTaskResult;
 
 export interface BaseOngoingTaskPanelProps<T extends OngoingTaskInfo> {
@@ -78,6 +80,7 @@ export function useTasksOperations(editUrl: string, props: BaseOngoingTaskPanelP
 }
 
 export function OngoingTaskResponsibleNode(props: { task: OngoingTaskInfo }) {
+    const t = useStudioTranslation("shared");
     const { task } = props;
     const preferredMentor = task.shared.mentorNodeTag;
     const currentNode = task.shared.responsibleNodeTag;
@@ -97,12 +100,12 @@ export function OngoingTaskResponsibleNode(props: { task: OngoingTaskInfo }) {
             <div className="node">
                 {usingNotPreferredNode ? (
                     <>
-                        <span className="text-danger pulse" title="User preferred node for this task">
+                        <span className="text-danger pulse" title={t("responsibleNode.preferredNodeTitle")}>
                             <Icon icon="cluster-node" />
                             {preferredMentor}
                         </span>
 
-                        <span className="text-success" title="Cluster node that is temporary responsible for this task">
+                        <span className="text-success" title={t("responsibleNode.temporaryNodeTitle")}>
                             <Icon icon="arrow-right" color="danger" className="pulse" />
                             {currentNode}
                         </span>
@@ -111,8 +114,8 @@ export function OngoingTaskResponsibleNode(props: { task: OngoingTaskInfo }) {
                     <span
                         title={
                             task.shared.taskType === "PullReplicationAsHub"
-                                ? "Hub node that is serving this Sink task"
-                                : "Cluster node that is responsible for this task"
+                                ? t("responsibleNode.hubNodeTitle")
+                                : t("responsibleNode.clusterNodeTitle")
                         }
                     >
                         <Icon icon="cluster-node" />
@@ -124,18 +127,19 @@ export function OngoingTaskResponsibleNode(props: { task: OngoingTaskInfo }) {
     }
 
     return (
-        <div title="No node is currently handling this task">
-            <Icon icon="cluster-node" /> N/A
+        <div title={t("responsibleNode.noNodeTitle")}>
+            <Icon icon="cluster-node" /> {t("responsibleNode.notAvailable")}
         </div>
     );
 }
 
 export function OngoingTaskName(props: { task: OngoingTaskInfo; canEdit: boolean; editUrl: string }) {
+    const t = useStudioTranslation("shared");
     const { task, editUrl, canEdit } = props;
     return (
         <RichPanelName>
             {canEdit ? (
-                <a href={editUrl} title={"Task name: " + task.shared.taskName}>
+                <a href={editUrl} title={t("taskNameTitle", { name: task.shared.taskName })}>
                     {task.shared.taskName}
                 </a>
             ) : (
@@ -154,6 +158,7 @@ interface OngoingTaskStatusProps {
 }
 
 export function OngoingTaskStatus(props: OngoingTaskStatusProps) {
+    const t = useStudioTranslation("shared");
     const { task, canEdit, onTaskOperation, isTogglingState, id } = props;
     return (
         <Dropdown id={id}>
@@ -161,15 +166,15 @@ export function OngoingTaskStatus(props: OngoingTaskStatusProps) {
                 disabled={!canEdit || isTogglingState}
                 variant={task.shared.taskState === "Disabled" ? "warning" : "secondary"}
             >
-                {isTogglingState && <Spinner size="sm" />} {task.shared.taskState}
+                {isTogglingState && <Spinner size="sm" />} {t("status.taskState", { context: task.shared.taskState })}
             </Dropdown.Toggle>
             <Dropdown.Menu>
                 <Dropdown.Item onClick={() => onTaskOperation("enable", [task.shared])}>
-                    <Icon icon="play" color="success" /> Enable
+                    <Icon icon="play" color="success" /> {t("status.enable")}
                 </Dropdown.Item>
                 <Dropdown.Item onClick={() => onTaskOperation("disable", [task.shared])}>
                     <Icon icon="stop" color="danger" />
-                    Disable
+                    {t("status.disable")}
                 </Dropdown.Item>
             </Dropdown.Menu>
         </Dropdown>
@@ -188,18 +193,19 @@ interface OngoingTaskActionsProps {
 }
 
 export function OngoingTaskActions(props: OngoingTaskActionsProps) {
+    const t = useStudioTranslation("shared");
     const { canEdit, task, onEdit, toggleDetails, onTaskOperation, isDeleting, isDetailsOpen, isEtl } = props;
 
     return (
         <div className="actions">
             <ButtonGroup>
                 {!isEtl && (
-                    <Button variant="secondary" onClick={toggleDetails} title="Click for details">
+                    <Button variant="secondary" onClick={toggleDetails} title={t("actions.detailsTitle")}>
                         <Icon icon={isDetailsOpen ? "fold" : "unfold"} margin="m-0" />
                     </Button>
                 )}
                 {!task.shared.serverWide && (
-                    <Button variant="secondary" onClick={onEdit} title="Edit task">
+                    <Button variant="secondary" onClick={onEdit} title={t("actions.editTitle")}>
                         <Icon icon="edit" margin="m-0" />
                     </Button>
                 )}
@@ -209,7 +215,7 @@ export function OngoingTaskActions(props: OngoingTaskActionsProps) {
                         disabled={!canEdit}
                         isSpinning={isDeleting}
                         onClick={() => onTaskOperation("delete", [task.shared])}
-                        title="Delete task"
+                        title={t("actions.deleteTitle")}
                         spinnerMargin="m-0"
                         icon={{
                             icon: "trash",
@@ -229,6 +235,7 @@ export function ConnectionStringItem(props: {
     databaseName: string;
     connectionStringDefined: boolean;
 }) {
+    const t = useStudioTranslation("shared");
     const { canEdit, connectionStringDefined, connectionStringName, connectionStringType, databaseName } = props;
 
     const isServerWide = connectionStringName?.startsWith(serverWideConnectionStringPrefix);
@@ -239,9 +246,9 @@ export function ConnectionStringItem(props: {
 
     if (connectionStringDefined) {
         return (
-            <RichPanelDetailItem label="Connection String">
+            <RichPanelDetailItem label={t("connectionString.label")}>
                 {canEdit ? (
-                    <a title="Connection string name" target="_blank" href={connectionStringsUrl}>
+                    <a title={t("connectionString.nameTitle")} target="_blank" href={connectionStringsUrl}>
                         {connectionStringName}
                     </a>
                 ) : (
@@ -252,26 +259,22 @@ export function ConnectionStringItem(props: {
     }
 
     return (
-        <RichPanelDetailItem label="Connection String">
+        <RichPanelDetailItem label={t("connectionString.label")}>
             <Icon icon="danger" color="danger" />
-            <span className="text-danger">This connection string is not defined.</span>
+            <span className="text-danger">{t("connectionString.notDefined")}</span>
         </RichPanelDetailItem>
     );
 }
 
-export function DestinationUrlItem({
-    destinationUrl,
-    label = "Destination URL",
-}: {
-    destinationUrl: string;
-    label?: string;
-}) {
+export function DestinationUrlItem({ destinationUrl, label }: { destinationUrl: string; label?: string }) {
+    const t = useStudioTranslation("shared");
+
     if (!destinationUrl) {
         return null;
     }
 
     return (
-        <RichPanelDetailItem label={label}>
+        <RichPanelDetailItem label={label ?? t("destinationUrl")}>
             <a href={destinationUrl} target="_blank">
                 {destinationUrl}
             </a>
@@ -282,22 +285,24 @@ export function DestinationUrlItem({
 // Mode is a [Flags] enum, so the bidirectional case arrives as a combined string (e.g. "HubToSink, SinkToHub").
 // Use includes() to stay robust to the flag formatting and render a readable label.
 export function formatReplicationMode(mode: Raven.Client.Documents.Operations.Replication.PullReplicationMode): string {
+    const t = createTranslator("shared");
     const hubToSink = mode?.includes("HubToSink");
     const sinkToHub = mode?.includes("SinkToHub");
 
     if (hubToSink && sinkToHub) {
-        return "Hub to Sink & Sink to Hub";
+        return t("replicationMode.both");
     }
     if (hubToSink) {
-        return "Hub to Sink";
+        return t("replicationMode.hubToSink");
     }
     if (sinkToHub) {
-        return "Sink to Hub";
+        return t("replicationMode.sinkToHub");
     }
     return null;
 }
 
 export function EmptyScriptsWarning(props: { task: AnyEtlOngoingTaskInfo }) {
+    const t = useStudioTranslation("shared");
     const emptyScripts = findScriptsWithOutMatchingDocuments(props.task);
 
     if (!emptyScripts.length) {
@@ -308,7 +313,7 @@ export function EmptyScriptsWarning(props: { task: AnyEtlOngoingTaskInfo }) {
         <RichPanelDetailItem className="text-warning">
             <small>
                 <Icon icon="warning" />
-                Following scripts don&apos;t match any documents: {emptyScripts.join(", ")}
+                {t("emptyScriptsWarning", { scripts: emptyScripts.join(", ") })}
             </small>
         </RichPanelDetailItem>
     );
@@ -347,6 +352,7 @@ interface OperationConfirm {
 }
 
 export function useOngoingTasksOperations(reload: () => void) {
+    const t = useStudioTranslation("shared");
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const { tasksService } = useServices();
 
@@ -377,7 +383,10 @@ export function useOngoingTasksOperations(reload: () => void) {
 
             await Promise.all(toggleRequests);
             messagePublisher.reportSuccess(
-                `${toggleRequests.length === 1 ? "Task" : "Tasks"} ${enable ? "enabled" : "disabled"} successfully.`
+                t("operations.toggleSuccess", {
+                    context: enable ? "enabled" : "disabled",
+                    count: toggleRequests.length,
+                })
             );
             reload();
         } finally {
@@ -395,7 +404,7 @@ export function useOngoingTasksOperations(reload: () => void) {
 
             await Promise.all(deleteRequests);
 
-            messagePublisher.reportSuccess(`${deleteRequests.length === 1 ? "Task" : "Tasks"} deleted successfully.`);
+            messagePublisher.reportSuccess(t("operations.deleteSuccess", { count: deleteRequests.length }));
             reload();
         } finally {
             setDeletingTaskIds((ids) => ids.filter((x) => !taskSharedInfos.map((x) => x.taskId).includes(x)));
@@ -445,6 +454,7 @@ export function useOngoingTasksOperations(reload: () => void) {
 }
 
 export function useNewOngoingTasks({ isAiOnly = false }: { isAiOnly?: boolean }) {
+    const t = useStudioTranslation("shared");
     const db = useAppSelector(databaseSelectors.activeDatabase);
     const { tasksService } = useServices();
     const [tasks, dispatch] = useReducer(ongoingTasksReducer, db, ongoingTasksReducerInitializer);
@@ -514,9 +524,9 @@ export function useNewOngoingTasks({ isAiOnly = false }: { isAiOnly?: boolean })
             return null;
         }
 
-        const limitReachedReason = subscriptionsServerLimitStatus === "limitReached" ? "Cluster" : "Database";
-
-        return `${limitReachedReason} has reached the maximum number of subscriptions allowed per ${limitReachedReason.toLowerCase()}.`;
+        return t("addTask.subscriptionLimit", {
+            context: subscriptionsServerLimitStatus === "limitReached" ? "cluster" : "database",
+        });
     };
 
     const isSharded = db?.isSharded;
@@ -533,7 +543,7 @@ export function useNewOngoingTasks({ isAiOnly = false }: { isAiOnly?: boolean })
         },
         {
             isActive: !opts.isShardingSupported && isSharded,
-            message: "Sharding is not supported for this task",
+            message: t("addTask.shardingNotSupported"),
         },
         {
             isActive: !!opts.customDisabledReason,
@@ -556,12 +566,12 @@ export function useNewOngoingTasks({ isAiOnly = false }: { isAiOnly?: boolean })
 
     let ongoingTasks: TaskCardCategory[] = [
         {
-            categoryName: "AI",
+            categoryName: t("addTask.categories.ai"),
             categoryIcon: "ai",
             tasks: [
                 {
-                    title: "GenAI",
-                    description: "Analyze and enrich your documents using an LLM.",
+                    title: t("addTask.tasks.genAi.title"),
+                    description: t("addTask.tasks.genAi.description"),
                     iconName: "genai",
                     variant: "AI",
                     target: "GenAi",
@@ -569,8 +579,8 @@ export function useNewOngoingTasks({ isAiOnly = false }: { isAiOnly?: boolean })
                     ...capabilitiesOf("GenAi"),
                 },
                 {
-                    title: "Embeddings Generation",
-                    description: "Automatically generate embeddings from your document content.",
+                    title: t("addTask.tasks.embeddingsGeneration.title"),
+                    description: t("addTask.tasks.embeddingsGeneration.description"),
                     iconName: "ai-etl",
                     variant: "AI",
                     target: "EmbeddingsGeneration",
@@ -580,13 +590,12 @@ export function useNewOngoingTasks({ isAiOnly = false }: { isAiOnly?: boolean })
             ],
         },
         {
-            categoryName: "Replication",
+            categoryName: t("addTask.categories.replication"),
             categoryIcon: "replication",
             tasks: [
                 {
-                    title: "External Replication",
-                    description:
-                        "Create a live replica of your database in another RavenDB database in another cluster.",
+                    title: t("addTask.tasks.externalReplication.title"),
+                    description: t("addTask.tasks.externalReplication.description"),
                     iconName: "external-replication",
                     variant: "Replication",
                     target: "ExternalReplication",
@@ -594,9 +603,8 @@ export function useNewOngoingTasks({ isAiOnly = false }: { isAiOnly?: boolean })
                     ...capabilitiesOf("ExternalReplication"),
                 },
                 {
-                    title: "Replication Hub",
-                    description:
-                        "Replicate documents to and/or from multiple Replication Sink tasks in other RavenDB databases across different clusters.",
+                    title: t("addTask.tasks.replicationHub.title"),
+                    description: t("addTask.tasks.replicationHub.description"),
                     iconName: "pull-replication-hub",
                     variant: "Replication",
                     target: "ReplicationHub",
@@ -604,9 +612,8 @@ export function useNewOngoingTasks({ isAiOnly = false }: { isAiOnly?: boolean })
                     ...capabilitiesOf("ReplicationHub"),
                 },
                 {
-                    title: "Replication Sink",
-                    description:
-                        "Connect to a central Replication Hub in another RavenDB cluster to receive documents, and optionally replicate back.",
+                    title: t("addTask.tasks.replicationSink.title"),
+                    description: t("addTask.tasks.replicationSink.description"),
                     iconName: "pull-replication-agent",
                     variant: "Replication",
                     target: "ReplicationSink",
@@ -616,12 +623,12 @@ export function useNewOngoingTasks({ isAiOnly = false }: { isAiOnly?: boolean })
             ],
         },
         {
-            categoryName: "Backups",
+            categoryName: t("addTask.categories.backups"),
             categoryIcon: "backup",
             tasks: [
                 {
-                    title: "Periodic Backup",
-                    description: "Create periodic backups or snapshots of the database on a defined schedule.",
+                    title: t("addTask.tasks.periodicBackup.title"),
+                    description: t("addTask.tasks.periodicBackup.description"),
                     iconName: "periodic-backup",
                     variant: "Backup",
                     target: "PeriodicBackup",
@@ -631,12 +638,12 @@ export function useNewOngoingTasks({ isAiOnly = false }: { isAiOnly?: boolean })
             ],
         },
         {
-            categoryName: "Subscriptions",
+            categoryName: t("addTask.categories.subscriptions"),
             categoryIcon: "subscriptions",
             tasks: [
                 {
-                    title: "Subscription",
-                    description: "Send batches of documents that match a pre-defined query to a client for processing.",
+                    title: t("addTask.tasks.subscription.title"),
+                    description: t("addTask.tasks.subscription.description"),
                     iconName: "subscriptions",
                     variant: "Subscription",
                     target: "Subscription",
@@ -654,13 +661,12 @@ export function useNewOngoingTasks({ isAiOnly = false }: { isAiOnly?: boolean })
         },
         {
             categoryName: "ETL",
-            categoryHeaderName: "ETL (RavenDB ⇛ TARGET)",
+            categoryHeaderName: t("addTask.categories.etlHeader"),
             categoryIcon: "etl",
             tasks: [
                 {
                     title: "RavenDB ETL",
-                    description:
-                        "Extract and transform selected database documents and write them to another RavenDB database.",
+                    description: t("addTask.tasks.ravenEtl.description"),
                     iconName: "ravendb-etl",
                     variant: "ETL",
                     target: "RavenETL",
@@ -669,8 +675,7 @@ export function useNewOngoingTasks({ isAiOnly = false }: { isAiOnly?: boolean })
                 },
                 {
                     title: "Elasticsearch ETL",
-                    description:
-                        "Extract and transform data from selected documents and transfer it to an Elasticsearch destination.",
+                    description: t("addTask.tasks.elasticSearchEtl.description"),
                     iconName: "elastic-search-etl",
                     variant: "ETL",
                     target: "ElasticSearchETL",
@@ -679,7 +684,7 @@ export function useNewOngoingTasks({ isAiOnly = false }: { isAiOnly?: boolean })
                 },
                 {
                     title: "Kafka ETL",
-                    description: "Extract and transform data from selected documents and send it to Kafka topics.",
+                    description: t("addTask.tasks.kafkaEtl.description"),
                     iconName: "kafka-etl",
                     variant: "ETL",
                     target: "KafkaETL",
@@ -688,8 +693,7 @@ export function useNewOngoingTasks({ isAiOnly = false }: { isAiOnly?: boolean })
                 },
                 {
                     title: "SQL ETL",
-                    description:
-                        "Extract and transform data from selected documents and write it to a relational database.",
+                    description: t("addTask.tasks.sqlEtl.description"),
                     iconName: "sql-etl",
                     variant: "ETL",
                     target: "SqlETL",
@@ -698,8 +702,7 @@ export function useNewOngoingTasks({ isAiOnly = false }: { isAiOnly?: boolean })
                 },
                 {
                     title: "Snowflake ETL",
-                    description:
-                        "Extract and transform data from selected documents and write it to a Snowflake database.",
+                    description: t("addTask.tasks.snowflakeEtl.description"),
                     iconName: "snowflake-etl",
                     variant: "ETL",
                     target: "SnowflakeETL",
@@ -708,8 +711,7 @@ export function useNewOngoingTasks({ isAiOnly = false }: { isAiOnly?: boolean })
                 },
                 {
                     title: "OLAP ETL",
-                    description:
-                        "Extract and transform data from selected documents and export it as Parquet files to the specified destination.",
+                    description: t("addTask.tasks.olapEtl.description"),
                     iconName: "olap-etl",
                     variant: "ETL",
                     target: "OlapETL",
@@ -718,8 +720,7 @@ export function useNewOngoingTasks({ isAiOnly = false }: { isAiOnly?: boolean })
                 },
                 {
                     title: "RabbitMQ ETL",
-                    description:
-                        "Extract and transform data from selected documents and send it to a RabbitMQ exchange.",
+                    description: t("addTask.tasks.rabbitMqEtl.description"),
                     iconName: "rabbitmq-etl",
                     variant: "ETL",
                     target: "RabbitMqETL",
@@ -727,9 +728,8 @@ export function useNewOngoingTasks({ isAiOnly = false }: { isAiOnly?: boolean })
                     ...capabilitiesOf("RabbitMqETL"),
                 },
                 {
-                    title: "Azure Queue Storage ETL",
-                    description:
-                        "Extract and transform data from selected documents and send it to Azure Queue Storage.",
+                    title: t("addTask.tasks.azureQueueStorageEtl.title"),
+                    description: t("addTask.tasks.azureQueueStorageEtl.description"),
                     iconName: "azure-queue-storage-etl",
                     variant: "ETL",
                     target: "AzureQueueStorageETL",
@@ -737,8 +737,8 @@ export function useNewOngoingTasks({ isAiOnly = false }: { isAiOnly?: boolean })
                     ...capabilitiesOf("AzureQueueStorageETL"),
                 },
                 {
-                    title: "Amazon SQS ETL",
-                    description: "Extract and transform data from selected documents and send it to Amazon SQS queues.",
+                    title: t("addTask.tasks.amazonSqsEtl.title"),
+                    description: t("addTask.tasks.amazonSqsEtl.description"),
                     iconName: "amazon-sqs-etl",
                     variant: "ETL",
                     target: "AmazonSqsETL",
@@ -748,14 +748,13 @@ export function useNewOngoingTasks({ isAiOnly = false }: { isAiOnly?: boolean })
             ],
         },
         {
-            categoryName: "Sink",
-            categoryHeaderName: "Sink (SOURCE ⇛ RavenDB)",
+            categoryName: t("addTask.categories.sink"),
+            categoryHeaderName: t("addTask.categories.sinkHeader"),
             categoryIcon: "hub-sink-replication",
             tasks: [
                 {
-                    title: "Kafka Sink",
-                    description:
-                        "Consume and process incoming JSON messages from Kafka topics to create or delete documents.",
+                    title: t("addTask.tasks.kafkaSink.title"),
+                    description: t("addTask.tasks.kafkaSink.description"),
                     iconName: "kafka-sink",
                     variant: "Sink",
                     target: "KafkaSink",
@@ -763,9 +762,8 @@ export function useNewOngoingTasks({ isAiOnly = false }: { isAiOnly?: boolean })
                     ...capabilitiesOf("KafkaSink"),
                 },
                 {
-                    title: "RabbitMQ Sink",
-                    description:
-                        "Consume and process incoming JSON messages from RabbitMQ queues to create or delete documents.",
+                    title: t("addTask.tasks.rabbitMqSink.title"),
+                    description: t("addTask.tasks.rabbitMqSink.description"),
                     iconName: "rabbitmq-sink",
                     target: "RabbitMqSink",
                     variant: "Sink",
@@ -773,9 +771,8 @@ export function useNewOngoingTasks({ isAiOnly = false }: { isAiOnly?: boolean })
                     ...capabilitiesOf("RabbitMqSink"),
                 },
                 {
-                    title: "Azure Service Bus Sink",
-                    description:
-                        "Consume and process incoming JSON messages from Azure Service Bus queues to create or delete documents.",
+                    title: t("addTask.tasks.azureServiceBusSink.title"),
+                    description: t("addTask.tasks.azureServiceBusSink.description"),
                     iconName: "azure",
                     target: "AzureServiceBusSink",
                     variant: "Sink",
@@ -783,9 +780,8 @@ export function useNewOngoingTasks({ isAiOnly = false }: { isAiOnly?: boolean })
                     ...capabilitiesOf("AzureServiceBusSink"),
                 },
                 {
-                    title: "CDC Sink",
-                    description:
-                        "Consume Change Data Capture streams from relational databases and apply inserts, updates, and deletes to documents in RavenDB.",
+                    title: t("addTask.tasks.cdcSink.title"),
+                    description: t("addTask.tasks.cdcSink.description"),
                     iconName: "cdc-sink",
                     target: "CdcSink",
                     variant: "Sink",
@@ -797,7 +793,7 @@ export function useNewOngoingTasks({ isAiOnly = false }: { isAiOnly?: boolean })
     ];
 
     if (isAiOnly) {
-        ongoingTasks = ongoingTasks.filter((x) => x.categoryName === "AI");
+        ongoingTasks = ongoingTasks.filter((x) => x.categoryName === t("addTask.categories.ai"));
     }
 
     return useTaskCardFilters(ongoingTasks);

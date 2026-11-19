@@ -10,6 +10,8 @@ import { RestrictedImportItem, useImportRestrictions } from "../useImportRestric
 import { useRavenLink } from "components/hooks/useRavenLink";
 import genUtils from "common/generalUtils";
 import MinPeriodWarningAlert from "components/pages/database/tasks/importData/importFromFile/sections/MinPeriodWarningAlert";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 const backupExtensions = [
     "ravendb-full-backup",
@@ -19,6 +21,7 @@ const backupExtensions = [
 ];
 
 export default function SelectFileSection() {
+    const t = useStudioTranslation("importFromFile");
     const { control, setValue, formState } = useFormContext<ImportFromFileFormData>();
     const file = useWatch({ control, name: "file" });
     const { allRestrictedItems } = useImportRestrictions();
@@ -31,7 +34,7 @@ export default function SelectFileSection() {
     const fileError = formState.errors.file?.message;
 
     return (
-        <ImportSection id="select-file" title="Select file to import" errorPaths={["file"]}>
+        <ImportSection id="select-file" title={t("sections.selectFile")} errorPaths={["file"]}>
             <div className="card p-4">
                 <FileDropzone
                     onChange={(files) =>
@@ -59,8 +62,7 @@ export default function SelectFileSection() {
 function BackupFileAlert() {
     return (
         <RichAlert variant="warning" className="mt-3 mb-0">
-            The selected file is a <strong>RavenDB Backup file</strong>. Please use the <strong>Restore</strong> option
-            (under Create New Database) in order to restore data from a RavenDB Backup file.
+            <StudioTrans ns="importFromFile" i18nKey="selectFile.backupFile" components={{ strong: <strong /> }} />
         </RichAlert>
     );
 }
@@ -70,6 +72,7 @@ interface RestrictionsAlertProps {
 }
 
 function LicenseRestrictionsAlert({ items }: RestrictionsAlertProps) {
+    const t = useStudioTranslation("importFromFile");
     const buyLink = useRavenLink({ hash: "FLDLO4", isDocs: false });
 
     if (items.length === 0) {
@@ -77,11 +80,13 @@ function LicenseRestrictionsAlert({ items }: RestrictionsAlertProps) {
     }
 
     return (
-        <RichAlert variant="warning" title="Some data may not be imported" titleTag="h4" className="mt-3 mb-0">
-            <div>
-                Your license doesn&apos;t include the following features. Any related data in this file will be skipped
-                automatically.
-            </div>
+        <RichAlert
+            variant="warning"
+            title={t("selectFile.licenseRestrictions.title")}
+            titleTag="h4"
+            className="mt-3 mb-0"
+        >
+            <div>{t("selectFile.licenseRestrictions.description")}</div>
             <div className="d-flex gap-2 flex-wrap mt-2">
                 {items.map(({ key, tooltip, icon, label }) => (
                     <Badge key={key} bg="secondary" title={tooltip}>
@@ -90,26 +95,35 @@ function LicenseRestrictionsAlert({ items }: RestrictionsAlertProps) {
                 ))}
             </div>
             <div className="mt-2">
-                <Icon icon="info" color="info" /> Upgrade to include this data on import.{" "}
-                <a href={buyLink} target="_blank" rel="noreferrer">
-                    See license comparison <Icon icon="newtab" margin="m-0" />
-                </a>
+                <Icon icon="info" color="info" />{" "}
+                <StudioTrans
+                    ns="importFromFile"
+                    i18nKey="selectFile.licenseRestrictions.upgrade"
+                    components={{
+                        a: <a href={buyLink} target="_blank" rel="noreferrer" />,
+                        icon: <Icon icon="newtab" margin="m-0" />,
+                    }}
+                />
             </div>
         </RichAlert>
     );
 }
 
 function OtherRestrictionsAlert({ items }: RestrictionsAlertProps) {
+    const t = useStudioTranslation("importFromFile");
+
     if (items.length === 0) {
         return null;
     }
 
     return (
-        <RichAlert variant="warning" title="Some data cannot be imported" titleTag="h4" className="mt-3 mb-0">
-            <div>
-                The following features are unavailable for this database or for your certificate. Any related data in
-                this file will be skipped automatically.
-            </div>
+        <RichAlert
+            variant="warning"
+            title={t("selectFile.otherRestrictions.title")}
+            titleTag="h4"
+            className="mt-3 mb-0"
+        >
+            <div>{t("selectFile.otherRestrictions.description")}</div>
             <div className="d-flex gap-2 flex-wrap mt-2">
                 {items.map(({ key, icon, reason, tooltip, label }) => (
                     <Badge key={key} bg="secondary" title={tooltip}>

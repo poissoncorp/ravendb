@@ -8,8 +8,12 @@ import FeatureAvailabilitySummaryWrapper, {
     FeatureAvailabilityData,
 } from "components/common/FeatureAvailabilitySummary";
 import { useLimitedFeatureAvailability } from "components/utils/licenseLimitsUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export function EditSnowflakeEtlInfoHub() {
+    const t = useStudioTranslation("editSnowflakeEtlTask");
+    const commonT = useStudioTranslation("common");
     const hasSnowflakeEtl = useAppSelector(licenseSelectors.statusValue("HasSnowflakeEtl"));
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
@@ -27,54 +31,47 @@ export function EditSnowflakeEtlInfoHub() {
         <AboutViewFloating defaultOpen={hasSnowflakeEtl ? null : "licensing"}>
             <AccordionItemWrapper targetId="about" icon="about" color="info">
                 <p>
-                    A <strong>Snowflake ETL</strong> ongoing-task is an ETL (Extract, Transform & Load) process that
-                    transfers data from this RavenDB database to a Snowflake data warehouse.
+                    <StudioTrans ns="editSnowflakeEtlTask" i18nKey="about.intro" components={{ strong: <strong /> }} />
                 </p>
                 <ul>
                     <li>
-                        Data is extracted from documents & attachments only.
-                        <br />
-                        Counters, Time series, and Revisions are not sent.
+                        <StudioTrans
+                            ns="editSnowflakeEtlTask"
+                            i18nKey="about.extractedData"
+                            components={{ br: <br /> }}
+                        />
                     </li>
-                    <li className="margin-top-xxs">
-                        The sent data can be filtered and modified by multiple transformation JavaScript scripts that
-                        are added to the task.
-                    </li>
-                    <li className="margin-top-xxs">
-                        Each script specifies the RavenDB source collection(s) and the destination Snowflake table(s).
-                    </li>
-                    <li className="margin-top-xxs">
-                        The scripts are executed whenever documents in the source database are created, modified, or
-                        deleted.
-                    </li>
-                    <li className="margin-top-xxs">
-                        You can test each script in this view to preview the SQL statements the ETL task would send the
-                        Snowflake database.
-                    </li>
+                    <li className="margin-top-xxs">{t("about.transformationScripts")}</li>
+                    <li className="margin-top-xxs">{t("about.scriptCollections")}</li>
+                    <li className="margin-top-xxs">{t("about.scriptExecution")}</li>
+                    <li className="margin-top-xxs">{t("about.testScripts")}</li>
                 </ul>
                 <hr />
                 <div>
-                    Task definition includes:
+                    {t("about.taskDefinition")}
                     <ul>
-                        <li>The transformation scripts definitions.</li>
+                        <li>{t("about.definitionScripts")}</li>
                         <li>
-                            List of Snowflake tables the ETL task will access,
-                            <br />
-                            including the column name used for the RavenDB document ID.
+                            <StudioTrans
+                                ns="editSnowflakeEtlTask"
+                                i18nKey="about.definitionTables"
+                                components={{ br: <br /> }}
+                            />
                         </li>
                         <li>
-                            A connection string specifying the Snowflake storage destination,
-                            <br />
-                            where &quot;<i>Account</i>&quot;, &quot;<i>Database</i>&quot;, and &quot;<i>Schema</i>&quot;
-                            are mandatory parameters.
+                            <StudioTrans
+                                ns="editSnowflakeEtlTask"
+                                i18nKey="about.definitionConnection"
+                                components={{ br: <br />, i: <i /> }}
+                            />
                         </li>
-                        <li>A responsible node to handle this task can be set.</li>
+                        <li>{t("about.definitionResponsibleNode")}</li>
                     </ul>
                 </div>
                 <hr />
-                <div className="small-label mb-2">useful links</div>
+                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                 <a href={snowflakeEtlDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - Snowflake ETL
+                    <Icon icon="newtab" /> {t("about.docsLink")}
                 </a>
             </AccordionItemWrapper>
             <FeatureAvailabilitySummaryWrapper isUnlimited={hasSnowflakeEtl} data={featureAvailability} />

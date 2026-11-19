@@ -3,6 +3,9 @@ import jsonUtil = require("common/jsonUtil");
 import genUtils = require("common/generalUtils");
 import popoverUtils = require("common/popoverUtils");
 import tasksCommonContent = require("models/database/tasks/tasksCommonContent");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("glacierSettings");
 
 type TargetOperation = "PeriodicBackup" | "ManualBackup" | "OLAP";
 
@@ -40,7 +43,7 @@ class glacierSettings extends amazonSettings {
 
     private getPopoverTargetOperation(): string {
         if (this.targetOperation === "ManualBackup" || this.targetOperation === "PeriodicBackup") {
-            return "Backup";
+            return t("vaultInfo.targetOperationBackup");
         }
 
         return this.targetOperation;
@@ -49,7 +52,7 @@ class glacierSettings extends amazonSettings {
     compositionComplete() {
         popoverUtils.longWithHover($(".vault-info"),
             {
-                content: tasksCommonContent.textForPopover("Vault", this.getPopoverTargetOperation())
+                content: tasksCommonContent.textForPopover(t("vaultInfo.storageName"), this.getPopoverTargetOperation())
             });
     }
     
@@ -64,11 +67,11 @@ class glacierSettings extends amazonSettings {
             validation: [
                 {
                     validator: (vaultName: string) => vaultName && vaultName.length >= 1 && vaultName.length <= 255,
-                    message: "Vault name must be at least 1 character and no more than 255 characters long"
+                    message: t("validation.vaultNameLength")
                 },
                 {
                     validator: (vaultName: string) => regExp.test(vaultName),
-                    message: "Allowed characters are a-z, A-Z, 0-9, '_' (underscore), '-' (hyphen), and '.' (period)"
+                    message: t("validation.allowedCharacters")
                 }
             ]
         });

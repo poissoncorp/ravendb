@@ -27,6 +27,9 @@ import ongoingTaskAzureQueueStorageEtlEditModel = require("models/database/tasks
 import connectionStringAzureQueueStorageModel = require("models/database/settings/connectionStringAzureQueueStorageModel");
 import popoverUtils = require("common/popoverUtils");
 import tasksCommonContent = require("models/database/tasks/tasksCommonContent");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("editAzureQueueStorageEtlTask");
 
 class azureQueueStorageTaskTestMode {
     documentId = ko.observable<string>();
@@ -203,6 +206,14 @@ class editAzureQueueStorageEtlTask extends viewModelBase {
     });
 
     hasQueueEtl = licenseModel.getStatusValue("HasQueueEtl");
+    readonly licenseRestrictedTooltip = `<div class='padding'>${t("licenseRestricted", { upgradeUrl: "https://ravendb.net/l/FLDLO4" })}</div>`;
+    readonly testHintHtml = t("test.hint");
+
+    encryptedNoteHtml = ko.pureComputed(() => {
+        const db = this.activeDatabase();
+        return db ? t("encryptedNote", { name: generalUtils.escapeHtml(db.name) }) : "";
+    });
+
     infoHubView: ReactInKnockout<typeof EditAzureQueueStorageEtlInfoHub.EditAzureQueueStorageEtlInfoHub>;
 
     constructor() {
@@ -268,7 +279,10 @@ class editAzureQueueStorageEtlTask extends viewModelBase {
 
         popoverUtils.longWithHover($("#syntax-help"), {
             html: true,
-            content: () => `Example: <code>${this.exampleConnectionString}</code>`,
+            content: () =>
+                t("newConnectionString.syntaxExample", {
+                    example: generalUtils.escapeHtml(this.exampleConnectionString),
+                }),
             placement: "top"
         });
     }

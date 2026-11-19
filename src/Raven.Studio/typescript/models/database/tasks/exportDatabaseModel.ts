@@ -2,6 +2,9 @@
 import setupEncryptionKey = require("viewmodels/resources/setupEncryptionKey");
 import smugglerDatabaseRecord = require("models/database/tasks/smugglerDatabaseRecord");
 import genUtils = require("common/generalUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
 
 class exportDatabaseModel {
     includeDatabaseRecord = ko.observable(true);
@@ -120,13 +123,13 @@ class exportDatabaseModel {
 
             if (!this.includeDocuments()) {
                 if (this.includeCounters()) {
-                    items.push("Counters");
+                    items.push(t("exportDatabase.itemsToWarnAbout.counters"));
                 }
                 if (this.includeTimeSeries()) {
-                    items.push("Time Series");
+                    items.push(t("exportDatabase.itemsToWarnAbout.timeSeries"));
                 }
                 if (this.includeRevisionDocuments()) {
-                    items.push("Revisions");
+                    items.push(t("exportDatabase.itemsToWarnAbout.revisions"));
                 }
             }
 
@@ -224,7 +227,7 @@ class exportDatabaseModel {
             validation: [
                 {
                     validator: () => this.exportDefinitionHasIncludes(),
-                    message: "Note: At least one 'include' option must be checked..."
+                    message: t("validation.includeOptionRequired")
                 }
             ]
         });

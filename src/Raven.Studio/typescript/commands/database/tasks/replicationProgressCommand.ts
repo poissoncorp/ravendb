@@ -2,6 +2,9 @@ import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
 import ReplicationTaskProgress = Raven.Server.Documents.Replication.Stats.ReplicationTaskProgress;
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksCommands");
 
 class replicationProgressCommand extends commandBase {
 
@@ -23,7 +26,7 @@ class replicationProgressCommand extends commandBase {
         return this.query<resultsDto<ReplicationTaskProgress>>(url, args, this.db, null, { timeout: commandBase.perNodeRequestTimeoutMs })
             .fail((response: JQueryXHR) => {
                 if (this.reportFailure) {
-                    this.reportError(`Failed to fetch replication progress`, response.responseText);    
+                    this.reportError(t("replicationProgressFailed"), response.responseText);    
                 }
             });
     }

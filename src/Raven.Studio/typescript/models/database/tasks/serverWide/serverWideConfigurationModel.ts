@@ -1,5 +1,8 @@
 ﻿/// <reference path="../../../../../typings/tsd.d.ts"/>
 import serverWideExcludeModel = require("models/database/tasks/serverWide/serverWideExcludeModel");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
 
 abstract class serverWideConfigurationModel {
     taskId = ko.observable<number>();
@@ -35,10 +38,10 @@ abstract class serverWideConfigurationModel {
 
         this.stateText = ko.pureComputed(() => {
             if (this.disabled()) {
-                return "Disabled";
+                return t("state.disabled");
             }
 
-            return "Enabled";
+            return t("state.enabled");
         });
     }
 

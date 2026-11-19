@@ -38,6 +38,9 @@ import accessManager = require("common/shell/accessManager");
 import store = require("components/store");
 import databaseSliceSelectors = require("components/common/shell/databaseSliceSelectors");
 import tasksCommonContent = require("models/database/tasks/tasksCommonContent");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("editOlapEtlTask");
 
 class partitionTable {
     key: string;
@@ -279,9 +282,16 @@ class editOlapEtlTask extends shardViewModelBase {
     infoHubView: ReactInKnockout<typeof EditOlapEtlInfoHub.EditOlapEtlInfoHub>;
 
     overrideViaExternalScriptDisableReason: KnockoutComputed<string>;
+
+    readonly licenseRestrictedTooltip = `<div class='padding'>${t("licenseRestricted", { upgradeUrl: "https://ravendb.net/l/FLDLO4" })}</div>`;
+    readonly selectConnectionStringPlaceholder = t("task.selectConnectionString");
+    readonly olapTablesEmptyDescriptionHtml = t("olapTables.emptyDescription");
+    readonly testInstructionsHtml = t("test.instructions");
+    readonly encryptedDatabaseHtml: string;
     
     constructor(db: database) {
         super(db);
+        this.encryptedDatabaseHtml = t("task.encryptedDatabase", { databaseName: generalUtils.escapeHtml(this.db.name) });
         this.bindToCurrentInstance("useConnectionString",
                                    "testCredentials",
                                    "toggleTestArea",
@@ -349,6 +359,10 @@ class editOlapEtlTask extends shardViewModelBase {
             });
     }
 
+    totalSpaceHtml(totalSpace: string): string {
+        return t("localDestination.totalSpace", { total: generalUtils.escapeHtml(totalSpace) });
+    }
+
     private loadPossibleMentors() {
         const members = this.db.nodes()
             .filter(x => x.type === "Member")
@@ -364,23 +378,23 @@ class editOlapEtlTask extends shardViewModelBase {
 
         popoverUtils.longWithHover($(".keep-files-on-disk"),
             {
-                content: `<small>Keep output parquet files on disk even when 'Local' is not defined in conection string</small>`
+                content: `<small>${t("popovers.keepFilesOnDisk")}</small>`
             });
 
         popoverUtils.longWithHover($(".custom-field"),
             {
                 content: `<ul class="margin-top margin-top-xs margin-right">
-                              <li><small>Set the <strong>value</strong> for the <strong>custom partition</strong> in the target parquet file path</small></li>
-                              <li><small>The custom partition itself must be defined inside the script</small></li>
-                              <li><small>Example parquet file path: <code>{RemoteFolderName}/{CollectionName}/{customPartitionName=$customPartitionValue} </code></small></li>
-                              <li><small>Useful to differentiate file locations when using the same connection string</small></li>
-                              <li><small>Queries can be made on the custom partition as well</small></li>
+                              <li><small>${t("popovers.customPartition.setValue")}</small></li>
+                              <li><small>${t("popovers.customPartition.definedInScript")}</small></li>
+                              <li><small>${t("popovers.customPartition.examplePath", { path: generalUtils.escapeHtml("{RemoteFolderName}/{CollectionName}/{customPartitionName=$customPartitionValue} ") })}</small></li>
+                              <li><small>${t("popovers.customPartition.sameConnectionString")}</small></li>
+                              <li><small>${t("popovers.customPartition.queries")}</small></li>
                           </ul>`
             });
 
         popoverUtils.longWithHover($(".run-frequency"),
             {
-                content: `<small>Frequency at which this task will be triggered</small>`
+                content: `<small>${t("popovers.runFrequency")}</small>`
             });
     }
     
@@ -820,9 +834,10 @@ class editOlapEtlTask extends shardViewModelBase {
         if (existingOlapTable && (olapTableToSave.isNew() || existingOlapTable.tableName() !== this.olapTableSelectedForEdit().tableName()))
         {
             // Table name exists - offer to overwrite
-            this.confirmationMessage(`Table ${generalUtils.escapeHtml(existingOlapTable.tableName())} already exists in OLAP Tables list`,
-                                     `Do you want to overwrite table ${generalUtils.escapeHtml(existingOlapTable.tableName())} data ?`, {
-                    buttons: ["No", "Yes, overwrite"],
+            const tableName = generalUtils.escapeHtml(existingOlapTable.tableName());
+            this.confirmationMessage(t("olapTables.overwriteConfirm.title", { tableName }),
+                                     t("olapTables.overwriteConfirm.message", { tableName }), {
+                    buttons: [t("olapTables.overwriteConfirm.cancel"), t("olapTables.overwriteConfirm.confirm")],
                     html: true
                 })
                 .done(result => {

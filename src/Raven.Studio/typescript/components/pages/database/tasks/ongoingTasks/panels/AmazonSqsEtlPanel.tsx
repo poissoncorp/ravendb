@@ -26,11 +26,13 @@ import { databaseSelectors } from "components/common/shell/databaseSliceSelector
 import { Icon } from "components/common/Icon";
 import { EtlPanelBaseProps, useEtlPanel } from "./etlPanelUtils";
 import { TaskPanelErrors, EtlPanelHealthBadge, EtlPanelProgressItem, EtlPanelToggleButton } from "./EtlPanelComponents";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type AmazonSqsEtlPanelProps = EtlPanelBaseProps<OngoingTaskAmazonSqsEtlInfo>;
 
 export function AmazonSqsEtlPanel(props: AmazonSqsEtlPanelProps) {
     const { data, toggleSelection, isSelected, onTaskOperation, isDeleting, isTogglingState, etlStats } = props;
+    const t = useStudioTranslation("ongoingTasks");
 
     const { forCurrentDatabase } = useAppUrls();
     const editUrl = forCurrentDatabase.editAmazonSqsEtl(data.shared.taskId)();
@@ -86,9 +88,9 @@ export function AmazonSqsEtlPanel(props: AmazonSqsEtlPanelProps) {
             </RichPanelHeader>
             <RichPanelDetails>
                 <EtlPanelToggleButton detailsVisible={detailsVisible} toggleDetails={toggleDetails} />
-                <RichPanelDetailItem label="Type">
+                <RichPanelDetailItem label={t("taskDetails.type")}>
                     <Icon icon="amazon-sqs-etl" />
-                    Amazon SQS ETL
+                    {t("taskType.amazonSqsEtl")}
                 </RichPanelDetailItem>
                 <ConnectionStringItem
                     connectionStringDefined

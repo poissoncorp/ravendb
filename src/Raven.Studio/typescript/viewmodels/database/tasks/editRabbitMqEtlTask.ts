@@ -28,6 +28,9 @@ import licenseModel = require("models/auth/licenseModel");
 import EditRabbitMqEtlInfoHub = require("viewmodels/database/tasks/EditRabbitMqEtlInfoHub");
 import typeUtils = require("common/typeUtils");
 import tasksCommonContent = require("models/database/tasks/tasksCommonContent");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("editRabbitMqEtlTask");
 
 class rabbitMqTaskTestMode {
     documentId = ko.observable<string>();
@@ -205,6 +208,14 @@ class editRabbitMqEtlTask extends viewModelBase {
     });
     
     hasQueueEtl = licenseModel.getStatusValue("HasQueueEtl");
+    readonly licenseRestrictedTooltip = `<div class='padding'>${t("licenseRestricted", { upgradeUrl: "https://ravendb.net/l/FLDLO4" })}</div>`;
+    readonly testHintHtml = t("test.hint");
+
+    encryptedNoteHtml = ko.pureComputed(() => {
+        const db = this.activeDatabase();
+        return db ? t("encryptedNote", { name: generalUtils.escapeHtml(db.name) }) : "";
+    });
+
     infoHubView: ReactInKnockout<typeof EditRabbitMqEtlInfoHub.EditRabbitMqEtlInfoHub>;
     
     constructor() {
@@ -270,9 +281,7 @@ class editRabbitMqEtlTask extends viewModelBase {
 
         popoverUtils.longWithHover($(".skip-automatic-declaration"),
             {
-                content: `<small class="margin-top-xs no-padding-left">
-                              Use this option when manually defining the Exchanges, Queues & Bindings.
-                          </small>`
+                content: `<small class="margin-top-xs no-padding-left">${t("skipAutomaticDeclarationInfo")}</small>`
             });
     }
 

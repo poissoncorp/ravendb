@@ -1,14 +1,14 @@
 <div class="form-group" data-bind="validationElement: connectionStringName">
-    <label class="control-label">Name<i class="required"></i></label>
+    <label class="control-label"><span data-bind="i18n: 'editSnowflakeEtlTask:connectionString.nameLabel'"></span><i class="required"></i></label>
     <div class="flex-grow">
-        <input class="form-control" placeholder="Enter a name for the connection string"
-               data-bind="textInput: connectionStringName, enable: isNew, attr: { 'title': isNew() ? 'Enter any name of your choice for this connection string' : '' }" >
+        <input class="form-control"
+               data-bind="textInput: connectionStringName, enable: isNew, i18nAttr: { placeholder: 'editSnowflakeEtlTask:connectionString.namePlaceholder', title: isNew() ? 'editSnowflakeEtlTask:connectionString.nameTitle' : null }" >
     </div>
 </div>
 <div class="form-group" data-bind="validationElement: connectionString">
-    <label class="control-label">Connection string<i class="required"></i></label>
+    <label class="control-label"><span data-bind="i18n: 'editSnowflakeEtlTask:connectionString.connectionStringLabel'"></span><i class="required"></i></label>
     <div class="flex-grow">
-        <textarea placeholder="Enter connection string" class="form-control" rows="3" data-bind="textInput: connectionString">
+        <textarea class="form-control" rows="3" data-bind="textInput: connectionString, i18nAttr: { placeholder: 'editSnowflakeEtlTask:connectionString.connectionStringPlaceholder' }">
         </textarea>
     </div>
 </div>

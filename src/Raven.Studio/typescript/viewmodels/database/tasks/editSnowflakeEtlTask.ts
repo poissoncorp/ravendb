@@ -30,6 +30,9 @@ import ongoingTaskSnowflakeEtlTableModel = require("models/database/tasks/ongoin
 import ongoingTaskSnowflakeEtlEditModel = require("models/database/tasks/ongoingTaskSnowflakeEtlEditModel");
 import EditSnowflakeEtlInfoHub = require("viewmodels/database/tasks/EditSnowflakeEtlInfoHub");
 import tasksCommonContent = require("models/database/tasks/tasksCommonContent");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("editSnowflakeEtlTask");
 
 class snowflakeTaskTestMode {
     
@@ -225,7 +228,13 @@ class editSnowflakeEtlTask extends shardViewModelBase {
     newConnectionString = ko.observable<connectionStringSnowflakeEtlModel>();
     
     hasSnowflakeEtl = licenseModel.getStatusValue("HasSnowflakeEtl");
+    readonly licenseRestrictedTooltip = `<div class='padding'>${t("licenseRestricted", { upgradeUrl: "https://ravendb.net/l/FLDLO4" })}</div>`;
+    readonly testInstructionsHtml = t("test.instructions");
     infoHubView: ReactInKnockout<typeof EditSnowflakeEtlInfoHub.EditSnowflakeEtlInfoHub>;
+
+    get encryptedDatabaseNote() {
+        return t("task.encryptedNote", { database: generalUtils.escapeHtml(this.db.name) });
+    }
 
     constructor(db: database) {
         super(db);
@@ -761,9 +770,10 @@ class editSnowflakeEtlTask extends shardViewModelBase {
         if (existingSnowflakeTable && (snowflakeTableToSave.isNew() || existingSnowflakeTable.tableName() !== this.snowflakeTableSelectedForEdit().tableName()))
         {
             // Table name exists - offer to overwrite
-            this.confirmationMessage(`Table ${generalUtils.escapeHtml(existingSnowflakeTable.tableName())} already exists in Snowflake Tables list`,
-                                     `Do you want to overwrite table ${generalUtils.escapeHtml(existingSnowflakeTable.tableName())} data ?`, {
-                    buttons: ["No", "Yes, overwrite"],
+            const tableName = generalUtils.escapeHtml(existingSnowflakeTable.tableName());
+            this.confirmationMessage(t("snowflakeTables.overwriteTitle", { tableName }),
+                                     t("snowflakeTables.overwriteMessage", { tableName }), {
+                    buttons: [t("snowflakeTables.overwriteNo"), t("snowflakeTables.overwriteYes")],
                     html: true
                 })
                 .done(result => {

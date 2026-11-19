@@ -1,6 +1,9 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import { yupObjectSchema } from "components/utils/yupUtils";
 import * as yup from "yup";
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("editGenAiTask");
 
 export type GenAiStartingPoint = "Beginning of Time" | "Latest Document" | "Change Vector";
 
@@ -54,14 +57,14 @@ const editGenAiTaskSchema = yup.object({
         .nullable()
         .test(
             "sampleObjectOrJsonSchema",
-            "Either 'Sample response object' or 'JSON schema' must be provided",
+            () => t("validation.sampleObjectOrSchemaRequired"),
             function (_, { parent }) {
                 return !!parent.sampleObject || !!parent.jsonSchema;
             }
         )
         .test(
             "schemaRegenerationRequired",
-            "The sample object has been modified. Please regenerate the JSON schema to ensure it matches the new sample object structure",
+            () => t("validation.schemaRegenerationRequired"),
             function (_, { parent }) {
                 return !parent.canRegenerateSchema;
             }
@@ -72,10 +75,10 @@ const editGenAiTaskSchema = yup.object({
             name: yup
                 .string()
                 .required()
-                .matches(/^[a-zA-Z0-9_-]+$/, "Tool name can only contain letters, numbers, underscores and hyphens")
+                .matches(/^[a-zA-Z0-9_-]+$/, () => t("validation.toolNameFormat"))
                 .test(
                     "unique-name",
-                    "Tool name must be unique",
+                    () => t("validation.toolNameUnique"),
                     (value: string, ctx: yup.TestContext<EditGenAiTaskValidationContext>) => {
                         const allQueryNames = ctx.options.context.allQueryNames ?? [];
 
@@ -106,14 +109,14 @@ const editGenAiTaskSchema = yup.object({
                 .string()
                 .test(
                     "sampleObjectOrJsonSchema",
-                    "Either 'Sample response object' or 'JSON schema' must be provided",
+                    () => t("validation.sampleObjectOrSchemaRequired"),
                     function (_, { parent }) {
                         return !!parent.parametersSampleObject || !!parent.parametersSchema;
                     }
                 )
                 .test(
                     "schemaRegenerationRequired",
-                    "The sample object has been modified. Please regenerate the JSON schema to ensure it matches the new sample object structure",
+                    () => t("validation.schemaRegenerationRequired"),
                     function (_, { parent }) {
                         return !parent.canRegenerateSchema;
                     }

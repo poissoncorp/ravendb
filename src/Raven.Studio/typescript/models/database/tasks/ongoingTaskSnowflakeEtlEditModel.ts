@@ -2,6 +2,9 @@
 import ongoingTaskEditModel = require("models/database/tasks/ongoingTaskEditModel");
 import ongoingTaskSnowflakeEtlTransformationModel = require("models/database/tasks/ongoingTaskSnowflakeEtlTransformationModel");
 import ongoingTaskSnowflakeEtlTableModel = require("models/database/tasks/ongoingTaskSnowflakeEtlTableModel");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
 
 class ongoingTaskSnowflakeEtlEditModel extends ongoingTaskEditModel {
     connectionStringName = ko.observable<string>();
@@ -63,7 +66,7 @@ class ongoingTaskSnowflakeEtlEditModel extends ongoingTaskEditModel {
             validation: [
                 {
                     validator: () => this.snowflakeTables().length > 0,
-                    message: "Snowflake table is Not defined"
+                    message: t("snowflakeEtl.tableNotDefined")
                 }
             ]
         });
@@ -72,7 +75,7 @@ class ongoingTaskSnowflakeEtlEditModel extends ongoingTaskEditModel {
             validation: [
                 {
                     validator: () => this.transformationScripts().length > 0,
-                    message: "Transformation Script is Not defined"
+                    message: t("validation.transformationScriptNotDefined")
                 }
             ]
         });

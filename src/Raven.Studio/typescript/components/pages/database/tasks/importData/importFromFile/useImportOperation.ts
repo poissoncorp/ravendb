@@ -8,6 +8,7 @@ import notificationCenter from "common/notifications/notificationCenter";
 import activeDatabaseTracker from "common/shell/activeDatabaseTracker";
 import collectionsTracker from "common/helpers/database/collectionsTracker";
 import messagePublisher from "common/messagePublisher";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 import { useImportRestrictions } from "./useImportRestrictions";
 import { hasAnyInclude, toImportDto } from "./importFromFileUtils";
 import { ImportFromFileFormData } from "./importFromFileValidation";
@@ -25,6 +26,7 @@ export interface OperationState {
 }
 
 export function useImportOperation() {
+    const t = useStudioTranslation("importFromFile");
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const { tasksService } = useServices();
     const { reportEvent } = useEventsCollector();
@@ -64,7 +66,7 @@ export function useImportOperation() {
             );
         } catch (error) {
             messagePublisher.reportError(
-                "Invalid import options",
+                t("importErrors.invalidOptions"),
                 error?.responseText ?? String(error),
                 error?.statusText
             );
@@ -76,7 +78,7 @@ export function useImportOperation() {
             operationId = await tasksService.getNextOperationId(databaseName);
         } catch (error) {
             messagePublisher.reportError(
-                "Could not get next task id.",
+                t("importErrors.nextOperationId"),
                 error?.responseText ?? String(error),
                 error?.statusText
             );

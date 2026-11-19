@@ -3,6 +3,9 @@ import serverWideConfigurationModel = require("models/database/tasks/serverWide/
 import connectionStringRavenEtlModel = require("models/database/settings/connectionStringRavenEtlModel");
 import generalUtils = require("common/generalUtils");
 import jsonUtil = require("common/jsonUtil");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
 
 class serverWideExternalReplicationEditModel extends serverWideConfigurationModel {
     delayTime = ko.observable<number>();
@@ -38,7 +41,7 @@ class serverWideExternalReplicationEditModel extends serverWideConfigurationMode
         this.humaneDelayDescription = ko.pureComputed(() => {
             const delayTimeHumane = generalUtils.formatTimeSpan(this.delayTime() * 1000, true);
             return this.showDelayTime() && this.delayTime.isValid() && this.delayTime() !== 0 ?
-                `Documents will be replicated after a delay time of <strong>${delayTimeHumane}</strong>` : "";
+                t("delayDescription", { delayTimeHumane: generalUtils.escapeHtml(delayTimeHumane) }) : "";
         });
         
         this.dirtyFlag = new ko.DirtyFlag([
@@ -59,7 +62,7 @@ class serverWideExternalReplicationEditModel extends serverWideConfigurationMode
             validation: [
                 {
                     validator: () => !this.showDelayTime() || !!this.delayTime(),
-                    message: "Please enter a value greater than 0"
+                    message: t("validation.valueGreaterThanZero")
                 }
             ],
             min: 0

@@ -1,4 +1,7 @@
 ﻿/// <reference path="../../../../typings/tsd.d.ts"/>
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("tasksModels");
 
 abstract class ongoingTaskModel { 
 
@@ -31,7 +34,7 @@ abstract class ongoingTaskModel {
             case "RavenEtl":
                 return "RavenDB ETL";
             case "Replication":
-                return "External Replication";
+                return t("taskTypes.externalReplication");
             case "SqlEtl":
                 return "SQL ETL";
             case "SnowflakeEtl":
@@ -41,17 +44,17 @@ abstract class ongoingTaskModel {
             case "ElasticSearchEtl":
                 return "Elasticsearch ETL";
             case "PullReplicationAsHub":
-                return "Replication Hub";
+                return t("taskTypes.replicationHub");
             case "PullReplicationAsSink":
-                return "Replication Sink";
+                return t("taskTypes.replicationSink");
             case "KafkaQueueEtl":
                 return "Kafka ETL";
             case "RabbitQueueEtl":
                 return "RabbitMQ ETL";
             case "AzureQueueStorageQueueEtl":
-                return "Azure Queue Storage ETL";
+                return t("taskTypes.azureQueueStorageEtl");
             case "AmazonSqsQueueEtl":
-                return "Amazon SQS ETL";
+                return t("taskTypes.amazonSqsEtl");
             default:
                 return taskType;
         }
@@ -83,32 +86,32 @@ abstract class ongoingTaskModel {
 
             switch (this.taskConnectionStatus()) {
                 case 'Active': {
-                    return "Active";
+                    return t("connectionStatus.active");
                 }
                 case 'Reconnect': {
-                    return "Reconnect";
+                    return t("connectionStatus.reconnect");
                 }
                 case 'NotActive': {
-                    return "Not Active";
+                    return t("connectionStatus.notActive");
                 }
                 case 'NotOnThisNode': {
-                    return "Not On Node";
+                    return t("connectionStatus.notOnNode");
                 }
                 case 'None': {
-                    return "None";
+                    return t("connectionStatus.none");
                 }
             }
         });
 
         this.stateText = ko.pureComputed(() => {
             if (this.taskState() === 'Enabled') {
-                return "Enabled";
+                return t("state.enabled");
             }
             if (this.taskState() === "Disabled") {
-                return "Disabled";
+                return t("state.disabled");
             }
             if (this.taskState() === "PartiallyEnabled") {
-                return "Partial";
+                return t("state.partial");
                 // Relevant only for Etl tasks with some disabled scripts...
                 // Todo: to be handled in issue 8880
             }
