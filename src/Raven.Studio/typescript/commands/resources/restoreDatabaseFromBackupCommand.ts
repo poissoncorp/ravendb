@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("resourcesCommands");
 type RestoreBackupConfigurationBase = Raven.Client.Documents.Operations.Backups.RestoreBackupConfigurationBase;
 type S3Settings = Raven.Client.Documents.Operations.Backups.S3Settings;
 type AzureSettings = Raven.Client.Documents.Operations.Backups.AzureSettings;
@@ -24,8 +27,8 @@ export class restoreDatabaseFromBackupCommand extends commandBase {
     execute(): JQueryPromise<operationIdDto> {
         const url = endpoints.global.adminDatabases.adminRestoreDatabase;
         return this.post(url, JSON.stringify(this.dto))
-            .done(() => this.reportSuccess(`Started the restore of database named: ${this.dto.DatabaseName}`))
-            .fail((response: JQueryXHR) => this.reportError(`Failed to start the restore of database named: ${this.dto.DatabaseName}`,
+            .done(() => this.reportSuccess(t("restoreSucceeded", { databaseName: this.dto.DatabaseName })))
+            .fail((response: JQueryXHR) => this.reportError(t("restoreFailed", { databaseName: this.dto.DatabaseName }),
                 response.responseText, response.statusText));
     }
 }

@@ -4,12 +4,15 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import { CreateDatabaseFromBackupFormData as FormData, RestoreSource } from "../../createDatabaseFromBackupValidation";
 import { useFormContext, useWatch } from "react-hook-form";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface EncryptionFieldProps {
     sourceType: RestoreSource;
 }
 
 export default function EncryptionField({ sourceType }: EncryptionFieldProps) {
+    const t = useStudioTranslation("databases");
     const { control } = useFormContext<FormData>();
 
     const {
@@ -30,7 +33,11 @@ export default function EncryptionField({ sourceType }: EncryptionFieldProps) {
         <Row className="mt-2">
             <Col lg="3">
                 <FormLabel className="col-form-label">
-                    Backup Encryption Key <small className="text-muted">(Base64 Encoding)</small>
+                    <StudioTrans
+                        ns="databases"
+                        i18nKey="createFromBackup.source.encryptionKey"
+                        components={{ small: <small className="text-muted" /> }}
+                    />
                 </FormLabel>
             </Col>
             <Col>
@@ -38,7 +45,7 @@ export default function EncryptionField({ sourceType }: EncryptionFieldProps) {
                     type="text"
                     control={control}
                     name={`sourceStep.sourceData.${sourceType}.encryptionKey`}
-                    placeholder="Enter backup encryption key"
+                    placeholder={t("createFromBackup.source.encryptionKeyPlaceholder")}
                 />
             </Col>
         </Row>

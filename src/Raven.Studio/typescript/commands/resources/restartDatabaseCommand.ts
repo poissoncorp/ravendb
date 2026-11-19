@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("resourcesCommands");
 
 class restartDatabaseCommand extends commandBase {
     private databaseName: string;
@@ -15,7 +18,7 @@ class restartDatabaseCommand extends commandBase {
         const url = endpoints.databases.studioDatabaseTasks.adminStudioTasksRestart + this.urlEncodeArgs(this.location);
 
         return this.post(url, null, this.databaseName, { dataType: undefined })
-            .fail((response: JQueryXHR) => this.reportError("Failed to restart the database", response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("restartFailed"), response.responseText, response.statusText));
     }
 }
 

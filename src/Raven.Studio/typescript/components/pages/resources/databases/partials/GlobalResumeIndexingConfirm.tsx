@@ -7,6 +7,7 @@ import ActionContextUtils from "components/utils/actionContextUtils";
 import { Icon } from "components/common/Icon";
 import { useState } from "react";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface GlobalResumeIndexingConfirmProps {
     toggle: () => void;
@@ -16,6 +17,8 @@ interface GlobalResumeIndexingConfirmProps {
 
 export function GlobalResumeIndexingConfirm(props: GlobalResumeIndexingConfirmProps) {
     const { allActionContexts, toggle, onConfirm } = props;
+    const t = useStudioTranslation("databases");
+    const tCommon = useStudioTranslation("common");
 
     const [selectedActionContexts, setSelectedActionContexts] = useState<DatabaseActionContexts[]>(allActionContexts);
 
@@ -30,12 +33,12 @@ export function GlobalResumeIndexingConfirm(props: GlobalResumeIndexingConfirmPr
                 <div className="text-center">
                     <Icon icon="index" color="success" addon="play" className="fs-1" margin="m-0" />
                 </div>
-                <div className="text-center lead">You&apos;re about to resume indexing</div>
+                <div className="text-center lead">{t("globalIndexingConfirm.resumeTitle")}</div>
             </Modal.Header>
             <Modal.Body className="vstack gap-4">
                 {ActionContextUtils.showContextSelector(allActionContexts) && (
                     <div>
-                        <h4>Select context</h4>
+                        <h4>{t("globalIndexingConfirm.selectContext")}</h4>
                         <MultipleDatabaseLocationSelector
                             allActionContexts={allActionContexts}
                             selectedActionContexts={selectedActionContexts}
@@ -46,10 +49,10 @@ export function GlobalResumeIndexingConfirm(props: GlobalResumeIndexingConfirmPr
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="link" onClick={toggle} className="link-muted">
-                    Cancel
+                    {tCommon("cancel")}
                 </Button>
                 <Button variant="success" onClick={handleResume} className="rounded-pill">
-                    <Icon icon="play" /> Resume
+                    <Icon icon="play" /> {t("globalIndexingConfirm.resume")}
                 </Button>
             </Modal.Footer>
         </Modal>

@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("resourcesCommands");
 import database = require("models/resources/database");
 
 class getDatabaseStudioConfigurationCommand extends commandBase {
@@ -19,7 +22,7 @@ class getDatabaseStudioConfigurationCommand extends commandBase {
             .done(dto => loadTask.resolve(dto))
             .fail((response: JQueryXHR) => {
                 if (response.status !== 404) {
-                    this.reportError(`Failed to load the studio database configuration`, response.responseText, response.statusText);
+                    this.reportError(t("getDatabaseStudioConfigurationFailed"), response.responseText, response.statusText);
                     loadTask.reject(response);
                 } else {
                     loadTask.resolve(null);

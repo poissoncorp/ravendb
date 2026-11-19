@@ -4,6 +4,7 @@ import React from "react";
 import DatabaseUtils from "components/utils/DatabaseUtils";
 import DatabaseTopologyNodeSetItem from "./DatabaseTopologyNodeSetItem";
 import { locationAwareLoadableData } from "components/models/common";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface DatabaseTopologyProps {
     db: DatabaseSharedInfo;
@@ -13,6 +14,7 @@ interface DatabaseTopologyProps {
 
 export function DatabaseTopology(props: DatabaseTopologyProps) {
     const { db, localInfos, togglePanelCollapsed } = props;
+    const t = useStudioTranslation("databases");
 
     if (db.isSharded) {
         return (
@@ -21,10 +23,10 @@ export function DatabaseTopology(props: DatabaseTopologyProps) {
                     color="orchestrator"
                     className="m-1 cursor-pointer"
                     onClick={togglePanelCollapsed}
-                    title="Expand distribution details"
+                    title={t("properties.expandDetailsTitle")}
                 >
                     <NodeSetLabel color="orchestrator" icon="orchestrator">
-                        Orchestrators
+                        {t("topology.orchestrators")}
                     </NodeSetLabel>
                     {db.nodes.map((node) => (
                         <DatabaseTopologyNodeSetItem
@@ -44,7 +46,7 @@ export function DatabaseTopology(props: DatabaseTopologyProps) {
                                 color="shard"
                                 className="m-1 cursor-pointer"
                                 onClick={togglePanelCollapsed}
-                                title="Expand distribution details"
+                                title={t("properties.expandDetailsTitle")}
                             >
                                 <NodeSetLabel color="shard" icon="shard">
                                     #{shardNumber}
@@ -64,7 +66,7 @@ export function DatabaseTopology(props: DatabaseTopologyProps) {
                                             key={"deletion-" + node}
                                             icon="trash"
                                             color="warning"
-                                            title="Deletion in progress"
+                                            title={t("topology.deletionInProgress")}
                                             extraIconClassName="pulse"
                                         >
                                             {node}
@@ -83,9 +85,9 @@ export function DatabaseTopology(props: DatabaseTopologyProps) {
                 <NodeSet
                     className="m-1 cursor-pointer"
                     onClick={togglePanelCollapsed}
-                    title="Expand distribution details"
+                    title={t("properties.expandDetailsTitle")}
                 >
-                    <NodeSetLabel icon="database">Nodes</NodeSetLabel>
+                    <NodeSetLabel icon="database">{t("topology.nodes")}</NodeSetLabel>
                     {db.nodes.map((node) => (
                         <DatabaseTopologyNodeSetItem
                             key={node.tag}
@@ -100,7 +102,7 @@ export function DatabaseTopology(props: DatabaseTopologyProps) {
                                 key={"deletion-" + node}
                                 icon="trash"
                                 color="warning"
-                                title="Deletion in progress"
+                                title={t("topology.deletionInProgress")}
                                 extraIconClassName="pulse"
                             >
                                 {node}

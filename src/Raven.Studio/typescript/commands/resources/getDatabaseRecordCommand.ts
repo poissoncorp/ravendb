@@ -2,6 +2,9 @@ import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import document = require("models/database/documents/document");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("resourcesCommands");
 
 class getDatabaseRecordCommand extends commandBase {
 
@@ -24,8 +27,8 @@ class getDatabaseRecordCommand extends commandBase {
         const getTask = this.query(url, null, null, resultsSelector);
 
         if (this.reportRefreshProgress) {
-            getTask.done(() => this.reportSuccess("Database Record of '" + this.databaseName + "' was successfully refreshed!"));
-            getTask.fail((response: JQueryXHR) => this.reportError("Failed to refresh Database Record!", response.responseText, response.statusText));
+            getTask.done(() => this.reportSuccess(t("refreshDatabaseRecordSucceeded", { databaseName: this.databaseName })));
+            getTask.fail((response: JQueryXHR) => this.reportError(t("refreshDatabaseRecordFailed"), response.responseText, response.statusText));
         }
         return getTask;
     }

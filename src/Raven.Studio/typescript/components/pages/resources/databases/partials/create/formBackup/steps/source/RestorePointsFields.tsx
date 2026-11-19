@@ -6,6 +6,7 @@ import Button from "react-bootstrap/Button";
 import { CreateDatabaseFromBackupFormData as FormData } from "../../createDatabaseFromBackupValidation";
 import { Icon } from "components/common/Icon";
 import { FormLabel } from "components/common/Form";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export interface RestorePointElementProps {
     index: number;
@@ -17,6 +18,7 @@ interface RestorePointsFieldsProps {
 }
 
 export default function RestorePointsFields(props: RestorePointsFieldsProps) {
+    const t = useStudioTranslation("databases");
     const { control, formState } = useFormContext<FormData>();
 
     const {
@@ -37,7 +39,7 @@ export default function RestorePointsFields(props: RestorePointsFieldsProps) {
         <>
             <Row className="mt-2">
                 <Col lg="3">
-                    <FormLabel className="col-form-label">Restore Point</FormLabel>
+                    <FormLabel className="col-form-label">{t("createFromBackup.source.restorePoint.label")}</FormLabel>
                 </Col>
                 <Col lg={isSharded ? 12 : 9}>
                     {fields.map((field, idx) => (
@@ -50,7 +52,8 @@ export default function RestorePointsFields(props: RestorePointsFieldsProps) {
                             className="rounded-pill"
                             onClick={() => append({ restorePoint: null, nodeTag: "" })}
                         >
-                            <Icon icon="restore-backup" margin="m-0" /> Add shard restore point
+                            <Icon icon="restore-backup" margin="m-0" />{" "}
+                            {t("createFromBackup.source.restorePoint.addShardRestorePoint")}
                         </Button>
                     )}
                 </Col>

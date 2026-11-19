@@ -18,10 +18,13 @@ import classNames from "classnames";
 import { createDatabaseRegularDataUtils } from "components/pages/resources/databases/partials/create/regular/createDatabaseRegularDataUtils";
 import RichAlert from "components/common/RichAlert";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 const shardingImg = require("Content/img/createDatabase/sharding.svg");
 
 export default function CreateDatabaseRegularStepReplicationAndSharding() {
+    const t = useStudioTranslation("databases");
     const hasDynamicNodesDistribution = useAppSelector(licenseSelectors.statusValue("HasDynamicNodesDistribution"));
     const maxReplicationFactorForSharding =
         useAppSelector(licenseSelectors.statusValue("MaxReplicationFactorForSharding")) ?? Infinity;
@@ -74,49 +77,47 @@ export default function CreateDatabaseRegularStepReplicationAndSharding() {
     return (
         <div>
             <div className="d-flex justify-content-center">
-                <img src={shardingImg} alt="Sharding" className="step-img" />
+                <img src={shardingImg} alt={t("createDatabase.replicationAndSharding.imageAlt")} className="step-img" />
             </div>
 
-            <h2 className="text-center">Replication & Sharding</h2>
+            <h2 className="text-center">{t("createDatabase.steps.replicationAndSharding")}</h2>
 
             <Row>
                 <Col lg={{ span: 8, offset: 2 }} className="text-center">
-                    <p>
-                        Database replication provides benefits such as improved data availability, increased
-                        scalability, and enhanced disaster recovery capabilities.
-                    </p>
+                    <p>{t("createDatabase.replicationAndSharding.intro")}</p>
                     <div className="mb-3">
                         <span>
                             <PopoverWithHoverWrapper
                                 message={
                                     <>
                                         <p>
-                                            <strong className="text-shard">
-                                                <Icon icon="sharding" margin="m-0" /> Sharding
-                                            </strong>{" "}
-                                            is a database partitioning technique that breaks up large databases into
-                                            smaller, more manageable pieces called{" "}
-                                            <strong className="text-shard">
-                                                {" "}
-                                                <Icon icon="shard" margin="m-0" />
-                                                shards
-                                            </strong>
-                                            .
+                                            <StudioTrans
+                                                ns="databases"
+                                                i18nKey="createDatabase.replicationAndSharding.shardingInfo"
+                                                components={{
+                                                    strong: <strong className="text-shard" />,
+                                                    shardingIcon: <Icon icon="sharding" margin="m-0" />,
+                                                    shardIcon: <Icon icon="shard" margin="m-0" />,
+                                                }}
+                                            />
                                         </p>
                                         <p>
-                                            Each shard contains a subset of the data and can be stored on a separate
-                                            server, allowing for{" "}
-                                            <strong>horizontal scalability and improved performance</strong>.
+                                            <StudioTrans
+                                                ns="databases"
+                                                i18nKey="createDatabase.replicationAndSharding.shardingBenefits"
+                                                components={{ strong: <strong /> }}
+                                            />
                                         </p>
                                         <a href={docsShardingLink}>
-                                            Learn more <Icon icon="newtab" margin="m-0" />
+                                            {t("createDatabase.replicationAndSharding.learnMore")}{" "}
+                                            <Icon icon="newtab" margin="m-0" />
                                         </a>
                                     </>
                                 }
                             >
                                 <Icon icon="info" color="info" margin="m-0" />
                             </PopoverWithHoverWrapper>{" "}
-                            What is sharding?
+                            {t("createDatabase.replicationAndSharding.whatIsSharding")}
                         </span>
                     </div>
                 </Col>
@@ -128,26 +129,33 @@ export default function CreateDatabaseRegularStepReplicationAndSharding() {
                         <Col sm="6" className="d-flex gap-1 align-items-center">
                             <PopoverWithHoverWrapper
                                 message={
-                                    <>
-                                        Add more{" "}
-                                        <strong className="text-node">
-                                            <Icon icon="node" margin="m-0" /> Instance nodes
-                                        </strong>{" "}
-                                        in <a href={appUrl.forCluster()}>Manage cluster</a> view
-                                    </>
+                                    <StudioTrans
+                                        ns="databases"
+                                        i18nKey="createDatabase.replicationAndSharding.addMoreNodes"
+                                        components={{
+                                            strong: <strong className="text-node" />,
+                                            icon: <Icon icon="node" margin="m-0" />,
+                                            a: <a href={appUrl.forCluster()} />,
+                                        }}
+                                    />
                                 }
                             >
                                 <Icon id="ReplicationInfo" icon="info" color="info" margin="m-0" />
                             </PopoverWithHoverWrapper>{" "}
-                            Available nodes: <Icon icon="node" color="node" margin="ms-1" />{" "}
+                            {t("createDatabase.replicationAndSharding.availableNodes")}{" "}
+                            <Icon icon="node" color="node" margin="ms-1" />{" "}
                             <strong className={classNames({ "text-warning": isReplicationFactorWarning })}>
                                 {maxReplicationFactor}{" "}
                                 {isReplicationFactorWarning && (
                                     <PopoverWithHoverWrapper
                                         message={
                                             <LicenseRestrictedMessage>
-                                                Your license doesn&apos;t allow replication factor higher than{" "}
-                                                <strong>{maxReplicationFactorForSharding}</strong> for sharded database.
+                                                <StudioTrans
+                                                    ns="databases"
+                                                    i18nKey="createDatabase.replicationAndSharding.replicationFactorLicenseLimit"
+                                                    options={{ limit: maxReplicationFactorForSharding }}
+                                                    components={{ strong: <strong /> }}
+                                                />
                                             </LicenseRestrictedMessage>
                                         }
                                     >
@@ -163,10 +171,14 @@ export default function CreateDatabaseRegularStepReplicationAndSharding() {
                                 color="shard"
                                 className="mt-1"
                             >
-                                Enable{" "}
-                                <strong className="text-shard">
-                                    <Icon icon="sharding" margin="m-0" /> Sharding
-                                </strong>
+                                <StudioTrans
+                                    ns="databases"
+                                    i18nKey="createDatabase.replicationAndSharding.enableSharding"
+                                    components={{
+                                        strong: <strong className="text-shard" />,
+                                        icon: <Icon icon="sharding" margin="m-0" />,
+                                    }}
+                                />
                             </FormSwitch>
                         </Col>
                     </Row>
@@ -179,9 +191,11 @@ export default function CreateDatabaseRegularStepReplicationAndSharding() {
                                             isActive: isSingleNodeOnly,
                                             message: (
                                                 <span>
-                                                    Only 1 node is available. Add more nodes in the{" "}
-                                                    <a href={appUrl.forCluster()}>Manage cluster</a> view to enable
-                                                    replication.
+                                                    <StudioTrans
+                                                        ns="databases"
+                                                        i18nKey="createDatabase.replicationAndSharding.singleNodeOnly"
+                                                        components={{ a: <a href={appUrl.forCluster()} /> }}
+                                                    />
                                                 </span>
                                             ),
                                         }}
@@ -189,7 +203,9 @@ export default function CreateDatabaseRegularStepReplicationAndSharding() {
                                         className="w-100"
                                     >
                                         <InputGroup>
-                                            <InputGroup.Text>Replication Factor</InputGroup.Text>
+                                            <InputGroup.Text>
+                                                {t("createDatabase.replicationAndSharding.replicationFactor")}
+                                            </InputGroup.Text>
                                             <FormInput
                                                 type="number"
                                                 control={control}
@@ -217,7 +233,9 @@ export default function CreateDatabaseRegularStepReplicationAndSharding() {
                             <Collapse in={isSharded}>
                                 <div>
                                     <InputGroup>
-                                        <InputGroup.Text>Number of shards</InputGroup.Text>
+                                        <InputGroup.Text>
+                                            {t("createDatabase.replicationAndSharding.numberOfShards")}
+                                        </InputGroup.Text>
                                         <FormInput
                                             type="number"
                                             control={control}
@@ -233,12 +251,15 @@ export default function CreateDatabaseRegularStepReplicationAndSharding() {
                                         color="primary"
                                         className="mt-3"
                                     >
-                                        Add <strong>prefixes</strong> for shards
-                                        <br />
-                                        <small className="text-muted">
-                                            Manage document distribution by defining
-                                            <br />a prefix for document IDs
-                                        </small>
+                                        <StudioTrans
+                                            ns="databases"
+                                            i18nKey="createDatabase.replicationAndSharding.prefixesForShards"
+                                            components={{
+                                                strong: <strong />,
+                                                br: <br />,
+                                                small: <small className="text-muted" />,
+                                            }}
+                                        />
                                     </FormSwitch>
                                 </div>
                             </Collapse>
@@ -247,24 +268,28 @@ export default function CreateDatabaseRegularStepReplicationAndSharding() {
                     <RichAlert variant="info" className="mt-4">
                         <Collapse in={isSharded}>
                             <div>
-                                Data will be divided into{" "}
-                                <strong>
-                                    {shardsCount}
-                                    <Icon icon="shard" margin="m-0" /> Shards
-                                </strong>
-                                .<br />
+                                <StudioTrans
+                                    ns="databases"
+                                    i18nKey="createDatabase.replicationAndSharding.shardsSummary"
+                                    options={{ count: shardsCount }}
+                                    components={{ strong: <strong />, icon: <Icon icon="shard" margin="m-0" /> }}
+                                />
+                                <br />
                             </div>
                         </Collapse>
                         {replicationFactor > 1 ? (
-                            <>
-                                {isSharded ? <>Each shard</> : <>Data</>} will be replicated across{" "}
-                                <strong>
-                                    {replicationFactor} <Icon icon="node" margin="m-0" /> Nodes
-                                </strong>
-                                .
-                            </>
+                            <StudioTrans
+                                ns="databases"
+                                i18nKey={
+                                    isSharded
+                                        ? "createDatabase.replicationAndSharding.eachShardReplicationSummary"
+                                        : "createDatabase.replicationAndSharding.dataReplicationSummary"
+                                }
+                                options={{ count: replicationFactor }}
+                                components={{ strong: <strong />, icon: <Icon icon="node" margin="m-0" /> }}
+                            />
                         ) : (
-                            <>Data won&apos;t be replicated.</>
+                            t("createDatabase.replicationAndSharding.noReplicationSummary")
                         )}
                     </RichAlert>
                 </Col>
@@ -277,8 +302,11 @@ export default function CreateDatabaseRegularStepReplicationAndSharding() {
                             isActive: !hasDynamicNodesDistribution,
                             message: (
                                 <LicenseRestrictedMessage>
-                                    Current license doesn&apos;t include{" "}
-                                    <strong className="text-info">Dynamic database distribution feature</strong>.
+                                    <StudioTrans
+                                        ns="databases"
+                                        i18nKey="createDatabase.replicationAndSharding.dynamicDistributionLicense"
+                                        components={{ strong: <strong className="text-info" /> }}
+                                    />
                                 </LicenseRestrictedMessage>
                             ),
                         }}
@@ -290,9 +318,11 @@ export default function CreateDatabaseRegularStepReplicationAndSharding() {
                             color="primary"
                             disabled={!hasDynamicNodesDistribution}
                         >
-                            Allow dynamic database distribution
-                            <br />
-                            <small className="text-muted">Maintain replication factor upon node failure</small>
+                            <StudioTrans
+                                ns="databases"
+                                i18nKey="createDatabase.replicationAndSharding.dynamicDistribution"
+                                components={{ br: <br />, small: <small className="text-muted" /> }}
+                            />
                         </FormSwitch>
                     </ConditionalPopover>
                 </Col>
@@ -303,14 +333,19 @@ export default function CreateDatabaseRegularStepReplicationAndSharding() {
                                 isActive: isNotBootstrapped,
                                 message: (
                                     <span>
-                                        Please, first <a href={appUrl.forCluster()}>Bootstrap a Cluster</a>.
+                                        <StudioTrans
+                                            ns="databases"
+                                            i18nKey="createDatabase.replicationAndSharding.bootstrapCluster"
+                                            components={{ a: <a href={appUrl.forCluster()} /> }}
+                                        />
                                     </span>
                                 ),
                             },
                             {
                                 isActive: isManualReplicationRequiredForEncryption,
-                                message:
-                                    "You need to select nodes manually because the encryption is enabled and there are more than 1 nodes in cluster.",
+                                message: t(
+                                    "createDatabase.replicationAndSharding.manualReplicationRequiredForEncryption"
+                                ),
                             },
                         ]}
                         popoverPlacement="top"
@@ -321,9 +356,11 @@ export default function CreateDatabaseRegularStepReplicationAndSharding() {
                             color="primary"
                             disabled={isNotBootstrapped || isManualReplicationRequiredForEncryption}
                         >
-                            Set replication nodes manually
-                            <br />
-                            <small className="text-muted">Select nodes from the list in the next step</small>
+                            <StudioTrans
+                                ns="databases"
+                                i18nKey="createDatabase.replicationAndSharding.manualReplication"
+                                components={{ br: <br />, small: <small className="text-muted" /> }}
+                            />
                         </FormSwitch>
                     </ConditionalPopover>
                 </Col>

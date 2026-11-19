@@ -20,6 +20,7 @@ import { accessManagerSelectors } from "components/common/shell/accessManagerSli
 import CreateDatabase, { CreateDatabaseMode } from "./partials/create/CreateDatabase";
 import Button from "react-bootstrap/Button";
 import DatabasesList from "./partials/DatabasesList";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface DatabasesPageProps {
     compact?: string;
@@ -28,6 +29,7 @@ interface DatabasesPageProps {
 }
 
 export function DatabasesPage({ queryParams }: ReactQueryParamsProps<DatabasesPageProps>) {
+    const t = useStudioTranslation("databases");
     const databases = useAppSelector(databaseSelectors.allDatabases);
     const nodeTags = useAppSelector(clusterSelectors.allNodeTags);
     const isOperatorOrAbove = useAppSelector(accessManagerSelectors.isOperatorOrAbove);
@@ -116,7 +118,7 @@ export function DatabasesPage({ queryParams }: ReactQueryParamsProps<DatabasesPa
                             className="rounded-pill"
                         >
                             <Icon icon="database" addon="plus" />
-                            New database
+                            {t("page.newDatabase")}
                         </Button>
                         {createDatabaseMode && (
                             <CreateDatabase
@@ -129,7 +131,7 @@ export function DatabasesPage({ queryParams }: ReactQueryParamsProps<DatabasesPa
                 {showToggleButton && (
                     <Button variant="secondary" className="rounded-pill" onClick={toggleFilterOptions}>
                         <Icon icon="filter" />
-                        {showFilterOptions ? "Hide Filtering Options" : "Show Filtering Options"}
+                        {showFilterOptions ? t("page.hideFilteringOptions") : t("page.showFilteringOptions")}
                     </Button>
                 )}
                 <div className="d-flex flex-grow flex-wrap gap-3">

@@ -53,6 +53,8 @@ import changesContext = require("common/changesContext");
 import DatabaseLockMode = Raven.Client.ServerWide.DatabaseLockMode;
 import { GlobalPauseIndexingConfirm } from "./GlobalPauseIndexingConfirm";
 import { GlobalResumeIndexingConfirm } from "./GlobalResumeIndexingConfirm";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import type { StudioTranslate } from "common/i18n/resources";
 
 interface DatabasePanelProps {
     databaseName: string;
@@ -78,21 +80,32 @@ function getStatusColor(db: DatabaseSharedInfo, localInfo: locationAwareLoadable
     }
 }
 
-function badgeText(db: DatabaseSharedInfo, localInfo: locationAwareLoadableData<DatabaseLocalInfo>[]) {
+function badgeText(
+    db: DatabaseSharedInfo,
+    localInfo: locationAwareLoadableData<DatabaseLocalInfo>[],
+    t: StudioTranslate<"databases">
+) {
     const state = DatabaseUtils.getDatabaseState(db, localInfo);
-    if (state === "Loading") {
-        return "Loading...";
+    switch (state) {
+        case "Loading":
+            return t("state.loading");
+        case "Partially Online": {
+            const onlineCount = localInfo.filter((x) => x.status === "success" && x.data.upTime).length;
+            return t("state.partiallyOnline", { online: onlineCount, total: localInfo.length });
+        }
+        case "Error":
+            return t("state.error");
+        case "Offline":
+            return t("state.offline");
+        case "Disabled":
+            return t("state.disabled");
+        case "Online":
+            return t("state.online");
     }
-
-    if (state === "Partially Online") {
-        const onlineCount = localInfo.filter((x) => x.status === "success" && x.data.upTime).length;
-        return `Online (${onlineCount}/${localInfo.length})`;
-    }
-
-    return state;
 }
 
 export function DatabasePanel(props: DatabasePanelProps) {
+    const t = useStudioTranslation("databases");
     const { databaseName, selected, toggleSelection } = props;
     const db = useAppSelector(databaseSelectors.databaseByName(databaseName));
     const activeDatabaseName = useAppSelector(databaseSelectors.activeDatabaseName);
@@ -167,7 +180,7 @@ export function DatabasePanel(props: DatabasePanelProps) {
         reportEvent("databases", "set-lock-mode", lockMode);
 
         const isConfirmed = await confirm({
-            title: "Do you want to change lock mode?",
+            title: t("changeLockModeConfirm"),
         });
 
         if (isConfirmed) {
@@ -297,7 +310,7 @@ export function DatabasePanel(props: DatabasePanelProps) {
                 relevant: true,
             })}
         >
-            <RichPanelStatus color={getStatusColor(db, dbState)}>{badgeText(db, dbState)}</RichPanelStatus>
+            <RichPanelStatus color={getStatusColor(db, dbState)}>{badgeText(db, dbState, t)}</RichPanelStatus>
             <div className="flex-grow-1">
                 <div className="flex-grow-1">
                     <RichPanelHeader onClick={(e) => onHeaderClicked(db, e)}>
@@ -327,7 +340,7 @@ export function DatabasePanel(props: DatabasePanelProps) {
                                         {db.name}
                                     </a>
                                 ) : (
-                                    <span title="Database is disabled" className="d-block text-truncate">
+                                    <span title={t("panel.disabledTitle")} className="d-block text-truncate">
                                         <Icon
                                             icon="database"
                                             addon={db.currentNode.isRelevant ? "home" : null}
@@ -347,12 +360,12 @@ export function DatabasePanel(props: DatabasePanelProps) {
                                 <Button
                                     variant="secondary"
                                     href={manageGroupUrl}
-                                    title="Manage the Database Group"
+                                    title={t("panel.manageGroupTitle")}
                                     target={db.currentNode.isRelevant ? undefined : "_blank"}
                                     disabled={!canNavigateToDatabase || db.currentNode.isBeingDeleted}
                                 >
                                     <span>
-                                        <Icon icon="dbgroup" addon="settings" /> Manage group
+                                        <Icon icon="dbgroup" addon="settings" /> {t("panel.manageGroup")}
                                     </span>
                                 </Button>
                             )}
@@ -364,11 +377,11 @@ export function DatabasePanel(props: DatabasePanelProps) {
                                             <Button variant="secondary" onClick={onToggleDatabase}>
                                                 {db.isDisabled ? (
                                                     <span>
-                                                        <Icon icon="database" addon="play2" /> Enable
+                                                        <Icon icon="database" addon="play2" /> {t("actions.enable")}
                                                     </span>
                                                 ) : (
                                                     <span>
-                                                        <Icon icon="database" addon="cancel" /> Disable
+                                                        <Icon icon="database" addon="cancel" /> {t("actions.disable")}
                                                     </span>
                                                 )}
                                             </Button>
@@ -384,7 +397,7 @@ export function DatabasePanel(props: DatabasePanelProps) {
                                         {canResumeAnyPausedIndexing && (
                                             <>
                                                 <Dropdown.Item onClick={toggleIsGlobalResumeIndexingOpen}>
-                                                    <Icon icon="play" /> Resume indexing
+                                                    <Icon icon="play" /> {t("actions.resumeIndexing")}
                                                 </Dropdown.Item>
                                                 {isGlobalResumeIndexingOpen && (
                                                     <GlobalResumeIndexingConfirm
@@ -398,7 +411,7 @@ export function DatabasePanel(props: DatabasePanelProps) {
                                         {canPauseAnyIndexing && (
                                             <>
                                                 <Dropdown.Item onClick={toggleIsGlobalPauseIndexingOpen}>
-                                                    <Icon icon="pause" /> Pause indexing until restart
+                                                    <Icon icon="pause" /> {t("actions.pauseIndexing")}
                                                 </Dropdown.Item>
                                                 {isGlobalPauseIndexingOpen && (
                                                     <GlobalPauseIndexingConfirm
@@ -411,12 +424,12 @@ export function DatabasePanel(props: DatabasePanelProps) {
                                         )}
                                         {canDisableIndexing && (
                                             <Dropdown.Item onClick={() => onToggleDisableIndexing(true)}>
-                                                <Icon icon="stop" /> Disable indexing
+                                                <Icon icon="stop" /> {t("actions.disableIndexing")}
                                             </Dropdown.Item>
                                         )}
                                         {canEnableIndexing && (
                                             <Dropdown.Item onClick={() => onToggleDisableIndexing(false)}>
-                                                <Icon icon="play" /> Enable indexing
+                                                <Icon icon="play" /> {t("actions.enableIndexing")}
                                             </Dropdown.Item>
                                         )}
                                         {isOperatorOrAbove && (
@@ -437,13 +450,13 @@ export function DatabasePanel(props: DatabasePanelProps) {
                                                             onClick={showResetDatabaseConfirmation}
                                                             disabled={!canRestartDatabase}
                                                         >
-                                                            <Icon icon="reset" /> Restart database
+                                                            <Icon icon="reset" /> {t("actions.restartDatabase")}
                                                         </Dropdown.Item>
                                                     </>
                                                 )}
                                                 {!db.isDisabled && (
                                                     <Dropdown.Item onClick={onCompactDatabase}>
-                                                        <Icon icon="compact" /> Compact database
+                                                        <Icon icon="compact" /> {t("actions.compactDatabase")}
                                                     </Dropdown.Item>
                                                 )}
                                             </>
@@ -459,8 +472,8 @@ export function DatabasePanel(props: DatabasePanelProps) {
                                             onClick={() => onDelete()}
                                             title={
                                                 db.lockMode === "Unlock"
-                                                    ? "Remove database"
-                                                    : "Database cannot be deleted because of the set lock mode"
+                                                    ? t("panel.deleteTitle")
+                                                    : t("panel.deleteLockedTitle")
                                             }
                                             variant={db.lockMode === "Unlock" ? "danger" : "secondary"}
                                             disabled={db.lockMode !== "Unlock"}
@@ -482,21 +495,22 @@ export function DatabasePanel(props: DatabasePanelProps) {
                                     <Dropdown.Menu>
                                         <Dropdown.Item
                                             onClick={() => onChangeLockMode("Unlock")}
-                                            title="Allow to delete database"
+                                            title={t("panel.allowDeleteTitle")}
                                         >
-                                            <Icon icon="trash" addon="check" /> Allow database delete
+                                            <Icon icon="trash" addon="check" /> {t("panel.allowDelete")}
                                         </Dropdown.Item>
                                         <Dropdown.Item
                                             onClick={() => onChangeLockMode("PreventDeletesIgnore")}
-                                            title="Prevent deletion of database. An error will not be thrown if an app attempts to delete the database."
+                                            title={t("panel.preventDeleteTitle")}
                                         >
-                                            <Icon icon="trash" addon="cancel" /> Prevent database delete
+                                            <Icon icon="trash" addon="cancel" /> {t("panel.preventDelete")}
                                         </Dropdown.Item>
                                         <Dropdown.Item
                                             onClick={() => onChangeLockMode("PreventDeletesError")}
-                                            title="Prevent deletion of database. An error will be thrown if an app attempts to delete the database."
+                                            title={t("panel.preventDeleteWithErrorTitle")}
                                         >
-                                            <Icon icon="trash" addon="exclamation" /> Prevent database delete (Error)
+                                            <Icon icon="trash" addon="exclamation" />{" "}
+                                            {t("panel.preventDeleteWithError")}
                                         </Dropdown.Item>
                                     </Dropdown.Menu>
                                 </Dropdown>

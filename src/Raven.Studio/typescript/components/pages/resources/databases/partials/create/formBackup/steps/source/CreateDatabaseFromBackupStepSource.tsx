@@ -20,10 +20,13 @@ import { ConditionalPopover } from "components/common/ConditionalPopover";
 import AuthenticationOffMessage from "components/pages/resources/databases/partials/create/shared/AuthenticationOffMessage";
 import EncryptionUnavailableMessage from "components/pages/resources/databases/partials/create/shared/EncryptionUnavailableMessage";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import type { StudioTranslate } from "common/i18n/resources";
 
 const backupSourceImg = require("Content/img/createDatabase/backup-source.svg");
 
 export default function CreateDatabaseFromBackupStepSource() {
+    const t = useStudioTranslation("databases");
     const { control, setValue } = useFormContext<FormData>();
     const {
         sourceStep: { sourceData, sourceType, isSetMaxReadOpsPerSecond },
@@ -49,19 +52,19 @@ export default function CreateDatabaseFromBackupStepSource() {
         <>
             <Collapse in={sourceType == null}>
                 <div className="d-flex justify-content-center">
-                    <img src={backupSourceImg} alt="Backup source" className="step-img" />
+                    <img src={backupSourceImg} alt={t("createFromBackup.source.imageAlt")} className="step-img" />
                 </div>
             </Collapse>
-            <h2>Backup Source</h2>
+            <h2>{t("createFromBackup.source.title")}</h2>
             <Row className="mt-2">
                 <Col lg="3">
-                    <FormLabel className="col-form-label">Backup Source</FormLabel>
+                    <FormLabel className="col-form-label">{t("createFromBackup.source.title")}</FormLabel>
                 </Col>
                 <Col>
                     <FormSelect
                         control={control}
                         name="sourceStep.sourceType"
-                        options={sourceOptions}
+                        options={getSourceOptions(t)}
                         isSearchable={false}
                         components={{
                             Option: OptionWithIcon,
@@ -85,16 +88,16 @@ export default function CreateDatabaseFromBackupStepSource() {
                         color="primary"
                     >
                         <Icon icon="ongoing-tasks" addon="cancel" />
-                        Disable ongoing tasks after restore
+                        {t("createFromBackup.source.disableOngoingTasks")}
                     </FormSwitch>
                     <FormSwitch control={control} name="sourceStep.isSkipIndexes" color="primary">
                         <Icon icon="index" />
-                        Skip indexes
+                        {t("createFromBackup.source.skipIndexes")}
                     </FormSwitch>
                     <FormSwitch control={control} name="sourceStep.isSetMaxReadOpsPerSecond" color="primary">
                         <Icon icon="traffic-watch" />
-                        Set max read operations per second
-                        <PopoverWithHoverWrapper message="This setting is used to limit the impact of restore operations on the database performance.">
+                        {t("createFromBackup.source.setMaxReadOpsPerSecond")}
+                        <PopoverWithHoverWrapper message={t("createFromBackup.source.maxReadOpsPerSecondInfo")}>
                             <Icon icon="info" margin="ms-1" />
                         </PopoverWithHoverWrapper>
                     </FormSwitch>
@@ -103,7 +106,7 @@ export default function CreateDatabaseFromBackupStepSource() {
                             type="number"
                             control={control}
                             name="sourceStep.maxReadOpsPerSecond"
-                            placeholder="Enter the max read operations per second"
+                            placeholder={t("createFromBackup.source.maxReadOpsPerSecondPlaceholder")}
                             min={1}
                             className="mb-2"
                         />
@@ -118,10 +121,10 @@ export default function CreateDatabaseFromBackupStepSource() {
     );
 }
 
-const sourceOptions: SelectOptionWithIcon<RestoreSource>[] = [
+const getSourceOptions = (t: StudioTranslate<"databases">): SelectOptionWithIcon<RestoreSource>[] => [
     {
         value: "local",
-        label: "Local Server Directory",
+        label: t("createFromBackup.source.localServerDirectory"),
         icon: "storage",
     },
     {
@@ -152,6 +155,7 @@ interface IsEncryptedFieldProps {
 }
 
 function IsEncryptedField({ isRestorePointSnapshot, isRestorePointEncrypted }: IsEncryptedFieldProps) {
+    const t = useStudioTranslation("databases");
     const { control, formState } = useFormContext<FormData>();
 
     const hasEncryption = useAppSelector(licenseSelectors.statusValue("HasEncryption"));
@@ -175,8 +179,8 @@ function IsEncryptedField({ isRestorePointSnapshot, isRestorePointEncrypted }: I
                     message: (
                         <span>
                             {isRestorePointEncrypted
-                                ? "To restore an encrypted snapshot, you only need to enter the key in the 'Backup Encryption Key' field above"
-                                : "Snapshot is not encrypted"}
+                                ? t("createFromBackup.source.encryptedSnapshotInfo")
+                                : t("createFromBackup.source.snapshotNotEncrypted")}
                         </span>
                     ),
                 },
@@ -185,7 +189,7 @@ function IsEncryptedField({ isRestorePointSnapshot, isRestorePointEncrypted }: I
         >
             <FormSwitch color="primary" control={control} name="sourceStep.isEncrypted" disabled={isEncryptionDisabled}>
                 <Icon icon="encryption" />
-                Encrypt at Rest
+                {t("createDatabase.encryptAtRest")}
                 {!hasEncryption && <LicenseRestrictedBadge licenseRequired="Enterprise" />}
             </FormSwitch>
         </ConditionalPopover>

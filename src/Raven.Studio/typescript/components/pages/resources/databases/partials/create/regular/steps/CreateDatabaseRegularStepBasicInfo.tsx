@@ -15,10 +15,13 @@ import LicenseRestrictedBadge from "components/common/LicenseRestrictedBadge";
 import { clusterSelectors } from "components/common/shell/clusterSlice";
 import { createDatabaseRegularDataUtils } from "components/pages/resources/databases/partials/create/regular/createDatabaseRegularDataUtils";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 const newDatabaseImg = require("Content/img/createDatabase/new-database.svg");
 
 export default function CreateDatabaseRegularStepBasicInfo() {
+    const t = useStudioTranslation("databases");
     const { control, setValue, setFocus } = useFormContext<FormData>();
     const nodeTagsCount = useAppSelector(clusterSelectors.allNodeTags).length;
 
@@ -45,14 +48,14 @@ export default function CreateDatabaseRegularStepBasicInfo() {
             <div className="d-flex justify-content-center">
                 <img src={newDatabaseImg} alt="" className="step-img" />
             </div>
-            <h2 className="text-center mb-4">Create new database</h2>
+            <h2 className="text-center mb-4">{t("createDatabase.title")}</h2>
             <Row>
                 <Col lg={{ offset: 2, span: 8 }} className="text-center">
                     <FormInput
                         type="text"
                         control={control}
                         name="basicInfoStep.databaseName"
-                        placeholder="Database Name"
+                        placeholder={t("createDatabase.databaseNamePlaceholder")}
                         id="DbName"
                         autoComplete="off"
                     />
@@ -66,6 +69,7 @@ export default function CreateDatabaseRegularStepBasicInfo() {
 }
 
 function IsEncryptedField() {
+    const t = useStudioTranslation("databases");
     const { control, formState } = useFormContext<FormData>();
 
     const hasEncryption = useAppSelector(licenseSelectors.statusValue("HasEncryption"));
@@ -98,17 +102,18 @@ function IsEncryptedField() {
                     }
                 >
                     <Icon icon="encryption" />
-                    Encrypt at Rest
+                    {t("createDatabase.encryptAtRest")}
                     {!hasEncryption && <LicenseRestrictedBadge licenseRequired="Enterprise" />}
                 </FormSwitch>
             </ConditionalPopover>
             {hasEncryption && isSecureServer && (
                 <PopoverWithHoverWrapper
                     message={
-                        <>
-                            Data will be encrypted at the storage engine layer, using <code>XChaCha20-Poly1305</code>{" "}
-                            authenticated encryption algorithm.
-                        </>
+                        <StudioTrans
+                            ns="databases"
+                            i18nKey="createDatabase.encryptionInfo"
+                            components={{ code: <code /> }}
+                        />
                     }
                     placement="right"
                 >

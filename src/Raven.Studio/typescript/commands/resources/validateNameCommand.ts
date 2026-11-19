@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("resourcesCommands");
 
 class validateNameCommand extends commandBase {
 
@@ -27,7 +30,7 @@ class validateNameCommand extends commandBase {
         
         return this.query<Raven.Client.Util.NameValidation>(url, null)
            .fail((response: JQueryXHR) => { 
-               this.reportError(`Failed to validate the ${this.type.toLocaleLowerCase()} name`, response.responseText, response.statusText);
+               this.reportError(t("validateNameFailed", { context: this.type }), response.responseText, response.statusText);
             });
     }
 }

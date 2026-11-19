@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("resourcesCommands");
 
 export type CreateDatabaseDto = Pick<
     Raven.Client.ServerWide.DatabaseRecord,
@@ -32,7 +35,7 @@ export class createDatabaseCommand extends commandBase {
         };
         const url = endpoints.global.adminDatabases.adminDatabases + this.urlEncodeArgs(args);
         return this.put<Raven.Client.ServerWide.Operations.DatabasePutResult>(url, JSON.stringify(this.dto), null, { dataType: undefined })
-            .done(() => this.reportSuccess(this.dto.DatabaseName + " created"))
-            .fail((response: JQueryXHR) => this.reportError("Failed to create database", response.responseText, response.statusText));
+            .done(() => this.reportSuccess(t("createSucceeded", { databaseName: this.dto.DatabaseName })))
+            .fail((response: JQueryXHR) => this.reportError(t("createFailed"), response.responseText, response.statusText));
     }
 }

@@ -14,8 +14,11 @@ import RestorePointsFields, {
 } from "components/pages/resources/databases/partials/create/formBackup/steps/source/RestorePointsFields";
 import AzureAuthTypeToggle from "components/common/formDestinations/AzureAuthTypeToggle";
 import { mapAzureCredentialsToDto } from "components/common/formDestinations/utils/formDestinationsMapsToDto";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function BackupSourceAzure() {
+    const t = useStudioTranslation("databases");
     const { control } = useFormContext<FormData>();
     const authType = useWatch({ control, name: "sourceStep.sourceData.azure.authType" });
 
@@ -23,14 +26,14 @@ export default function BackupSourceAzure() {
         <div className="mt-2">
             <Row className="mt-2">
                 <Col lg="3">
-                    <FormLabel className="col-form-label">Account Name</FormLabel>
+                    <FormLabel className="col-form-label">{t("createFromBackup.source.azure.accountName")}</FormLabel>
                 </Col>
                 <Col>
                     <FormInput
                         type="text"
                         control={control}
                         name="sourceStep.sourceData.azure.accountName"
-                        placeholder="Enter Azure Storage Account Name"
+                        placeholder={t("createFromBackup.source.azure.accountNamePlaceholder")}
                     />
                 </Col>
             </Row>
@@ -42,7 +45,7 @@ export default function BackupSourceAzure() {
             {authType === "sasToken" ? (
                 <Row className="mt-2">
                     <Col lg="3">
-                        <FormLabel className="col-form-label">SAS Token</FormLabel>
+                        <FormLabel className="col-form-label">{t("createFromBackup.source.azure.sasToken")}</FormLabel>
                     </Col>
                     <Col>
                         <FormInput
@@ -50,7 +53,7 @@ export default function BackupSourceAzure() {
                             type="password"
                             control={control}
                             name="sourceStep.sourceData.azure.sasToken"
-                            placeholder="Enter Azure Storage SAS Token"
+                            placeholder={t("createFromBackup.source.azure.sasTokenPlaceholder")}
                             passwordPreview
                         />
                     </Col>
@@ -58,7 +61,9 @@ export default function BackupSourceAzure() {
             ) : (
                 <Row className="mt-2">
                     <Col lg="3">
-                        <FormLabel className="col-form-label">Account Key</FormLabel>
+                        <FormLabel className="col-form-label">
+                            {t("createFromBackup.source.azure.accountKey")}
+                        </FormLabel>
                     </Col>
                     <Col>
                         <FormInput
@@ -66,7 +71,7 @@ export default function BackupSourceAzure() {
                             type="password"
                             control={control}
                             name="sourceStep.sourceData.azure.accountKey"
-                            placeholder="Enter Azure Storage Account Key"
+                            placeholder={t("createFromBackup.source.azure.accountKeyPlaceholder")}
                             passwordPreview
                         />
                     </Col>
@@ -74,21 +79,25 @@ export default function BackupSourceAzure() {
             )}
             <Row className="mt-2">
                 <Col lg="3">
-                    <FormLabel className="col-form-label">Container</FormLabel>
+                    <FormLabel className="col-form-label">{t("createFromBackup.source.azure.container")}</FormLabel>
                 </Col>
                 <Col>
                     <FormInput
                         type="text"
                         control={control}
                         name="sourceStep.sourceData.azure.container"
-                        placeholder="Enter Azure Storage Container Name"
+                        placeholder={t("createFromBackup.source.azure.containerPlaceholder")}
                     />
                 </Col>
             </Row>
             <Row className="mt-2">
                 <Col lg="3">
                     <FormLabel className="col-form-label">
-                        Remote Folder Name <small>(optional)</small>
+                        <StudioTrans
+                            ns="databases"
+                            i18nKey="createFromBackup.source.remoteFolderName"
+                            components={{ small: <small /> }}
+                        />
                     </FormLabel>
                 </Col>
                 <Col>
@@ -96,7 +105,7 @@ export default function BackupSourceAzure() {
                         type="text"
                         control={control}
                         name="sourceStep.sourceData.azure.remoteFolderName"
-                        placeholder="Enter remote folder name"
+                        placeholder={t("createFromBackup.source.remoteFolderNamePlaceholder")}
                     />
                 </Col>
             </Row>

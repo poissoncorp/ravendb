@@ -2,6 +2,8 @@ import React from "react";
 import { ValidDatabasePropertiesPanelPopoverProps } from "./ValidDatabasePropertiesPanel";
 import Button from "react-bootstrap/Button";
 import { Icon } from "components/common/Icon";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function ValidDatabasePropertiesPanelPerfHintsPopover({
     isCurrentNodeRelevant,
@@ -11,18 +13,24 @@ export default function ValidDatabasePropertiesPanelPerfHintsPopover({
     openNotificationCenter,
     getServerNodeUrl,
 }: ValidDatabasePropertiesPanelPopoverProps) {
+    const t = useStudioTranslation("databases");
+
     return (
         <div className="p-3 notifications-popover">
             {isCurrentNodeRelevant && (
                 <>
-                    <strong className="d-block mb-1">Local</strong>
+                    <strong className="d-block mb-1">{t("notificationsPopover.local")}</strong>
                     <div className="notifications-popover-grid">
                         <span>
                             <Icon icon="node" color="node" /> {localNodeTag}
                         </span>
                         <span>
-                            <strong>{localTotal} </strong>
-                            {localTotal === 1 ? "hint" : "hints"}
+                            <StudioTrans
+                                ns="databases"
+                                i18nKey="notificationsPopover.hintsCount"
+                                options={{ count: localTotal }}
+                                components={{ strong: <strong /> }}
+                            />
                         </span>
                         {localTotal > 0 && (
                             <Button
@@ -33,7 +41,7 @@ export default function ValidDatabasePropertiesPanelPerfHintsPopover({
                                 onClick={openNotificationCenter}
                             >
                                 <Icon icon="rocket" />
-                                See {localTotal === 1 ? "hint" : "hints"}
+                                {t("notificationsPopover.seeHints", { count: localTotal })}
                             </Button>
                         )}
                     </div>
@@ -43,7 +51,7 @@ export default function ValidDatabasePropertiesPanelPerfHintsPopover({
             {remoteTopLevelStates.some((x) => !!x.performanceHints) && (
                 <>
                     {isCurrentNodeRelevant && <hr className="my-2" />}
-                    <strong className="d-block mb-1">Remote</strong>
+                    <strong className="d-block mb-1">{t("notificationsPopover.remote")}</strong>
 
                     {remoteTopLevelStates.map((x) => {
                         if (!x.performanceHints) {
@@ -56,13 +64,17 @@ export default function ValidDatabasePropertiesPanelPerfHintsPopover({
                                     <Icon icon="node" color="node" /> {x.nodeTag}
                                 </span>
                                 <span>
-                                    <strong>{x.performanceHints} </strong>
-                                    {x.performanceHints === 1 ? "hint" : "hints"}
+                                    <StudioTrans
+                                        ns="databases"
+                                        i18nKey="notificationsPopover.hintsCount"
+                                        options={{ count: x.performanceHints }}
+                                        components={{ strong: <strong /> }}
+                                    />
                                 </span>
                                 <a href={getServerNodeUrl(x.nodeTag)} className="no-decor" target="_blank">
                                     <Button type="button" size="xs" variant="node" className="rounded-pill">
                                         <Icon icon="newtab" />
-                                        Open node
+                                        {t("notificationsPopover.openNode")}
                                     </Button>
                                 </a>
                             </div>

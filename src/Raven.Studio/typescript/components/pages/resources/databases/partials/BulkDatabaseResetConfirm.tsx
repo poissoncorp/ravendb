@@ -7,6 +7,8 @@ import {
 import { Icon } from "components/common/Icon";
 import ActionContextUtils from "components/utils/actionContextUtils";
 import Modal from "components/common/Modal";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface BulkDatabaseResetConfirm {
     dbName: string;
@@ -23,6 +25,8 @@ export default function BulkDatabaseResetConfirm({
     toggleConfirmation: toggle,
     onConfirm,
 }: BulkDatabaseResetConfirm) {
+    const t = useStudioTranslation("databases");
+    const tCommon = useStudioTranslation("common");
     const [actionContexts, setActionContexts] = useState<DatabaseActionContexts[]>(allActionContexts);
 
     const onSubmit = () => {
@@ -34,27 +38,29 @@ export default function BulkDatabaseResetConfirm({
         <Modal show>
             <Modal.Header className="vstack gap-2 pb-0" onCloseClick={toggle}>
                 <h3>
-                    Restart{" "}
-                    <small className="d-inline-block bg-faded-primary rounded-pill px-2 py-1 mx-1">
-                        <Icon icon="database" />
-                        {dbName}
-                    </small>
-                    {!ActionContextUtils.showContextSelector(allActionContexts) && (
-                        <>
-                            on node{" "}
-                            <small className="text-node">
-                                <Icon icon="node" margin="m-0" /> <strong>{localNodeTag}</strong>
-                            </small>
-                        </>
-                    )}{" "}
-                    ?
+                    <StudioTrans
+                        ns="databases"
+                        i18nKey="restartConfirm.title"
+                        options={{
+                            dbName,
+                            nodeTag: localNodeTag,
+                            context: ActionContextUtils.showContextSelector(allActionContexts) ? undefined : "onNode",
+                        }}
+                        components={{
+                            db: <small className="d-inline-block bg-faded-primary rounded-pill px-2 py-1 mx-1" />,
+                            icon: <Icon icon="database" />,
+                            node: <small className="text-node" />,
+                            nodeIcon: <Icon icon="node" margin="m-0" />,
+                            strong: <strong />,
+                        }}
+                    />
                 </h3>
             </Modal.Header>
             <Modal.Body className="pt-0">
                 <div className="vstack align-items-center">
                     {ActionContextUtils.showContextSelector(allActionContexts) && (
                         <div>
-                            <p>Select restart context:</p>
+                            <p>{t("restartConfirm.selectContext")}</p>
                             <MultipleDatabaseLocationSelector
                                 allActionContexts={allActionContexts}
                                 selectedActionContexts={actionContexts}
@@ -66,10 +72,10 @@ export default function BulkDatabaseResetConfirm({
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="link" className="link-muted" onClick={toggle}>
-                    Cancel
+                    {tCommon("cancel")}
                 </Button>
                 <Button variant="danger" onClick={onSubmit}>
-                    <Icon icon="reset" /> Restart
+                    <Icon icon="reset" /> {t("restartConfirm.restart")}
                 </Button>
             </Modal.Footer>
         </Modal>

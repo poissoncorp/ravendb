@@ -1,36 +1,34 @@
 <div class="margin-bottom" data-bind="validationElement: key">
-    <label class="control-label">
-        Key <small class="text-muted">(Base64 Encoding)</small>
-    </label>
+    <label class="control-label" data-bind="html: keyLabelHtml"></label>
     <div class="input-group">
-        <input type="text" class="form-control" placeholder="Key" autocomplete="off"
-               data-bind="textInput: key, enable: canProvideOwnKey">
-        <span class="input-group-btn" data-bind="visible: canProvideOwnKey" title="Generate different key">
+        <input type="text" class="form-control" autocomplete="off"
+               data-bind="textInput: key, enable: canProvideOwnKey, i18nAttr: { placeholder: 'setupEncryptionKey:keyPlaceholder' }">
+        <span class="input-group-btn" data-bind="visible: canProvideOwnKey, i18nAttr: { title: 'setupEncryptionKey:generateKeyTitle' }">
             <button class="btn" type="button" data-bind="click: generateEncryptionKey">
                 <i class="icon-reset"></i>
             </button>
         </span>
     </div>
 </div>
-<p>QR Code:</p>
+<p data-bind="i18n: 'setupEncryptionKey:qrCode'"></p>
 <div class="text-center">
     <div id="encryption_qrcode">
     </div>
 </div>
 <div class="text-center" id="savingKeyData">
-    <span class="has-disable-reason" data-bind="attr: { 'data-original-title': disableSavingKeyData() ? 'Validate database name & key !' : '' }">
+    <span class="has-disable-reason" data-bind="i18nAttr: { 'data-original-title': disableSavingKeyData() ? 'setupEncryptionKey:validateFirst' : null }">
         <button type="button" class="btn btn-sm btn-primary" data-bind="click: downloadEncryptionKey, disable: disableSavingKeyData">
-            <i class="icon-export"></i> <span>Download encryption key</span>
+            <i class="icon-export"></i> <span data-bind="i18n: 'setupEncryptionKey:download'"></span>
         </button>
     </span>
-    <span  class="has-disable-reason" data-bind="attr: { 'data-original-title': disableSavingKeyData() ? 'Validate database name & key !' : '' }">
+    <span  class="has-disable-reason" data-bind="i18nAttr: { 'data-original-title': disableSavingKeyData() ? 'setupEncryptionKey:validateFirst' : null }">
         <button type="button" class="btn btn-sm btn-info" data-bind="click: copyEncryptionKeyToClipboard, disable: disableSavingKeyData">
-            <i class="icon-copy"></i> <span>Copy to clipboard</span>
+            <i class="icon-copy"></i> <span data-bind="i18n: 'setupEncryptionKey:copyToClipboard'"></span>
         </button>
     </span>
-    <span class="has-disable-reason" data-bind="attr: { 'data-original-title': disableSavingKeyData() ? 'Validate database name & key !' : '' }">
+    <span class="has-disable-reason" data-bind="i18nAttr: { 'data-original-title': disableSavingKeyData() ? 'setupEncryptionKey:validateFirst' : null }">
         <button type="button" class="btn btn-sm" data-bind="click: printEncryptionKey, disable: disableSavingKeyData">
-            <i class="icon-print"></i><span>Print encryption key</span>
+            <i class="icon-print"></i><span data-bind="i18n: 'setupEncryptionKey:print'"></span>
         </button>
     </span>
 </div>
@@ -38,7 +36,7 @@
     <div class="col-sm-12">
         <div class="checkbox" data-bind="validationOptions: { insertMessages: false }">
             <input class="styled" type="checkbox" id="saved_key_confirm" data-bind="checked: keyConfirmation">
-            <label for="saved_key_confirm">I have saved the encryption key.</label>
+            <label for="saved_key_confirm" data-bind="i18n: 'setupEncryptionKey:savedConfirmation'"></label>
         </div>
         <div data-bind="validationElement: keyConfirmation">
             <div class="help-block" data-bind="validationMessage: keyConfirmation"></div>
@@ -53,8 +51,8 @@
             </div>
             <div>
                 <span>
-                    Save this key in a safe place. <span data-bind="if: !isKeyAvailableAgain()">It will not be available again.</span><br/>
-                    If you lose this key you could lose access to your data!
+                    <span data-bind="i18n: { key: 'setupEncryptionKey:warning.saveSafely', options: { context: isKeyAvailableAgain() ? 'availableAgain' : 'notAvailableAgain' } }"></span><br/>
+                    <span data-bind="i18n: 'setupEncryptionKey:warning.loseAccess'"></span>
                 </span>
             </div>
         </div>

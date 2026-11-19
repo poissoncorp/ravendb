@@ -6,10 +6,12 @@ import Button from "react-bootstrap/Button";
 import { CreateDatabaseFromBackupFormData } from "../createDatabaseFromBackupValidation";
 import { useFormContext, useWatch } from "react-hook-form";
 import { FormInput } from "components/common/Form";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 const fromBackupImg = require("Content/img/createDatabase/from-backup.svg");
 
 export default function CreateDatabaseFromBackupStepBasicInfo() {
+    const t = useStudioTranslation("databases");
     const { control, setValue, setFocus } = useFormContext<CreateDatabaseFromBackupFormData>();
     const {
         basicInfoStep: { isSharded },
@@ -26,7 +28,7 @@ export default function CreateDatabaseFromBackupStepBasicInfo() {
                 <img src={fromBackupImg} alt="" className="step-img" />
             </div>
 
-            <h2 className="text-center mb-4">Restore from backup</h2>
+            <h2 className="text-center mb-4">{t("createFromBackup.basicInfo.title")}</h2>
 
             <Row>
                 <Col lg={{ offset: 2, span: 8 }}>
@@ -35,7 +37,7 @@ export default function CreateDatabaseFromBackupStepBasicInfo() {
                         control={control}
                         name="basicInfoStep.databaseName"
                         id="DbName"
-                        placeholder="Database Name"
+                        placeholder={t("createDatabase.databaseNamePlaceholder")}
                         autoComplete="off"
                     />
                 </Col>
@@ -51,7 +53,7 @@ export default function CreateDatabaseFromBackupStepBasicInfo() {
                     >
                         <Icon icon="database" margin="m-0" className="fs-2" />
                         <br />
-                        Regular database
+                        {t("createFromBackup.basicInfo.regularDatabase")}
                     </Button>
                 </Col>
                 <Col sm="6" lg="4">
@@ -63,7 +65,7 @@ export default function CreateDatabaseFromBackupStepBasicInfo() {
                     >
                         <Icon icon="sharding" margin="m-0" className="fs-2" />
                         <br />
-                        Sharded database
+                        {t("createFromBackup.basicInfo.shardedDatabase")}
                     </Button>
                 </Col>
             </Row>

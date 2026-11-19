@@ -10,6 +10,7 @@ import { Icon } from "components/common/Icon";
 import { selectDatabaseState } from "components/pages/resources/databases/store/databasesViewSelectors";
 import { DatabaseNodeSetItem } from "components/pages/resources/databases/partials/DatabaseNodeSetItem";
 import DatabaseUtils from "components/utils/DatabaseUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface DatabaseDistributionProps {
     db: DatabaseSharedInfo;
@@ -17,6 +18,7 @@ interface DatabaseDistributionProps {
 
 export function DatabaseDistribution(props: DatabaseDistributionProps) {
     const { db } = props;
+    const t = useStudioTranslation("databases");
     const isSharded = db.isSharded;
     const [hoveredShardNumber, setHoveredShardNumber] = useState<number | null>(null);
     const dbState = useAppSelector(selectDatabaseState(db.name));
@@ -27,32 +29,32 @@ export function DatabaseDistribution(props: DatabaseDistributionProps) {
                 <div className="top"></div>
                 {isSharded && (
                     <div className="node">
-                        <Icon icon="node" /> Node
+                        <Icon icon="node" /> {t("distribution.node")}
                     </div>
                 )}
                 <div>
-                    <Icon icon="list" /> Documents
+                    <Icon icon="list" /> {t("distribution.documents")}
                 </div>
                 <div>
-                    <Icon icon="ongoing-tasks" addon="close" /> Task Errors
+                    <Icon icon="ongoing-tasks" addon="close" /> {t("distribution.taskErrors")}
                 </div>
                 <div>
-                    <Icon icon="warning" /> Indexing Errors
+                    <Icon icon="warning" /> {t("distribution.indexingErrors")}
                 </div>
                 <div>
-                    <Icon icon="indexing" /> Indexing Status
+                    <Icon icon="indexing" /> {t("distribution.indexingStatus")}
                 </div>
                 <div>
-                    <Icon icon="alerts" /> Alerts
+                    <Icon icon="alerts" /> {t("distribution.alerts")}
                 </div>
                 <div>
-                    <Icon icon="info" /> Performance Hints
+                    <Icon icon="info" /> {t("distribution.performanceHints")}
                 </div>
                 <div>
-                    <Icon icon="storage" /> Size on disk
+                    <Icon icon="storage" /> {t("distribution.sizeOnDisk")}
                 </div>
                 <div>
-                    <Icon icon="recent" /> Uptime
+                    <Icon icon="recent" /> {t("distribution.uptime")}
                 </div>
             </DistributionLegend>
 
@@ -105,13 +107,16 @@ export function DatabaseDistribution(props: DatabaseDistributionProps) {
                         </div>
                         <div className="entries">{localState.data?.tasksErrors?.toLocaleString()}</div>
                         <div className="entries">{localState.data?.indexingErrors?.toLocaleString()}</div>
-                        <div className="entries">{localState.data?.indexingStatus}</div>
+                        <div className="entries">
+                            {localState.data?.indexingStatus &&
+                                t("distribution.indexingStatusValue", { context: localState.data.indexingStatus })}
+                        </div>
                         <div className="entries">{localState.data?.alerts?.toLocaleString()}</div>
                         <div className="entries">{localState.data?.performanceHints?.toLocaleString()}</div>
                         <div className="entries">
                             <SizeOnDisk info={localState.data} />
                         </div>
-                        <div className="entries">{uptime}</div>
+                        <div className="entries">{uptime === "Offline" ? t("state.offline") : uptime}</div>
                     </DistributionItem>
                 );
             })}

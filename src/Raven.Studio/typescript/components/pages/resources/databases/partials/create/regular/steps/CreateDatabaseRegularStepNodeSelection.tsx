@@ -11,10 +11,14 @@ import { useAppSelector } from "components/store";
 import { clusterSelectors } from "components/common/shell/clusterSlice";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import type { StudioTranslate } from "common/i18n/resources";
 
 // TODO Add Auto fill button
 
 export default function CreateDatabaseRegularStepNodeSelection() {
+    const t = useStudioTranslation("databases");
     const { control, setValue, formState } = useFormContext<CreateDatabaseRegularFormData>();
     const {
         replicationAndShardingStep: { isSharded, shardsCount, replicationFactor },
@@ -27,7 +31,7 @@ export default function CreateDatabaseRegularStepNodeSelection() {
     const replicationNumbers = new Array(replicationFactor).fill(0).map((_, i) => i);
 
     const availableNodeTags = useAppSelector(clusterSelectors.allNodeTags);
-    const nodeOptions = getNodeOptions(availableNodeTags);
+    const nodeOptions = getNodeOptions(availableNodeTags, t);
 
     const isSelectAllNodesIndeterminate = manualNodes.length > 0 && manualNodes.length < availableNodeTags.length;
     const isSelectedAllNodes = manualNodes.length === availableNodeTags.length;
@@ -65,7 +69,7 @@ export default function CreateDatabaseRegularStepNodeSelection() {
 
     return (
         <div className="text-center">
-            <h2 className="text-center">Manual Node Selection</h2>
+            <h2 className="text-center">{t("createDatabase.manualNodeSelection.title")}</h2>
 
             {isSharded && (
                 <Table bordered>
@@ -74,7 +78,12 @@ export default function CreateDatabaseRegularStepNodeSelection() {
                             {shardsCount > 1 && <th />}
                             {replicationNumbers.map((replicationNumber) => (
                                 <th key={replicationNumber}>
-                                    Replica <strong>{replicationNumber + 1}</strong>
+                                    <StudioTrans
+                                        ns="databases"
+                                        i18nKey="createDatabase.manualNodeSelection.replica"
+                                        options={{ number: replicationNumber + 1 }}
+                                        components={{ strong: <strong /> }}
+                                    />
                                 </th>
                             ))}
                             <th></th>
@@ -128,9 +137,13 @@ export default function CreateDatabaseRegularStepNodeSelection() {
                     </tbody>
                 </Table>
             )}
-            <h3 className="mb-1">{isSharded ? "Orchestrator nodes" : "Available nodes"}</h3>
+            <h3 className="mb-1">
+                {t("createDatabase.manualNodeSelection.nodesTitle", {
+                    context: isSharded ? "orchestrator" : "available",
+                })}
+            </h3>
             <div className="mb-2">
-                <small>minimum 1</small>
+                <small>{t("createDatabase.manualNodeSelection.minimum")}</small>
             </div>
             <div>
                 <NodeSet>
@@ -140,13 +153,13 @@ export default function CreateDatabaseRegularStepNodeSelection() {
                             toggleSelection={toggleAllNodeTags}
                             indeterminate={isSelectAllNodesIndeterminate}
                             selected={isSelectedAllNodes}
-                            title="Select all or none"
+                            title={t("createDatabase.manualNodeSelection.selectAllTitle")}
                         />
                     </NodeSetLabel>
                     <NodeSetList>
                         {availableNodeTags.map((nodeTag) => (
                             <NodeSetItem key={nodeTag}>
-                                <FormLabel title={"Node " + nodeTag}>
+                                <FormLabel title={t("createDatabase.manualNodeSelection.nodeTitle", { nodeTag })}>
                                     <Icon icon="node" color="node" />
                                     {nodeTag}
                                     <div className="d-flex justify-content-center">
@@ -166,10 +179,10 @@ export default function CreateDatabaseRegularStepNodeSelection() {
     );
 }
 
-function getNodeOptions(availableNodeTags: string[]): SelectOptionWithIcon[] {
+function getNodeOptions(availableNodeTags: string[], t: StudioTranslate<"databases">): SelectOptionWithIcon[] {
     return [
         {
-            label: "None",
+            label: t("createDatabase.manualNodeSelection.none"),
             value: null,
         } satisfies SelectOptionWithIcon,
         ...availableNodeTags.map(

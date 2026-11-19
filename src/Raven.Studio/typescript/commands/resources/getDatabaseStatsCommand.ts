@@ -2,6 +2,9 @@ import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import appUrl = require("common/appUrl");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("resourcesCommands");
 import genUtils = require("common/generalUtils");
 
 class getDatabaseStatsCommand extends commandBase {
@@ -19,7 +22,7 @@ class getDatabaseStatsCommand extends commandBase {
         const args = this.location;
         
         return this.query<Raven.Client.Documents.Operations.DatabaseStatistics>(url, args, this.db, null, null)
-            .fail((response: JQueryXHR) => this.reportError(`Failed to get database statistics for ${genUtils.formatLocation(this.location)}`, response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("getDatabaseStatsFailed", { location: genUtils.formatLocation(this.location) }), response.responseText, response.statusText));
     }
 
     getQueryUrl(): string {

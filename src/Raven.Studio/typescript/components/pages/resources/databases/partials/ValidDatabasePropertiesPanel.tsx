@@ -22,6 +22,7 @@ import AlertsPopover from "./ValidDatabasePropertiesPanelAlertsPopover";
 import PerfHintsPopover from "./ValidDatabasePropertiesPanelPerfHintsPopover";
 import "./ValidDatabasePropertiesPanel.scss";
 import { locationAwareLoadableData } from "components/models/common";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface LocalGeneralInfo {
     hasLocalNodeAllData: boolean;
@@ -47,6 +48,7 @@ interface ValidDatabasePropertiesPanelProps {
 
 export function ValidDatabasePropertiesPanel(props: ValidDatabasePropertiesPanelProps) {
     const { db, panelCollapsed, togglePanelCollapsed } = props;
+    const t = useStudioTranslation("databases");
 
     const dbState = useAppSelector(selectDatabaseState(db.name));
     const topLevelState = useAppSelector(selectTopLevelState(db.name));
@@ -133,7 +135,7 @@ export function ValidDatabasePropertiesPanel(props: ValidDatabasePropertiesPanel
     const alertSection = (
         <React.Fragment>
             <Icon icon="warning" />
-            {!isCurrentNodeRelevant ? "Alerts" : `${localAlertsCount} ${localAlertsCount === 1 ? "Alert" : "Alerts"}`}
+            {!isCurrentNodeRelevant ? t("properties.alerts") : t("properties.alertsCount", { count: localAlertsCount })}
         </React.Fragment>
     );
 
@@ -141,8 +143,8 @@ export function ValidDatabasePropertiesPanel(props: ValidDatabasePropertiesPanel
         <React.Fragment>
             <Icon icon="rocket" />
             {!isCurrentNodeRelevant
-                ? "Performance hints"
-                : `${localPerformanceHintsCount} Performance ${localPerformanceHintsCount === 1 ? " hint" : "hints"}`}
+                ? t("properties.performanceHints")
+                : t("properties.performanceHintsCount", { count: localPerformanceHintsCount })}
         </React.Fragment>
     );
 
@@ -151,7 +153,7 @@ export function ValidDatabasePropertiesPanel(props: ValidDatabasePropertiesPanel
             <RichPanelDetailItem>
                 <Button
                     variant="secondary"
-                    title={panelCollapsed ? "Expand distribution details" : "Collapse distribution details"}
+                    title={panelCollapsed ? t("properties.expandDetailsTitle") : t("properties.collapseDetailsTitle")}
                     onClick={togglePanelCollapsed}
                     className="ms-1 btn-toggle-panel rounded-pill"
                 >
@@ -161,12 +163,12 @@ export function ValidDatabasePropertiesPanel(props: ValidDatabasePropertiesPanel
             <RichPanelDetailItem>
                 <div className="encryption">
                     {db.isEncrypted && (
-                        <span title="This database is encrypted">
+                        <span title={t("encryptedTitle")}>
                             <Icon icon="key" color="success" margin="m-0" />
                         </span>
                     )}
                     {!db.isEncrypted && (
-                        <span title="This database is not encrypted">
+                        <span title={t("notEncryptedTitle")}>
                             <Icon icon="unencrypted" color="muted" margin="m-0" />
                         </span>
                     )}
@@ -192,7 +194,7 @@ export function ValidDatabasePropertiesPanel(props: ValidDatabasePropertiesPanel
                 </a>
             </RichPanelDetailItem>
             {hasLocalNodeAllData && (
-                <RichPanelDetailItem title="Click to navigate to Backups view" className="text-danger">
+                <RichPanelDetailItem title={t("properties.backupsTitle")} className="text-danger">
                     <a href={localBackupUrl} target={linksTarget} className={"text-" + backupStatus.color}>
                         <Icon icon="backup" />
                         {backupStatus.text}
@@ -202,43 +204,37 @@ export function ValidDatabasePropertiesPanel(props: ValidDatabasePropertiesPanel
 
             <div className="rich-panel-details-right">
                 {tasksErrors > 0 && (
-                    <RichPanelDetailItem key="tasks-errors" title="Task errors. Click to view the Task Errors.">
+                    <RichPanelDetailItem key="tasks-errors" title={t("properties.tasksErrorsTitle")}>
                         <Badge bg="faded-danger" className="d-flex align-items-center lh-base rounded-pill">
                             <a href={tasksErrorsUrl} target={linksTarget} className="no-decor">
-                                <Icon icon="warning" /> {tasksErrors} Task errors
+                                <Icon icon="warning" /> {t("properties.tasksErrors", { count: tasksErrors })}
                             </a>
                         </Badge>
                     </RichPanelDetailItem>
                 )}
                 {indexingErrors > 0 && (
-                    <RichPanelDetailItem
-                        key="indexing-errors"
-                        title="Indexing errors. Click to view the Indexing Errors."
-                    >
+                    <RichPanelDetailItem key="indexing-errors" title={t("properties.indexingErrorsTitle")}>
                         <Badge bg="faded-danger" className="d-flex align-items-center lh-base rounded-pill">
                             <a href={indexingErrorsUrl} target={linksTarget} className="no-decor">
-                                <Icon icon="exclamation" /> {indexingErrors} Indexing errors
+                                <Icon icon="exclamation" /> {t("properties.indexingErrors", { count: indexingErrors })}
                             </a>
                         </Badge>
                     </RichPanelDetailItem>
                 )}
                 {indexingPaused && (
-                    <RichPanelDetailItem
-                        key="indexing-paused"
-                        title="Indexing is paused. Click to view the Index List."
-                    >
+                    <RichPanelDetailItem key="indexing-paused" title={t("properties.indexingPausedTitle")}>
                         <Badge bg="faded-warning" className="d-flex align-items-center lh-base rounded-pill">
                             <a href={indexingListUrl} target={linksTarget} className="no-decor">
-                                <Icon icon="pause" /> Indexing paused
+                                <Icon icon="pause" /> {t("properties.indexingPaused")}
                             </a>
                         </Badge>
                     </RichPanelDetailItem>
                 )}
                 {indexingDisabled && (
-                    <RichPanelDetailItem key="indexing-disabled" title="Indexing is disabled">
+                    <RichPanelDetailItem key="indexing-disabled" title={t("properties.indexingDisabledTitle")}>
                         <Badge bg="faded-warning" className="d-flex align-items-center lh-base rounded-pill">
                             <a href={indexingListUrl} target={linksTarget} className="no-decor">
-                                <Icon icon="stop" /> Indexing disabled
+                                <Icon icon="stop" /> {t("properties.indexingDisabled")}
                             </a>
                         </Badge>
                     </RichPanelDetailItem>
@@ -247,7 +243,7 @@ export function ValidDatabasePropertiesPanel(props: ValidDatabasePropertiesPanel
                     <>
                         <RichPanelDetailItem
                             key="alerts"
-                            title={db.currentNode.isRelevant ? "Click to view alerts in Notification Center" : ""}
+                            title={db.currentNode.isRelevant ? t("properties.alertsTitle") : ""}
                         >
                             <Badge bg="faded-warning" className="d-flex align-items-center lh-base rounded-pill">
                                 <a
@@ -285,11 +281,7 @@ export function ValidDatabasePropertiesPanel(props: ValidDatabasePropertiesPanel
                     <>
                         <RichPanelDetailItem
                             key="performance-hints"
-                            title={
-                                db.currentNode.isRelevant
-                                    ? "Click to view performance hints in Notification Center"
-                                    : ""
-                            }
+                            title={db.currentNode.isRelevant ? t("properties.performanceHintsTitle") : ""}
                         >
                             <Badge bg="faded-info" className="d-flex align-items-center lh-base rounded-pill">
                                 <a
@@ -326,7 +318,7 @@ export function ValidDatabasePropertiesPanel(props: ValidDatabasePropertiesPanel
                 {hasAnyLoadError && (
                     <RichPanelDetailItem key="load-error">
                         <Badge bg="faded-danger" className="d-flex align-items-center lh-base rounded-pill pulse">
-                            <Icon icon="danger" /> Database has load errors!
+                            <Icon icon="danger" /> {t("properties.loadErrors")}
                         </Badge>
                     </RichPanelDetailItem>
                 )}

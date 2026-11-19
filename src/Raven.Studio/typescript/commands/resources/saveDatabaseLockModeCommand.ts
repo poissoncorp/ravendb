@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("resourcesCommands");
 
 class saveDatabaseLockModeCommand extends commandBase {
 
@@ -23,7 +26,7 @@ class saveDatabaseLockModeCommand extends commandBase {
         const url = endpoints.global.adminDatabases.adminDatabasesSetLock;
 
         return this.post(url, JSON.stringify(payload), null, { dataType: undefined })
-            .fail((response: JQueryXHR) => this.reportError("Failed to toggle database lock mode", response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("saveDatabaseLockModeFailed"), response.responseText, response.statusText));
     }
 
 }

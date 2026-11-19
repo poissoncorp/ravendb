@@ -21,6 +21,7 @@ import { ConditionalPopover } from "components/common/ConditionalPopover";
 import AuthenticationOffMessage from "components/pages/resources/databases/partials/create/shared/AuthenticationOffMessage";
 import EncryptionUnavailableMessage from "components/pages/resources/databases/partials/create/shared/EncryptionUnavailableMessage";
 import { RestorePointOption } from "components/pages/resources/databases/partials/create/formBackup/steps/source/useRestorePointUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface GroupedOption {
     label: string;
@@ -40,6 +41,7 @@ export default function CreateDatabaseFromBackupRestorePoint({
     isLoading,
     remove,
 }: CreateDatabaseFromBackupRestorePointProps) {
+    const t = useStudioTranslation("databases");
     const { control, formState } = useFormContext<FormData>();
     const {
         basicInfoStep: { isSharded },
@@ -55,9 +57,9 @@ export default function CreateDatabaseFromBackupRestorePoint({
 
     const flatOptionsCount = restorePointsOptions.reduce((acc, curr) => acc + curr.options.length, 0);
 
-    const restorePointPlaceholder = `Select restore point ${
-        isLoading ? "" : `(${flatOptionsCount} ${flatOptionsCount === 1 ? "option" : "options"})`
-    }`;
+    const restorePointPlaceholder = isLoading
+        ? t("createFromBackup.source.restorePoint.placeholderLoading")
+        : t("createFromBackup.source.restorePoint.placeholder", { count: flatOptionsCount });
 
     return (
         <div className={classNames({ "bg-faded-shard p-1 rounded-1 mb-2": isSharded })}>
@@ -135,6 +137,8 @@ function getNodeTagOptions(allNodeTags: string[]): SelectOptionWithIcon[] {
 }
 
 const RestorePointGroupHeading = (props: GroupHeadingProps<SelectOption<RestorePoint>>) => {
+    const t = useStudioTranslation("databases");
+
     return (
         <>
             <div className="bg-faded-secondary px-4 pt-2   pb-0">
@@ -145,16 +149,22 @@ const RestorePointGroupHeading = (props: GroupHeadingProps<SelectOption<RestoreP
             <div className="p-1 position-sticky top-0 bg-faded-secondary z-1">
                 <Row className="d-flex align-items-center text-center gx-xs">
                     <Col lg="3" className="lh-1">
-                        <small className="small-label">BACKUP TYPE</small>
+                        <small className="small-label">
+                            {t("createFromBackup.source.restorePoint.backupTypeHeader")}
+                        </small>
                     </Col>
                     <Col lg="3" className="lh-1">
-                        <small className="small-label">ENCRYPTED</small>
+                        <small className="small-label">
+                            {t("createFromBackup.source.restorePoint.encryptedHeader")}
+                        </small>
                     </Col>
                     <Col lg="3" className="lh-1">
-                        <small className="small-label">NODE TAG</small>
+                        <small className="small-label">{t("createFromBackup.source.restorePoint.nodeTagHeader")}</small>
                     </Col>
                     <Col lg="3" className="lh-1">
-                        <small className="small-label">FILES TO RESTORE</small>
+                        <small className="small-label">
+                            {t("createFromBackup.source.restorePoint.filesToRestoreHeader")}
+                        </small>
                     </Col>
                 </Row>
             </div>
@@ -163,6 +173,7 @@ const RestorePointGroupHeading = (props: GroupHeadingProps<SelectOption<RestoreP
 };
 
 function RestorePointOptionComponent(props: OptionProps<RestorePointOption>) {
+    const t = useStudioTranslation("databases");
     const {
         data: { value, disabledReason },
     } = props;
@@ -190,8 +201,8 @@ function RestorePointOptionComponent(props: OptionProps<RestorePointOption>) {
                         </div>
                     </Col>
                     <Col lg="3" className="text-center">
-                        <small className={value.backupType == "Full" ? "text-success" : "text-emphasis"}>
-                            {value.backupType}
+                        <small className={value.backupType == "full" ? "text-success" : "text-emphasis"}>
+                            {t("createFromBackup.source.restorePoint.backupType", { context: value.backupType })}
                         </small>
                     </Col>
                     <Col lg="3" className="text-center">

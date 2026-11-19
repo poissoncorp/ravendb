@@ -1,11 +1,7 @@
 <div class="modal-dialog" role="document">
     <div class="modal-content">
         <div class="modal-header">
-            <h5 class="modal-title">
-                You're deleting
-                <span data-bind="visible: databasesToDelete.length > 1, text: databasesToDelete.length"></span>
-                <span data-bind="text: databasesToDelete.length === 1 ? '1 database' : 'databases'"></span>
-            </h5>
+            <h5 class="modal-title" data-bind="i18n: { key: 'deleteDatabaseConfirm:title', options: { count: databasesToDelete.length } }"></h5>
             <button type="button" class="close" data-bind="click: cancel" aria-hidden="true">
                 <i class="icon-cancel"></i>
             </button>
@@ -14,82 +10,71 @@
             <div style="max-height: 290px; overflow-y: auto;">
                 <ul class="databases-list" data-bind="foreach: databasesToDelete">
                     <li class="force-text-wrap"><i class="icon-database text-primary"></i>
-                        <small title="This database is encrypted" data-bind="visible: isEncrypted"><i class="icon-encryption text-success"></i></small>
-                        <small title="This database is not encrypted" data-bind="visible: !isEncrypted"><i class="icon-unlock text-muted"></i></small>
+                        <small data-bind="visible: isEncrypted, i18nAttr: { title: 'deleteDatabaseConfirm:encrypted' }"><i class="icon-encryption text-success"></i></small>
+                        <small data-bind="visible: !isEncrypted, i18nAttr: { title: 'deleteDatabaseConfirm:notEncrypted' }"><i class="icon-unlock text-muted"></i></small>
                         <strong data-bind="text: name"></strong>
                     </li>
                 </ul>
             </div>
-            <span>Select a delete option below</span><br>
-            <span data-bind="visible: databasesToDelete.length > 1">
-                The option selected will apply to all of the deleted databases
-            </span>
+            <span data-bind="i18n: 'deleteDatabaseConfirm:selectOption'"></span><br>
+            <span data-bind="visible: databasesToDelete.length > 1, i18n: 'deleteDatabaseConfirm:appliesToAll'"></span>
         </div>
         <div class="padding margin margin-sm mt-0 border-radius-xs alert alert-warning">
-            <h3>Delete and keep files</h3>
+            <h3 data-bind="i18n: 'deleteDatabaseConfirm:keepFiles.title'"></h3>
             <p class="small">
-                Database will be deleted from all nodes in the cluster.<br />
-                The physical files will be left untouched on disk.
+                <span data-bind="i18n: 'deleteDatabaseConfirm:deletedFromAllNodes'"></span><br />
+                <span data-bind="i18n: 'deleteDatabaseConfirm:keepFiles.filesUntouched'"></span>
             </p>
             <div class="flex-horizontal margin-top-sm">
                 <div class="flex-start text-warning">
                     <i class="icon-warning"></i>
                 </div>
-                <div>
-                    <i>Database Configuration, Identities &amp; Compare Exchange</i>
-                    data will not be recovered if the database is to be added again in the future.
-                    Please export this data before deleting if needed.
-                </div>
+                <div data-bind="html: dataNotRecoveredHtml"></div>
             </div>
             <div class="flex-horizontal" data-bind="if: encryptedCount > 0">
                 <div class="flex-start text-warning">
                     <i class="icon-warning"></i>
                 </div>
-                <div>
-                    <i>The Secret Key<span data-bind="text: encryptedCount === 1 ? '' : 's'"></span></i>
-                    will be deleted for the encrypted database<span data-bind="text: encryptedCount === 1 ? '' : 's'"></span>.<br>
-                    In order to export it, please use the rvn tool:<br>
-                    <code>./rvn offline-operation get-key &lt;path-to-database-dir&gt;</code>
-                </div>
+                <div data-bind="html: secretKeyDeletedHtml"></div>
             </div>
             <div class="text-right margin-top-sm">
-                <button type="button" class="btn btn-info" title="Navigate to Export Database View"
-                        data-bind="visible: databasesToDelete.length === 1, click: exportDatabase">
-                    <i class="icon-export-database"></i><span>Export Data</span>
+                <button type="button" class="btn btn-info"
+                        data-bind="visible: databasesToDelete.length === 1, click: exportDatabase, i18nAttr: { title: 'deleteDatabaseConfirm:keepFiles.exportButtonTitle' }">
+                    <i class="icon-export-database"></i><span data-bind="i18n: 'deleteDatabaseConfirm:keepFiles.exportButton'"></span>
                 </button>
-                <button type="button" class="btn btn-warning margin-left-xs" data-bind="click: keepFiles"
-                        title="Delete & keep physical database files on disk">
-                    <i class="icon-trash"></i><span>Delete & Keep Files</span>
+                <button type="button" class="btn btn-warning margin-left-xs"
+                        data-bind="click: keepFiles, i18nAttr: { title: 'deleteDatabaseConfirm:keepFiles.keepFilesButtonTitle' }">
+                    <i class="icon-trash"></i><span data-bind="i18n: 'deleteDatabaseConfirm:keepFiles.keepFilesButton'"></span>
                 </button>
             </div>
         </div>
         <div class="padding margin margin-sm mb-0 border-radius-xs alert alert-danger">
-            <h3>Delete all data</h3>
+            <h3 data-bind="i18n: 'deleteDatabaseConfirm:deleteAll.title'"></h3>
             <p class="small">
-                Database will be deleted from all nodes in the cluster.<br/>
-                All on-disk files will be deleted.
+                <span data-bind="i18n: 'deleteDatabaseConfirm:deletedFromAllNodes'"></span><br/>
+                <span data-bind="i18n: 'deleteDatabaseConfirm:deleteAll.filesDeleted'"></span>
             </p>
             <div class="flex-horizontal margin-top-sm">
                 <div class="flex-start text-danger">
                     <i class="icon-danger"></i>
                 </div>
-                <div>This action cannot be undone.</div>
+                <div data-bind="i18n: 'deleteDatabaseConfirm:deleteAll.cannotBeUndone'"></div>
             </div>
             <div class="text-right margin-top-sm">
-                <button type="button" class="btn btn-danger margin-left-xs" data-bind="click: deleteEverything" title="Delete all the on-disk files">
-                    <i class="icon-force"></i><span>Delete All Data</span>
+                <button type="button" class="btn btn-danger margin-left-xs" data-bind="click: deleteEverything, i18nAttr: { title: 'deleteDatabaseConfirm:deleteAll.buttonTitle' }">
+                    <i class="icon-force"></i><span data-bind="i18n: 'deleteDatabaseConfirm:deleteAll.button'"></span>
                 </button>
             </div>
         </div>
         <div class="padding">
             <span data-bind="visible: databasesToDelete.length === 1">
-                In order to delete the database from only a single node (or multiple nodes) go to<br />
-                <a href="#" data-bind="click: goToManageDbGroup" title="Navigate to Manage Database Group View">Manage Database Group</a>
+                <span data-bind="i18n: 'deleteDatabaseConfirm:manageGroup.singleNodeHint'"></span><br />
+                <a href="#" data-bind="click: goToManageDbGroup, i18n: 'deleteDatabaseConfirm:manageGroup.link', i18nAttr: { title: 'deleteDatabaseConfirm:manageGroup.linkTitle' }"></a>
             </span>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-bind="click: cancel" title="Cancel the delete operation">
-                <i class="icon-cancel"></i><span>Cancel</span>
+            <button type="button" class="btn btn-default" data-bind="click: cancel, i18nAttr: { title: 'deleteDatabaseConfirm:cancelTitle' }">
+                <i class="icon-cancel"></i><span data-bind="i18n: 'common:cancel'"></span>
             </button>
         </div>
     </div>

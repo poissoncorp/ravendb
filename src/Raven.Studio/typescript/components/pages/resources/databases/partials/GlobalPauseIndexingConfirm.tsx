@@ -7,6 +7,7 @@ import ActionContextUtils from "components/utils/actionContextUtils";
 import { Icon } from "components/common/Icon";
 import { useState } from "react";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface GlobalPauseIndexingConfirmProps {
     toggle: () => void;
@@ -16,6 +17,8 @@ interface GlobalPauseIndexingConfirmProps {
 
 export function GlobalPauseIndexingConfirm(props: GlobalPauseIndexingConfirmProps) {
     const { allActionContexts, toggle, onConfirm } = props;
+    const t = useStudioTranslation("databases");
+    const tCommon = useStudioTranslation("common");
 
     const [selectedActionContexts, setSelectedActionContexts] = useState<DatabaseActionContexts[]>(allActionContexts);
 
@@ -30,16 +33,13 @@ export function GlobalPauseIndexingConfirm(props: GlobalPauseIndexingConfirmProp
                 <div className="text-center">
                     <Icon icon="index" color="warning" addon="pause" className="fs-1" margin="m-0" />
                 </div>
-                <div className="text-center lead">You&apos;re about to pause indexing until restart</div>
+                <div className="text-center lead">{t("globalIndexingConfirm.pauseTitle")}</div>
             </Modal.Header>
             <Modal.Body className="vstack gap-4 pt-0">
-                <p>
-                    Are you sure you want to pause indexing until the server restarts? This will affect both existing
-                    indexes and any new indexes created in this database during that time.
-                </p>
+                <p>{t("globalIndexingConfirm.pauseDescription")}</p>
                 {ActionContextUtils.showContextSelector(allActionContexts) && (
                     <div>
-                        <h4>Select context</h4>
+                        <h4>{t("globalIndexingConfirm.selectContext")}</h4>
                         <MultipleDatabaseLocationSelector
                             allActionContexts={allActionContexts}
                             selectedActionContexts={selectedActionContexts}
@@ -50,10 +50,10 @@ export function GlobalPauseIndexingConfirm(props: GlobalPauseIndexingConfirmProp
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="link" onClick={toggle} className="link-muted">
-                    Cancel
+                    {tCommon("cancel")}
                 </Button>
                 <Button variant="warning" onClick={handlePause} className="rounded-pill">
-                    <Icon icon="pause" /> Pause
+                    <Icon icon="pause" /> {t("globalIndexingConfirm.pause")}
                 </Button>
             </Modal.Footer>
         </Modal>

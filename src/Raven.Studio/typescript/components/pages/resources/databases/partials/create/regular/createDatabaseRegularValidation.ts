@@ -4,6 +4,9 @@ import {
     databaseNameSchema,
 } from "../shared/createDatabaseSharedValidation";
 import * as yup from "yup";
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("databases");
 
 const basicInfoStepSchema = yup.object({
     databaseName: databaseNameSchema,
@@ -45,15 +48,19 @@ const manualNodeSelectionStepSchema = yup.object({
                 .array()
                 .nullable()
                 .of(yup.string().nullable())
-                .test("at-least-one-replica", "Each shard needs at least one replica", (value, ctx) => {
-                    if (!value || !ctx.options.context.isSharded || !ctx.options.context.isManualReplication) {
-                        return true;
+                .test(
+                    "at-least-one-replica",
+                    () => t("createDatabase.validation.atLeastOneReplica"),
+                    (value, ctx) => {
+                        if (!value || !ctx.options.context.isSharded || !ctx.options.context.isManualReplication) {
+                            return true;
+                        }
+                        return value.some((x) => x);
                     }
-                    return value.some((x) => x);
-                })
+                )
                 .test(
                     "invalid-shard-topology",
-                    "Invalid shard topology - replicas must reside on different nodes",
+                    () => t("createDatabase.validation.invalidShardTopology"),
                     (value, ctx) => {
                         if (!value || !ctx.options.context.isSharded || !ctx.options.context.isManualReplication) {
                             return true;
@@ -82,25 +89,29 @@ const shardingPrefixesStepSchema = yup.object({
                             .required()
                             .test(
                                 "invalid-ending-character",
-                                "The prefix must end with '/' or '-' characters",
+                                () => t("createDatabase.validation.prefixInvalidEnding"),
                                 (value) => {
                                     return value.endsWith("/") || value.endsWith("-");
                                 }
                             )
-                            .test("unique-prefix", "Prefix must be unique (case-insensitive)", (value, ctx) => {
-                                return (
-                                    ctx.options.context.usedPrefixes.filter(
-                                        (x: string) => x.toLowerCase() === value.toLowerCase()
-                                    ).length < 2
-                                );
-                            }),
+                            .test(
+                                "unique-prefix",
+                                () => t("createDatabase.validation.prefixNotUnique"),
+                                (value, ctx) => {
+                                    return (
+                                        ctx.options.context.usedPrefixes.filter(
+                                            (x: string) => x.toLowerCase() === value.toLowerCase()
+                                        ).length < 2
+                                    );
+                                }
+                            ),
                 }),
                 shardNumbers: yup
                     .array()
                     .of(yup.number())
                     .when("$isPrefixesForShards", {
                         is: true,
-                        then: (schema) => schema.min(1, "Select at least one shard"),
+                        then: (schema) => schema.min(1, () => t("createDatabase.validation.selectAtLeastOneShard")),
                     }),
             })
         )

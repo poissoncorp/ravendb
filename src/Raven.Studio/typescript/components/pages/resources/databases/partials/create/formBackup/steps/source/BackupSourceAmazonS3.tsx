@@ -15,8 +15,11 @@ import RestorePointsFields, {
     RestorePointElementProps,
 } from "components/pages/resources/databases/partials/create/formBackup/steps/source/RestorePointsFields";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function BackupSourceAmazonS3() {
+    const t = useStudioTranslation("databases");
     const { control } = useFormContext<FormData>();
 
     const {
@@ -34,7 +37,7 @@ export default function BackupSourceAmazonS3() {
             <Row>
                 <Col lg={{ offset: 3 }}>
                     <FormSwitch control={control} name="sourceStep.sourceData.amazonS3.isUseCustomHost" color="primary">
-                        Use a custom S3 host
+                        {t("createFromBackup.source.amazonS3.useCustomHost")}
                     </FormSwitch>
                 </Col>
             </Row>
@@ -48,14 +51,14 @@ export default function BackupSourceAmazonS3() {
                                 control={control}
                                 name="sourceStep.sourceData.amazonS3.isForcePathStyle"
                             >
-                                Force path style{" "}
+                                {t("createFromBackup.source.amazonS3.forcePathStyle")}{" "}
                                 <PopoverWithHoverWrapper
                                     message={
-                                        <>
-                                            Whether to force path style URLs for S3 objects (e.g.,{" "}
-                                            <code>https://&#123;Server-URL&#125;/&#123;Bucket-Name&#125;</code> instead
-                                            of <code>https://&#123;Bucket-Name&#125;.&#123;Server-URL&#125;</code>)
-                                        </>
+                                        <StudioTrans
+                                            ns="databases"
+                                            i18nKey="createFromBackup.source.amazonS3.forcePathStyleInfo"
+                                            components={{ code: <code /> }}
+                                        />
                                     }
                                 >
                                     <Icon icon="info" color="info" margin="m-0" />
@@ -65,14 +68,16 @@ export default function BackupSourceAmazonS3() {
                     </Row>
                     <Row className="mt-2">
                         <Col lg="3">
-                            <FormLabel className="col-form-label">Custom server URL</FormLabel>
+                            <FormLabel className="col-form-label">
+                                {t("createFromBackup.source.amazonS3.customServerUrl")}
+                            </FormLabel>
                         </Col>
                         <Col>
                             <FormInput
                                 type="text"
                                 control={control}
                                 name="sourceStep.sourceData.amazonS3.customHost"
-                                placeholder="Enter custom server URL"
+                                placeholder={t("createFromBackup.source.amazonS3.customServerUrlPlaceholder")}
                             />
                         </Col>
                     </Row>
@@ -81,28 +86,28 @@ export default function BackupSourceAmazonS3() {
 
             <Row className="mt-2">
                 <Col lg="3">
-                    <FormLabel className="col-form-label">Access key</FormLabel>
+                    <FormLabel className="col-form-label">{t("createFromBackup.source.amazonS3.accessKey")}</FormLabel>
                 </Col>
                 <Col>
                     <FormInput
                         type="text"
                         control={control}
                         name="sourceStep.sourceData.amazonS3.accessKey"
-                        placeholder="Enter access key"
+                        placeholder={t("createFromBackup.source.amazonS3.accessKeyPlaceholder")}
                     />
                 </Col>
             </Row>
             <Row className="mt-2">
                 <Col lg="3">
                     <FormLabel className="col-form-label" aria-required>
-                        Secret key
+                        {t("createFromBackup.source.amazonS3.secretKey")}
                     </FormLabel>
                 </Col>
                 <Col>
                     <FormInput
                         control={control}
                         name="sourceStep.sourceData.amazonS3.secretKey"
-                        placeholder="Enter secret key"
+                        placeholder={t("createFromBackup.source.amazonS3.secretKeyPlaceholder")}
                         type="password"
                         passwordPreview
                     />
@@ -111,16 +116,18 @@ export default function BackupSourceAmazonS3() {
             <Row className="mt-2">
                 <Col lg="3">
                     <FormLabel className="col-form-label">
-                        Session token
-                        <br />
-                        <small>(optional)</small>
+                        <StudioTrans
+                            ns="databases"
+                            i18nKey="createFromBackup.source.amazonS3.sessionToken"
+                            components={{ br: <br />, small: <small /> }}
+                        />
                     </FormLabel>
                 </Col>
                 <Col>
                     <FormInput
                         control={control}
                         name="sourceStep.sourceData.amazonS3.sessionToken"
-                        placeholder="Enter session token"
+                        placeholder={t("createFromBackup.source.amazonS3.sessionTokenPlaceholder")}
                         type="password"
                         passwordPreview
                     />
@@ -129,9 +136,12 @@ export default function BackupSourceAmazonS3() {
             <Row className="mt-2">
                 <Col lg="3">
                     <FormLabel className="col-form-label">
-                        Aws Region
-                        <br />
-                        {isUseCustomHost && <small>(optional)</small>}
+                        <StudioTrans
+                            ns="databases"
+                            i18nKey="createFromBackup.source.amazonS3.awsRegion"
+                            options={{ context: isUseCustomHost ? "optional" : undefined }}
+                            components={{ br: <br />, small: <small /> }}
+                        />
                     </FormLabel>
                 </Col>
                 <Col>
@@ -140,14 +150,14 @@ export default function BackupSourceAmazonS3() {
                             type="text"
                             control={control}
                             name="sourceStep.sourceData.amazonS3.awsRegion"
-                            placeholder="Enter an AWS region"
+                            placeholder={t("createFromBackup.source.amazonS3.awsRegionPlaceholder")}
                             autoComplete="off"
                         />
                     ) : (
                         <FormSelectAutocomplete
                             name="sourceStep.sourceData.amazonS3.awsRegion"
                             control={control}
-                            placeholder="Select an AWS region (or enter new one)"
+                            placeholder={t("createFromBackup.source.amazonS3.awsRegionSelectPlaceholder")}
                             options={availableS3Regions}
                         />
                     )}
@@ -155,23 +165,25 @@ export default function BackupSourceAmazonS3() {
             </Row>
             <Row className="mt-2">
                 <Col lg="3">
-                    <FormLabel className="col-form-label">Bucket Name</FormLabel>
+                    <FormLabel className="col-form-label">{t("createFromBackup.source.amazonS3.bucketName")}</FormLabel>
                 </Col>
                 <Col>
                     <FormInput
                         type="text"
                         control={control}
                         name="sourceStep.sourceData.amazonS3.bucketName"
-                        placeholder="Enter bucket name"
+                        placeholder={t("createFromBackup.source.amazonS3.bucketNamePlaceholder")}
                     />
                 </Col>
             </Row>
             <Row className="mt-2">
                 <Col lg="3">
                     <FormLabel className="col-form-label">
-                        Remote Folder Name
-                        <br />
-                        <small>(optional)</small>
+                        <StudioTrans
+                            ns="databases"
+                            i18nKey="createFromBackup.source.amazonS3.remoteFolderName"
+                            components={{ br: <br />, small: <small /> }}
+                        />
                     </FormLabel>
                 </Col>
                 <Col>
@@ -179,7 +191,7 @@ export default function BackupSourceAmazonS3() {
                         type="text"
                         control={control}
                         name="sourceStep.sourceData.amazonS3.remoteFolderName"
-                        placeholder="Enter remote folder name"
+                        placeholder={t("createFromBackup.source.remoteFolderNamePlaceholder")}
                     />
                 </Col>
             </Row>

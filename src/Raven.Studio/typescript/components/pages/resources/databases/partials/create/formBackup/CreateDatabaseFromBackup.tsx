@@ -38,6 +38,8 @@ import { useCreateDatabaseShortcuts } from "../shared/useCreateDatabaseShortcuts
 import Button from "react-bootstrap/Button";
 import Modal from "components/common/Modal";
 import { ConditionalPopover } from "components/common/ConditionalPopover";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import type { StudioTranslate } from "common/i18n/resources";
 
 interface CreateDatabaseFromBackupProps {
     closeModal: () => void;
@@ -48,6 +50,7 @@ export default function CreateDatabaseFromBackup({
     closeModal,
     changeCreateModeToRegular,
 }: CreateDatabaseFromBackupProps) {
+    const t = useStudioTranslation("databases");
     const { databasesService } = useServices();
     const localNodeTag = useAppSelector(clusterSelectors.localNodeTag);
     const usedDatabaseNames = useAppSelector(databaseSelectors.allDatabases).map((db) => db.name);
@@ -79,7 +82,7 @@ export default function CreateDatabaseFromBackup({
         setError
     );
 
-    const activeSteps = getActiveStepsList(formValues, formState.errors, asyncDatabaseNameValidation.loading);
+    const activeSteps = getActiveStepsList(formValues, formState.errors, asyncDatabaseNameValidation.loading, t);
     const stepViews = getStepViews(control, formValues, setValue, trigger);
     const { currentStep, isFirstStep, isLastStep, goToStepWithValidation, nextStepWithValidation, prevStep } = useSteps(
         activeSteps.length
@@ -154,11 +157,11 @@ export default function CreateDatabaseFromBackup({
                             className="rounded-pill"
                             disabled={formState.isSubmitting}
                         >
-                            <Icon icon="database" addon="star" /> Create new database
+                            <Icon icon="database" addon="star" /> {t("createFromBackup.createNewDatabase")}
                         </Button>
                     ) : (
                         <Button type="button" onClick={prevStep} variant="secondary" className="rounded-pill">
-                            <Icon icon="arrow-thin-left" /> Back
+                            <Icon icon="arrow-thin-left" /> {t("createDatabase.back")}
                         </Button>
                     )}
                     <FlexGrow />
@@ -170,7 +173,7 @@ export default function CreateDatabaseFromBackup({
                             isSpinning={formState.isSubmitting}
                             icon="rocket"
                         >
-                            Finish
+                            {t("createDatabase.finish")}
                         </ButtonWithSpinner>
                     ) : (
                         <ConditionalPopover
@@ -187,7 +190,7 @@ export default function CreateDatabaseFromBackup({
                                 onClick={handleGoNext}
                                 disabled={isNextDisabled}
                             >
-                                Next <Icon icon="arrow-thin-right" margin="ms-1" />
+                                {t("createDatabase.next")} <Icon icon="arrow-thin-right" margin="ms-1" />
                             </Button>
                         </ConditionalPopover>
                     )}
@@ -202,7 +205,8 @@ type Step = CreateDatabaseStep<FormData>;
 function getActiveStepsList(
     formValues: FormData,
     errors: FieldErrors<FormData>,
-    isValidatingDatabaseName: boolean
+    isValidatingDatabaseName: boolean,
+    t: StudioTranslate<"databases">
 ): Step[] {
     const {
         sourceStep: { isEncrypted },
@@ -211,21 +215,26 @@ function getActiveStepsList(
     const allSteps: Step[] = [
         {
             id: "basicInfoStep",
-            label: "Database type",
+            label: t("createFromBackup.steps.databaseType"),
             active: true,
             isInvalid: !!errors.basicInfoStep,
             isLoading: isValidatingDatabaseName,
         },
-        { id: "sourceStep", label: "Backup Source", active: true, isInvalid: !!errors.sourceStep },
+        {
+            id: "sourceStep",
+            label: t("createFromBackup.steps.backupSource"),
+            active: true,
+            isInvalid: !!errors.sourceStep,
+        },
         {
             id: "encryptionStep",
-            label: "Encryption",
+            label: t("createDatabase.steps.encryption"),
             active: isEncrypted,
             isInvalid: !!errors.encryptionStep,
         },
         {
             id: "dataDirectoryStep",
-            label: "Data Directory",
+            label: t("createDatabase.steps.dataDirectory"),
             active: true,
             isInvalid: !!errors.dataDirectoryStep,
         },

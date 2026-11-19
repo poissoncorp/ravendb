@@ -15,6 +15,9 @@ import { clusterSelectors } from "components/common/shell/clusterSlice";
 import { databasesViewSliceInternal } from "components/pages/resources/databases/store/databasesViewSlice";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
 import { createSelector } from "@reduxjs/toolkit";
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("databases");
 
 const selectFilterByStateOptions = createSelector(
     (store: RootState) => store,
@@ -65,17 +68,17 @@ const selectFilterByStateOptions = createSelector(
         });
 
         return [
-            { value: "Online", label: "Online", count: online },
-            { value: "Offline", label: "Offline", count: offline },
-            { value: "Error", label: "Errored", count: error },
-            { value: "Disabled", label: "Disabled", count: disabled },
+            { value: "Online", label: t("filter.states.online"), count: online },
+            { value: "Offline", label: t("filter.states.offline"), count: offline },
+            { value: "Error", label: t("filter.states.errored"), count: error },
+            { value: "Disabled", label: t("filter.states.disabled"), count: disabled },
             {
                 value: "Local",
-                label: `Local (Node ${localNodeTag})`,
+                label: t("filter.states.local", { nodeTag: localNodeTag }),
                 count: local,
                 verticalSeparatorLine: true,
             },
-            { value: "Remote", label: "Remote", count: remote },
+            { value: "Remote", label: t("filter.states.remote"), count: remote },
         ];
     }
 );

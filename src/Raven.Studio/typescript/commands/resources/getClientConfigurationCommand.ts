@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("resourcesCommands");
 import database = require("models/resources/database");
 
 class getClientConfigurationCommand extends commandBase {
@@ -16,7 +19,7 @@ class getClientConfigurationCommand extends commandBase {
         };
         const url = endpoints.databases.configuration.configurationClient + this.urlEncodeArgs(args);
         return this.query<Raven.Client.Documents.Operations.Configuration.ClientConfiguration>(url, null, this.db, x => x.Configuration)
-            .fail((response: JQueryXHR) => this.reportError(`Failed to load client configuration`, response.responseText, response.statusText)) 
+            .fail((response: JQueryXHR) => this.reportError(t("getClientConfigurationFailed"), response.responseText, response.statusText)) 
     }
     
 }

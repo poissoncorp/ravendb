@@ -12,28 +12,35 @@ import EncryptionField from "components/pages/resources/databases/partials/creat
 import RestorePointsFields, {
     RestorePointElementProps,
 } from "components/pages/resources/databases/partials/create/formBackup/steps/source/RestorePointsFields";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function BackupSourceGoogleCloud() {
+    const t = useStudioTranslation("databases");
     const { control } = useFormContext<FormData>();
 
     return (
         <div className="mt-2">
             <Row className="mt-2">
                 <Col lg="3">
-                    <FormLabel className="col-form-label">Bucket Name</FormLabel>
+                    <FormLabel className="col-form-label">
+                        {t("createFromBackup.source.googleCloud.bucketName")}
+                    </FormLabel>
                 </Col>
                 <Col>
                     <FormInput
                         type="text"
                         control={control}
                         name="sourceStep.sourceData.googleCloud.bucketName"
-                        placeholder="Enter Google Cloud Storage Bucket Name"
+                        placeholder={t("createFromBackup.source.googleCloud.bucketNamePlaceholder")}
                     />
                 </Col>
             </Row>
             <Row className="mt-2">
                 <Col lg="3">
-                    <FormLabel className="col-form-label">Google Credentials</FormLabel>
+                    <FormLabel className="col-form-label">
+                        {t("createFromBackup.source.googleCloud.credentials")}
+                    </FormLabel>
                 </Col>
                 <Col>
                     <FormInput
@@ -42,14 +49,20 @@ export default function BackupSourceGoogleCloud() {
                         rows={18}
                         control={control}
                         name="sourceStep.sourceData.googleCloud.credentialsJson"
-                        placeholder={credentialsPlaceholder}
+                        placeholder={t("createFromBackup.source.googleCloud.credentialsPlaceholder", {
+                            example: CREDENTIALS_JSON_EXAMPLE,
+                        })}
                     />
                 </Col>
             </Row>
             <Row className="mt-2">
                 <Col lg="3">
                     <FormLabel className="col-form-label">
-                        Remote Folder Name <small>(optional)</small>
+                        <StudioTrans
+                            ns="databases"
+                            i18nKey="createFromBackup.source.remoteFolderName"
+                            components={{ small: <small /> }}
+                        />
                     </FormLabel>
                 </Col>
                 <Col>
@@ -57,7 +70,7 @@ export default function BackupSourceGoogleCloud() {
                         type="text"
                         control={control}
                         name="sourceStep.sourceData.googleCloud.remoteFolderName"
-                        placeholder="Enter Remote Folder Name"
+                        placeholder={t("createFromBackup.source.googleCloud.remoteFolderNamePlaceholder")}
                     />
                 </Col>
             </Row>
@@ -111,8 +124,7 @@ function SourceRestorePoint({ index, remove }: RestorePointElementProps) {
     );
 }
 
-const credentialsPlaceholder = `e.g.
-{
+const CREDENTIALS_JSON_EXAMPLE = `{
     "type": "service_account",
     "project_id": "test-raven-237012",
     "private_key_id": "12345678123412341234123456789101",

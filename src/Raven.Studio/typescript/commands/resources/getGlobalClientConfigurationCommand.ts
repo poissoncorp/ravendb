@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("resourcesCommands");
 
 class getGlobalClientConfigurationCommand extends commandBase {
     
@@ -13,7 +16,7 @@ class getGlobalClientConfigurationCommand extends commandBase {
                 if (response.status === 404) {
                     loadTask.resolve(null);
                 } else {
-                    this.reportError(`Failed to load client configuration`, response.responseText, response.statusText);
+                    this.reportError(t("getClientConfigurationFailed"), response.responseText, response.statusText);
                     loadTask.reject(response);
                 }
             });

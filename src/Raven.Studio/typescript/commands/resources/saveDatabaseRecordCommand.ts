@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("resourcesCommands");
 
 class saveDatabaseRecordCommand extends commandBase {
     private readonly db: database | string;
@@ -22,8 +25,8 @@ class saveDatabaseRecordCommand extends commandBase {
         const url = endpoints.global.adminDatabases.adminDatabases;
         
         return this.put<void>(url, JSON.stringify(this.databaseRecord), null, { headers: { "ETag": this.etag?.toString() }})
-            .done(() => this.reportSuccess("Database Record was saved successfully"))
-            .fail((response: JQueryXHR) => this.reportError("Failed to save Database Record", response.responseText, response.statusText));
+            .done(() => this.reportSuccess(t("saveDatabaseRecordSucceeded")))
+            .fail((response: JQueryXHR) => this.reportError(t("saveDatabaseRecordFailed"), response.responseText, response.statusText));
     }
 }
 

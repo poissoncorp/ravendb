@@ -7,8 +7,10 @@ import { Icon } from "components/common/Icon";
 import { FormInput } from "components/common/Form";
 import { Checkbox } from "components/common/Checkbox";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function StepShardingPrefixes() {
+    const t = useStudioTranslation("databases");
     const { control, trigger } = useFormContext<FormData>();
 
     const {
@@ -39,7 +41,7 @@ export default function StepShardingPrefixes() {
 
     return (
         <div className="text-center">
-            <h2 className="text-center">Sharding Prefixes</h2>
+            <h2 className="text-center">{t("createDatabase.shardingPrefixes.title")}</h2>
 
             <Table responsive>
                 <thead>
@@ -76,7 +78,7 @@ export default function StepShardingPrefixes() {
                 onClick={() => append({ prefix: "", shardNumbers: [] })}
             >
                 <Icon icon="plus" />
-                Add prefix
+                {t("createDatabase.shardingPrefixes.addPrefix")}
             </Button>
         </div>
     );
@@ -91,6 +93,7 @@ interface PrefixRowProps {
 }
 
 function PrefixRow({ index, field, allShardNumbers, toggleShard, remove }: PrefixRowProps) {
+    const t = useStudioTranslation("databases");
     const { control, formState, trigger } = useFormContext<FormData>();
 
     const {
@@ -118,7 +121,7 @@ function PrefixRow({ index, field, allShardNumbers, toggleShard, remove }: Prefi
                     control={control}
                     name={`shardingPrefixesStep.prefixesForShards.${index}.prefix`}
                     className="form-control"
-                    placeholder="Prefix"
+                    placeholder={t("createDatabase.shardingPrefixes.prefixPlaceholder")}
                     style={{ minWidth: "100px", maxWidth: "300px" }}
                 />
             </td>

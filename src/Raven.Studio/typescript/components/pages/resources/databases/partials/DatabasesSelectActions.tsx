@@ -20,6 +20,8 @@ import ButtonWithSpinner from "components/common/ButtonWithSpinner";
 import Dropdown from "react-bootstrap/Dropdown";
 import genUtils = require("common/generalUtils");
 import DatabaseLockMode = Raven.Client.ServerWide.DatabaseLockMode;
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface DatabasesSelectActionsProps {
     selectedDatabases: DatabaseSharedInfo[];
@@ -32,6 +34,8 @@ export function DatabasesSelectActions({
     databaseNames,
     setSelectedDatabaseNames,
 }: DatabasesSelectActionsProps) {
+    const t = useStudioTranslation("databases");
+    const tCommon = useStudioTranslation("common");
     const isOperatorOrAbove = useAppSelector(accessManagerSelectors.isOperatorOrAbove);
     const { reportEvent } = useEventsCollector();
 
@@ -70,7 +74,7 @@ export function DatabasesSelectActions({
         reportEvent("databases", "set-lock-mode", lockMode);
 
         const isConfirmed = await confirm({
-            title: "Do you want to change lock mode?",
+            title: t("changeLockModeConfirm"),
         });
 
         if (isConfirmed) {
@@ -117,17 +121,22 @@ export function DatabasesSelectActions({
                 indeterminate={selectionState === "SomeSelected"}
                 toggleSelection={toggleSelectAll}
                 color="primary"
-                title="Select all or none"
+                title={t("selection.selectAllTitle")}
                 size="lg"
                 className="ms-5"
             >
-                <span className="small-label">Select All</span>
+                <span className="small-label">{t("selection.selectAll")}</span>
             </Checkbox>
 
             <SelectionActions active={anythingSelected && !toggleChanges}>
                 <div className="d-flex align-items-center justify-content-center flex-wrap gap-2">
                     <div className="lead text-nowrap">
-                        <strong className="text-emphasis me-1">{selectedDatabases.length}</strong> selected
+                        <StudioTrans
+                            ns="databases"
+                            i18nKey="selection.selectedCount"
+                            options={{ count: selectedDatabases.length }}
+                            components={{ strong: <strong className="text-emphasis me-1" /> }}
+                        />
                     </div>
                     <ButtonGroup className="gap-2 flex-wrap justify-content-center">
                         {isOperatorOrAbove && (
@@ -135,19 +144,23 @@ export function DatabasesSelectActions({
                                 <Dropdown.Toggle
                                     variant="secondary"
                                     disabled={!anythingSelected || toggleChanges}
-                                    title="Set the status (enabled/disabled) of selected databases"
+                                    title={t("selection.setStateTitle")}
                                     className="rounded-pill"
                                 >
-                                    {toggleChanges ? <Spinner size="sm" /> : <Icon icon="play" />} Set state
+                                    {toggleChanges ? <Spinner size="sm" /> : <Icon icon="play" />}{" "}
+                                    {t("selection.setState")}
                                 </Dropdown.Toggle>
                                 <Dropdown.Menu>
-                                    <Dropdown.Item title="Enable" onClick={() => onToggleDatabases(true)}>
+                                    <Dropdown.Item title={t("actions.enable")} onClick={() => onToggleDatabases(true)}>
                                         <Icon icon="unlock" />
-                                        <span>Enable</span>
+                                        <span>{t("actions.enable")}</span>
                                     </Dropdown.Item>
-                                    <Dropdown.Item title="Disable" onClick={() => onToggleDatabases(false)}>
+                                    <Dropdown.Item
+                                        title={t("actions.disable")}
+                                        onClick={() => onToggleDatabases(false)}
+                                    >
                                         <Icon icon="lock" />
-                                        <span>Disable</span>
+                                        <span>{t("actions.disable")}</span>
                                     </Dropdown.Item>
                                 </Dropdown.Menu>
                             </Dropdown>
@@ -157,33 +170,34 @@ export function DatabasesSelectActions({
                             <Dropdown>
                                 <Dropdown.Toggle
                                     variant="secondary"
-                                    title="Set the delete lock mode for the selected databases"
+                                    title={t("selection.setLockModeTitle")}
                                     disabled={!anythingSelected || lockChanges}
                                     className="rounded-pill"
                                 >
-                                    {lockChanges ? <Spinner size="sm" /> : <Icon icon="lock" />} Set delete lock mode
+                                    {lockChanges ? <Spinner size="sm" /> : <Icon icon="lock" />}{" "}
+                                    {t("selection.setLockMode")}
                                 </Dropdown.Toggle>
                                 <Dropdown.Menu>
                                     <Dropdown.Item
                                         onClick={() => onChangeLockMode("Unlock")}
-                                        title="Allow to delete selected databases"
+                                        title={t("selection.allowDeleteTitle")}
                                     >
                                         <Icon icon="trash" addon="check" />
-                                        <span>Allow databases delete</span>
+                                        <span>{t("selection.allowDelete")}</span>
                                     </Dropdown.Item>
                                     <Dropdown.Item
                                         onClick={() => onChangeLockMode("PreventDeletesIgnore")}
-                                        title="Prevent deletion of selected databases. An error will not be thrown if an app attempts to delete."
+                                        title={t("selection.preventDeleteTitle")}
                                     >
                                         <Icon icon="trash" addon="cancel" />
-                                        <span>Prevent databases delete</span>
+                                        <span>{t("selection.preventDelete")}</span>
                                     </Dropdown.Item>
                                     <Dropdown.Item
                                         onClick={() => onChangeLockMode("PreventDeletesError")}
-                                        title="Prevent deletion of selected databases. An error will be thrown if an app attempts to delete."
+                                        title={t("selection.preventDeleteWithErrorTitle")}
                                     >
                                         <Icon icon="trash" addon="exclamation" />
-                                        <span>Prevent databases delete (Error)</span>
+                                        <span>{t("selection.preventDeleteWithError")}</span>
                                     </Dropdown.Item>
                                 </Dropdown.Menu>
                             </Dropdown>
@@ -197,12 +211,12 @@ export function DatabasesSelectActions({
                                 icon="trash"
                                 isSpinning={deleteChanges}
                             >
-                                Delete
+                                {tCommon("delete")}
                             </ButtonWithSpinner>
                         )}
                     </ButtonGroup>
                     <Button onClick={() => setSelectedDatabaseNames([])} variant="link">
-                        Cancel
+                        {tCommon("cancel")}
                     </Button>
                 </div>
             </SelectionActions>

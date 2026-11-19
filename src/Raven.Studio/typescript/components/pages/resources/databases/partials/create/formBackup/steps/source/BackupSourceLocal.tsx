@@ -12,8 +12,10 @@ import EncryptionField from "components/pages/resources/databases/partials/creat
 import RestorePointsFields, {
     RestorePointElementProps,
 } from "components/pages/resources/databases/partials/create/formBackup/steps/source/RestorePointsFields";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function BackupSourceLocal() {
+    const t = useStudioTranslation("databases");
     const { resourcesService } = useServices();
     const { control } = useFormContext<FormData>();
 
@@ -28,14 +30,14 @@ export default function BackupSourceLocal() {
         <>
             <Row className="mt-2">
                 <Col lg="3">
-                    <label className="col-form-label">Directory Path</label>
+                    <label className="col-form-label">{t("createFromBackup.source.local.directoryPath")}</label>
                 </Col>
                 <Col>
                     <FormPathSelector
                         control={control}
                         name="sourceStep.sourceData.local.directory"
-                        selectorTitle="Select backup directory path"
-                        placeholder="Enter backup directory path"
+                        selectorTitle={t("createFromBackup.source.local.directorySelectorTitle")}
+                        placeholder={t("createFromBackup.source.local.directoryPlaceholder")}
                         getPathsProvider={(path: string) => getLocalFolderPathsProvider(path)}
                         getPathDependencies={(path: string) => [path]}
                     />

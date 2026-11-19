@@ -1,21 +1,31 @@
 import { Icon } from "components/common/Icon";
 import { useAppUrls } from "components/hooks/useAppUrls";
 import React from "react";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function AuthenticationOffMessage() {
     const { appUrl } = useAppUrls();
+    const t = useStudioTranslation("databases");
 
     return (
         <>
             <p className="lead text-warning">
-                <Icon icon="unsecure" margin="m-0" /> Authentication is off
+                <Icon icon="unsecure" margin="m-0" /> {t("createDatabase.authenticationOff.title")}
             </p>
             <p>
-                <strong>Encryption at Rest</strong> is only possible when authentication is enabled and a server
-                certificate has been defined.
+                <StudioTrans
+                    ns="databases"
+                    i18nKey="createDatabase.authenticationOff.encryptionRequirement"
+                    components={{ strong: <strong /> }}
+                />
             </p>
             <p>
-                For more information go to the <a href={appUrl.forCertificates()}>certificates page.</a>
+                <StudioTrans
+                    ns="databases"
+                    i18nKey="createDatabase.authenticationOff.moreInfo"
+                    components={{ a: <a href={appUrl.forCertificates()} /> }}
+                />
             </p>
         </>
     );

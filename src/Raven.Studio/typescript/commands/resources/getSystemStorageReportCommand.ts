@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("resourcesCommands");
 
 class getSystemStorageReportCommand extends commandBase {
 
@@ -9,7 +12,7 @@ class getSystemStorageReportCommand extends commandBase {
         };
         const url = endpoints.global.adminStorage.adminDebugStorageEnvironmentReport + this.urlEncodeArgs(args);
         return this.query<detailedSystemStorageReportItemDto>(url, null)
-            .fail((response: JQueryXHR) => this.reportError("Failed to load storage report", response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("getSystemStorageReportFailed"), response.responseText, response.statusText));
     }
 }
 

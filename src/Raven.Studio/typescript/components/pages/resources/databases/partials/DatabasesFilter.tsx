@@ -8,6 +8,7 @@ import { databaseSelectors } from "components/common/shell/databaseSliceSelector
 import { databasesViewSelectors } from "components/pages/resources/databases/store/databasesViewSelectors";
 import { Icon } from "components/common/Icon";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type FilterByStateOptions = InputItem<DatabaseFilterByStateOption>[];
 
@@ -18,6 +19,7 @@ interface DatabasesFilterProps {
 
 export function DatabasesFilter(props: DatabasesFilterProps) {
     const { searchCriteria, setFilterCriteria } = props;
+    const t = useStudioTranslation("databases");
 
     const allDatabasesCount = useAppSelector(databaseSelectors.allDatabasesCount);
     const filterByStateOptions: FilterByStateOptions = useAppSelector(databasesViewSelectors.filterByStateOptions);
@@ -39,13 +41,13 @@ export function DatabasesFilter(props: DatabasesFilterProps) {
     return (
         <>
             <div className="d-flex flex-column flex-grow">
-                <div className="small-label ms-1 mb-1">Filter by name</div>
+                <div className="small-label ms-1 mb-1">{t("filter.byName")}</div>
                 <div className="clearable-input">
                     <Form.Control
                         type="text"
                         accessKey="/"
-                        placeholder="e.g. database1"
-                        title="Filter databases (Alt+/)"
+                        placeholder={t("filter.namePlaceholder")}
+                        title={t("filter.nameTitle")}
                         value={searchCriteria.name}
                         onChange={onSearchNameChange}
                         className="filtering-input"
@@ -71,11 +73,11 @@ export function DatabasesFilter(props: DatabasesFilterProps) {
             <div>
                 <MultiCheckboxToggle<DatabaseFilterByStateOption>
                     inputItems={filterByStateOptions}
-                    label="Filter by state"
+                    label={t("filter.byState")}
                     selectedItems={searchCriteria.states}
                     setSelectedItems={onSearchStatusesChange}
                     selectAll
-                    selectAllLabel="All"
+                    selectAllLabel={t("filter.all")}
                     selectAllCount={allDatabasesCount}
                 />
             </div>

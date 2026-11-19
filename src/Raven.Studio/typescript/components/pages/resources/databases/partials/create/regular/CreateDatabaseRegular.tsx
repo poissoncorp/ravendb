@@ -41,6 +41,9 @@ import { useCreateDatabaseShortcuts } from "../shared/useCreateDatabaseShortcuts
 import Button from "react-bootstrap/Button";
 import Modal from "components/common/Modal";
 import { ConditionalPopover } from "components/common/ConditionalPopover";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import type { StudioTranslate } from "common/i18n/resources";
 
 interface CreateDatabaseRegularProps {
     closeModal: () => void;
@@ -48,6 +51,7 @@ interface CreateDatabaseRegularProps {
 }
 
 export default function CreateDatabaseRegular({ closeModal, changeCreateModeToBackup }: CreateDatabaseRegularProps) {
+    const t = useStudioTranslation("databases");
     const { databasesService } = useServices();
     const usedDatabaseNames = useAppSelector(databaseSelectors.allDatabases).map((db) => db.name);
     const allNodeTags = useAppSelector(clusterSelectors.allNodeTags);
@@ -80,7 +84,7 @@ export default function CreateDatabaseRegular({ closeModal, changeCreateModeToBa
         setError
     );
 
-    const activeSteps = getActiveStepsList(formValues, formState.errors, asyncDatabaseNameValidation.loading);
+    const activeSteps = getActiveStepsList(formValues, formState.errors, asyncDatabaseNameValidation.loading, t);
     const stepViews = getStepViews(control, formValues, setValue, trigger);
     const { currentStep, isFirstStep, isLastStep, goToStepWithValidation, nextStepWithValidation, prevStep } = useSteps(
         activeSteps.length
@@ -149,10 +153,12 @@ export default function CreateDatabaseRegular({ closeModal, changeCreateModeToBa
 
     const encryptionStepIndex = activeSteps.findIndex((x) => x.id === "encryptionStep");
     const quickCreateDisabledReason = isEncryptionKeyConfirmed ? null : (
-        <>
-            In step <strong>{activeSteps[encryptionStepIndex].label}</strong> you need to check{" "}
-            <strong>&quot;I have saved the encryption key&quot;</strong>
-        </>
+        <StudioTrans
+            ns="databases"
+            i18nKey="createDatabase.quickCreateDisabledReason"
+            options={{ step: activeSteps[encryptionStepIndex].label }}
+            components={{ strong: <strong /> }}
+        />
     );
 
     useCreateDatabaseShortcuts({
@@ -184,11 +190,11 @@ export default function CreateDatabaseRegular({ closeModal, changeCreateModeToBa
                             variant="secondary"
                             disabled={formState.isSubmitting}
                         >
-                            <Icon icon="database" addon="arrow-up" /> Restore from backup
+                            <Icon icon="database" addon="arrow-up" /> {t("createDatabase.restoreFromBackup")}
                         </Button>
                     ) : (
                         <Button variant="secondary" type="button" onClick={prevStep} className="rounded-pill">
-                            <Icon icon="arrow-thin-left" /> Back
+                            <Icon icon="arrow-thin-left" /> {t("createDatabase.back")}
                         </Button>
                     )}
                     <FlexGrow />
@@ -208,7 +214,7 @@ export default function CreateDatabaseRegular({ closeModal, changeCreateModeToBa
                             icon="rocket"
                             isSpinning={formState.isSubmitting}
                         >
-                            Finish
+                            {t("createDatabase.finish")}
                         </ButtonWithSpinner>
                     ) : (
                         <ConditionalPopover
@@ -225,7 +231,7 @@ export default function CreateDatabaseRegular({ closeModal, changeCreateModeToBa
                                 onClick={handleGoNext}
                                 disabled={isNextDisabled}
                             >
-                                Next <Icon icon="arrow-thin-right" margin="ms-1" />
+                                {t("createDatabase.next")} <Icon icon="arrow-thin-right" margin="ms-1" />
                             </Button>
                         </ConditionalPopover>
                     )}
@@ -240,43 +246,44 @@ type Step = CreateDatabaseStep<FormData>;
 function getActiveStepsList(
     formValues: FormData,
     errors: FieldErrors<FormData>,
-    isValidatingDatabaseName: boolean
+    isValidatingDatabaseName: boolean,
+    t: StudioTranslate<"databases">
 ): Step[] {
     const steps: Step[] = [
         {
             id: "basicInfoStep",
-            label: "Database Name",
+            label: t("createDatabase.steps.databaseName"),
             active: true,
             isInvalid: !!errors.basicInfoStep,
             isLoading: isValidatingDatabaseName,
         },
         {
             id: "encryptionStep",
-            label: "Encryption",
+            label: t("createDatabase.steps.encryption"),
             active: formValues.basicInfoStep.isEncrypted,
             isInvalid: !!errors.encryptionStep,
         },
         {
             id: "replicationAndShardingStep",
-            label: "Replication & Sharding",
+            label: t("createDatabase.steps.replicationAndSharding"),
             active: true,
             isInvalid: !!errors.replicationAndShardingStep,
         },
         {
             id: "manualNodeSelectionStep",
-            label: "Manual Node Selection",
+            label: t("createDatabase.steps.manualNodeSelection"),
             active: formValues.replicationAndShardingStep.isManualReplication,
             isInvalid: !!errors.manualNodeSelectionStep,
         },
         {
             id: "shardingPrefixesStep",
-            label: "Sharding Prefixes",
+            label: t("createDatabase.steps.shardingPrefixes"),
             active: formValues.replicationAndShardingStep.isPrefixesForShards,
             isInvalid: !!errors.shardingPrefixesStep,
         },
         {
             id: "dataDirectoryStep",
-            label: "Data Directory",
+            label: t("createDatabase.steps.dataDirectory"),
             active: true,
             isInvalid: !!errors.dataDirectoryStep,
         },

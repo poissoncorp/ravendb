@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("resourcesCommands");
 
 class getDatabaseLocationCommand extends commandBase {
 
@@ -23,7 +26,7 @@ class getDatabaseLocationCommand extends commandBase {
         const url = endpoints.global.studioTasks.adminStudioTasksFullDataDirectory + this.urlEncodeArgs(args);
 
         return this.query<Raven.Server.Web.Studio.DataDirectoryResult>(url, null, null)
-            .fail((response: JQueryXHR) => this.reportError("Failed to calculate the database full path", response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("getDatabaseLocationFailed"), response.responseText, response.statusText));
     }
 }
 

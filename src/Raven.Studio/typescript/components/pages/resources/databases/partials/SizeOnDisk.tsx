@@ -3,6 +3,7 @@ import genUtils from "common/generalUtils";
 import useUniqueId from "components/hooks/useUniqueId";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export function SizeOnDisk(props: { info: DatabaseLocalInfo }) {
     const { info } = props;
@@ -21,11 +22,16 @@ export function SizeOnDisk(props: { info: DatabaseLocalInfo }) {
             <OverlayTrigger
                 overlay={
                     <Tooltip id={tooltipId}>
-                        Data: <strong>{genUtils.formatBytesToSize(totalSize)}</strong>
-                        <br />
-                        Temp: <strong>{genUtils.formatBytesToSize(tempBufferSize)}</strong>
-                        <br />
-                        Total: <strong>{genUtils.formatBytesToSize(grandTotalSize)}</strong>
+                        <StudioTrans
+                            ns="databases"
+                            i18nKey="sizeOnDisk.tooltip"
+                            options={{
+                                data: genUtils.formatBytesToSize(totalSize),
+                                temp: genUtils.formatBytesToSize(tempBufferSize),
+                                total: genUtils.formatBytesToSize(grandTotalSize),
+                            }}
+                            components={{ strong: <strong />, br: <br /> }}
+                        />
                     </Tooltip>
                 }
             >

@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("resourcesCommands");
 
 class compactDatabaseCommand extends commandBase {
 
@@ -30,7 +33,7 @@ class compactDatabaseCommand extends commandBase {
         const url = endpoints.global.adminDatabases.adminCompact;
         
         return this.post<operationIdDto>(url, JSON.stringify(payload))
-            .fail((response: JQueryXHR) => this.reportError("Failed to compact database", response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("compactFailed"), response.responseText, response.statusText));
     }
 
 

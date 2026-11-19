@@ -2,9 +2,13 @@ import generalUtils from "common/generalUtils";
 import { SelectOption } from "components/common/select/Select";
 import { accessManagerSelectors } from "components/common/shell/accessManagerSliceSelectors";
 import { licenseSelectors } from "components/common/shell/licenseSlice";
-import { RestorePoint } from "components/pages/resources/databases/partials/create/formBackup/createDatabaseFromBackupValidation";
+import {
+    RestorePoint,
+    RestorePointBackupType,
+} from "components/pages/resources/databases/partials/create/formBackup/createDatabaseFromBackupValidation";
 import { useAppSelector } from "components/store";
 import moment from "moment";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type RestorePointSnapshotDisabledReason = "Server is not secure" | "Has no encryption in license";
 
@@ -19,6 +23,7 @@ export interface RestorePointGroupedOption {
 }
 
 export function useRestorePointUtils() {
+    const t = useStudioTranslation("databases");
     const isSecureServer = useAppSelector(accessManagerSelectors.isSecureServer);
     const hasEncryption = useAppSelector(licenseSelectors.statusValue("HasEncryption"));
 
@@ -42,7 +47,8 @@ export function useRestorePointUtils() {
         const groups: RestorePointGroupedOption[] = [];
 
         dto.List.forEach((dtoRestorePoint) => {
-            const databaseName = dtoRestorePoint.DatabaseName ?? unknownDatabaseName;
+            const databaseName =
+                dtoRestorePoint.DatabaseName ?? t("createFromBackup.source.restorePoint.unknownDatabase");
 
             if (!groups.find((x) => x.label === databaseName)) {
                 groups.push({ label: databaseName, options: [] });
@@ -54,7 +60,10 @@ export function useRestorePointUtils() {
 
             group.options.push({
                 value: restorePointValue,
-                label: `${restorePointValue.dateTime}, ${restorePointValue.backupType} Backup`,
+                label: t("createFromBackup.source.restorePoint.optionLabel", {
+                    context: restorePointValue.backupType,
+                    dateTime: restorePointValue.dateTime,
+                }),
                 isDisabled: !!disabledReason,
                 disabledReason,
             });
@@ -66,19 +75,14 @@ export function useRestorePointUtils() {
     return { mapToSelectOptions };
 }
 
-const unknownDatabaseName = "Unknown Database";
-
 function mapFromDto(dto: Raven.Server.Documents.PeriodicBackup.Restore.RestorePoint): RestorePoint {
-    let backupType = "";
+    let backupType: RestorePointBackupType;
     if (dto.IsSnapshotRestore) {
-        if (dto.IsIncremental) {
-            backupType = "Incremental ";
-        }
-        backupType += "Snapshot";
+        backupType = dto.IsIncremental ? "incrementalSnapshot" : "snapshot";
     } else if (dto.IsIncremental) {
-        backupType = "Incremental";
+        backupType = "incremental";
     } else {
-        backupType = "Full";
+        backupType = "full";
     }
 
     return {

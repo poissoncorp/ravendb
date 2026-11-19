@@ -4,6 +4,9 @@ import copyToClipboard = require("common/copyToClipboard");
 import fileDownloader = require("common/fileDownloader");
 import moment = require("moment");
 import qrcodejs = require("qrcodejs");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("setupEncryptionKey");
 
 const qrLogo = require("Content/img/qr_logo.png");
 
@@ -21,6 +24,8 @@ abstract class setupEncryptionKey {
     saveKeyValidationGroup: KnockoutValidationGroup;
     
     isKeyAvailableAgain = ko.observable<boolean>(false);
+
+    keyLabelHtml = t("keyLabel");
     
     protected constructor(key: KnockoutObservable<string>, keyConfirmation: KnockoutObservable<boolean>, databaseName: KnockoutObservable<string>, isKeyAvailableAgain = false) {
         this.key = key;
@@ -92,7 +97,7 @@ abstract class setupEncryptionKey {
     
     copyEncryptionKeyToClipboard() {
         const container = this.getContainer();
-        copyToClipboard.copy(this.keyDataText(), "Encryption key data was copied to clipboard", container);
+        copyToClipboard.copy(this.keyDataText(), t("copied"), container);
     }
 
     downloadEncryptionKey() {
@@ -174,7 +179,7 @@ abstract class setupEncryptionKey {
                         const required = ko.unwrap(isRequired);
                         return !required || v;
                     },
-                    message: "Please confirm that you have saved the encryption key"
+                    message: t("savedConfirmationRequired")
                 }
             ]
         });
@@ -209,7 +214,7 @@ class databaseSetupEncryptionKey extends setupEncryptionKey {
     keyDataText(): string {
         const encryptionKey = this.key();
         const databaseName = this.databaseName();
-        return `Encryption Key for database '${databaseName}': ${encryptionKey}\r\n\r\nThis key is used to encrypt the RavenDB database, it is required for restoring the database.\r\nMake sure you keep it in a private, safe place as it will Not be available again !`;
+        return `${t("keyFile.databaseKey", { databaseName, encryptionKey })}\r\n\r\n${t("keyFile.databaseUsage")}\r\n${t("keyFile.databaseKeepSafe")}`;
     }
 }
 
@@ -225,7 +230,7 @@ class backupSetupEncryptionKey extends setupEncryptionKey {
     keyDataText(): string {
         const encryptionKey = this.key();
         const databaseName = this.databaseName();
-        return `Backup Encryption Key for database '${databaseName}': ${encryptionKey}\r\n\r\nThis key is used to encrypt backup, it is required for restoring the database.\r\nMake sure you keep it in a private, safe place.`;
+        return `${t("keyFile.backupKey", { databaseName, encryptionKey })}\r\n\r\n${t("keyFile.backupUsage")}\r\n${t("keyFile.keepSafe")}`;
     }
 }
 
@@ -245,7 +250,7 @@ class serverWideBackupSetupEncryptionKey extends setupEncryptionKey {
 
     keyDataText(): string {
         const encryptionKey = this.key();
-        return `Encryption Key for Server-Wide-Backup: ${encryptionKey}\r\n\r\nThis key is used to encrypt the server-wide-backup, it is required for restoring the data.\r\nMake sure you keep it in a private, safe place.`;
+        return `${t("keyFile.serverWideBackupKey", { encryptionKey })}\r\n\r\n${t("keyFile.serverWideBackupUsage")}\r\n${t("keyFile.keepSafe")}`;
     }
 }
 
@@ -261,7 +266,7 @@ class exportSetupEncryptionKey extends setupEncryptionKey {
     keyDataText(): string {
         const encryptionKey = this.key();
         const databaseName = this.databaseName();
-        return `Encryption Key for exported database '${databaseName}': ${encryptionKey}\r\n\r\nThis key is used to encrypt export, it is required for importing the database.\r\nMake sure you keep it in a private, safe place.`;
+        return `${t("keyFile.exportKey", { databaseName, encryptionKey })}\r\n\r\n${t("keyFile.exportUsage")}\r\n${t("keyFile.keepSafe")}`;
     }
 }
 

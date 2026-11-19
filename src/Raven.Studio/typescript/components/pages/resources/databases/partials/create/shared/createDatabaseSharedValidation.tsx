@@ -1,4 +1,7 @@
 import * as yup from "yup";
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("databases");
 
 export const dataDirectoryStepSchema = yup.object({
     isDefault: yup.boolean(),
@@ -12,17 +15,21 @@ export const dataDirectoryStepSchema = yup.object({
                 .max(248)
                 .test(
                     "forbidden-characters",
-                    `Path can't contain any of the following characters: * ? " < > |`,
+                    () => t("createDatabase.validation.pathForbiddenCharacters"),
                     (value) => {
                         return /^[^*?"<>|]*$/.test(value);
                     }
                 )
-                .test("forbidden-characters", "The name is forbidden for use!", (value) => {
-                    return !/^(nul|prn|con|lpt[0-9]|com[0-9])(\.|$)/i.test(value);
-                })
+                .test(
+                    "forbidden-characters",
+                    () => t("createDatabase.validation.nameForbidden"),
+                    (value) => {
+                        return !/^(nul|prn|con|lpt[0-9]|com[0-9])(\.|$)/i.test(value);
+                    }
+                )
                 .test(
                     "forbidden-prefix",
-                    "The path is illegal! Paths in RavenDB can't start with 'appdrive:', '~' or '$home'",
+                    () => t("createDatabase.validation.pathIllegalPrefix"),
                     (value) => {
                         if (!value) {
                             return true;
@@ -46,7 +53,7 @@ export const encryptionStepSchema = yup.object({
     }),
     isKeySaved: yup.boolean().when("$isEncrypted", {
         is: true,
-        then: (schema) => schema.oneOf([true], "Encryption key must be saved"),
+        then: (schema) => schema.oneOf([true], () => t("createDatabase.validation.encryptionKeyNotSaved")),
     }),
 });
 
@@ -57,8 +64,12 @@ export const databaseNameSchema = yup
     .trim()
     .strict()
     .required()
-    .test("db-exists", "Database already exists", (value, ctx) => {
-        return !ctx.options.context.usedDatabaseNames.some(
-            (name: string) => name.toLowerCase() === value.toLowerCase()
-        );
-    });
+    .test(
+        "db-exists",
+        () => t("createDatabase.validation.databaseExists"),
+        (value, ctx) => {
+            return !ctx.options.context.usedDatabaseNames.some(
+                (name: string) => name.toLowerCase() === value.toLowerCase()
+            );
+        }
+    );

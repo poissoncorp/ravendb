@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("resourcesCommands");
 
 class getStudioBootstrapCommand extends commandBase {
     
@@ -8,7 +11,7 @@ class getStudioBootstrapCommand extends commandBase {
         
         return this.query<Raven.Server.Web.Studio.StudioTasksHandler.StudioBootstrapConfiguration>(url, null)
             .fail((response: JQueryXHR) => {
-                this.reportError(`Failed to load the studio configuration`, response.responseText, response.statusText);
+                this.reportError(t("getStudioBootstrapFailed"), response.responseText, response.statusText);
             });
     }
 }

@@ -15,8 +15,11 @@ import RestorePointsFields, {
 import moment from "moment";
 import generalUtils from "common/generalUtils";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function BackupSourceRavenCloud() {
+    const t = useStudioTranslation("databases");
     const { control } = useFormContext<FormData>();
 
     const {
@@ -42,19 +45,21 @@ export default function BackupSourceRavenCloud() {
                         type="text"
                         control={control}
                         name="sourceStep.sourceData.ravenCloud.link"
-                        placeholder="Enter backup link generated in RavenDB Cloud"
+                        placeholder={t("createFromBackup.source.ravenCloud.linkPlaceholder")}
                     />
                 </Col>
             </Row>
             {expireDateMoment && (
                 <Row className="mt-2 align-items-center">
                     <Col lg="3">
-                        <FormLabel className="col-form-label">Link will expire in</FormLabel>
+                        <FormLabel className="col-form-label">
+                            {t("createFromBackup.source.ravenCloud.linkExpiresIn")}
+                        </FormLabel>
                     </Col>
                     <Col>
                         <Icon icon="clock" />
                         {expireDateMoment.isBefore()
-                            ? "Link has expired"
+                            ? t("createFromBackup.source.ravenCloud.linkExpired")
                             : generalUtils.formatDurationByDate(expireDateMoment)}
                     </Col>
                 </Row>
@@ -66,25 +71,39 @@ export default function BackupSourceRavenCloud() {
 }
 
 function LinkLabel() {
+    const t = useStudioTranslation("databases");
+
     return (
         <PopoverWithHoverWrapper
             message={
                 <ol className="m-0">
                     <li>
-                        Login to your <code>RavenDB Cloud Account</code>
+                        <StudioTrans
+                            ns="databases"
+                            i18nKey="createFromBackup.source.ravenCloud.linkHelpLogin"
+                            components={{ code: <code /> }}
+                        />
                     </li>
                     <li>
-                        Go to <code>Backups</code> view
+                        <StudioTrans
+                            ns="databases"
+                            i18nKey="createFromBackup.source.ravenCloud.linkHelpBackups"
+                            components={{ code: <code /> }}
+                        />
                     </li>
-                    <li>Select desired Instance and a Backup File</li>
+                    <li>{t("createFromBackup.source.ravenCloud.linkHelpSelect")}</li>
                     <li>
-                        Click <code>Generate Backup Link</code>
+                        <StudioTrans
+                            ns="databases"
+                            i18nKey="createFromBackup.source.ravenCloud.linkHelpGenerate"
+                            components={{ code: <code /> }}
+                        />
                     </li>
                 </ol>
             }
         >
             <FormLabel className="col-form-label">
-                Backup Link <Icon icon="info" color="info" margin="m-0" />
+                {t("createFromBackup.source.ravenCloud.linkLabel")} <Icon icon="info" color="info" margin="m-0" />
             </FormLabel>
         </PopoverWithHoverWrapper>
     );

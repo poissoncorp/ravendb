@@ -1,6 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
-import pluralizeHelpers = require("common/helpers/text/pluralizeHelpers");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("resourcesCommands");
 
 class deleteDatabaseFromNodeCommand extends commandBase {
 
@@ -27,9 +29,9 @@ class deleteDatabaseFromNodeCommand extends commandBase {
 
         return this.del<updateDatabaseConfigurationsResult>(url, JSON.stringify(args), null)
             .done(() => {
-                this.reportSuccess(`Successfully deleted database from ${pluralizeHelpers.pluralize(this.nodes.length, "node", "nodes: ")} ${this.nodes.join(", ")}.`);
+                this.reportSuccess(t("deleteFromNodesSucceeded", { count: this.nodes.length, nodes: this.nodes.join(", ") }));
             })
-            .fail((response: JQueryXHR) => this.reportError("Failed to delete database from nodes: " + this.nodes.join(", "), response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("deleteFromNodesFailed", { nodes: this.nodes.join(", ") }), response.responseText, response.statusText));
     }
 
 

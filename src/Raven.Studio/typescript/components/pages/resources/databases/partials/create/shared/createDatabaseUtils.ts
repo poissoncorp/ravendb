@@ -5,11 +5,14 @@ import { CreateDatabaseRegularFormData } from "components/pages/resources/databa
 import moment from "moment";
 import { UseAsyncReturn } from "react-async-hook";
 import { Path, UseFormTrigger } from "react-hook-form";
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("databases");
 
 function getEncryptionData(databaseName: string, encryptionKey: string) {
     const encryptionKeyFileName = `Key-of-${databaseName}-${moment().format("YYYY-MM-DD-HH-mm")}.txt`;
 
-    const encryptionKeyText = `Encryption Key for database '${databaseName}': ${encryptionKey}\r\n\r\nThis key is used to encrypt the RavenDB database, it is required for restoring the database.\r\nMake sure you keep it in a private, safe place as it will Not be available again !`;
+    const encryptionKeyText = t("createDatabase.encryptionKeyText", { databaseName, encryptionKey });
 
     return {
         encryptionKeyFileName,
@@ -91,12 +94,12 @@ function mapToStepItem<T extends FormData>(step: CreateDatabaseStep<T>): StepIte
     };
 }
 
-const encryptionKeyNotSavedMessage = "Confirm that you have saved the encryption key";
-
 export const createDatabaseUtils = {
     getEncryptionData,
     getStepValidation,
     getStepInRangeValidation,
     mapToStepItem,
-    encryptionKeyNotSavedMessage,
+    get encryptionKeyNotSavedMessage() {
+        return t("createDatabase.encryptionKeyNotSaved");
+    },
 };

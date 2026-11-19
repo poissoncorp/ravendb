@@ -8,6 +8,9 @@ import dialog = require("plugins/dialog");
 import clusterTopologyManager = require("common/shell/clusterTopologyManager");
 import databases = require("components/models/databases");
 import DatabaseUtils = require("components/utils/DatabaseUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("databases");
 
 class compactDatabaseDialog extends dialogViewModelBase {
 
@@ -39,6 +42,11 @@ class compactDatabaseDialog extends dialogViewModelBase {
     
     shards: number[] = [];
 
+    titleHtml: string;
+    selectShardPlaceholder: string;
+    offlineWarningHtml: string;
+    compressionWarningHtml: string;
+
     validationGroup: KnockoutValidationGroup = ko.validatedObservable({
         shard: this.shard,
     });
@@ -50,6 +58,10 @@ class compactDatabaseDialog extends dialogViewModelBase {
         this.shard(initialShardNumber ?? undefined);
         
         this.database = db;
+        this.titleHtml = t("compactDialog.title", { name: genUtils.escapeHtml(db.name) });
+        this.selectShardPlaceholder = t("compactDialog.selectShard");
+        this.offlineWarningHtml = t("compactDialog.offlineWarning");
+        this.compressionWarningHtml = t("compactDialog.compressionWarning");
         this.initObservables();
         this.initValidation();
     }
@@ -69,7 +81,11 @@ class compactDatabaseDialog extends dialogViewModelBase {
         })
 
         this.numberOfSelectedIndexesFormatted = ko.pureComputed(() => {
-            return `(${genUtils.formatAsCommaSeperatedString(this.indexesToCompact().length, 0)} selected)`;
+            const count = this.indexesToCompact().length;
+            return t("compactDialog.selectedIndexes", {
+                count,
+                formattedCount: genUtils.formatAsCommaSeperatedString(count, 0),
+            });
         })
         
         this.compactEnabled = ko.pureComputed(() => {

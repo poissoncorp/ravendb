@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("resourcesCommands");
 import accessManager = require("common/shell/accessManager");
 
 class getGlobalStudioConfigurationCommand extends commandBase {
@@ -19,7 +22,7 @@ class getGlobalStudioConfigurationCommand extends commandBase {
                 this.processHeaders(response);
 
                 if (response.status !== 404) {
-                    this.reportError(`Failed to load the studio global configuration`, response.responseText, response.statusText);
+                    this.reportError(t("getGlobalStudioConfigurationFailed"), response.responseText, response.statusText);
                     loadTask.reject(response);
                 } else {
                     loadTask.resolve(null);

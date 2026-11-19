@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("resourcesCommands");
 
 class getEssentialDatabaseStatsCommand extends commandBase {
 
@@ -14,7 +17,7 @@ class getEssentialDatabaseStatsCommand extends commandBase {
     execute(): JQueryPromise<Raven.Client.Documents.Operations.EssentialDatabaseStatistics> {
         const url = endpoints.databases.stats.statsEssential;
         return this.query<Raven.Client.Documents.Operations.EssentialDatabaseStatistics>(url, null, this.db)
-            .fail((response: JQueryXHR) => this.reportError("Failed to load database statistics", response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("getEssentialDatabaseStatsFailed"), response.responseText, response.statusText));
     }
 }
 

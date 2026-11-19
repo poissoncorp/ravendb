@@ -5,6 +5,9 @@ import {
 } from "components/pages/resources/databases/partials/create/shared/createDatabaseSharedValidation";
 import { AzureAuthType } from "components/common/formDestinations/utils/formDestinationsTypes";
 import * as yup from "yup";
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("databases");
 
 const basicInfoStepSchema = yup.object({
     databaseName: databaseNameSchema,
@@ -12,6 +15,8 @@ const basicInfoStepSchema = yup.object({
 });
 
 export type RestoreSource = "local" | "ravenCloud" | "amazonS3" | "azure" | "googleCloud";
+
+export type RestorePointBackupType = "full" | "incremental" | "snapshot" | "incrementalSnapshot";
 
 function getPointsWithTagsSchema(sourceType: RestoreSource) {
     return yup
@@ -32,9 +37,13 @@ function getPointsWithTagsSchema(sourceType: RestoreSource) {
         .when(["$sourceType", "$isSharded"], {
             is: (currentSourceType: RestoreSource, isSharded: boolean) => currentSourceType === sourceType && isSharded,
             then: (schema) =>
-                schema.test("one-must-be-local", "At least one selected node must be local", (value, ctx) => {
-                    return value.some((x) => x.nodeTag === ctx.options.context.localNodeTag);
-                }),
+                schema.test(
+                    "one-must-be-local",
+                    () => t("createFromBackup.source.restorePoint.oneNodeMustBeLocal"),
+                    (value, ctx) => {
+                        return value.some((x) => x.nodeTag === ctx.options.context.localNodeTag);
+                    }
+                ),
         })
         .min(1);
 }
@@ -49,7 +58,7 @@ export const restorePointSchema = yup.object({
     filesToRestore: yup.number().required(),
     databaseName: yup.string().nullable(),
     nodeTag: yup.string().nullable(),
-    backupType: yup.string().required(),
+    backupType: yup.string<RestorePointBackupType>().required(),
 });
 
 export type RestorePoint = yup.InferType<typeof restorePointSchema>;
