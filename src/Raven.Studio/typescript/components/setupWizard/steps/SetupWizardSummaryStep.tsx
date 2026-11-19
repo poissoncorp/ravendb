@@ -1,5 +1,5 @@
 import { useFormContext, useWatch } from "react-hook-form";
-import { SetupWizardFormData, SetupWizardSecurityOption } from "../setupWizardValidation";
+import { SetupWizardFormData } from "../setupWizardValidation";
 import { Icon } from "components/common/Icon";
 import Button from "react-bootstrap/Button";
 import React from "react";
@@ -7,10 +7,14 @@ import Card from "react-bootstrap/Card";
 import { DistributionItem, DistributionLegend, LocationDistribution } from "components/common/LocationDistribution";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import { getFullDomain } from "components/setupWizard/utils/setupWizardUtils";
+import { setupWizardConstants } from "components/setupWizard/utils/setupWizardConstants";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 import LicenseType = Raven.Server.Commercial.LicenseType;
 import License = Raven.Server.Commercial.License;
 
 export function SetupWizardSummaryStep() {
+    const t = useStudioTranslation("setupWizard");
     const { control } = useFormContext<SetupWizardFormData>();
 
     const {
@@ -39,40 +43,51 @@ export function SetupWizardSummaryStep() {
     return (
         <div>
             <div className="mb-5">
-                <h2 className="mb-1">Summary</h2>
-                <p className="mb-4 text-muted">Verify that all settings are correct before proceeding.</p>
+                <h2 className="mb-1">{t("summaryStep.title")}</h2>
+                <p className="mb-4 text-muted">{t("summaryStep.description")}</p>
             </div>
             <div className="vstack gap-1 mb-2">
-                <h5 className="mb-0">Security & license</h5>
+                <h5 className="mb-0">{t("summaryStep.securityAndLicense.title")}</h5>
                 <Card>
                     <Card.Body>
                         <div className="vstack gap-1">
                             <CardRow
-                                label="Certificate"
+                                label={t("summaryStep.securityAndLicense.certificate")}
                                 valueClassName={securityOption === "none" ? "text-warning" : null}
-                                value={getCertificateDescription(securityOption)}
+                                value={t("summaryStep.securityAndLicense.certificateValue", {
+                                    context: securityOption,
+                                })}
                             />
-                            {securityOption !== "none" && <CardRow label="License ID" value={license?.Id} />}
+                            {securityOption !== "none" && (
+                                <CardRow label={t("summaryStep.securityAndLicense.licenseId")} value={license?.Id} />
+                            )}
                             <CardRow
-                                label="License type"
+                                label={t("summaryStep.securityAndLicense.licenseType")}
                                 value={licenseKeyStep.licenseInfo?.licenseStatus?.Type ?? "AGPLv3"}
                                 valueClassName={colorizeLicenseType(licenseKeyStep.licenseInfo?.licenseStatus?.Type)}
                             />
                             {securityOption === "letsEncrypt" && (
-                                <CardRow label="Full domain" value={getFullDomain(domainStep)} />
+                                <CardRow
+                                    label={t("summaryStep.securityAndLicense.fullDomain")}
+                                    value={getFullDomain(domainStep)}
+                                />
                             )}
                         </div>
                     </Card.Body>
                 </Card>
-                <h5 className="mb-0 mt-4">Cluster settings</h5>
+                <h5 className="mb-0 mt-4">{t("summaryStep.cluster.title")}</h5>
                 <Card>
                     <Card.Body>
                         <LocationDistribution>
                             <DistributionLegend>
                                 <div className="top"></div>
-                                <div className="node">{securityOption === "none" ? "HTTP" : "HTTPS"} port</div>
-                                <div>TCP port</div>
-                                <div>IP address/Hostname</div>
+                                <div className="node">
+                                    {t("summaryStep.cluster.httpPort", {
+                                        context: securityOption === "none" ? "http" : "https",
+                                    })}
+                                </div>
+                                <div>{t("summaryStep.cluster.tcpPort")}</div>
+                                <div>{t("summaryStep.cluster.ipAddress")}</div>
                             </DistributionLegend>
                             {nodeAddressStep.nodes.map((node, index) => (
                                 <NodeDistributionItem key={index} {...node} />
@@ -82,54 +97,69 @@ export function SetupWizardSummaryStep() {
                 </Card>
                 {hasAdditionalSettings && (
                     <>
-                        <h5 className="mb-0 mt-4">Additional & advanced</h5>
+                        <h5 className="mb-0 mt-4">{t("summaryStep.additional.title")}</h5>
                         <Card className="mb-4">
                             <Card.Body>
                                 <div className="vstack gap-1">
                                     {licenseKeyStep.licenseInfo?.licenseStatus?.HasStudioConfiguration && (
                                         <CardRow
-                                            label="Studio environment"
-                                            value={additionalSettingsStep.studioEnvironment}
+                                            label={t("summaryStep.additional.studioEnvironment")}
+                                            value={
+                                                additionalSettingsStep.studioEnvironment &&
+                                                setupWizardConstants.getStudioEnvironmentLabel(
+                                                    additionalSettingsStep.studioEnvironment
+                                                )
+                                            }
                                         />
                                     )}
                                     {securityOption !== "none" && (
                                         <CardRow
-                                            label="Admin client certificate expiration time"
-                                            value={`${additionalSettingsStep.adminCertificateExpirationTime} months`}
+                                            label={t("summaryStep.additional.certificateExpiration")}
+                                            value={t("summaryStep.additional.certificateExpirationValue", {
+                                                count: additionalSettingsStep.adminCertificateExpirationTime,
+                                            })}
                                         />
                                     )}
                                     {licenseKeyStep.licenseInfo?.licenseStatus?.HasPostgreSqlIntegration && (
                                         <CardRow
-                                            label="Experimental features"
-                                            value={
-                                                additionalSettingsStep.postgresqlIntegration ? "Enabled" : "Disabled"
-                                            }
+                                            label={t("summaryStep.additional.experimentalFeatures")}
+                                            value={t("summaryStep.additional.experimentalFeaturesValue", {
+                                                context: additionalSettingsStep.postgresqlIntegration
+                                                    ? "enabled"
+                                                    : "disabled",
+                                            })}
                                             valueClassName={
                                                 additionalSettingsStep.postgresqlIntegration ? "text-success" : null
                                             }
                                         />
                                     )}
                                     {additionalSettingsStep.dataDirectory && (
-                                        <CardRow label="Data directory" value={additionalSettingsStep.dataDirectory} />
+                                        <CardRow
+                                            label={t("summaryStep.additional.dataDirectory")}
+                                            value={additionalSettingsStep.dataDirectory}
+                                        />
                                     )}
                                     {additionalSettingsStep.setupCertificatePath && (
                                         <CardRow
-                                            label="Setup certificate path"
+                                            label={t("summaryStep.additional.setupCertificatePath")}
                                             value={additionalSettingsStep.setupCertificatePath}
                                         />
                                     )}
                                     {additionalSettingsStep.logsPath && (
-                                        <CardRow label="Logs path" value={additionalSettingsStep.logsPath} />
+                                        <CardRow
+                                            label={t("summaryStep.additional.logsPath")}
+                                            value={additionalSettingsStep.logsPath}
+                                        />
                                     )}
                                     {additionalSettingsStep.autoIndexingEngineType && (
                                         <CardRow
-                                            label="Auto indexing engine type"
+                                            label={t("summaryStep.additional.autoIndexingEngine")}
                                             value={additionalSettingsStep.autoIndexingEngineType}
                                         />
                                     )}
                                     {additionalSettingsStep.staticIndexingEngineType && (
                                         <CardRow
-                                            label="Static indexing engine type"
+                                            label={t("summaryStep.additional.staticIndexingEngine")}
                                             value={additionalSettingsStep.staticIndexingEngineType}
                                         />
                                     )}
@@ -141,19 +171,6 @@ export function SetupWizardSummaryStep() {
             </div>
         </div>
     );
-}
-
-function getCertificateDescription(option: SetupWizardSecurityOption) {
-    switch (option) {
-        case "letsEncrypt":
-            return "Let's Encrypt";
-        case "ownCertificate":
-            return "Own certificate";
-        case "none":
-            return "Unsecure";
-        default:
-            return "Unknown";
-    }
 }
 
 function colorizeLicenseType(licenseType: LicenseType) {
@@ -197,13 +214,20 @@ function NodeDistributionItem({
     externalTcpPort,
     externalIpAddress,
 }: SetupWizardFormData["nodeAddressStep"]["nodes"][number]) {
+    const t = useStudioTranslation("setupWizard");
+
     return (
         <DistributionItem>
             <div className="top node">
                 <PopoverWithHoverWrapper
                     message={
                         <div>
-                            Node {nodeTag} URL: <a href="#">{nodeUrl}</a>
+                            <StudioTrans
+                                ns="setupWizard"
+                                i18nKey="summaryStep.cluster.nodeUrl"
+                                components={{ a: <a href="#" /> }}
+                                options={{ nodeTag, nodeUrl }}
+                            />
                         </div>
                     }
                 >
@@ -214,12 +238,16 @@ function NodeDistributionItem({
                 <PopoverWithHoverWrapper
                     message={
                         <div>
-                            Your node listens on port <strong>{httpPort}</strong> internally
-                            {externalHttpPort && (
-                                <>
-                                    , while external traffic connects via port <strong>{externalHttpPort}</strong>.
-                                </>
-                            )}
+                            <StudioTrans
+                                ns="setupWizard"
+                                i18nKey="summaryStep.cluster.httpPortInfo"
+                                components={{ strong: <strong /> }}
+                                options={{
+                                    port: httpPort,
+                                    externalPort: externalHttpPort,
+                                    context: externalHttpPort ? "external" : undefined,
+                                }}
+                            />
                         </div>
                     }
                 >
@@ -230,12 +258,16 @@ function NodeDistributionItem({
                 <PopoverWithHoverWrapper
                     message={
                         <div>
-                            Your node listens on port <b>{tcpPort}</b> internally
-                            {externalTcpPort && (
-                                <>
-                                    , while external traffic connects via port <b>{externalTcpPort}</b>.
-                                </>
-                            )}
+                            <StudioTrans
+                                ns="setupWizard"
+                                i18nKey="summaryStep.cluster.tcpPortInfo"
+                                components={{ b: <b /> }}
+                                options={{
+                                    port: tcpPort,
+                                    externalPort: externalTcpPort,
+                                    context: externalTcpPort ? "external" : undefined,
+                                }}
+                            />
                         </div>
                     }
                 >
@@ -246,7 +278,7 @@ function NodeDistributionItem({
                 <PopoverWithHoverWrapper
                     message={
                         <div>
-                            Your node is accessible internally via {ipAddress.length === 1 ? "IP" : "multiple IPs"}:
+                            {t("summaryStep.cluster.ipAddressInfo", { count: ipAddress.length })}
                             <ul className="mb-0">
                                 {ipAddress.map((ip) => (
                                     <li key={ip.ipAddress}>
@@ -255,10 +287,12 @@ function NodeDistributionItem({
                                 ))}
                             </ul>
                             {externalIpAddress && (
-                                <>
-                                    while external traffic reaches it via the public IP:{" "}
-                                    <strong>{externalIpAddress}</strong>
-                                </>
+                                <StudioTrans
+                                    ns="setupWizard"
+                                    i18nKey="summaryStep.cluster.externalIpAddressInfo"
+                                    components={{ strong: <strong /> }}
+                                    options={{ ipAddress: externalIpAddress }}
+                                />
                             )}
                         </div>
                     }
@@ -279,6 +313,8 @@ interface FormatIpAddressesProps {
 }
 
 function FormatIpAddresses({ addresses, externalIpAddress }: FormatIpAddressesProps) {
+    const t = useStudioTranslation("setupWizard");
+
     if (addresses.length <= 1) {
         if (externalIpAddress) {
             return (
@@ -295,13 +331,22 @@ function FormatIpAddresses({ addresses, externalIpAddress }: FormatIpAddressesPr
     const remainingCount = addresses.length - 1;
 
     if (externalIpAddress) {
-        return <>{`${firstAddress} (+${remainingCount} more) → ${externalIpAddress}`}</>;
+        return (
+            <>
+                {t("summaryStep.cluster.moreAddressesWithExternal", {
+                    count: remainingCount,
+                    address: firstAddress,
+                    externalIpAddress,
+                })}
+            </>
+        );
     }
 
-    return <>{`${firstAddress} (+${remainingCount} more)`}</>;
+    return <>{t("summaryStep.cluster.moreAddresses", { count: remainingCount, address: firstAddress })}</>;
 }
 
 export function SetupWizardSummaryStepFooter() {
+    const t = useStudioTranslation("setupWizard");
     const { setValue } = useFormContext<SetupWizardFormData>();
 
     const handleContinue = () => {
@@ -315,10 +360,10 @@ export function SetupWizardSummaryStepFooter() {
     return (
         <div className="hstack justify-content-between">
             <Button variant="secondary" className="rounded-pill" onClick={handleBack}>
-                <Icon icon="arrow-left" /> Back
+                <Icon icon="arrow-left" /> {t("actions.back")}
             </Button>
             <Button variant="primary" className="rounded-pill" onClick={handleContinue}>
-                Finish <Icon icon="arrow-right" margin="m-0" />
+                {t("actions.finish")} <Icon icon="arrow-right" margin="m-0" />
             </Button>
         </div>
     );

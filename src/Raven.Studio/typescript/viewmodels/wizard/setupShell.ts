@@ -22,6 +22,9 @@ import getGlobalStudioConfigurationCommand = require("commands/resources/getGlob
 import getDatabaseStudioConfigurationCommand = require("commands/resources/getDatabaseStudioConfigurationCommand");
 import saveGlobalStudioConfigurationCommand = require("commands/resources/saveGlobalStudioConfigurationCommand");
 import saveDatabaseStudioConfigurationCommand = require("commands/resources/saveDatabaseStudioConfigurationCommand");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("setupWizard");
 
 class setupShell extends viewModelBase {
 
@@ -165,7 +168,7 @@ class setupShell extends viewModelBase {
 
         sys.error = (e: any) => {
             console.error(e);
-            messagePublisher.reportError("Failed to load routed module!", e);
+            messagePublisher.reportError(t("errors.failedToLoadModule"), e);
         };
     }
 

@@ -5,6 +5,10 @@ import nodeInfo = require("models/wizard/nodeInfo");
 import continueSetup = require("models/wizard/continueSetup");
 import certificateInfo = require("models/wizard/certificateInfo");
 import ipEntry = require("models/wizard/ipEntry");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("wizardModels");
+
 type deploymentEnvironment = "AwsLinux" | "AwsWindows" | "Azure" | "Custom";
 
 class serverSetup {
@@ -52,11 +56,11 @@ class serverSetup {
 
     setupPackageText = ko.pureComputed(() => {
         if (this.onlyCreateZipFile()) {
-            return "Setup Wizard will only create a Setup Package for external setup. Current server will NOT be modified.";
+            return t("setup.packageText", { context: "zipOnly" });
         } else if (this.mode() === "Unsecured") {
-            return "Setup Wizard will set up the current server. A Setup Package will be created only if multiple nodes are configured.";
+            return t("setup.packageText", { context: "unsecured" });
         } else {
-            return "Setup Wizard will create a Setup Package AND set up the current server.";
+            return t("setup.packageText", { context: "secure" });
         }
     });
 
@@ -89,7 +93,7 @@ class serverSetup {
             validation: [
                 {
                     validator: () => this.nodes().length > 0,
-                    message: "At least one node is required"
+                    message: () => t("setup.nodeRequired")
                 }
             ]
         });

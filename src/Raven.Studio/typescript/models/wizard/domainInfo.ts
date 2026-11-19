@@ -1,6 +1,9 @@
 /// <reference path="../../../typings/tsd.d.ts"/>
 import generalUtils = require("common/generalUtils");
 import checkDomainAvailabilityCommand = require("commands/wizard/checkDomainAvailabilityCommand");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("wizardModels");
 
 class domainInfo {
     private licenseProvider: () => Raven.Server.Commercial.License;
@@ -62,14 +65,14 @@ class domainInfo {
             validation: [
                 {
                     validator: (val: string) => /^[a-zA-Z0-9-]+$/.test(val),
-                    message: "Domain name can only contain A-Z, a-z, 0-9, '-'"
+                    message: () => t("domain.invalidCharacters")
                 },
                 {
                     validator: (val: string) => !val.startsWith("-") && !val.endsWith("-"),
-                    message: "Domain name cannot start or end with '-'"
+                    message: () => t("domain.invalidHyphen")
                 },
                 {
-                    message: "Sorry, domain name is taken.",
+                    message: () => t("domain.taken"),
                     async: true,
                     onlyIf: () => !!this.domain(),
                     validator: generalUtils.debounceAndFunnel(checkDomain)

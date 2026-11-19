@@ -5,6 +5,7 @@ import { Icon } from "components/common/Icon";
 import IconName from "typings/server/icons";
 import { setupWizardSelectors } from "components/setupWizard/store/setupWizardSlice";
 import { useAppSelector } from "components/store";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface SetupWizardStepItemProps extends HTMLAttributes<HTMLLIElement> {
     children: ReactNode;
@@ -16,6 +17,7 @@ interface SetupWizardStepItemProps extends HTMLAttributes<HTMLLIElement> {
 }
 
 export function SetupWizardStepItem(props: SetupWizardStepItemProps) {
+    const t = useStudioTranslation("setupWizard");
     const { children, isCurrent, isChecked, isInactive, className, stepIndicator, ...rest } = props;
     const finishStatus = useAppSelector(setupWizardSelectors.finishStepStatus);
 
@@ -31,7 +33,11 @@ export function SetupWizardStepItem(props: SetupWizardStepItemProps) {
     })();
 
     return (
-        <li title="Go to this step" className={classNames("setup-wizard-step-item lh-1", className)} {...rest}>
+        <li
+            title={t("stepNavigation.goToStep")}
+            className={classNames("setup-wizard-step-item lh-1", className)}
+            {...rest}
+        >
             <span
                 className={classNames("dot", {
                     inactive: isInactive,

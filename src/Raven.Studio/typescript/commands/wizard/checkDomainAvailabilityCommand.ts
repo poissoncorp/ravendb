@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("wizardCommands");
 
 class checkDomainAvailabilityCommand extends commandBase {
 
@@ -22,7 +25,7 @@ class checkDomainAvailabilityCommand extends commandBase {
                 if (response.status === 400) {
                     // ignore it will be handled in validator
                 } else {
-                    this.reportError("Failed to check domain availability", response.responseText, response.statusText)}
+                    this.reportError(t("checkDomainAvailabilityFailed"), response.responseText, response.statusText)}
                 });
     }
 }

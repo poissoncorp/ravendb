@@ -18,9 +18,11 @@ import { SetupWizardSummaryStep, SetupWizardSummaryStepFooter } from "../steps/S
 import { SetupWizardUsePackageStep, SetupWizardUsePackageStepFooter } from "../steps/SetupWizardUsePackageStep";
 import { useAppSelector } from "components/store";
 import { setupWizardSelectors } from "components/setupWizard/store/setupWizardSlice";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export interface SetupWizardStep {
     title: SetupWizardStepId;
+    label: string;
     description: string;
     component: React.ReactNode;
     footer: React.ReactNode;
@@ -40,13 +42,15 @@ export function useSetupWizardSteps({
     setupMethod,
     securityOption,
 }: SetupWizardStepsProps): SetupWizardStep[] {
+    const t = useStudioTranslation("setupWizard");
     const finishStatus = useAppSelector(setupWizardSelectors.finishStepStatus);
     const getIsNotInStepIds = (stepIds: SetupWizardStepId[]) => !stepIds.some((x) => currentStep === x);
 
     const steps: SetupWizardStep[] = [
         {
             title: "Eula",
-            description: "RavenDB Studio Eula",
+            label: t("steps.eula.title"),
+            description: t("steps.eula.description"),
             component: <SetupWizardEulaStep />,
             footer: <SetupWizardEulaStepFooter />,
             isCurrent: currentStep === "Eula",
@@ -55,7 +59,8 @@ export function useSetupWizardSteps({
         },
         {
             title: "Setup method",
-            description: getSetupMethodDescription(setupMethod),
+            label: t("steps.setupMethod.title"),
+            description: t("steps.setupMethod.description", { context: setupMethod }),
             component: <SetupWizardSetupMethodStep />,
             footer: <SetupWizardSetupMethodStepFooter />,
             isCurrent: currentStep === "Setup method",
@@ -64,7 +69,8 @@ export function useSetupWizardSteps({
         },
         {
             title: "Use setup package",
-            description: "Continue setup from existing package",
+            label: t("steps.usePackage.title"),
+            description: t("steps.usePackage.description"),
             component: <SetupWizardUsePackageStep />,
             footer: <SetupWizardUsePackageStepFooter />,
             isCurrent: currentStep === "Use setup package",
@@ -73,7 +79,8 @@ export function useSetupWizardSteps({
         },
         {
             title: "License key",
-            description: "Enter your license key or generate a new one",
+            label: t("steps.licenseKey.title"),
+            description: t("steps.licenseKey.description"),
             component: <SetupWizardLicenseKeyStep />,
             footer: <SetupWizardLicenseKeyStepFooter />,
             isCurrent: currentStep === "License key",
@@ -82,7 +89,8 @@ export function useSetupWizardSteps({
         },
         {
             title: "Security",
-            description: getSecurityOptionDescription(securityOption),
+            label: t("steps.security.title"),
+            description: t("steps.security.description", { context: securityOption }),
             component: <SetupWizardSecurityStep />,
             footer: <SetupWizardSecurityStepFooter />,
             isCurrent: currentStep === "Security",
@@ -91,7 +99,8 @@ export function useSetupWizardSteps({
         },
         {
             title: "Self-signed certificate",
-            description: "Use a self-signed certificate",
+            label: t("steps.selfSignedCertificate.title"),
+            description: t("steps.selfSignedCertificate.description"),
             component: <SetupWizardSelfSignedCertificateStep />,
             footer: <SetupWizardSelfSignedCertificateStepFooter />,
             isCurrent: currentStep === "Self-signed certificate",
@@ -102,7 +111,8 @@ export function useSetupWizardSteps({
         },
         {
             title: "Domain",
-            description: "Enter your domain",
+            label: t("steps.domain.title"),
+            description: t("steps.domain.description"),
             component: <SetupWizardDomainStep />,
             footer: <SetupWizardDomainStepFooter />,
             isCurrent: currentStep === "Domain",
@@ -112,7 +122,8 @@ export function useSetupWizardSteps({
         },
         {
             title: "Node addresses",
-            description: "Configure your cluster settings",
+            label: t("steps.nodeAddresses.title"),
+            description: t("steps.nodeAddresses.description"),
             component: <SetupWizardNodeAddressStep />,
             footer: <SetupWizardNodeAddressStepFooter />,
             isCurrent: currentStep === "Node addresses",
@@ -121,7 +132,8 @@ export function useSetupWizardSteps({
         },
         {
             title: "Additional settings",
-            description: "Customize your configuration",
+            label: t("steps.additionalSettings.title"),
+            description: t("steps.additionalSettings.description"),
             component: <SetupWizardAdditionalSettingsStep />,
             footer: <SetupWizardAdditionalSettingsStepFooter />,
             isCurrent: currentStep === "Additional settings",
@@ -130,7 +142,8 @@ export function useSetupWizardSteps({
         },
         {
             title: "Summary",
-            description: "Check that everything is correct",
+            label: t("steps.summary.title"),
+            description: t("steps.summary.description"),
             component: <SetupWizardSummaryStep />,
             footer: <SetupWizardSummaryStepFooter />,
             isCurrent: currentStep === "Summary",
@@ -139,7 +152,10 @@ export function useSetupWizardSteps({
         },
         {
             title: "Finish",
-            description: finishStatus === "Completed" ? "Installation successful" : "Proceed to cluster installation",
+            label: t("steps.finish.title"),
+            description: t("steps.finish.description", {
+                context: finishStatus === "Completed" ? "completed" : undefined,
+            }),
             component: <SetupWizardFinishStep />,
             footer: <SetupWizardFinishStepFooter />,
             isCurrent: currentStep === "Finish",
@@ -150,29 +166,3 @@ export function useSetupWizardSteps({
 
     return steps.filter((x) => x.isAvailable);
 }
-
-const getSetupMethodDescription = (setupMethod: SetupWizardSetupMethod) => {
-    switch (setupMethod) {
-        case "newCluster":
-            return "Set up new cluster";
-        case "createPackage":
-            return "Create package for external setup";
-        case "usePackage":
-            return "Use setup package";
-        default:
-            return "Choose your setup method";
-    }
-};
-
-const getSecurityOptionDescription = (securityOption: SetupWizardSecurityOption) => {
-    switch (securityOption) {
-        case "letsEncrypt":
-            return "Generate Let's Encrypt certificate";
-        case "ownCertificate":
-            return "Provide your own certificate";
-        case "none":
-            return "Don't use certificate";
-        default:
-            return "Choose a security option";
-    }
-};

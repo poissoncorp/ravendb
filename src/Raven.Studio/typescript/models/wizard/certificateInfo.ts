@@ -1,4 +1,7 @@
 /// <reference path="../../../typings/tsd.d.ts"/>
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("wizardModels");
 
 class certificateInfo {
     certificateFileName = ko.observable<string>();
@@ -38,7 +41,7 @@ class certificateInfo {
         this.certificateCNs.extend({
             validation: [{
                 validator: (val: Array<string>) => val.length > 0,
-                message: `Certificate must contain at least one CN or Subject Alternative Name.`
+                message: () => t("certificate.cnRequired")
             }]
         });
 

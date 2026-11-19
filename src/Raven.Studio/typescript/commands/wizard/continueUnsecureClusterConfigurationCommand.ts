@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("wizardCommands");
 
 class continueUnsecureClusterConfigurationCommand extends commandBase {
 
@@ -14,7 +17,7 @@ class continueUnsecureClusterConfigurationCommand extends commandBase {
         const url = endpoints.global.setup.setupContinueUnsecured + this.urlEncodeArgs(args);
 
         return this.post<operationIdDto>(url, JSON.stringify(this.dto), null, { dataType: undefined })
-            .fail((response: JQueryXHR) => this.reportError("Failed to configure cluster node", response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("configureClusterNodeFailed"), response.responseText, response.statusText));
     }
 }
 

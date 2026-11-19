@@ -17,8 +17,10 @@ import { base64ToFile, fileToBase64 } from "components/setupWizard/utils/setupWi
 import { SetupWizardInfoPopover } from "components/setupWizard/partials/SetupWizardInfoPopover";
 import { setupWizardFormDefaultValues } from "components/setupWizard/utils/setupWizardFormDefaultValues";
 import { LazyLoad } from "components/common/LazyLoad";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export function SetupWizardSelfSignedCertificateStep() {
+    const t = useStudioTranslation("setupWizard");
     const { control, setValue, clearErrors, setError } = useFormContext<SetupWizardFormData>();
     const { setupWizardService } = useServices();
     const dispatch = useAppDispatch();
@@ -71,7 +73,9 @@ export function SetupWizardSelfSignedCertificateStep() {
                     dispatch(setupWizardActions.selfSignedCertificateStepIsPasswordValidSet(false));
 
                     if (password.length > 0) {
-                        setError("selfSignedCertificateStep.password", { message: "Invalid password" });
+                        setError("selfSignedCertificateStep.password", {
+                            message: t("selfSignedCertificateStep.invalidPassword"),
+                        });
                     }
                 }
             },
@@ -89,7 +93,7 @@ export function SetupWizardSelfSignedCertificateStep() {
             try {
                 return [base64ToFile(certificate, certificateFileName)];
             } catch (error) {
-                messagePublisher.reportError("Failed to load file", error);
+                messagePublisher.reportError(t("errors.failedToLoadFile"), error);
                 return [];
             }
         }
@@ -98,10 +102,8 @@ export function SetupWizardSelfSignedCertificateStep() {
 
     return (
         <div>
-            <h2 className="mb-1">Use self-signed certificate</h2>
-            <p className="mb-4 text-muted">
-                For the highest level of security and control, you can use your own certificate once it is obtained.
-            </p>
+            <h2 className="mb-1">{t("selfSignedCertificateStep.title")}</h2>
+            <p className="mb-4 text-muted">{t("selfSignedCertificateStep.description")}</p>
             <FormGroup>
                 <Controller
                     render={({ field }) => (
@@ -113,7 +115,7 @@ export function SetupWizardSelfSignedCertificateStep() {
                                 const file = files[0];
                                 if (!file.name.trim()) {
                                     clearFile();
-                                    messagePublisher.reportError("Failed to load file");
+                                    messagePublisher.reportError(t("errors.failedToLoadFile"));
                                     return;
                                 }
 
@@ -127,7 +129,7 @@ export function SetupWizardSelfSignedCertificateStep() {
                                     field.onChange(cleanFileInBase64);
                                 } catch (e) {
                                     clearFile();
-                                    messagePublisher.reportError("Failed to load file", e.message);
+                                    messagePublisher.reportError(t("errors.failedToLoadFile"), e.message);
                                 }
                             }}
                         />
@@ -139,12 +141,11 @@ export function SetupWizardSelfSignedCertificateStep() {
             {(certificateHasPassword || isFileProtected || (isFileProtected && isPasswordReadOnly)) && (
                 <FormGroup>
                     <FormLabel className="hstack">
-                        Passphrase
+                        {t("selfSignedCertificateStep.passphrase")}
                         <PopoverWithHoverWrapper
                             message={
                                 <SetupWizardInfoPopover
-                                    description="Enter the passphrase used to encrypt your private key. 
-                                        This passphrase is required to unlock and use your certificate."
+                                    description={t("selfSignedCertificateStep.passphraseInfo")}
                                     ravenLinkHash="VBORN2"
                                 />
                             }
@@ -158,18 +159,18 @@ export function SetupWizardSelfSignedCertificateStep() {
                         control={control}
                         passwordPreview
                         name="selfSignedCertificateStep.password"
-                        placeholder="Enter your passphrase"
+                        placeholder={t("selfSignedCertificateStep.passphrasePlaceholder")}
                     />
                 </FormGroup>
             )}
             {cns.length > 0 && (
                 <FormGroup>
                     <FormLabel className="hstack">
-                        CN Names
+                        {t("selfSignedCertificateStep.cnNames")}
                         <PopoverWithHoverWrapper
                             message={
                                 <SetupWizardInfoPopover
-                                    description="The common name (CN) of the certificate. This is the name that will be displayed in the browser when you access the server."
+                                    description={t("selfSignedCertificateStep.cnNamesInfo")}
                                     ravenLinkHash="VBORN2"
                                 />
                             }
@@ -193,6 +194,7 @@ export function SetupWizardSelfSignedCertificateStep() {
 }
 
 export function SetupWizardSelfSignedCertificateStepFooter() {
+    const t = useStudioTranslation("setupWizard");
     const { setValue, control } = useFormContext<SetupWizardFormData>();
     const isPasswordValid = useAppSelector(setupWizardSelectors.selfSignedCertificateStepIsPasswordValid);
 
@@ -212,7 +214,7 @@ export function SetupWizardSelfSignedCertificateStepFooter() {
     return (
         <div className="hstack justify-content-between">
             <Button variant="secondary" className="rounded-pill" onClick={handleBack}>
-                <Icon icon="arrow-left" /> Back
+                <Icon icon="arrow-left" /> {t("actions.back")}
             </Button>
             <Button
                 variant="primary"
@@ -220,7 +222,7 @@ export function SetupWizardSelfSignedCertificateStepFooter() {
                 disabled={!certificate || !isPasswordValid}
                 onClick={handleContinue}
             >
-                Continue <Icon icon="arrow-right" margin="m-0" />
+                {t("actions.continue")} <Icon icon="arrow-right" margin="m-0" />
             </Button>
         </div>
     );

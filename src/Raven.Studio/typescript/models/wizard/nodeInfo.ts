@@ -1,6 +1,9 @@
 /// <reference path="../../../typings/tsd.d.ts"/>
 import ipEntry = require("models/wizard/ipEntry");
 import genUtils = require("common/generalUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("wizardModels");
 
 class nodeInfo {
     
@@ -46,11 +49,11 @@ class nodeInfo {
             validation: [
                 {
                     validator: (val: string) => val !== "RAFT",
-                    message: "It is a reserved tag."
+                    message: () => t("node.reservedTag")
                 },
                 {
                     validator: (val: string) => upperRegexp.test(val),
-                    message: "Node tag must contain only upper case letters."
+                    message: () => t("node.upperCaseTag")
                 }
             ]
         });
@@ -145,7 +148,7 @@ class nodeInfo {
         this.externalIpAddress.extend({
             required: {   
                 onlyIf: () => (this.ipsContainHostName() || this.ipContainBindAll()) && !this.externalIpAddress(),
-                message: "This field is required when an address contains Hostname or 0.0.0.0"
+                message: () => t("node.externalIpRequired")
             },
             validIpWithoutPort: true
         });
@@ -153,7 +156,7 @@ class nodeInfo {
         this.hostname.extend({
             validation: [{
                 validator: (val: string) => this.hostnameIsOptional() || _.trim(val),
-                message: "This field is required"
+                message: () => t("node.hostnameRequired")
             }]
         });
         
@@ -161,7 +164,7 @@ class nodeInfo {
             validation: [
                 {
                     validator: () => this.ips().length > 0,
-                    message: "Please define at least one IP for this node"
+                    message: () => t("node.ipRequired")
                 }
             ]
         });

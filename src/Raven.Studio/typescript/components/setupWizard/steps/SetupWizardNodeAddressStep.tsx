@@ -45,8 +45,14 @@ import useBoolean from "hooks/useBoolean";
 import { SetupWizardInfoPopover } from "components/setupWizard/partials/SetupWizardInfoPopover";
 import { components, OptionProps, SingleValueProps } from "react-select";
 import Badge from "react-bootstrap/Badge";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import { createTranslator } from "common/i18n/i18n";
+
+const translate = createTranslator("setupWizard");
 
 export function SetupWizardNodeAddressStep() {
+    const t = useStudioTranslation("setupWizard");
     const { control } = useFormContext<SetupWizardFormData>();
     const { reportEvent } = useEventsCollector();
     const { setupWizardService } = useServices();
@@ -150,11 +156,11 @@ export function SetupWizardNodeAddressStep() {
     return (
         <div>
             <div className="mb-4">
-                <h2 className="mb-1">Node addresses</h2>
+                <h2 className="mb-1">{t("nodeAddressStep.title")}</h2>
                 <p className="mb-4 text-muted">
-                    Configure the cluster by adding nodes and setting their network details.
+                    {t("nodeAddressStep.description")}
                     <br />
-                    For each node, specify its tag name, ports, and IP address or host name.
+                    {t("nodeAddressStep.descriptionDetails")}
                 </p>
             </div>
             <div className="vstack">
@@ -262,6 +268,8 @@ interface NodeDetailsPanelHeaderProps {
 }
 
 function NodeDetailsPanelHeader({ control, index, onRemove, editNodeForm }: NodeDetailsPanelHeaderProps) {
+    const t = useStudioTranslation("setupWizard");
+    const tCommon = useStudioTranslation("common");
     const { setValue } = useFormContext<SetupWizardFormData>();
     const { reportEvent } = useEventsCollector();
     const nodeData = useWatch({
@@ -281,7 +289,7 @@ function NodeDetailsPanelHeader({ control, index, onRemove, editNodeForm }: Node
 
     const { handleSubmit, reset, formState } = editNodeForm;
 
-    const nodeName = `Node ${nodeData.nodeTag ?? "?"}`;
+    const nodeName = t("nodeAddressStep.panel.nodeName", { tag: nodeData.nodeTag ?? "?" });
 
     const handleDiscardEdit = () => {
         reportEvent(
@@ -347,17 +355,18 @@ function NodeDetailsPanelHeader({ control, index, onRemove, editNodeForm }: Node
     const handleDeleteNode = async () => {
         const isConfirmed = await confirm({
             title: (
-                <>
-                    You’re about to delete <b>Node {nodeData.nodeTag}</b>
-                </>
+                <StudioTrans
+                    ns="setupWizard"
+                    i18nKey="nodeAddressStep.deleteConfirm.title"
+                    options={{ tag: nodeData.nodeTag ?? "" }}
+                    components={{ b: <b /> }}
+                />
             ),
             message: (
-                <div className="d-flex w-100 justify-content-center">
-                    Removing it may impact cluster stability and performance. This action cannot be undone.
-                </div>
+                <div className="d-flex w-100 justify-content-center">{t("nodeAddressStep.deleteConfirm.message")}</div>
             ),
             icon: "trash",
-            confirmText: "Delete",
+            confirmText: tCommon("delete"),
             actionColor: "danger",
             size: "lg",
         });
@@ -375,9 +384,9 @@ function NodeDetailsPanelHeader({ control, index, onRemove, editNodeForm }: Node
             <RichPanelInfo>
                 <RichPanelName size="sm">
                     {nodeData.isNewlyAdded ? (
-                        <>Creating new node</>
+                        <>{t("nodeAddressStep.panel.creatingNode")}</>
                     ) : nodeData.isEditing ? (
-                        <>Editing node values</>
+                        <>{t("nodeAddressStep.panel.editingNode")}</>
                     ) : (
                         <>
                             <Icon color="node" icon="node" />
@@ -385,9 +394,9 @@ function NodeDetailsPanelHeader({ control, index, onRemove, editNodeForm }: Node
                             {index === 0 && (
                                 <small className="text-muted">
                                     {nodeData.isPassive && isPassiveVisible ? (
-                                        <span className="text-info">(Passive)</span>
+                                        <span className="text-info">{t("nodeAddressStep.panel.passive")}</span>
                                     ) : (
-                                        "(current node)"
+                                        t("nodeAddressStep.panel.currentNode")
                                     )}
                                 </small>
                             )}
@@ -401,24 +410,24 @@ function NodeDetailsPanelHeader({ control, index, onRemove, editNodeForm }: Node
                         <ConditionalPopover
                             conditions={{
                                 isActive: !isEmpty(formState.errors),
-                                message: "Please fix the errors before saving.",
+                                message: t("nodeAddressStep.panel.fixErrors"),
                             }}
                         >
                             <Button disabled={!isEmpty(formState.errors)} onClick={handleSaveEdit} variant="success">
                                 <Icon icon="save" />
-                                Save
+                                {tCommon("save")}
                             </Button>
                         </ConditionalPopover>
                         <Button variant="secondary" onClick={handleDiscardEdit}>
                             {nodeData.isNewlyAdded ? (
                                 <>
                                     <Icon icon="trash" />
-                                    Remove
+                                    {t("nodeAddressStep.panel.remove")}
                                 </>
                             ) : (
                                 <>
                                     <Icon icon="close" />
-                                    Discard
+                                    {t("nodeAddressStep.panel.discard")}
                                 </>
                             )}
                         </Button>
@@ -456,11 +465,13 @@ interface NodeDetailsPanelViewProps {
 }
 
 function NodeDetailsPanelView({ index, control }: NodeDetailsPanelViewProps) {
+    const t = useStudioTranslation("setupWizard");
     const setupWizardData = useWatch({
         control,
     });
 
     const nodeData = setupWizardData.nodeAddressStep.nodes[index];
+    const httpProtocol = setupWizardData.securityStep.securityOption === "none" ? "http" : "https";
 
     const localIpPortAddress = `${nodeData.ipAddress[0].ipAddress}:${nodeData.httpPort}`;
     return (
@@ -468,11 +479,11 @@ function NodeDetailsPanelView({ index, control }: NodeDetailsPanelViewProps) {
             <RichPanelDetailItem>
                 <div className="d-flex flex-column w-100">
                     <span className="hstack">
-                        <span className="md-label mb-0">Node URL</span>
+                        <span className="md-label mb-0">{t("nodeAddressStep.view.nodeUrl")}</span>
                         <PopoverWithHoverWrapper
                             message={
                                 <SetupWizardInfoPopover
-                                    description="Defines the address under which specific node will be available."
+                                    description={t("nodeAddressStep.view.addressInfo")}
                                     ravenLinkHash="MGIZZM"
                                 />
                             }
@@ -490,11 +501,11 @@ function NodeDetailsPanelView({ index, control }: NodeDetailsPanelViewProps) {
                 <RichPanelDetailItem>
                     <div className="d-flex flex-column w-100">
                         <span className="hstack">
-                            <span className="md-label mb-0">DNS Name</span>
+                            <span className="md-label mb-0">{t("nodeAddressStep.fields.dnsName")}</span>
                             <PopoverWithHoverWrapper
                                 message={
                                     <SetupWizardInfoPopover
-                                        description="Defines the address under which specific node will be available."
+                                        description={t("nodeAddressStep.view.addressInfo")}
                                         ravenLinkHash="MGIZZM"
                                     />
                                 }
@@ -513,12 +524,12 @@ function NodeDetailsPanelView({ index, control }: NodeDetailsPanelViewProps) {
                 <div className="d-flex flex-column">
                     <span className="hstack">
                         <span className="md-label mb-0">
-                            {setupWizardData.securityStep.securityOption === "none" ? "HTTP" : "HTTPS"} port
+                            {t("nodeAddressStep.fields.httpPort", { context: httpProtocol })}
                         </span>
                         <PopoverWithHoverWrapper
                             message={
                                 <SetupWizardInfoPopover
-                                    description={`Defines the communication endpoint for clients and browsers. By default, this value is set to ${setupWizardData.securityStep.securityOption === "none" ? "8080" : "443"}.`}
+                                    description={t("nodeAddressStep.view.httpPortInfo", { context: httpProtocol })}
                                     ravenLinkHash="MGIZZM"
                                 />
                             }
@@ -536,11 +547,11 @@ function NodeDetailsPanelView({ index, control }: NodeDetailsPanelViewProps) {
             <RichPanelDetailItem>
                 <div className="d-flex flex-column">
                     <span className="hstack">
-                        <span className="md-label mb-0">TCP port</span>
+                        <span className="md-label mb-0">{t("nodeAddressStep.view.tcpPort")}</span>
                         <PopoverWithHoverWrapper
                             message={
                                 <SetupWizardInfoPopover
-                                    description="Defines the TCP endpoint for cluster nodes to communicate with each other. By default, this value is set to 38888."
+                                    description={t("nodeAddressStep.view.tcpPortInfo")}
                                     ravenLinkHash="9D6HG1"
                                 />
                             }
@@ -558,11 +569,11 @@ function NodeDetailsPanelView({ index, control }: NodeDetailsPanelViewProps) {
             <RichPanelDetailItem>
                 <div className="d-flex flex-column">
                     <span className="hstack">
-                        <span className="md-label mb-0">IP address/Hostname</span>
+                        <span className="md-label mb-0">{t("nodeAddressStep.fields.ipAddress")}</span>
                         <PopoverWithHoverWrapper
                             message={
                                 <SetupWizardInfoPopover
-                                    description="Defines the network endpoint where the server is accessible."
+                                    description={t("nodeAddressStep.view.ipAddressInfo")}
                                     ravenLinkHash="MGIZZM"
                                 />
                             }
@@ -588,6 +599,7 @@ function NodeDetailsPanelEdit({
     editNodeForm: UseFormReturn<NodeEditFormData>;
     parentControl: Control<SetupWizardFormData>;
 }) {
+    const t = useStudioTranslation("setupWizard");
     const { control } = editNodeForm;
     const nodeData = useWatch({
         control,
@@ -612,6 +624,7 @@ function NodeDetailsPanelEdit({
     const canCustomizeExternalTcpPorts = securityOption === "ownCertificate";
 
     const colWidth = isDNSVisible ? 6 : 4;
+    const httpProtocol = securityOption === "none" ? "http" : "https";
 
     const shouldDisplayUnsafeMode = nodeData.ipAddress.some(
         ({ ipAddress }) => !genUtils.isLocalhostIpAddress(ipAddress)
@@ -624,14 +637,11 @@ function NodeDetailsPanelEdit({
                     <FormGroup>
                         <FormSwitch name="isPassive" control={control}>
                             <span className="hstack">
-                                Start node as Passive, not part of a cluster
+                                {t("nodeAddressStep.edit.passive")}
                                 <PopoverWithHoverWrapper
                                     message={
                                         <SetupWizardInfoPopover
-                                            description="When enabled, the node starts in passive mode and does not join a cluster.
-                                                This is useful when the node is meant for monitoring, initialization, or handling setup tasks without participating in cluster operations.
-                                                It can also be used to isolate the node for testing or debugging.
-                                                The node will leave passive state when a cluster operation is performed on it, such as creating a database or adding it to a cluster."
+                                            description={t("nodeAddressStep.edit.passiveInfo")}
                                             ravenLinkHash="2WV7N1"
                                         />
                                     }
@@ -646,14 +656,14 @@ function NodeDetailsPanelEdit({
                     <Col md={colWidth}>
                         <FormGroup>
                             <FormLabel className="d-flex">
-                                Node tag
+                                {t("nodeAddressStep.edit.nodeTag")}
                                 <PopoverWithHoverWrapper
                                     message={
                                         <SetupWizardInfoPopover
-                                            description="Defines a unique identifier for each node in the cluster."
+                                            description={t("nodeAddressStep.edit.nodeTagInfo")}
                                             alert={
                                                 <RichAlert variant="info" icon="info" className="mt-1">
-                                                    Node tag can contain a maximum of 4 uppercase letters (A-Z).
+                                                    {t("nodeAddressStep.edit.nodeTagFormat")}
                                                 </RichAlert>
                                             }
                                             ravenLinkHash="WJJHFY"
@@ -667,8 +677,8 @@ function NodeDetailsPanelEdit({
                                 disabled={nodeData.isPassive && isPassiveVisible}
                                 placeholder={
                                     nodeData.isPassive && isPassiveVisible
-                                        ? "Node will start in Passive state"
-                                        : "Enter Node Tag"
+                                        ? t("nodeAddressStep.edit.nodeTagPassivePlaceholder")
+                                        : t("nodeAddressStep.edit.nodeTagPlaceholder")
                                 }
                                 type="text"
                                 name="nodeTag"
@@ -680,15 +690,15 @@ function NodeDetailsPanelEdit({
                         <Col md={colWidth}>
                             <FormGroup>
                                 <FormLabel className="d-flex">
-                                    DNS Name
+                                    {t("nodeAddressStep.fields.dnsName")}
                                     <PopoverWithHoverWrapper
                                         message={
                                             <SetupWizardInfoPopover
                                                 description={
                                                     <>
-                                                        Domain name that will be used to reach the server on this node.
+                                                        {t("nodeAddressStep.edit.dnsNameInfo")}
                                                         <br />
-                                                        Note: It must be associated with the chosen IP Address below.
+                                                        {t("nodeAddressStep.edit.dnsNameNote")}
                                                     </>
                                                 }
                                             />
@@ -700,7 +710,7 @@ function NodeDetailsPanelEdit({
                                 <FormSelect
                                     name="dnsName"
                                     control={control}
-                                    placeholder="Select DNS Name"
+                                    placeholder={t("nodeAddressStep.edit.dnsNamePlaceholder")}
                                     options={cns.map((x) => ({ value: x, label: x }))}
                                 />
                             </FormGroup>
@@ -709,11 +719,13 @@ function NodeDetailsPanelEdit({
                     <Col md={colWidth}>
                         <FormGroup>
                             <FormLabel className="d-flex">
-                                {securityOption === "none" ? "HTTP" : "HTTPS"} port
+                                {t("nodeAddressStep.fields.httpPort", { context: httpProtocol })}
                                 <PopoverWithHoverWrapper
                                     message={
                                         <SetupWizardInfoPopover
-                                            description={`Defines the private ${securityOption === "none" ? "HTTP" : "HTTPS"} port used by clients and browsers. By default, this value is set to ${securityOption === "none" ? "8080" : "443"}.`}
+                                            description={t("nodeAddressStep.edit.httpPortInfo", {
+                                                context: httpProtocol,
+                                            })}
                                             ravenLinkHash="MGIZZM"
                                         />
                                     }
@@ -724,7 +736,7 @@ function NodeDetailsPanelEdit({
                             <FormInput
                                 type="number"
                                 name="httpPort"
-                                placeholder={securityOption === "none" ? "Default: 8080" : "Default: 443"}
+                                placeholder={t("nodeAddressStep.edit.httpPortPlaceholder", { context: httpProtocol })}
                                 control={control}
                             />
                         </FormGroup>
@@ -732,12 +744,11 @@ function NodeDetailsPanelEdit({
                     <Col md={colWidth}>
                         <FormGroup>
                             <FormLabel className="d-flex">
-                                TCP Port
+                                {t("nodeAddressStep.edit.tcpPort")}
                                 <PopoverWithHoverWrapper
                                     message={
                                         <SetupWizardInfoPopover
-                                            description="Defines the TCP port used for internal communication between cluster nodes.
-                                                By default, this value is set to 38888."
+                                            description={t("nodeAddressStep.edit.tcpPortInfo")}
                                             ravenLinkHash="9D6HG1"
                                         />
                                     }
@@ -745,7 +756,12 @@ function NodeDetailsPanelEdit({
                                     <Icon icon="info-new" />
                                 </PopoverWithHoverWrapper>
                             </FormLabel>
-                            <FormInput type="number" name="tcpPort" placeholder="Default: 38888" control={control} />
+                            <FormInput
+                                type="number"
+                                name="tcpPort"
+                                placeholder={t("nodeAddressStep.edit.tcpPortPlaceholder")}
+                                control={control}
+                            />
                         </FormGroup>
                     </Col>
                 </Row>
@@ -753,26 +769,33 @@ function NodeDetailsPanelEdit({
                 <div className="d-flex flex-column gap-1">
                     {securityOption === "letsEncrypt" && nodeData.ipAddress.length > 0 && (
                         <RichAlert variant="info" icon="info">
-                            RavenDB will update the DNS record for{" "}
-                            <span className="text-decoration-underline">{`${nodeData.nodeTag.toLowerCase()}.${domainStep.domain.toLowerCase()}.${domainStep.rootDomain}`}</span>{" "}
-                            to IP{" "}
-                            {nodeData.ipAddress.length > 1 && !nodeData.externalIpAddress ? "addresses" : "address"}:{" "}
-                            {nodeData.externalIpAddress && nodeData.hasExternalConfig ? (
-                                <span className="text-decoration-underline">{nodeData.externalIpAddress}</span>
-                            ) : nodeData.ipAddress.length > 0 ? (
-                                <span className="text-decoration-underline">
-                                    {nodeData.ipAddress.map((x) => x.ipAddress).join(", ")}
-                                </span>
-                            ) : (
-                                <span className="text-decoration-underline">&lt;insert IP addresses&gt;</span>
-                            )}
+                            <StudioTrans
+                                ns="setupWizard"
+                                i18nKey="nodeAddressStep.edit.dnsRecordAlert"
+                                options={{
+                                    context:
+                                        nodeData.ipAddress.length > 1 && !nodeData.externalIpAddress
+                                            ? "multiple"
+                                            : "single",
+                                    domain: `${nodeData.nodeTag.toLowerCase()}.${domainStep.domain.toLowerCase()}.${domainStep.rootDomain}`,
+                                    ipAddresses:
+                                        nodeData.externalIpAddress && nodeData.hasExternalConfig
+                                            ? nodeData.externalIpAddress
+                                            : nodeData.ipAddress.length > 0
+                                              ? nodeData.ipAddress.map((x) => x.ipAddress).join(", ")
+                                              : t("nodeAddressStep.edit.insertIpAddresses"),
+                                }}
+                                components={{ u: <span className="text-decoration-underline" /> }}
+                            />
                         </RichAlert>
                     )}
                     {securityOption === "none" && shouldDisplayUnsafeMode && (
                         <RichAlert variant="warning" icon="warning">
-                            Node IP is not configured for local network. By proceeding, you admit that you understand
-                            the risk behind running RavenDB server in the Unsecure mode. Authentication is off, so
-                            anyone who can access this IP will be granted <i>administrative privileges</i>.
+                            <StudioTrans
+                                ns="setupWizard"
+                                i18nKey="nodeAddressStep.edit.unsecureWarning"
+                                components={{ i: <i /> }}
+                            />
                         </RichAlert>
                     )}
                 </div>
@@ -786,12 +809,11 @@ function NodeDetailsPanelEdit({
                         className="mt-3 mb-2"
                     >
                         <span className="d-flex">
-                            Customize external IP and ports
+                            {t("nodeAddressStep.edit.customizeExternal")}
                             <PopoverWithHoverWrapper
                                 message={
                                     <SetupWizardInfoPopover
-                                        description="External overrides allow you to specify an alternative IP address, hostname, 
-                                            or HTTPS port that clients will use instead of the server’s default settings."
+                                        description={t("nodeAddressStep.edit.customizeExternalInfo")}
                                         ravenLinkHash="Z112DU"
                                     />
                                 }
@@ -824,18 +846,19 @@ function EditFormExternalAddressInputs({
     canCustomizeExternalIpsAndPorts: boolean;
     canCustomizeExternalTcpPorts: boolean;
 }) {
+    const t = useStudioTranslation("setupWizard");
+
     return (
         <>
             <Col>
                 <FormGroup className="vstack w-100">
                     <FormLabel>
                         <span className="d-flex">
-                            External IP address
+                            {t("nodeAddressStep.edit.externalIpAddress")}
                             <PopoverWithHoverWrapper
                                 message={
                                     <SetupWizardInfoPopover
-                                        description="Defines the public IP address from which requests will be
-                                            forwarded to the private IP address that RavenDB listens on."
+                                        description={t("nodeAddressStep.edit.externalIpAddressInfo")}
                                         ravenLinkHash="Z112DU"
                                     />
                                 }
@@ -847,7 +870,7 @@ function EditFormExternalAddressInputs({
                     <FormInput
                         type="text"
                         name="externalIpAddress"
-                        placeholder="Enter Server IP address/hostname"
+                        placeholder={t("nodeAddressStep.edit.externalIpAddressPlaceholder")}
                         control={control}
                     />
                 </FormGroup>
@@ -857,12 +880,11 @@ function EditFormExternalAddressInputs({
                     <FormGroup className="vstack w-100">
                         <FormLabel>
                             <span className="d-flex align-items-baseline">
-                                <span>External HTTPS port&nbsp;</span> <OptionalLabel />
+                                <span>{t("nodeAddressStep.edit.externalHttpPort")}&nbsp;</span> <OptionalLabel />
                                 <PopoverWithHoverWrapper
                                     message={
                                         <SetupWizardInfoPopover
-                                            description="Defines the public HTTPS port that clients and browsers will use
-                                                instead of the default binding."
+                                            description={t("nodeAddressStep.edit.externalHttpPortInfo")}
                                             ravenLinkHash="Z112DU"
                                         />
                                     }
@@ -874,7 +896,7 @@ function EditFormExternalAddressInputs({
                         <FormInput
                             type="number"
                             name="externalHttpPort"
-                            placeholder="Enter external HTTPS port"
+                            placeholder={t("nodeAddressStep.edit.externalHttpPortPlaceholder")}
                             control={control}
                         />
                     </FormGroup>
@@ -885,13 +907,12 @@ function EditFormExternalAddressInputs({
                     <FormGroup className="vstack w-100">
                         <FormLabel>
                             <span className="d-flex align-items-baseline">
-                                <span>External TCP Port&nbsp;</span>
+                                <span>{t("nodeAddressStep.edit.externalTcpPort")}&nbsp;</span>
                                 <OptionalLabel />
                                 <PopoverWithHoverWrapper
                                     message={
                                         <SetupWizardInfoPopover
-                                            description="Defines the public TCP port used for inter-node communication
-                                                and client connections."
+                                            description={t("nodeAddressStep.edit.externalTcpPortInfo")}
                                             ravenLinkHash="Z112DU"
                                         />
                                     }
@@ -903,7 +924,7 @@ function EditFormExternalAddressInputs({
                         <FormInput
                             type="number"
                             name="externalTcpPort"
-                            placeholder="Enter external TCP port"
+                            placeholder={t("nodeAddressStep.edit.externalTcpPortPlaceholder")}
                             control={control}
                         />
                     </FormGroup>
@@ -918,6 +939,7 @@ interface AddAnotherNodeProps {
 }
 
 export function AddAnotherNode({ onAddNode }: AddAnotherNodeProps) {
+    const t = useStudioTranslation("setupWizard");
     const { getValues } = useFormContext<SetupWizardFormData>();
 
     const licenseKeyStep = getValues("licenseKeyStep");
@@ -941,15 +963,15 @@ export function AddAnotherNode({ onAddNode }: AddAnotherNodeProps) {
                         message: (
                             <>
                                 <p className="mb-0">
-                                    Without a license you can only run a single-node cluster. Otherwise, go back to the{" "}
-                                    <b>License Key</b> step to provide a license and unlock multi-node clusters.
+                                    <StudioTrans
+                                        ns="setupWizard"
+                                        i18nKey="nodeAddressStep.addNode.noLicenseLimit"
+                                        components={{ b: <b /> }}
+                                    />
                                 </p>
                                 <hr className="my-2" />
                                 <span className="md-label">
-                                    <Icon icon="link" /> See{" "}
-                                    <a href="https://ravendb.net/buy" target="_blank">
-                                        licenses comparison <Icon icon="newtab" />
-                                    </a>
+                                    <Icon icon="link" /> <SeeLicensesComparison />
                                 </span>
                             </>
                         ),
@@ -958,13 +980,10 @@ export function AddAnotherNode({ onAddNode }: AddAnotherNodeProps) {
                         isActive: isMaxClusterNodes,
                         message: (
                             <>
-                                <p className="mb-0">Your license doesn&apos;t allow more nodes in the cluster.</p>
+                                <p className="mb-0">{t("nodeAddressStep.addNode.licenseLimit")}</p>
                                 <hr className="my-2" />
                                 <span className="md-label">
-                                    <Icon icon="link" /> See{" "}
-                                    <a href="https://ravendb.net/buy" target="_blank">
-                                        licenses comparison <Icon icon="newtab" />
-                                    </a>
+                                    <Icon icon="link" /> <SeeLicensesComparison />
                                 </span>
                             </>
                         ),
@@ -980,7 +999,7 @@ export function AddAnotherNode({ onAddNode }: AddAnotherNodeProps) {
                     onClick={onAddNode}
                 >
                     <Icon icon="node-add" />
-                    Add another node
+                    {t("nodeAddressStep.addNode.add")}
                 </Button>
             </ConditionalPopover>
         </div>
@@ -1088,6 +1107,7 @@ function IpAddressList({
     control: Control<NodeEditFormData>;
     parentControl: Control<SetupWizardFormData>;
 }) {
+    const t = useStudioTranslation("setupWizard");
     const { setupWizardService } = useServices();
     const { reportEvent } = useEventsCollector();
     const { append, remove, fields } = useFieldArray<NodeEditFormData>({
@@ -1118,11 +1138,11 @@ function IpAddressList({
             <FormLabel className="w-100">
                 <div className="hstack justify-content-between">
                     <span className="d-flex">
-                        IP address/Hostname
+                        {t("nodeAddressStep.fields.ipAddress")}
                         <PopoverWithHoverWrapper
                             message={
                                 <SetupWizardInfoPopover
-                                    description="Defines the IP address or hostname used to access the server."
+                                    description={t("nodeAddressStep.edit.ipAddressInfo")}
                                     ravenLinkHash="MGIZZM"
                                 />
                             }
@@ -1135,11 +1155,11 @@ function IpAddressList({
                             variant="link"
                             size="xs"
                             onClick={addIpAddress}
-                            title="Add more IP Addresses or hostnames"
+                            title={t("nodeAddressStep.edit.addIpAddressTitle")}
                             className="px-0"
                         >
                             <Icon icon="plus" />
-                            Add another IP Address
+                            {t("nodeAddressStep.edit.addIpAddress")}
                         </Button>
                     )}
                 </div>
@@ -1149,7 +1169,7 @@ function IpAddressList({
                     <InputGroup key={field.id}>
                         <FormSelectAutocomplete
                             control={control}
-                            placeholder="Enter Server IP A address/hostname"
+                            placeholder={t("nodeAddressStep.edit.ipAddressPlaceholder")}
                             isLoading={asyncGetSetupLocalNodeIps.loading}
                             name={`ipAddress.${ipIndex}.ipAddress`}
                             options={ipAddressesOptions}
@@ -1198,6 +1218,7 @@ function IpAddressSingleValueComponent({ children, ...props }: SingleValueProps<
 }
 
 function NoRemoteAccessBadge({ ipAddress }: { ipAddress: string }) {
+    const t = useStudioTranslation("setupWizard");
     const isLocalhostIpAddress = genUtils.isLocalhostIpAddress(ipAddress);
 
     if (!isLocalhostIpAddress) {
@@ -1206,12 +1227,13 @@ function NoRemoteAccessBadge({ ipAddress }: { ipAddress: string }) {
 
     return (
         <Badge bg="secondary" className="ms-1" pill>
-            No remote access
+            {t("nodeAddressStep.edit.noRemoteAccess")}
         </Badge>
     );
 }
 
 export function SetupWizardNodeAddressStepFooter() {
+    const t = useStudioTranslation("setupWizard");
     const { setValue, getValues } = useFormContext<SetupWizardFormData>();
     const { reportEvent } = useEventsCollector();
 
@@ -1273,22 +1295,34 @@ export function SetupWizardNodeAddressStepFooter() {
         if (areAllNodesIdentical) {
             const firstNode = nodeData[0];
             const isConfirmed = await confirm({
-                title: "Identical node configurations",
+                title: t("nodeAddressStep.continueConfirm.identicalTitle"),
                 message: (
                     <>
-                        <span>All nodes in the cluster are configured with the same settings:</span>
+                        <span>{t("nodeAddressStep.continueConfirm.identicalIntro")}</span>
                         <ul>
-                            <li>IP address: {firstNode.ipAddress[0]?.ipAddress}</li>
-                            <li>TCP port: {firstNode.tcpPort}</li>
-                            <li>HTTPS port: {firstNode.httpPort}</li>
+                            <li>
+                                {t("nodeAddressStep.continueConfirm.identicalIpAddress", {
+                                    ipAddress: firstNode.ipAddress[0]?.ipAddress ?? "",
+                                })}
+                            </li>
+                            <li>
+                                {t("nodeAddressStep.continueConfirm.identicalTcpPort", {
+                                    tcpPort: firstNode.tcpPort ?? "",
+                                })}
+                            </li>
+                            <li>
+                                {t("nodeAddressStep.continueConfirm.identicalHttpsPort", {
+                                    httpPort: firstNode.httpPort ?? "",
+                                })}
+                            </li>
                         </ul>
-                        If you plan to deploy these nodes on a single machine, it will cause port conflict.
+                        {t("nodeAddressStep.continueConfirm.identicalPortConflict")}
                         <br />
-                        Please confirm that these settings are correct before proceeding to the next step.
+                        {t("nodeAddressStep.continueConfirm.identicalConfirmSettings")}
                     </>
                 ),
                 icon: "warning",
-                confirmText: "Proceed",
+                confirmText: t("nodeAddressStep.continueConfirm.proceed"),
                 actionColor: "warning",
                 size: "lg",
             });
@@ -1298,12 +1332,10 @@ export function SetupWizardNodeAddressStepFooter() {
             }
         } else if (hasDuplicateNodeConfigurations) {
             const isConfirmed = await confirm({
-                title: "Duplicate node configurations",
-                message:
-                    "You have multiple nodes with identical IP address, TCP port, and HTTPS port configurations. " +
-                    "This may cause conflicts in your cluster. Are you sure you want to proceed?",
+                title: t("nodeAddressStep.continueConfirm.duplicateTitle"),
+                message: t("nodeAddressStep.continueConfirm.duplicateMessage"),
                 icon: "warning",
-                confirmText: "Proceed anyway",
+                confirmText: t("nodeAddressStep.continueConfirm.proceedAnyway"),
                 actionColor: "warning",
                 size: "lg",
             });
@@ -1316,11 +1348,10 @@ export function SetupWizardNodeAddressStepFooter() {
         // Then check for even node count
         if (nodeCount % 2 === 0) {
             const isConfirmed = await confirm({
-                title: "Confirm even node count",
-                message: `You've chosen an even number of nodes for your cluster. For optimal replication and high availability, an odd number of nodes is usually recommended.
-                        Are you sure you want to proceed with an even node count?`,
+                title: t("nodeAddressStep.continueConfirm.evenCountTitle"),
+                message: t("nodeAddressStep.continueConfirm.evenCountMessage"),
                 icon: "warning",
-                confirmText: "Proceed",
+                confirmText: t("nodeAddressStep.continueConfirm.proceed"),
                 actionColor: "warning",
                 size: "lg",
             });
@@ -1356,7 +1387,7 @@ export function SetupWizardNodeAddressStepFooter() {
     return (
         <div className="hstack justify-content-between">
             <Button variant="secondary" className="rounded-pill" onClick={handleBack}>
-                <Icon icon="arrow-left" /> Back
+                <Icon icon="arrow-left" /> {t("actions.back")}
             </Button>
             <ConditionalPopover
                 conditions={[
@@ -1366,7 +1397,7 @@ export function SetupWizardNodeAddressStepFooter() {
                     },
                     {
                         isActive: isEditing && !hasExceededLicenseLimit,
-                        message: "You can't proceed if you have unsaved nodes. Save your changes first.",
+                        message: t("nodeAddressStep.unsavedNodes"),
                     },
                 ]}
             >
@@ -1376,7 +1407,7 @@ export function SetupWizardNodeAddressStepFooter() {
                     className="rounded-pill"
                     onClick={handleContinue}
                 >
-                    Continue <Icon icon="arrow-right" margin="m-0" />
+                    {t("actions.continue")} <Icon icon="arrow-right" margin="m-0" />
                 </Button>
             </ConditionalPopover>
         </div>
@@ -1434,20 +1465,36 @@ function LicenseLimitExceededMessage() {
     return (
         <>
             <p className="mb-0">
-                Your license allows maximum <strong>{maxClusterSize}</strong> node(s), but you have configured{" "}
-                <strong>{currentNodeCount}</strong> nodes.
+                <StudioTrans
+                    ns="setupWizard"
+                    i18nKey="nodeAddressStep.licenseLimitExceeded.configured"
+                    options={{ count: maxClusterSize, configuredCount: currentNodeCount }}
+                    components={{ strong: <strong /> }}
+                />
             </p>
             <p className="mb-0">
-                Remove <strong>{currentNodeCount - maxClusterSize}</strong> node(s) or upgrade your license to continue.
+                <StudioTrans
+                    ns="setupWizard"
+                    i18nKey="nodeAddressStep.licenseLimitExceeded.remove"
+                    options={{ count: currentNodeCount - maxClusterSize }}
+                    components={{ strong: <strong /> }}
+                />
             </p>
             <hr className="my-2" />
             <span className="md-label">
-                <Icon icon="link" /> See{" "}
-                <a href="https://ravendb.net/buy" target="_blank">
-                    licenses comparison <Icon icon="newtab" />
-                </a>
+                <Icon icon="link" /> <SeeLicensesComparison />
             </span>
         </>
+    );
+}
+
+function SeeLicensesComparison() {
+    return (
+        <StudioTrans
+            ns="setupWizard"
+            i18nKey="nodeAddressStep.seeLicensesComparison"
+            components={{ a: <a href="https://ravendb.net/buy" target="_blank" />, icon: <Icon icon="newtab" /> }}
+        />
     );
 }
 
@@ -1456,30 +1503,34 @@ export const ipAddressFormSchema = yup.object().shape({
         .string()
         .test(
             "not-url",
-            "Expected valid IP Address/Hostname, not URL",
+            () => translate("nodeAddressStep.validation.ipAddressNotUrl"),
             (value) => !value?.startsWith("http://") && !value?.startsWith("https://")
         )
         .test(
             "not-localhost-on-docker",
-            "A localhost IP Address is not allowed when running on Docker",
+            () => translate("nodeAddressStep.validation.localhostOnDocker"),
             function (value) {
                 const { isDocker } = this.options.context || {};
                 return (isDocker && !genUtils.isLocalhostIpAddress(value)) || !isDocker;
             }
         )
-        .test("valid-ip-in-unsecure-mode", "In unsecure mode you cannot use hostnames", function (value) {
-            const context = this.options.context as {
-                nodeAddressStep: SetupWizardFormData["nodeAddressStep"];
-                securityOption: SetupWizardSecurityOption;
-                currentIndex: number;
-            };
+        .test(
+            "valid-ip-in-unsecure-mode",
+            () => translate("nodeAddressStep.validation.hostnameInUnsecureMode"),
+            function (value) {
+                const context = this.options.context as {
+                    nodeAddressStep: SetupWizardFormData["nodeAddressStep"];
+                    securityOption: SetupWizardSecurityOption;
+                    currentIndex: number;
+                };
 
-            const isHostname = genUtils.isHostname(value);
-            const isUnsecureMode = context?.securityOption === "none";
+                const isHostname = genUtils.isHostname(value);
+                const isUnsecureMode = context?.securityOption === "none";
 
-            return !isHostname || !isUnsecureMode;
-        })
-        .required("Please define at least one IP for this node"),
+                return !isHostname || !isUnsecureMode;
+            }
+        )
+        .required(() => translate("nodeAddressStep.validation.ipAddressRequired")),
 });
 
 export const nodeEditFormSchema = yup.object({
@@ -1488,96 +1539,120 @@ export const nodeEditFormSchema = yup.object({
         is: false,
         then: (schema) =>
             schema
-                .required("Node tag is required")
-                .matches(/^[A-Z]{1,4}$/, "Node tag must be 1 to 4 uppercase letters")
-                .test("unique", "Node tag must be unique", function (value) {
-                    const { nodeAddressStep, currentIndex } = this.options.context as {
-                        nodeAddressStep: SetupWizardFormData["nodeAddressStep"];
-                        setupWizardFormData: SetupWizardFormData;
-                        currentIndex: number;
-                    };
+                .required(() => translate("nodeAddressStep.validation.nodeTagRequired"))
+                .matches(/^[A-Z]{1,4}$/, () => translate("nodeAddressStep.validation.nodeTagFormat"))
+                .test(
+                    "unique",
+                    () => translate("nodeAddressStep.validation.nodeTagUnique"),
+                    function (value) {
+                        const { nodeAddressStep, currentIndex } = this.options.context as {
+                            nodeAddressStep: SetupWizardFormData["nodeAddressStep"];
+                            setupWizardFormData: SetupWizardFormData;
+                            currentIndex: number;
+                        };
 
-                    if (!nodeAddressStep || !nodeAddressStep.nodes) {
-                        return true;
+                        if (!nodeAddressStep || !nodeAddressStep.nodes) {
+                            return true;
+                        }
+
+                        return (
+                            nodeAddressStep.nodes.findIndex(
+                                (node, idx) => node.nodeTag === value && idx !== currentIndex
+                            ) === -1
+                        );
                     }
-
-                    return (
-                        nodeAddressStep.nodes.findIndex(
-                            (node, idx) => node.nodeTag === value && idx !== currentIndex
-                        ) === -1
-                    );
-                })
-                .test("reserved-tag", "This node tag is reserved", (value) => {
-                    return value !== "RAFT";
-                }),
+                )
+                .test(
+                    "reserved-tag",
+                    () => translate("nodeAddressStep.validation.nodeTagReserved"),
+                    (value) => {
+                        return value !== "RAFT";
+                    }
+                ),
         otherwise: (schema) => schema,
     }),
     dnsName: yup
         .string()
         .nullable()
-        .test("required-for-non-wildcard", "DNS name is required", function (value) {
-            const { securityOption, isWildcardCertificate } = this.options.context as {
-                securityOption: SetupWizardSecurityOption;
-                isWildcardCertificate: boolean;
-                cns: string[];
-            };
+        .test(
+            "required-for-non-wildcard",
+            () => translate("nodeAddressStep.validation.dnsNameRequired"),
+            function (value) {
+                const { securityOption, isWildcardCertificate } = this.options.context as {
+                    securityOption: SetupWizardSecurityOption;
+                    isWildcardCertificate: boolean;
+                    cns: string[];
+                };
 
-            if (securityOption === "ownCertificate" && !isWildcardCertificate) {
-                return !!value;
-            }
+                if (securityOption === "ownCertificate" && !isWildcardCertificate) {
+                    return !!value;
+                }
 
-            return true;
-        })
-        .test("valid-cn", "DNS name must be from the certificate", function (value) {
-            const { securityOption, isWildcardCertificate, cns } = this.options.context as {
-                securityOption: SetupWizardSecurityOption;
-                isWildcardCertificate: boolean;
-                cns: string[];
-            };
-
-            if (securityOption === "ownCertificate" && !isWildcardCertificate && value) {
-                return cns.includes(value);
-            }
-
-            return true;
-        })
-        .test("unique", "DNS name and HTTPS port must be unique across nodes", function (value) {
-            const { securityOption, isWildcardCertificate, nodeAddressStep, currentIndex } = this.options.context as {
-                securityOption: SetupWizardSecurityOption;
-                isWildcardCertificate: boolean;
-                nodeAddressStep: SetupWizardFormData["nodeAddressStep"];
-                currentIndex: number;
-            };
-
-            if (securityOption !== "ownCertificate" || isWildcardCertificate || !value || !nodeAddressStep?.nodes) {
                 return true;
             }
+        )
+        .test(
+            "valid-cn",
+            () => translate("nodeAddressStep.validation.dnsNameFromCertificate"),
+            function (value) {
+                const { securityOption, isWildcardCertificate, cns } = this.options.context as {
+                    securityOption: SetupWizardSecurityOption;
+                    isWildcardCertificate: boolean;
+                    cns: string[];
+                };
 
-            const httpPort = this.parent.httpPort ?? 443;
+                if (securityOption === "ownCertificate" && !isWildcardCertificate && value) {
+                    return cns.includes(value);
+                }
 
-            return (
-                nodeAddressStep.nodes.findIndex(
-                    (node, idx) =>
-                        idx !== currentIndex &&
-                        node.dnsName?.toLowerCase() === value.toLowerCase() &&
-                        (node.httpPort ?? 443) === httpPort
-                ) === -1
-            );
-        }),
+                return true;
+            }
+        )
+        .test(
+            "unique",
+            () => translate("nodeAddressStep.validation.dnsNameUnique"),
+            function (value) {
+                const { securityOption, isWildcardCertificate, nodeAddressStep, currentIndex } = this.options
+                    .context as {
+                    securityOption: SetupWizardSecurityOption;
+                    isWildcardCertificate: boolean;
+                    nodeAddressStep: SetupWizardFormData["nodeAddressStep"];
+                    currentIndex: number;
+                };
+
+                if (securityOption !== "ownCertificate" || isWildcardCertificate || !value || !nodeAddressStep?.nodes) {
+                    return true;
+                }
+
+                const httpPort = this.parent.httpPort ?? 443;
+
+                return (
+                    nodeAddressStep.nodes.findIndex(
+                        (node, idx) =>
+                            idx !== currentIndex &&
+                            node.dnsName?.toLowerCase() === value.toLowerCase() &&
+                            (node.httpPort ?? 443) === httpPort
+                    ) === -1
+                );
+            }
+        ),
     httpPort: yup
         .number()
         .nullable()
-        .typeError("HTTPS port must be a number")
-        .min(1, "Port must be greater than 0")
-        .max(65535, "Port must be less than 65536"), // 'required' validation is handled separately when saving
+        .typeError(() => translate("nodeAddressStep.validation.httpPortNumber"))
+        .min(1, () => translate("nodeAddressStep.validation.portMin"))
+        .max(65535, () => translate("nodeAddressStep.validation.portMax")), // 'required' validation is handled separately when saving
     tcpPort: yup
         .number()
         .default(38888)
         .nullable()
-        .min(1, "Port must be greater than 0")
-        .max(65535, "Port must be less than 65536")
-        .required("TCP port is required"),
-    ipAddress: yup.array().of(ipAddressFormSchema).min(1, "At least one IP address is required"),
+        .min(1, () => translate("nodeAddressStep.validation.portMin"))
+        .max(65535, () => translate("nodeAddressStep.validation.portMax"))
+        .required(() => translate("nodeAddressStep.validation.tcpPortRequired")),
+    ipAddress: yup
+        .array()
+        .of(ipAddressFormSchema)
+        .min(1, () => translate("nodeAddressStep.validation.ipAddressMin")),
     hasExternalConfig: yup.boolean().default(false),
     externalIpAddress: yup
         .string()
@@ -1598,23 +1673,21 @@ export const nodeEditFormSchema = yup.object({
             },
             then: (schema: yup.StringSchema) =>
                 schema
-                    .required(
-                        "External IP address is required, it tells RavenDB how to identify itself to other nodes and clients"
-                    )
+                    .required(() => translate("nodeAddressStep.validation.externalIpAddressRequired"))
                     .test(
                         "not-url",
-                        "Expected valid IP address, not URL",
+                        () => translate("nodeAddressStep.validation.externalIpAddressNotUrl"),
                         (value) => !value?.startsWith("http://") && !value?.startsWith("https://")
                     )
                     .test(
                         "valid-ipv4",
-                        "Please enter a valid IPv4 address (hostname not allowed, no port)",
+                        () => translate("nodeAddressStep.validation.externalIpAddressIpv4"),
                         (value) => !!value && genUtils.regexIPv4.test(value)
                     ),
             otherwise: (schema: yup.StringSchema) =>
                 schema.test(
                     "valid-ipv4-optional",
-                    "Please enter a valid IPv4 address (hostname not allowed, no port)",
+                    () => translate("nodeAddressStep.validation.externalIpAddressIpv4"),
                     (value) => {
                         if (value == null || value === "") {
                             return true;
@@ -1629,14 +1702,20 @@ export const nodeEditFormSchema = yup.object({
         .nullable()
         .when("hasExternalConfig", {
             is: true,
-            then: (schema) => schema.min(1, "Port must be greater than 0").max(65535, "Port must be less than 65536"),
+            then: (schema) =>
+                schema
+                    .min(1, () => translate("nodeAddressStep.validation.portMin"))
+                    .max(65535, () => translate("nodeAddressStep.validation.portMax")),
         }),
     externalTcpPort: yup
         .number()
         .nullable()
         .when("hasExternalConfig", {
             is: true,
-            then: (schema) => schema.min(1, "Port must be greater than 0").max(65535, "Port must be less than 65536"),
+            then: (schema) =>
+                schema
+                    .min(1, () => translate("nodeAddressStep.validation.portMin"))
+                    .max(65535, () => translate("nodeAddressStep.validation.portMax")),
         }),
 });
 

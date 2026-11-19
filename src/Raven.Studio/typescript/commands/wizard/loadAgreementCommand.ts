@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("wizardCommands");
 
 class loadAgreementCommand extends commandBase {
 
@@ -15,7 +18,7 @@ class loadAgreementCommand extends commandBase {
         const url = endpoints.global.setup.setupLetsencryptAgreement + this.urlEncodeArgs(args);
 
         return this.query(url, null, null, x => x.Uri)
-            .fail((response: JQueryXHR) => this.reportError("Failed to load Let's Encrypt agreement", response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("loadAgreementFailed"), response.responseText, response.statusText));
     }
 }
 

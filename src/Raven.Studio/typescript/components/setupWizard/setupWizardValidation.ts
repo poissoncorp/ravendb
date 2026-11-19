@@ -1,4 +1,5 @@
 import * as yup from "yup";
+import type { StudioTranslate } from "common/i18n/resources";
 import { setupWizardConstants } from "./utils/setupWizardConstants";
 import { ipAddressFormSchema } from "components/setupWizard/steps/SetupWizardNodeAddressStep";
 
@@ -33,54 +34,60 @@ const subDomainAndIpsSchema = yup.object().shape({
     SubDomain: yup.string().required(),
 });
 
-const userDomainsWithIpsSchema = yup.object().shape({
-    domains: yup.object().test("is-valid-domains", "Invalid domains structure", (value) => {
-        if (!value) {
-            return true;
-        }
-        return Object.entries(value).every(([, subDomains]) => {
-            return (
-                Array.isArray(subDomains) &&
-                subDomains.every((subDomain) => subDomainAndIpsSchema.isValidSync(subDomain))
-            );
-        });
-    }),
-    email: yup.array().of(yup.string().email().required()).required(),
-    rootDomains: yup.array().of(yup.string().required()).required(),
-});
+function getUserDomainsWithIpsSchema(t: StudioTranslate<"setupWizard">) {
+    return yup.object().shape({
+        domains: yup.object().test("is-valid-domains", t("licenseKeyStep.validation.invalidDomains"), (value) => {
+            if (!value) {
+                return true;
+            }
+            return Object.entries(value).every(([, subDomains]) => {
+                return (
+                    Array.isArray(subDomains) &&
+                    subDomains.every((subDomain) => subDomainAndIpsSchema.isValidSync(subDomain))
+                );
+            });
+        }),
+        email: yup.array().of(yup.string().email().required()).required(),
+        rootDomains: yup.array().of(yup.string().required()).required(),
+    });
+}
 
-const licenseKeyStepSchema = yup.object({
-    key: yup.string(),
-    licenseInfo: yup.object({
-        licenseStatus:
-            yup.mixed<
-                Partial<
-                    Pick<
-                        LicenseStatus,
-                        "Type" | "MaxClusterSize" | "HasStudioConfiguration" | "HasPostgreSqlIntegration"
+function getLicenseKeyStepSchema(t: StudioTranslate<"setupWizard">) {
+    return yup.object({
+        key: yup.string(),
+        licenseInfo: yup.object({
+            licenseStatus:
+                yup.mixed<
+                    Partial<
+                        Pick<
+                            LicenseStatus,
+                            "Type" | "MaxClusterSize" | "HasStudioConfiguration" | "HasPostgreSqlIntegration"
+                        >
                     >
-                >
-            >(),
-        userDomainsWithIps: userDomainsWithIpsSchema,
-    }),
-    licenseTypeToGenerate: yup.string<LicenseTypeToGenerate>().nullable(),
-    isAcceptTerms: yup.boolean().oneOf([true], "The terms and conditions must be accepted.").required(),
-    isAcceptEmails: yup.boolean(),
-    firstName: licenseRequiredField(yup.string()),
-    lastName: licenseRequiredField(yup.string()),
-    email: licenseRequiredField(yup.string().email()),
-    phone: yup.string().phone(),
-    country: licenseRequiredField(yup.string().oneOf(setupWizardConstants.allCountries)),
-    jobTitle: licenseRequiredField(yup.string().oneOf(setupWizardConstants.allJobTitles)),
-    industry: licenseRequiredField(yup.string().oneOf(setupWizardConstants.allIndustries)),
-    company: licenseRequiredField(yup.string()),
-    howYouPlanToUseRavenDB: licenseRequiredField(yup.string().oneOf(setupWizardConstants.allHowYouPlanToUseRavenDB)),
+                >(),
+            userDomainsWithIps: getUserDomainsWithIpsSchema(t),
+        }),
+        licenseTypeToGenerate: yup.string<LicenseTypeToGenerate>().nullable(),
+        isAcceptTerms: yup.boolean().oneOf([true], t("licenseKeyStep.validation.acceptTerms")).required(),
+        isAcceptEmails: yup.boolean(),
+        firstName: licenseRequiredField(yup.string()),
+        lastName: licenseRequiredField(yup.string()),
+        email: licenseRequiredField(yup.string().email()),
+        phone: yup.string().phone(),
+        country: licenseRequiredField(yup.string().oneOf(setupWizardConstants.allCountries)),
+        jobTitle: licenseRequiredField(yup.string().oneOf(setupWizardConstants.allJobTitles)),
+        industry: licenseRequiredField(yup.string().oneOf(setupWizardConstants.allIndustries)),
+        company: licenseRequiredField(yup.string()),
+        howYouPlanToUseRavenDB: licenseRequiredField(
+            yup.string().oneOf(setupWizardConstants.allHowYouPlanToUseRavenDB)
+        ),
 
-    verificationCode: yup.string(),
+        verificationCode: yup.string(),
 
-    //states
-    licenseStatus: yup.string<LicenseKeyStatus>().nullable(),
-});
+        //states
+        licenseStatus: yup.string<LicenseKeyStatus>().nullable(),
+    });
+}
 
 export const licenseKeySchema = yup.object().shape({
     Id: yup.string().uuid().required(),
@@ -101,27 +108,29 @@ const selfSignedCertificateStepSchema = yup.object({
     isWildcardCertificate: yup.boolean(),
 });
 
-const domainStepSchema = yup.object({
-    domain: yup
-        .string()
-        .max(36) // Api limit is 36 characters
-        .required()
-        .test("valid-format", "The domain can contain only alphanumeric characters or '-'", (value) => {
-            if (!value) {
-                return false;
-            }
+function getDomainStepSchema(t: StudioTranslate<"setupWizard">) {
+    return yup.object({
+        domain: yup
+            .string()
+            .max(36) // Api limit is 36 characters
+            .required()
+            .test("valid-format", t("domainStep.validation.characters"), (value) => {
+                if (!value) {
+                    return false;
+                }
 
-            return /^[A-Za-z0-9-]+$/.test(value);
-        })
-        .test("no-lead-trail", "The domain cannot start or end with '-' or '.'.", (value) => {
-            if (!value) {
-                return false;
-            }
-            return !value.startsWith("-") && !value.endsWith("-") && !value.startsWith(".") && !value.endsWith(".");
-        }),
-    email: yup.string().email(),
-    rootDomain: yup.string(),
-});
+                return /^[A-Za-z0-9-]+$/.test(value);
+            })
+            .test("no-lead-trail", t("domainStep.validation.leadingOrTrailing"), (value) => {
+                if (!value) {
+                    return false;
+                }
+                return !value.startsWith("-") && !value.endsWith("-") && !value.startsWith(".") && !value.endsWith(".");
+            }),
+        email: yup.string().email(),
+        rootDomain: yup.string(),
+    });
+}
 
 const nodeAddressStepSchema = yup.object({
     nodes: yup.array().of(
@@ -145,35 +154,33 @@ const nodeAddressStepSchema = yup.object({
     ),
 });
 
-const additionalSettingsStepSchema = yup.object({
-    studioEnvironment: yup.string().oneOf(setupWizardConstants.allStudioEnvironments),
-    adminCertificateExpirationTime: yup.number(),
+function getAdditionalSettingsStepSchema(t: StudioTranslate<"setupWizard">) {
+    return yup.object({
+        studioEnvironment: yup.string().oneOf(setupWizardConstants.allStudioEnvironments),
+        adminCertificateExpirationTime: yup.number(),
 
-    // advanced settings
-    dataDirectory: yup.string().nullable(),
-    setupCertificatePath: yup
-        .string()
-        .nullable()
-        .test(
-            "is-pfx-file",
-            "The certificate path must be a full file path ending with .pfx extension, not a directory path.",
-            (value) => {
+        // advanced settings
+        dataDirectory: yup.string().nullable(),
+        setupCertificatePath: yup
+            .string()
+            .nullable()
+            .test("is-pfx-file", t("additionalSettingsStep.validation.setupCertificatePath"), (value) => {
                 if (!value) {
                     return true; // Allow empty/null values
                 }
 
                 // Check if the path ends with .pfx (case-insensitive)
                 return /\.pfx$/i.test(value);
-            }
-        ),
-    postgresqlIntegration: yup.boolean(),
-    logsPath: yup.string().nullable(),
-    staticIndexingEngineType: yup.string().oneOf(setupWizardConstants.indexingEngineTypes).nullable(),
-    autoIndexingEngineType: yup.string().oneOf(setupWizardConstants.indexingEngineTypes).nullable(),
+            }),
+        postgresqlIntegration: yup.boolean(),
+        logsPath: yup.string().nullable(),
+        staticIndexingEngineType: yup.string().oneOf(setupWizardConstants.indexingEngineTypes).nullable(),
+        autoIndexingEngineType: yup.string().oneOf(setupWizardConstants.indexingEngineTypes).nullable(),
 
-    // states
-    isAdvancedSettingsVisible: yup.boolean(),
-});
+        // states
+        isAdvancedSettingsVisible: yup.boolean(),
+    });
+}
 
 const finishStepSchema = yup.object({
     // states
@@ -193,17 +200,19 @@ export type SetupWizardStepId =
     | "Summary"
     | "Finish";
 
-export const setupWizardSchema = yup.object({
-    currentStep: yup.string<SetupWizardStepId>(),
-    setupMethodStep: setupMethodStepSchema,
-    usePackageStep: usePackageStepSchema,
-    licenseKeyStep: licenseKeyStepSchema,
-    securityStep: securityStepSchema,
-    selfSignedCertificateStep: selfSignedCertificateStepSchema,
-    domainStep: domainStepSchema,
-    nodeAddressStep: nodeAddressStepSchema,
-    additionalSettingsStep: additionalSettingsStepSchema,
-    finishStep: finishStepSchema,
-});
+export function getSetupWizardSchema(t: StudioTranslate<"setupWizard">) {
+    return yup.object({
+        currentStep: yup.string<SetupWizardStepId>(),
+        setupMethodStep: setupMethodStepSchema,
+        usePackageStep: usePackageStepSchema,
+        licenseKeyStep: getLicenseKeyStepSchema(t),
+        securityStep: securityStepSchema,
+        selfSignedCertificateStep: selfSignedCertificateStepSchema,
+        domainStep: getDomainStepSchema(t),
+        nodeAddressStep: nodeAddressStepSchema,
+        additionalSettingsStep: getAdditionalSettingsStepSchema(t),
+        finishStep: finishStepSchema,
+    });
+}
 
-export type SetupWizardFormData = yup.InferType<typeof setupWizardSchema>;
+export type SetupWizardFormData = yup.InferType<ReturnType<typeof getSetupWizardSchema>>;

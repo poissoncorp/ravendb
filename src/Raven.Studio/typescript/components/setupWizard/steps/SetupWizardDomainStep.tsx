@@ -14,8 +14,11 @@ import Button from "react-bootstrap/Button";
 import messagePublisher from "common/messagePublisher";
 import { has } from "lodash";
 import { setupWizardFormDefaultValues } from "components/setupWizard/utils/setupWizardFormDefaultValues";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export function SetupWizardDomainStep() {
+    const t = useStudioTranslation("setupWizard");
     const { control, setValue, setError, clearErrors } = useFormContext<SetupWizardFormData>();
     const { domainStep, licenseKeyStep } = useWatch({ control });
     const { setupWizardService } = useServices();
@@ -57,7 +60,7 @@ export function SetupWizardDomainStep() {
                 setDomainsOptions((prev) => prev.filter((option) => option.value !== newOption.value));
                 setError("domainStep.domain", {
                     type: "value",
-                    message: "Domain is already in use",
+                    message: t("domainStep.domainInUse"),
                 });
                 return domain;
             }
@@ -65,7 +68,7 @@ export function SetupWizardDomainStep() {
             setDomainsOptions((prev) => prev.filter((option) => option.value !== newOption.value));
             setError("domainStep.domain", {
                 type: "value",
-                message: "Error checking domain availability",
+                message: t("domainStep.domainCheckError"),
             });
             console.error("Error", e);
             return domain;
@@ -79,34 +82,38 @@ export function SetupWizardDomainStep() {
 
     return (
         <div>
-            <h2 className="mb-1">Domain</h2>
+            <h2 className="mb-1">{t("domainStep.title")}</h2>
             <p className="mb-4 text-muted">
-                Enter a name for your cluster&apos;s domain. It will be available under{" "}
-                <code>.{domainStep.rootDomain}</code>.
-                <br />
-                This domain will point to your cluster (where your databases are hosted) and will be secured with HTTPS.
+                <StudioTrans
+                    ns="setupWizard"
+                    i18nKey="domainStep.description"
+                    components={{ code: <code />, br: <br /> }}
+                    options={{ rootDomain: domainStep.rootDomain ?? "" }}
+                />
             </p>
             <FormGroup marginClass="mb-2">
                 <FormLabel className="hstack">
-                    <div>Domain</div>
+                    <div>{t("domainStep.domain")}</div>
                     <PopoverWithHoverWrapper
                         message={
                             <>
                                 <ul className="mb-0 ps-3">
                                     <li>
-                                        The name you enter will be used to create your cluster’s domain under{" "}
-                                        <code>.{domainStep.rootDomain}</code>.<br />
-                                        RavenDB will use this domain to generate an HTTPS certificate for secure
-                                        connections.
+                                        <StudioTrans
+                                            ns="setupWizard"
+                                            i18nKey="domainStep.domainInfo"
+                                            components={{ code: <code />, br: <br /> }}
+                                            options={{ rootDomain: domainStep.rootDomain ?? "" }}
+                                        />
                                     </li>
-                                    <li className="mt-1">
-                                        The domain must be reachable from the public internet to complete certificate
-                                        generation.
-                                    </li>
+                                    <li className="mt-1">{t("domainStep.domainReachable")}</li>
                                 </ul>
                                 <RichAlert icon="info" variant="info" className="mt-2">
-                                    Domain name can contain only the characters: <code>A-Z</code>, <code>a-z</code>,{" "}
-                                    <code>0-9</code>, and <code>-</code>.
+                                    <StudioTrans
+                                        ns="setupWizard"
+                                        i18nKey="domainStep.domainCharacters"
+                                        components={{ code: <code /> }}
+                                    />
                                 </RichAlert>
                             </>
                         }
@@ -122,7 +129,7 @@ export function SetupWizardDomainStep() {
                     controlShouldRenderValue
                     name="domainStep.domain"
                     options={domainsOptions}
-                    placeholder="Enter your domain name..."
+                    placeholder={t("domainStep.domainPlaceholder")}
                     onBlur={async () => {
                         const trimmedDomain = (domainStep.domain ?? "").trim();
                         if (!trimmedDomain) {
@@ -149,16 +156,13 @@ export function SetupWizardDomainStep() {
             </FormGroup>
             {hasDnsRecords && (
                 <RichAlert icon="info" variant="info">
-                    This domain already has DNS records configured. You can review and overwrite them in the next step.
+                    {t("domainStep.hasDnsRecords")}
                 </RichAlert>
             )}
             <FormGroup className="mt-3">
                 <FormLabel className="hstack">
-                    <div>Email</div>
-                    <PopoverWithHoverWrapper
-                        message="This email address is assigned to the license you’re currently using."
-                        placement="right"
-                    >
+                    <div>{t("domainStep.email")}</div>
+                    <PopoverWithHoverWrapper message={t("domainStep.emailInfo")} placement="right">
                         <Icon icon="info-new" />
                     </PopoverWithHoverWrapper>
                 </FormLabel>
@@ -207,6 +211,7 @@ const createNewOption = (label: string) => ({
 });
 
 export function SetupWizardDomainStepFooter() {
+    const t = useStudioTranslation("setupWizard");
     const { setValue, control } = useFormContext<SetupWizardFormData>();
     const { setupWizardService } = useServices();
     const {
@@ -226,7 +231,7 @@ export function SetupWizardDomainStepFooter() {
             }
             setValue("currentStep", "Node addresses");
         } else {
-            messagePublisher.reportError("Domain is required");
+            messagePublisher.reportError(t("domainStep.domainRequired"));
         }
     });
 
@@ -246,7 +251,7 @@ export function SetupWizardDomainStepFooter() {
     return (
         <div className="hstack justify-content-between">
             <Button variant="secondary" className="rounded-pill" onClick={handleBack}>
-                <Icon icon="arrow-left" /> Back
+                <Icon icon="arrow-left" /> {t("actions.back")}
             </Button>
             <ButtonWithSpinner
                 isSpinning={asyncClaimDomain.loading}
@@ -254,7 +259,7 @@ export function SetupWizardDomainStepFooter() {
                 className="rounded-pill"
                 onClick={asyncClaimDomain.execute}
             >
-                Continue&nbsp;
+                {t("actions.continue")}&nbsp;
                 <Icon icon="arrow-right" margin="m-0" />
             </ButtonWithSpinner>
         </div>

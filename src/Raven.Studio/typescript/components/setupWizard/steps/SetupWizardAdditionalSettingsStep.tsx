@@ -16,8 +16,12 @@ import { useEventsCollector } from "components/hooks/useEventsCollector";
 import { OperatingSystem, useOS } from "hooks/useOS";
 import { SetupWizardInfoPopover } from "components/setupWizard/partials/SetupWizardInfoPopover";
 import { setupWizardFormDefaultValues } from "components/setupWizard/utils/setupWizardFormDefaultValues";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import { StudioTranslate } from "common/i18n/resources";
 
 export function SetupWizardAdditionalSettingsStep() {
+    const t = useStudioTranslation("setupWizard");
     const { control } = useFormContext<SetupWizardFormData>();
 
     const {
@@ -33,8 +37,8 @@ export function SetupWizardAdditionalSettingsStep() {
     return (
         <div className="setup-wizard-additional-settings">
             <div className="mb-4">
-                <h2 className="mb-1">Additional settings</h2>
-                <p className="mb-4 text-muted">At this step, you can configure optional settings for your setup.</p>
+                <h2 className="mb-1">{t("additionalSettingsStep.title")}</h2>
+                <p className="mb-4 text-muted">{t("additionalSettingsStep.description")}</p>
             </div>
             {getLicenseType(licenseInfo).isHigherThan("None") && securityOption !== "none" && (
                 <div>
@@ -45,10 +49,10 @@ export function SetupWizardAdditionalSettingsStep() {
             )}
             <ExperimentalFeaturesSection control={control} licenseInfo={licenseInfo} />
             <div className="d-flex gap-2 align-items-center">
-                <h3 className="mb-1">Configure advanced options</h3>
+                <h3 className="mb-1">{t("additionalSettingsStep.advanced.title")}</h3>
                 <FormSwitch size="lg" name="additionalSettingsStep.isAdvancedSettingsVisible" control={control} />
             </div>
-            <p className="text-muted">Settings you may want to configure if you&#39;re an experienced user.</p>
+            <p className="text-muted">{t("additionalSettingsStep.advanced.description")}</p>
             <AdvancedSettingsContent control={control} isVisible={additionalSettingsStep.isAdvancedSettingsVisible} />
         </div>
     );
@@ -154,23 +158,22 @@ function ServerEnvironmentSection({
     control: Control<SetupWizardFormData>;
     licenseInfo: SetupWizardFormData["licenseKeyStep"]["licenseInfo"];
 }) {
+    const t = useStudioTranslation("setupWizard");
+
     if (licenseInfo?.licenseStatus?.HasStudioConfiguration) {
         return (
             <FormGroup>
                 <FormLabel className="d-flex">
-                    <div>Studio environment</div>
+                    <div>{t("additionalSettingsStep.studioEnvironment.label")}</div>
                     <PopoverWithHoverWrapper
                         message={
                             <>
                                 <img
                                     src={studioEnvironmentImage}
-                                    alt="studio-environment-image"
+                                    alt={t("additionalSettingsStep.studioEnvironment.imageAlt")}
                                     className="mb-2 w-100"
                                 />
-                                <span>
-                                    The Studio environment allows you to add a visual identifier to the UI, making it
-                                    easier to distinguish between multiple environments when working simultaneously.
-                                </span>
+                                <span>{t("additionalSettingsStep.studioEnvironment.info")}</span>
                             </>
                         }
                         placement="right"
@@ -191,6 +194,7 @@ function ServerEnvironmentSection({
 }
 
 function CertificateExpirationSection({ control }: { control: Control<SetupWizardFormData> }) {
+    const t = useStudioTranslation("setupWizard");
     const {
         securityStep: { securityOption },
     } = useWatch({ control });
@@ -202,14 +206,9 @@ function CertificateExpirationSection({ control }: { control: Control<SetupWizar
     return (
         <FormGroup>
             <FormLabel className="d-flex">
-                Admin client certificate expiration time
+                {t("additionalSettingsStep.certificateExpiration.label")}
                 <PopoverWithHoverWrapper
-                    message={
-                        <>
-                            This defines how long the admin client certificate will be valid. By default, this value is
-                            set to 60 months.
-                        </>
-                    }
+                    message={<>{t("additionalSettingsStep.certificateExpiration.info")}</>}
                     placement="right"
                 >
                     <Icon icon="info-new" />
@@ -217,10 +216,10 @@ function CertificateExpirationSection({ control }: { control: Control<SetupWizar
             </FormLabel>
             <FormInput
                 name="additionalSettingsStep.adminCertificateExpirationTime"
-                placeholder="default: 60"
+                placeholder={t("additionalSettingsStep.certificateExpiration.placeholder")}
                 control={control}
                 type="number"
-                addon="months"
+                addon={t("additionalSettingsStep.certificateExpiration.unit")}
             />
         </FormGroup>
     );
@@ -232,34 +231,35 @@ interface ExperimentalFeaturesSectionProps {
 }
 
 function ExperimentalFeaturesSection({ control, licenseInfo }: ExperimentalFeaturesSectionProps) {
+    const t = useStudioTranslation("setupWizard");
+
     if (!licenseInfo?.licenseStatus?.HasPostgreSqlIntegration) {
         return null;
     }
 
     return (
         <div>
-            <h4 className="mb-0">Experimental features</h4>
-            <p className="text-muted">
-                Some newly released features are considered experimental and are disabled by default. Toggle on to
-                enable them.
-            </p>
+            <h4 className="mb-0">{t("additionalSettingsStep.experimentalFeatures.title")}</h4>
+            <p className="text-muted">{t("additionalSettingsStep.experimentalFeatures.description")}</p>
             <PostgreSqlIntegrationToggle control={control} />
         </div>
     );
 }
 
 function PostgreSqlIntegrationToggle({ control }: { control: Control<SetupWizardFormData> }) {
+    const t = useStudioTranslation("setupWizard");
+
     return (
         <div className="postgresql-integration bg-faded-experimental">
             <FormSwitch name="additionalSettingsStep.postgresqlIntegration" color="experimental" control={control} />
             <div className="d-flex w-100 align-items-center justify-content-between">
                 <div className="flex-grow-1 lh-1">
                     <strong className="postgresql-integration__title">
-                        PostgreSQL integration
+                        {t("additionalSettingsStep.experimentalFeatures.postgreSqlTitle")}
                         <PopoverWithHoverWrapper
                             message={
                                 <SetupWizardInfoPopover
-                                    description="Enabling this feature allows RavenDB to function as a PostgreSQL server. Requires a license that includes the PostgreSQL Protocol."
+                                    description={t("additionalSettingsStep.experimentalFeatures.postgreSqlInfo")}
                                     ravenLinkHash="TRKC2W"
                                 />
                             }
@@ -269,8 +269,7 @@ function PostgreSqlIntegrationToggle({ control }: { control: Control<SetupWizard
                         </PopoverWithHoverWrapper>
                     </strong>
                     <small className="postgresql-integration__description">
-                        RavenDB supports the PostgreSQL protocol, enabling external tools such as Power BI to access the
-                        database.
+                        {t("additionalSettingsStep.experimentalFeatures.postgreSqlDescription")}
                     </small>
                 </div>
                 <Icon className="postgresql-integration__icon" size="lg" icon="integrations" />
@@ -284,16 +283,20 @@ interface AdvancedSettingsContentProps {
     isVisible: boolean;
 }
 
-const getDefaultPath = (os: OperatingSystem, type: "certificate" | "dataDirectory" | "logs") => {
+const getDefaultPath = (
+    t: StudioTranslate<"setupWizard">,
+    os: OperatingSystem,
+    type: "certificate" | "dataDirectory" | "logs"
+) => {
     const isUnix = os === "Linux" || os === "MacOS";
 
     const paths = {
-        certificate: isUnix ? "e.g. /etc/ravendb/security/server.pfx" : "e.g. C:\\RavenDB\\Certificate\\server.pfx",
-        dataDirectory: isUnix ? "e.g. /var/lib/ravendb/data" : "e.g. C:\\RavenDB\\Data",
-        logs: isUnix ? "e.g. /logs" : "e.g. C:\\RavenDB\\Logs",
+        certificate: isUnix ? "/etc/ravendb/security/server.pfx" : "C:\\RavenDB\\Certificate\\server.pfx",
+        dataDirectory: isUnix ? "/var/lib/ravendb/data" : "C:\\RavenDB\\Data",
+        logs: isUnix ? "/logs" : "C:\\RavenDB\\Logs",
     };
 
-    return paths[type];
+    return t("additionalSettingsStep.advanced.pathPlaceholder", { path: paths[type] });
 };
 
 const isAbsolutePath = (path: string | null | undefined): boolean => {
@@ -311,6 +314,7 @@ const isAbsolutePath = (path: string | null | undefined): boolean => {
 };
 
 function AdvancedSettingsContent({ control, isVisible }: AdvancedSettingsContentProps) {
+    const t = useStudioTranslation("setupWizard");
     const os = useOS();
     const { resourcesService } = useServices();
 
@@ -349,7 +353,7 @@ function AdvancedSettingsContent({ control, isVisible }: AdvancedSettingsContent
         >
             <FormGroup>
                 <FormLabel className="hstack">
-                    <div>Data directory</div>
+                    <div>{t("additionalSettingsStep.advanced.dataDirectory")}</div>
                     <ConditionalPopover
                         conditions={{
                             isActive: isVisible,
@@ -357,10 +361,13 @@ function AdvancedSettingsContent({ control, isVisible }: AdvancedSettingsContent
                                 <SetupWizardInfoPopover
                                     description={
                                         <ul>
-                                            <li>Defines the path to the RavenDB data directory.</li>
+                                            <li>{t("additionalSettingsStep.advanced.dataDirectoryInfo")}</li>
                                             <li>
-                                                By default, data is stored in the <code>RavenData</code> folder under
-                                                the extracted <code>Server</code> directory.
+                                                <StudioTrans
+                                                    ns="setupWizard"
+                                                    i18nKey="additionalSettingsStep.advanced.dataDirectoryDefault"
+                                                    components={{ code: <code /> }}
+                                                />
                                             </li>
                                         </ul>
                                     }
@@ -377,14 +384,13 @@ function AdvancedSettingsContent({ control, isVisible }: AdvancedSettingsContent
                     disabled={!isVisible}
                     name="additionalSettingsStep.dataDirectory"
                     control={control}
-                    placeholder={getDefaultPath(os, "dataDirectory")}
+                    placeholder={getDefaultPath(t, os, "dataDirectory")}
                     getPathsProvider={(path: string) => getLocalFolderPathsProvider(path)}
                     getPathDependencies={(path: string) => [path]}
                 />
                 {isVisible && isAbsolutePath(dataDirectory) && (
                     <RichAlert variant="warning" className="mt-2">
-                        This path will be used on all nodes. Make sure this directory exists on each node; otherwise,
-                        the setup will fail.
+                        {t("additionalSettingsStep.advanced.dataDirectoryWarning")}
                     </RichAlert>
                 )}
             </FormGroup>
@@ -392,7 +398,7 @@ function AdvancedSettingsContent({ control, isVisible }: AdvancedSettingsContent
                 <FormGroup>
                     <FormLabel className="vstack">
                         <div className="hstack">
-                            <div>Setup certificate path</div>
+                            <div>{t("additionalSettingsStep.advanced.setupCertificatePath")}</div>
                             <ConditionalPopover
                                 conditions={{
                                     isActive: isVisible,
@@ -401,17 +407,25 @@ function AdvancedSettingsContent({ control, isVisible }: AdvancedSettingsContent
                                             description={
                                                 <ul>
                                                     <li>
-                                                        Specifies the <strong>full file path</strong> (including the{" "}
-                                                        <code>.pfx</code> extension) where the server certificate will
-                                                        be stored.
+                                                        <StudioTrans
+                                                            ns="setupWizard"
+                                                            i18nKey="additionalSettingsStep.advanced.setupCertificatePathInfo"
+                                                            components={{ strong: <strong />, code: <code /> }}
+                                                        />
                                                     </li>
                                                     <li>
-                                                        Make sure the directory exists and has the required write
-                                                        permissions on <strong>every node</strong>.
+                                                        <StudioTrans
+                                                            ns="setupWizard"
+                                                            i18nKey="additionalSettingsStep.advanced.setupCertificatePathPermissions"
+                                                            components={{ strong: <strong /> }}
+                                                        />
                                                     </li>
                                                     <li>
-                                                        By default, RavenDB stores your server certificate directly
-                                                        under the extracted <code>Server</code> folder.
+                                                        <StudioTrans
+                                                            ns="setupWizard"
+                                                            i18nKey="additionalSettingsStep.advanced.setupCertificatePathDefault"
+                                                            components={{ code: <code /> }}
+                                                        />
                                                     </li>
                                                 </ul>
                                             }
@@ -430,21 +444,20 @@ function AdvancedSettingsContent({ control, isVisible }: AdvancedSettingsContent
                         name="additionalSettingsStep.setupCertificatePath"
                         control={control}
                         defaultFileName={defaultCertificatePathFileName}
-                        placeholder={getDefaultPath(os, "certificate")}
+                        placeholder={getDefaultPath(t, os, "certificate")}
                         getPathsProvider={(path: string) => getLocalFolderPathsProvider(path)}
                         getPathDependencies={(path: string) => [path]}
                     />
                     {isVisible && !!setupCertificatePath && (
                         <RichAlert variant="warning" className="mt-2">
-                            This path must exist as the certificate will be saved here. After setup, ensure the
-                            certificate is available at the same path on every node; otherwise, cluster setup may fail.
+                            {t("additionalSettingsStep.advanced.setupCertificatePathWarning")}
                         </RichAlert>
                     )}
                 </FormGroup>
             )}
             <FormGroup>
                 <FormLabel className="hstack">
-                    <div>Logs directory</div>
+                    <div>{t("additionalSettingsStep.advanced.logsDirectory")}</div>
                     <ConditionalPopover
                         conditions={{
                             isActive: isVisible,
@@ -452,10 +465,13 @@ function AdvancedSettingsContent({ control, isVisible }: AdvancedSettingsContent
                                 <SetupWizardInfoPopover
                                     description={
                                         <ul>
-                                            <li>Defines the path to the logs directory.</li>
+                                            <li>{t("additionalSettingsStep.advanced.logsDirectoryInfo")}</li>
                                             <li>
-                                                By default, RavenDB stores logs in the <code>Logs</code> directory under
-                                                the extracted <code>Server</code> folder.
+                                                <StudioTrans
+                                                    ns="setupWizard"
+                                                    i18nKey="additionalSettingsStep.advanced.logsDirectoryDefault"
+                                                    components={{ code: <code /> }}
+                                                />
                                             </li>
                                         </ul>
                                     }
@@ -472,26 +488,25 @@ function AdvancedSettingsContent({ control, isVisible }: AdvancedSettingsContent
                     disabled={!isVisible}
                     name="additionalSettingsStep.logsPath"
                     control={control}
-                    placeholder={getDefaultPath(os, "logs")}
+                    placeholder={getDefaultPath(t, os, "logs")}
                     getPathsProvider={(path: string) => getLocalFolderPathsProvider(path)}
                     getPathDependencies={(path: string) => [path]}
                 />
                 {isVisible && isAbsolutePath(logsPath) && (
                     <RichAlert variant="warning" className="mt-2">
-                        This path will be used on all nodes. Please ensure this directory exists on each node, as setup
-                        will fail otherwise.
+                        {t("additionalSettingsStep.advanced.logsDirectoryWarning")}
                     </RichAlert>
                 )}
             </FormGroup>
             <FormGroup>
                 <FormLabel className="hstack">
-                    <div>Auto indexing engine type</div>
+                    <div>{t("additionalSettingsStep.advanced.autoIndexingEngine")}</div>
                     <ConditionalPopover
                         conditions={{
                             isActive: isVisible,
                             message: (
                                 <SetupWizardInfoPopover
-                                    description="Defines the indexing engine used for auto indexes in RavenDB."
+                                    description={t("additionalSettingsStep.advanced.autoIndexingEngineInfo")}
                                     ravenLinkHash="H8IONI"
                                 />
                             ),
@@ -510,13 +525,13 @@ function AdvancedSettingsContent({ control, isVisible }: AdvancedSettingsContent
             </FormGroup>
             <FormGroup>
                 <FormLabel className="hstack">
-                    <div>Static indexing engine type</div>
+                    <div>{t("additionalSettingsStep.advanced.staticIndexingEngine")}</div>
                     <ConditionalPopover
                         conditions={{
                             isActive: isVisible,
                             message: (
                                 <SetupWizardInfoPopover
-                                    description="Defines the indexing engine used for static indexes in RavenDB."
+                                    description={t("additionalSettingsStep.advanced.staticIndexingEngineInfo")}
                                     ravenLinkHash="H8IONI"
                                 />
                             ),
@@ -538,6 +553,7 @@ function AdvancedSettingsContent({ control, isVisible }: AdvancedSettingsContent
 }
 
 export function SetupWizardAdditionalSettingsStepFooter() {
+    const t = useStudioTranslation("setupWizard");
     const { setValue } = useFormContext<SetupWizardFormData>();
     const { reportEvent } = useEventsCollector();
 
@@ -555,10 +571,10 @@ export function SetupWizardAdditionalSettingsStepFooter() {
     return (
         <div className="hstack justify-content-between">
             <Button variant="secondary" className="rounded-pill" onClick={handleBack}>
-                <Icon icon="arrow-left" /> Back
+                <Icon icon="arrow-left" /> {t("actions.back")}
             </Button>
             <Button variant="primary" className="rounded-pill" onClick={handleContinue}>
-                Continue <Icon icon="arrow-right" margin="m-0" />
+                {t("actions.continue")} <Icon icon="arrow-right" margin="m-0" />
             </Button>
         </div>
     );

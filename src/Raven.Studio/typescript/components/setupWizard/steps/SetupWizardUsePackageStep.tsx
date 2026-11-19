@@ -17,8 +17,10 @@ import { base64ToFile, fileToBase64 } from "components/setupWizard/utils/setupWi
 import { LazyLoad } from "components/common/LazyLoad";
 import { SetupWizardInfoPopover } from "components/setupWizard/partials/SetupWizardInfoPopover";
 import { setupWizardFormDefaultValues } from "components/setupWizard/utils/setupWizardFormDefaultValues";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export function SetupWizardUsePackageStep() {
+    const t = useStudioTranslation("setupWizard");
     const { control, setValue, watch } = useFormContext<SetupWizardFormData>();
     const {
         usePackageStep: { fileZip, fileName, isZipValid },
@@ -40,7 +42,10 @@ export function SetupWizardUsePackageStep() {
 
     const nodeOptions: SelectOption[] = nodeInfos.map((nodeInfo) => ({
         value: nodeInfo.Tag,
-        label: `Node ${nodeInfo.Tag} (${nodeInfo.PublicServerUrl || nodeInfo.ServerUrl})`,
+        label: t("usePackageStep.nodeOption", {
+            tag: nodeInfo.Tag,
+            url: nodeInfo.PublicServerUrl || nodeInfo.ServerUrl,
+        }),
     }));
 
     const handleNodeTagChange = (newValue: SelectOption) => {
@@ -93,7 +98,7 @@ export function SetupWizardUsePackageStep() {
             try {
                 return [base64ToFile(fileZip, fileName, "application/zip")];
             } catch (error) {
-                messagePublisher.reportError("Failed to load file", error);
+                messagePublisher.reportError(t("errors.failedToLoadFile"), error);
                 return [];
             }
         }
@@ -110,7 +115,7 @@ export function SetupWizardUsePackageStep() {
 
         if (!file.name.trim()) {
             clearFile();
-            messagePublisher.reportError("Failed to load file");
+            messagePublisher.reportError(t("errors.failedToLoadFile"));
             return;
         }
 
@@ -128,16 +133,14 @@ export function SetupWizardUsePackageStep() {
             field.onChange(cleanFileInBase64);
         } catch (e) {
             clearFile();
-            messagePublisher.reportError("Failed to load file", e.message);
+            messagePublisher.reportError(t("errors.failedToLoadFile"), e.message);
         }
     };
 
     return (
         <div>
-            <h2 className="mb-1">Use setup package</h2>
-            <p className="mb-4 text-muted">
-                Use an existing setup package to configure selected nodes in your cluster.
-            </p>
+            <h2 className="mb-1">{t("usePackageStep.title")}</h2>
+            <p className="mb-4 text-muted">{t("usePackageStep.description")}</p>
             <FormGroup>
                 <Controller
                     name="usePackageStep.fileZip"
@@ -156,12 +159,11 @@ export function SetupWizardUsePackageStep() {
                 {fileZip && isZipValid && asyncExtractNodeInfos.status === "success" && (
                     <FormGroup>
                         <FormLabel className="hstack">
-                            <div>Node tag</div>
+                            <div>{t("usePackageStep.nodeTag")}</div>
                             <PopoverWithHoverWrapper
                                 message={
                                     <SetupWizardInfoPopover
-                                        description="Select which node from the predefined cluster you would like to set up now.
-                                            Do not choose one that is already configured."
+                                        description={t("usePackageStep.nodeTagInfo")}
                                         ravenLinkHash="WJJHFY"
                                     />
                                 }
@@ -172,21 +174,20 @@ export function SetupWizardUsePackageStep() {
                         <FormSelect
                             control={control}
                             name="usePackageStep.nodeTag"
-                            placeholder="Select node tag"
+                            placeholder={t("usePackageStep.nodeTagPlaceholder")}
                             onChange={handleNodeTagChange}
                             options={nodeOptions}
                         />
                     </FormGroup>
                 )}
-                {!isZipValid && fileZip && (
-                    <RichAlert variant="danger">Invalid nodes configuration in zip file.</RichAlert>
-                )}
+                {!isZipValid && fileZip && <RichAlert variant="danger">{t("usePackageStep.invalidZip")}</RichAlert>}
             </LazyLoad>
         </div>
     );
 }
 
 export function SetupWizardUsePackageStepFooter() {
+    const t = useStudioTranslation("setupWizard");
     const { setValue, control } = useFormContext<SetupWizardFormData>();
     const { reportEvent } = useEventsCollector();
 
@@ -207,7 +208,7 @@ export function SetupWizardUsePackageStepFooter() {
     return (
         <div className="d-flex justify-content-between">
             <Button variant="secondary" className="rounded-pill" onClick={handleBack}>
-                <Icon icon="arrow-left" /> Back
+                <Icon icon="arrow-left" /> {t("actions.back")}
             </Button>
             <Button
                 variant="primary"
@@ -215,7 +216,7 @@ export function SetupWizardUsePackageStepFooter() {
                 onClick={handleContinue}
                 disabled={!isZipValid || !fileZip || !nodeTag}
             >
-                Continue <Icon icon="arrow-right" margin="m-0" />
+                {t("actions.continue")} <Icon icon="arrow-right" margin="m-0" />
             </Button>
         </div>
     );

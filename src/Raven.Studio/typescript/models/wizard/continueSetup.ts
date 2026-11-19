@@ -2,6 +2,9 @@
 
 import extractNodesInfoFromPackageCommand = require("commands/wizard/extractNodesInfoFromPackageCommand");
 import fileImporter = require("common/fileImporter");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("wizardModels");
 
 interface configurationNodeInfo  {
     publicServerUrl: string;
@@ -54,7 +57,7 @@ class continueSetup {
             validation: [
                 {
                     validator: (val: boolean) => val,
-                    message: "Invalid nodes configuration in zip file"
+                    message: () => t("continueSetup.invalidNodesConfiguration")
                 }
             ]
         })

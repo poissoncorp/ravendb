@@ -32,6 +32,8 @@ import { useAppDispatch } from "components/store";
 import { setupWizardActions } from "components/setupWizard/store/setupWizardSlice";
 import OperationStatus = Raven.Client.Documents.Operations.OperationStatus;
 import { delay } from "components/utils/common";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface Logs {
     message: string;
@@ -43,6 +45,7 @@ const operationStatePollIntervalMs = 2000;
 const maxConsecutivePollFailures = 15;
 
 export function SetupWizardFinishStep() {
+    const t = useStudioTranslation("setupWizard");
     const { control, setValue } = useFormContext<SetupWizardFormData>();
     const { reportEvent } = useEventsCollector();
     const dispatch = useAppDispatch();
@@ -188,10 +191,7 @@ export function SetupWizardFinishStep() {
                     console.warn(`Failed to read state of setup operation ${operationId}`, e);
 
                     if (consecutiveFailures >= maxConsecutivePollFailures) {
-                        failSetup(
-                            "The server stopped responding to setup status queries. " +
-                                "The setup might still be running - check the server log."
-                        );
+                        failSetup(t("finishStep.serverNotResponding"));
                         return;
                     }
                 }
@@ -231,7 +231,7 @@ export function SetupWizardFinishStep() {
             console.error("Setup failed", e);
 
             if (!disposed) {
-                failSetup("Setup failed: " + genUtils.trimMessage(e?.responseJSON?.Message ?? e));
+                failSetup(t("finishStep.setupFailed", { error: genUtils.trimMessage(e?.responseJSON?.Message ?? e) }));
             }
         });
 
@@ -265,7 +265,7 @@ export function SetupWizardFinishStep() {
                             }}
                             color="primary"
                         >
-                            Show configuration log
+                            {t("finishStep.showLog")}
                         </Switch>
                     </FormGroup>
                 )}
@@ -282,7 +282,7 @@ export function SetupWizardFinishStep() {
                     size="xs"
                 >
                     <Icon icon="download" />
-                    Download configuration log
+                    {t("finishStep.downloadLog")}
                 </Button>
             </div>
             {finishStep.finishingStatus !== "Completed" && (
@@ -330,28 +330,30 @@ interface ConfigurationProps {
 }
 
 const Configuration = ({ configurationProcess, errorLogs }: ConfigurationProps) => {
+    const t = useStudioTranslation("setupWizard");
+
     return (
         <div>
             <ConfigurationItem
-                stepTitle="Validation"
+                stepTitle={t("finishStep.configuration.validation")}
                 configurationState={configurationProcess?.SetupActionSteps?.StepsByConfigurationStepType.Validation}
                 errorLogs={errorLogs}
             />
 
             <ConfigurationItem
-                stepTitle="Let's encrypt"
+                stepTitle={t("finishStep.configuration.letsEncrypt")}
                 configurationState={configurationProcess?.SetupActionSteps?.StepsByConfigurationStepType.LetsEncrypt}
                 errorLogs={errorLogs}
             />
 
             <ConfigurationItem
-                stepTitle="DNS records"
+                stepTitle={t("finishStep.configuration.dnsRecords")}
                 configurationState={configurationProcess?.SetupActionSteps?.StepsByConfigurationStepType.DnsRecords}
                 errorLogs={errorLogs}
             />
 
             <ConfigurationItem
-                stepTitle="Acquiring let's encrypt certificate"
+                stepTitle={t("finishStep.configuration.acquiringCertificate")}
                 configurationState={
                     configurationProcess?.SetupActionSteps?.StepsByConfigurationStepType.AcquiringLetsEncryptCertificate
                 }
@@ -359,7 +361,7 @@ const Configuration = ({ configurationProcess, errorLogs }: ConfigurationProps) 
             />
 
             <ConfigurationItem
-                stepTitle="Configuration settings"
+                stepTitle={t("finishStep.configuration.configurationSettings")}
                 configurationState={
                     configurationProcess?.SetupActionSteps?.StepsByConfigurationStepType.ConfigurationSettings
                 }
@@ -367,7 +369,7 @@ const Configuration = ({ configurationProcess, errorLogs }: ConfigurationProps) 
             />
 
             <ConfigurationItem
-                stepTitle="Client certificate"
+                stepTitle={t("finishStep.configuration.clientCertificate")}
                 configurationState={
                     configurationProcess?.SetupActionSteps?.StepsByConfigurationStepType.ClientCertificate
                 }
@@ -375,7 +377,7 @@ const Configuration = ({ configurationProcess, errorLogs }: ConfigurationProps) 
             />
 
             <ConfigurationItem
-                stepTitle="Creating settings.json"
+                stepTitle={t("finishStep.configuration.creatingSettingsJson")}
                 configurationState={
                     configurationProcess?.SetupActionSteps?.StepsByConfigurationStepType.CreatingSettingsJson
                 }
@@ -392,6 +394,8 @@ interface ConfigurationItemProps {
 }
 
 const ConfigurationItem = ({ configurationState, stepTitle, errorLogs }: ConfigurationItemProps) => {
+    const t = useStudioTranslation("setupWizard");
+
     if (!configurationState?.State || configurationState?.State === "NotApplicable") {
         return null;
     }
@@ -427,7 +431,7 @@ const ConfigurationItem = ({ configurationState, stepTitle, errorLogs }: Configu
                     title={configurationState?.ErrorType}
                     className="my-2"
                     copyText={errorLogs.map((log) => log.message).join("\n")}
-                    copyTextSuccessMessage="Error logs copied to clipboard"
+                    copyTextSuccessMessage={t("finishStep.configuration.errorLogsCopied")}
                 >
                     <div className="text-wrap" title={configurationState?.ErrorMessage}>
                         {configurationState?.ErrorMessage}
@@ -446,6 +450,7 @@ const ConfigurationItem = ({ configurationState, stepTitle, errorLogs }: Configu
 };
 
 function TopInfo() {
+    const t = useStudioTranslation("setupWizard");
     const { control } = useFormContext<SetupWizardFormData>();
 
     const {
@@ -456,12 +461,11 @@ function TopInfo() {
     if (finishingStatus === "InProgress") {
         return (
             <>
-                <h2 className="mb-1">Configuration in progress</h2>
+                <h2 className="mb-1">{t("finishStep.inProgress.title")}</h2>
                 <p className="mb-4 text-muted">
-                    Please wait a moment.{" "}
-                    {setupMethodStep.method === "createPackage"
-                        ? "Your setup package will be ready shortly."
-                        : "Your RavenDB server will be ready shortly."}
+                    {t("finishStep.inProgress.description", {
+                        context: setupMethodStep.method === "createPackage" ? "createPackage" : undefined,
+                    })}
                 </p>
             </>
         );
@@ -470,10 +474,8 @@ function TopInfo() {
     if (finishingStatus === "Faulted") {
         return (
             <>
-                <h2 className="mb-1">Setup failed</h2>
-                <p className="mb-4 text-muted">
-                    It seems something went wrong. Refer to the error message for more details.
-                </p>
+                <h2 className="mb-1">{t("finishStep.faulted.title")}</h2>
+                <p className="mb-4 text-muted">{t("finishStep.faulted.description")}</p>
             </>
         );
     }
@@ -481,7 +483,7 @@ function TopInfo() {
     if (finishingStatus === "Canceled") {
         return (
             <>
-                <h2 className="mb-1">Setup canceled</h2>
+                <h2 className="mb-1">{t("finishStep.canceled.title")}</h2>
             </>
         );
     }
@@ -489,10 +491,8 @@ function TopInfo() {
     if (finishingStatus === "Completed") {
         return (
             <>
-                <h2 className="mb-1">All set!</h2>
-                <p className="mb-4 text-muted">
-                    You&apos;re almost ready to go. Follow the instructions to complete the process.
-                </p>
+                <h2 className="mb-1">{t("finishStep.completed.title")}</h2>
+                <p className="mb-4 text-muted">{t("finishStep.completed.description")}</p>
             </>
         );
     }
@@ -501,6 +501,7 @@ function TopInfo() {
 }
 
 function CompletedSummary() {
+    const t = useStudioTranslation("setupWizard");
     const { control } = useFormContext<SetupWizardFormData>();
 
     const {
@@ -526,7 +527,7 @@ function CompletedSummary() {
                 <Nav className="mb-2">
                     <Nav.Item className="flex-grow">
                         <Nav.Link eventKey="cluster" className="cluster-tab">
-                            Complete cluster setup
+                            {t("finishStep.summary.completeClusterSetup")}
                         </Nav.Link>
                     </Nav.Item>
                 </Nav>
@@ -539,21 +540,15 @@ function CompletedSummary() {
                             <div>
                                 <Icon icon="folder" addon="attachment" color="primary" size="lg" />
                             </div>
-                            <span>
-                                Your cluster settings configuration and the certificate are included in the downloaded
-                                zip file.
-                            </span>
+                            <span>{t("finishStep.summary.packageIncluded")}</span>
                         </Col>
                         <Col md={6} className="vstack gap-3 text-center justify-content-center px-4">
                             <Icon icon="cluster" color="node" size="lg" />
-                            <span>
-                                You are setting up a cluster. The cluster topology and node addresses have already been
-                                configured.
-                            </span>
+                            <span>{t("finishStep.summary.settingUpCluster")}</span>
                         </Col>
                     </Row>
                     <hr />
-                    <ClusterNodesInstructions heading="How to set up the cluster nodes?" />
+                    <ClusterNodesInstructions heading={t("finishStep.summary.howToSetUpClusterNodes")} />
                 </div>
             </div>
         );
@@ -565,13 +560,13 @@ function CompletedSummary() {
                 <Nav className="mb-2">
                     <Nav.Item className="flex-grow">
                         <Nav.Link eventKey="connectToServer" className="connect-to-server-tab">
-                            Access the server
+                            {t("finishStep.summary.accessServer")}
                         </Nav.Link>
                     </Nav.Item>
                     {isSettingCluster && (
                         <Nav.Item className="flex-grow">
                             <Nav.Link eventKey="cluster" className="cluster-tab">
-                                Complete cluster setup
+                                {t("finishStep.summary.completeClusterSetup")}
                             </Nav.Link>
                         </Nav.Item>
                     )}
@@ -585,10 +580,12 @@ function CompletedSummary() {
                             >
                                 <Icon icon="server" color="primary" size="lg" />
                                 <span>
-                                    The new server will be available at:{" "}
-                                    <a href={studioUrl} target="_blank" className="pe-none">
-                                        {studioUrl}
-                                    </a>
+                                    <StudioTrans
+                                        ns="setupWizard"
+                                        i18nKey="finishStep.summary.serverAvailableAt"
+                                        components={{ a: <a href={studioUrl} target="_blank" className="pe-none" /> }}
+                                        options={{ studioUrl }}
+                                    />
                                 </span>
                             </Col>
                             <Col
@@ -602,23 +599,27 @@ function CompletedSummary() {
                             >
                                 <Icon icon="node" color="node" size="lg" />
                                 <span>
-                                    The current <span className="text-node fw-bold">Node {localNodeTag}</span> has
-                                    already been configured and requires no further action on your part.
+                                    <StudioTrans
+                                        ns="setupWizard"
+                                        i18nKey="finishStep.summary.currentNodeConfigured"
+                                        components={{ span: <span className="text-node fw-bold" /> }}
+                                        options={{ nodeTag: localNodeTag }}
+                                    />
                                 </span>
                             </Col>
                             {showInfoAboutInstalledCertificate && (
                                 <Col md={4} className="vstack gap-2 text-center justify-content-center">
                                     <Icon icon="certificate" size="lg" />
-                                    <span>An administrator client certificate has been installed on this machine.</span>
+                                    <span>{t("finishStep.summary.certificateInstalled")}</span>
                                 </Col>
                             )}
                         </Row>
                         <RichAlert variant="info" className="mt-3">
-                            You&apos;ll need to restart the server before you can access RavenDB Studio.
+                            {t("finishStep.summary.restartRequired")}
                         </RichAlert>
                     </Tab.Pane>
                     <Tab.Pane eventKey="cluster">
-                        <ClusterNodesInstructions heading="How to set up the other nodes?" />
+                        <ClusterNodesInstructions heading={t("finishStep.summary.howToSetUpOtherNodes")} />
                     </Tab.Pane>
                 </Tab.Content>
             </Tab.Container>
@@ -627,30 +628,29 @@ function CompletedSummary() {
 }
 
 function ClusterNodesInstructions({ heading }: { heading: string }) {
+    const t = useStudioTranslation("setupWizard");
+
     return (
         <>
             <h5>{heading}</h5>
             <NumberedList>
-                <NumberedListItem stepKey={1}>
-                    The next step is to download a new RavenDB server for each of the cluster nodes.
-                </NumberedListItem>
+                <NumberedListItem stepKey={1}>{t("finishStep.clusterNodes.downloadServer")}</NumberedListItem>
                 <NumberedListItem stepKey={2}>
-                    When you enter the Setup Wizard on a new node, choose &apos;
-                    <b>Use Setup Package</b>&apos;.
-                    <br />
-                    Do not start a setup process on a node that has already been configured; this is not supported.
+                    <StudioTrans
+                        ns="setupWizard"
+                        i18nKey="finishStep.clusterNodes.chooseSetupPackage"
+                        components={{ b: <b />, br: <br /> }}
+                    />
                 </NumberedListItem>
-                <NumberedListItem stepKey={3}>
-                    You will be asked to upload the zip file that was just downloaded.
-                </NumberedListItem>
-                <NumberedListItem stepKey={4}>The new server node will join the existing cluster.</NumberedListItem>
+                <NumberedListItem stepKey={3}>{t("finishStep.clusterNodes.uploadZip")}</NumberedListItem>
+                <NumberedListItem stepKey={4}>{t("finishStep.clusterNodes.joinCluster")}</NumberedListItem>
             </NumberedList>
             <RichAlert variant="info" className="mt-3">
-                When the Setup Wizard is done and the new node restarts, the cluster will automatically detect it.
-                <br />
-                There is no need to add it manually from Studio.
-                <br />
-                Simply access the &apos;Cluster&apos; view and observe the topology update.
+                <StudioTrans
+                    ns="setupWizard"
+                    i18nKey="finishStep.clusterNodes.autoDetect"
+                    components={{ br: <br /> }}
+                />
             </RichAlert>
         </>
     );
@@ -936,6 +936,8 @@ interface CertInstallationConfirmProps {
 }
 
 function CertInstallationConfirm({ onCancel, onConfirm }: CertInstallationConfirmProps) {
+    const t = useStudioTranslation("setupWizard");
+    const tCommon = useStudioTranslation("common");
     const { reportEvent } = useEventsCollector();
 
     const browser = genUtils.getBrowser();
@@ -948,12 +950,12 @@ function CertInstallationConfirm({ onCancel, onConfirm }: CertInstallationConfir
         <Modal show onHide={onCancel} contentClassName="modal-border bulge-primary" size="lg">
             <Modal.Header closeButton onCloseClick={onCancel}>
                 <Icon icon="certificate" color="primary" addon="check" className="fs-2" />
-                <span className="lead">Confirm certificate installation</span>
+                <span className="lead">{t("finishStep.certificateModal.title")}</span>
             </Modal.Header>
             <Modal.Body className="pt-0">
                 <NumberedList>
                     <NumberedListItem stepKey={1}>
-                        <h4>Recognize certificate in your browser</h4>
+                        <h4>{t("finishStep.certificateModal.recognizeCertificate")}</h4>
                         <div className="browser-tab-container">
                             <Tab.Container
                                 id="summary-tabs"
@@ -982,55 +984,41 @@ function CertInstallationConfirm({ onCancel, onConfirm }: CertInstallationConfir
                                     <Nav.Item className="flex-grow">
                                         <Nav.Link eventKey="Other" className="other-tab">
                                             <Icon icon="global" />
-                                            Other
+                                            {t("finishStep.certificateModal.otherBrowser")}
                                         </Nav.Link>
                                     </Nav.Item>
                                 </Nav>
                                 <Tab.Content className="p-2 text-break">
                                     <Tab.Pane eventKey="Chrome">
-                                        Chrome (or any{" "}
-                                        <a
-                                            href="https://en.wikipedia.org/wiki/Chromium_(web_browser)#Browsers_based_on_Chromium"
-                                            target="_blank"
-                                        >
-                                            Chromium-based browser
-                                        </a>
-                                        ) will let you select this certificate automatically. You may need to restart
-                                        all instances of Chrome to make sure nothing is cached.
+                                        <StudioTrans
+                                            ns="setupWizard"
+                                            i18nKey="finishStep.certificateModal.chromeInfo"
+                                            components={{
+                                                a: (
+                                                    <a
+                                                        href="https://en.wikipedia.org/wiki/Chromium_(web_browser)#Browsers_based_on_Chromium"
+                                                        target="_blank"
+                                                    />
+                                                ),
+                                            }}
+                                        />
                                     </Tab.Pane>
                                     <Tab.Pane eventKey="Firefox">
-                                        Firefox uses its own internal certificate store. After importing the certificate
-                                        through Firefox settings, it will be available for use automatically. You may
-                                        need to restart Firefox to ensure the new certificate is recognized properly.
+                                        {t("finishStep.certificateModal.firefoxInfo")}
                                     </Tab.Pane>
-                                    <Tab.Pane eventKey="Safari">
-                                        Safari uses the macOS Keychain to manage certificates. Once the certificate is
-                                        imported and trusted in Keychain Access, Safari will select it automatically
-                                        when needed. Restarting Safari or the system may help if it doesn’t appear right
-                                        away.
-                                    </Tab.Pane>
+                                    <Tab.Pane eventKey="Safari">{t("finishStep.certificateModal.safariInfo")}</Tab.Pane>
                                     <Tab.Pane eventKey="Other">
-                                        Browsers that are not Chromium-based and don’t use the system certificate store
-                                        typically require manual certificate import through their own settings or
-                                        preferences. Behavior may vary, and restarting the browser is often recommended
-                                        to ensure the certificate is applied.
+                                        {t("finishStep.certificateModal.otherBrowserInfo")}
                                     </Tab.Pane>
                                 </Tab.Content>
                             </Tab.Container>
                         </div>
                     </NumberedListItem>
                     <NumberedListItem stepKey={2}>
-                        <h4 className="mb-2">Restart server</h4>
-                        <p className="mb-1">
-                            Once you proceed with restart, pick your newly installed certificate from the list of
-                            available certificates.
-                        </p>
+                        <h4 className="mb-2">{t("finishStep.certificateModal.restartTitle")}</h4>
+                        <p className="mb-1">{t("finishStep.certificateModal.pickCertificate")}</p>
                         {activeTab === "Chrome" && (
-                            <p className="mb-0">
-                                If Chrome doesn&apos;t let you choose a certificate and instead you get a RavenDB
-                                authentication error, please try again in the Incognito mode (or close all instances of
-                                Chrome). It can happen because the browser caches the client certificates.
-                            </p>
+                            <p className="mb-0">{t("finishStep.certificateModal.chromeAuthError")}</p>
                         )}
                     </NumberedListItem>
                 </NumberedList>
@@ -1042,7 +1030,7 @@ function CertInstallationConfirm({ onCancel, onConfirm }: CertInstallationConfir
                     className="btn btn-info rounded-pill"
                     onClick={() => reportEvent(setupWizardGA4Prefixes.finalStep, "open-docs", "cert-install")}
                 >
-                    See documentation <Icon icon="newtab" margin="m-0" />
+                    {t("finishStep.certificateModal.seeDocumentation")} <Icon icon="newtab" margin="m-0" />
                 </a>
                 <div className="hstack gap-2">
                     <Button
@@ -1053,7 +1041,7 @@ function CertInstallationConfirm({ onCancel, onConfirm }: CertInstallationConfir
                         }}
                         className="link-muted"
                     >
-                        Cancel
+                        {tCommon("cancel")}
                     </Button>
                     <Button
                         variant="primary"
@@ -1064,7 +1052,7 @@ function CertInstallationConfirm({ onCancel, onConfirm }: CertInstallationConfir
                         className="rounded-pill"
                     >
                         <Icon icon="reset" />
-                        Restart server
+                        {t("finishStep.restartServer")}
                     </Button>
                 </div>
             </Modal.Footer>
@@ -1073,6 +1061,7 @@ function CertInstallationConfirm({ onCancel, onConfirm }: CertInstallationConfir
 }
 
 export function SetupWizardFinishStepFooter() {
+    const t = useStudioTranslation("setupWizard");
     const { setupWizardService } = useServices();
     const { reportEvent } = useEventsCollector();
     const { control, setValue, reset } = useFormContext<SetupWizardFormData>();
@@ -1184,7 +1173,7 @@ export function SetupWizardFinishStepFooter() {
                     onClick={() => setValue("currentStep", "Summary")}
                 >
                     <Icon icon="arrow-left" />
-                    Back
+                    {t("actions.back")}
                 </Button>
             )}
             {setupMethodStep.method === "createPackage" ? (
@@ -1194,7 +1183,7 @@ export function SetupWizardFinishStepFooter() {
                     className="mt-2 rounded-pill"
                     onClick={handleNewSetupPackage}
                 >
-                    Go to setup method
+                    {t("finishStep.goToSetupMethod")}
                 </Button>
             ) : (
                 <>
@@ -1206,7 +1195,7 @@ export function SetupWizardFinishStepFooter() {
                         className="mt-2 rounded-pill"
                         icon="reset"
                     >
-                        Restart server
+                        {t("finishStep.restartServer")}
                     </ButtonWithSpinner>
                     {isCertInstallationConfirmed && (
                         <CertInstallationConfirm

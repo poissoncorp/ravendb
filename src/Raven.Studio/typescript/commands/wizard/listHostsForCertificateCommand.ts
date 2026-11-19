@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("wizardCommands");
 
 class listHostsForCertificateCommand extends commandBase {
 
@@ -23,7 +26,7 @@ class listHostsForCertificateCommand extends commandBase {
             })
             .fail((response: JQueryXHR) => {
                 if (response.status !== 400) {
-                    this.reportError("Failed to fetch CNs from certificate", response.responseText, response.statusText);    
+                    this.reportError(t("listHostsForCertificateFailed"), response.responseText, response.statusText);    
                 }
                 task.reject(response);
             });

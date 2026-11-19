@@ -12,8 +12,11 @@ import { useEffect } from "react";
 import { useEventsCollector } from "components/hooks/useEventsCollector";
 import { setupWizardGA4Prefixes } from "components/setupWizard/utils/setupWizardConstants";
 import { SetupWizardInfoPopover } from "components/setupWizard/partials/SetupWizardInfoPopover";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export function SetupWizardSetupMethodStep() {
+    const t = useStudioTranslation("setupWizard");
     const { control, setValue } = useFormContext<SetupWizardFormData>();
     const {
         setupMethodStep: { method: selectedMethod },
@@ -26,19 +29,16 @@ export function SetupWizardSetupMethodStep() {
 
     return (
         <div>
-            <h2 className="mb-1">Choose your setup method</h2>
+            <h2 className="mb-1">{t("setupMethodStep.title")}</h2>
             <p className="mb-4 text-muted">
-                This wizard will guide you through setting up your RavenDB server.
-                <br />
-                You can set up a new cluster, create a configuration package for external setup, or continue with an
-                existing setup package.
+                <StudioTrans ns="setupWizard" i18nKey="setupMethodStep.description" components={{ br: <br /> }} />
             </p>
             <div className="mt-4">
-                <h5 className="mb-1">I&apos;m starting a new cluster setup:</h5>
+                <h5 className="mb-1">{t("setupMethodStep.newSetupHeading")}</h5>
                 <SetupWizardClickableCard
                     icon="server"
-                    title="Set up new cluster"
-                    description="Create a new cluster with a new configuration"
+                    title={t("setupMethodStep.newCluster.title")}
+                    description={t("setupMethodStep.newCluster.description")}
                     isSelected={selectedMethod === "newCluster"}
                     onClick={() => {
                         setValue("setupMethodStep.method", "newCluster");
@@ -46,17 +46,17 @@ export function SetupWizardSetupMethodStep() {
                     }}
                     popoverMessage={
                         <ul className="mb-0 ps-3">
-                            <li>Deploying RavenDB for the first time.</li>
-                            <li>Setting up a new single-node or multi-node cluster.</li>
-                            <li>Creating a cluster from scratch with custom configuration.</li>
+                            <li>{t("setupMethodStep.newCluster.firstDeployment")}</li>
+                            <li>{t("setupMethodStep.newCluster.singleOrMultiNode")}</li>
+                            <li>{t("setupMethodStep.newCluster.fromScratch")}</li>
                         </ul>
                     }
                 />
                 <SetupWizardClickableCard
                     className="mt-2"
                     icon="default"
-                    title="Create package for external setup"
-                    description="Generate a setup package for deploying RavenDB in external environments"
+                    title={t("setupMethodStep.createPackage.title")}
+                    description={t("setupMethodStep.createPackage.description")}
                     isSelected={selectedMethod === "createPackage"}
                     onClick={() => {
                         setValue("setupMethodStep.method", "createPackage");
@@ -65,22 +65,25 @@ export function SetupWizardSetupMethodStep() {
                     popoverMessage={
                         <ul className="mb-0 ps-3">
                             <li>
-                                Deploying RavenDB in an external environment
-                                <br /> (e.g. cloud instance, container, or remote server).
+                                <StudioTrans
+                                    ns="setupWizard"
+                                    i18nKey="setupMethodStep.createPackage.externalEnvironment"
+                                    components={{ br: <br /> }}
+                                />
                             </li>
-                            <li>Generating a pre-configured setup package without running the server locally.</li>
-                            <li>Useful for offline, automated, or remote installations.</li>
+                            <li>{t("setupMethodStep.createPackage.withoutLocalServer")}</li>
+                            <li>{t("setupMethodStep.createPackage.remoteInstallations")}</li>
                         </ul>
                     }
                 />
             </div>
             <div className="my-4">
-                <h5 className="mb-1">I already have a setup package:</h5>
+                <h5 className="mb-1">{t("setupMethodStep.existingPackageHeading")}</h5>
                 <SetupWizardClickableCard
                     icon="default"
                     addon="arrow-up"
-                    title="Use setup package"
-                    description="Set up the server using a previously created setup package"
+                    title={t("setupMethodStep.usePackage.title")}
+                    description={t("setupMethodStep.usePackage.description")}
                     isSelected={selectedMethod === "usePackage"}
                     onClick={() => {
                         setValue("setupMethodStep.method", "usePackage");
@@ -89,14 +92,15 @@ export function SetupWizardSetupMethodStep() {
                     popoverMessage={
                         <>
                             <ul className="ps-3">
-                                <li>Setting up an additional node in an existing cluster.</li>
-                                <li>Setting up a new cluster from a pre-configured package.</li>
+                                <li>{t("setupMethodStep.usePackage.additionalNode")}</li>
+                                <li>{t("setupMethodStep.usePackage.preconfiguredCluster")}</li>
                             </ul>
                             <p className="mb-0">
-                                Note:
-                                <br /> Setup packages are generated when creating a multi-node cluster in{" "}
-                                <strong>Set up new cluster</strong> or using{" "}
-                                <strong>Create package for external setup</strong>.
+                                <StudioTrans
+                                    ns="setupWizard"
+                                    i18nKey="setupMethodStep.usePackage.note"
+                                    components={{ br: <br />, strong: <strong /> }}
+                                />
                             </p>
                         </>
                     }
@@ -107,6 +111,7 @@ export function SetupWizardSetupMethodStep() {
 }
 
 export function SetupWizardSetupMethodStepFooter() {
+    const t = useStudioTranslation("setupWizard");
     const { control, setValue } = useFormContext<SetupWizardFormData>();
 
     const {
@@ -142,14 +147,21 @@ export function SetupWizardSetupMethodStepFooter() {
                             <NumberedList>
                                 <SetupWizardStepItem stepIndicator={1}>
                                     <span>
-                                        Open the <em>settings.json</em> file located in your RavenDB installation
-                                        directory
+                                        <StudioTrans
+                                            ns="setupWizard"
+                                            i18nKey="setupMethodStep.manualSetup.openSettings"
+                                            components={{ em: <em /> }}
+                                        />
                                     </span>
                                 </SetupWizardStepItem>
                                 <SetupWizardStepItem stepIndicator={2}>
                                     <span>
-                                        Change the setup mode to None, e.g.{" "}
-                                        <code>&#34;Setup.Mode&#34;: &#34;None&#34;</code>
+                                        <StudioTrans
+                                            ns="setupWizard"
+                                            i18nKey="setupMethodStep.manualSetup.changeSetupMode"
+                                            components={{ code: <code /> }}
+                                            options={{ example: '"Setup.Mode": "None"' }}
+                                        />
                                     </span>
                                 </SetupWizardStepItem>
                             </NumberedList>
@@ -160,18 +172,18 @@ export function SetupWizardSetupMethodStepFooter() {
             >
                 <span className="md-label mb-0">
                     <Icon icon="info" />
-                    How to set up manually?
+                    {t("setupMethodStep.manualSetup.title")}
                 </span>
             </PopoverWithHoverWrapper>
             <ConditionalPopover
                 conditions={{
                     isActive: !selectedMethod,
-                    message: "You need to complete this step to go forward.",
+                    message: t("setupMethodStep.completeStep"),
                 }}
                 popoverPlacement="top"
             >
                 <Button variant="primary" className="rounded-pill" onClick={handleContinue} disabled={!selectedMethod}>
-                    Continue <Icon icon="arrow-right" margin="m-0" />
+                    {t("actions.continue")} <Icon icon="arrow-right" margin="m-0" />
                 </Button>
             </ConditionalPopover>
         </div>

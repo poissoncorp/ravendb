@@ -13,10 +13,12 @@ import { useAppSelector } from "components/store";
 import { useCallback, useEffect } from "react";
 import { useEventsCollector } from "components/hooks/useEventsCollector";
 import { setupWizardGA4Prefixes } from "components/setupWizard/utils/setupWizardConstants";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type StorybookGlobalWindow = Window & typeof globalThis & { storybookMode?: boolean };
 
 export function SetupWizardEulaStep() {
+    const t = useStudioTranslation("setupWizard");
     const dispatch = useDispatch();
     const { setupWizardService } = useServices();
     const { reportEvent } = useEventsCollector();
@@ -41,10 +43,8 @@ export function SetupWizardEulaStep() {
 
     return (
         <div className="vstack flex-grow eula-step">
-            <h2 className="mb-1">Read the EULA (End-User License Agreement)</h2>
-            <p className="mb-4 text-muted">
-                The following license agreement must be accepted in order to use this software.
-            </p>
+            <h2 className="mb-1">{t("eulaStep.title")}</h2>
+            <p className="mb-4 text-muted">{t("eulaStep.description")}</p>
             <div className="eula-container mb-4" onScroll={handleScroll}>
                 <LazyLoad active={asyncGetEula.loading}>
                     <pre className="eula-content">{asyncGetEula.result ?? ""}</pre>
@@ -56,6 +56,7 @@ export function SetupWizardEulaStep() {
 }
 
 export function SetupWizardEulaStepFooter() {
+    const t = useStudioTranslation("setupWizard");
     const { setValue } = useFormContext<SetupWizardFormData>();
     const { reportEvent } = useEventsCollector();
 
@@ -71,7 +72,7 @@ export function SetupWizardEulaStepFooter() {
             <ConditionalPopover
                 conditions={{
                     isActive: !isScrolledToBottom,
-                    message: "Review the EULA to enable the button.",
+                    message: t("eulaStep.reviewToEnable"),
                 }}
                 popoverPlacement="top"
             >
@@ -81,7 +82,7 @@ export function SetupWizardEulaStepFooter() {
                     onClick={handleContinue}
                     disabled={!isScrolledToBottom}
                 >
-                    Continue <Icon icon="arrow-right" margin="m-0" />
+                    {t("actions.continue")} <Icon icon="arrow-right" margin="m-0" />
                 </Button>
             </ConditionalPopover>
         </div>

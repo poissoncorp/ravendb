@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("wizardCommands");
 
 class getIpsInfoCommand extends commandBase {
 
@@ -29,7 +32,7 @@ class getIpsInfoCommand extends commandBase {
                 if (response.status === 404) {
                     task.resolve(null);
                 } else {
-                    this.reportError("Failed to get ips information", response.responseText, response.statusText);
+                    this.reportError(t("getIpsInfoFailed"), response.responseText, response.statusText);
                     task.reject();
                 }
             });

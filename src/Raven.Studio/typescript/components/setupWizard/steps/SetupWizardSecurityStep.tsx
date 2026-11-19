@@ -15,8 +15,11 @@ import { useEffect } from "react";
 import { useEventsCollector } from "components/hooks/useEventsCollector";
 import { setupWizardGA4Prefixes } from "components/setupWizard/utils/setupWizardConstants";
 import { setupWizardFormDefaultValues } from "components/setupWizard/utils/setupWizardFormDefaultValues";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export function SetupWizardSecurityStep() {
+    const t = useStudioTranslation("setupWizard");
     const { control, setValue } = useFormContext<SetupWizardFormData>();
     const { reportEvent } = useEventsCollector();
 
@@ -43,25 +46,26 @@ export function SetupWizardSecurityStep() {
 
     return (
         <div>
-            <h2 className="mb-1">Security</h2>
-            <p className="mb-4 text-muted">Choose how to secure your RavenDB server.</p>
+            <h2 className="mb-1">{t("securityStep.title")}</h2>
+            <p className="mb-4 text-muted">{t("securityStep.description")}</p>
             <div className="mt-4">
                 <h5 className="mb-1 d-flex align-items-center">
                     <Icon icon="lock" color="success" />
-                    Secure
+                    {t("securityStep.secureHeading")}
                     {isSecureRecommended && (
                         <PopoverWithHoverWrapper
                             message={
                                 <div>
-                                    You&#39;re using a Production License, so we highly recommend choosing a{" "}
-                                    <b>secure setup with a certificate</b>. This ensures optimal data protection,
-                                    encrypted communication, and compliance with best security practices for your
-                                    production environment.
+                                    <StudioTrans
+                                        ns="setupWizard"
+                                        i18nKey="securityStep.recommendedInfo"
+                                        components={{ b: <b /> }}
+                                    />
                                 </div>
                             }
                         >
                             <Badge pill bg="faded-success" className="ms-1">
-                                Recommended
+                                {t("securityStep.recommended")}
                             </Badge>
                         </PopoverWithHoverWrapper>
                     )}
@@ -72,24 +76,27 @@ export function SetupWizardSecurityStep() {
                         isActive: isLetsEncryptDisabled,
                         message: (
                             <div>
-                                Let&#39;s Encrypt is not available without a license. Go back to the <b>License Key</b>{" "}
-                                step and insert an existing license or generate a free{" "}
-                                <Button
-                                    variant="link"
-                                    className="text-info p-0 text-decoration-underline"
-                                    onClick={() => handleGoToGenerateLicense("community")}
-                                >
-                                    Community
-                                </Button>{" "}
-                                or{" "}
-                                <Button
-                                    variant="link"
-                                    className="text-developer p-0 text-decoration-underline"
-                                    onClick={() => handleGoToGenerateLicense("developer")}
-                                >
-                                    Developer
-                                </Button>{" "}
-                                license to use this option.
+                                <StudioTrans
+                                    ns="setupWizard"
+                                    i18nKey="securityStep.letsEncryptUnavailable"
+                                    components={{
+                                        b: <b />,
+                                        community: (
+                                            <Button
+                                                variant="link"
+                                                className="text-info p-0 text-decoration-underline"
+                                                onClick={() => handleGoToGenerateLicense("community")}
+                                            />
+                                        ),
+                                        developer: (
+                                            <Button
+                                                variant="link"
+                                                className="text-developer p-0 text-decoration-underline"
+                                                onClick={() => handleGoToGenerateLicense("developer")}
+                                            />
+                                        ),
+                                    }}
+                                />
                             </div>
                         ),
                     }}
@@ -97,8 +104,8 @@ export function SetupWizardSecurityStep() {
                     <SetupWizardClickableCard
                         className="w-100"
                         icon="lets-encrypt"
-                        title="Generate Let's Encrypt certificate"
-                        description="Automatically issue and renew a trusted HTTPS certificate using your domain"
+                        title={t("securityStep.letsEncrypt.title")}
+                        description={t("securityStep.letsEncrypt.description")}
                         isSelected={securityOption === "letsEncrypt"}
                         onClick={() => {
                             setValue("securityStep.securityOption", "letsEncrypt", {
@@ -109,18 +116,9 @@ export function SetupWizardSecurityStep() {
                         isDisabled={isLetsEncryptDisabled}
                         popoverMessage={
                             <ul className="mb-0 ps-3">
-                                <li>
-                                    Default choice for most users. Recommended if you don&#39;t need a custom
-                                    certificate and prefer RavenDB to manage encryption without any manual setup.
-                                </li>
-                                <li className="mt-1">
-                                    RavenDB will automatically issue and renew a trusted HTTPS certificate for your
-                                    domain (chosen in the next step).
-                                </li>
-                                <li className="mt-1">
-                                    Ideal for standard deployments where a public domain is available and you want a
-                                    simple, secure default option.
-                                </li>
+                                <li>{t("securityStep.letsEncrypt.defaultChoice")}</li>
+                                <li className="mt-1">{t("securityStep.letsEncrypt.autoRenew")}</li>
+                                <li className="mt-1">{t("securityStep.letsEncrypt.standardDeployments")}</li>
                             </ul>
                         }
                     />
@@ -128,8 +126,8 @@ export function SetupWizardSecurityStep() {
                 <SetupWizardClickableCard
                     className="mt-2 w-100"
                     icon="certificate"
-                    title="Provide your own certificate"
-                    description="Ideal for secure corporate setups with manual certificate management"
+                    title={t("securityStep.ownCertificate.title")}
+                    description={t("securityStep.ownCertificate.description")}
                     isSelected={securityOption === "ownCertificate"}
                     onClick={() => {
                         setValue("securityStep.securityOption", "ownCertificate", {
@@ -139,14 +137,13 @@ export function SetupWizardSecurityStep() {
                     }}
                     popoverMessage={
                         <ul className="mb-0 ps-3">
-                            <li>
-                                Use this when you need to provide a custom SSL/TLS certificate, often to comply with
-                                corporate security policies or integrate with an internal certificate authority.
-                            </li>
+                            <li>{t("securityStep.ownCertificate.customCertificate")}</li>
                             <li className="mt-1">
-                                Recommended for <b>production environments</b> where certificates are managed manually
-                                or by external infrastructure, and full control over certificate management and trust
-                                configuration is required.
+                                <StudioTrans
+                                    ns="setupWizard"
+                                    i18nKey="securityStep.ownCertificate.productionEnvironments"
+                                    components={{ b: <b /> }}
+                                />
                             </li>
                         </ul>
                     }
@@ -155,12 +152,12 @@ export function SetupWizardSecurityStep() {
             <div className="my-4">
                 <h5 className="mb-1">
                     <Icon icon="lock" color="warning" />
-                    Unsecure
+                    {t("securityStep.unsecureHeading")}
                 </h5>
                 <SetupWizardClickableCard
                     icon="empty-set"
-                    title="Don't use certificate"
-                    description="Suitable only for quick local development with no security requirements"
+                    title={t("securityStep.noCertificate.title")}
+                    description={t("securityStep.noCertificate.description")}
                     isSelected={securityOption === "none"}
                     onClick={() => {
                         setValue("securityStep.securityOption", "none", {
@@ -171,14 +168,18 @@ export function SetupWizardSecurityStep() {
                     popoverMessage={
                         <ul className="mb-0 ps-3">
                             <li>
-                                Use only in <b>trusted, isolated environments</b> such as local development, internal
-                                testing, or secure private networks where encryption is intentionally not required
-                                (e.g., for performance or testing purposes).
+                                <StudioTrans
+                                    ns="setupWizard"
+                                    i18nKey="securityStep.noCertificate.trustedEnvironments"
+                                    components={{ b: <b /> }}
+                                />
                             </li>
                             <li className="mt-1">
-                                <b>Not recommended for production</b>, as all traffic will be transmitted without
-                                encryption or authentication, making it vulnerable to eavesdropping or man-in-the-middle
-                                attacks.
+                                <StudioTrans
+                                    ns="setupWizard"
+                                    i18nKey="securityStep.noCertificate.notForProduction"
+                                    components={{ b: <b /> }}
+                                />
                             </li>
                         </ul>
                     }
@@ -189,6 +190,7 @@ export function SetupWizardSecurityStep() {
 }
 
 export function SetupWizardSecurityStepFooter() {
+    const t = useStudioTranslation("setupWizard");
     const { control, setValue } = useFormContext<SetupWizardFormData>();
     const { setupWizardService } = useServices();
     const { reportEvent } = useEventsCollector();
@@ -234,7 +236,7 @@ export function SetupWizardSecurityStepFooter() {
     return (
         <div className="hstack justify-content-between">
             <Button variant="secondary" className="rounded-pill" onClick={handleBack}>
-                <Icon icon="arrow-left" /> Back
+                <Icon icon="arrow-left" /> {t("actions.back")}
             </Button>
             <div className="hstack gap-2 align-items-center">
                 {securityOption === "letsEncrypt" && (
@@ -244,10 +246,14 @@ export function SetupWizardSecurityStepFooter() {
                         control={control}
                         name="securityStep.isLetsEncryptAgreementAccepted"
                     >
-                        I accept {asyncGetLetsEncryptAgreement.loading && <Spinner />}
-                        <a target="_blank" href={asyncGetLetsEncryptAgreement.result as string}>
-                            Let&apos;s Encrypt Subscriber Agreement
-                        </a>
+                        <StudioTrans
+                            ns="setupWizard"
+                            i18nKey="securityStep.acceptAgreement"
+                            components={{
+                                spinner: asyncGetLetsEncryptAgreement.loading ? <Spinner /> : <></>,
+                                a: <a target="_blank" href={asyncGetLetsEncryptAgreement.result as string} />,
+                            }}
+                        />
                     </FormCheckbox>
                 )}
                 <Button
@@ -256,7 +262,7 @@ export function SetupWizardSecurityStepFooter() {
                     className="rounded-pill"
                     onClick={handleContinue}
                 >
-                    Continue <Icon icon="arrow-right" margin="m-0" />
+                    {t("actions.continue")} <Icon icon="arrow-right" margin="m-0" />
                 </Button>
             </div>
         </div>

@@ -1,7 +1,7 @@
 import "./SetupWizard.scss";
 import { Icon } from "components/common/Icon";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
-import { SetupWizardFormData, setupWizardSchema, SetupWizardStepId } from "./setupWizardValidation";
+import { SetupWizardFormData, getSetupWizardSchema, SetupWizardStepId } from "./setupWizardValidation";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { NumberedList } from "components/common/NumberedList";
 import classNames from "classnames";
@@ -14,14 +14,16 @@ import { useRavenLink } from "hooks/useRavenLink";
 import { useAppSelector } from "components/store";
 import { setupWizardSelectors } from "components/setupWizard/store/setupWizardSlice";
 import { setupWizardFormDefaultValues } from "components/setupWizard/utils/setupWizardFormDefaultValues";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 const ravenLogo = require("Content/img/ravendb_logo.svg");
 const ravenSidebarImg = require("Content/img/setupWizard/setup-wizard-sidebar-background.png");
 
 export default function SetupWizard() {
+    const t = useStudioTranslation("setupWizard");
     const docsLink = useRavenLink({ hash: "37GM2Z" });
     const form = useForm<SetupWizardFormData>({
-        resolver: yupResolver(setupWizardSchema),
+        resolver: yupResolver(getSetupWizardSchema(t)),
         mode: "onChange",
         defaultValues: setupWizardFormDefaultValues,
     });
@@ -43,6 +45,8 @@ export default function SetupWizard() {
     const { reportEvent } = useEventsCollector();
 
     const currentStepIdx = steps.findIndex((x) => x.isCurrent);
+
+    const getStepLabel = (stepId: SetupWizardStepId) => steps.find((s) => s.title === stepId)?.label ?? stepId;
 
     const getStepKey = (stepTitle: SetupWizardStepId): keyof SetupWizardFormData => {
         const stepKeyMap: Partial<Record<SetupWizardStepId, keyof SetupWizardFormData>> = {
@@ -90,23 +94,23 @@ export default function SetupWizard() {
 
                 if (dirtyStepsToClear.length > 0 && currentValues.finishStep.finishingStatus !== "Faulted") {
                     const isConfirmed = await confirm({
-                        title: `Go back to step (${stepTitle})`,
+                        title: t("goBackConfirm.title", { step: getStepLabel(stepTitle) }),
                         message: (
                             <div>
-                                <p>Going back to a previous step will clear data for the following steps:</p>
+                                <p>{t("goBackConfirm.clearsData")}</p>
                                 <ul>
                                     {dirtyStepsToClear.map((step) => (
                                         <li key={step}>
-                                            <strong>{step}</strong>
+                                            <strong>{getStepLabel(step)}</strong>
                                         </li>
                                     ))}
                                 </ul>
-                                <p>Are you sure you want to continue?</p>
+                                <p>{t("goBackConfirm.question")}</p>
                             </div>
                         ),
                         actionColor: "warning",
                         icon: "warning",
-                        confirmText: "Confirm",
+                        confirmText: t("goBackConfirm.confirm"),
                     });
 
                     if (!isConfirmed) {
@@ -140,7 +144,7 @@ export default function SetupWizard() {
                     <div className="setup-wizard-main">
                         <div className="d-flex flex-column h-100 w-75">
                             <div className="logo-container position-sticky top-0 py-3 z-3">
-                                <img src={ravenLogo} alt="RavenDB Logo" width="120" />
+                                <img src={ravenLogo} alt={t("logoAlt")} width="120" />
                             </div>
                             {steps[currentStepIdx].component}
                         </div>
@@ -150,11 +154,7 @@ export default function SetupWizard() {
                     </div>
                     <div className={classNames("setup-wizard-sidebar", { "p-0": formValues.currentStep === "Eula" })}>
                         {formValues.currentStep === "Eula" ? (
-                            <img
-                                className="h-100 object-fit-cover"
-                                src={ravenSidebarImg}
-                                alt={formValues.currentStep}
-                            />
+                            <img className="h-100 object-fit-cover" src={ravenSidebarImg} alt={t("steps.eula.title")} />
                         ) : (
                             <>
                                 <div className="flex-grow">
@@ -173,10 +173,10 @@ export default function SetupWizard() {
                                                 onClick={() => handleStepNavigation(step.title)}
                                                 title={
                                                     finishStatus === "Completed"
-                                                        ? "Setup is completed"
+                                                        ? t("stepNavigation.completed")
                                                         : idx > currentStepIdx
-                                                          ? "Complete previous steps first"
-                                                          : "Go to this step"
+                                                          ? t("stepNavigation.completePrevious")
+                                                          : t("stepNavigation.goToStep")
                                                 }
                                             >
                                                 <div
@@ -184,7 +184,7 @@ export default function SetupWizard() {
                                                         "opacity-25": idx > currentStepIdx,
                                                     })}
                                                 >
-                                                    <h5 className="mb-0">{step.title}</h5>
+                                                    <h5 className="mb-0">{step.label}</h5>
                                                     <small className="text-muted">{step.description}</small>
                                                 </div>
                                             </SetupWizardStepItem>
@@ -195,9 +195,9 @@ export default function SetupWizard() {
                                 <div className="d-flex flex-column gap-3">
                                     <Icon icon="lifebuoy" className="fs-3" margin="m-0" />
                                     <div className="vstack gap-1">
-                                        <h4 className="mb-0">Having trouble?</h4>
+                                        <h4 className="mb-0">{t("help.title")}</h4>
                                         <p className="text-muted mb-0" style={{ lineHeight: 1.3 }}>
-                                            Follow our documentation for step-by-step instructions.
+                                            {t("help.description")}
                                         </p>
                                     </div>
                                     <a
@@ -205,7 +205,7 @@ export default function SetupWizard() {
                                         className="btn btn-outline-secondary w-fit-content"
                                         href={docsLink}
                                     >
-                                        See documentation <Icon icon="newtab" margin="m-0" />
+                                        {t("help.seeDocumentation")} <Icon icon="newtab" margin="m-0" />
                                     </a>
                                 </div>
                             </>

@@ -3,6 +3,7 @@ import { Icon } from "components/common/Icon";
 import IconName from "typings/server/icons";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import { ReactNode } from "react";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface SetupWizardClickableCardProps {
     icon: IconName;
@@ -27,6 +28,8 @@ export default function SetupWizardClickableCard({
     isDisabled,
     isSelected,
 }: SetupWizardClickableCardProps) {
+    const t = useStudioTranslation("setupWizard");
+
     return (
         <div
             className={classNames("wizard-card border rounded p-4", className, {
@@ -48,7 +51,7 @@ export default function SetupWizardClickableCard({
                     <PopoverWithHoverWrapper message={popoverMessage}>
                         <div style={{ minWidth: "120px" }} className="md-label text-right mb-0">
                             <Icon icon="info" />
-                            When to use?
+                            {t("clickableCard.whenToUse")}
                         </div>
                     </PopoverWithHoverWrapper>
                 )}

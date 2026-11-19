@@ -31,6 +31,9 @@ import { useEventsCollector } from "components/hooks/useEventsCollector";
 import { setupWizardGA4Prefixes } from "components/setupWizard/utils/setupWizardConstants";
 import { setupWizardFormDefaultValues } from "components/setupWizard/utils/setupWizardFormDefaultValues";
 import classNames from "classnames";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import { StudioTranslate } from "common/i18n/resources";
 import LicenseType = Raven.Server.Commercial.LicenseType;
 import License = Raven.Server.Commercial.License;
 
@@ -56,16 +59,17 @@ export function SetupWizardLicenseKeyStep() {
 }
 
 function NoLicenseToGenerate() {
+    const t = useStudioTranslation("setupWizard");
     const { reportEvent } = useEventsCollector();
     const { control, setValue } = useFormContext<SetupWizardFormData>();
 
     return (
         <div>
-            <h2 className="mb-1">Enter license key</h2>
-            <p className="mb-4 text-muted">Enter your existing license key or generate a free one.</p>
+            <h2 className="mb-1">{t("licenseKeyStep.title")}</h2>
+            <p className="mb-4 text-muted">{t("licenseKeyStep.description")}</p>
 
             <FormGroup>
-                <FormLabel>Your key</FormLabel>
+                <FormLabel>{t("licenseKeyStep.keyLabel")}</FormLabel>
                 <div className="position-relative">
                     <FormInput
                         type="textarea"
@@ -73,7 +77,7 @@ function NoLicenseToGenerate() {
                         control={control}
                         name="licenseKeyStep.key"
                         className="rounded-2 font-monospace"
-                        placeholder={keyPlaceholder}
+                        placeholder={t("licenseKeyStep.keyPlaceholder", { example: KEY_PLACEHOLDER_EXAMPLE })}
                         rows={16}
                         data-testid="license-key-input"
                     />
@@ -82,10 +86,8 @@ function NoLicenseToGenerate() {
             </FormGroup>
             <div className="free-license rounded-2 p-3 mb-3 panel-bg-1 border border-secondary">
                 <div className="free-license-content">
-                    <h4 className="mb-0">Start with a free license today</h4>
-                    <p className="text-muted">
-                        Fill out a quick form to apply for a free Community or Developer license.
-                    </p>
+                    <h4 className="mb-0">{t("licenseKeyStep.freeLicense.title")}</h4>
+                    <p className="text-muted">{t("licenseKeyStep.freeLicense.description")}</p>
                     <Button
                         variant="outline-success"
                         className="rounded-1"
@@ -95,7 +97,7 @@ function NoLicenseToGenerate() {
                             scrollSetupWizardToTop();
                         }}
                     >
-                        Get your free license <Icon icon="arrow-thin-right" margin="m-0" />
+                        {t("licenseKeyStep.freeLicense.getLicense")} <Icon icon="arrow-thin-right" margin="m-0" />
                     </Button>
                 </div>
                 <svg width="219" height="129" viewBox="0 0 219 129" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -121,8 +123,7 @@ function NoLicenseToGenerate() {
     );
 }
 
-const keyPlaceholder = `e.g.
-{
+const KEY_PLACEHOLDER_EXAMPLE = `{
     "Id": "0cb35dc0-598b-4416-b291-088439082dc1",
     "Name": "RavenDB",
     "Keys": [
@@ -169,6 +170,7 @@ function getLicenseTypeDisplayName(licenseType: LicenseType) {
 }
 
 function LicenseKeyBadge() {
+    const t = useStudioTranslation("setupWizard");
     const { control } = useFormContext<SetupWizardFormData>();
 
     const {
@@ -179,7 +181,7 @@ function LicenseKeyBadge() {
         return (
             <LazyLoad active>
                 <Badge bg="secondary" pill className="position-absolute bottom-0 end-0 mb-3 me-3" style={{ zIndex: 5 }}>
-                    Loading...
+                    {t("licenseKeyStep.keyStatus.loading")}
                 </Badge>
             </LazyLoad>
         );
@@ -190,10 +192,10 @@ function LicenseKeyBadge() {
             <PopoverWithHoverWrapper
                 wrapperClassName="position-absolute bottom-0 end-0 mb-3 me-3"
                 targetStyle={{ zIndex: 5 }}
-                message="The provided license key format is invalid. Please check the key and try again."
+                message={t("licenseKeyStep.keyStatus.invalidDescription")}
             >
                 <Badge bg="danger" pill>
-                    Invalid
+                    {t("licenseKeyStep.keyStatus.invalid")}
                     <Icon icon="warning" margin="ms-2" />
                 </Badge>
             </PopoverWithHoverWrapper>
@@ -205,10 +207,10 @@ function LicenseKeyBadge() {
             <PopoverWithHoverWrapper
                 wrapperClassName="position-absolute bottom-0 end-0 mb-3 me-3"
                 targetStyle={{ zIndex: 5 }}
-                message="Cannot connect to the license server. Please try again later."
+                message={t("licenseKeyStep.keyStatus.connectionErrorDescription")}
             >
                 <Badge bg="danger" pill>
-                    Connection error
+                    {t("licenseKeyStep.keyStatus.connectionError")}
                     <Icon icon="warning" margin="ms-2" />
                 </Badge>
             </PopoverWithHoverWrapper>
@@ -234,23 +236,29 @@ function LicenseKeyBadge() {
 }
 
 function GenerateCommunity() {
+    const t = useStudioTranslation("setupWizard");
+
     return (
         <div>
             <HStack className="justify-content-between flex-wrap align-items-start mb-1">
                 <h2 className="m-0">
-                    Generate new <span className="text-community">Community</span> license
+                    <StudioTrans
+                        ns="setupWizard"
+                        i18nKey="licenseKeyStep.community.title"
+                        components={{ span: <span className="text-community" /> }}
+                    />
                 </h2>
                 <LicenseTypeRadio />
             </HStack>
             <p className="text-muted">
-                Good for teams who are just starting out and simply want the essentials.
+                {t("licenseKeyStep.community.description")}
                 <br />
                 <br />
-                <Icon icon="check" color="community" /> Eligible for commercial use
+                <Icon icon="check" color="community" /> {t("licenseKeyStep.community.commercialUse")}
                 <br />
-                <Icon icon="check" color="community" /> Access to all basic features
+                <Icon icon="check" color="community" /> {t("licenseKeyStep.community.features")}
                 <br />
-                <Icon icon="check" color="community" /> Max of 3 nodes in cluster, 3 CPU cores, and 6 GB RAM
+                <Icon icon="check" color="community" /> {t("licenseKeyStep.community.limits")}
             </p>
             <SeeAllPlansButton />
             <GenerateLicenseFields />
@@ -259,23 +267,29 @@ function GenerateCommunity() {
 }
 
 function GenerateDeveloper() {
+    const t = useStudioTranslation("setupWizard");
+
     return (
         <div>
             <HStack className="justify-content-between flex-wrap align-items-start mb-1">
                 <h2 className="m-0">
-                    Generate new <span className="text-developer">Developer</span> license
+                    <StudioTrans
+                        ns="setupWizard"
+                        i18nKey="licenseKeyStep.developer.title"
+                        components={{ span: <span className="text-developer" /> }}
+                    />
                 </h2>
                 <LicenseTypeRadio />
             </HStack>
             <p className="text-muted">
-                Recommended for teams who want to test & develop RavenDB in it&apos;s full potential.
+                {t("licenseKeyStep.developer.description")}
                 <br />
                 <br />
-                <Icon icon="cancel" color="developer" /> Not applicable for commercial use
+                <Icon icon="cancel" color="developer" /> {t("licenseKeyStep.developer.commercialUse")}
                 <br />
-                <Icon icon="check" color="developer" /> Enterprise-level set of features
+                <Icon icon="check" color="developer" /> {t("licenseKeyStep.developer.features")}
                 <br />
-                <Icon icon="check" color="developer" /> Max of 3 nodes in cluster, 9 CPU cores, and 36 GB RAM
+                <Icon icon="check" color="developer" /> {t("licenseKeyStep.developer.limits")}
             </p>
             <SeeAllPlansButton />
             <GenerateLicenseFields />
@@ -284,81 +298,102 @@ function GenerateDeveloper() {
 }
 
 function GenerateLicenseFields() {
+    const t = useStudioTranslation("setupWizard");
     const { control } = useFormContext<SetupWizardFormData>();
 
     return (
         <Row className="w-100 mt-4">
             <FormGroup className="col-md-6">
-                <FormLabel>First name</FormLabel>
+                <FormLabel>{t("licenseKeyStep.form.firstName")}</FormLabel>
                 <FormInput
                     type="text"
                     control={control}
                     name="licenseKeyStep.firstName"
-                    placeholder="Your first name"
+                    placeholder={t("licenseKeyStep.form.firstNamePlaceholder")}
                 />
             </FormGroup>
             <FormGroup className="col-md-6">
-                <FormLabel>Last name</FormLabel>
-                <FormInput type="text" control={control} name="licenseKeyStep.lastName" placeholder="Your last name" />
+                <FormLabel>{t("licenseKeyStep.form.lastName")}</FormLabel>
+                <FormInput
+                    type="text"
+                    control={control}
+                    name="licenseKeyStep.lastName"
+                    placeholder={t("licenseKeyStep.form.lastNamePlaceholder")}
+                />
             </FormGroup>
             <FormGroup className="col-md-6">
-                <FormLabel>Email</FormLabel>
-                <FormInput type="email" control={control} name="licenseKeyStep.email" placeholder="Your email" />
+                <FormLabel>{t("licenseKeyStep.form.email")}</FormLabel>
+                <FormInput
+                    type="email"
+                    control={control}
+                    name="licenseKeyStep.email"
+                    placeholder={t("licenseKeyStep.form.emailPlaceholder")}
+                />
             </FormGroup>
             <FormGroup className="col-md-6">
                 <FormLabel>
-                    Phone <OptionalLabel />
+                    {t("licenseKeyStep.form.phone")} <OptionalLabel />
                 </FormLabel>
-                <FormInput type="text" control={control} name="licenseKeyStep.phone" placeholder="Your phone number" />
+                <FormInput
+                    type="text"
+                    control={control}
+                    name="licenseKeyStep.phone"
+                    placeholder={t("licenseKeyStep.form.phonePlaceholder")}
+                />
             </FormGroup>
             <FormGroup className="col-md-6">
-                <FormLabel>Country</FormLabel>
+                <FormLabel>{t("licenseKeyStep.form.country")}</FormLabel>
                 <FormSelect
                     control={control}
-                    options={setupWizardConstants.allCountries.map((x) => ({ value: x, label: x }))}
+                    options={setupWizardConstants.countryOptions}
                     name="licenseKeyStep.country"
-                    placeholder="Your country"
+                    placeholder={t("licenseKeyStep.form.countryPlaceholder")}
                 />
             </FormGroup>
             <FormGroup className="col-md-6">
-                <FormLabel>Job title</FormLabel>
+                <FormLabel>{t("licenseKeyStep.form.jobTitle")}</FormLabel>
                 <FormSelect
                     control={control}
-                    options={setupWizardConstants.allJobTitles.map((x) => ({ value: x, label: x }))}
+                    options={setupWizardConstants.jobTitleOptions}
                     name="licenseKeyStep.jobTitle"
-                    placeholder="Choose your job title"
+                    placeholder={t("licenseKeyStep.form.jobTitlePlaceholder")}
                 />
             </FormGroup>
             <FormGroup className="col-md-6">
-                <FormLabel>Industry</FormLabel>
+                <FormLabel>{t("licenseKeyStep.form.industry")}</FormLabel>
                 <FormSelect
                     control={control}
-                    options={setupWizardConstants.allIndustries.map((x) => ({ value: x, label: x }))}
+                    options={setupWizardConstants.industryOptions}
                     name="licenseKeyStep.industry"
-                    placeholder="Choose your industry"
+                    placeholder={t("licenseKeyStep.form.industryPlaceholder")}
                 />
             </FormGroup>
             <FormGroup className="col-md-6">
-                <FormLabel>Company</FormLabel>
-                <FormInput type="text" control={control} name="licenseKeyStep.company" placeholder="Your company" />
+                <FormLabel>{t("licenseKeyStep.form.company")}</FormLabel>
+                <FormInput
+                    type="text"
+                    control={control}
+                    name="licenseKeyStep.company"
+                    placeholder={t("licenseKeyStep.form.companyPlaceholder")}
+                />
             </FormGroup>
             <FormGroup className="col-md-6">
-                <FormLabel>How do you plan to use RavenDB?</FormLabel>
+                <FormLabel>{t("licenseKeyStep.form.usagePlan")}</FormLabel>
                 <FormSelect
                     control={control}
                     options={setupWizardConstants.howYouPlanToUseRavenDBOptions}
                     name="licenseKeyStep.howYouPlanToUseRavenDB"
-                    placeholder="Choose the most suitable option"
+                    placeholder={t("licenseKeyStep.form.usagePlanPlaceholder")}
                 />
             </FormGroup>
             <FormGroup marginClass="mb-0 mt-2">
                 <FormCheckbox control={control} name="licenseKeyStep.isAcceptTerms">
-                    I accept the terms and conditions
+                    {t("licenseKeyStep.form.acceptTerms")}
                 </FormCheckbox>
             </FormGroup>
             <FormGroup>
                 <FormCheckbox control={control} name="licenseKeyStep.isAcceptEmails">
-                    I would like to receive learning materials and occasional marketing emails <OptionalLabel />
+                    {t("licenseKeyStep.form.acceptEmails")} <OptionalLabel />
                 </FormCheckbox>
             </FormGroup>
         </Row>
@@ -366,9 +401,11 @@ function GenerateLicenseFields() {
 }
 
 function SeeAllPlansButton() {
+    const t = useStudioTranslation("setupWizard");
+
     return (
         <Button href="https://ravendb.net/buy" target="_blank" variant="link" className="p-0">
-            See all plans in detail <Icon icon="newtab" />
+            {t("licenseKeyStep.seeAllPlans")} <Icon icon="newtab" />
         </Button>
     );
 }
@@ -402,6 +439,8 @@ function LicenseTypeRadio() {
 }
 
 function SkipLicenseVerificationConfirmModal(props: { close: () => void }) {
+    const t = useStudioTranslation("setupWizard");
+    const tCommon = useStudioTranslation("common");
     const { reportEvent } = useEventsCollector();
     const { close } = props;
     const { setValue } = useFormContext<SetupWizardFormData>();
@@ -425,41 +464,45 @@ function SkipLicenseVerificationConfirmModal(props: { close: () => void }) {
             <Modal.Header closeButton onCloseClick={close} className="pb-0">
                 <h3 className="mb-0">
                     <Icon icon="license" color="warning" />
-                    You&#39;re about to skip license verification
+                    {t("licenseKeyStep.skipVerification.title")}
                 </h3>
             </Modal.Header>
 
             <Modal.Body className="pt-0">
-                <p className="my-3">While you&apos;ll be able to use RavenDB, there will be some limitations:</p>
+                <p className="my-3">{t("licenseKeyStep.skipVerification.limitationsIntro")}</p>
                 <Icon icon="check" color="success" />{" "}
-                <a href="https://www.gnu.org/licenses/agpl-3.0.en.html" target="_blank">
-                    AGPLv3 restrictions
-                </a>{" "}
-                applied
+                <StudioTrans
+                    ns="setupWizard"
+                    i18nKey="licenseKeyStep.skipVerification.agplRestrictions"
+                    components={{ a: <a href="https://www.gnu.org/licenses/agpl-3.0.en.html" target="_blank" /> }}
+                />
                 <br />
-                <Icon icon="check" color="success" /> Limited set of features
+                <Icon icon="check" color="success" /> {t("licenseKeyStep.skipVerification.limitedFeatures")}
                 <br />
-                <Icon icon="check" color="success" /> Max of 1 node in cluster, 3 CPU cores, and 6 GB RAM memory usage
+                <Icon icon="check" color="success" /> {t("licenseKeyStep.skipVerification.limits")}
                 <p className="mt-3 mb-0">
-                    Either confirm your choice and skip the verification, or generate a new{" "}
-                    <Button
-                        variant="link"
-                        className="text-info p-0 text-decoration-underline"
-                        onClick={() => handleLicenseTypeChange("community")}
-                        title="Generate Community license"
-                    >
-                        Community
-                    </Button>{" "}
-                    or{" "}
-                    <Button
-                        variant="link"
-                        className="text-developer p-0 text-decoration-underline"
-                        onClick={() => handleLicenseTypeChange("developer")}
-                        title="Generate Developer license"
-                    >
-                        Developer
-                    </Button>{" "}
-                    license.
+                    <StudioTrans
+                        ns="setupWizard"
+                        i18nKey="licenseKeyStep.skipVerification.generateInstead"
+                        components={{
+                            community: (
+                                <Button
+                                    variant="link"
+                                    className="text-info p-0 text-decoration-underline"
+                                    onClick={() => handleLicenseTypeChange("community")}
+                                    title={t("licenseKeyStep.skipVerification.generateCommunityTitle")}
+                                />
+                            ),
+                            developer: (
+                                <Button
+                                    variant="link"
+                                    className="text-developer p-0 text-decoration-underline"
+                                    onClick={() => handleLicenseTypeChange("developer")}
+                                    title={t("licenseKeyStep.skipVerification.generateDeveloperTitle")}
+                                />
+                            ),
+                        }}
+                    />
                 </p>
             </Modal.Body>
             <Modal.Footer>
@@ -471,10 +514,10 @@ function SkipLicenseVerificationConfirmModal(props: { close: () => void }) {
                     }}
                     className="link-muted"
                 >
-                    Cancel
+                    {tCommon("cancel")}
                 </Button>
                 <Button variant="warning" onClick={handleConfirm} className="rounded-pill d-flex align-items-center">
-                    Skip verification &nbsp;
+                    {t("licenseKeyStep.skipVerification.skip")} &nbsp;
                     <Icon icon="arrow-right" margin="m-0" />
                 </Button>
             </Modal.Footer>
@@ -491,6 +534,8 @@ export function SetupWizardLicenseKeyVerifyCodeModal({
     close,
     sendLicenseVerificationCode,
 }: SetupWizardLicenseKeyVerifyCodeModalProps) {
+    const t = useStudioTranslation("setupWizard");
+    const tCommon = useStudioTranslation("common");
     const { reportEvent } = useEventsCollector();
     const licenseKeyStepData: SetupWizardFormData["licenseKeyStep"] = useWatch<SetupWizardFormData>({
         name: "licenseKeyStep",
@@ -540,7 +585,7 @@ export function SetupWizardLicenseKeyVerifyCodeModal({
             onError: async (error) => {
                 reportEvent(setupWizardGA4Prefixes.licenseKeyStep, "verify-code", error.message);
                 setError("licenseKeyStep.verificationCode", {
-                    message: convertVerificationCodeErrorMessage(error.message as FreeLicenseDownloadStatus),
+                    message: convertVerificationCodeErrorMessage(t, error.message as FreeLicenseDownloadStatus),
                 });
             },
         }
@@ -573,13 +618,18 @@ export function SetupWizardLicenseKeyVerifyCodeModal({
             >
                 <h3 className="d-flex justify-content-center align-items-center w-100">
                     <Icon icon="paperplane" color="primary" />
-                    Enter verification code
+                    {t("licenseKeyStep.verifyCode.title")}
                 </h3>
             </Modal.Header>
             <Modal.Body className="d-flex align-items-center flex-column justify-items-center">
-                <p className="text-center mb-1">Before generating license we need to confirm provided email.</p>
+                <p className="text-center mb-1">{t("licenseKeyStep.verifyCode.confirmEmail")}</p>
                 <p>
-                    Please check you email inbox. We have sent verification code to <b>{licenseKeyStepData?.email}</b>
+                    <StudioTrans
+                        ns="setupWizard"
+                        i18nKey="licenseKeyStep.verifyCode.checkInbox"
+                        options={{ email: licenseKeyStepData?.email ?? "" }}
+                        components={{ b: <b /> }}
+                    />
                 </p>
                 <form>
                     <FormVerificationCodeInput
@@ -589,20 +639,28 @@ export function SetupWizardLicenseKeyVerifyCodeModal({
                     />
                 </form>
                 <p className="text-center mt-3">
-                    Did not get a code?{" "}
-                    <Button
-                        variant="link"
-                        className="m-0 p-0"
-                        onClick={handleResendClick}
-                        disabled={sendLicenseVerificationCode.loading || isCountdownActive}
-                    >
-                        {isCountdownActive
-                            ? `Resend in ${countdown}s`
-                            : sendLicenseVerificationCode.loading
-                              ? "Sending..."
-                              : "Click to resend"}
-                    </Button>{" "}
-                    or update your email address.
+                    <StudioTrans
+                        ns="setupWizard"
+                        i18nKey="licenseKeyStep.verifyCode.resend"
+                        options={{
+                            context: isCountdownActive
+                                ? "countdown"
+                                : sendLicenseVerificationCode.loading
+                                  ? "sending"
+                                  : "ready",
+                            countdown,
+                        }}
+                        components={{
+                            resend: (
+                                <Button
+                                    variant="link"
+                                    className="m-0 p-0"
+                                    onClick={handleResendClick}
+                                    disabled={sendLicenseVerificationCode.loading || isCountdownActive}
+                                />
+                            ),
+                        }}
+                    />
                 </p>
             </Modal.Body>
             <Modal.Footer>
@@ -614,7 +672,7 @@ export function SetupWizardLicenseKeyVerifyCodeModal({
                     }}
                     className="link-muted"
                 >
-                    Cancel
+                    {tCommon("cancel")}
                 </Button>
                 <ButtonWithSpinner
                     isSpinning={onSubmitVerifiedCode.loading}
@@ -623,7 +681,7 @@ export function SetupWizardLicenseKeyVerifyCodeModal({
                     className="rounded-pill"
                     onClick={() => onSubmitVerifiedCode.execute(licenseKeyStepData.verificationCode)}
                 >
-                    Verify email
+                    {t("licenseKeyStep.verifyCode.verifyEmail")}
                     <Icon icon="arrow-right" margin="ms-1" />
                 </ButtonWithSpinner>
             </Modal.Footer>
@@ -655,20 +713,21 @@ function useResendCountdown(initialDelay: number = 30) {
     return { countdown, isCountdownActive: isActive, startCountdown };
 }
 
-function convertVerificationCodeErrorMessage(error: FreeLicenseDownloadStatus) {
+function convertVerificationCodeErrorMessage(t: StudioTranslate<"setupWizard">, error: FreeLicenseDownloadStatus) {
     switch (error) {
         case "CodeAlreadyUsed":
-            return "Code already used";
+            return t("licenseKeyStep.verifyCode.codeAlreadyUsed");
         case "CodeExpired":
-            return "Code expired";
+            return t("licenseKeyStep.verifyCode.codeExpired");
         case "InvalidCredentials":
-            return "Invalid credentials";
+            return t("licenseKeyStep.verifyCode.invalidCredentials");
         default:
             return error;
     }
 }
 
 export function SetupWizardLicenseKeyStepFooter() {
+    const t = useStudioTranslation("setupWizard");
     const { reportEvent } = useEventsCollector();
     const { control, setValue, trigger } = useFormContext<SetupWizardFormData>();
     const { setupWizardService } = useServices();
@@ -799,7 +858,7 @@ export function SetupWizardLicenseKeyStepFooter() {
                 licenseTypeToGenerate ?? "unknown"
             );
             await asyncSendLicenseVerificationCode.execute();
-            messagePublisher.reportSuccess("Verification code sent to your email");
+            messagePublisher.reportSuccess(t("licenseKeyStep.codeSent"));
             toggleIsLicenseActivationCodeModalOpen();
         } else {
             reportEvent(setupWizardGA4Prefixes.licenseKeyStep, "send-verification-code", "validation-failed");
@@ -820,17 +879,17 @@ export function SetupWizardLicenseKeyStepFooter() {
         <div className="d-flex justify-content-between">
             {licenseTypeToGenerate != null ? (
                 <Button variant="outline-secondary" className="rounded-pill" onClick={handleAlreadyHaveLicense}>
-                    <Icon icon="license" /> I already have a license
+                    <Icon icon="license" /> {t("licenseKeyStep.alreadyHaveLicense")}
                 </Button>
             ) : (
                 <Button variant="secondary" className="rounded-pill" onClick={handleBack}>
-                    <Icon icon="arrow-left" /> Back
+                    <Icon icon="arrow-left" /> {t("actions.back")}
                 </Button>
             )}
 
             {licenseTypeToGenerate != null ? (
                 <Button variant="primary" className="rounded-pill" onClick={handleGenerateLicense}>
-                    Generate license <Icon icon="arrow-right" margin="m-0" />
+                    {t("licenseKeyStep.generateLicense")} <Icon icon="arrow-right" margin="m-0" />
                 </Button>
             ) : (
                 <ButtonWithSpinner
@@ -839,7 +898,7 @@ export function SetupWizardLicenseKeyStepFooter() {
                     onClick={handleContinue}
                     isSpinning={asyncRegistrationInfo.loading}
                 >
-                    {key && licenseStatus === "valid" ? "Continue" : "Skip license"}
+                    {key && licenseStatus === "valid" ? t("actions.continue") : t("licenseKeyStep.skipLicense")}
                     <Icon icon="arrow-right" margin="ms-1" />
                 </ButtonWithSpinner>
             )}
