@@ -14,12 +14,15 @@ import AiAssistantWindow from "components/common/aiAssistant/AiAssistantWindow";
 import AiAssistantButton from "components/common/aiAssistant/AiAssistantButton";
 import CollapseButton from "components/common/CollapseButton";
 import { FormTaskConnectionString } from "components/common/formFields/FormTaskConnectionString";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface EditAiAgentBasicSectionProps {
     isEditAiAgent: boolean;
 }
 
 export default function EditAiAgentBasicSection({ isEditAiAgent }: EditAiAgentBasicSectionProps) {
+    const t = useStudioTranslation("editAiAgent");
     const { control, setValue } = useFormContext<EditAiAgentFormData>();
     const { value: isPanelOpen, setValue: setIsPanelOpen, toggle: toggleIsPanelOpen } = useBoolean(true);
     const { value: isAiAssistOpen, toggle: toggleIsAiAssistOpen } = useBoolean(false);
@@ -32,10 +35,15 @@ export default function EditAiAgentBasicSection({ isEditAiAgent }: EditAiAgentBa
         setValue("identifier", TaskUtils.getGeneratedIdentifier(formValues.name));
     };
 
+    const stateOptions: SelectOption[] = [
+        { label: t("basic.stateEnabled"), value: "Enabled" },
+        { label: t("basic.stateDisabled"), value: "Disabled" },
+    ];
+
     return (
         <>
             <div className="hstack align-items-center">
-                <h3 className="m-0">Configure basic settings</h3>
+                <h3 className="m-0">{t("basic.heading")}</h3>
                 <FormErrorIcon
                     control={control}
                     paths={[
@@ -50,19 +58,17 @@ export default function EditAiAgentBasicSection({ isEditAiAgent }: EditAiAgentBa
                 />
                 <CollapseButton isExpanded={isPanelOpen} toggle={toggleIsPanelOpen} />
             </div>
-            <div className="mb-1">
-                Define your agent&apos;s purpose, its AI provider connection, and the structure of its responses.
-            </div>
+            <div className="mb-1">{t("basic.description")}</div>
             <Collapse in={isPanelOpen} mountOnEnter unmountOnExit>
                 <div>
                     <div className="panel-bg-1 p-3 rounded-2 border border-secondary">
                         <FormGroup>
-                            <FormLabel>Agent name</FormLabel>
+                            <FormLabel>{t("basic.nameLabel")}</FormLabel>
                             <FormInput
                                 type="text"
                                 control={control}
                                 name="name"
-                                placeholder="e.g. Customer Service Agent"
+                                placeholder={t("basic.namePlaceholder")}
                                 onBlur={() => {
                                     if (!formValues.identifier) {
                                         handleGenerateIdentifier();
@@ -73,14 +79,14 @@ export default function EditAiAgentBasicSection({ isEditAiAgent }: EditAiAgentBa
                         </FormGroup>
                         <FormGroup>
                             <FormLabel>
-                                Identifier
+                                {t("basic.identifierLabel")}
                                 <PopoverWithHoverWrapper
                                     message={
-                                        <>
-                                            A unique identifier for the agent.
-                                            <br />
-                                            If not specified, it will be auto-generated from the agent name.
-                                        </>
+                                        <StudioTrans
+                                            ns="editAiAgent"
+                                            i18nKey="basic.identifierInfo"
+                                            components={{ br: <br /> }}
+                                        />
                                     }
                                 >
                                     <Icon icon="info-new" />
@@ -90,24 +96,24 @@ export default function EditAiAgentBasicSection({ isEditAiAgent }: EditAiAgentBa
                                 control={control}
                                 name="identifier"
                                 type="text"
-                                placeholder="e.g. customer-service-agent"
+                                placeholder={t("basic.identifierPlaceholder")}
                                 disabled={isEditAiAgent}
                                 addon={
                                     <Button
                                         variant="link"
                                         className="text-reset px-0"
                                         onClick={handleGenerateIdentifier}
-                                        title="Click to generate the identifier from the agent name."
+                                        title={t("basic.regenerateTitle")}
                                         disabled={isEditAiAgent}
                                     >
                                         <Icon icon="refresh" />
-                                        Regenerate
+                                        {t("basic.regenerate")}
                                     </Button>
                                 }
                             />
                         </FormGroup>
                         <FormGroup>
-                            <FormLabel>Agent State</FormLabel>
+                            <FormLabel>{t("basic.stateLabel")}</FormLabel>
                             <FormSelect control={control} name="state" options={stateOptions} />
                         </FormGroup>
                         <FormTaskConnectionString
@@ -118,15 +124,14 @@ export default function EditAiAgentBasicSection({ isEditAiAgent }: EditAiAgentBa
                         />
                         <FormGroup>
                             <FormLabel>
-                                System prompt
+                                {t("basic.systemPromptLabel")}
                                 <PopoverWithHoverWrapper
                                     message={
-                                        <>
-                                            This prompt defines the agent&apos;s role and capabilities.
-                                            <br />
-                                            It provides general context to guide the LLM&apos;s responses throughout the
-                                            conversation.
-                                        </>
+                                        <StudioTrans
+                                            ns="editAiAgent"
+                                            i18nKey="basic.systemPromptInfo"
+                                            components={{ br: <br /> }}
+                                        />
                                     }
                                 >
                                     <Icon icon="info-new" />
@@ -138,7 +143,7 @@ export default function EditAiAgentBasicSection({ isEditAiAgent }: EditAiAgentBa
                                     as="textarea"
                                     control={control}
                                     name="systemPrompt"
-                                    placeholder={agentDescriptionPlaceholder}
+                                    placeholder={t("basic.systemPromptPlaceholder")}
                                     rows={7}
                                 />
                                 {formValues.systemPrompt?.length > 0 && (
@@ -151,7 +156,7 @@ export default function EditAiAgentBasicSection({ isEditAiAgent }: EditAiAgentBa
                                             Message: getRefinePromptMessage(formValues),
                                         }}
                                         acceptResult={(text) => setValue("systemPrompt", text)}
-                                        successMessage="AI refined your prompt based on your input."
+                                        successMessage={t("basic.aiAssistantSuccess")}
                                         closeWindow={toggleIsAiAssistOpen}
                                     />
                                 )}
@@ -161,40 +166,29 @@ export default function EditAiAgentBasicSection({ isEditAiAgent }: EditAiAgentBa
                             control={control}
                             setValue={setValue}
                             sampleObjectName="sampleObject"
-                            sampleObjectLabel="Sample response object"
+                            sampleObjectLabel={t("basic.sampleObjectLabel")}
                             sampleObject={formValues.sampleObject}
                             sampleObjectSyntaxHelp={<SampleObjectSyntaxHelp />}
                             sampleObjectTooltip={
-                                <>
-                                    Provide a JSON object that defines the structure of the responses you expect to
-                                    receive from the LLM via the agent in the conversation.
-                                    <br />
-                                    <br />
-                                    This object is not sent to the model directly - RavenDB uses it to generate a JSON
-                                    schema, which is sent to the model.
-                                </>
+                                <StudioTrans
+                                    ns="editAiAgent"
+                                    i18nKey="basic.sampleObjectInfo"
+                                    components={{ br: <br /> }}
+                                />
                             }
-                            sampleObjectPlaceholder={sampleObjectPlaceholder}
+                            sampleObjectPlaceholder={t("basic.sampleObjectPlaceholder")}
                             jsonSchemaName="outputSchema"
-                            jsonSchemaLabel="Response JSON schema"
+                            jsonSchemaLabel={t("basic.jsonSchemaLabel")}
                             jsonSchema={formValues.outputSchema}
                             jsonSchemaSyntaxHelp={<JsonSchemaSyntaxHelp />}
                             jsonSchemaTooltip={
-                                <>
-                                    This JSON schema defines the structure of the response you expect the LLM to reply
-                                    with.
-                                    <br />
-                                    It is included in the request sent to the model.
-                                    <br />
-                                    <br />
-                                    If you don&apos;t provide a schema, RavenDB will generate one automatically based on
-                                    the sample response object.
-                                    <br />
-                                    <br />
-                                    If you provide both a sample object and a schema, the schema takes precedence.
-                                </>
+                                <StudioTrans
+                                    ns="editAiAgent"
+                                    i18nKey="basic.jsonSchemaInfo"
+                                    components={{ br: <br /> }}
+                                />
                             }
-                            helpActionTooltipTitle="Syntax example"
+                            helpActionTooltipTitle={t("shared.syntaxExample")}
                             canRegenerateSchemaName="canRegenerateSchema"
                         />
                     </div>
@@ -204,19 +198,9 @@ export default function EditAiAgentBasicSection({ isEditAiAgent }: EditAiAgentBa
     );
 }
 
-const agentDescriptionPlaceholder = `Describe the agent's purpose and capabilities. 
-E.g.: You are a customer support assistant for an e-commerce platform, capable of answering questions about products and orders.
-You can also assist with returns, refunds, and order issues by triggering the appropriate action to escalate to the support team.`;
-
-const sampleObjectPlaceholder = `{
-    // "ResponseField: "Instruction to the LLM",
-    // ...
-    // "ResponseField" is a custom field name that you want the LLM to include in its response.
-    // The value ("Instruction to the LLM") is a natural-language instruction that tells the LLM what content to return in this field.
-} 
-Open the (?) icon to view an example.`;
-
 const SampleObjectSyntaxHelp = () => {
+    const t = useStudioTranslation("editAiAgent");
+
     const code = `{
     "Request": "Summarize the customer's request.",
     "Response": "Provide your response.",
@@ -226,13 +210,15 @@ const SampleObjectSyntaxHelp = () => {
 
     return (
         <div>
-            <div>Example of a sample object that defines the expected response structure:</div>
+            <div>{t("basic.sampleObjectExample")}</div>
             <Code code={code} language="json" />
         </div>
     );
 };
 
 const JsonSchemaSyntaxHelp = () => {
+    const t = useStudioTranslation("editAiAgent");
+
     const code = `{
     "name": "MEJIa2ZlclQvQ3VZYlIvTENUQmVHa3JGUXlONzcxZ2dBK2pwYnUybDh0OD0",
     "strict": true,
@@ -263,7 +249,7 @@ const JsonSchemaSyntaxHelp = () => {
 
     return (
         <div>
-            <div>Example of a JSON schema that defines the expected response structure:</div>
+            <div>{t("basic.jsonSchemaExample")}</div>
             <Code code={code} language="json" />
         </div>
     );
@@ -274,8 +260,3 @@ function getRefinePromptMessage(formValues: EditAiAgentFormData) {
 ${formValues.systemPrompt}
 `;
 }
-
-const stateOptions: SelectOption[] = ["Enabled", "Disabled"].map((x) => ({
-    label: x,
-    value: x,
-}));

@@ -7,6 +7,7 @@ import { UseFormReturn } from "react-hook-form";
 import { EditAiAgentFormData } from "../utils/editAiAgentValidation";
 import ButtonWithSpinner from "components/common/ButtonWithSpinner";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface EditAiAgentFooterProps {
     editForm: UseFormReturn<EditAiAgentFormData>;
@@ -14,6 +15,8 @@ interface EditAiAgentFooterProps {
 }
 
 export default function EditAiAgentFooter({ editForm, generateTestParameters }: EditAiAgentFooterProps) {
+    const t = useStudioTranslation("editAiAgent");
+    const commonT = useStudioTranslation("common");
     const dispatch = useAppDispatch();
 
     const { forCurrentDatabase } = useAppUrls();
@@ -33,15 +36,15 @@ export default function EditAiAgentFooter({ editForm, generateTestParameters }: 
             <a
                 href={forCurrentDatabase.aiAgents()}
                 className="btn btn-outline-secondary rounded-pill"
-                title="Cancel configuration and return to the ai agents list."
+                title={t("footer.cancelTitle")}
             >
-                Cancel
+                {commonT("cancel")}
             </a>
             <div className="hstack gap-2">
-                <PopoverWithHoverWrapper message="Click to test the agent in the test area.">
+                <PopoverWithHoverWrapper message={t("footer.testInfo")}>
                     <Button variant="info" className="rounded-pill" onClick={handleOpenTest}>
                         <Icon icon="test" />
-                        Test
+                        {t("footer.test")}
                     </Button>
                 </PopoverWithHoverWrapper>
 
@@ -52,7 +55,7 @@ export default function EditAiAgentFooter({ editForm, generateTestParameters }: 
                     icon="save"
                     isSpinning={editForm.formState.isSubmitting}
                 >
-                    Save
+                    {commonT("save")}
                 </ButtonWithSpinner>
             </div>
         </div>

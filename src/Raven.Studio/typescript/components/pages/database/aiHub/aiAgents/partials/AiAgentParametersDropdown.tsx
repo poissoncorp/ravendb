@@ -4,6 +4,7 @@ import Badge from "react-bootstrap/Badge";
 import Dropdown from "react-bootstrap/Dropdown";
 import Form from "react-bootstrap/Form";
 import { aiAgentParametersUtils } from "../utils/aiAgentParametersUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface AiAgentParametersDropdownProps {
     parameters: Record<string, string | Raven.Client.Documents.AI.AiConversationParameter>;
@@ -11,6 +12,7 @@ interface AiAgentParametersDropdownProps {
 }
 
 export default function AiAgentParametersDropdown({ parameters, isCompact = false }: AiAgentParametersDropdownProps) {
+    const t = useStudioTranslation("aiAgents");
     const parametersArray = Object.entries(parameters).map(([name, value]) => ({ name, value }));
 
     if (parametersArray.length === 0) {
@@ -20,14 +22,14 @@ export default function AiAgentParametersDropdown({ parameters, isCompact = fals
     return (
         <Dropdown>
             <Dropdown.Toggle
-                title="Parameters"
+                title={t("parameters.title")}
                 variant="outline-secondary"
                 className="rounded-pill"
                 as={CustomDropdownToggle}
                 isCaretHidden={isCompact}
             >
                 <Icon icon="metrics" margin={isCompact ? "m-0" : "me-1"} />
-                {isCompact ? null : "Parameters"}
+                {isCompact ? null : t("parameters.title")}
             </Dropdown.Toggle>
             <Dropdown.Menu
                 style={{ width: "500px", maxHeight: "316px" }}
@@ -53,11 +55,12 @@ interface ParameterItemProps {
 }
 
 function ParameterItem({ name, value, isLast }: ParameterItemProps) {
+    const t = useStudioTranslation("aiAgents");
     const extractedValue = typeof value === "object" && "Value" in value ? value.Value : value;
 
     // Default to true if not specified for backwards compatibility
     const isSendToModel = typeof value === "object" && "SendToModel" in value ? (value.SendToModel ?? true) : true;
-    const sendToModelLabel = isSendToModel ? "Sent to model" : "Internal only";
+    const sendToModelLabel = isSendToModel ? t("parameters.sentToModel") : t("parameters.internalOnly");
 
     const displayValue = aiAgentParametersUtils.formatParameterValueForDisplay(extractedValue);
 

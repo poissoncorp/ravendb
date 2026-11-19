@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("aiAgentsCommands");
 
 class deleteAiAgentCommand extends commandBase {
     constructor(
@@ -18,10 +21,10 @@ class deleteAiAgentCommand extends commandBase {
 
         return this.del(url, null, this.db)
             .done(() => {
-                this.reportSuccess(`AI agent ${this.agentId} successfully deleted`);
+                this.reportSuccess(t("deleteSucceeded", { agentId: this.agentId }));
             })
             .fail((response: JQueryXHR) =>
-                this.reportError("Failed to delete AI agent", response.responseText, response.statusText)
+                this.reportError(t("deleteFailed"), response.responseText, response.statusText)
             );
     }
 }

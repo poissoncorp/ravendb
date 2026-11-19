@@ -4,6 +4,7 @@ import { useAppUrls } from "components/hooks/useAppUrls";
 import { useAppSelector } from "components/store";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
 import Dropdown from "react-bootstrap/Dropdown";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface AiAgentLinkedConversationsDropdownProps {
     linkedConversations: string[];
@@ -12,6 +13,7 @@ interface AiAgentLinkedConversationsDropdownProps {
 export default function AiAgentLinkedConversationsDropdown({
     linkedConversations,
 }: AiAgentLinkedConversationsDropdownProps) {
+    const t = useStudioTranslation("aiAgents");
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const { appUrl } = useAppUrls();
 
@@ -24,13 +26,13 @@ export default function AiAgentLinkedConversationsDropdown({
     return (
         <Dropdown>
             <Dropdown.Toggle
-                title="Linked conversations"
+                title={t("linkedConversations")}
                 variant="outline-info"
                 className="rounded-pill"
                 as={CustomDropdownToggle}
             >
                 <Icon icon="documents" />
-                Linked conversations
+                {t("linkedConversations")}
             </Dropdown.Toggle>
             <Dropdown.Menu
                 style={{ maxWidth: "500px", maxHeight: "320px" }}

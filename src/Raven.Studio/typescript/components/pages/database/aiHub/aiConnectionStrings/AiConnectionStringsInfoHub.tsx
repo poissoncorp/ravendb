@@ -8,29 +8,43 @@ import { useAppUrls } from "hooks/useAppUrls";
 import { Icon } from "components/common/Icon";
 import { useRavenLink } from "hooks/useRavenLink";
 import { aiConnectionStringUtils } from "components/pages/database/settings/connectionStrings/editForms/aiConnectionStringUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export function AiConnectionStringsInfoHub() {
+    const t = useStudioTranslation("aiConnectionStrings");
+    const commonT = useStudioTranslation("common");
     const { appUrl } = useAppUrls();
     const activeDatabaseName = useAppSelector(databaseSelectors.activeDatabaseName);
 
     const aiConnectionStringsDocsLink = useRavenLink({ hash: "EAIKIA" });
+
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("featureAvailability.ai"),
+            featureIcon: "ai-etl",
+            community: { value: true },
+            professional: { value: true },
+            enterprise: { value: true },
+            quill: { value: true },
+        },
+    ];
 
     return (
         <AboutViewAnchored>
             <AccordionItemWrapper targetId="about" icon="about" color="info">
                 <div>
                     <ul>
-                        <li>This view allows you to define and manage connection strings for AI model services.</li>
+                        <li>{t("about.intro")}</li>
                         <li className="mt-1">
-                            Each connection string specifies the details required to connect to a particular provider
-                            and can be reused across multiple{" "}
-                            <a href={appUrl.forAiTasks(activeDatabaseName)} target="_blank">
-                                AI tasks
-                            </a>{" "}
-                            in the database.
+                            <StudioTrans
+                                ns="aiConnectionStrings"
+                                i18nKey="about.reuse"
+                                components={{ a: <a href={appUrl.forAiTasks(activeDatabaseName)} target="_blank" /> }}
+                            />
                         </li>
                         <li className="mt-1">
-                            Supported providers include:
+                            {t("about.supportedProviders")}
                             <ul>
                                 {aiConnectionStringUtils.allConnectorOptions.map((option) => (
                                     <li key={option.value}>{option.label}</li>
@@ -40,23 +54,12 @@ export function AiConnectionStringsInfoHub() {
                     </ul>
                 </div>
                 <hr />
-                <div className="small-label mb-2">useful links</div>
+                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                 <a href={aiConnectionStringsDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - AI Connection Strings
+                    <Icon icon="newtab" /> {t("about.docsLink")}
                 </a>
             </AccordionItemWrapper>
             <FeatureAvailabilitySummaryWrapper isUnlimited={true} data={defaultFeatureAvailability} />
         </AboutViewAnchored>
     );
 }
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "AI",
-        featureIcon: "ai-etl",
-        community: { value: true },
-        professional: { value: true },
-        enterprise: { value: true },
-        quill: { value: true },
-    },
-];

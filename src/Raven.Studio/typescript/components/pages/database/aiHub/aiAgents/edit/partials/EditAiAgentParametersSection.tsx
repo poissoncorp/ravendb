@@ -18,8 +18,12 @@ import Collapse from "react-bootstrap/Collapse";
 import CollapseButton from "components/common/CollapseButton";
 import { SelectOption } from "components/common/select/Select";
 import useEditAiAgentParametersSection from "../hooks/useEditAiAgentParametersSection";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import { StudioTranslate } from "common/i18n/resources";
 
 export default function EditAiAgentParametersSection() {
+    const t = useStudioTranslation("editAiAgent");
     const { control } = useFormContext<EditAiAgentFormData>();
     const parametersEditor = useEditAiAgentParametersSection();
 
@@ -29,18 +33,14 @@ export default function EditAiAgentParametersSection() {
         <>
             <div className="hstack mt-3">
                 <h3 className="m-0">
-                    Set agent parameters
+                    {t("parameters.heading")}
                     <PopoverWithHoverWrapper
                         message={
-                            <>
-                                Define query parameters that the agent will replace with fixed values before executing a
-                                query tool against the database. This ensures that queries run only within the allowed
-                                data scope.
-                                <br />
-                                <br />
-                                You will need to provide values for these parameters when starting a new chat with the
-                                agent.
-                            </>
+                            <StudioTrans
+                                ns="editAiAgent"
+                                i18nKey="parameters.headingInfo"
+                                components={{ br: <br /> }}
+                            />
                         }
                     >
                         <Icon icon="info-new" />
@@ -49,10 +49,7 @@ export default function EditAiAgentParametersSection() {
                 <FormErrorIcon control={control} paths={["parameters"]} onError={() => setIsPanelOpen(true)} />
                 <CollapseButton isExpanded={isPanelOpen} toggle={toggleIsPanelOpen} />
             </div>
-            <div className="mb-1">
-                Define query parameters that the agent will replace with fixed values before executing a query tool
-                against the database.
-            </div>
+            <div className="mb-1">{t("parameters.description")}</div>
             <Collapse in={isPanelOpen} mountOnEnter unmountOnExit>
                 <div>
                     <div className="panel-bg-1 p-3 rounded-2 border border-secondary">
@@ -61,18 +58,18 @@ export default function EditAiAgentParametersSection() {
                                 <div className="tool-icon bg-faded-secondary border border-secondary small">
                                     <Icon icon="settings" margin="m-0" className="text-body" />
                                 </div>
-                                <div>Agent parameters</div>
+                                <div>{t("parameters.listTitle")}</div>
                             </div>
                             <Button variant="primary" className="rounded-pill" onClick={parametersEditor.handleAdd}>
                                 <Icon icon="plus" />
-                                Add new parameter
+                                {t("parameters.add")}
                             </Button>
                         </div>
                         <div className="vstack">
                             {parametersEditor.fieldArray.fields.length === 0 ? (
                                 <div className="well p-2 rounded-2 border border-secondary mt-2 d-flex justify-content-center align-items-center">
                                     <EmptySet compact className="text-muted">
-                                        No parameters have been defined yet
+                                        {t("parameters.empty")}
                                     </EmptySet>
                                 </div>
                             ) : (
@@ -106,6 +103,7 @@ interface ParameterItemProps {
 }
 
 function ParameterItem({ index, parameterItem, remove, save, edit }: ParameterItemProps) {
+    const t = useStudioTranslation("editAiAgent");
     const { control } = useFormContext<EditAiAgentFormData>();
 
     if (!parameterItem) {
@@ -122,7 +120,7 @@ function ParameterItem({ index, parameterItem, remove, save, edit }: ParameterIt
                         </h4>
                         <span className="small text-secondary">|</span>
                         <span className="fs-4 flex-shrink-0 text-monospace text-muted">
-                            {getParameterTypeLabel(parameterItem.type)}
+                            {getParameterTypeLabel(parameterItem.type, t)}
                         </span>
                     </div>
                     <small className="d-block text-truncate" title={parameterItem.description}>
@@ -144,7 +142,7 @@ function ParameterItem({ index, parameterItem, remove, save, edit }: ParameterIt
     return (
         <div className="well p-2 rounded-2 border border-secondary mt-2">
             <div className="hstack justify-content-between">
-                <h4 className="m-0">Configure parameter</h4>
+                <h4 className="m-0">{t("parameters.configure")}</h4>
                 <div className="hstack gap-2">
                     <Button variant="danger" onClick={remove}>
                         <Icon icon="trash" margin="m-0" />
@@ -157,21 +155,21 @@ function ParameterItem({ index, parameterItem, remove, save, edit }: ParameterIt
             <hr className="mt-2 mb-3" />
             <div className="grid gap-2 mb-3">
                 <FormGroup marginClass="m-0" className="g-col-6">
-                    <FormLabel>Parameter name</FormLabel>
+                    <FormLabel>{t("parameters.nameLabel")}</FormLabel>
                     <FormInput
                         type="text"
                         control={control}
                         name={`parameters.${index}.name`}
-                        placeholder="e.g. company"
+                        placeholder={t("parameters.namePlaceholder")}
                     />
                 </FormGroup>
                 <FormGroup marginClass="m-0" className="g-col-6">
-                    <FormLabel>Parameter type</FormLabel>
+                    <FormLabel>{t("parameters.typeLabel")}</FormLabel>
                     <FormSelect
                         control={control}
                         name={`parameters.${index}.type`}
-                        options={typeOptions}
-                        placeholder="Select a type"
+                        options={getTypeOptions(t)}
+                        placeholder={t("parameters.typePlaceholder")}
                         isSearchable={false}
                         isClearable={false}
                     />
@@ -179,7 +177,7 @@ function ParameterItem({ index, parameterItem, remove, save, edit }: ParameterIt
             </div>
             <FormGroup>
                 <FormLabel>
-                    Description <OptionalLabel />
+                    {t("shared.description")} <OptionalLabel />
                 </FormLabel>
                 <FormInput
                     type="textarea"
@@ -187,21 +185,19 @@ function ParameterItem({ index, parameterItem, remove, save, edit }: ParameterIt
                     rows={3}
                     control={control}
                     name={`parameters.${index}.description`}
-                    placeholder="e.g. The company ID"
+                    placeholder={t("parameters.descriptionPlaceholder")}
                 />
             </FormGroup>
             <FormGroup>
                 <FormLabel>
-                    Forbid model generation
+                    {t("parameters.policyLabel")}
                     <PopoverWithHoverWrapper
                         message={
-                            <>
-                                When <b>Forbid model generation</b> is set and this agent is used as a sub-agent, the
-                                parent agent is not allowed to generate a parameter value for the sub-agent.
-                                <br />
-                                The parameter&apos;s value may only be inherited from the parent agent parameters. This
-                                ensures that this is a trusted value.
-                            </>
+                            <StudioTrans
+                                ns="editAiAgent"
+                                i18nKey="parameters.policyInfo"
+                                components={{ b: <b />, br: <br /> }}
+                            />
                         }
                     >
                         <Icon icon="info-new" margin="ms-1" />
@@ -210,24 +206,21 @@ function ParameterItem({ index, parameterItem, remove, save, edit }: ParameterIt
                 <FormSelect
                     control={control}
                     name={`parameters.${index}.policy`}
-                    options={policyOptions}
-                    placeholder="Select a value"
+                    options={getPolicyOptions(t)}
+                    placeholder={t("parameters.policyPlaceholder")}
                     isSearchable={false}
                     isClearable={false}
                 />
             </FormGroup>
             <FormSwitch control={control} name={`parameters.${index}.isSendToModel`}>
-                Send to model
+                {t("parameters.sendToModel")}
                 <PopoverWithHoverWrapper
                     message={
-                        <>
-                            When enabled, the parameter is exposed to the model. It is included in the prompt sent to
-                            the model and in any echo messages.
-                            <br />
-                            <br />
-                            When disabled, the parameter is hidden from the model. It is excluded from both the prompt
-                            and echo messages.
-                        </>
+                        <StudioTrans
+                            ns="editAiAgent"
+                            i18nKey="parameters.sendToModelInfo"
+                            components={{ br: <br /> }}
+                        />
                     }
                 >
                     <Icon icon="info-new" margin="ms-1" />
@@ -237,22 +230,33 @@ function ParameterItem({ index, parameterItem, remove, save, edit }: ParameterIt
     );
 }
 
-function getParameterTypeLabel(type: Raven.Client.Documents.Operations.AI.Agents.AiAgentParameterValueType) {
-    return typeOptions.find((option) => option.value === type)?.label ?? type;
+function getParameterTypeLabel(
+    type: Raven.Client.Documents.Operations.AI.Agents.AiAgentParameterValueType,
+    t: StudioTranslate<"editAiAgent">
+) {
+    return getTypeOptions(t).find((option) => option.value === type)?.label ?? type;
 }
 
-const typeOptions: SelectOption<Raven.Client.Documents.Operations.AI.Agents.AiAgentParameterValueType>[] = [
-    { value: "String", label: "String" },
-    { value: "Number", label: "Number" },
-    { value: "Boolean", label: "Boolean" },
-    { value: "ArrayOfString", label: "String[]" },
-    { value: "ArrayOfNumber", label: "Number[]" },
-    { value: "ArrayOfBoolean", label: "Boolean[]" },
-    { value: "Default", label: "Any" },
-    { value: "Null", label: "Null" },
-];
+function getTypeOptions(
+    t: StudioTranslate<"editAiAgent">
+): SelectOption<Raven.Client.Documents.Operations.AI.Agents.AiAgentParameterValueType>[] {
+    return [
+        { value: "String", label: t("parameters.types.string") },
+        { value: "Number", label: t("parameters.types.number") },
+        { value: "Boolean", label: t("parameters.types.boolean") },
+        { value: "ArrayOfString", label: t("parameters.types.arrayOfString") },
+        { value: "ArrayOfNumber", label: t("parameters.types.arrayOfNumber") },
+        { value: "ArrayOfBoolean", label: t("parameters.types.arrayOfBoolean") },
+        { value: "Default", label: t("parameters.types.any") },
+        { value: "Null", label: t("parameters.types.null") },
+    ];
+}
 
-const policyOptions: SelectOption<Raven.Client.Documents.Operations.AI.Agents.AiAgentParameterPolicy>[] = [
-    { value: "Default", label: "Default" },
-    { value: "ForbidModelGeneration", label: "Forbid model generation" },
-];
+function getPolicyOptions(
+    t: StudioTranslate<"editAiAgent">
+): SelectOption<Raven.Client.Documents.Operations.AI.Agents.AiAgentParameterPolicy>[] {
+    return [
+        { value: "Default", label: t("parameters.policies.default") },
+        { value: "ForbidModelGeneration", label: t("parameters.policies.forbidModelGeneration") },
+    ];
+}

@@ -3,12 +3,15 @@ import { ChatAiAgentFormData } from "components/pages/database/aiHub/aiAgents/ch
 import Button from "react-bootstrap/Button";
 import { UseFieldArrayReturn } from "react-hook-form";
 import { chatAiAgentAttachmentsUtils } from "components/pages/database/aiHub/aiAgents/chat/utils/chatAiAgentAttachmentsUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface ChatAiAgentPromptAttachmentsProps {
     attachmentsFieldsArray: UseFieldArrayReturn<ChatAiAgentFormData, "attachments", "id">;
 }
 
 export default function ChatAiAgentPromptAttachments({ attachmentsFieldsArray }: ChatAiAgentPromptAttachmentsProps) {
+    const t = useStudioTranslation("aiAgentChat");
+
     if (!attachmentsFieldsArray.fields.length) {
         return null;
     }
@@ -35,7 +38,7 @@ export default function ChatAiAgentPromptAttachments({ attachmentsFieldsArray }:
                         className="text-muted p-0 hover-filter"
                         size="xs"
                         onClick={() => attachmentsFieldsArray.remove(index)}
-                        title="Remove attachment"
+                        title={t("attachments.removeTitle")}
                     >
                         <Icon icon="cancel" margin="m-0" size="xs" />
                     </Button>

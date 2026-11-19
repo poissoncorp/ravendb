@@ -17,6 +17,9 @@ import { SelectOption } from "components/common/select/Select";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import Accordion from "react-bootstrap/Accordion";
 import AccordionButton from "react-bootstrap/AccordionButton";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import { StudioTranslate } from "common/i18n/resources";
 
 interface EditAiAgentQueryToolItemProps {
     index: number;
@@ -26,6 +29,7 @@ interface EditAiAgentQueryToolItemProps {
 }
 
 export default function EditAiAgentQueryToolItem({ index, remove, save, edit }: EditAiAgentQueryToolItemProps) {
+    const t = useStudioTranslation("editAiAgent");
     const { control, setValue, trigger } = useFormContext<EditAiAgentFormData>();
     const dbName = useAppSelector(databaseSelectors.activeDatabaseName);
 
@@ -91,11 +95,12 @@ export default function EditAiAgentQueryToolItem({ index, remove, save, edit }: 
     };
 
     const isAdvancedOpenByDefault = queryItem.isAllowModelQueriesOverride || queryItem.isAddToInitialContextOverride;
+    const booleanOptions = getBooleanOptions(t);
 
     return (
         <div className="well p-2 rounded-2 border border-secondary mt-2">
             <div className="hstack justify-content-between">
-                <h4 className="m-0">Configure query tool</h4>
+                <h4 className="m-0">{t("queryTool.configure")}</h4>
                 <div className="hstack gap-2">
                     <Button variant="danger" onClick={remove}>
                         <Icon icon="trash" margin="m-0" />
@@ -107,37 +112,37 @@ export default function EditAiAgentQueryToolItem({ index, remove, save, edit }: 
             </div>
             <hr className="mt-2 mb-3" />
             <FormGroup>
-                <FormLabel>Tool name</FormLabel>
+                <FormLabel>{t("tools.toolNameLabel")}</FormLabel>
                 <FormInput
                     type="text"
                     control={control}
                     name={`queries.${index}.name`}
-                    placeholder="e.g. GetOrdersByCountryAndCompany"
+                    placeholder={t("queryTool.namePlaceholder")}
                 />
             </FormGroup>
             <FormGroup>
-                <FormLabel>Description</FormLabel>
+                <FormLabel>{t("shared.description")}</FormLabel>
                 <FormInput
                     type="textarea"
                     as="textarea"
                     control={control}
                     name={`queries.${index}.description`}
-                    placeholder={queryFieldDescriptionPlaceholder}
+                    placeholder={t("queryTool.descriptionPlaceholder")}
                     rows={4}
                 />
             </FormGroup>
             <FormGroup>
                 <div className="d-flex mb-1 justify-content-between align-items-end">
-                    <FormLabel className="mb-0">Query</FormLabel>
+                    <FormLabel className="mb-0">{t("queryTool.queryLabel")}</FormLabel>
                     {queryItem.query && (
                         <Button
                             variant="info"
                             className="rounded-pill"
                             onClick={linkToQuery}
-                            title="Click to test this query in the Studio's Query View"
+                            title={t("queryTool.testQueryTitle")}
                         >
                             <Icon icon="rocket" />
-                            Test query
+                            {t("queryTool.testQuery")}
                         </Button>
                     )}
                 </div>
@@ -148,38 +153,50 @@ export default function EditAiAgentQueryToolItem({ index, remove, save, edit }: 
                     mode="rql"
                     languageService={rqlLanguageService}
                     actions={[{ component: <AceEditor.FullScreenAction /> }, { component: <AceEditor.FormatAction /> }]}
-                    placeholder={queryFieldQueryPlaceholder}
+                    placeholder={t("queryTool.queryPlaceholder")}
                 />
             </FormGroup>
             <SampleObjectAndSchemaFields
                 control={control}
                 setValue={setValue}
                 sampleObjectName={`queries.${index}.parametersSampleObject`}
-                sampleObjectLabel="Sample parameters object"
+                sampleObjectLabel={t("tools.sampleParametersLabel")}
                 sampleObject={queryItem.parametersSampleObject}
                 sampleObjectSyntaxHelp={<QueryFieldQuerySyntaxHelp />}
                 sampleObjectTooltip={<QueryFieldSampleObjectTooltip />}
-                sampleObjectPlaceholder={queryFieldSampleObjectPlaceholder}
+                sampleObjectPlaceholder={t("queryTool.sampleObjectPlaceholder")}
                 jsonSchemaName={`queries.${index}.parametersSchema`}
-                jsonSchemaLabel="Parameters JSON schema"
+                jsonSchemaLabel={t("tools.parametersSchemaLabel")}
                 jsonSchema={queryItem.parametersSchema}
                 jsonSchemaSyntaxHelp={<QueryFieldJsonSchemaSyntaxHelp />}
                 schemaType="ToolParameters"
-                helpActionTooltipTitle="Syntax example"
+                helpActionTooltipTitle={t("shared.syntaxExample")}
                 canRegenerateSchemaName={`queries.${index}.canRegenerateSchema`}
             />
 
             <Accordion defaultActiveKey={isAdvancedOpenByDefault ? "advanced-settings" : null} className="mt-2">
                 <Accordion.Item eventKey="advanced-settings" className="border border-secondary rounded-2 panel-bg-2">
                     <Accordion.Header
-                        as={() => <AccordionButton className="rounded-2 panel-bg-2">Advanced settings</AccordionButton>}
+                        as={() => (
+                            <AccordionButton className="rounded-2 panel-bg-2">
+                                {t("queryTool.advancedSettings")}
+                            </AccordionButton>
+                        )}
                     ></Accordion.Header>
                     <Accordion.Body>
                         <hr className="my-0 mb-2" />
                         <FormGroup>
                             <FormLabel>
-                                Allow model queries
-                                <PopoverWithHoverWrapper message={<AllowModelQueriesTooltip />}>
+                                {t("queryTool.allowModelQueries")}
+                                <PopoverWithHoverWrapper
+                                    message={
+                                        <StudioTrans
+                                            ns="editAiAgent"
+                                            i18nKey="queryTool.allowModelQueriesInfo"
+                                            components={{ br: <br /> }}
+                                        />
+                                    }
+                                >
                                     <Icon icon="info-new" margin="ms-1" />
                                 </PopoverWithHoverWrapper>
                             </FormLabel>
@@ -187,10 +204,12 @@ export default function EditAiAgentQueryToolItem({ index, remove, save, edit }: 
                                 <FormSelect
                                     control={control}
                                     name={`queries.${index}.isAllowModelQueries`}
-                                    options={isAllowModelQueriesOptions}
+                                    options={booleanOptions}
                                     isDisabled={!queryItem.isAllowModelQueriesOverride}
                                     placeholder={
-                                        queryItem.isAllowModelQueriesOverride ? "Select True or False" : "Default"
+                                        queryItem.isAllowModelQueriesOverride
+                                            ? t("queryTool.selectTrueOrFalse")
+                                            : t("queryTool.defaultPlaceholder")
                                     }
                                 />
                                 <FormSwitch
@@ -205,14 +224,22 @@ export default function EditAiAgentQueryToolItem({ index, remove, save, edit }: 
                                         }
                                     }}
                                 >
-                                    Override
+                                    {t("queryTool.override")}
                                 </FormSwitch>
                             </div>
                         </FormGroup>
                         <FormGroup className="mb-0">
                             <FormLabel>
-                                Add to initial context
-                                <PopoverWithHoverWrapper message={<AddToInitialContextTooltip />}>
+                                {t("queryTool.addToInitialContext")}
+                                <PopoverWithHoverWrapper
+                                    message={
+                                        <StudioTrans
+                                            ns="editAiAgent"
+                                            i18nKey="queryTool.addToInitialContextInfo"
+                                            components={{ br: <br /> }}
+                                        />
+                                    }
+                                >
                                     <Icon icon="info-new" margin="ms-1" />
                                 </PopoverWithHoverWrapper>
                             </FormLabel>
@@ -220,10 +247,12 @@ export default function EditAiAgentQueryToolItem({ index, remove, save, edit }: 
                                 <FormSelect
                                     control={control}
                                     name={`queries.${index}.isAddToInitialContext`}
-                                    options={isAddToInitialContextOptions}
+                                    options={booleanOptions}
                                     isDisabled={!queryItem.isAddToInitialContextOverride}
                                     placeholder={
-                                        queryItem.isAddToInitialContextOverride ? "Select True or False" : "Default"
+                                        queryItem.isAddToInitialContextOverride
+                                            ? t("queryTool.selectTrueOrFalse")
+                                            : t("queryTool.defaultPlaceholder")
                                     }
                                 />
                                 <FormSwitch
@@ -238,7 +267,7 @@ export default function EditAiAgentQueryToolItem({ index, remove, save, edit }: 
                                         }
                                     }}
                                 >
-                                    Override
+                                    {t("queryTool.override")}
                                 </FormSwitch>
                             </div>
                         </FormGroup>
@@ -249,69 +278,13 @@ export default function EditAiAgentQueryToolItem({ index, remove, save, edit }: 
     );
 }
 
-function AllowModelQueriesTooltip() {
-    return (
-        <>
-            When True, the model is allowed to execute this query on demand based on its own judgment.
-            <br />
-            <br />
-            When False, the model cannot call this query (unless executed as part of initial context).
-            <br />
-            <br />
-            When Default, server default is applied.
-        </>
-    );
-}
-
-function AddToInitialContextTooltip() {
-    return (
-        <>
-            When True, the query will be executed during the initial context build and its results provided to the
-            model.
-            <br />
-            <br />
-            When False, the query will not be executed for the initial context.
-            <br />
-            <br />
-            When Default, server default is applied.
-        </>
-    );
-}
-
 function QueryFieldSampleObjectTooltip() {
-    return (
-        <>
-            Provide a JSON object that defines the parameters the LLM is expected to supply when it requests the agent
-            to execute this query tool.
-            <br />
-            <br />
-            This object is not sent to the model directly - RavenDB uses it to generate a JSON schema, which is sent to
-            the model.
-        </>
-    );
+    return <StudioTrans ns="editAiAgent" i18nKey="queryTool.sampleObjectInfo" components={{ br: <br /> }} />;
 }
-
-const queryFieldDescriptionPlaceholder = `In this description, explain to the LLM when it should trigger this query.
-Example 1: Use this query to retrieve Order documents from the database filtered by destination country and company.
-Example 2: Use this query to perform a semantic search for products similar to those in the customer's order.`;
-
-const queryFieldQueryPlaceholder = `// Enter the query that will run against the database. 
-// You can query an existing static index or make a dynamic query. For example:
-// Example 1: from "Orders" where ShipTo.Country == $country" and Company == $company"
-// Example 2: from "Products" where vector.search(embedding.text(Name), $searchTerm, $similarityLevel)
-
-// Parameters (i.e. $paramName) that are defined in the "Set agent parameters" section will be replaced with the fixed values you provide.
-// Other parameters (i.e. $paramName) will be filled with the values provided by the LLM when it calls this query tool.`;
-
-const queryFieldSampleObjectPlaceholder = `{
-    // "ParamName": "Instruction to the LLM",
-    // ... 
-    // "ParamName" is the name of a parameter from the query for which the LLM needs to provide a value.
-    // The value ("Instruction to the LLM") is a natural-language instruction that tells the LLM what value to supply in this field.
-}
-Open the (?) icon to view an example.`;
 
 const QueryFieldQuerySyntaxHelp = () => {
+    const t = useStudioTranslation("editAiAgent");
+
     const exampleCode1 = `{
     "country": "Provide the country to which the order was shipped.",
     "company": "Provide the company that placed this order."         
@@ -326,17 +299,19 @@ const QueryFieldQuerySyntaxHelp = () => {
 
     return (
         <div>
-            <div>Example 1:</div>
+            <div>{t("shared.exampleNumbered", { number: 1 })}</div>
             <Code code={exampleCode1} language="json" />
-            <div className="mt-2">Example 2:</div>
+            <div className="mt-2">{t("shared.exampleNumbered", { number: 2 })}</div>
             <Code code={exampleCode2} language="json" />
-            <div className="mt-2">Example 3 (no parameters will be used):</div>
+            <div className="mt-2">{t("shared.exampleNoParameters", { number: 3 })}</div>
             <Code code={exampleCode3} language="json" />
         </div>
     );
 };
 
 const QueryFieldJsonSchemaSyntaxHelp = () => {
+    const t = useStudioTranslation("editAiAgent");
+
     const exampleCode = `{
     "type": "object",
     "properties": {
@@ -358,18 +333,15 @@ const QueryFieldJsonSchemaSyntaxHelp = () => {
 
     return (
         <div>
-            <div>Example:</div>
+            <div>{t("queryTool.jsonSchemaExample")}</div>
             <Code code={exampleCode} language="json" />
         </div>
     );
 };
 
-const isAllowModelQueriesOptions: SelectOption<boolean>[] = [
-    { label: "True", value: true },
-    { label: "False", value: false },
-];
-
-const isAddToInitialContextOptions: SelectOption<boolean>[] = [
-    { label: "True", value: true },
-    { label: "False", value: false },
-];
+function getBooleanOptions(t: StudioTranslate<"editAiAgent">): SelectOption<boolean>[] {
+    return [
+        { label: t("queryTool.valueTrue"), value: true },
+        { label: t("queryTool.valueFalse"), value: false },
+    ];
+}

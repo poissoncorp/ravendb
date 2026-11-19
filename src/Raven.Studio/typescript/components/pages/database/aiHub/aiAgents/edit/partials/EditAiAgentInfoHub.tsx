@@ -1,8 +1,12 @@
 import AboutViewFloating, { AccordionItemWrapper } from "components/common/AboutView";
 import { Icon } from "components/common/Icon";
 import { useRavenLink } from "components/hooks/useRavenLink";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function EditAiAgentInfoHub() {
+    const t = useStudioTranslation("editAiAgent");
+    const commonT = useStudioTranslation("common");
     const aiAgentsOverviewDocsLink = useRavenLink({ hash: "XNWAXB" });
     const aiAgentsCreateAgentDocsLink = useRavenLink({ hash: "72VEQI" });
 
@@ -10,56 +14,75 @@ export default function EditAiAgentInfoHub() {
         <AboutViewFloating>
             <AccordionItemWrapper icon="about" color="info" targetId="about-view">
                 <div>
-                    In this view, you can define an AI Agent - <br /> a natural language{" "}
-                    <strong>conversational assistant</strong> powered by an LLM.
+                    <StudioTrans
+                        ns="editAiAgent"
+                        i18nKey="about.intro"
+                        components={{ br: <br />, strong: <strong /> }}
+                    />
                     <br />
                     <br />
-                    The agent lets you chat with an LLM about your data. It can retrieve information from your database
-                    to answer prompts, and trigger specific actions when needed.
+                    {t("about.chat")}
                     <br />
                     <br />
-                    The configuration includes:
+                    {t("about.configurationIncludes")}
                     <ul className="mt-1">
                         <li>
-                            <strong>Connection string</strong> - Specifies the AI provider and the LLM of your choice.
+                            <StudioTrans
+                                ns="editAiAgent"
+                                i18nKey="about.connectionString"
+                                components={{ strong: <strong /> }}
+                            />
                         </li>
                         <li className="mt-1">
-                            <strong>Response structure</strong> - Define the expected format of the agent’s replies.
+                            <StudioTrans
+                                ns="editAiAgent"
+                                i18nKey="about.responseStructure"
+                                components={{ strong: <strong /> }}
+                            />
                         </li>
                         <li className="mt-1">
-                            <strong>Chat storage</strong> - Configure the documents that store chat conversations.
-                            <br /> You can optionally enable trimming or summarization of their content.
+                            <StudioTrans
+                                ns="editAiAgent"
+                                i18nKey="about.chatStorage"
+                                components={{ strong: <strong />, br: <br /> }}
+                            />
                         </li>
                         <li className="mt-1">
-                            <strong>Tools</strong> - Tools are a controlled way to pass context to the LLM:
+                            <StudioTrans ns="editAiAgent" i18nKey="about.tools" components={{ strong: <strong /> }} />
                             <ul>
                                 <li className="mt-1">
-                                    <strong>Query tools</strong>: <br /> Define queries the agent can run against your
-                                    database when the LLM thinks they’re needed to respond to the user. Scope access by
-                                    setting agent parameters - ensuring the LLM receives only the data its allowed to
-                                    access.
+                                    <StudioTrans
+                                        ns="editAiAgent"
+                                        i18nKey="about.queryTools"
+                                        components={{ strong: <strong />, br: <br /> }}
+                                    />
                                 </li>
                                 <li className="mt-1">
-                                    <strong>Action tools</strong>: <br /> Define tasks the agent can trigger when
-                                    instructed by the LLM in response to user prompts.
+                                    <StudioTrans
+                                        ns="editAiAgent"
+                                        i18nKey="about.actionTools"
+                                        components={{ strong: <strong />, br: <br /> }}
+                                    />
                                 </li>
                             </ul>
                         </li>
                         <li className="mt-1">
-                            <strong>Sub-agents</strong> - Assign other AI agents that this agent can delegate
-                            specialized tasks to. The sub-agent runs its own tools (queries, actions) and returns its
-                            response to the parent agent.
+                            <StudioTrans
+                                ns="editAiAgent"
+                                i18nKey="about.subAgents"
+                                components={{ strong: <strong /> }}
+                            />
                         </li>
                     </ul>
                 </div>
                 <hr />
-                <div className="small-label mb-2">useful links</div>
+                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                 <a href={aiAgentsOverviewDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - AI Agents Overview
+                    <Icon icon="newtab" /> {t("about.overviewDocsLink")}
                 </a>
                 <br />
                 <a href={aiAgentsCreateAgentDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - Create AI Agent
+                    <Icon icon="newtab" /> {t("about.createDocsLink")}
                 </a>
             </AccordionItemWrapper>
         </AboutViewFloating>

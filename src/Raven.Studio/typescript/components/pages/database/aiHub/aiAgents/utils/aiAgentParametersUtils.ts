@@ -1,5 +1,8 @@
 import * as yup from "yup";
 import assertUnreachable from "components/utils/assertUnreachable";
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("aiAgents");
 
 type AiAgentParameterValueType = Raven.Client.Documents.Operations.AI.Agents.AiAgentParameterValueType;
 
@@ -28,18 +31,21 @@ function createValueSchema<T extends yup.StringSchema<string | null | undefined>
 function getParameterTypeInfo(type: AiAgentParameterValueType): AiAgentParameterTypeInfo {
     switch (type) {
         case "ArrayOfString":
-            return { label: "String[]", exampleValue: '["value1", "value2", "value3"]' };
+            return { label: t("parameters.types.arrayOfString"), exampleValue: '["value1", "value2", "value3"]' };
         case "ArrayOfNumber":
-            return { label: "Number[]", exampleValue: "[1, 2, 3]" };
+            return { label: t("parameters.types.arrayOfNumber"), exampleValue: "[1, 2, 3]" };
         case "ArrayOfBoolean":
-            return { label: "Boolean[]", exampleValue: "[true, false, true]" };
+            return { label: t("parameters.types.arrayOfBoolean"), exampleValue: "[true, false, true]" };
         case "Default":
-            return { label: "Any" };
+            return { label: t("parameters.types.any") };
         case "String":
+            return { label: t("parameters.types.string") };
         case "Number":
+            return { label: t("parameters.types.number") };
         case "Boolean":
+            return { label: t("parameters.types.boolean") };
         case "Null":
-            return { label: type };
+            return { label: t("parameters.types.null") };
         default:
             assertUnreachable(type);
     }
@@ -57,11 +63,11 @@ function validateParameterValue(
         case "Number":
             return isFiniteNumberToken(value)
                 ? { isValid: true }
-                : { isValid: false, message: "Value must be a valid Number value" };
+                : { isValid: false, message: t("parameters.validation.invalidNumber") };
         case "Boolean":
             return isBooleanToken(value)
                 ? { isValid: true }
-                : { isValid: false, message: "Value must be a valid Boolean value" };
+                : { isValid: false, message: t("parameters.validation.invalidBoolean") };
         case "ArrayOfString":
             return validateArrayValue(value, (item) => typeof item === "string", type);
         case "ArrayOfNumber":
@@ -115,7 +121,7 @@ function validateArrayValue(
 
 function getArrayValidationMessage(type: AiAgentParameterValueType): string {
     const { label, exampleValue } = getParameterTypeInfo(type);
-    return `Value must be a valid ${label} value, e.g. ${exampleValue}`;
+    return t("parameters.validation.invalidArray", { label, exampleValue });
 }
 
 function getArrayItems(value: unknown): { items: unknown[] } | null {

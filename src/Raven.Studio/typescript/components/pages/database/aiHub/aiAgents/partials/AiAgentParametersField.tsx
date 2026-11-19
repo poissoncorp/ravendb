@@ -8,6 +8,7 @@ import { ChatAiAgentFormData } from "../chat/utils/chatAiAgentValidation";
 import { SelectOption } from "components/common/select/Select";
 import InputGroup from "react-bootstrap/InputGroup";
 import { aiAgentParametersUtils } from "../utils/aiAgentParametersUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface Parameter {
     name?: string;
@@ -32,6 +33,7 @@ export default function AiAgentParametersField({
     headerClassName,
     panelClassName,
 }: AiAgentParametersFieldProps) {
+    const t = useStudioTranslation("aiAgents");
     if (value.length === 0) {
         return null;
     }
@@ -40,8 +42,8 @@ export default function AiAgentParametersField({
         <div className={classNames("w-100 vstack flex-grow-1 overflow-auto", wrapperClassName)}>
             <h3 className={classNames(headerClassName)}>
                 <Icon icon="metrics" color="primary" />
-                Provide values for the agent parameters before starting the chat
-                <PopoverWithHoverWrapper message="When a query tool is used, the agent will insert these values into the query definition before executing it against the database, filtering the data and ensuring the query only retrieves data within the allowed scope.">
+                {t("parameters.heading")}
+                <PopoverWithHoverWrapper message={t("parameters.headingInfo")}>
                     <Icon icon="info-new" margin="ms-1" />
                 </PopoverWithHoverWrapper>
             </h3>
@@ -68,6 +70,7 @@ interface ParameterItemProps {
 }
 
 function ParameterItem({ control, parameter, idx, panelClassName }: ParameterItemProps) {
+    const t = useStudioTranslation("aiAgents");
     if (parameter.type === "Null") {
         return null;
     }
@@ -79,7 +82,7 @@ function ParameterItem({ control, parameter, idx, panelClassName }: ParameterIte
                     {parameter.name}
                 </span>
                 <FormSwitch control={control} name={`parameters.${idx}.isSendToModel`} color="primary">
-                    Send to model
+                    {t("parameters.sendToModel")}
                 </FormSwitch>
             </div>
             <ParameterItemInput control={control} parameter={parameter} idx={idx} />
@@ -94,6 +97,7 @@ interface ParameterItemInputProps {
 }
 
 function ParameterItemInput({ control, parameter, idx }: ParameterItemInputProps) {
+    const t = useStudioTranslation("aiAgents");
     const typeInfo = aiAgentParametersUtils.getParameterTypeInfo(parameter.type);
 
     if (parameter.type === "Boolean") {
@@ -104,8 +108,8 @@ function ParameterItemInput({ control, parameter, idx }: ParameterItemInputProps
                     name={`parameters.${idx}.value`}
                     options={
                         [
-                            { value: true, label: "True" },
-                            { value: false, label: "False" },
+                            { value: true, label: t("parameters.booleanTrue") },
+                            { value: false, label: t("parameters.booleanFalse") },
                         ] satisfies SelectOption<boolean>[]
                     }
                     isClearable={false}
@@ -121,7 +125,11 @@ function ParameterItemInput({ control, parameter, idx }: ParameterItemInputProps
             type={parameter.type === "Number" ? "number" : "text"}
             control={control}
             name={`parameters.${idx}.value`}
-            placeholder={`Enter a value for <${parameter.name}> ${typeInfo.exampleValue ? `(e.g. ${typeInfo.exampleValue})` : ""}`}
+            placeholder={t("parameters.valuePlaceholder", {
+                context: typeInfo.exampleValue ? "withExample" : "withoutExample",
+                name: parameter.name,
+                exampleValue: typeInfo.exampleValue,
+            })}
             addon={typeInfo.label}
         />
     );

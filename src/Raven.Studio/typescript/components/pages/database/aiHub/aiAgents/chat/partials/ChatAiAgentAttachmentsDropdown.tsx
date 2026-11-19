@@ -24,6 +24,8 @@ import { FormCheckboxes, FormCheckboxesOption } from "components/common/Form";
 import InnerForm from "components/common/InnerForm";
 import { ChatAiAgentFormData } from "components/pages/database/aiHub/aiAgents/chat/utils/chatAiAgentValidation";
 import { chatAiAgentAttachmentsUtils } from "components/pages/database/aiHub/aiAgents/chat/utils/chatAiAgentAttachmentsUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTranslate } from "common/i18n/resources";
 
 interface ChatAiAgentAttachmentDropdownProps {
     attachmentsFieldsArray: UseFieldArrayReturn<ChatAiAgentFormData, "attachments", "id">;
@@ -34,6 +36,7 @@ export default function ChatAiAgentAttachmentsDropdown({
     attachmentsFieldsArray,
     isPromptDisabled,
 }: ChatAiAgentAttachmentDropdownProps) {
+    const t = useStudioTranslation("aiAgentChat");
     const dispatch = useAppDispatch();
     const tabInfo = useAppSelector(chatAiAgentSelectors.newAttachmentTab);
 
@@ -50,7 +53,7 @@ export default function ChatAiAgentAttachmentsDropdown({
                 as={CustomDropdownToggle}
                 isCaretHidden
                 variant="link"
-                title="Add attachments"
+                title={t("attachments.addTitle")}
                 className="p-0"
                 disabled={isPromptDisabled}
             >
@@ -74,6 +77,7 @@ export default function ChatAiAgentAttachmentsDropdown({
 }
 
 function SourceTab({ attachmentsFieldsArray }: Pick<ChatAiAgentAttachmentDropdownProps, "attachmentsFieldsArray">) {
+    const t = useStudioTranslation("aiAgentChat");
     const dispatch = useAppDispatch();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const conversationDocument = useAppSelector(chatAiAgentSelectors.document);
@@ -112,21 +116,22 @@ function SourceTab({ attachmentsFieldsArray }: Pick<ChatAiAgentAttachmentDropdow
                 onChange={handleLocalFilesChange}
             />
             <Dropdown.Header className="hstack justify-content-between">
-                <div className="small-label">Choose location</div>
+                <div className="small-label">{t("attachments.chooseLocation")}</div>
             </Dropdown.Header>
             <Dropdown.Item onClick={() => fileInputRef.current?.click()}>
                 <Icon icon="file-import" />
-                Local files
+                {t("attachments.localFiles")}
             </Dropdown.Item>
             <Dropdown.Item onClick={() => dispatch(chatAiAgentActions.newAttachmentTabSet({ tab: "document" }))}>
                 <Icon icon="document" />
-                Document attachments
+                {t("attachments.documentAttachments")}
             </Dropdown.Item>
         </>
     );
 }
 
 function DocumentTab() {
+    const t = useStudioTranslation("aiAgentChat");
     const dispatch = useAppDispatch();
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const conversationId = useAppSelector(chatAiAgentSelectors.conversationId);
@@ -171,7 +176,7 @@ function DocumentTab() {
                     >
                         <Icon icon="arrow-left" margin="me-1" />
                     </Button>
-                    Document ID
+                    {t("attachments.documentId")}
                 </span>
             </Dropdown.Header>
 
@@ -180,7 +185,7 @@ function DocumentTab() {
                     type="text"
                     value={idPrefix}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => setIdPrefix(e.target.value)}
-                    placeholder="Enter document ID prefix"
+                    placeholder={t("attachments.documentIdPlaceholder")}
                     className="rounded-pill ps-3 pe-4"
                 />
                 {idPrefix && (
@@ -194,7 +199,7 @@ function DocumentTab() {
             {asyncGetDocumentIds.loading && <ListSkeleton />}
             {asyncGetDocumentIds.result?.length === 0 && !asyncGetDocumentIds.loading && (
                 <EmptySet compact className="hstack justify-content-center mt-3">
-                    No documents found
+                    {t("attachments.noDocuments")}
                 </EmptySet>
             )}
             <div className="overflow-y-auto flex-grow-1">
@@ -219,6 +224,7 @@ interface DocumentAttachmentsTabProps {
 }
 
 function DocumentAttachmentsTab({ chatAttachmentsFieldsArray }: DocumentAttachmentsTabProps) {
+    const t = useStudioTranslation("aiAgentChat");
     const dispatch = useAppDispatch();
     const tabInfo = useAppSelector(chatAiAgentSelectors.newAttachmentTab);
     const { databasesService } = useServices();
@@ -256,7 +262,7 @@ function DocumentAttachmentsTab({ chatAttachmentsFieldsArray }: DocumentAttachme
         defaultValues: {
             names: [],
         },
-        resolver: yupResolver(documentAttachmentsSchema),
+        resolver: yupResolver(getDocumentAttachmentsSchema(t)),
     });
 
     const selectedNames = useWatch({
@@ -294,7 +300,7 @@ function DocumentAttachmentsTab({ chatAttachmentsFieldsArray }: DocumentAttachme
                     >
                         <Icon icon="arrow-left" margin="me-1" />
                     </Button>
-                    <span className="small-label">Document attachments</span>
+                    <span className="small-label">{t("attachments.documentAttachments")}</span>
                     {hasAttachmentsInDoc && (
                         <Button
                             variant="primary"
@@ -304,14 +310,14 @@ function DocumentAttachmentsTab({ chatAttachmentsFieldsArray }: DocumentAttachme
                             disabled={selectedNames.length === 0}
                         >
                             <Icon icon="plus" />
-                            Add to prompt
+                            {t("attachments.addToPrompt")}
                         </Button>
                     )}
                 </div>
             </Dropdown.Header>
             <div className="overflow-y-auto flex-grow-1">
                 {asyncDocAttachments.loading && <ListSkeleton />}
-                {asyncDocAttachments.error && <LoadError error="Failed to load attachments" />}
+                {asyncDocAttachments.error && <LoadError error={t("attachments.loadError")} />}
                 {hasAttachmentsInDoc && (
                     <FormCheckboxes
                         control={control}
@@ -320,17 +326,19 @@ function DocumentAttachmentsTab({ chatAttachmentsFieldsArray }: DocumentAttachme
                         className="px-2 pb-2 gap-1"
                     />
                 )}
-                {hasNoAttachmentsInDoc && <EmptySet compact>No attachments found</EmptySet>}
+                {hasNoAttachmentsInDoc && <EmptySet compact>{t("attachments.noAttachments")}</EmptySet>}
             </div>
         </InnerForm>
     );
 }
 
-const documentAttachmentsSchema = yup.object({
-    names: yup.array().of(yup.string()).min(1, "Select at least one attachment"),
-});
+function getDocumentAttachmentsSchema(t: StudioTranslate<"aiAgentChat">) {
+    return yup.object({
+        names: yup.array().of(yup.string()).min(1, t("attachments.selectAtLeastOne")),
+    });
+}
 
-type DocumentAttachmentsFormData = yup.InferType<typeof documentAttachmentsSchema>;
+type DocumentAttachmentsFormData = yup.InferType<ReturnType<typeof getDocumentAttachmentsSchema>>;
 
 function ListSkeleton() {
     return (

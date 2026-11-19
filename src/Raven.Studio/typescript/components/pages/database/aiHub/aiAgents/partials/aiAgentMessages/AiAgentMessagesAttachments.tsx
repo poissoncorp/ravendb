@@ -8,6 +8,7 @@ import Button from "react-bootstrap/Button";
 import { useAppUrls } from "components/hooks/useAppUrls";
 import { useAppSelector } from "components/store";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface AiAgentMessagesAttachmentsProps {
     attachments: AiAgentMessageAttachment[];
@@ -15,6 +16,7 @@ interface AiAgentMessagesAttachmentsProps {
 }
 
 export function AiAgentMessagesAttachments({ attachments, documentId }: AiAgentMessagesAttachmentsProps) {
+    const t = useStudioTranslation("aiAgents");
     const { appUrl } = useAppUrls();
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const downloaderInstance = useMemo(() => new downloader(), []);
@@ -44,7 +46,7 @@ export function AiAgentMessagesAttachments({ attachments, documentId }: AiAgentM
                     }}
                     onClick={() => downloadAttachment(attachment.name)}
                     size="xs"
-                    title="Download attachment"
+                    title={t("messages.downloadAttachment")}
                     variant="secondary"
                 >
                     <Icon

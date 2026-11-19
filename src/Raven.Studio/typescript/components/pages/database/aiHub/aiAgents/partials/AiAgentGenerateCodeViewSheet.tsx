@@ -12,12 +12,14 @@ import assertUnreachable from "components/utils/assertUnreachable";
 import { AiAgentGenerateCodeLanguage } from "commands/database/aiAgents/generateCodeAiAgentCommand";
 import Nav from "react-bootstrap/Nav";
 import { LazyLoad } from "components/common/LazyLoad";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface AiAgentGenerateCodeViewSheetProps {
     agentId: string;
 }
 
 export default function AiAgentGenerateCodeViewSheet({ agentId }: AiAgentGenerateCodeViewSheetProps) {
+    const t = useStudioTranslation("aiAgents");
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const { aiAgentService } = useServices();
     const [language, setLanguage] = useState<AiAgentGenerateCodeLanguage>("c#");
@@ -36,7 +38,7 @@ export default function AiAgentGenerateCodeViewSheet({ agentId }: AiAgentGenerat
             <ViewSheet.Header>
                 <h3 className="mb-0">
                     <Icon icon="magic-wand" color="primary" />
-                    AI Agent client code
+                    {t("generateCode.title")}
                 </h3>
             </ViewSheet.Header>
             <ViewSheet.Body className="px-0 vstack view-sheet-body">
@@ -78,7 +80,7 @@ export default function AiAgentGenerateCodeViewSheet({ agentId }: AiAgentGenerat
                     </LazyLoad>
                 )}
                 {asyncGenerateCode.error && (
-                    <LoadError error="Unable to generate code" refresh={asyncGenerateCode.execute} />
+                    <LoadError error={t("generateCode.loadError")} refresh={asyncGenerateCode.execute} />
                 )}
                 {asyncGenerateCode.result && (
                     <Code

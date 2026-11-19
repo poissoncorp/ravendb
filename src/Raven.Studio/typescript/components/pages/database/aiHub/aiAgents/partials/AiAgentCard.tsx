@@ -15,6 +15,8 @@ import Badge from "react-bootstrap/Badge";
 import classNames from "classnames";
 import { useViewSheet } from "components/common/splitView/ViewSheet";
 import AiAgentGenerateCodeViewSheet from "components/pages/database/aiHub/aiAgents/partials/AiAgentGenerateCodeViewSheet";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface AiAgentCardProps {
     config: Raven.Client.Documents.Operations.AI.Agents.AiAgentConfiguration;
@@ -22,6 +24,8 @@ interface AiAgentCardProps {
 }
 
 export default function AiAgentCard({ config, reloadAiAgents }: AiAgentCardProps) {
+    const t = useStudioTranslation("aiAgents");
+    const commonT = useStudioTranslation("common");
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
     const hasDatabaseWriteAccess = useAppSelector(accessManagerSelectors.getHasDatabaseWriteAccess)();
@@ -45,19 +49,20 @@ export default function AiAgentCard({ config, reloadAiAgents }: AiAgentCardProps
     const handleDelete = async () => {
         const isConfirmed = await confirm({
             title: (
-                <>
-                    You&apos;re about to delete <strong>{config.Name}</strong>
-                </>
+                <StudioTrans
+                    ns="aiAgents"
+                    i18nKey="card.deleteConfirm.title"
+                    components={{ strong: <strong /> }}
+                    options={{ name: config.Name }}
+                />
             ),
             message: (
                 <div className="text-center">
-                    This action will permanently delete all the data and can&apos;t be undone.
-                    <br />
-                    If this was the action that you wanted to do, please confirm your choice, or cancel.
+                    <StudioTrans ns="aiAgents" i18nKey="card.deleteConfirm.message" components={{ br: <br /> }} />
                 </div>
             ),
             icon: "trash",
-            confirmText: "Delete agent",
+            confirmText: t("card.deleteConfirm.confirmText"),
             actionColor: "danger",
         });
 
@@ -69,23 +74,23 @@ export default function AiAgentCard({ config, reloadAiAgents }: AiAgentCardProps
     return (
         <div className="panel-bg-1 p-2 rounded-2 border border-secondary g-col-12 g-col-xl-6 g-col-xxl-4">
             <div className="hstack mb-1">
-                <h4 className="m-0 text-truncate flex-grow" title="AI Agent name">
+                <h4 className="m-0 text-truncate flex-grow" title={t("card.nameTitle")}>
                     {config.Name}
                 </h4>
                 {config.Disabled && (
                     <Badge bg="warning" className="ms-2 fs-6" pill>
-                        Disabled
+                        {t("card.disabled")}
                     </Badge>
                 )}
             </div>
             <div className="d-flex">
-                <div className="text-truncate text-muted fs-5" title="AI Agent identifier">
+                <div className="text-truncate text-muted fs-5" title={t("card.identifierTitle")}>
                     {config.Identifier}
                 </div>
                 <Button
-                    onClick={() => copyToClipboard.copy(config.Identifier, "Copied agent identifier to clipboard.")}
+                    onClick={() => copyToClipboard.copy(config.Identifier, t("card.identifierCopied"))}
                     size="xs"
-                    title="Copy to clipboard"
+                    title={t("card.copyToClipboard")}
                     variant="link"
                     className="p-0"
                 >
@@ -102,7 +107,7 @@ export default function AiAgentCard({ config, reloadAiAgents }: AiAgentCardProps
                         className={classNames("btn btn-primary", { disabled: config.Disabled })}
                     >
                         <Icon icon="llm" />
-                        Start new chat
+                        {t("card.startNewChat")}
                     </a>
                 )}
                 {hasDatabaseAdminAccess && (
@@ -119,15 +124,15 @@ export default function AiAgentCard({ config, reloadAiAgents }: AiAgentCardProps
                                 }}
                             >
                                 <Icon icon="magic-wand" />
-                                Generate client code
+                                {t("card.generateClientCode")}
                             </Dropdown.Item>
                             <Dropdown.Item href={appUrl.forEditAiAgent(databaseName, config.Identifier)}>
                                 <Icon icon="edit" />
-                                Edit
+                                {t("card.edit")}
                             </Dropdown.Item>
                             <Dropdown.Item href={appUrl.forEditAiAgent(databaseName, config.Identifier, true)}>
                                 <Icon icon="copy" />
-                                Clone
+                                {t("card.clone")}
                             </Dropdown.Item>
                             <Dropdown.Item
                                 onClick={() => asyncToggleAiAgent.execute(!config.Disabled)}
@@ -138,7 +143,7 @@ export default function AiAgentCard({ config, reloadAiAgents }: AiAgentCardProps
                                 ) : (
                                     <Icon icon={config.Disabled ? "play" : "stop"} />
                                 )}
-                                {config.Disabled ? "Enable" : "Disable"}
+                                {config.Disabled ? t("card.enable") : t("card.disable")}
                             </Dropdown.Item>{" "}
                             <Dropdown.Item
                                 className="text-danger"
@@ -150,7 +155,7 @@ export default function AiAgentCard({ config, reloadAiAgents }: AiAgentCardProps
                                 ) : (
                                     <Icon icon="trash" />
                                 )}
-                                Delete
+                                {commonT("delete")}
                             </Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>

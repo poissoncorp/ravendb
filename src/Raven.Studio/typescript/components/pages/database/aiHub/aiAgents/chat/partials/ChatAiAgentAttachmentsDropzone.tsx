@@ -6,6 +6,7 @@ import { UseFieldArrayReturn } from "react-hook-form";
 import { chatAiAgentAttachmentsUtils } from "components/pages/database/aiHub/aiAgents/chat/utils/chatAiAgentAttachmentsUtils";
 import { useAppSelector } from "components/store";
 import { chatAiAgentSelectors } from "components/pages/database/aiHub/aiAgents/chat/store/chatAiAgentSlice";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 const fileIcons = require("Content/img/dropzone-file-icons.png");
 
@@ -16,6 +17,7 @@ interface ChatAiAgentAttachmentsDropzoneProps {
 export default function ChatAiAgentAttachmentsDropzone({
     attachmentsFieldsArray,
 }: ChatAiAgentAttachmentsDropzoneProps) {
+    const t = useStudioTranslation("aiAgentChat");
     // It prevents overlay flickering because of dragleave/dragleave events firing when dragging files over child elements of the overlay
     const dragCounterRef = useRef(0);
     const conversationDocument = useAppSelector(chatAiAgentSelectors.document);
@@ -137,11 +139,14 @@ export default function ChatAiAgentAttachmentsDropzone({
                     onDrop={handleOverlayDrop}
                 >
                     <div className="dropzone-content text-center">
-                        <img src={fileIcons} alt="File icons" className="mb-4" />
-                        <div className="fs-3 fw-bold">Drop files to add them to the conversation</div>
+                        <img src={fileIcons} alt={t("attachments.dropzoneIconsAlt")} className="mb-4" />
+                        <div className="fs-3 fw-bold">{t("attachments.dropzoneTitle")}</div>
                         <div className="text-muted small">
-                            Supported types:{" "}
-                            {chatAiAgentAttachmentsUtils.validExtensions.map((extension) => `.${extension}`).join(", ")}
+                            {t("attachments.supportedTypes", {
+                                types: chatAiAgentAttachmentsUtils.validExtensions
+                                    .map((extension) => `.${extension}`)
+                                    .join(", "),
+                            })}
                         </div>
                     </div>
                 </div>

@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("aiAgentsCommands");
 
 class getAiAgentCommand extends commandBase {
     constructor(
@@ -40,16 +43,16 @@ class getAiAgentCommand extends commandBase {
                     throw error;
                 }
 
-                this.reportError(this.getErrorTitle(), error instanceof Error ? error.message : "Unknown error");
+                this.reportError(this.getErrorTitle(), error instanceof Error ? error.message : t("unknownError"));
                 throw error;
             });
     }
 
     private getErrorTitle(): string {
         if (this.agentId) {
-            return `Failed to get AI agent with ID: ${this.agentId}`;
+            return t("getOneFailed", { agentId: this.agentId });
         }
-        return "Failed to get AI agents";
+        return t("getAllFailed");
     }
 }
 

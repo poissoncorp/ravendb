@@ -9,12 +9,14 @@ import { useRef } from "react";
 import Button from "react-bootstrap/Button";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface AiAgentSummaryProps {
     agentMessage: AiAgentMessage;
 }
 
 export default function AiAgentSummary({ agentMessage }: AiAgentSummaryProps) {
+    const t = useStudioTranslation("aiAgents");
     const content = agentMessage.content;
     const { value: isExpanded, setTrue: expand, setFalse: collapse } = useBoolean(false);
     const contentRef = useRef<HTMLDivElement>(null);
@@ -28,7 +30,7 @@ export default function AiAgentSummary({ agentMessage }: AiAgentSummaryProps) {
                 <div className="hstack gap-1">
                     <strong>
                         <Icon icon="sparkles" />
-                        AI Agent
+                        {t("messages.aiAgent")}
                     </strong>
                     <small className="text-muted">{agentMessage.date}</small>
                 </div>
@@ -48,7 +50,7 @@ export default function AiAgentSummary({ agentMessage }: AiAgentSummaryProps) {
                         >
                             <Icon icon="info" />
                         </PopoverWithHoverWrapper>
-                        Tokens used: {genUtils.formatAiTokens(agentMessage.usage.TotalTokens)}
+                        {t("messages.tokensUsed", { tokens: genUtils.formatAiTokens(agentMessage.usage.TotalTokens) })}
                     </small>
                 )}
             </div>
@@ -63,13 +65,13 @@ export default function AiAgentSummary({ agentMessage }: AiAgentSummaryProps) {
                             onClick={expand}
                         >
                             <Icon icon="expand-vertical" />
-                            Show More
+                            {t("messages.showMore")}
                         </Button>
                     )}
                 </div>
                 {isExpanded && (
                     <Button className="assistant-summary__show-less" variant="link" size="xs" onClick={collapse}>
-                        Show Less
+                        {t("messages.showLess")}
                     </Button>
                 )}
             </div>

@@ -23,6 +23,8 @@ import ButtonWithSpinner from "components/common/ButtonWithSpinner";
 import InnerForm from "components/common/InnerForm";
 import { tryHandleSubmit } from "components/utils/common";
 import AiAgentSummary from "components/pages/database/aiHub/aiAgents/partials/aiAgentMessages/AiAgentSummary";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 type AiAgentMessagesProps = AiAgentMessagesContextValue & {
     messages: AiAgentMessage[];
@@ -69,13 +71,14 @@ interface SystemMessageProps {
 }
 
 function SystemMessage({ message }: SystemMessageProps) {
+    const t = useStudioTranslation("aiAgents");
     return (
         <div className="text-muted">
             <div className="text-center md-label">{message.date}</div>
             <div className="mt-2 p-2 border-start border-secondary d-flex vstack">
                 <small>
                     <Icon icon="system" size="xs" />
-                    System prompt
+                    {t("messages.systemPrompt")}
                 </small>
                 <small className="mt-2 overflow-auto" style={{ maxHeight: "200px", whiteSpace: "pre-wrap" }}>
                     {message.content}
@@ -90,6 +93,7 @@ interface UserMessageProps {
 }
 
 function UserMessage({ message }: UserMessageProps) {
+    const t = useStudioTranslation("aiAgents");
     const { documentId } = useAiAgentMessagesContext();
 
     const getMessageContent = (): string | { type: "text"; text: string }[] => {
@@ -120,7 +124,7 @@ function UserMessage({ message }: UserMessageProps) {
                                 {messageContent.map((x, idx) => (
                                     <div key={idx} className="vstack gap-1 align-items-start">
                                         <Badge bg="primary" pill style={{ fontSize: "12px" }}>
-                                            Prompt #{idx + 1}
+                                            {t("messages.promptNumber", { number: idx + 1 })}
                                         </Badge>
                                         <div className="text-start">{x.text}</div>
                                     </div>
@@ -139,6 +143,7 @@ interface AgentMessageProps {
 }
 
 function AgentMessage({ agentMessage }: AgentMessageProps) {
+    const t = useStudioTranslation("aiAgents");
     const aceRef = useRef<ReactAce>(null);
     const contentMode = aceEditorUtils.getAceEditorMode(agentMessage.content);
 
@@ -148,7 +153,7 @@ function AgentMessage({ agentMessage }: AgentMessageProps) {
                 <div className="hstack gap-1">
                     <strong>
                         <Icon icon="sparkles" />
-                        AI Agent
+                        {t("messages.aiAgent")}
                     </strong>
                     <small className="text-muted">{agentMessage.date}</small>
                 </div>
@@ -168,7 +173,7 @@ function AgentMessage({ agentMessage }: AgentMessageProps) {
                         >
                             <Icon icon="info" />
                         </PopoverWithHoverWrapper>
-                        Tokens used: {genUtils.formatAiTokens(agentMessage.usage.TotalTokens)}
+                        {t("messages.tokensUsed", { tokens: genUtils.formatAiTokens(agentMessage.usage.TotalTokens) })}
                     </small>
                 )}
             </div>
@@ -209,6 +214,7 @@ function AgentMessage({ agentMessage }: AgentMessageProps) {
 }
 
 function OpenActionCalls() {
+    const t = useStudioTranslation("aiAgents");
     const { openActionCalls, handleSaveParameters } = useAiAgentMessagesContext();
 
     const openActionCallsValues = Object.values(openActionCalls ?? {});
@@ -248,7 +254,7 @@ function OpenActionCalls() {
                         isSpinning={formState.isSubmitting}
                         icon="check"
                     >
-                        Submit
+                        {t("messages.submit")}
                     </ButtonWithSpinner>
                 </div>
             </div>
@@ -263,12 +269,18 @@ interface ActionToolParameterFieldProps {
 }
 
 function ActionToolParameterField({ idx, name, control }: ActionToolParameterFieldProps) {
+    const t = useStudioTranslation("aiAgents");
     const aceRef = useRef<ReactAce>(null);
 
     return (
         <FormGroup>
             <FormLabel>
-                Enter a response after completing action for <strong>{name}</strong>
+                <StudioTrans
+                    ns="aiAgents"
+                    i18nKey="messages.actionResponseLabel"
+                    components={{ strong: <strong /> }}
+                    options={{ name }}
+                />
             </FormLabel>
             <FormAceEditor
                 aceRef={aceRef}
@@ -277,11 +289,8 @@ function ActionToolParameterField({ idx, name, control }: ActionToolParameterFie
                 mode="text"
                 height="150px"
                 actions={[{ component: <AceEditor.FullScreenAction /> }, { component: <AceEditor.FormatAction /> }]}
-                placeholder={idx === 0 ? actionToolParameterFieldPlaceholder : ""}
+                placeholder={idx === 0 ? t("messages.actionResponsePlaceholder") : ""}
             />
         </FormGroup>
     );
 }
-
-const actionToolParameterFieldPlaceholder = `Provide a free-text response to the LLM after completing the requested action, e.g.:
-The issue has been forwarded to the support team.`;

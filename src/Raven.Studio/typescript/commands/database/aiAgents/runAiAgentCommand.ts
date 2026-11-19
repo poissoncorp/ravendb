@@ -1,7 +1,10 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
 import aiAgentsTypes = require("components/pages/database/aiHub/aiAgents/utils/aiAgentsTypes");
 import { ChatAiAgentAttachment } from "components/pages/database/aiHub/aiAgents/chat/utils/chatAiAgentValidation";
+
+const t = i18nModule.createTranslator("aiAgentsCommands");
 
 export interface RunAiAgentRequestDto
     extends Omit<Raven.Client.Documents.Operations.AI.Agents.ConversionRequestBody, "UserPrompt" | "OutputOptions"> {
@@ -53,7 +56,7 @@ export default class runAiAgentCommand extends commandBase {
         const requestOptions = this.createRequestOptions();
 
         return this.post(url, requestPayload, this.db, requestOptions).fail((response: JQueryXHR) =>
-            this.reportError("Failed to run AI agent", response.responseText, response.statusText)
+            this.reportError(t("runFailed"), response.responseText, response.statusText)
         );
     }
 

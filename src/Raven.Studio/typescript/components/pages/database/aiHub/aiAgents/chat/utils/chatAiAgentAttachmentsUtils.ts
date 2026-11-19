@@ -1,5 +1,6 @@
 import genUtils from "common/generalUtils";
 import messagePublisher from "common/messagePublisher";
+import { createTranslator } from "common/i18n/i18n";
 import { ChatAiAgentAttachment } from "components/pages/database/aiHub/aiAgents/chat/utils/chatAiAgentValidation";
 import moment from "moment";
 import IconName from "typings/server/icons";
@@ -143,7 +144,8 @@ function reportValidationErrors(invalidFiles: string[]) {
         return;
     }
 
-    const error = `Unsupported file type: ${invalidFiles.join(", ")}`;
+    const t = createTranslator("aiAgentChat");
+    const error = t("attachments.unsupportedFileType", { files: invalidFiles.join(", ") });
     messagePublisher.reportError(error);
 }
 

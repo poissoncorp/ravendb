@@ -5,6 +5,8 @@ import { Icon } from "components/common/Icon";
 import Button from "react-bootstrap/Button";
 import { useFormContext, useWatch } from "react-hook-form";
 import { EditAiAgentFormData } from "../utils/editAiAgentValidation";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface EditAiAgentActionToolItemProps {
     index: number;
@@ -14,6 +16,7 @@ interface EditAiAgentActionToolItemProps {
 }
 
 export default function EditAiAgentActionToolItem({ index, remove, save, edit }: EditAiAgentActionToolItemProps) {
+    const t = useStudioTranslation("editAiAgent");
     const { control, setValue, trigger } = useFormContext<EditAiAgentFormData>();
 
     const formValues = useWatch({
@@ -52,7 +55,7 @@ export default function EditAiAgentActionToolItem({ index, remove, save, edit }:
     return (
         <div className="well p-2 rounded-2 border border-secondary mt-2">
             <div className="hstack justify-content-between">
-                <h4 className="m-0">Configure action tool</h4>
+                <h4 className="m-0">{t("actionTool.configure")}</h4>
                 <div className="hstack gap-2">
                     <Button variant="danger" onClick={remove}>
                         <Icon icon="trash" margin="m-0" />
@@ -64,22 +67,22 @@ export default function EditAiAgentActionToolItem({ index, remove, save, edit }:
             </div>
             <hr className="mt-2 mb-3" />
             <FormGroup>
-                <FormLabel>Tool name</FormLabel>
+                <FormLabel>{t("tools.toolNameLabel")}</FormLabel>
                 <FormInput
                     type="text"
                     control={control}
                     name={`actions.${index}.name`}
-                    placeholder="e.g. ContactSupportTeam"
+                    placeholder={t("actionTool.namePlaceholder")}
                 />
             </FormGroup>
             <FormGroup>
-                <FormLabel>Description</FormLabel>
+                <FormLabel>{t("shared.description")}</FormLabel>
                 <FormInput
                     type="textarea"
                     as="textarea"
                     control={control}
                     name={`actions.${index}.description`}
-                    placeholder={actionFieldDescriptionPlaceholder}
+                    placeholder={t("actionTool.descriptionPlaceholder")}
                     rows={4}
                 />
             </FormGroup>
@@ -87,58 +90,36 @@ export default function EditAiAgentActionToolItem({ index, remove, save, edit }:
                 control={control}
                 setValue={setValue}
                 sampleObjectName={`actions.${index}.parametersSampleObject`}
-                sampleObjectLabel="Sample parameters object"
+                sampleObjectLabel={t("tools.sampleParametersLabel")}
                 sampleObject={actionItem.parametersSampleObject}
                 sampleObjectSyntaxHelp={<ActionFieldSampleObjectSyntaxHelp />}
                 sampleObjectTooltip={<ActionFieldSampleObjectTooltip />}
-                sampleObjectPlaceholder={actionFieldSampleObjectPlaceholder}
+                sampleObjectPlaceholder={t("actionTool.sampleObjectPlaceholder")}
                 jsonSchemaName={`actions.${index}.parametersSchema`}
-                jsonSchemaLabel="Parameters JSON schema"
+                jsonSchemaLabel={t("tools.parametersSchemaLabel")}
                 jsonSchema={actionItem.parametersSchema}
                 jsonSchemaSyntaxHelp={<ActionFieldJsonSchemaSyntaxHelp />}
                 schemaType="ToolParameters"
-                helpActionTooltipTitle="Syntax example"
+                helpActionTooltipTitle={t("shared.syntaxExample")}
                 canRegenerateSchemaName={`actions.${index}.canRegenerateSchema`}
             />
         </div>
     );
 }
 
-const actionFieldDescriptionPlaceholder = `In this description, explain to the LLM under which conditions it should trigger this action.
-E.g., Trigger this action tool when you identify the customer has a problem with an order.`;
-
-const actionFieldSampleObjectPlaceholder = `{
-    // "FieldName": "Instruction to the LLM",
-    // ...
-    // "FieldName" is a custom field that you want the LLM to provide when triggering the action.
-    // The value ("Instruction to the LLM") is a natural-language instruction that tells the LLM what content to provide in this field.
-}
-Open the (?) icon to view an example.`;
-
 function ActionFieldSampleObjectTooltip() {
     return (
-        <>
-            This JSON object defines the format in which the LLM will supply data for the requested action when it
-            decides to trigger this action tool.
-            <br />
-            The LLM will fill in values for the specified fields based on the conversation context and any relevant data
-            it has access to.
-            <br />
-            <br />
-            You can then pass this data to your client or backend to handle the requested task. After the task is
-            completed, you should reply to the LLM with a free-text message describing the result of the action.
-            <br />
-            <br />
-            This object is not sent to the model directly - RavenDB uses it to generate a JSON schema, which is sent to
-            the model.
-            <br />
-            This object is optional. Providing an empty object <code>{"{}"}</code> is also valid if you don&apos;t need
-            any data from the LLM.
-        </>
+        <StudioTrans
+            ns="editAiAgent"
+            i18nKey="actionTool.sampleObjectInfo"
+            components={{ br: <br />, code: <code /> }}
+        />
     );
 }
 
 function ActionFieldSampleObjectSyntaxHelp() {
+    const t = useStudioTranslation("editAiAgent");
+
     const exampleCode = `{
     "customerId": "Fill in the ID of the customer who reported the problem.",
     "orderId": "Fill in the ID of the order the customer is complaining about.",
@@ -150,15 +131,10 @@ function ActionFieldSampleObjectSyntaxHelp() {
     return (
         <div>
             <div>
-                This example shows a sample object you can define to specify the data format the LLM should provide when
-                it decides to trigger this action tool.
-                <br />
-                <br />
-                The values the LLM will supply can be based on the ongoing conversation or on data retrieved using query
-                tools.
+                <StudioTrans ns="editAiAgent" i18nKey="actionTool.sampleObjectExample" components={{ br: <br /> }} />
             </div>
             <Code code={exampleCode} language="json" />
-            <div className="mt-2">Example 2 (no parameters will be used):</div>
+            <div className="mt-2">{t("shared.exampleNoParameters", { number: 2 })}</div>
             <Code code={exampleCodeNoParameters} language="json" />
         </div>
     );

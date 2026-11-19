@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("aiAgentsCommands");
 
 export type AiAgentGenerateCodeLanguage = "c#" | "python" | "javascript";
 
@@ -25,7 +28,7 @@ export default class generateCodeAiAgentCommand extends commandBase {
         const url = endpoints.databases.aiAgent.adminAiAgentGenerateCode;
 
         return this.query<AiAgentGenerateCodeResultDto>(url, args, this.db).fail((response: JQueryXHR) =>
-            this.reportError("Failed to generate code for AI agent", response.responseText, response.statusText)
+            this.reportError(t("generateCodeFailed"), response.responseText, response.statusText)
         );
     }
 }

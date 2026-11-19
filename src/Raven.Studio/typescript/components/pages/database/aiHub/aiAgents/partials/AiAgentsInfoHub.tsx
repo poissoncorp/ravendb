@@ -7,10 +7,26 @@ import { licenseSelectors } from "components/common/shell/licenseSlice";
 import { useRavenLink } from "components/hooks/useRavenLink";
 import { useAppSelector } from "components/store";
 import { useLimitedFeatureAvailability } from "components/utils/licenseLimitsUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function AiAgentsInfoHub() {
     const hasAiAgent = useAppSelector(licenseSelectors.statusValue("HasAiAgent"));
     const aiAgentsOverviewDocsLink = useRavenLink({ hash: "XNWAXB" });
+    const t = useStudioTranslation("aiAgents");
+    const commonT = useStudioTranslation("common");
+
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("featureAvailability.aiAgents"),
+            featureIcon: "ai-agents",
+            community: { value: false },
+            professional: { value: false },
+            enterprise: { value: false },
+            enterpriseAi: { value: true },
+            quill: { value: true },
+        },
+    ];
 
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
@@ -28,42 +44,24 @@ export default function AiAgentsInfoHub() {
                 <div>
                     <ul>
                         <li>
-                            An AI Agent is a natural language <strong>conversational assistant</strong> powered by an
-                            LLM.
+                            <StudioTrans ns="aiAgents" i18nKey="about.intro" components={{ strong: <strong /> }} />
+                        </li>
+                        <li className="mt-1">{t("about.conversations")}</li>
+                        <li className="mt-1">
+                            <StudioTrans ns="aiAgents" i18nKey="about.thisView" components={{ br: <br /> }} />
                         </li>
                         <li className="mt-1">
-                            The agent enables conversations with an LLM about your data. It can retrieve information
-                            from your database to answer prompts and trigger specific actions when needed.
-                        </li>
-                        <li className="mt-1">
-                            This view displays all defined AI Agents.
-                            <br /> You can add new agents, edit, delete, or clone an existing one as a starting point.
-                        </li>
-                        <li className="mt-1">
-                            To interact with an agent,
-                            <br /> click &quot;Start new chat&quot; and begin a conversation directly from the Studio.
+                            <StudioTrans ns="aiAgents" i18nKey="about.startChat" components={{ br: <br /> }} />
                         </li>
                     </ul>
                 </div>
                 <hr />
-                <div className="small-label mb-2">useful links</div>
+                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                 <a href={aiAgentsOverviewDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - AI Agents Overview
+                    <Icon icon="newtab" /> {t("about.docsLink")}
                 </a>
             </AccordionItemWrapper>
             <FeatureAvailabilitySummaryWrapper isUnlimited={hasAiAgent} data={featureAvailability} />
         </AboutViewFloating>
     );
 }
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "AI Agents",
-        featureIcon: "ai-agents",
-        community: { value: false },
-        professional: { value: false },
-        enterprise: { value: false },
-        enterpriseAi: { value: true },
-        quill: { value: true },
-    },
-];

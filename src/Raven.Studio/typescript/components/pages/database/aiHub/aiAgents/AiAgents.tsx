@@ -18,8 +18,11 @@ import FeatureNotAvailableInYourLicensePopoverBody from "components/common/Featu
 import { licenseSelectors } from "components/common/shell/licenseSlice";
 import classNames from "classnames";
 import { accessManagerSelectors } from "components/common/shell/accessManagerSliceSelectors";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function AiAgents() {
+    const t = useStudioTranslation("aiAgents");
     const db = useAppSelector(databaseSelectors.activeDatabase);
     const hasAiAgent = useAppSelector(licenseSelectors.statusValue("HasAiAgent"));
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
@@ -43,8 +46,11 @@ export default function AiAgents() {
         return (
             <FeatureNotAvailable>
                 <span>
-                    AI Agents are not available for <Icon icon="sharding" color="shard" margin="m-0" /> sharded
-                    databases
+                    <StudioTrans
+                        ns="aiAgents"
+                        i18nKey="shardedNotAvailable"
+                        components={{ icon: <Icon icon="sharding" color="shard" margin="m-0" /> }}
+                    />
                 </span>
             </FeatureNotAvailable>
         );
@@ -53,7 +59,7 @@ export default function AiAgents() {
     return (
         <div className="content-padding ai-agents">
             <div className="hstack justify-content-between align-items-start">
-                <AboutViewHeading title="AI Agents" icon="ai-agents" marginBottom={4} />
+                <AboutViewHeading title={t("title")} icon="ai-agents" marginBottom={4} />
                 <AiAgentsInfoHub />
             </div>
             {hasDatabaseAdminAccess && (
@@ -70,18 +76,18 @@ export default function AiAgents() {
                         })}
                     >
                         <Icon icon="plus" />
-                        Add new agent
+                        {t("addNewAgent")}
                     </a>
                 </ConditionalPopover>
             )}
             <div className="d-flex flex-column flex-grow mt-4">
-                <div className="small-label ms-1 mb-1">Filter by name</div>
+                <div className="small-label ms-1 mb-1">{t("filter.label")}</div>
                 <div className="clearable-input">
                     <Form.Control
                         type="text"
                         accessKey="/"
-                        placeholder="eg. CustomerServiceAgent"
-                        title="Filter agents (Alt+/)"
+                        placeholder={t("filter.placeholder")}
+                        title={t("filter.title")}
                         value={nameFilter}
                         onChange={(e: ChangeEvent<HTMLInputElement>) => setNameFilter(e.target.value)}
                         className="filtering-input"
@@ -98,7 +104,7 @@ export default function AiAgents() {
             {asyncGetAiAgents.loading && <LoadingView />}
             {asyncGetAiAgents.result && asyncGetAiAgents.result.length === 0 && (
                 <div className="mt-3">
-                    <EmptySet>No agents found</EmptySet>
+                    <EmptySet>{t("noAgentsFound")}</EmptySet>
                 </div>
             )}
             {asyncGetAiAgents.result && (

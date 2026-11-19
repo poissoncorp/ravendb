@@ -13,6 +13,8 @@ import { databaseSelectors } from "components/common/shell/databaseSliceSelector
 import { aiAgentsUtils } from "../../utils/aiAgentsUtils";
 import { LazyLoad } from "components/common/LazyLoad";
 import copyToClipboard from "common/copyToClipboard";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface SubConversationData {
     document: documentDto;
@@ -24,6 +26,7 @@ interface EditAiAgentTestMessagesProps {
 }
 
 export default function EditAiAgentTestMessages({ handleSaveParameters }: EditAiAgentTestMessagesProps) {
+    const t = useStudioTranslation("editAiAgent");
     const mainTestMessages = useAppSelector(editAiAgentSelectors.mainTestMessages);
     const mainTestDocument = useAppSelector(editAiAgentSelectors.mainTestDocument);
     const testDocuments = useAppSelector(editAiAgentSelectors.testDocuments);
@@ -41,22 +44,20 @@ export default function EditAiAgentTestMessages({ handleSaveParameters }: EditAi
 
         const conversationDocument = testDocuments[subConversationId];
         if (!conversationDocument) {
-            messagePublisher.reportError(`Sub-conversation (${subConversationId}) data is not available`);
+            messagePublisher.reportError(t("test.subConversationNotAvailable", { id: subConversationId }));
             return;
         }
 
         const agentId = conversationDocument.Agent;
         if (!agentId) {
-            messagePublisher.reportError(`Agent ID is not available for sub-conversation (${subConversationId})`);
+            messagePublisher.reportError(t("test.agentIdNotAvailable", { id: subConversationId }));
             return;
         }
 
         const agentResult = await aiAgentService.getAiAgents(databaseName, agentId, abortControllerRef.current.signal);
         const config = agentResult.AiAgents[0];
         if (!config) {
-            messagePublisher.reportError(
-                `Agent configuration is not available for sub-conversation (${subConversationId})`
-            );
+            messagePublisher.reportError(t("test.agentConfigurationNotAvailable", { id: subConversationId }));
             return;
         }
 
@@ -99,18 +100,23 @@ export default function EditAiAgentTestMessages({ handleSaveParameters }: EditAi
                         <div className="vstack gap-1 pe-4">
                             <h3>
                                 <Icon icon="ai-agents" />
-                                Sub-agent test transcript
+                                {t("test.transcriptTitle")}
                             </h3>
                             {currentSubConversationData?.document && (
                                 <small className="text-muted text-break">
-                                    Identifier: <b>{currentSubConversationData.document.Agent}</b>
+                                    <StudioTrans
+                                        ns="editAiAgent"
+                                        i18nKey="test.identifier"
+                                        components={{ b: <b /> }}
+                                        options={{ identifier: currentSubConversationData.document.Agent }}
+                                    />
                                     <Button
                                         variant="link"
                                         className="p-0 ms-1 align-baseline"
                                         onClick={() =>
                                             copyToClipboard.copy(
                                                 currentSubConversationData.document.Agent,
-                                                "Agent ID copied to clipboard"
+                                                t("test.agentIdCopied")
                                             )
                                         }
                                         size="xs"
@@ -119,10 +125,7 @@ export default function EditAiAgentTestMessages({ handleSaveParameters }: EditAi
                                     </Button>
                                 </small>
                             )}
-                            <small className="text-muted text-break">
-                                This conversation exists only in the current test result and is not stored in the
-                                database.
-                            </small>
+                            <small className="text-muted text-break">{t("test.notStored")}</small>
                         </div>
                     </Modal.Header>
                     {asyncOpenSubConversation.loading ? (
@@ -144,7 +147,7 @@ export default function EditAiAgentTestMessages({ handleSaveParameters }: EditAi
                             <Modal.Footer>
                                 <Button variant="secondary" onClick={handleGoBack} className="rounded-pill">
                                     <Icon icon="close" />
-                                    Close
+                                    {t("test.close")}
                                 </Button>
                             </Modal.Footer>
                         </>

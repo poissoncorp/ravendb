@@ -17,8 +17,10 @@ import { Icon } from "components/common/Icon";
 import { AiConnectionStringsInfoHub } from "./AiConnectionStringsInfoHub";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function AiConnectionStrings() {
+    const t = useStudioTranslation("aiConnectionStrings");
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
 
@@ -41,7 +43,7 @@ export default function AiConnectionStrings() {
     if (loadStatus === "failure") {
         return (
             <LoadError
-                error="Unable to load connection strings"
+                error={t("loadError")}
                 refresh={() => dispatch(connectionStringsActions.fetchData(databaseName))}
             />
         );
@@ -52,20 +54,20 @@ export default function AiConnectionStrings() {
             {initialEditConnection && <EditConnectionStrings initialConnection={initialEditConnection} />}
             <Row className="gy-sm">
                 <Col>
-                    <AboutViewHeading title="AI Connection Strings" icon="manage-connection-strings" />
+                    <AboutViewHeading title={t("title")} icon="manage-connection-strings" />
                     {hasDatabaseAdminAccess && (
                         <Button
                             variant="primary"
                             onClick={() => dispatch(connectionStringsActions.newConnectionOfTypeModalOpened("Ai"))}
-                            title="Add new connection string"
+                            title={t("addButtonTitle")}
                         >
                             <Icon icon="plus" />
-                            Add new
+                            {t("addButton")}
                         </Button>
                     )}
                     <LazyLoad active={loadStatus === "idle" || loadStatus === "loading"} className="mt-2">
                         {isEmpty ? (
-                            <EmptySet className="mw-100">No connection strings</EmptySet>
+                            <EmptySet className="mw-100">{t("empty")}</EmptySet>
                         ) : (
                             <ConnectionStringsPanels connections={connections} connectionsType="Ai" />
                         )}

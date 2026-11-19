@@ -10,6 +10,7 @@ import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import { useAppDispatch, useAppSelector } from "components/store";
 import { chatAiAgentActions, chatAiAgentSelectors } from "../store/chatAiAgentSlice";
 import ChatAiAgentAttachmentsDropdown from "./ChatAiAgentAttachmentsDropdown";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface ChatAiAgentPromptActionsProps {
     isPromptDisabled: boolean;
@@ -26,6 +27,7 @@ export default function ChatAiAgentPromptActions({
     promptsFieldsArray,
     attachmentsFieldsArray,
 }: ChatAiAgentPromptActionsProps) {
+    const t = useStudioTranslation("aiAgentChat");
     const dispatch = useAppDispatch();
     const activePromptIndex = useAppSelector(chatAiAgentSelectors.activePromptIndex);
 
@@ -42,7 +44,7 @@ export default function ChatAiAgentPromptActions({
                 isPromptDisabled={isPromptDisabled}
             />
             {hasPromptErrors && (
-                <PopoverWithHoverWrapper message={promptsCount > 1 ? "Prompts are required" : "Prompt is required"}>
+                <PopoverWithHoverWrapper message={t("prompt.required", { count: promptsCount })}>
                     <Icon icon="warning" color="danger" margin="m-0" />
                 </PopoverWithHoverWrapper>
             )}
@@ -56,9 +58,7 @@ export default function ChatAiAgentPromptActions({
                     >
                         <Icon icon="chevron-left" margin="m-0" />
                     </Button>
-                    <span>
-                        {activePromptIndex + 1} of {promptsCount}
-                    </span>
+                    <span>{t("prompt.position", { current: activePromptIndex + 1, total: promptsCount })}</span>
                     <Button
                         variant="link"
                         onClick={() => setActivePromptIndex(activePromptIndex + 1)}
@@ -75,18 +75,18 @@ export default function ChatAiAgentPromptActions({
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
                     <Dropdown.Item
-                        title="Add prompt"
+                        title={t("prompt.addTitle")}
                         onClick={() => {
                             setActivePromptIndex(promptsCount);
                             promptsFieldsArray.append({ text: "" });
                         }}
                     >
                         <Icon icon="plus" />
-                        <span>Add another prompt</span>
+                        <span>{t("prompt.addAnother")}</span>
                     </Dropdown.Item>
                     {promptsCount > 1 && (
                         <Dropdown.Item
-                            title="Remove prompt"
+                            title={t("prompt.remove")}
                             onClick={() => {
                                 if (activePromptIndex !== 0) {
                                     setActivePromptIndex(activePromptIndex - 1);
@@ -96,7 +96,7 @@ export default function ChatAiAgentPromptActions({
                             }}
                         >
                             <Icon icon="trash" />
-                            <span>Remove prompt</span>
+                            <span>{t("prompt.remove")}</span>
                         </Dropdown.Item>
                     )}
                 </Dropdown.Menu>

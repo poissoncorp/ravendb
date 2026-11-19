@@ -20,6 +20,8 @@ import "./ChatAiAgentFormBody.scss";
 import ChatAiAgentPromptActions from "./ChatAiAgentPromptActions";
 import ChatAiAgentPromptAttachments from "components/pages/database/aiHub/aiAgents/chat/partials/ChatAiAgentPromptAttachments";
 import ChatAiAgentAttachmentsDropzone from "components/pages/database/aiHub/aiAgents/chat/partials/ChatAiAgentAttachmentsDropzone";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface ChatAiAgentFormBodyProps {
     height: number;
@@ -29,6 +31,7 @@ interface ChatAiAgentFormBodyProps {
 }
 
 export default function ChatAiAgentFormBody({ height, handleSend, runChat, isHistory }: ChatAiAgentFormBodyProps) {
+    const t = useStudioTranslation("aiAgentChat");
     const dispatch = useAppDispatch();
 
     const messagesPanelRef = useRef<HTMLDivElement>(null);
@@ -153,23 +156,35 @@ export default function ChatAiAgentFormBody({ height, handleSend, runChat, isHis
                     <div className="w-100" style={{ maxWidth: "800px" }}>
                         {isDocumentChanged && !isDocumentDeleted && (
                             <RichAlert variant="warning" className="p-1 mb-2">
-                                This document has been updated. To see the latest version in chat,{" "}
-                                <Button variant="link" className="p-0 text-warning" onClick={handleRefreshDocument}>
-                                    click here to refresh
-                                </Button>
-                                .
+                                <StudioTrans
+                                    ns="aiAgentChat"
+                                    i18nKey="documentUpdated"
+                                    components={{
+                                        button: (
+                                            <Button
+                                                variant="link"
+                                                className="p-0 text-warning"
+                                                onClick={handleRefreshDocument}
+                                            />
+                                        ),
+                                    }}
+                                />
                             </RichAlert>
                         )}
                         {isDocumentDeleted && (
                             <RichAlert variant="warning" className="p-1 mb-2">
-                                This document has been deleted,{" "}
-                                <a
-                                    href={appUrl.forDocuments("@conversations", databaseName)}
-                                    className="text-warning text-decoration-none"
-                                >
-                                    click here to see the recent conversations
-                                </a>
-                                .
+                                <StudioTrans
+                                    ns="aiAgentChat"
+                                    i18nKey="documentDeleted"
+                                    components={{
+                                        a: (
+                                            <a
+                                                href={appUrl.forDocuments("@conversations", databaseName)}
+                                                className="text-warning text-decoration-none"
+                                            />
+                                        ),
+                                    }}
+                                />
                             </RichAlert>
                         )}
                         <ChatAiAgentAttachmentsDropzone attachmentsFieldsArray={attachmentsFieldsArray} />
@@ -184,7 +199,7 @@ export default function ChatAiAgentFormBody({ height, handleSend, runChat, isHis
                                 as="textarea"
                                 control={control}
                                 name={`prompts.${activePromptIndex}.text`}
-                                placeholder="Ask the agent anything"
+                                placeholder={t("prompt.placeholder")}
                                 className="prompt-textarea"
                                 onKeyDown={(e) => {
                                     if (e.key === "Enter" && !e.shiftKey) {

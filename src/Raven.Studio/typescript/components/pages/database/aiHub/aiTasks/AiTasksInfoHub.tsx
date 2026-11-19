@@ -1,8 +1,12 @@
 import AboutViewFloating, { AccordionItemWrapper } from "components/common/AboutView";
 import { Icon } from "components/common/Icon";
 import { useRavenLink } from "components/hooks/useRavenLink";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function AiTasksInfoHub() {
+    const t = useStudioTranslation("aiTasks");
+    const commonT = useStudioTranslation("common");
     const genAiTaskOverviewDocsLink = useRavenLink({ hash: "GEHC2I" });
     const embeddingsGenerationOverviewDocsLink = useRavenLink({ hash: "H6GDNY" });
 
@@ -10,33 +14,32 @@ export default function AiTasksInfoHub() {
         <AboutViewFloating>
             <AccordionItemWrapper icon="about" color="info" targetId="about-view">
                 <p>
-                    In this view, you can manage AI tasks - <br />
-                    create new tasks, edit existing ones, or delete them as needed.
+                    <StudioTrans ns="aiTasks" i18nKey="about.intro" components={{ br: <br /> }} />
                 </p>
                 <div>
-                    <strong>GenAI tasks</strong>:
+                    <StudioTrans ns="aiTasks" i18nKey="about.genAi.heading" components={{ strong: <strong /> }} />
                     <ul>
-                        <li>Use large language models (LLMs) to analyze and enrich your documents.</li>
-                        <li>Automatically update documents or create new ones based on AI-generated content.</li>
+                        <li>{t("about.genAi.enrichDocuments")}</li>
+                        <li>{t("about.genAi.updateDocuments")}</li>
                     </ul>
                 </div>
                 <div>
-                    <strong>Embeddings generation tasks</strong>:
+                    <StudioTrans ns="aiTasks" i18nKey="about.embeddings.heading" components={{ strong: <strong /> }} />
                     <ul>
-                        <li>Extract text from your documents,</li>
-                        <li>Connect to an AI service to generate embeddings from that text,</li>
-                        <li>Save the generated embeddings in dedicated collections in the database.</li>
-                        <li>Use the embeddings to perform vector search queries.</li>
+                        <li>{t("about.embeddings.extractText")}</li>
+                        <li>{t("about.embeddings.generateEmbeddings")}</li>
+                        <li>{t("about.embeddings.saveEmbeddings")}</li>
+                        <li>{t("about.embeddings.vectorSearch")}</li>
                     </ul>
                 </div>
                 <hr />
-                <div className="small-label mb-2">useful links</div>
+                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                 <a href={genAiTaskOverviewDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - GenAI Task Overview
+                    <Icon icon="newtab" /> {t("about.genAiDocsLink")}
                 </a>
                 <br />
                 <a href={embeddingsGenerationOverviewDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - Generating Embeddings Overview
+                    <Icon icon="newtab" /> {t("about.embeddingsDocsLink")}
                 </a>
             </AccordionItemWrapper>
         </AboutViewFloating>

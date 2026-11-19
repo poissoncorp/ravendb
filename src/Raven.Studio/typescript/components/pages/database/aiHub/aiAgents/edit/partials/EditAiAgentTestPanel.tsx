@@ -23,6 +23,7 @@ import AiAgentParametersDropdown from "../../partials/AiAgentParametersDropdown"
 import classNames from "classnames";
 import { AiAgentToolCall } from "components/pages/database/aiHub/aiAgents/utils/aiAgentsTypes";
 import EditAiAgentTestMessages from "./EditAiAgentTestMessages";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface EditAiAgentTestPanelProps {
     testForm: UseFormReturn<TestAiAgentFormData>;
@@ -35,6 +36,7 @@ export default function EditAiAgentTestPanel({
     editForm,
     generateTestParameters,
 }: EditAiAgentTestPanelProps) {
+    const t = useStudioTranslation("editAiAgent");
     const dispatch = useAppDispatch();
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const rawDataRef = useRef<ReactAce>(null);
@@ -65,6 +67,8 @@ export default function EditAiAgentTestPanel({
     const isTestDisabled = !hasLatestParameters || hasMissingParameters || isLoading || isActionToolSubmitRequired;
 
     const configuration = editAiAgentUtils.mapToDto(editFormValues);
+
+    const parametersNotUpToDateText = t("test.parametersNotUpToDate");
 
     const runTest = async (toolCallParameters?: AiAgentToolCall[]) => {
         return tryHandleSubmit(async () => {
@@ -119,7 +123,7 @@ export default function EditAiAgentTestPanel({
             <div className="panel-bg-2 p-3 border-bottom border-secondary d-flex flex-wrap justify-content-between gap-2">
                 <h3 className="m-0">
                     <Icon icon="test" color="primary" />
-                    Test agent
+                    {t("test.heading")}
                     {(!hasLatestParameters || hasMissingParameters) && (
                         <PopoverWithHoverWrapper message={parametersNotUpToDateText}>
                             <Icon icon="warning" color="danger" margin="ms-1" />
@@ -131,10 +135,10 @@ export default function EditAiAgentTestPanel({
                         variant="primary"
                         onClick={handleNewChat}
                         className="rounded-pill"
-                        title="Clear the current conversation and start a new chat"
+                        title={t("test.newChatTitle")}
                     >
                         <Icon icon="plus" />
-                        New chat
+                        {t("test.newChat")}
                     </Button>
                     {testDocument?.Parameters && (
                         <AiAgentParametersDropdown parameters={testDocument.Parameters} isCompact />
@@ -144,7 +148,7 @@ export default function EditAiAgentTestPanel({
                             variant="secondary"
                             onClick={() => dispatch(editAiAgentActions.isRawDataSet(!isRawData))}
                             className="rounded-pill"
-                            title="Switch between chat and raw data display"
+                            title={t("test.rawDataTitle")}
                         >
                             <Icon icon={isRawData ? "ai-agents" : "json"} margin="m-0" />
                         </Button>
@@ -211,7 +215,7 @@ export default function EditAiAgentTestPanel({
                             as="textarea"
                             control={testForm.control}
                             name="prompt"
-                            placeholder="Ask the agent anything"
+                            placeholder={t("test.promptPlaceholder")}
                             rows={3}
                             className="rounded-2"
                             disabled={isTestDisabled}
@@ -238,5 +242,3 @@ export default function EditAiAgentTestPanel({
         </>
     );
 }
-
-const parametersNotUpToDateText = "The parameters are not up to date. Please start a new chat.";

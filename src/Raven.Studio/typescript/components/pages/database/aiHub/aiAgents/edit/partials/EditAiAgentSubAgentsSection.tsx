@@ -11,8 +11,11 @@ import useEditAiAgentSubAgentsSection from "components/pages/database/aiHub/aiAg
 import { useAppSelector } from "components/store";
 import { editAiAgentSelectors } from "components/pages/database/aiHub/aiAgents/edit/store/editAiAgentSlice";
 import { SelectOption } from "components/common/select/Select";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function EditAiAgentSubAgentsSection() {
+    const t = useStudioTranslation("editAiAgent");
     const { control } = useFormContext<EditAiAgentFormData>();
     const { fieldArray, handleAdd, handleSave, handleEdit, handleRemove } = useEditAiAgentSubAgentsSection();
 
@@ -22,19 +25,10 @@ export default function EditAiAgentSubAgentsSection() {
         <>
             <div className="hstack mt-3">
                 <h3 className="m-0">
-                    Define sub-agents
+                    {t("subAgents.heading")}
                     <PopoverWithHoverWrapper
                         message={
-                            <>
-                                Sub-agents are other AI agents that this parent agent can trigger when requested by the
-                                LLM to handle specialized tasks.
-                                <br />
-                                <br />
-                                When the LLM determines it should delegate work to a sub-agent, it generates a
-                                natural-language prompt for that sub-agent. The parent agent then invokes the sub-agent
-                                and forwards the prompt. The sub-agent runs its own tools (queries, actions) to complete
-                                the task and returns its response to the parent agent.
-                            </>
+                            <StudioTrans ns="editAiAgent" i18nKey="subAgents.headingInfo" components={{ br: <br /> }} />
                         }
                     >
                         <Icon icon="info-new" />
@@ -43,7 +37,7 @@ export default function EditAiAgentSubAgentsSection() {
                 <FormErrorIcon control={control} paths={["subAgents"]} onError={() => setIsPanelOpen(true)} />
                 <CollapseButton isExpanded={isPanelOpen} toggle={toggleIsPanelOpen} />
             </div>
-            <div className="mb-1">Choose existing agents to act as sub-agents for this one.</div>
+            <div className="mb-1">{t("subAgents.description")}</div>
             <Collapse in={isPanelOpen} mountOnEnter unmountOnExit>
                 <div>
                     <div className="panel-bg-1 p-3 rounded-2 border border-secondary">
@@ -53,23 +47,15 @@ export default function EditAiAgentSubAgentsSection() {
                                     <Icon icon="sub-agents" color="primary" margin="m-0" />
                                 </div>
                                 <div>
-                                    Sub-agents
-                                    <PopoverWithHoverWrapper
-                                        message={
-                                            <>
-                                                Add the agents that this agent is allowed to delegate work to. The
-                                                description you provide tells the LLM when it should trigger that
-                                                specific sub-agent.
-                                            </>
-                                        }
-                                    >
+                                    {t("subAgents.listTitle")}
+                                    <PopoverWithHoverWrapper message={t("subAgents.listInfo")}>
                                         <Icon icon="info-new" />
                                     </PopoverWithHoverWrapper>
                                 </div>
                             </div>
                             <Button variant="primary" className="rounded-pill" onClick={handleAdd}>
                                 <Icon icon="plus" />
-                                Add new sub-agent
+                                {t("subAgents.add")}
                             </Button>
                         </div>
                         <div className="vstack">
@@ -98,6 +84,7 @@ interface SubAgentItemProps {
 }
 
 function SubAgentItem({ index, remove, save, edit }: SubAgentItemProps) {
+    const t = useStudioTranslation("editAiAgent");
     const { control } = useFormContext<EditAiAgentFormData>();
 
     const currentIdentifier = useWatch({
@@ -144,7 +131,7 @@ function SubAgentItem({ index, remove, save, edit }: SubAgentItemProps) {
     return (
         <div className="well p-2 rounded-2 border border-secondary mt-2">
             <div className="hstack justify-content-between">
-                <h4 className="m-0">Configure sub-agent</h4>
+                <h4 className="m-0">{t("subAgents.configure")}</h4>
                 <div className="hstack gap-2">
                     <Button variant="danger" onClick={remove}>
                         <Icon icon="trash" margin="m-0" />
@@ -156,28 +143,23 @@ function SubAgentItem({ index, remove, save, edit }: SubAgentItemProps) {
             </div>
             <hr className="mt-2 mb-3" />
             <FormGroup>
-                <FormLabel>Agent identifier</FormLabel>
+                <FormLabel>{t("subAgents.identifierLabel")}</FormLabel>
                 <FormSelectAutocomplete
                     control={control}
                     name={`subAgents.${index}.identifier`}
                     options={allIdentifiersOptions}
                 />
-                {isAgentNotFound && (
-                    <div className="text-warning mt-1 fw-bold">
-                        Warning: This agent is currently not found in your database
-                    </div>
-                )}
+                {isAgentNotFound && <div className="text-warning mt-1 fw-bold">{t("subAgents.notFound")}</div>}
             </FormGroup>
             <FormGroup>
-                <FormLabel>Description</FormLabel>
+                <FormLabel>{t("shared.description")}</FormLabel>
                 <FormInput
                     type="textarea"
                     as="textarea"
                     control={control}
                     name={`subAgents.${index}.description`}
                     rows={4}
-                    placeholder="In this description, explain to the LLM when it should delegate to this sub-agent.
-                                 E.g., Use this agent to handle all questions about orders, order history, and order status."
+                    placeholder={t("subAgents.descriptionPlaceholder")}
                 />
             </FormGroup>
         </div>

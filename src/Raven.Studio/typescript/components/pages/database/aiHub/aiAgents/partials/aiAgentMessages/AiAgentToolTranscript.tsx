@@ -19,6 +19,7 @@ import { useAppUrls } from "components/hooks/useAppUrls";
 import { useAppSelector } from "components/store";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
 import { useAiAgentMessagesContext } from "components/pages/database/aiHub/aiAgents/partials/aiAgentMessages/AiAgentMessagesContext";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface AiAgentToolTranscriptProps {
     toolCall: AiAgentToolCall;
@@ -42,6 +43,7 @@ export function AiAgentToolTranscript({ toolCall }: AiAgentToolTranscriptProps) 
 }
 
 function QueryToolTranscript({ toolCall }: { toolCall: AiAgentToolCallQuery }) {
+    const t = useStudioTranslation("aiAgents");
     const detailsId = toolCall.id + "-details";
 
     const rqlLanguageService = useRqlLanguageService();
@@ -61,7 +63,7 @@ function QueryToolTranscript({ toolCall }: { toolCall: AiAgentToolCallQuery }) {
                         <div className="tool-icon bg-faded-primary">
                             <Icon icon="query" color="primary" margin="m-0" />
                         </div>
-                        <div className="text-truncate">Query tool: {toolCall.name}</div>
+                        <div className="text-truncate">{t("transcript.queryTool", { name: toolCall.name })}</div>
                     </div>
                 </Accordion.Header>
                 <Accordion.Collapse eventKey={toolCall.id} mountOnEnter unmountOnExit>
@@ -70,12 +72,12 @@ function QueryToolTranscript({ toolCall }: { toolCall: AiAgentToolCallQuery }) {
                             <Accordion.Item eventKey={detailsId} className="panel-bg-2">
                                 <Accordion.Header className="p-1">
                                     <Icon icon="settings" />
-                                    See details
+                                    {t("transcript.seeDetails")}
                                 </Accordion.Header>
                                 <Accordion.Collapse eventKey={detailsId} mountOnEnter unmountOnExit>
                                     <Accordion.Body className="panel-bg-2 rounded-2 pt-0">
                                         <div>
-                                            <small className="text-muted">Description</small>
+                                            <small className="text-muted">{t("transcript.description")}</small>
                                             <div>{toolCall.configDetails.Description}</div>
                                             <hr className="my-1" />
                                         </div>
@@ -84,16 +86,16 @@ function QueryToolTranscript({ toolCall }: { toolCall: AiAgentToolCallQuery }) {
                                             parametersSampleObject={toolCall.configDetails.ParametersSampleObject}
                                         />
                                         <div className="d-flex justify-content-between mb-1 align-items-end mt-2">
-                                            <small className="text-muted">Query</small>
+                                            <small className="text-muted">{t("transcript.query")}</small>
                                             <Button
                                                 variant="info"
                                                 className="rounded-pill"
                                                 onClick={linkToQuery}
-                                                title="Click to test this query in the Studio's Query View"
+                                                title={t("transcript.testQueryTitle")}
                                                 size="sm"
                                             >
                                                 <Icon icon="rocket" />
-                                                Test query
+                                                {t("transcript.testQuery")}
                                             </Button>
                                         </div>
                                         <AceEditor
@@ -111,7 +113,7 @@ function QueryToolTranscript({ toolCall }: { toolCall: AiAgentToolCallQuery }) {
                         </Accordion>
                         <FilledParametersField toolArguments={toolCall.arguments} />
                         <div className="bg-faded-primary p-2 border-radius-xs border border-primary w-100">
-                            <div className="text-emphasis">Query tool result</div>
+                            <div className="text-emphasis">{t("transcript.queryToolResult")}</div>
                             <AiAgentToolResponseContent content={toolCall.responseMessage.content} />
                         </div>
                     </Accordion.Body>
@@ -122,6 +124,7 @@ function QueryToolTranscript({ toolCall }: { toolCall: AiAgentToolCallQuery }) {
 }
 
 function ActionToolTranscript({ toolCall }: { toolCall: AiAgentToolCallAction }) {
+    const t = useStudioTranslation("aiAgents");
     const detailsId = toolCall.id + "-details";
 
     return (
@@ -132,7 +135,7 @@ function ActionToolTranscript({ toolCall }: { toolCall: AiAgentToolCallAction })
                         <div className="tool-icon bg-faded-primary">
                             <Icon icon="force" color="primary" margin="m-0" />
                         </div>
-                        <div className="text-truncate">Action tool: {toolCall.name}</div>
+                        <div className="text-truncate">{t("transcript.actionTool", { name: toolCall.name })}</div>
                     </div>
                 </Accordion.Header>
                 <Accordion.Collapse eventKey={toolCall.id} mountOnEnter unmountOnExit>
@@ -141,12 +144,12 @@ function ActionToolTranscript({ toolCall }: { toolCall: AiAgentToolCallAction })
                             <Accordion.Item eventKey={detailsId} className="panel-bg-2">
                                 <Accordion.Header className="p-1">
                                     <Icon icon="settings" />
-                                    See details
+                                    {t("transcript.seeDetails")}
                                 </Accordion.Header>
                                 <Accordion.Collapse eventKey={detailsId} mountOnEnter unmountOnExit>
                                     <Accordion.Body className="panel-bg-2 rounded-2 pt-0">
                                         <div>
-                                            <small className="text-muted">Description</small>
+                                            <small className="text-muted">{t("transcript.description")}</small>
                                             <div>{toolCall.configDetails.Description}</div>
                                             <hr className="my-1" />
                                         </div>
@@ -168,6 +171,7 @@ function ActionToolTranscript({ toolCall }: { toolCall: AiAgentToolCallAction })
 }
 
 function SubAgentTranscript({ toolCall }: { toolCall: AiAgentToolCallSubAgent }) {
+    const t = useStudioTranslation("aiAgents");
     const subConversationId = toolCall.responseMessage?.subConversationId;
     const aiAgentMessages = useAiAgentMessagesContext();
 
@@ -196,7 +200,7 @@ function SubAgentTranscript({ toolCall }: { toolCall: AiAgentToolCallSubAgent })
                         <div className="tool-icon bg-faded-primary">
                             <Icon icon="user" color="primary" margin="m-0" />
                         </div>
-                        <div className="text-truncate">Sub-agent: {toolCall.name}</div>
+                        <div className="text-truncate">{t("transcript.subAgent", { name: toolCall.name })}</div>
                     </div>
                 </Accordion.Header>
                 <Accordion.Collapse eventKey={toolCall.id} mountOnEnter unmountOnExit>
@@ -213,16 +217,16 @@ function SubAgentTranscript({ toolCall }: { toolCall: AiAgentToolCallSubAgent })
                                 <Icon icon="user" color="primary" margin="m-0" />
                             </div>
                             <div className="sub-agent-transcript__content">
-                                <div>Sub-conversation created</div>
+                                <div>{t("transcript.subConversationCreated")}</div>
                                 {isTest ? (
                                     <button
                                         type="button"
                                         className="sub-agent-transcript__link btn panel-bg-2 rounded-2 border border-secondary hstack justify-content-between px-2 py-1 text-muted w-100"
-                                        title="Open the sub-agent transcript returned by the current test run"
+                                        title={t("transcript.openTestSubConversationTitle")}
                                         onClick={handleOpenTestSubConversation}
                                     >
                                         <Icon icon="preview" />
-                                        <span className="text-truncate">Conversation details</span>
+                                        <span className="text-truncate">{t("transcript.conversationDetails")}</span>
                                     </button>
                                 ) : (
                                     <a
@@ -233,7 +237,7 @@ function SubAgentTranscript({ toolCall }: { toolCall: AiAgentToolCallSubAgent })
                                         rel="noreferrer"
                                     >
                                         <Icon icon="ai-agents" />
-                                        <span className="text-truncate">Conversation details</span>
+                                        <span className="text-truncate">{t("transcript.conversationDetails")}</span>
                                         <Icon icon="newtab" margin="ms-auto" />
                                     </a>
                                 )}
@@ -244,7 +248,7 @@ function SubAgentTranscript({ toolCall }: { toolCall: AiAgentToolCallSubAgent })
                                 <Icon icon="check" color="success" margin="m-0" />
                             </div>
                             <div className="sub-agent-transcript__content">
-                                <div className="text-truncate">Sub-agent final answer</div>
+                                <div className="text-truncate">{t("transcript.subAgentFinalAnswer")}</div>
                                 <AiAgentToolResponseContent content={toolCall.responseMessage.content} />
                             </div>
                         </div>
@@ -256,6 +260,7 @@ function SubAgentTranscript({ toolCall }: { toolCall: AiAgentToolCallSubAgent })
 }
 
 function UnknownToolTranscript({ toolCall }: { toolCall: AiAgentToolCallUnknown }) {
+    const t = useStudioTranslation("aiAgents");
     return (
         <Accordion className="transcript-tool border border-secondary rounded-2 panel-bg-1">
             <Accordion.Item eventKey={toolCall.id} className="panel-bg-1">
@@ -264,7 +269,7 @@ function UnknownToolTranscript({ toolCall }: { toolCall: AiAgentToolCallUnknown 
                         <div className="tool-icon bg-faded-primary">
                             <Icon icon="studio-config" color="primary" margin="m-0" />
                         </div>
-                        <div className="text-truncate">Tool: {toolCall.name}</div>
+                        <div className="text-truncate">{t("transcript.tool", { name: toolCall.name })}</div>
                     </div>
                 </Accordion.Header>
                 <Accordion.Collapse eventKey={toolCall.id} mountOnEnter unmountOnExit>
@@ -272,7 +277,7 @@ function UnknownToolTranscript({ toolCall }: { toolCall: AiAgentToolCallUnknown 
                         <FilledParametersField toolArguments={toolCall.arguments} />
                         {toolCall.responseMessage?.content && (
                             <div className="bg-faded-primary p-2 border-radius-xs border border-primary w-100">
-                                <div className="text-emphasis">Result</div>
+                                <div className="text-emphasis">{t("transcript.result")}</div>
                                 <AiAgentToolResponseContent content={toolCall.responseMessage.content} />
                             </div>
                         )}
@@ -289,12 +294,13 @@ interface FilledParametersFieldProps {
 }
 
 function FilledParametersField({ toolArguments, className }: FilledParametersFieldProps) {
+    const t = useStudioTranslation("aiAgents");
     const prettifiedArguments = aiAgentsUtils.getPrettifiedContent(toolArguments);
     const argumentsMode = aceEditorUtils.getAceEditorMode(prettifiedArguments);
 
     return (
         <div className={className}>
-            <small className="text-muted">Parameters filled by LLM</small>
+            <small className="text-muted">{t("transcript.parametersFilledByLlm")}</small>
             <AceEditor
                 defaultValue={prettifiedArguments}
                 readOnly
@@ -316,12 +322,13 @@ interface SchemaFieldProps {
 }
 
 function SchemaField({ parametersSchema, parametersSampleObject }: SchemaFieldProps) {
+    const t = useStudioTranslation("aiAgents");
     if (parametersSchema) {
         const prettifiedSchema = aiAgentsUtils.getPrettifiedContent(parametersSchema);
 
         return (
             <div>
-                <small className="text-muted">Parameters schema</small>
+                <small className="text-muted">{t("transcript.parametersSchema")}</small>
                 <AceEditor
                     defaultValue={prettifiedSchema}
                     readOnly
@@ -336,7 +343,7 @@ function SchemaField({ parametersSchema, parametersSampleObject }: SchemaFieldPr
 
     return (
         <div>
-            <small className="text-muted">Sample parameters object</small>
+            <small className="text-muted">{t("transcript.sampleParametersObject")}</small>
             <AceEditor
                 defaultValue={prettifiedSampleObject}
                 readOnly

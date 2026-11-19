@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("aiAgentsCommands");
 
 class testAiAgentCommand extends commandBase {
     constructor(
@@ -13,7 +16,7 @@ class testAiAgentCommand extends commandBase {
         const url = endpoints.databases.aiAgent.aiAgentTest;
 
         return this.post(url, JSON.stringify(this.dto), this.db).fail((response: JQueryXHR) =>
-            this.reportError("Failed to test AI agent", response.responseText, response.statusText)
+            this.reportError(t("testFailed"), response.responseText, response.statusText)
         );
     }
 }

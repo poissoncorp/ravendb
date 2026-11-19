@@ -1,6 +1,7 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { aiAgentParametersUtils } from "../../utils/aiAgentParametersUtils";
+import { createTranslator } from "common/i18n/i18n";
 
 type AiAgentParameterValueType = Raven.Client.Documents.Operations.AI.Agents.AiAgentParameterValueType;
 
@@ -39,8 +40,10 @@ const schema = yup.object({
                 return true;
             }
 
+            const t = createTranslator("aiAgentChat");
+
             return this.createError({
-                message: prompts?.length > 1 ? "Prompts are required" : "Prompt is required",
+                message: t("prompt.required", { count: prompts?.length > 1 ? prompts.length : 1 }),
             });
         }),
     attachments: yup.array().of(yup.mixed<ChatAiAgentAttachment>()),

@@ -17,6 +17,7 @@ import useEditAiAgent from "./hooks/useEditAiAgent";
 import useResizableWidth from "components/hooks/useResizableWidth";
 import ColumnResize from "components/common/ColumnResize";
 import EditAiAgentSubAgentsSection from "components/pages/database/aiHub/aiAgents/edit/partials/EditAiAgentSubAgentsSection";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface QueryParams {
     id: string;
@@ -41,6 +42,7 @@ interface FormBodyProps {
 }
 
 function FormBody({ maxWidth, aiAgentEditor }: FormBodyProps) {
+    const t = useStudioTranslation("editAiAgent");
     const isTestOpen = useAppSelector(editAiAgentSelectors.isTestOpen);
     const isTestPinned = useAppSelector(editAiAgentSelectors.isTestPinned);
 
@@ -60,7 +62,7 @@ function FormBody({ maxWidth, aiAgentEditor }: FormBodyProps) {
             >
                 <div className="hstack justify-content-between align-items-start p-4">
                     <AboutViewHeading
-                        title={`${aiAgentEditor.isEditAiAgent ? "Edit" : "Create"} AI Agent`}
+                        title={t("title", { context: aiAgentEditor.isEditAiAgent ? "edit" : "create" })}
                         icon="ai-agents"
                         marginBottom={0}
                     />
@@ -69,7 +71,7 @@ function FormBody({ maxWidth, aiAgentEditor }: FormBodyProps) {
                 <div className="px-4 pb-4 flex-grow-1 overflow-scroll h-100">
                     {aiAgentEditor.asyncGetEditDefaultValues.loading && <LoadingView />}
                     {aiAgentEditor.asyncGetEditDefaultValues.error && (
-                        <LoadError error="Unable to load configuration" refresh={aiAgentEditor.reloadEditForm} />
+                        <LoadError error={t("loadError")} refresh={aiAgentEditor.reloadEditForm} />
                     )}
                     {aiAgentEditor.asyncGetEditDefaultValues.result && (
                         <>

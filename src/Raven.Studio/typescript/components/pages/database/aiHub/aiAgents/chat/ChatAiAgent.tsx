@@ -20,8 +20,11 @@ import Badge from "react-bootstrap/Badge";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import AiTokensUsagePopoverBody from "components/common/AiTokensUsagePopoverBody";
 import AiAgentLinkedConversationsDropdown from "../partials/AiAgentLinkedConversationsDropdown";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function ChatAiAgent({ queryParams }: ReactQueryParamsProps<ChatAiAgentQueryParams>) {
+    const t = useStudioTranslation("aiAgentChat");
+    const commonT = useStudioTranslation("common");
     const { handleSend, reloadForm, handleNewChat, chatForm, asyncGetDefaultValues, handleSubmit, runChat } =
         useChatAiAgent(queryParams);
 
@@ -35,7 +38,7 @@ export default function ChatAiAgent({ queryParams }: ReactQueryParamsProps<ChatA
     const conversationId = useAppSelector(chatAiAgentSelectors.conversationId);
     const isDocumentDeleted = useAppSelector(chatAiAgentSelectors.isDocumentDeleted);
 
-    const title = config.data?.Name ?? "AI Agent";
+    const title = config.data?.Name ?? t("titleFallback");
 
     if (!queryParams?.agentId) {
         router.navigate(appUrl.forAiAgents(databaseName));
@@ -47,7 +50,7 @@ export default function ChatAiAgent({ queryParams }: ReactQueryParamsProps<ChatA
     }
 
     if (asyncGetDefaultValues.error) {
-        return <LoadError error="Unable to load configuration" refresh={reloadForm} />;
+        return <LoadError error={t("loadError")} refresh={reloadForm} />;
     }
 
     return (
@@ -60,7 +63,7 @@ export default function ChatAiAgent({ queryParams }: ReactQueryParamsProps<ChatA
                     {document.data?.TotalUsage && <TotalUsageBadge usage={document.data.TotalUsage} />}
                     {config.data?.Disabled && (
                         <Badge bg="warning" pill>
-                            Disabled
+                            {t("disabledBadge")}
                         </Badge>
                     )}
                 </div>
@@ -72,9 +75,9 @@ export default function ChatAiAgent({ queryParams }: ReactQueryParamsProps<ChatA
                         variant="primary"
                         className="rounded-pill"
                         onClick={handleNewChat}
-                        title="Click to start a new chat with the LLM using this agent"
+                        title={t("newChatTitle")}
                     >
-                        <Icon icon="plus" /> New chat
+                        <Icon icon="plus" /> {t("newChat")}
                     </Button>
                     {conversationId && !isDocumentDeleted && (
                         <a
@@ -82,7 +85,7 @@ export default function ChatAiAgent({ queryParams }: ReactQueryParamsProps<ChatA
                             className="btn btn-secondary rounded-pill"
                             target="_blank"
                         >
-                            <Icon icon="document" /> Edit document
+                            <Icon icon="document" /> {t("editDocument")}
                         </a>
                     )}
                     {config.data && (
@@ -91,11 +94,11 @@ export default function ChatAiAgent({ queryParams }: ReactQueryParamsProps<ChatA
                             className="btn btn-secondary rounded-pill"
                             target="_blank"
                         >
-                            <Icon icon="settings" /> Edit configuration
+                            <Icon icon="settings" /> {t("editConfiguration")}
                         </a>
                     )}
                     <a className="btn btn-secondary rounded-pill" href={appUrl.forAiAgents(databaseName)}>
-                        <Icon icon="cancel" /> Cancel
+                        <Icon icon="cancel" /> {commonT("cancel")}
                     </a>
                 </div>
                 <div className="hstack gap-2">
@@ -103,9 +106,9 @@ export default function ChatAiAgent({ queryParams }: ReactQueryParamsProps<ChatA
                         color="primary"
                         selected={isRawData}
                         toggleSelection={() => dispatch(chatAiAgentActions.isRawDataSet(!isRawData))}
-                        title="Toggle on to view the chat communication in raw data format"
+                        title={t("rawDataTitle")}
                     >
-                        Raw data
+                        {t("rawData")}
                     </Switch>
                     {document.data?.Parameters && <AiAgentParametersDropdown parameters={document.data.Parameters} />}
                     {document.data?.LinkedConversations && (
@@ -142,6 +145,8 @@ export default function ChatAiAgent({ queryParams }: ReactQueryParamsProps<ChatA
 }
 
 function TotalUsageBadge({ usage }: { usage: Raven.Client.Documents.Operations.AI.AiUsage }) {
+    const t = useStudioTranslation("aiAgentChat");
+
     return (
         <Badge bg="info" pill>
             <PopoverWithHoverWrapper
@@ -158,7 +163,7 @@ function TotalUsageBadge({ usage }: { usage: Raven.Client.Documents.Operations.A
             >
                 <Icon icon="info" />
             </PopoverWithHoverWrapper>
-            Tokens used: {genUtils.formatAiTokens(usage.TotalTokens)}
+            {t("tokensUsed", { tokens: genUtils.formatAiTokens(usage.TotalTokens) })}
         </Badge>
     );
 }
