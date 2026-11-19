@@ -1,5 +1,5 @@
 <div id="storage-report" class="content-margin">
-    <div class="base-path" title="Base path">
+    <div class="base-path" data-bind="i18nAttr: { title: 'storageReport:basePathTitle' }">
         <i class="icon-folder"></i><span class="small" data-bind="text: basePath"></span>
     </div>
     <div id="storage-report-container" data-bind="css: { 'processing': showLoader() }">
@@ -18,14 +18,14 @@
             </span>
         </div>
         <div class="flex-separator"></div>
-        <div class="padding padding-xs margin-right margin-right-sm" title="Set collections to be compressed - Navigate to Document Compression view">
+        <div class="padding padding-xs margin-right margin-right-sm" data-bind="i18nAttr: { title: 'storageReport:documentCompression.title' }">
             <small>
-                <a data-bind="attr: { href: documentsCompressionUrl }"><i class="icon-link margin-right margin-right-xs"></i>Document Compression</a>
+                <a data-bind="attr: { href: documentsCompressionUrl }"><i class="icon-link margin-right margin-right-xs"></i><span data-bind="i18n: 'storageReport:documentCompression.link'"></span></a>
             </small>
         </div>
-        <div class="flex-horizontal flex-shrink-0" data-bind="visible: canCompactDatabase" title="Click to compact this database">
+        <div class="flex-horizontal flex-shrink-0" data-bind="visible: canCompactDatabase, i18nAttr: { title: 'storageReport:compactDatabase.title' }">
             <button class="btn btn-sm btn-default" data-bind="click: compactDatabase">
-                <i class="icon-compact"></i><span>Compact Database</span>
+                <i class="icon-compact"></i><span data-bind="i18n: 'storageReport:compactDatabase.button'"></span>
             </button>
         </div>
     </div>
@@ -33,27 +33,27 @@
         <thead>
             <tr>
                 <th data-bind="css: sort.cssClassFor('type'), attr: { 'aria-sort': sort.ariaSortFor('type') }">
-                    <button type="button" class="sort-button" data-bind="click: _.partial(sort.sortBy, 'type')">Type<span class="sortable-controls"></span></button>
+                    <button type="button" class="sort-button" data-bind="click: _.partial(sort.sortBy, 'type')"><span data-bind="i18n: 'storageReport:table.type'"></span><span class="sortable-controls"></span></button>
                 </th>
                 <th class="column-min-width" data-bind="css: sort.cssClassFor('name'), attr: { 'aria-sort': sort.ariaSortFor('name') }">
-                    <button type="button" class="sort-button" data-bind="click: _.partial(sort.sortBy, 'name')">Name<span class="sortable-controls"></span></button>
+                    <button type="button" class="sort-button" data-bind="click: _.partial(sort.sortBy, 'name')"><span data-bind="i18n: 'storageReport:table.name'"></span><span class="sortable-controls"></span></button>
                 </th>
                 <th data-bind="visible: showPagesColumn(), css: sort.cssClassFor('pageCount'), attr: { 'aria-sort': sort.ariaSortFor('pageCount') }">
-                    <button type="button" class="sort-button" data-bind="click: _.partial(sort.sortBy, 'pageCount')"># Pages<span class="sortable-controls"></span></button>
+                    <button type="button" class="sort-button" data-bind="click: _.partial(sort.sortBy, 'pageCount')"><span data-bind="i18n: 'storageReport:table.pages'"></span><span class="sortable-controls"></span></button>
                 </th>
                 <th data-bind="visible: showEntriesColumn(), css: sort.cssClassFor('numberOfEntries'), attr: { 'aria-sort': sort.ariaSortFor('numberOfEntries') }">
-                    <button type="button" class="sort-button" data-bind="click: _.partial(sort.sortBy, 'numberOfEntries')">Entries<span class="sortable-controls"></span></button>
+                    <button type="button" class="sort-button" data-bind="click: _.partial(sort.sortBy, 'numberOfEntries')"><span data-bind="i18n: 'storageReport:table.entries'"></span><span class="sortable-controls"></span></button>
                 </th>
                 <th data-bind="visible: showTempFiles(), css: sort.cssClassFor('dataSize'), attr: { 'aria-sort': sort.ariaSortFor('dataSize') }">
-                    <button type="button" class="sort-button" data-bind="click: _.partial(sort.sortBy, 'dataSize')">Data + Journals<span class="sortable-controls"></span></button>
+                    <button type="button" class="sort-button" data-bind="click: _.partial(sort.sortBy, 'dataSize')"><span data-bind="i18n: 'storageReport:table.dataAndJournals'"></span><span class="sortable-controls"></span></button>
                 </th>
                 <th data-bind="visible: showTempFiles(), css: sort.cssClassFor('tempBuffersSize'), attr: { 'aria-sort': sort.ariaSortFor('tempBuffersSize') }">
-                    <button type="button" class="sort-button" data-bind="click: _.partial(sort.sortBy, 'tempBuffersSize')">Temporary Buffers<span class="sortable-controls"></span></button>
+                    <button type="button" class="sort-button" data-bind="click: _.partial(sort.sortBy, 'tempBuffersSize')"><span data-bind="i18n: 'storageReport:table.temporaryBuffers'"></span><span class="sortable-controls"></span></button>
                 </th>
                 <th data-bind="css: sort.cssClassFor('size'), attr: { 'aria-sort': sort.ariaSortFor('size') }">
-                    <button type="button" class="sort-button" data-bind="click: _.partial(sort.sortBy, 'size')"><span data-bind="visible: showTempFiles()">Total</span> Size (&sum; <span data-bind="text: node().formatSize(true)"></span>)<span class="sortable-controls"></span></button>
+                    <button type="button" class="sort-button" data-bind="click: _.partial(sort.sortBy, 'size')"><span data-bind="i18n: { key: 'storageReport:table.size', options: { context: showTempFiles() ? 'total' : undefined, size: node().formatSize(true) } }"></span><span class="sortable-controls"></span></button>
                 </th>
-                <th>% Total</th>
+                <th data-bind="i18n: 'storageReport:table.percentOfTotal'"></th>
             </tr>
         </thead>
         <tbody data-bind="foreach: sortedChildren">
@@ -63,7 +63,7 @@
                     <div class="table-items">
                         <a href="#" class="table-item-name text-elipsis" data-bind="text: name, click: _.partial($root.onClick, $data, true), visible: hasChildren(), attr: { title: name }"></a>
                         <span href="#" class="table-item-name text-elipsis" data-bind="text: name, visible: !hasChildren(), attr: { title: name }"></span>
-                        <span data-bind="visible: recyclableJournal"><small data-toggle="tooltip" title="Stored in Journals directory"><i class="icon-info text-info"></i></small></span>
+                        <span data-bind="visible: recyclableJournal"><small data-toggle="tooltip" data-bind="i18nAttr: { title: 'storageReport:table.storedInJournalsDirectory' }"><i class="icon-info text-info"></i></small></span>
                     </div>
                 </td>
                 <td data-bind="visible: $root.showPagesColumn(), text: pageCount ? pageCount.toLocaleString() : 0"></td>

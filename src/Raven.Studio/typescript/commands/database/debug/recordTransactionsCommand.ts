@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
 import database = require("models/resources/database");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("debugCommands");
 
 class recordTransactionsCommand extends commandBase {
 
@@ -15,8 +18,8 @@ class recordTransactionsCommand extends commandBase {
         };
         
         return this.post<operationIdDto>(url, JSON.stringify(payload), this.db, { dataType: undefined })
-            .done(() => this.reportSuccess("Transaction Commands Recoding was started for database: " + (typeof this.db === "string" ? this.db : this.db.name)))
-            .fail((response: JQueryXHR) => this.reportError("Failed to start recording transaction commands", response.responseText, response.statusText));
+            .done(() => this.reportSuccess(t("transactionsRecording.started", { databaseName: typeof this.db === "string" ? this.db : this.db.name })))
+            .fail((response: JQueryXHR) => this.reportError(t("transactionsRecording.startFailed"), response.responseText, response.statusText));
     }
 
 }

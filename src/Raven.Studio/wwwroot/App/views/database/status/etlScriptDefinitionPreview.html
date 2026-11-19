@@ -3,7 +3,7 @@
         <div class="modal-header">
             <div class="flex-horizontal">
                 <div class="flex-grow">
-                    <h3 class="modal-title" id="myModalLabel">ETL script definition preview</h3>
+                    <h3 class="modal-title" id="myModalLabel" data-bind="i18n: 'etlScriptDefinitionPreview:title'"></h3>
                 </div>
                 <div>
                     <button type="button" class="close" data-bind="click: $root.close" aria-hidden="true">
@@ -20,45 +20,43 @@
             <div class="modal-details" data-bind="visible: !spinners.loading()">
                 <div class="details-item">
                     <div class="row">
-                        <div class="col-sm-6 text-right">Task type:</div>
+                        <div class="col-sm-6 text-right" data-bind="i18n: 'etlScriptDefinitionPreview:taskType'"></div>
                         <div class="col-sm-6 details-value" data-bind="text: etlType"></div>
                     </div>
                 </div>
                 <div class="details-item">
                     <div class="row">
-                        <div class="col-sm-6 text-right">Task name:</div>
+                        <div class="col-sm-6 text-right" data-bind="i18n: 'etlScriptDefinitionPreview:taskName'"></div>
                         <div class="col-sm-6 details-value" data-bind="text: taskName"></div>
                     </div>
                 </div>
                 <div class="details-item">
                     <div class="row">
-                        <div class="col-sm-6 text-right">Transformation name:</div>
+                        <div class="col-sm-6 text-right" data-bind="i18n: 'etlScriptDefinitionPreview:transformationName'"></div>
                         <div class="col-sm-6 details-value" data-bind="text: transformationName"></div>
                     </div>
                 </div>
                 <div class="details-item">
                     <div class="row">
-                        <div class="col-sm-6 text-right">Collections:</div>
+                        <div class="col-sm-6 text-right" data-bind="i18n: 'etlScriptDefinitionPreview:collections'"></div>
                         <div class="col-sm-6 details-value" data-bind="with: transformation">
-                            <span class="etl-collections" data-bind="foreach: Collections, visible: !ApplyToAllDocuments && Collections.length" title="The Collections transformed">
+                            <span class="etl-collections" data-bind="foreach: Collections, visible: !ApplyToAllDocuments && Collections.length, i18nAttr: { title: 'etlScriptDefinitionPreview:collectionsTitle' }">
                                 <span data-bind="text: $data"></span>
                             </span>
-                            <span class="etl-collections" data-bind="visible: ApplyToAllDocuments" title="The Collections transformed">
-                                <span>All collections</span>
+                            <span class="etl-collections" data-bind="visible: ApplyToAllDocuments, i18nAttr: { title: 'etlScriptDefinitionPreview:collectionsTitle' }">
+                                <span data-bind="i18n: 'etlScriptDefinitionPreview:allCollections'"></span>
                             </span>
                         </div>
                     </div>
                 </div>
                 <div class="details-item" data-bind="visible: !script()">
                     <div class="row">
-                        <div class="col-sm-6 text-right">Transformation script:</div>
-                        <div class="col-sm-6 details-value">
-                            No transform script has been defined. Sending documents without any modifications.
-                        </div>
+                        <div class="col-sm-6 text-right" data-bind="i18n: 'etlScriptDefinitionPreview:transformationScript'"></div>
+                        <div class="col-sm-6 details-value" data-bind="i18n: 'etlScriptDefinitionPreview:noTransformScript'"></div>
                     </div>
                 </div>
                 <div data-bind="visible: script">
-                    Transform script:
+                    <span data-bind="i18n: 'etlScriptDefinitionPreview:transformScript'"></span>
                     <pre class="form-control editor"
                          data-bind="aceEditor: { code: script, fontSize: '14px', lang: 'ace/mode/javascript', readOnly: true }" style="height: 250px;"></pre>
                 </div>
@@ -67,7 +65,7 @@
 
         <div class="modal-footer">
             <div class="text-right">
-                <button type="button" class="btn btn-default" data-bind="click: $root.close">Close</button>
+                <button type="button" class="btn btn-default" data-bind="click: $root.close, i18n: 'etlScriptDefinitionPreview:close'"></button>
             </div>
         </div>
     </div>

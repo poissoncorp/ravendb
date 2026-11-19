@@ -15,6 +15,7 @@ import { LazyLoad } from "components/common/LazyLoad";
 import { PropsWithChildren, useMemo } from "react";
 import { getCoreRowModel, getFilteredRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table";
 import SizeGetter from "components/common/SizeGetter";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface TombstonesStateProps {
     location?: databaseLocationSpecifier;
@@ -33,6 +34,8 @@ export default function TombstonesState(props: TombstonesStateProps) {
 }
 
 function TombstonesStateWithSize({ location, width }: TombstonesStateWithSizeProps) {
+    const t = useStudioTranslation("tombstones");
+    const commonT = useStudioTranslation("common");
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
 
     const { databasesService } = useServices();
@@ -75,10 +78,10 @@ function TombstonesStateWithSize({ location, width }: TombstonesStateWithSizePro
 
     const forceCleanup = async () => {
         const isConfirmed = await confirm({
-            title: "Do you want to force tombstones cleanup?",
+            title: t("forceCleanupConfirmTitle"),
             message: <TombstonesAlert />,
             icon: "force",
-            confirmText: "Force cleanup",
+            confirmText: t("forceCleanup"),
             actionColor: "warning",
         });
 
@@ -89,12 +92,12 @@ function TombstonesStateWithSize({ location, width }: TombstonesStateWithSizePro
     };
 
     if (asyncGetTombstonesState.status === "error") {
-        return <LoadError error="Unable to load tombstones" refresh={asyncGetTombstonesState.execute} />;
+        return <LoadError error={t("loadFailed")} refresh={asyncGetTombstonesState.execute} />;
     }
 
     return (
         <>
-            <AboutViewHeading title="Tombstones" icon="tombstones" />
+            <AboutViewHeading title={t("title")} icon="tombstones" />
             <div className="d-flex align-items-start gap-3 flex-wrap">
                 <ButtonWithSpinner
                     onClick={asyncGetTombstonesState.execute}
@@ -102,7 +105,7 @@ function TombstonesStateWithSize({ location, width }: TombstonesStateWithSizePro
                     isSpinning={asyncGetTombstonesState.loading}
                     icon="refresh"
                 >
-                    Refresh
+                    {commonT("refresh")}
                 </ButtonWithSpinner>
                 <ButtonWithSpinner
                     onClick={forceCleanup}
@@ -111,7 +114,7 @@ function TombstonesStateWithSize({ location, width }: TombstonesStateWithSizePro
                     disabled={asyncForceTombstonesCleanup.loading || asyncGetTombstonesState.loading}
                     icon="force"
                 >
-                    Force cleanup
+                    {t("forceCleanup")}
                 </ButtonWithSpinner>
                 <FlexGrow />
                 <div className="d-flex gap-3 flex-wrap">
@@ -119,7 +122,7 @@ function TombstonesStateWithSize({ location, width }: TombstonesStateWithSizePro
                         <div className="card p-2 border-radius-xs vstack">
                             <small className="small-label">
                                 <Icon icon="document" />
-                                Minimum all document Etags
+                                {t("minimumEtags.documents")}
                             </small>
                             <h5 className="mt-1 mb-0">
                                 <strong>
@@ -134,7 +137,7 @@ function TombstonesStateWithSize({ location, width }: TombstonesStateWithSizePro
                         <div className="card p-2 border-radius-xs vstack">
                             <small className="small-label">
                                 <Icon icon="timeseries" />
-                                Minimum all timeseries Etags
+                                {t("minimumEtags.timeSeries")}
                             </small>
                             <h5 className="mt-1 mb-0">
                                 <strong>
@@ -149,7 +152,7 @@ function TombstonesStateWithSize({ location, width }: TombstonesStateWithSizePro
                         <div className="card p-2 border-radius-xs vstack">
                             <small className="small-label">
                                 <Icon icon="new-counter" />
-                                Minimum all counter Etags
+                                {t("minimumEtags.counters")}
                             </small>
                             <h5 className="mt-1 mb-0">
                                 <strong>
@@ -164,7 +167,7 @@ function TombstonesStateWithSize({ location, width }: TombstonesStateWithSizePro
             </div>
             <h3 className="mt-3">
                 <Icon icon="documents" />
-                Per Collection - Max Etags that can be deleted
+                {t("perCollection.title")}
             </h3>
             <VirtualTable
                 table={collectionsTable}
@@ -174,7 +177,7 @@ function TombstonesStateWithSize({ location, width }: TombstonesStateWithSizePro
             />
             <h3 className="mt-5">
                 <Icon icon="tasks" />
-                Per Task - Max Etag that can be deleted
+                {t("perTask.title")}
             </h3>
             <VirtualTable
                 table={subscriptionsTable}
@@ -187,10 +190,12 @@ function TombstonesStateWithSize({ location, width }: TombstonesStateWithSizePro
 }
 
 function EtagValueWithLoader({ isLoading, children }: PropsWithChildren<{ isLoading: boolean }>) {
+    const t = useStudioTranslation("tombstones");
+
     if (isLoading) {
         return (
             <LazyLoad active>
-                <div>Loading placeholder</div>
+                <div>{t("loadingPlaceholder")}</div>
             </LazyLoad>
         );
     }

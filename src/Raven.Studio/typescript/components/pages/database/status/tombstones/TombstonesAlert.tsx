@@ -1,16 +1,16 @@
 ﻿import React from "react";
 import RichAlert from "components/common/RichAlert";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function TombstonesAlert() {
+    const t = useStudioTranslation("tombstones");
+
     return (
         <RichAlert variant="info" className="mb-0">
-            <p>
-                By default, tombstones cleanup is scheduled to be carried out by the server every 5 minutes, unless
-                configured otherwise.
-            </p>
+            <p>{t("alert.schedule")}</p>
             <p className="mb-0">
-                Upon clicking <strong>Force Cleanup</strong>, the action will be executed immediately - any tombstone
-                that can be removed will be deleted.
+                <StudioTrans ns="tombstones" i18nKey="alert.forceCleanup" components={{ strong: <strong /> }} />
             </p>
         </RichAlert>
     );

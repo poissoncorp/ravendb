@@ -63,42 +63,42 @@
     <div class="flex-vertical absolute-fill">
         <div class="flex-horizontal margin-bottom margin-bottom-sm">
             <div class="form-inline">
-                <input type="text" accesskey="/" class="form-control" placeholder="Filter" title="Filter tasks (Alt+/)" data-bind="textInput: searchText, enable: hasAnyData" />
+                <input type="text" accesskey="/" class="form-control" data-bind="textInput: searchText, enable: hasAnyData, i18nAttr: { placeholder: 'ongoingTasksStats:toolbar.filterPlaceholder', title: 'ongoingTasksStats:toolbar.filterTitle' }" />
 
-                <button class="btn btn-default" data-bind="click: expandAll, visible: canExpandAll, enable: hasAnyData" title="Expand all tasks performance details"><i class="icon-expand"></i><span>Expand all</span></button>
-                <button class="btn btn-default" data-bind="click: collapseAll, visible: !canExpandAll(), enable: hasAnyData" title="Collapse all tasks performance details"><i class="icon-collapse"></i><span>Collapse all</span></button>
-                <button class="btn btn-default" data-bind="click: exportAsJson, enable: hasAnyData, visible: !isImport()" title="Export current tasks graph to a file">
-                    <i class="icon-export"></i><span>Export</span>
+                <button class="btn btn-default" data-bind="click: expandAll, visible: canExpandAll, enable: hasAnyData, i18nAttr: { title: 'ongoingTasksStats:toolbar.expandAllTitle' }"><i class="icon-expand"></i><span data-bind="i18n: 'ongoingTasksStats:toolbar.expandAll'"></span></button>
+                <button class="btn btn-default" data-bind="click: collapseAll, visible: !canExpandAll(), enable: hasAnyData, i18nAttr: { title: 'ongoingTasksStats:toolbar.collapseAllTitle' }"><i class="icon-collapse"></i><span data-bind="i18n: 'ongoingTasksStats:toolbar.collapseAll'"></span></button>
+                <button class="btn btn-default" data-bind="click: exportAsJson, enable: hasAnyData, visible: !isImport(), i18nAttr: { title: 'ongoingTasksStats:toolbar.exportTitle' }">
+                    <i class="icon-export"></i><span data-bind="i18n: 'ongoingTasksStats:toolbar.export'"></span>
                 </button>
                 <label for="importFilePicker" class="btn btn-default">
-                    <i class="icon-import"></i><span>Import</span>
+                    <i class="icon-import"></i><span data-bind="i18n: 'ongoingTasksStats:toolbar.import'"></span>
                 </label>
-                <div class="input-group file-input" title="Import performance graph file">
+                <div class="input-group file-input" data-bind="i18nAttr: { title: 'ongoingTasksStats:toolbar.importTitle' }">
                     <input type="file" id="importFilePicker" data-bind="event: { change: _.partial(fileSelected, $element) }" tabindex="-1" accept=".json">
                 </div>
             </div>
         </div>
         <div class="flex-horizontal flex-shrink-0">
             <div data-bind="visible: (liveViewReplicationClient() || liveViewEtlClient()) && !bufferIsFull()">
-                <small>Data buffer usage: <span data-bind="text: bufferUsage() + '%'"></span></small>
+                <small data-bind="i18n: { key: 'ongoingTasksStats:toolbar.bufferUsage', options: { usage: bufferUsage } }"></small>
             </div>
             <div data-bind="visible: bufferIsFull">
-                <small>Data buffer is full, clear graph data to continue</small>
+                <small data-bind="i18n: 'ongoingTasksStats:toolbar.bufferFull'"></small>
             </div>
             <div class="flex-separator"></div>
 
             <button class="btn btn-default btn-sm margin-right margin-right-sm" data-bind="click: clearBrush, visible: clearSelectionVisible">
-                <span>Clear selection</span>
+                <span data-bind="i18n: 'ongoingTasksStats:toolbar.clearSelection'"></span>
             </button>
-            <button class="btn btn-sm btn-default" data-bind="click: closeImport, visible: isImport" title="Return to currently selected database tasks graph">
-                <i class="icon-cancel"></i><span data-bind="text: 'Close import (' + importFileName() + ')'">Close import</span>
+            <button class="btn btn-sm btn-default" data-bind="click: closeImport, visible: isImport, i18nAttr: { title: 'ongoingTasksStats:toolbar.closeImportTitle' }">
+                <i class="icon-cancel"></i><span data-bind="i18n: { key: 'ongoingTasksStats:toolbar.closeImport', options: { fileName: importFileName } }"></span>
             </button>
             <div class="btn-group" data-bind="visible: !isImport()">
                 <button class="btn btn-sm btn-info btn-checkable" data-bind="click: toggleScroll, css: { active: autoScroll }">
-                    <i class="icon-logs"></i> <span>Monitoring (tail -f)</span>
+                    <i class="icon-logs"></i> <span data-bind="i18n: 'ongoingTasksStats:toolbar.monitoring'"></span>
                 </button>
                 <button class="btn btn-sm btn-danger" data-bind="click: clearGraphWithConfirm">
-                    <i class="icon-cancel"></i><span>Clear graph</span>
+                    <i class="icon-cancel"></i><span data-bind="i18n: 'ongoingTasksStats:toolbar.clearGraph'"></span>
                 </button>
             </div>
         </div>
@@ -109,11 +109,11 @@
                     <div class="col-sm-8 col-sm-offset-2 col-lg-6 col-lg-offset-3">
                         <div data-bind="visible: !loading()">
                             <i class="icon-xl icon-empty-set text-muted"></i>
-                            <h2 class="text-center text-muted">No data.</h2>
+                            <h2 class="text-center text-muted" data-bind="i18n: 'ongoingTasksStats:noData'"></h2>
                         </div>
                         <div data-bind="visible: loading()">
                             <i class="icon-xl global-spinner text-muted"></i>
-                            <h2 class="text-center text-muted">Loading...</h2>
+                            <h2 class="text-center text-muted" data-bind="i18n: 'ongoingTasksStats:loading'"></h2>
                         </div>
                     </div>
                 </div>

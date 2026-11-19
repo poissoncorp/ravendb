@@ -10,6 +10,9 @@ import storageReportSort = require("models/database/status/storageReportSort");
 import d3 = require("d3");
 import shardViewModelBase = require("viewmodels/shardViewModelBase");
 import database = require("models/resources/database");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("storageReport");
 
 type positionAndSizes = {
     dx: number,
@@ -163,7 +166,7 @@ class storageReport extends shardViewModelBase {
     private mapDataFile(report: Voron.Debugging.StorageReport): storageReportItem {
         const dataFile = report.DataFile;
 
-        const storageItem = new storageReportItem("Datafile", "data", false, dataFile.AllocatedSpaceInBytes);
+        const storageItem = new storageReportItem(t("items.datafile"), "data", false, dataFile.AllocatedSpaceInBytes);
         storageItem.lazyLoadChildren = true;
 
         return storageItem;
@@ -173,8 +176,8 @@ class storageReport extends shardViewModelBase {
         d.lazyLoadChildren = false;
 
         const tables = this.mapTables(report.Tables);
-        const trees = this.mapTrees(report.Trees, "Trees");
-        const freeSpace = new storageReportItem("Free", "free", false, report.DataFile.FreeSpaceInBytes, []);
+        const trees = this.mapTrees(report.Trees, t("items.trees"), "trees");
+        const freeSpace = new storageReportItem(t("items.free"), "free", false, report.DataFile.FreeSpaceInBytes, []);
         const preallocatedBuffers = this.mapPreAllocatedBuffers(report.PreAllocatedBuffers);
 
         d.internalChildren = [tables, trees, freeSpace, preallocatedBuffers];
@@ -182,17 +185,22 @@ class storageReport extends shardViewModelBase {
 
     private mapPreAllocatedBuffers(buffersReport: Voron.Debugging.PreAllocatedBuffersReport): storageReportItem {
         const allocationTree = this.mapTree(buffersReport.AllocationTree);
-        const buffersSpace = new storageReportItem("Pre Allocated Buffers Space", "reserved", false, buffersReport.PreAllocatedBuffersSpaceInBytes);
+        const buffersSpace = new storageReportItem(t("items.preAllocatedBuffersSpace"), "reserved", false, buffersReport.PreAllocatedBuffersSpaceInBytes);
         buffersSpace.pageCount = buffersReport.NumberOfPreAllocatedPages;
 
-        const preAllocatedBuffers = new storageReportItem("Pre Allocated Buffers", "reserved", false, buffersReport.AllocatedSpaceInBytes, [allocationTree, buffersSpace]);
+        const preAllocatedBuffers = new storageReportItem(t("items.preAllocatedBuffers"), "reserved", false, buffersReport.AllocatedSpaceInBytes, [allocationTree, buffersSpace]);
         preAllocatedBuffers.customSizeProvider = (header: boolean) => {
             const allocatedSizeFormatted = generalUtils.formatBytesToSize(buffersReport.AllocatedSpaceInBytes);
             if (header) {
                 return allocatedSizeFormatted;
             }
             const originalSizeFormatted = generalUtils.formatBytesToSize(buffersReport.OriginallyAllocatedSpaceInBytes);
-            return `<span title="${allocatedSizeFormatted} available out of ${originalSizeFormatted} reserved">${allocatedSizeFormatted} (out of ${originalSizeFormatted})</span>`;
+            const sizeOptions = {
+                allocatedSize: allocatedSizeFormatted,
+                originalSize: originalSizeFormatted,
+            };
+            const title = generalUtils.escapeHtml(t("size.preAllocatedTitle", sizeOptions));
+            return `<span title="${title}">${generalUtils.escapeHtml(t("size.preAllocated", sizeOptions))}</span>`;
         };
         return preAllocatedBuffers;
     }
@@ -218,7 +226,7 @@ class storageReport extends shardViewModelBase {
                 totalNumberOfEntries += item.numberOfEntries;
             }
 
-            const groupedItem = new storageReportItem("Grouped Data", sampleItem.type, sampleItem.showType, totalSize, [], true);
+            const groupedItem = new storageReportItem(t("items.groupedData"), sampleItem.type, sampleItem.showType, totalSize, [], true);
             groupedItem.length = totalLength;
             groupedItem.pageCount = totalPageCount;
             groupedItem.numberOfEntries = totalNumberOfEntries;
@@ -234,14 +242,14 @@ class storageReport extends shardViewModelBase {
         const mappedTables = tables.map(x => this.mapTable(x));
         const mappedTablesGrouped = this.groupChildren(mappedTables);
         
-        return new storageReportItem("Tables", "tables", false, mappedTables.reduce((p, c) => p + c.size, 0), mappedTablesGrouped);
+        return new storageReportItem(t("items.tables"), "tables", false, mappedTables.reduce((p, c) => p + c.size, 0), mappedTablesGrouped);
     }
 
     private mapTable(table: Voron.Data.Tables.TableReport): storageReportItem {
-        const structure = this.mapTrees(table.Structure, "Structure");
+        const structure = this.mapTrees(table.Structure, t("items.structure"), "structure");
 
-        const data = new storageReportItem("Table Data", "table_data", false, table.DataSizeInBytes, []);
-        const indexes = this.mapTrees(table.Indexes, "Indexes");
+        const data = new storageReportItem(t("items.tableData"), "table_data", false, table.DataSizeInBytes, []);
+        const indexes = this.mapTrees(table.Indexes, t("items.indexes"), "indexes");
 
         const preAllocatedBuffers = this.mapPreAllocatedBuffers(table.PreAllocatedBuffers);
 
@@ -259,11 +267,11 @@ class storageReport extends shardViewModelBase {
         return tableItem;
     }
 
-    private mapTrees(trees: Voron.Debugging.TreeReport[], name: string): storageReportItem {
+    private mapTrees(trees: Voron.Debugging.TreeReport[], name: string, type: string): storageReportItem {
         const mappedTrees = trees.map(x => this.mapTree(x));
         const mappedTreesGrouped = this.groupChildren(mappedTrees);
         
-        return new storageReportItem(name, name.toLowerCase(), false, trees.reduce((p, c) => p + c.AllocatedSpaceInBytes, 0), mappedTreesGrouped);
+        return new storageReportItem(name, type, false, trees.reduce((p, c) => p + c.AllocatedSpaceInBytes, 0), mappedTreesGrouped);
     }
 
     private mapTree(tree: Voron.Debugging.TreeReport): storageReportItem {
@@ -287,7 +295,10 @@ class storageReport extends shardViewModelBase {
                 return allocatedSizeFormatted;
             }
             const length = generalUtils.formatBytesToSize(x.length);
-            return `<span title="stream length: ${length} / total allocation: ${allocatedSizeFormatted}">${length} / ${allocatedSizeFormatted}</span>`;
+            const title = generalUtils.escapeHtml(
+                t("size.streamTitle", { length, allocatedSize: allocatedSizeFormatted })
+            );
+            return `<span title="${title}">${length} / ${allocatedSizeFormatted}</span>`;
         });
         
         return mappedTreeStreamsGrouped;
@@ -304,14 +315,14 @@ class storageReport extends shardViewModelBase {
 
         const mappedJournals = journals.map(journal => 
             new storageReportItem(
-                "Journal #" + journal.Number,
+                t("items.journal", { number: journal.Number }),
                 "journal",
                 false,
                 journal.AllocatedSpaceInBytes,
                 []
             ));
 
-        return new storageReportItem("Journals", "journals", false, mappedJournals.reduce((p, c) => p + c.size, 0), mappedJournals);
+        return new storageReportItem(t("items.journals"), "journals", false, mappedJournals.reduce((p, c) => p + c.size, 0), mappedJournals);
     }
     
     private mapTempFiles(report: Voron.Debugging.StorageReport): storageReportItem {
@@ -331,7 +342,7 @@ class storageReport extends shardViewModelBase {
             return item;
         });
 
-        return new storageReportItem("Temporary Files", "tempFiles", false, mappedTemps.reduce((p, c) => p + c.size, 0), mappedTemps);
+        return new storageReportItem(t("items.temporaryFiles"), "tempFiles", false, mappedTemps.reduce((p, c) => p + c.size, 0), mappedTemps);
     }
 
     private initGraph() {
@@ -649,14 +660,14 @@ class storageReport extends shardViewModelBase {
         this.tooltip.transition()
             .duration(200)
             .style("opacity", 1);
-        let html = "<div class='tooltip-li'>Name: <div class='value'>" + d.name + "</div></div>";
+        let html = "<div class='tooltip-li'>" + t("tooltip.name") + " <div class='value'>" + d.name + "</div></div>";
         if (d.showType) {
-            html += "<div class='tooltip-li'>Type: <div class='value'>" + _.upperFirst(d.type) + "</div></div>";
+            html += "<div class='tooltip-li'>" + t("tooltip.type") + " <div class='value'>" + _.upperFirst(d.type) + "</div></div>";
         }
         if (this.shouldDisplayNumberOfEntries(d)) {
-            html += "<div class='tooltip-li'>Entries: <div class='value'>" + d.numberOfEntries.toLocaleString() + "</div></div>";
+            html += "<div class='tooltip-li'>" + t("tooltip.entries") + " <div class='value'>" + d.numberOfEntries.toLocaleString() + "</div></div>";
         }
-        html += "<div class='tooltip-li'>Size: <div class='value'>" + generalUtils.formatBytesToSize(d.size) + "</div></div>";
+        html += "<div class='tooltip-li'>" + t("tooltip.size") + " <div class='value'>" + generalUtils.formatBytesToSize(d.size) + "</div></div>";
 
         this.tooltip.html(html);
         this.onMouseMove();

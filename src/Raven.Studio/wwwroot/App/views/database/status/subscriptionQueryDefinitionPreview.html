@@ -3,7 +3,7 @@
         <div class="modal-header">
             <div class="flex-horizontal">
                 <div class="flex-grow">
-                    <h3 class="modal-title" id="myModalLabel">Subscription query definition preview</h3>
+                    <h3 class="modal-title" id="myModalLabel" data-bind="i18n: 'subscriptionQueryDefinitionPreview:title'"></h3>
                 </div>
                 <div>
                     <button type="button" class="close" data-bind="click: $root.close" aria-hidden="true">
@@ -18,11 +18,11 @@
             </div>
             <div class="modal-details" data-bind="visible: !spinners.loading()">
                 <div class="details-item flex-horizontal">
-                    <div>Task Name:</div>
+                    <div data-bind="i18n: 'subscriptionQueryDefinitionPreview:taskName'"></div>
                     <div class="details-value" data-bind="text: taskName"></div>
                 </div>
                 <div data-bind="visible: query">
-                    <div class="margin-bottom">Query:</div>
+                    <div class="margin-bottom" data-bind="i18n: 'subscriptionQueryDefinitionPreview:query'"></div>
                     <pre class="form-control editor"
                          data-bind="aceEditor: { code: query, fontSize: '14px', lang: 'ace/mode/rql', readOnly: true }" style="height: 250px;"></pre>
                 </div>
@@ -30,7 +30,7 @@
         </div>
         <div class="modal-footer">
             <div class="text-right">
-                <button type="button" class="btn btn-default" data-bind="click: $root.close">Close</button>
+                <button type="button" class="btn btn-default" data-bind="click: $root.close, i18n: 'subscriptionQueryDefinitionPreview:close'"></button>
             </div>
         </div>
     </div>

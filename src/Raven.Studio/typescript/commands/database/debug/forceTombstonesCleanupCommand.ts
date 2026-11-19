@@ -1,7 +1,9 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
 import database = require("models/resources/database");
-import pluralizeHelpers = require("common/helpers/text/pluralizeHelpers");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("debugCommands");
 
 class forceTombstonesCleanupCommand extends commandBase {
 
@@ -19,13 +21,17 @@ class forceTombstonesCleanupCommand extends commandBase {
         return this.post(url, null, this.db)
             .done((result: { Value: number }) => {
                 if (result.Value === 0) {
-                    this.reportSuccess("No tombstones to cleanup");
+                    this.reportSuccess(t("tombstonesCleanup.nothingToCleanup"));
                 } else {
-                    const amount = pluralizeHelpers.pluralize(result.Value, "tombstone", "tombstones");
-                    this.reportSuccess("Successfully cleaned up " + amount);    
+                    this.reportSuccess(
+                        t("tombstonesCleanup.success", {
+                            count: result.Value,
+                            formattedCount: result.Value.toLocaleString(),
+                        })
+                    );
                 }
             })
-            .fail((response: JQueryXHR) => this.reportError("Failed to cleanup tombstones", response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("tombstonesCleanup.failed"), response.responseText, response.statusText));
     }
 }
 

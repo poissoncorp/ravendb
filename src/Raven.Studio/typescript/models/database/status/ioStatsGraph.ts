@@ -11,6 +11,9 @@ import viewHelpers = require("common/helpers/view/viewHelpers");
 import moment = require("moment");
 import d3 = require("d3");
 import typeUtils = require("common/typeUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("statusModels");
 
 type rTreeLeaf = {
     minX: number;
@@ -1223,7 +1226,7 @@ class ioStatsGraph {
 
         // The special case...draw the additional index heading when in expanded state
         if (this.isIndexesExpanded()) {
-            context.fillRect(0, this.yScale(ioStatsGraph.indexesString), context.measureText(ioStatsGraph.indexesString).width + 30, ioStatsGraph.closedTrackHeight);
+            context.fillRect(0, this.yScale(ioStatsGraph.indexesString), context.measureText(t("ioStats.indexesTrack")).width + 30, ioStatsGraph.closedTrackHeight);
             this.drawTrackName(context, ioStatsGraph.indexesString, this.yScale(ioStatsGraph.indexesString));
         }
 
@@ -1257,9 +1260,11 @@ class ioStatsGraph {
             }
         }
 
+        const trackLabel = drawArrow ? t("ioStats.indexesTrack") : trackName;
+
         if (!skipDrawing) {
             context.font = "12px 'Figtree', 'Helvetica Neue', Helvetica, Arial, sans-serif"; // Define font before using measureText()...
-            rectWidth = context.measureText(trackName).width + addedWidth;
+            rectWidth = context.measureText(trackLabel).width + addedWidth;
             context.fillStyle = this.colors.trackNameBg;
 
             if (!_.includes(this.filteredIndexesTracksNames(), trackName)) {
@@ -1278,7 +1283,7 @@ class ioStatsGraph {
             context.beginPath();
 
             if (!_.includes(this.filteredIndexesTracksNames(), trackName)) {
-                context.fillText(trackName, xTextStart + xTextShift, yStart + yTextShift);
+                context.fillText(trackLabel, xTextStart + xTextShift, yStart + yTextShift);
             }
         }
     }
@@ -1348,11 +1353,11 @@ class ioStatsGraph {
             
             // Check if data is an IOStats json data..
             if (!hasEnvironments) {
-                messagePublisher.reportError("Invalid IO Stats file format", undefined, undefined);
+                messagePublisher.reportError(t("ioStats.invalidFileFormat"), undefined, undefined);
             } else {
                 const importedEnvTypes = Array.from(new Set<string>(importedData.Environments.map(x => x.Type)));
                 if (importedEnvTypes.some(x => !_.includes(this.tracksOrder, x))) {
-                    messagePublisher.reportError("Invalid IO Stats file format", undefined, undefined);
+                    messagePublisher.reportError(t("ioStats.invalidFileFormat"), undefined, undefined);
                 } else {
                     if (this.hasAnyData()) {
                         this.resetGraphData();
@@ -1368,7 +1373,7 @@ class ioStatsGraph {
                 }
             }
         } catch (e) {
-            messagePublisher.reportError("Failed to parse json data", undefined, undefined);
+            messagePublisher.reportError(t("ioStats.parseFailed"), undefined, undefined);
         }
     }
 
@@ -1383,7 +1388,7 @@ class ioStatsGraph {
     }
 
     clearGraphWithConfirm() {
-        viewHelpers.confirmationMessage("Clear graph data", "Do you want to discard all collected IO statistics?")
+        viewHelpers.confirmationMessage(t("ioStats.clearConfirm.title"), t("ioStats.clearConfirm.message"))
             .done(result => {
                 if (result.can) {
                     this.clearGraph();
@@ -1501,8 +1506,8 @@ class ioStatsGraph {
         const currentDatum = this.tooltip.datum();
 
         if (currentDatum !== element) {
-            const tooltipHtml = '<div class="tooltip-li">Gap start time: <span class="value">' + (element).start.toLocaleTimeString() + '</span></div>'
-                + '<div class="tooltip-li">Gap duration:  <span class="value">' + generalUtils.formatMillis((element).durationInMillis) + '</span></div>';
+            const tooltipHtml = '<div class="tooltip-li">' + t("ioStats.tooltip.gapStartTime") + ' <span class="value">' + (element).start.toLocaleTimeString() + '</span></div>'
+                + '<div class="tooltip-li">' + t("ioStats.tooltip.gapDuration") + '  <span class="value">' + generalUtils.formatMillis((element).durationInMillis) + '</span></div>';
             this.handleTooltip(element, x, y, tooltipHtml);
         }
     }
@@ -1510,13 +1515,13 @@ class ioStatsGraph {
     private static getMeterTypeFriendlyName(type: Sparrow.Server.Meters.IoMetrics.MeterType) {
         switch (type) {
             case "JournalWrite":
-                return "Journal Write";
+                return t("ioStats.meterType.journalWrite");
             case "DataFlush":
-                return "Voron Data Flush";
+                return t("ioStats.meterType.dataFlush");
             case "DataSync":
-                return "Voron Data Sync";
+                return t("ioStats.meterType.dataSync");
             case "Compression":
-                return "Compression Ratio";
+                return t("ioStats.meterType.compression");
         }
     }
 
@@ -1536,27 +1541,27 @@ class ioStatsGraph {
 
             let tooltipHtml = `<div class="tooltip-header"> ${typeString} </div>`;
             const duration = (element.Duration === 0) ? "0" : generalUtils.formatMillis((element).Duration);
-            tooltipHtml += `<div class="tooltip-li">Duration: <span class="value">${duration}</span></div>`;
+            tooltipHtml += `<div class="tooltip-li">${t("ioStats.tooltip.duration")} <span class="value">${duration}</span></div>`;
 
             if (element.Type !== "Compression") {
-                tooltipHtml += `<div class="tooltip-li">Size: <span class="value">${generalUtils.formatBytesToSize(element.Size)}</span></div>`;
-                tooltipHtml += `<div class="tooltip-li">Size (bytes): <span class="value">${element.Size.toLocaleString()}</span></div>`;
-                tooltipHtml += `<div class="tooltip-li">Allocated Size: <span class="value">${generalUtils.formatBytesToSize(element.FileSize)}</span></div>`;
-                tooltipHtml += `<div class="tooltip-li">Allocated Size (bytes): <span class="value">${element.FileSize.toLocaleString()}</span></div>`;
+                tooltipHtml += `<div class="tooltip-li">${t("ioStats.tooltip.size")} <span class="value">${generalUtils.formatBytesToSize(element.Size)}</span></div>`;
+                tooltipHtml += `<div class="tooltip-li">${t("ioStats.tooltip.sizeInBytes")} <span class="value">${element.Size.toLocaleString()}</span></div>`;
+                tooltipHtml += `<div class="tooltip-li">${t("ioStats.tooltip.allocatedSize")} <span class="value">${generalUtils.formatBytesToSize(element.FileSize)}</span></div>`;
+                tooltipHtml += `<div class="tooltip-li">${t("ioStats.tooltip.allocatedSizeInBytes")} <span class="value">${element.FileSize.toLocaleString()}</span></div>`;
 
-                const speed = element.Duration ? generalUtils.formatBytesToSize(element.Size / element.Duration * 1000) + " / s" : "unknown";
-                tooltipHtml += `<div class="tooltip-li">Speed: <span class="value">${speed}</span></div>`;
+                const speed = element.Duration ? generalUtils.formatBytesToSize(element.Size / element.Duration * 1000) + " / s" : t("ioStats.tooltip.unknownSpeed");
+                tooltipHtml += `<div class="tooltip-li">${t("ioStats.tooltip.speed")} <span class="value">${speed}</span></div>`;
 
             } else {
                 const compressionElement = element as Raven.Server.Utils.IoMetrics.IOMetricsRecentStatsAdditionalTypes;
-                tooltipHtml += `<div class="tooltip-li">Original Size: <span class="value">${generalUtils.formatBytesToSize(compressionElement.OriginalSize)}</span></div>`;
-                tooltipHtml += `<div class="tooltip-li">Original Size (bytes): <span class="value">${compressionElement.OriginalSize.toLocaleString()}</span></div>`;
-                tooltipHtml += `<div class="tooltip-li">Compressed Size: <span class="value">${generalUtils.formatBytesToSize(compressionElement.CompressedSize)}</span></div>`;
-                tooltipHtml += `<div class="tooltip-li">Compressed Size (bytes): <span class="value">${compressionElement.CompressedSize.toLocaleString()}</span></div>`;
-                tooltipHtml += `<div class="tooltip-li">Compression Ratio: <span class="value">${(compressionElement.CompressionRatio * 100).toFixed(2)}%</span></div>`;
+                tooltipHtml += `<div class="tooltip-li">${t("ioStats.tooltip.originalSize")} <span class="value">${generalUtils.formatBytesToSize(compressionElement.OriginalSize)}</span></div>`;
+                tooltipHtml += `<div class="tooltip-li">${t("ioStats.tooltip.originalSizeInBytes")} <span class="value">${compressionElement.OriginalSize.toLocaleString()}</span></div>`;
+                tooltipHtml += `<div class="tooltip-li">${t("ioStats.tooltip.compressedSize")} <span class="value">${generalUtils.formatBytesToSize(compressionElement.CompressedSize)}</span></div>`;
+                tooltipHtml += `<div class="tooltip-li">${t("ioStats.tooltip.compressedSizeInBytes")} <span class="value">${compressionElement.CompressedSize.toLocaleString()}</span></div>`;
+                tooltipHtml += `<div class="tooltip-li">${t("ioStats.tooltip.compressionRatio")} <span class="value">${(compressionElement.CompressionRatio * 100).toFixed(2)}%</span></div>`;
 
-                const compressionSpeed = element.Duration ? generalUtils.formatBytesToSize(compressionElement.OriginalSize / element.Duration * 1000) + " / s" : "unknown";
-                tooltipHtml += `<div class="tooltip-li">Compression speed: <span class="value">${compressionSpeed}</span></div>`;
+                const compressionSpeed = element.Duration ? generalUtils.formatBytesToSize(compressionElement.OriginalSize / element.Duration * 1000) + " / s" : t("ioStats.tooltip.unknownSpeed");
+                tooltipHtml += `<div class="tooltip-li">${t("ioStats.tooltip.compressionSpeed")} <span class="value">${compressionSpeed}</span></div>`;
             }
 
             this.handleTooltip(element, x, y, tooltipHtml);

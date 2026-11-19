@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
 import database = require("models/resources/database");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("debugCommands");
 
 class getTombstonesStateCommand extends commandBase {
 
@@ -17,7 +20,7 @@ class getTombstonesStateCommand extends commandBase {
         const url = endpoints.databases.adminTombstone.adminTombstonesState;
         const args = this.location;
         return this.query<TombstonesStateOnWire>(url, args, this.db)
-            .fail((response: JQueryXHR) => this.reportError("Failed to get tombstones state", response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("loadTombstonesStateFailed"), response.responseText, response.statusText));
     }
 }
 

@@ -11,17 +11,20 @@ import copyToClipboard = require("common/copyToClipboard");
 import Button from "react-bootstrap/Button";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import { JSX } from "react";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface DetailsBlockProps {
     children: (data: DetailedDatabaseStatistics, location: databaseLocationSpecifier) => JSX.Element;
 }
 
 export function DetailedDatabaseStats() {
+    const t = useStudioTranslation("statistics");
     const perNodeStats = useAppSelector(statisticsViewSelectors.allDatabaseDetails);
     const copyChangeVector = (formattedChangeVector: changeVectorItem[]) => {
         copyToClipboard.copy(
             formattedChangeVector.map((cv) => cv.fullFormat).join(", "),
-            "Change Vector has been copied to clipboard"
+            t("detailed.changeVectorCopied")
         );
     };
 
@@ -36,7 +39,7 @@ export function DetailedDatabaseStats() {
                     if (status === "failure") {
                         return (
                             <td key={genUtils.formatLocation(location)} className="text-danger">
-                                <Icon icon="cancel" title="Load error" margin="m-0" />
+                                <Icon icon="cancel" title={t("loadError")} margin="m-0" />
                             </td>
                         );
                     }
@@ -47,7 +50,7 @@ export function DetailedDatabaseStats() {
                                 children(stat, location)
                             ) : (
                                 <LazyLoad active>
-                                    <div>Loading...</div>
+                                    <div>{t("loading")}</div>
                                 </LazyLoad>
                             )}
                         </td>
@@ -59,7 +62,7 @@ export function DetailedDatabaseStats() {
 
     return (
         <section className="mt-6">
-            <h2 className="on-base-background">Detailed Database Stats</h2>
+            <h2 className="on-base-background">{t("detailed.title")}</h2>
             <Card className="panel mt-4">
                 <Table responsive bordered striped className="mb-0">
                     <thead>
@@ -75,13 +78,13 @@ export function DetailedDatabaseStats() {
                     <tbody>
                         <tr>
                             <td>
-                                <Icon icon="database-id" /> <span>Database ID</span>
+                                <Icon icon="database-id" /> <span>{t("detailed.databaseId")}</span>
                             </td>
                             <DetailsBlock>{(data) => <>{data.DatabaseId}</>}</DetailsBlock>
                         </tr>
                         <tr>
                             <td>
-                                <Icon icon="vector" /> <span>Database Change Vector</span>
+                                <Icon icon="vector" /> <span>{t("detailed.databaseChangeVector")}</span>
                             </td>
                             <DetailsBlock>
                                 {(data, location) => {
@@ -93,7 +96,7 @@ export function DetailedDatabaseStats() {
                                     );
 
                                     if (formattedChangeVector.length === 0) {
-                                        return <span>not yet defined</span>;
+                                        return <span>{t("detailed.changeVectorNotDefined")}</span>;
                                     }
 
                                     return (
@@ -108,7 +111,7 @@ export function DetailedDatabaseStats() {
                                                 <Button
                                                     variant="primary"
                                                     size="xs"
-                                                    title="Copy to clipboard"
+                                                    title={t("detailed.copyChangeVectorTitle")}
                                                     onClick={() => copyChangeVector(formattedChangeVector)}
                                                 >
                                                     <Icon icon="copy-to-clipboard" margin="m-0" />
@@ -131,7 +134,7 @@ export function DetailedDatabaseStats() {
                         <tr>
                             <td>
                                 <Icon icon="storage" />
-                                <span>Size On Disk</span>
+                                <span>{t("detailed.sizeOnDisk")}</span>
                             </td>
                             <DetailsBlock>
                                 {(data, location) => {
@@ -139,27 +142,21 @@ export function DetailedDatabaseStats() {
                                     return (
                                         <PopoverWithHoverWrapper
                                             message={
-                                                <>
-                                                    Data:{" "}
-                                                    <strong>
-                                                        {genUtils.formatBytesToSize(data.SizeOnDisk.SizeInBytes)}
-                                                    </strong>
-                                                    <br />
-                                                    Temp:{" "}
-                                                    <strong>
-                                                        {genUtils.formatBytesToSize(
+                                                <StudioTrans
+                                                    ns="statistics"
+                                                    i18nKey="detailed.sizeOnDiskDetails"
+                                                    components={{ strong: <strong />, br: <br /> }}
+                                                    options={{
+                                                        data: genUtils.formatBytesToSize(data.SizeOnDisk.SizeInBytes),
+                                                        temp: genUtils.formatBytesToSize(
                                                             data.TempBuffersSizeOnDisk.SizeInBytes
-                                                        )}
-                                                    </strong>
-                                                    <br />
-                                                    Total:{" "}
-                                                    <strong>
-                                                        {genUtils.formatBytesToSize(
+                                                        ),
+                                                        total: genUtils.formatBytesToSize(
                                                             data.SizeOnDisk.SizeInBytes +
                                                                 data.TempBuffersSizeOnDisk.SizeInBytes
-                                                        )}
-                                                    </strong>
-                                                </>
+                                                        ),
+                                                    }}
+                                                />
                                             }
                                         >
                                             <span id={id}>
@@ -175,56 +172,64 @@ export function DetailedDatabaseStats() {
                         <tr>
                             <td>
                                 <Icon icon="etag" />
-                                <span>Last Document ETag</span>
+                                <span>{t("detailed.lastDocumentEtag")}</span>
                             </td>
                             <DetailsBlock>{(data) => <>{data.LastDocEtag}</>}</DetailsBlock>
                         </tr>
                         <tr>
                             <td>
                                 <Icon icon="etag" />
-                                <span>Last Database ETag</span>
+                                <span>{t("detailed.lastDatabaseEtag")}</span>
                             </td>
                             <DetailsBlock>{(data) => <>{data.LastDatabaseEtag}</>}</DetailsBlock>
                         </tr>
                         <tr>
                             <td>
                                 <Icon icon="server" />
-                                <span>Architecture</span>
+                                <span>{t("detailed.architecture")}</span>
                             </td>
-                            <DetailsBlock>{(data) => <>{data.Is64Bit ? "64 Bit" : "32 Bit"}</>}</DetailsBlock>
+                            <DetailsBlock>
+                                {(data) => (
+                                    <>
+                                        {data.Is64Bit
+                                            ? t("detailed.architecture64Bit")
+                                            : t("detailed.architecture32Bit")}
+                                    </>
+                                )}
+                            </DetailsBlock>
                         </tr>
                         <tr>
                             <td>
                                 <Icon icon="documents" />
-                                <span>Documents </span>
+                                <span>{t("detailed.documents")}</span>
                             </td>
                             <DetailsBlock>{(data) => <>{data.CountOfDocuments.toLocaleString()}</>}</DetailsBlock>
                         </tr>
                         <tr>
                             <td>
                                 <Icon icon="new-counter" />
-                                <span>Counters</span>
+                                <span>{t("detailed.counters")}</span>
                             </td>
                             <DetailsBlock>{(data) => <>{data.CountOfCounterEntries.toLocaleString()}</>}</DetailsBlock>
                         </tr>
                         <tr>
                             <td>
                                 <Icon icon="identities" />
-                                <span>Identities</span>
+                                <span>{t("detailed.identities")}</span>
                             </td>
                             <DetailsBlock>{(data) => <>{data.CountOfIdentities.toLocaleString()}</>}</DetailsBlock>
                         </tr>
                         <tr>
                             <td>
                                 <Icon icon="indexing" />
-                                <span>Indexes</span>
+                                <span>{t("detailed.indexes")}</span>
                             </td>
                             <DetailsBlock>{(data) => <>{data.CountOfIndexes.toLocaleString()}</>}</DetailsBlock>
                         </tr>
                         <tr>
                             <td>
                                 <Icon icon="revisions" />
-                                <span>Revisions</span>
+                                <span>{t("detailed.revisions")}</span>
                             </td>
                             <DetailsBlock>
                                 {(data) => <>{(data.CountOfRevisionDocuments ?? 0).toLocaleString()}</>}
@@ -233,7 +238,7 @@ export function DetailedDatabaseStats() {
                         <tr>
                             <td>
                                 <Icon icon="conflicts" />
-                                <span>Conflicts</span>
+                                <span>{t("detailed.conflicts")}</span>
                             </td>
                             <DetailsBlock>
                                 {(data) => <>{data.CountOfDocumentsConflicts.toLocaleString()}</>}
@@ -242,24 +247,37 @@ export function DetailedDatabaseStats() {
                         <tr>
                             <td>
                                 <Icon icon="attachment" />
-                                <span>Attachments</span>
+                                <span>{t("detailed.attachments.label")}</span>
                             </td>
                             <DetailsBlock>
                                 {(data) => (
                                     <div>
-                                        <span>{data.CountOfAttachments.toLocaleString()} total</span>
+                                        <span>
+                                            {t("detailed.attachments.total", {
+                                                count: data.CountOfAttachments,
+                                                formattedCount: data.CountOfAttachments.toLocaleString(),
+                                            })}
+                                        </span>
                                         {data.CountOfAttachments !== data.CountOfUniqueAttachments && (
                                             <>
                                                 <span className="text-muted">•</span>
                                                 <small>
                                                     <span className="text-muted">
-                                                        {data.CountOfUniqueAttachments.toLocaleString()} unique (local)
+                                                        {t("detailed.attachments.unique", {
+                                                            count: data.CountOfUniqueAttachments,
+                                                            formattedCount:
+                                                                data.CountOfUniqueAttachments.toLocaleString(),
+                                                        })}
                                                     </span>
                                                 </small>
                                                 <span className="text-muted">•</span>
                                                 <small>
                                                     <span className="text-muted">
-                                                        {data.CountOfRemoteAttachments.toLocaleString()} remote
+                                                        {t("detailed.attachments.remote", {
+                                                            count: data.CountOfRemoteAttachments,
+                                                            formattedCount:
+                                                                data.CountOfRemoteAttachments.toLocaleString(),
+                                                        })}
                                                     </span>
                                                 </small>
                                             </>
@@ -271,14 +289,14 @@ export function DetailedDatabaseStats() {
                         <tr>
                             <td>
                                 <Icon icon="cmp-xchg" />
-                                <span>Compare Exchange</span>
+                                <span>{t("detailed.compareExchange")}</span>
                             </td>
                             <DetailsBlock>{(data) => <>{data.CountOfCompareExchange.toLocaleString()}</>}</DetailsBlock>
                         </tr>
                         <tr>
                             <td>
                                 <Icon icon="cmp-xchg" />
-                                <span>Compare Exchange Tombstones</span>
+                                <span>{t("detailed.compareExchangeTombstones")}</span>
                             </td>
                             <DetailsBlock>
                                 {(data) => <>{data.CountOfCompareExchangeTombstones.toLocaleString()}</>}
@@ -287,14 +305,14 @@ export function DetailedDatabaseStats() {
                         <tr>
                             <td>
                                 <Icon icon="zombie" />
-                                <span>Tombstones</span>
+                                <span>{t("detailed.tombstones")}</span>
                             </td>
                             <DetailsBlock>{(data) => <>{data.CountOfTombstones.toLocaleString()}</>}</DetailsBlock>
                         </tr>
                         <tr>
                             <td>
                                 <Icon icon="timeseries-settings" />
-                                <span>Time Series Segments</span>
+                                <span>{t("detailed.timeSeriesSegments")}</span>
                             </td>
                             <DetailsBlock>
                                 {(data) => <>{data.CountOfTimeSeriesSegments.toLocaleString()}</>}

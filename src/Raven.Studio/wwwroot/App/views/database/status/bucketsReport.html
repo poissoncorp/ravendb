@@ -18,31 +18,31 @@
                 <tr>
                     <th class="column-min-width">
                         <a href="#" class="sort-header" data-bind="click: _.partial($root.sortBy, 'range')">
-                            <span>Range</span>
+                            <span data-bind="i18n: 'bucketsReport:table.range'"></span>
                             <i data-bind="css: $root.sortIcon('range')"></i>
                         </a>
                     </th>
                     <th>
                         <a href="#" class="sort-header" data-bind="click: _.partial($root.sortBy, 'buckets')">
-                            <span>Non-empty buckets count</span>
+                            <span data-bind="i18n: 'bucketsReport:table.bucketsCount'"></span>
                             <i data-bind="css: $root.sortIcon('buckets')"></i>
                         </a>
                     </th>
                     <th>
                         <a href="#" class="sort-header" data-bind="click: _.partial($root.sortBy, 'documents')">
-                            <span>Documents count</span>
+                            <span data-bind="i18n: 'bucketsReport:table.documentsCount'"></span>
                             <i data-bind="css: $root.sortIcon('documents')"></i>
                         </a>
                     </th>
-                    <th>Shards</th>
+                    <th data-bind="i18n: 'bucketsReport:table.shards'"></th>
                     <th>
                         <a href="#" class="sort-header" data-bind="click: _.partial($root.sortBy, 'size')">
-                            <span>Size (&sum; <span data-bind="text: node().formatSize()"></span>)</span>
+                            <span data-bind="i18n: { key: 'bucketsReport:table.size', options: { total: node().formatSize() } }"></span>
                             <i data-bind="css: $root.sortIcon('size')"></i>
                         </a>
                     </th>
-                    <th>% Total</th>
-                    <th>Actions</th>
+                    <th data-bind="i18n: 'bucketsReport:table.totalPercentage'"></th>
+                    <th data-bind="i18n: 'bucketsReport:table.actions'"></th>
                 </tr>
             </thead>
             <tbody data-bind="foreach: sortedChildren">
@@ -59,7 +59,7 @@
                         <!-- ko foreach: shards -->
                             <!-- ko if: $parent.isShardPendingRemoval($data) -->
                                 <span class="label label-default shard-pending-removal" data-bind="attr: { title: $parent.pendingRemovalTooltip() }">
-                                    <i class="icon-waiting"></i><span data-bind="text: '#' + $data"></span><span class="pending-removal-text">pending removal</span>
+                                    <i class="icon-waiting"></i><span data-bind="text: '#' + $data"></span><span class="pending-removal-text" data-bind="i18n: 'bucketsReport:table.pendingRemoval'"></span>
                                 </span>
                             <!-- /ko -->
                             <!-- ko ifnot: $parent.isShardPendingRemoval($data) -->
@@ -73,13 +73,11 @@
                     <td>
                         <div class="btn-group">
                             <button class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
-                                <span>Move to</span> <span class="caret"></span>
+                                <span data-bind="i18n: 'bucketsReport:table.moveTo'"></span> <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" data-bind="foreach: $root.shardNumbers">
                                 <li>
-                                    <a href="#" data-bind="click: _.partial($root.moveToDifferentShard, $parent, $data)">
-                                        Shard #<span data-bind="text: $data"></span>
-                                    </a>
+                                    <a href="#" data-bind="click: _.partial($root.moveToDifferentShard, $parent, $data), i18n: { key: 'bucketsReport:table.moveToShard', options: { shardNumber: $data } }"></a>
                                 </li>
                             </ul>
                         </div>
@@ -88,13 +86,13 @@
             </tbody>
         </table>
         <div data-bind="visible: showBucketContents">
-            <h3>Items stored in this bucket:</h3>
+            <h3 data-bind="i18n: 'bucketsReport:bucketContents.title'"></h3>
             <div class="margin-bottom" style="position: relative; height: 50vw">
                 <virtual-grid style="height: 50vw" class="resizable flex-window" params="controller: gridController"></virtual-grid>
             </div>
         </div>
     <!-- /ko -->
     <!-- ko if: node().internalChildren.length === 0 -->
-        <div class="text-center mb-2"><i class="icon-xl icon-empty-set text-muted"></i><div class="lead">The bucket list is empty</div></div>
+        <div class="text-center mb-2"><i class="icon-xl icon-empty-set text-muted"></i><div class="lead" data-bind="i18n: 'bucketsReport:empty'"></div></div>
     <!-- /ko -->
 </div>

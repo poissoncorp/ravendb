@@ -10,6 +10,10 @@ import textColumn = require("widgets/virtualGrid/columns/textColumn");
 import getBucketCommand = require("commands/database/debug/getBucketCommand");
 import startReshardingCommand = require("commands/database/dbGroup/startReshardingCommand");
 import notificationCenter = require("common/notifications/notificationCenter");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("bucketsReport");
+const commonT = i18nModule.createTranslator("common");
 
 type positionAndSizes = {
     dx: number,
@@ -82,7 +86,7 @@ class bucketsReport extends shardViewModelBase {
 
                 grid.init(() => this.fetcher(), () => {
                     return [
-                        new textColumn<gridItem>(grid, x => x.id, "Item", "90%"),
+                        new textColumn<gridItem>(grid, x => x.id, t("bucketContents.itemColumn"), "90%"),
                     ];
                 });
             }
@@ -176,14 +180,14 @@ class bucketsReport extends shardViewModelBase {
 
     private mapBucket(dto: Raven.Server.Web.Studio.Processors.BucketRange): bucketReportItem {
         const leafBucket = dto.FromBucket === dto.ToBucket;
-        const name = leafBucket ? "Bucket: " + dto.FromBucket : (dto.FromBucket + " - " + dto.ToBucket);
+        const name = leafBucket ? t("bucketName", { bucket: dto.FromBucket }) : (dto.FromBucket + " - " + dto.ToBucket);
         const item = new bucketReportItem(name, dto.RangeSize, dto.NumberOfBuckets, dto.DocumentsCount, dto.ShardNumbers);
         item.fromRange = dto.FromBucket;
         item.toRange = dto.ToBucket;
         item.ownerShard = dto.OwnerShardNumber ?? null;
         item.lazyLoadChildren = !leafBucket;
         if (leafBucket) {
-            const leafItem = new bucketReportItem("Bucket: " + dto.FromBucket, dto.RangeSize, dto.NumberOfBuckets, dto.DocumentsCount, dto.ShardNumbers);
+            const leafItem = new bucketReportItem(t("bucketName", { bucket: dto.FromBucket }), dto.RangeSize, dto.NumberOfBuckets, dto.DocumentsCount, dto.ShardNumbers);
             leafItem.fromRange = dto.FromBucket;
             leafItem.toRange = dto.ToBucket;
             leafItem.ownerShard = dto.OwnerShardNumber ?? null;
@@ -502,11 +506,17 @@ class bucketsReport extends shardViewModelBase {
         this.tooltip.transition()
             .duration(200)
             .style("opacity", 1);
-        let html = "<div class='tooltip-li'>Range: <div class='value'>" + d.name + "</div></div>";
-        html += "<div class='tooltip-li'>Documents Count: <div class='value'>" + d.documentsCount + "</div></div>";
-        html += "<div class='tooltip-li'>Buckets Count: <div class='value'>" + d.numberOfBuckets + "</div></div>";
-        html += "<div class='tooltip-li'>Shards: <div class='value'>" + d.shards.map(x => d.isShardPendingRemoval(x) ? `<span># ${x} (pending removal)</span>` : `<span># ${x}</span>`).join("") + "</div></div>";
-        html += "<div class='tooltip-li'>Size: <div class='value'>" + generalUtils.formatBytesToSize(d.size) + "</div></div>";
+        const shards = d.shards
+            .map((x) => {
+                const context = d.isShardPendingRemoval(x) ? "pendingRemoval" : undefined;
+                return `<span>${generalUtils.escapeHtml(t("tooltip.shard", { shardNumber: x, context }))}</span>`;
+            })
+            .join("");
+        let html = "<div class='tooltip-li'>" + generalUtils.escapeHtml(t("tooltip.range")) + " <div class='value'>" + generalUtils.escapeHtml(d.name) + "</div></div>";
+        html += "<div class='tooltip-li'>" + generalUtils.escapeHtml(t("tooltip.documentsCount")) + " <div class='value'>" + d.documentsCount + "</div></div>";
+        html += "<div class='tooltip-li'>" + generalUtils.escapeHtml(t("tooltip.bucketsCount")) + " <div class='value'>" + d.numberOfBuckets + "</div></div>";
+        html += "<div class='tooltip-li'>" + generalUtils.escapeHtml(t("tooltip.shards")) + " <div class='value'>" + shards + "</div></div>";
+        html += "<div class='tooltip-li'>" + generalUtils.escapeHtml(t("tooltip.size")) + " <div class='value'>" + generalUtils.formatBytesToSize(d.size) + "</div></div>";
 
         this.tooltip.html(html);
         this.onMouseMove();
@@ -519,11 +529,15 @@ class bucketsReport extends shardViewModelBase {
     }
 
     moveToDifferentShard(item: bucketReportItem, shardNumber: number) {
-        const range = item.fromRange === item.toRange ? "bucket " + item.fromRange : "range [" + item.fromRange + " - " + item.toRange + "]";
-        const question = "Do you want to move " + range + " to shard #" + shardNumber + "?";
+        const question = t("resharding.question", {
+            context: item.fromRange === item.toRange ? "bucket" : "range",
+            from: item.fromRange,
+            to: item.toRange,
+            shardNumber,
+        });
         
-        this.confirmationMessage("Confirm resharding", question, {
-            buttons: ["Cancel", "Start resharding"]
+        this.confirmationMessage(t("resharding.title"), question, {
+            buttons: [commonT("cancel"), t("resharding.start")]
         })
             .done(result => {
                 if (result.can) {

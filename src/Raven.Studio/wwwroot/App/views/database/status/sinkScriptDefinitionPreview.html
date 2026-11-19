@@ -3,7 +3,7 @@
         <div class="modal-header">
             <div class="flex-horizontal">
                 <div class="flex-grow">
-                    <h3 class="modal-title" id="myModalLabel">Sink script definition preview</h3>
+                    <h3 class="modal-title" id="myModalLabel" data-bind="i18n: 'sinkScriptDefinitionPreview:title'"></h3>
                 </div>
                 <div>
                     <button type="button" class="close" data-bind="click: $root.close" aria-hidden="true">
@@ -20,19 +20,19 @@
             <div class="modal-details" data-bind="visible: !spinners.loading()">
                 <div class="details-item">
                     <div class="row">
-                        <div class="col-sm-6 text-right">Task name:</div>
+                        <div class="col-sm-6 text-right" data-bind="i18n: 'sinkScriptDefinitionPreview:taskName'"></div>
                         <div class="col-sm-6 details-value" data-bind="text: taskName"></div>
                     </div>
                 </div>
                 <div class="details-item">
                     <div class="row">
-                        <div class="col-sm-6 text-right">Script name:</div>
+                        <div class="col-sm-6 text-right" data-bind="i18n: 'sinkScriptDefinitionPreview:scriptName'"></div>
                         <div class="col-sm-6 details-value" data-bind="text: scriptName"></div>
                     </div>
                 </div>
                 <div class="details-item">
                     <div class="row">
-                        <div class="col-sm-6 text-right">Collections:</div>
+                        <div class="col-sm-6 text-right" data-bind="i18n: 'sinkScriptDefinitionPreview:collections'"></div>
                         <div class="col-sm-6 details-value" data-bind="with: sinkScript">
                             <span data-bind="foreach: Queues">
                                 <span data-bind="text: $data"></span>
@@ -41,7 +41,7 @@
                     </div>
                 </div>
                 <div data-bind="visible: script">
-                    Script:
+                    <span data-bind="i18n: 'sinkScriptDefinitionPreview:script'"></span>
                     <pre class="form-control editor"
                          data-bind="aceEditor: { code: script, fontSize: '14px', lang: 'ace/mode/javascript', readOnly: true }" style="height: 250px;"></pre>
                 </div>
@@ -50,7 +50,7 @@
 
         <div class="modal-footer">
             <div class="text-right">
-                <button type="button" class="btn btn-default" data-bind="click: $root.close">Close</button>
+                <button type="button" class="btn btn-default" data-bind="click: $root.close, i18n: 'sinkScriptDefinitionPreview:close'"></button>
             </div>
         </div>
     </div>

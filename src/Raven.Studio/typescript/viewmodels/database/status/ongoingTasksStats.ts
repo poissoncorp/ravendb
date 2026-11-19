@@ -26,8 +26,11 @@ import liveCdcSinkStatsWebSocketClient = require("common/liveCdcSinkStatsWebSock
 import showDataDialog = require("viewmodels/common/showDataDialog");
 import app = require("durandal/app");
 import typeUtils = require("common/typeUtils");
+import i18nModule = require("common/i18n/i18n");
 
 type GenAiPerformanceOperation = Raven.Server.Documents.ETL.Providers.AI.GenAi.Stats.GenAiPerformanceOperation;
+
+const t = i18nModule.createTranslator("ongoingTasksStats");
 
 type treeActionType = "toggleTrack" | "trackItem" | "gapItem" | "previewEtlScript" | "previewSinkScript" |
                       "subscriptionErrorItem" | "subscriptionPendingItem" | "subscriptionConnectionItem" | "previewSubscriptionQuery";
@@ -328,11 +331,13 @@ class ongoingTasksStats extends shardViewModelBase {
 
     view = require("views/database/status/ongoingTasksStats.html");
 
-    private static readonly showDetailsButton = `<div class="margin-left-sm">
-    <a href="#" class="btn btn-default btn-sm js-task-details-btn" title="Show details">
+    private static get showDetailsButton() {
+        return `<div class="margin-left-sm">
+    <a href="#" class="btn btn-default btn-sm js-task-details-btn" title="${generalUtils.escapeHtml(t("tooltip.showDetails"))}">
         <i class="icon-preview"></i>
     </a>
 </div>`;
+    }
     
     /* static */
     static readonly brushSectionHeight = 40;
@@ -625,7 +630,7 @@ class ongoingTasksStats extends shardViewModelBase {
         const $body = $("body");
         this.registerDisposableDelegateHandler($body, "click", ".js-task-details-btn", (event: JQuery.TriggeredEvent) => {
             event.preventDefault();
-            app.showBootstrapDialog(new showDataDialog("Error details", this.currentDetails, "plain"));
+            app.showBootstrapDialog(new showDataDialog(t("tooltip.errorDetails"), this.currentDetails, "plain"));
             
             this.hideTooltip();
         });
@@ -1572,7 +1577,7 @@ class ongoingTasksStats extends shardViewModelBase {
                         const iconWidth = 16;
                         this.hitTest.registerSubscriptionExceptionItem(xForCompleted - iconWidth/2, stripesYStart, iconWidth, ongoingTasksStats.trackHeight,
                             {
-                                title: perfWithCache.ErrorType === "ConnectionRejected" ? "Connection rejected" : "Connection aborted",
+                                title: perfWithCache.ErrorType === "ConnectionRejected" ? t("subscription.connectionRejected") : t("subscription.connectionAborted"),
                                 exceptionText: perfWithCache.Exception,
                                 clientUri: perfWithCache.ClientUri,
                                 strategy: perfWithCache.Strategy
@@ -1600,7 +1605,7 @@ class ongoingTasksStats extends shardViewModelBase {
                         graphHelper.drawDashLine(context, x1ForPending, yForPending + 0.5, dxForPending);
                         this.hitTest.registerSubscriptionPendingItem(x1ForPending, stripesYStart, dxForPending, ongoingTasksStats.trackHeight,
                             {
-                                title: "Pending Connection",
+                                title: t("subscription.pendingConnection"),
                                 clientUri: perfWithCache.ClientUri,
                                 duration: pendingInfo.DurationInMs
                             });
@@ -1811,7 +1816,7 @@ class ongoingTasksStats extends shardViewModelBase {
     }
     
     private drawQuery(context: CanvasRenderingContext2D, yStart: number, taskInfo: previewSubscriptionQueryItemContext) {
-        const areaWidth = this.drawText(context, yStart, "Query");
+        const areaWidth = this.drawText(context, yStart, t("query"));
         this.hitTest.registerPreviewSubscriptionQuery(2, yStart, areaWidth, ongoingTasksStats.trackHeight, taskInfo);
     }
     
@@ -1881,17 +1886,17 @@ class ongoingTasksStats extends shardViewModelBase {
     private getTaskTypeDescription(type: ongoingTaskStatType): string {
         switch (type) {
             case "IncomingExternal":
-                return "Incoming External Replication";
+                return t("taskTypes.incomingExternal");
             case "IncomingInternal":
-                return "Incoming Internal Replication";
+                return t("taskTypes.incomingInternal");
             case "IncomingPull":
-                return "Incoming Pull Replication";
+                return t("taskTypes.incomingPull");
             case "OutgoingExternal":
-                return "Outgoing External Replication";
+                return t("taskTypes.outgoingExternal");
             case "OutgoingInternal":
-                return "Outgoing Internal Replication";
+                return t("taskTypes.outgoingInternal");
             case "OutgoingPull":
-                return "Outgoing Pull Replication";
+                return t("taskTypes.outgoingPull");
             case "Raven":
                 return "RavenDB ETL";
             case "Sql":
@@ -1911,21 +1916,21 @@ class ongoingTasksStats extends shardViewModelBase {
             case "AmazonSqs":
                 return "Amazon SQS";
             case "SubscriptionConnection":
-                return "Subscription";
+                return t("taskTypes.subscriptionConnection");
             case "SubscriptionBatch":
-                return "Documents Batch";
+                return t("taskTypes.subscriptionBatch");
             case "AggregatedBatchesInfo":
-                return "Aggregated History Batches Info";
+                return t("taskTypes.aggregatedBatchesInfo");
             case "KafkaQueueSink":
-                return "Kafka Sink";
+                return t("taskTypes.kafkaQueueSink");
             case "RabbitQueueSink":
-                return "RabbitMQ Sink";
+                return t("taskTypes.rabbitQueueSink");
             case "AzureServiceBusQueueSink":
-                return "Azure Service Bus Queue Sink";
+                return t("taskTypes.azureServiceBusQueueSink");
             case "CdcSink":
-                return "CDC Sink";
+                return t("taskTypes.cdcSink");
             case "EmbeddingsGeneration":
-                return "Embeddings Generation";
+                return t("taskTypes.embeddingsGeneration");
             case "GenAi":
                 return "GenAI";
             default:
@@ -2017,7 +2022,7 @@ class ongoingTasksStats extends shardViewModelBase {
     
     private mapItemToRegister(perfItemWithCache: SubscriptionConnectionPerformanceStatsWithCache, duration: number) {
         return {
-            title: "Client Connection",
+            title: t("subscription.clientConnection"),
             strategy: perfItemWithCache.Strategy,
             batchCount: perfItemWithCache.BatchCount,
             totalBatchSize: perfItemWithCache.TotalBatchSizeInBytes,
@@ -2153,8 +2158,8 @@ class ongoingTasksStats extends shardViewModelBase {
         const currentDatum = this.tooltip.datum();
 
         if (currentDatum !== element) {
-            const tooltipHtml = '<div class="tooltip-li">Gap start time: <div class="value">' + element.start.toLocaleTimeString() + '</div></div>' +
-                '<div class="tooltip-li">Gap duration: <div class="value">' + generalUtils.formatMillis(element.durationInMillis) + '</div></div>';
+            const tooltipHtml = '<div class="tooltip-li">' + t("tooltip.gapStartTime") + ' <div class="value">' + element.start.toLocaleTimeString() + '</div></div>' +
+                '<div class="tooltip-li">' + t("tooltip.gapDuration") + ' <div class="value">' + generalUtils.formatMillis(element.durationInMillis) + '</div></div>';
             this.handleTooltip(element, x, y, tooltipHtml);
         }
     }
@@ -2164,8 +2169,8 @@ class ongoingTasksStats extends shardViewModelBase {
 
         if (currentDatum !== itemInfo) {
             let tooltipHtml = `<div class="tooltip-header"> ${itemInfo.title} </div>`;
-            tooltipHtml += `<div class="tooltip-li">Duration: <div class="value">${generalUtils.formatMillis(itemInfo.duration)} </div></div>`;
-            tooltipHtml += `<div class="tooltip-li">Client URI: <div class="value">${itemInfo.clientUri} </div></div>`;
+            tooltipHtml += `<div class="tooltip-li">${t("tooltip.duration")} <div class="value">${generalUtils.formatMillis(itemInfo.duration)} </div></div>`;
+            tooltipHtml += `<div class="tooltip-li">${t("tooltip.clientUri")} <div class="value">${itemInfo.clientUri} </div></div>`;
             this.handleTooltip(itemInfo, x, y, tooltipHtml);
         }
     }
@@ -2175,14 +2180,14 @@ class ongoingTasksStats extends shardViewModelBase {
 
         if (currentDatum !== itemInfo) {
             let tooltipHtml = `<div class="tooltip-header"> ${itemInfo.title} </div>`;
-            tooltipHtml += `<div class="tooltip-li">Duration: <div class="value">${generalUtils.formatMillis(itemInfo.duration)} </div></div>`;
-            tooltipHtml += `<div class="tooltip-li">Client URI: <div class="value">${itemInfo.clientUri} </div></div>`;
-            tooltipHtml += `<div class="tooltip-li">Strategy: <div class="value">${itemInfo.strategy} </div></div>`;
-            tooltipHtml += `<div class="tooltip-li">Number of batches acknowledged: <div class="value">${itemInfo.batchCount.toLocaleString()} </div></div>`;
-            tooltipHtml += `<div class="tooltip-li">Size of all batches: <div class="value">${generalUtils.formatBytesToSize(itemInfo.totalBatchSize)} </div></div>`;
+            tooltipHtml += `<div class="tooltip-li">${t("tooltip.duration")} <div class="value">${generalUtils.formatMillis(itemInfo.duration)} </div></div>`;
+            tooltipHtml += `<div class="tooltip-li">${t("tooltip.clientUri")} <div class="value">${itemInfo.clientUri} </div></div>`;
+            tooltipHtml += `<div class="tooltip-li">${t("tooltip.strategy")} <div class="value">${itemInfo.strategy} </div></div>`;
+            tooltipHtml += `<div class="tooltip-li">${t("subscription.batchesAcknowledged")} <div class="value">${itemInfo.batchCount.toLocaleString()} </div></div>`;
+            tooltipHtml += `<div class="tooltip-li">${t("subscription.batchesSize")} <div class="value">${generalUtils.formatBytesToSize(itemInfo.totalBatchSize)} </div></div>`;
             
             if (itemInfo.exceptionText) {
-                tooltipHtml += `<div class="tooltip-li">Message: <div class="value">${generalUtils.trimMessage(itemInfo.exceptionText, 1024)}</div>${ongoingTasksStats.showDetailsButton}</div>`;
+                tooltipHtml += `<div class="tooltip-li">${t("tooltip.message")} <div class="value">${generalUtils.trimMessage(itemInfo.exceptionText, 1024)}</div>${ongoingTasksStats.showDetailsButton}</div>`;
             }
             
             this.handleTooltip(itemInfo, x, y, tooltipHtml, itemInfo.exceptionText);
@@ -2194,9 +2199,9 @@ class ongoingTasksStats extends shardViewModelBase {
 
         if (currentDatum !== itemInfo) {
             let tooltipHtml = `<div class="tooltip-header">  ${itemInfo.title} </div>`;
-            tooltipHtml += `<div class="tooltip-li">Client URI: <div class="value">${itemInfo.clientUri} </div></div>`;
-            tooltipHtml += `<div class="tooltip-li">Strategy: <div class="value">${itemInfo.strategy} </div></div>`;
-            tooltipHtml += `<div class="tooltip-li">Message: <div class="value">${generalUtils.trimMessage(itemInfo.exceptionText, 1024)} </div>${ongoingTasksStats.showDetailsButton}</div>`;
+            tooltipHtml += `<div class="tooltip-li">${t("tooltip.clientUri")} <div class="value">${itemInfo.clientUri} </div></div>`;
+            tooltipHtml += `<div class="tooltip-li">${t("tooltip.strategy")} <div class="value">${itemInfo.strategy} </div></div>`;
+            tooltipHtml += `<div class="tooltip-li">${t("tooltip.message")} <div class="value">${generalUtils.trimMessage(itemInfo.exceptionText, 1024)} </div>${ongoingTasksStats.showDetailsButton}</div>`;
             this.handleTooltip(itemInfo, x, y, tooltipHtml, itemInfo.exceptionText);
         }
     }
@@ -2232,7 +2237,7 @@ class ongoingTasksStats extends shardViewModelBase {
             }
             
             let tooltipHtml = `<div class="tooltip-header"> ${sectionName} </div>`;
-            tooltipHtml += '<div class="tooltip-li">' + (isRootItem ? "Total duration" : "Duration") + ': <div class="value">' + generalUtils.formatMillis(context.item.DurationInMs) + "</div></div>";
+            tooltipHtml += '<div class="tooltip-li">' + (isRootItem ? t("tooltip.totalDuration") : t("tooltip.duration")) + ' <div class="value">' + generalUtils.formatMillis(context.item.DurationInMs) + "</div></div>";
             
             if (isRootItem) {
                 switch (type) {
@@ -2241,32 +2246,32 @@ class ongoingTasksStats extends shardViewModelBase {
                     case "CdcSink": {
                         const elementWithData = context.rootStats as any as QueueSinkPerformanceBaseWithCache | CdcSinkPerformanceBaseWithCache;
                         if (elementWithData.CurrentlyAllocated && elementWithData.CurrentlyAllocated.SizeInBytes) {
-                            tooltipHtml += `<div class="tooltip-li">Currently allocated: <div class="value">${generalUtils.formatBytesToSize(elementWithData.CurrentlyAllocated.SizeInBytes)} </div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("tooltip.currentlyAllocated")} <div class="value">${generalUtils.formatBytesToSize(elementWithData.CurrentlyAllocated.SizeInBytes)} </div></div>`;
                         }
                         if (elementWithData.BatchPullStopReason) {
-                            tooltipHtml += `<div class="tooltip-li text-danger">Batch Pull Stop reason: <div class="value">${elementWithData.BatchPullStopReason} </div></div>`;
+                            tooltipHtml += `<div class="tooltip-li text-danger">${t("sink.batchPullStopReason")} <div class="value">${elementWithData.BatchPullStopReason} </div></div>`;
                         }
-                        tooltipHtml += `<div class="tooltip-li">Number of processed messages: <div class="value">${elementWithData.NumberOfProcessedMessages.toLocaleString()} </div></div>`;
-                        tooltipHtml += `<div class="tooltip-li">Number of read messages: <div class="value">${elementWithData.NumberOfReadMessages.toLocaleString()} </div></div>`;
+                        tooltipHtml += `<div class="tooltip-li">${t("sink.processedMessages")} <div class="value">${elementWithData.NumberOfProcessedMessages.toLocaleString()} </div></div>`;
+                        tooltipHtml += `<div class="tooltip-li">${t("sink.readMessages")} <div class="value">${elementWithData.NumberOfReadMessages.toLocaleString()} </div></div>`;
                         
                         if (elementWithData.ReadErrorCount) {
-                            tooltipHtml += `<div class="tooltip-li text-danger">Read error count: <div class="value">${elementWithData.ReadErrorCount} </div></div>`;
+                            tooltipHtml += `<div class="tooltip-li text-danger">${t("sink.readErrorCount")} <div class="value">${elementWithData.ReadErrorCount} </div></div>`;
                         }
                         if (elementWithData.ScriptProcessingErrorCount) {
-                            tooltipHtml += `<div class="tooltip-li text-danger">Script Processing error count: <div class="value">${elementWithData.ScriptProcessingErrorCount} </div></div>`;
+                            tooltipHtml += `<div class="tooltip-li text-danger">${t("sink.scriptProcessingErrorCount")} <div class="value">${elementWithData.ScriptProcessingErrorCount} </div></div>`;
                         }
-                        tooltipHtml += `<div class="tooltip-li">Successfully processed: <div class="value">${elementWithData.SuccessfullyProcessed ? "Yes" : "No"} </div></div>`;
+                        tooltipHtml += `<div class="tooltip-li">${t("sink.successfullyProcessed")} <div class="value">${elementWithData.SuccessfullyProcessed ? t("tooltip.yes") : t("tooltip.no")} </div></div>`;
                     }
                         break;
                     case "IncomingExternal":
                     case "IncomingInternal":
                     case "IncomingPull": {
                         const elementWithData = context.rootStats as any as Raven.Client.Documents.Replication.IncomingReplicationPerformanceStats;
-                        tooltipHtml += `<div class="tooltip-li">Received last Etag: <div class="value">${elementWithData.ReceivedLastEtag} </div></div>`;
-                        tooltipHtml += `<div class="tooltip-li">Batch Size: <div class="value">${generalUtils.formatBytesToSize(elementWithData.BatchSizeInBytes)}</div></div>`;
+                        tooltipHtml += `<div class="tooltip-li">${t("replication.receivedLastEtag")} <div class="value">${elementWithData.ReceivedLastEtag} </div></div>`;
+                        tooltipHtml += `<div class="tooltip-li">${t("replication.batchSize")} <div class="value">${generalUtils.formatBytesToSize(elementWithData.BatchSizeInBytes)}</div></div>`;
 
                         if (elementWithData.DatabaseChangeVector) {
-                            tooltipHtml += `<div class="tooltip-li">Change vector: <div class="value">${elementWithData.DatabaseChangeVector}</div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("replication.changeVector")} <div class="value">${elementWithData.DatabaseChangeVector}</div></div>`;
                         }
                     }
                         break;
@@ -2274,11 +2279,11 @@ class ongoingTasksStats extends shardViewModelBase {
                     case "OutgoingInternal":
                     case "OutgoingPull": {
                         const elementWithData = context.rootStats as any as Raven.Client.Documents.Replication.OutgoingReplicationPerformanceStats;
-                        tooltipHtml += `<div class="tooltip-li">Sent last Etag: <div class="value">${elementWithData.SendLastEtag}</div></div>`;
-                        tooltipHtml += `<div class="tooltip-li">Batch Size: <div class="value">${generalUtils.formatBytesToSize(elementWithData.BatchSizeInBytes)}</div></div>`;
+                        tooltipHtml += `<div class="tooltip-li">${t("replication.sentLastEtag")} <div class="value">${elementWithData.SendLastEtag}</div></div>`;
+                        tooltipHtml += `<div class="tooltip-li">${t("replication.batchSize")} <div class="value">${generalUtils.formatBytesToSize(elementWithData.BatchSizeInBytes)}</div></div>`;
                         
                         if (elementWithData.LastAcceptedChangeVector) {
-                            tooltipHtml += `<div class="tooltip-li">Last accepted change vector: <div class="value">${elementWithData.LastAcceptedChangeVector}</div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("replication.lastAcceptedChangeVector")} <div class="value">${elementWithData.LastAcceptedChangeVector}</div></div>`;
                         }
                     }
                         break;
@@ -2294,43 +2299,43 @@ class ongoingTasksStats extends shardViewModelBase {
                         const elementWithData = context.rootStats as EtlPerformanceBaseWithCache;
                         
                         if (elementWithData.HasTransformErrors) {
-                            tooltipHtml += `<div class="tooltip-li text-danger">ETL task has Transform errors:<div class="value">Open Notification Center for details </div></div>`;
+                            tooltipHtml += `<div class="tooltip-li text-danger">${t("etl.transformErrors")}<div class="value">${t("etl.openNotificationCenter")} </div></div>`;
                         }
                         
                         if (elementWithData.HasLoadErrors) {
-                            tooltipHtml += `<div class="tooltip-li text-danger">ETL task has Load errors:<div class="value">Open Notification Center for details </div></div>`;
+                            tooltipHtml += `<div class="tooltip-li text-danger">${t("etl.loadErrors")}<div class="value">${t("etl.openNotificationCenter")} </div></div>`;
                         }
                         
                         if (elementWithData.BatchTransformationCompleteReason) {
-                            tooltipHtml += `<div class="tooltip-li">Batch complete reason: <div class="value">${elementWithData.BatchTransformationCompleteReason} </div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("etl.batchCompleteReason")} <div class="value">${elementWithData.BatchTransformationCompleteReason} </div></div>`;
                         }
 
                         if (elementWithData.CurrentlyAllocated && elementWithData.CurrentlyAllocated.SizeInBytes) {
-                            tooltipHtml += `<div class="tooltip-li">Currently allocated: <div class="value">${generalUtils.formatBytesToSize(elementWithData.CurrentlyAllocated.SizeInBytes)} </div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("tooltip.currentlyAllocated")} <div class="value">${generalUtils.formatBytesToSize(elementWithData.CurrentlyAllocated.SizeInBytes)} </div></div>`;
                         }
 
                         if (elementWithData.BatchSize && elementWithData.BatchSize.SizeInBytes) {
-                            tooltipHtml += `<div class="tooltip-li">Batch size: <div class="value">${generalUtils.formatBytesToSize(elementWithData.BatchSize.SizeInBytes)} </div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("etl.batchSize")} <div class="value">${generalUtils.formatBytesToSize(elementWithData.BatchSize.SizeInBytes)} </div></div>`;
                         }
                     }
                         break;
                     case "SubscriptionBatch": {
                         const elementWithData = context.rootStats as SubscriptionBatchPerformanceStatsWithCache;
                        
-                        tooltipHtml += `<div class="tooltip-li">Documents sent in batch: <div class="value">${elementWithData.NumberOfDocuments.toLocaleString()} (size: ${generalUtils.formatBytesToSize(elementWithData.SizeOfDocumentsInBytes)})</div></div>`;
-                        tooltipHtml += `<div class="tooltip-li">Included Documents: <div class="value">${elementWithData.NumberOfIncludedDocuments.toLocaleString()} (size: ${generalUtils.formatBytesToSize(elementWithData.SizeOfIncludedDocumentsInBytes)})</div></div>`;
-                        tooltipHtml += `<div class="tooltip-li">Included Counters: <div class="value">${elementWithData.NumberOfIncludedCounters.toLocaleString()} (size: ${generalUtils.formatBytesToSize(elementWithData.SizeOfIncludedCountersInBytes)})</div></div>`;
-                        tooltipHtml += `<div class="tooltip-li">Included Time Series entries: <div class="value">${elementWithData.NumberOfIncludedTimeSeriesEntries.toLocaleString()} (size: ${generalUtils.formatBytesToSize(elementWithData.SizeOfIncludedTimeSeriesInBytes)})</div></div>`;
+                        tooltipHtml += `<div class="tooltip-li">${t("subscription.documentsSent")} <div class="value">${t("subscription.countWithSize", { value: elementWithData.NumberOfDocuments.toLocaleString(), size: generalUtils.formatBytesToSize(elementWithData.SizeOfDocumentsInBytes) })}</div></div>`;
+                        tooltipHtml += `<div class="tooltip-li">${t("subscription.includedDocuments")} <div class="value">${t("subscription.countWithSize", { value: elementWithData.NumberOfIncludedDocuments.toLocaleString(), size: generalUtils.formatBytesToSize(elementWithData.SizeOfIncludedDocumentsInBytes) })}</div></div>`;
+                        tooltipHtml += `<div class="tooltip-li">${t("subscription.includedCounters")} <div class="value">${t("subscription.countWithSize", { value: elementWithData.NumberOfIncludedCounters.toLocaleString(), size: generalUtils.formatBytesToSize(elementWithData.SizeOfIncludedCountersInBytes) })}</div></div>`;
+                        tooltipHtml += `<div class="tooltip-li">${t("subscription.includedTimeSeries")} <div class="value">${t("subscription.countWithSize", { value: elementWithData.NumberOfIncludedTimeSeriesEntries.toLocaleString(), size: generalUtils.formatBytesToSize(elementWithData.SizeOfIncludedTimeSeriesInBytes) })}</div></div>`;
 
                         if (elementWithData.Exception) {
-                            tooltipHtml += `<div class="tooltip-li">Message: <div class="value">${generalUtils.trimMessage(elementWithData.Exception, 1024)} </div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("tooltip.message")} <div class="value">${generalUtils.trimMessage(elementWithData.Exception, 1024)} </div></div>`;
                             details = elementWithData.Exception;
                         }
                     }
                         break;
                     case "AggregatedBatchesInfo": {
                         const elementWithData = context.rootStats as SubscriptionBatchPerformanceStatsWithCache;
-                        tooltipHtml += `<div class="tooltip-li">Number of batches sent: <div class="value">${elementWithData.AggregatedBatchesCount.toLocaleString()} </div></div>`;
+                        tooltipHtml += `<div class="tooltip-li">${t("subscription.batchesSent")} <div class="value">${elementWithData.AggregatedBatchesCount.toLocaleString()} </div></div>`;
                     }
                         break;
                 }
@@ -2338,9 +2343,9 @@ class ongoingTasksStats extends shardViewModelBase {
                 if (isReplication) {
                     const baseElement = context.rootStats as Raven.Client.Documents.Replication.ReplicationPerformanceBase;
                     if (baseElement.Errors) {
-                        tooltipHtml += `<div class="tooltip-header text-danger">Errors:</div>`;
+                        tooltipHtml += `<div class="tooltip-header text-danger">${t("tooltip.errors")}</div>`;
                         baseElement.Errors.forEach(err => 
-                            tooltipHtml += `<div class="tooltip-li">Errors: <div class="value">${generalUtils.trimMessage(err.Error, 1024)} </div></div>`);
+                            tooltipHtml += `<div class="tooltip-li">${t("tooltip.errors")} <div class="value">${generalUtils.trimMessage(err.Error, 1024)} </div></div>`);
                         
                         details = baseElement.Errors.map(x => x.Timestamp + ": " + x.Error).join("\r\n");
                     }
@@ -2354,41 +2359,41 @@ class ongoingTasksStats extends shardViewModelBase {
                             
                             const appendCounts = (sectionName: string, count: number, sizeInBytes: number) => {
                                 if (count || sizeInBytes) {
-                                    tooltipHtml += `<div class="tooltip-li">${sectionName}: <div class="value">${count.toLocaleString()} (${generalUtils.formatBytesToSize(sizeInBytes)})</div></div>`;
+                                    tooltipHtml += `<div class="tooltip-li">${sectionName} <div class="value">${count.toLocaleString()} (${generalUtils.formatBytesToSize(sizeInBytes)})</div></div>`;
                                 }
                             }
 
-                            tooltipHtml += `<div class="tooltip-li">Input count: <div class="value">${elementWithData.Network.InputCount.toLocaleString()}</div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("replication.inputCount")} <div class="value">${elementWithData.Network.InputCount.toLocaleString()}</div></div>`;
 
-                            appendCounts("Documents input", elementWithData.Network.DocumentReadCount, elementWithData.Network.DocumentReadSizeInBytes);
-                            appendCounts("Documents Tombstone input", elementWithData.Network.DocumentTombstoneReadCount, elementWithData.Network.DocumentTombstoneReadSizeInBytes);
-                            appendCounts("Attachments input", elementWithData.Network.AttachmentReadCount, elementWithData.Network.AttachmentReadSizeInBytes);
-                            appendCounts("Attachments Stream input", elementWithData.Network.AttachmentStreamReadCount, elementWithData.Network.AttachmentStreamReadSizeInBytes);
-                            appendCounts("Attachments Tombstone input", elementWithData.Network.AttachmentTombstoneReadCount, elementWithData.Network.AttachmentTombstoneReadSizeInBytes);
-                            appendCounts("Counters input", elementWithData.Network.CounterReadCount, elementWithData.Network.CounterReadSizeInBytes);
-                            appendCounts("Time Series Segments input", elementWithData.Network.TimeSeriesReadCount, elementWithData.Network.TimeSeriesReadSizeInBytes);
-                            appendCounts("Time Series Deleted Ranges input", elementWithData.Network.TimeSeriesDeletedRangeReadCount, elementWithData.Network.TimeSeriesDeletedRangeReadSizeInBytes);
-                            appendCounts("Revisions input", elementWithData.Network.RevisionReadCount, elementWithData.Network.RevisionReadSizeInBytes);
-                            appendCounts("Revisions Tombstone input", elementWithData.Network.RevisionTombstoneReadCount, elementWithData.Network.RevisionTombstoneReadSizeInBytes);
+                            appendCounts(t("replication.documentsInput"), elementWithData.Network.DocumentReadCount, elementWithData.Network.DocumentReadSizeInBytes);
+                            appendCounts(t("replication.documentsTombstoneInput"), elementWithData.Network.DocumentTombstoneReadCount, elementWithData.Network.DocumentTombstoneReadSizeInBytes);
+                            appendCounts(t("replication.attachmentsInput"), elementWithData.Network.AttachmentReadCount, elementWithData.Network.AttachmentReadSizeInBytes);
+                            appendCounts(t("replication.attachmentsStreamInput"), elementWithData.Network.AttachmentStreamReadCount, elementWithData.Network.AttachmentStreamReadSizeInBytes);
+                            appendCounts(t("replication.attachmentsTombstoneInput"), elementWithData.Network.AttachmentTombstoneReadCount, elementWithData.Network.AttachmentTombstoneReadSizeInBytes);
+                            appendCounts(t("replication.countersInput"), elementWithData.Network.CounterReadCount, elementWithData.Network.CounterReadSizeInBytes);
+                            appendCounts(t("replication.timeSeriesSegmentsInput"), elementWithData.Network.TimeSeriesReadCount, elementWithData.Network.TimeSeriesReadSizeInBytes);
+                            appendCounts(t("replication.timeSeriesDeletedRangesInput"), elementWithData.Network.TimeSeriesDeletedRangeReadCount, elementWithData.Network.TimeSeriesDeletedRangeReadSizeInBytes);
+                            appendCounts(t("replication.revisionsInput"), elementWithData.Network.RevisionReadCount, elementWithData.Network.RevisionReadSizeInBytes);
+                            appendCounts(t("replication.revisionsTombstoneInput"), elementWithData.Network.RevisionTombstoneReadCount, elementWithData.Network.RevisionTombstoneReadSizeInBytes);
 
                             break;
                         }
                         case "Storage/Write":
                         {
-                            tooltipHtml += `<div class="text-info"><small>Information about read size/count,<br /> can be found in 'Network/Read' block.</small></div>`;
+                            tooltipHtml += `<div class="text-info"><small>${t("replication.readSizeInfo", { block: "Network/Read" })}</small></div>`;
                             
                             break;
                         }
                         case "Storage/Read":
                         {
                             const elementWithData = context.rootStats as OutgoingReplicationPerformanceWithCache;
-                            tooltipHtml += `<div class="tooltip-li">Storage input count: <div class="value">${elementWithData.Storage.InputCount.toLocaleString()}</div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("replication.storageInputCount")} <div class="value">${elementWithData.Storage.InputCount.toLocaleString()}</div></div>`;
 
-                            tooltipHtml += `<div class="tooltip-li">Artificial document skip count: <div class="value">${elementWithData.Storage.ArtificialDocumentSkipCount.toLocaleString()}</div></div>`;
-                            tooltipHtml += `<div class="tooltip-li">System document skip count: <div class="value">${elementWithData.Storage.SystemDocumentSkipCount.toLocaleString()}</div></div>`;
-                            tooltipHtml += `<div class="tooltip-li">Change Vector skip count: <div class="value">${elementWithData.Storage.ChangeVectorSkipCount.toLocaleString()}</div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("replication.artificialDocumentSkipCount")} <div class="value">${elementWithData.Storage.ArtificialDocumentSkipCount.toLocaleString()}</div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("replication.systemDocumentSkipCount")} <div class="value">${elementWithData.Storage.SystemDocumentSkipCount.toLocaleString()}</div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("replication.changeVectorSkipCount")} <div class="value">${elementWithData.Storage.ChangeVectorSkipCount.toLocaleString()}</div></div>`;
                             
-                            tooltipHtml += `<div class="text-info"><small>Information about read size/count,<br /> can be found in 'Network/Write' block.</small></div>`;
+                            tooltipHtml += `<div class="text-info"><small>${t("replication.readSizeInfo", { block: "Network/Write" })}</small></div>`;
                             break;
                         }
                         case "Network/Write":
@@ -2396,20 +2401,20 @@ class ongoingTasksStats extends shardViewModelBase {
                             const elementWithData = context.rootStats as OutgoingReplicationPerformanceWithCache;
                             const appendCounts = (sectionName: string, count: number, sizeInBytes: number) => {
                                 if (count || sizeInBytes) {
-                                    tooltipHtml += `<div class="tooltip-li">${sectionName}: <div class="value">${count.toLocaleString()} (${generalUtils.formatBytesToSize(sizeInBytes)})</div></div>`;
+                                    tooltipHtml += `<div class="tooltip-li">${sectionName} <div class="value">${count.toLocaleString()} (${generalUtils.formatBytesToSize(sizeInBytes)})</div></div>`;
                                 }
                             }
 
-                            appendCounts("Documents output", elementWithData.Network.DocumentOutputCount, elementWithData.Network.DocumentOutputSizeInBytes);
-                            appendCounts("Documents Tombstone output", elementWithData.Network.DocumentTombstoneOutputCount, elementWithData.Network.DocumentTombstoneOutputSizeInBytes);
-                            appendCounts("Attachments output", elementWithData.Network.AttachmentOutputCount, elementWithData.Network.AttachmentOutputSizeInBytes);
-                            appendCounts("Attachments Stream output", elementWithData.Network.AttachmentStreamOutputCount, elementWithData.Network.AttachmentStreamOutputSizeInBytes);
-                            appendCounts("Attachments Tombstone output", elementWithData.Network.AttachmentTombstoneOutputCount, elementWithData.Network.AttachmentTombstoneOutputSizeInBytes);
-                            appendCounts("Counters output", elementWithData.Network.CounterOutputCount, elementWithData.Network.CounterOutputSizeInBytes);
-                            appendCounts("Time Series Segments output", elementWithData.Network.TimeSeriesSegmentsOutputCount, elementWithData.Network.TimeSeriesSegmentsSizeInBytes);
-                            appendCounts("Time Series Deleted Ranges output", elementWithData.Network.TimeSeriesDeletedRangeOutputCount, elementWithData.Network.TimeSeriesDeletedRangeOutputSizeInBytes);
-                            appendCounts("Revisions output", elementWithData.Network.RevisionOutputCount, elementWithData.Network.RevisionOutputSizeInBytes);
-                            appendCounts("Revisions Tombstone output", elementWithData.Network.RevisionTombstoneOutputCount, elementWithData.Network.RevisionTombstoneOutputSizeInBytes);
+                            appendCounts(t("replication.documentsOutput"), elementWithData.Network.DocumentOutputCount, elementWithData.Network.DocumentOutputSizeInBytes);
+                            appendCounts(t("replication.documentsTombstoneOutput"), elementWithData.Network.DocumentTombstoneOutputCount, elementWithData.Network.DocumentTombstoneOutputSizeInBytes);
+                            appendCounts(t("replication.attachmentsOutput"), elementWithData.Network.AttachmentOutputCount, elementWithData.Network.AttachmentOutputSizeInBytes);
+                            appendCounts(t("replication.attachmentsStreamOutput"), elementWithData.Network.AttachmentStreamOutputCount, elementWithData.Network.AttachmentStreamOutputSizeInBytes);
+                            appendCounts(t("replication.attachmentsTombstoneOutput"), elementWithData.Network.AttachmentTombstoneOutputCount, elementWithData.Network.AttachmentTombstoneOutputSizeInBytes);
+                            appendCounts(t("replication.countersOutput"), elementWithData.Network.CounterOutputCount, elementWithData.Network.CounterOutputSizeInBytes);
+                            appendCounts(t("replication.timeSeriesSegmentsOutput"), elementWithData.Network.TimeSeriesSegmentsOutputCount, elementWithData.Network.TimeSeriesSegmentsSizeInBytes);
+                            appendCounts(t("replication.timeSeriesDeletedRangesOutput"), elementWithData.Network.TimeSeriesDeletedRangeOutputCount, elementWithData.Network.TimeSeriesDeletedRangeOutputSizeInBytes);
+                            appendCounts(t("replication.revisionsOutput"), elementWithData.Network.RevisionOutputCount, elementWithData.Network.RevisionOutputSizeInBytes);
+                            appendCounts(t("replication.revisionsTombstoneOutput"), elementWithData.Network.RevisionTombstoneOutputCount, elementWithData.Network.RevisionTombstoneOutputSizeInBytes);
                             
                             break;
                         }
@@ -2422,143 +2427,143 @@ class ongoingTasksStats extends shardViewModelBase {
                         case "Extract":
                             Object.entries(baseElement.NumberOfExtractedItems ?? []).forEach(([key, value]: [Raven.Server.Documents.ETL.EtlItemType, number]) => {
                                 if (value) {
-                                    tooltipHtml += `<div class="tooltip-li">Extracted <div class="value">${ongoingTasksStats.etlItemTypeToUi(key)}: ${value.toLocaleString()} </div></div>`;
+                                    tooltipHtml += `<div class="tooltip-li">${t("etl.extracted")} <div class="value">${t("etl.extractedCount", { itemType: generalUtils.escapeHtml(ongoingTasksStats.etlItemTypeToUi(key)), value: value.toLocaleString() })} </div></div>`;
                                 }
                             });
 
                             Object.entries(baseElement.LastFilteredOutEtags ?? []).forEach(([key, value]: [Raven.Server.Documents.ETL.EtlItemType, number]) => {
                                 if (value) {
-                                    tooltipHtml += `<div class="tooltip-li">Last filtered out Etag for ${key}: <div class="value">${value} </div></div>`;
+                                    tooltipHtml += `<div class="tooltip-li">${t("etl.lastFilteredOutEtag", { itemType: generalUtils.escapeHtml(key) })} <div class="value">${value} </div></div>`;
                                 }
                             });
                             break;
                         case "Transform":
                             Object.entries(baseElement.NumberOfTransformedItems ?? []).forEach(([key, value]: [Raven.Server.Documents.ETL.EtlItemType, number]) => {
                                 if (value) {
-                                    tooltipHtml += `<div class="tooltip-li">Transformed ${ongoingTasksStats.etlItemTypeToUi(key)}: <div class="value">${value.toLocaleString()} </div></div>`;
+                                    tooltipHtml += `<div class="tooltip-li">${t("etl.transformed", { context: ongoingTasksStats.etlItemTypeContext(key) })} <div class="value">${value.toLocaleString()} </div></div>`;
                                     
                                     if (baseElement.DurationInMs) {
                                         const durationInSec = context.item.DurationInMs / 1000;
-                                        tooltipHtml += `<div class="tooltip-li">${ongoingTasksStats.etlItemTypeToUi(key)} Processing Speed: <div class="value">${Math.floor(value / durationInSec).toLocaleString()} docs/sec </div></div>`;
+                                        tooltipHtml += `<div class="tooltip-li">${t("etl.processingSpeed", { context: ongoingTasksStats.etlItemTypeContext(key) })} <div class="value">${t("etl.processingSpeedValue", { speed: Math.floor(value / durationInSec).toLocaleString() })} </div></div>`;
                                     }
                                 }
                             });
 
                             Object.entries(baseElement.NumberOfTransformedTombstones ?? []).forEach(([key, value]: [Raven.Server.Documents.ETL.EtlItemType, number]) => {
                                 if (value) {
-                                    tooltipHtml += `<div class="tooltip-li">Transformed ${ongoingTasksStats.etlItemTypeToUi(key)} tombstones: <div class="value">${value.toLocaleString()} </div></div>`;
+                                    tooltipHtml += `<div class="tooltip-li">${t("etl.transformedTombstones", { context: ongoingTasksStats.etlItemTypeContext(key) })} <div class="value">${value.toLocaleString()} </div></div>`;
                                 }
                             });
                             
                             if (baseElement.TransformationErrorCount) {
-                                tooltipHtml += `<div class="tooltip-li">Transformation error count: <div class="value">${baseElement.TransformationErrorCount.toLocaleString()} </div></div>`;
+                                tooltipHtml += `<div class="tooltip-li">${t("etl.transformationErrorCount")} <div class="value">${baseElement.TransformationErrorCount.toLocaleString()} </div></div>`;
                             }
 
                             Object.entries(baseElement.LastTransformedEtags ?? []).forEach(([key, value]: [Raven.Server.Documents.ETL.EtlItemType, number]) => {
                                 if (value) {
-                                    tooltipHtml += `<div class="tooltip-li">Last transformed Etag for ${key}: <div class="value">${value} </div></div>`;
+                                    tooltipHtml += `<div class="tooltip-li">${t("etl.lastTransformedEtag", { itemType: generalUtils.escapeHtml(key) })} <div class="value">${value} </div></div>`;
                                 }
                             });
 
                             if (type === "GenAi") {
                                 const elementWithData = context.item as Raven.Server.Documents.ETL.Providers.AI.GenAi.Stats.GenAiPerformanceOperation;
-                                tooltipHtml += `<div class="tooltip-li">Number of context objects: <div class="value">${elementWithData.NumberOfContextObjects} </div></div>`;
-                                tooltipHtml += `<div class="tooltip-li">Total cached contexts: <div class="value">${elementWithData.TotalCachedContexts} </div></div>`;
+                                tooltipHtml += `<div class="tooltip-li">${t("genAi.numberOfContextObjects")} <div class="value">${elementWithData.NumberOfContextObjects} </div></div>`;
+                                tooltipHtml += `<div class="tooltip-li">${t("genAi.totalCachedContexts")} <div class="value">${elementWithData.TotalCachedContexts} </div></div>`;
                             }
 
                             break;
                         case "Load": {
                             if (baseElement.SuccessfullyLoaded != null) {
-                                tooltipHtml += `<div class="tooltip-li">Successfully loaded: <div class="value">${baseElement.SuccessfullyLoaded ? "Yes" : "No"} </div></div>`;
+                                tooltipHtml += `<div class="tooltip-li">${t("etl.successfullyLoaded")} <div class="value">${baseElement.SuccessfullyLoaded ? t("tooltip.yes") : t("tooltip.no")} </div></div>`;
                             }
 
                             if (baseElement.LastLoadedEtag) {
-                                tooltipHtml += `<div class="tooltip-li">Last loaded Etag: <div class="value">${baseElement.LastLoadedEtag} </div></div>`;
+                                tooltipHtml += `<div class="tooltip-li">${t("etl.lastLoadedEtag")} <div class="value">${baseElement.LastLoadedEtag} </div></div>`;
                             }
 
                             if (type === "GenAi") {
                                 const elementWithData = context.item as GenAiPerformanceOperation;
                                 
                                 const totalSentToModel = typeUtils.sumBy(elementWithData.Operations, (operation: GenAiPerformanceOperation) => operation.TotalSentToModel);
-                                tooltipHtml += `<div class="tooltip-li">Total sent to model: <div class="value">${totalSentToModel} </div></div>`;
+                                tooltipHtml += `<div class="tooltip-li">${t("genAi.totalSentToModel")} <div class="value">${totalSentToModel} </div></div>`;
 
                                 const modelCallFailures = typeUtils.sumBy(elementWithData.Operations, (operation: GenAiPerformanceOperation) => operation.ModelCallFailures);
-                                tooltipHtml += `<div class="tooltip-li">Model call failures: <div class="value">${modelCallFailures} </div></div>`;
+                                tooltipHtml += `<div class="tooltip-li">${t("genAi.modelCallFailures")} <div class="value">${modelCallFailures} </div></div>`;
 
                                 const totalUpdates = typeUtils.sumBy(elementWithData.Operations, (operation: GenAiPerformanceOperation) => operation.TotalUpdates);
-                                tooltipHtml += `<div class="tooltip-li">Total updates: <div class="value">${totalUpdates} </div></div>`;
+                                tooltipHtml += `<div class="tooltip-li">${t("genAi.totalUpdates")} <div class="value">${totalUpdates} </div></div>`;
 
                                 const updateFailures = typeUtils.sumBy(elementWithData.Operations, (operation: GenAiPerformanceOperation) => operation.UpdateFailures);
-                                tooltipHtml += `<div class="tooltip-li">Update failures: <div class="value">${updateFailures} </div></div>`;
+                                tooltipHtml += `<div class="tooltip-li">${t("genAi.updateFailures")} <div class="value">${updateFailures} </div></div>`;
 
                                 const numberOfContextObjects = typeUtils.sumBy(elementWithData.Operations, (operation: GenAiPerformanceOperation) => operation.NumberOfContextObjects);
-                                tooltipHtml += `<div class="tooltip-li">Number of context objects: <div class="value">${numberOfContextObjects} </div></div>`;
+                                tooltipHtml += `<div class="tooltip-li">${t("genAi.numberOfContextObjects")} <div class="value">${numberOfContextObjects} </div></div>`;
 
                                 const totalCachedContexts = typeUtils.sumBy(elementWithData.Operations, (operation: GenAiPerformanceOperation) => operation.TotalCachedContexts);
-                                tooltipHtml += `<div class="tooltip-li">Total cached contexts: <div class="value">${totalCachedContexts} </div></div>`;
+                                tooltipHtml += `<div class="tooltip-li">${t("genAi.totalCachedContexts")} <div class="value">${totalCachedContexts} </div></div>`;
 
                                 const totalTokens = typeUtils.sumBy(elementWithData.Operations, (operation: GenAiPerformanceOperation) => operation.Usage?.TotalTokens ?? 0);
-                                tooltipHtml += `<div class="tooltip-li">Total tokens: <div class="value">${totalTokens} </div></div>`;
+                                tooltipHtml += `<div class="tooltip-li">${t("genAi.totalTokens")} <div class="value">${totalTokens} </div></div>`;
 
                                 const completionTokens = typeUtils.sumBy(elementWithData.Operations, (operation: GenAiPerformanceOperation) => operation.Usage?.CompletionTokens ?? 0);
-                                tooltipHtml += `<div class="tooltip-li">Completion tokens: <div class="value">${completionTokens} </div></div>`;
+                                tooltipHtml += `<div class="tooltip-li">${t("genAi.completionTokens")} <div class="value">${completionTokens} </div></div>`;
 
                                 const promptTokens = typeUtils.sumBy(elementWithData.Operations, (operation: GenAiPerformanceOperation) => operation.Usage?.PromptTokens ?? 0);
-                                tooltipHtml += `<div class="tooltip-li">Prompt tokens: <div class="value">${promptTokens} </div></div>`;
+                                tooltipHtml += `<div class="tooltip-li">${t("genAi.promptTokens")} <div class="value">${promptTokens} </div></div>`;
 
                                 const reasoningTokens = typeUtils.sumBy(elementWithData.Operations, (operation: GenAiPerformanceOperation) => operation.Usage?.ReasoningTokens ?? 0);
-                                tooltipHtml += `<div class="tooltip-li">Reasoning tokens: <div class="value">${reasoningTokens} </div></div>`;
+                                tooltipHtml += `<div class="tooltip-li">${t("genAi.reasoningTokens")} <div class="value">${reasoningTokens} </div></div>`;
 
                                 const cachedTokens = typeUtils.sumBy(elementWithData.Operations, (operation: GenAiPerformanceOperation) => operation.Usage?.CachedTokens ?? 0);
-                                tooltipHtml += `<div class="tooltip-li">Cached tokens: <div class="value">${cachedTokens} </div></div>`;
+                                tooltipHtml += `<div class="tooltip-li">${t("genAi.cachedTokens")} <div class="value">${cachedTokens} </div></div>`;
                             }
 
                             break;
                         }
                         case "Storage/Embeddings": {
                             const elementWithData = context.item as Raven.Server.Documents.ETL.Providers.AI.Embeddings.Stats.EmbeddingsGenerationPerformanceOperation;
-                            tooltipHtml += `<div class="tooltip-li">Put embeddings documents: <div class="value">${elementWithData.NumberOfPutEmbeddingDocuments}</div></div>`;
-                            tooltipHtml += `<div class="tooltip-li">Deleted embeddings documents: <div class="value">${elementWithData.NumberOfDeletedEmbeddingDocuments}</div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("embeddings.putDocuments")} <div class="value">${elementWithData.NumberOfPutEmbeddingDocuments}</div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("embeddings.deletedDocuments")} <div class="value">${elementWithData.NumberOfDeletedEmbeddingDocuments}</div></div>`;
                             break;
                         }
                         case "Model/Generate": {
                             const elementWithData = context.item as Raven.Server.Documents.ETL.Providers.AI.Embeddings.Stats.EmbeddingsGenerationPerformanceOperation;
-                            tooltipHtml += `<div class="tooltip-li">Generated embeddings: <div class="value">${elementWithData.NumberOfGeneratedEmbeddings}</div></div>`;
-                            tooltipHtml += `<div class="tooltip-li">Embeddings in cache: <div class="value">${elementWithData.NumberOfEmbeddingsInCache}</div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("embeddings.generated")} <div class="value">${elementWithData.NumberOfGeneratedEmbeddings}</div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("embeddings.inCache")} <div class="value">${elementWithData.NumberOfEmbeddingsInCache}</div></div>`;
                             break;
                         }
                         case "Model/Load": {
                             const elementWithData = context.item as Raven.Server.Documents.ETL.Providers.AI.GenAi.Stats.GenAiPerformanceOperation;
-                            tooltipHtml += `<div class="tooltip-li">Total cached contexts: <div class="value">${elementWithData.TotalCachedContexts} </div></div>`;
-                            tooltipHtml += `<div class="tooltip-li">Total sent to model: <div class="value">${elementWithData.TotalSentToModel} </div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("genAi.totalCachedContexts")} <div class="value">${elementWithData.TotalCachedContexts} </div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("genAi.totalSentToModel")} <div class="value">${elementWithData.TotalSentToModel} </div></div>`;
                             break;
                         }
                         case "GenAI/LoadToModel": {
                             const elementWithData = context.item as Raven.Server.Documents.ETL.Providers.AI.GenAi.Stats.GenAiPerformanceOperation;
-                            tooltipHtml += `<div class="tooltip-li">Total sent to model: <div class="value">${elementWithData.TotalSentToModel} </div></div>`;
-                            tooltipHtml += `<div class="tooltip-li">Model call failures: <div class="value">${elementWithData.ModelCallFailures} </div></div>`;
-                            tooltipHtml += `<div class="tooltip-li">Number of context objects: <div class="value">${elementWithData.NumberOfContextObjects} </div></div>`;
-                            tooltipHtml += `<div class="tooltip-li">Total cached contexts: <div class="value">${elementWithData.TotalCachedContexts} </div></div>`;
-                            tooltipHtml += `<div class="tooltip-li">Total tokens used: <div class="value">${elementWithData.Usage?.TotalTokens ?? 0} </div></div>`;
-                            tooltipHtml += `<div class="tooltip-li">Completion tokens used: <div class="value">${elementWithData.Usage?.CompletionTokens ?? 0} </div></div>`;
-                            tooltipHtml += `<div class="tooltip-li">Prompt tokens used: <div class="value">${elementWithData.Usage?.PromptTokens ?? 0} </div></div>`;
-                            tooltipHtml += `<div class="tooltip-li">Reasoning tokens used: <div class="value">${elementWithData.Usage?.ReasoningTokens ?? 0} </div></div>`;
-                            tooltipHtml += `<div class="tooltip-li">Cached tokens used: <div class="value">${elementWithData.Usage?.CachedTokens ?? 0} </div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("genAi.totalSentToModel")} <div class="value">${elementWithData.TotalSentToModel} </div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("genAi.modelCallFailures")} <div class="value">${elementWithData.ModelCallFailures} </div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("genAi.numberOfContextObjects")} <div class="value">${elementWithData.NumberOfContextObjects} </div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("genAi.totalCachedContexts")} <div class="value">${elementWithData.TotalCachedContexts} </div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("genAi.totalTokensUsed")} <div class="value">${elementWithData.Usage?.TotalTokens ?? 0} </div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("genAi.completionTokensUsed")} <div class="value">${elementWithData.Usage?.CompletionTokens ?? 0} </div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("genAi.promptTokensUsed")} <div class="value">${elementWithData.Usage?.PromptTokens ?? 0} </div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("genAi.reasoningTokensUsed")} <div class="value">${elementWithData.Usage?.ReasoningTokens ?? 0} </div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("genAi.cachedTokensUsed")} <div class="value">${elementWithData.Usage?.CachedTokens ?? 0} </div></div>`;
                             break;
                         }
                         case "GenAI/UpdatePhase": {
                             const elementWithData = context.item as Raven.Server.Documents.ETL.Providers.AI.GenAi.Stats.GenAiPerformanceOperation;
-                            tooltipHtml += `<div class="tooltip-li">Total updates: <div class="value">${elementWithData.TotalUpdates} </div></div>`;
-                            tooltipHtml += `<div class="tooltip-li">Update failures: <div class="value">${elementWithData.UpdateFailures} </div></div>`;
-                            tooltipHtml += `<div class="tooltip-li">Number of context objects: <div class="value">${elementWithData.NumberOfContextObjects} </div></div>`;
-                            tooltipHtml += `<div class="tooltip-li">Total cached contexts: <div class="value">${elementWithData.TotalCachedContexts} </div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("genAi.totalUpdates")} <div class="value">${elementWithData.TotalUpdates} </div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("genAi.updateFailures")} <div class="value">${elementWithData.UpdateFailures} </div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("genAi.numberOfContextObjects")} <div class="value">${elementWithData.NumberOfContextObjects} </div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("genAi.totalCachedContexts")} <div class="value">${elementWithData.TotalCachedContexts} </div></div>`;
                         }
                     }
                     
                     if (type === "Olap") {
                         const olapItem = context.item as unknown as Raven.Server.Documents.ETL.Providers.OLAP.OlapEtlPerformanceOperation;
                         if (olapItem.FileName) {
-                            tooltipHtml += `<div class="tooltip-li">File Name: <div class="value">${olapItem.FileName} </div></div>`;
+                            tooltipHtml += `<div class="tooltip-li">${t("etl.fileName")} <div class="value">${olapItem.FileName} </div></div>`;
                         }
                         if (olapItem.S3Upload) {
                             tooltipHtml += `<hr />`;
@@ -2584,15 +2589,15 @@ class ongoingTasksStats extends shardViewModelBase {
                     
                 } else if (isSubscription) {
                     // used for batches stripes only 
-                    const title = context.item.Name === "BatchWaitForAcknowledge" ? "Waiting for ACK" : "Sending Documents";
+                    const title = context.item.Name === "BatchWaitForAcknowledge" ? t("subscription.waitingForAck") : t("subscription.sendingDocuments");
                     
                     tooltipHtml = `<div class="tooltip-header"> ${title} </div>`;
-                    tooltipHtml += '<div class="tooltip-li">Duration: <div class="value">' + generalUtils.formatMillis(context.item.DurationInMs) + ' </div></div>';
+                    tooltipHtml += '<div class="tooltip-li">' + t("tooltip.duration") + ' <div class="value">' + generalUtils.formatMillis(context.item.DurationInMs) + ' </div></div>';
                 }
             }
             
             if (details) {
-                tooltipHtml += `<div class="tooltip-li">Details: <div class="value">${ongoingTasksStats.showDetailsButton}</div></div>`;
+                tooltipHtml += `<div class="tooltip-li">${t("tooltip.details")} <div class="value">${ongoingTasksStats.showDetailsButton}</div></div>`;
             }
             
             this.handleTooltip(context.item, x, y, tooltipHtml, details);
@@ -2601,16 +2606,16 @@ class ongoingTasksStats extends shardViewModelBase {
     
     static uploadProgressTooltip(header: string, progress: Raven.Client.Documents.Operations.Backups.UploadProgress, duration: number) {
         let tooltipHtml = `<div class="tooltip-header">${header}</div>`;
-        tooltipHtml += `<div class="tooltip-li">Upload State: <div class="value">${progress.UploadState}</div></div>`;
-        tooltipHtml += `<div class="tooltip-li">Upload Type: <div class="value">${progress.UploadType}</div></div>`;
+        tooltipHtml += `<div class="tooltip-li">${t("upload.state")} <div class="value">${progress.UploadState}</div></div>`;
+        tooltipHtml += `<div class="tooltip-li">${t("upload.type")} <div class="value">${progress.UploadType}</div></div>`;
         if (progress.UploadState === "Done") {
-            tooltipHtml += `<div class="tooltip-li">File Size: <div class="value">${generalUtils.formatBytesToSize(progress.TotalInBytes)}</div></div>`;
+            tooltipHtml += `<div class="tooltip-li">${t("upload.fileSize")} <div class="value">${generalUtils.formatBytesToSize(progress.TotalInBytes)}</div></div>`;
             if (duration > 0) {
-                tooltipHtml += `<div class="tooltip-li">Upload speed: <div class="value">${generalUtils.formatBytesToSize(progress.TotalInBytes * 1000 / duration)}/s</div></div>`;
+                tooltipHtml += `<div class="tooltip-li">${t("upload.speed")} <div class="value">${generalUtils.formatBytesToSize(progress.TotalInBytes * 1000 / duration)}/s</div></div>`;
             }
         } else {
-            tooltipHtml += `<div class="tooltip-li">Progress: <div class="value">${generalUtils.formatBytesToSize(progress.UploadedInBytes)}/${generalUtils.formatBytesToSize(progress.TotalInBytes)}</div></div>`;
-            tooltipHtml += `<div class="tooltip-li">Upload speed: <div class="value">${generalUtils.formatBytesToSize(progress.BytesPutsPerSec)}/s</div></div>`;
+            tooltipHtml += `<div class="tooltip-li">${t("upload.progress")} <div class="value">${generalUtils.formatBytesToSize(progress.UploadedInBytes)}/${generalUtils.formatBytesToSize(progress.TotalInBytes)}</div></div>`;
+            tooltipHtml += `<div class="tooltip-li">${t("upload.speed")} <div class="value">${generalUtils.formatBytesToSize(progress.BytesPutsPerSec)}/s</div></div>`;
         }
         
         return tooltipHtml;
@@ -2619,11 +2624,22 @@ class ongoingTasksStats extends shardViewModelBase {
     static etlItemTypeToUi(value: Raven.Server.Documents.ETL.EtlItemType) {
         switch (value) {
             case "Document":
-                return "Documents";
+                return t("etl.itemTypes.document");
             case "CounterGroup":
-                return "Counter Groups";
+                return t("etl.itemTypes.counterGroup");
             default:
-                return "None";
+                return t("etl.itemTypes.none");
+        }
+    }
+
+    private static etlItemTypeContext(value: Raven.Server.Documents.ETL.EtlItemType): "document" | "counterGroup" | "none" {
+        switch (value) {
+            case "Document":
+                return "document";
+            case "CounterGroup":
+                return "counterGroup";
+            default:
+                return "none";
         }
     }
 
@@ -2696,7 +2712,7 @@ class ongoingTasksStats extends shardViewModelBase {
 
             // Data validation (currently only checking if this is an array, may do deeper validation later..
             if (!_.isObject(importedData)) { 
-                messagePublisher.reportError("Invalid replication stats file format", undefined, undefined);
+                messagePublisher.reportError(t("importErrors.invalidFormat"), undefined, undefined);
             } else {
                 this.replicationData = importedData.Replication;
                 this.etlData = importedData.Etl;
@@ -2713,7 +2729,7 @@ class ongoingTasksStats extends shardViewModelBase {
                 this.isImport(true);
             }
         } catch (e) {
-            messagePublisher.reportError("Failed to parse json data", undefined, undefined);
+            messagePublisher.reportError(t("importErrors.parseFailed"), undefined, undefined);
         }
     }
 
@@ -2760,7 +2776,7 @@ class ongoingTasksStats extends shardViewModelBase {
     }
 
     clearGraphWithConfirm() {
-        this.confirmationMessage("Clear graph data", "Do you want to discard all collected ongoing tasks statistics?")
+        this.confirmationMessage(t("clearGraphConfirm.title"), t("clearGraphConfirm.message"))
             .done(result => {
                 if (result.can) {
                     this.clearGraph();

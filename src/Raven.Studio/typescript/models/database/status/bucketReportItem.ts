@@ -1,6 +1,9 @@
 /// <reference path="../../../../typings/tsd.d.ts"/>
 
 import generalUtils = require("common/generalUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("statusModels");
 
 class bucketReportItem {
     name: string;
@@ -39,7 +42,7 @@ class bucketReportItem {
     }
 
     pendingRemovalTooltip(): string {
-        return "This bucket is being moved to shard #" + this.ownerShard + ". The copy on this shard will be removed once resharding completes.";
+        return t("bucket.pendingRemovalTooltip", { ownerShard: this.ownerShard });
     }
 
     formatSize() {

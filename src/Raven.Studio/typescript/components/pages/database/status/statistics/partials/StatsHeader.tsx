@@ -11,8 +11,11 @@ import { useAppDispatch, useAppSelector } from "components/store";
 import { Icon } from "components/common/Icon";
 import ButtonWithSpinner from "components/common/ButtonWithSpinner";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export function StatsHeader() {
+    const t = useStudioTranslation("statistics");
+    const commonT = useStudioTranslation("common");
     const dispatch = useAppDispatch();
 
     const detailsVisible = useAppSelector(statisticsViewSelectors.detailsVisible);
@@ -25,10 +28,10 @@ export function StatsHeader() {
                     <Button
                         variant="secondary"
                         onClick={() => dispatch(toggleDetails())}
-                        title="Click to load detailed statistics"
+                        title={t("header.toggleDetailsTitle")}
                     >
                         <Icon icon={detailsVisible ? "collapse-vertical" : "expand-vertical"} />
-                        <span>{detailsVisible ? "Hide" : "Show"} detailed database &amp; indexing stats</span>
+                        <span>{t("header.toggleDetails", { context: detailsVisible ? "hide" : "show" })}</span>
                     </Button>
                 </Col>
                 <Col />
@@ -36,10 +39,10 @@ export function StatsHeader() {
                     <ButtonWithSpinner
                         variant="primary"
                         onClick={() => dispatch(refresh())}
-                        title="Click to refresh stats"
+                        title={t("header.refreshTitle")}
                         isSpinning={isRefreshing}
                     >
-                        Refresh
+                        {commonT("refresh")}
                     </ButtonWithSpinner>
                 </Col>
             </Row>
