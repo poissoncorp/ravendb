@@ -1,15 +1,15 @@
 <div class="padding">
 
     <form class="flex-form" data-bind="submit: startReplay">
-        <h3>Replay Transaction Commands</h3>
+        <h3 data-bind="i18n: 'debugAdvancedReplayTransactionCommands:title'"></h3>
 
         <div class="row margin-top">
             <div class="col-lg-6 col-sm-8">
                 <div class="form-group" data-bind="validationElement: databaseName">
-                    <label class="control-label">Database Name</label>
+                    <label class="control-label" data-bind="i18n: 'debugAdvancedReplayTransactionCommands:databaseName'"></label>
                     <div class="flex-grow">
                         <button class="btn btn-block dropdown-toggle text-left" data-toggle="dropdown">
-                            <span data-bind="text: databaseName() || 'Select database'"></span>
+                            <span data-bind="text: databaseName"></span><span data-bind="i18n: databaseName() ? null : 'debugAdvancedReplayTransactionCommands:selectDatabase'"></span>
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" data-bind="foreach: databaseNames">
@@ -20,14 +20,14 @@
                 </div>
 
                 <div class="form-group" data-bind="validationElement: importedFileName">
-                    <label class="control-label">Input File</label>
+                    <label class="control-label" data-bind="i18n: 'debugAdvancedReplayTransactionCommands:inputFile'"></label>
                     <div class="flex-grow">
                         <div class="input-group file-input" data-bind="validationElement: importedFileName">
                             <input type="file" id="transactionCommandsFilePicker" data-bind="event: { change: _.partial(fileSelected, $element.value) }" tabindex="-1">
-                            <span class="static-name form-control" data-bind="text: importedFileName() || 'Select file...'"></span>
+                            <span class="static-name form-control"><span data-bind="text: importedFileName"></span><span data-bind="i18n: importedFileName() ? null : 'debugAdvancedReplayTransactionCommands:selectFile'"></span></span>
                             <span class="input-group-btn">
                                 <label for="transactionCommandsFilePicker" class="btn btn-default">
-                                    <i class="icon-document"></i><span>Browse</span>
+                                    <i class="icon-document"></i><span data-bind="i18n: 'debugAdvancedReplayTransactionCommands:browse'"></span>
                                 </label>
                             </span>
                             <p class="help-block" data-bind="validationMessage: importedFileName"></p>
@@ -44,7 +44,7 @@
         <hr />
         <button type="submit" class="btn btn-primary">
             <i class="icon-transaction-record-replay"></i>
-            <span>Start replay</span>
+            <span data-bind="i18n: 'debugAdvancedReplayTransactionCommands:startReplay'"></span>
         </button>
     </form>
 </div>

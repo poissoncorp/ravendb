@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("serverWideCommands");
 
 class getServerWideCustomSortersCommand extends commandBase {
 
@@ -8,7 +11,7 @@ class getServerWideCustomSortersCommand extends commandBase {
         
         return this.query<Array<Raven.Client.Documents.Queries.Sorting.SorterDefinition>>(url, null, null, x => x.Sorters)
             .fail((response: JQueryXHR) => {
-                this.reportError("Failed to get Server-Wide Custom Sorters", response.responseText, response.statusText); 
+                this.reportError(t("sorters.getFailed"), response.responseText, response.statusText); 
             });
     }
 }

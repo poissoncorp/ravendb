@@ -7,6 +7,7 @@ import {
 } from "components/pages/resources/manageServer/serverSettings/useServerSettingsColumns";
 import { AsyncStateStatus } from "react-async-hook";
 import { LoadError } from "components/common/LoadError";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface ServerSettingsVirtualTableProps {
     height: number;
@@ -25,6 +26,7 @@ export function ServerSettingsVirtualTable({
     width,
     status,
 }: ServerSettingsVirtualTableProps) {
+    const t = useStudioTranslation("serverSettings");
     const serverSettingsColumns = useServerSettingsColumns(width);
 
     const serverSettingsTable = useReactTable({
@@ -45,7 +47,7 @@ export function ServerSettingsVirtualTable({
     });
 
     if (status === "error") {
-        return <LoadError error="Error during loading server settings" refresh={reload} />;
+        return <LoadError error={t("loadError")} refresh={reload} />;
     }
 
     return <VirtualTable className="mt-4" isLoading={isLoading} heightInPx={height} table={serverSettingsTable} />;

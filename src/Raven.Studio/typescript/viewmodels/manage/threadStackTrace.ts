@@ -2,6 +2,9 @@ import dialogViewModelBase = require("viewmodels/dialogViewModelBase");
 import copyToClipboard = require("common/copyToClipboard");
 import getStackTraceForThreadCommand = require("commands/maintenance/getStackTraceForThreadCommand");
 import generalUtils = require("common/generalUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("debugAdvancedThreadsRuntime");
 
 class threadStackTrace extends dialogViewModelBase {
 
@@ -59,14 +62,14 @@ class threadStackTrace extends dialogViewModelBase {
     getInfoFromThreadsList(threadsList: Array<Raven.Server.Dashboard.ThreadInfo>): [string, string] {
         const matchedThread = threadsList.find(x => x.Id === this.threadId())
         
-        const cpu =  matchedThread ? `${(matchedThread.CpuUsage === 0 ? "0" : generalUtils.formatNumberToStringFixed(matchedThread.CpuUsage, 2))}%` : "N/A";
-        const name = matchedThread ? matchedThread.Name : "N/A";
+        const cpu =  matchedThread ? `${(matchedThread.CpuUsage === 0 ? "0" : generalUtils.formatNumberToStringFixed(matchedThread.CpuUsage, 2))}%` : t("notAvailable");
+        const name = matchedThread ? matchedThread.Name : t("notAvailable");
         
         return [name, cpu];
     }
     
     copyStackTrace(): void {
-        copyToClipboard.copy(this.stackTrace().toString(), "Stack trace has been copied to clipboard", this.dialogContainer);
+        copyToClipboard.copy(this.stackTrace().toString(), t("stackTrace.copied"), this.dialogContainer);
     }
 
     isUserCode(line: string): boolean {

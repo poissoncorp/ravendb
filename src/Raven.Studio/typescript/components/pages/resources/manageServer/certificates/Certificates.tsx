@@ -4,14 +4,16 @@ import CertificatesAuthDisabled from "components/pages/resources/manageServer/ce
 import CertificatesAuthEnabled from "components/pages/resources/manageServer/certificates/partials/authEnabled/CertificatesAuthEnabled";
 import { CertificatesInfoHub } from "components/pages/resources/manageServer/certificates/partials/CertificatesInfoHub";
 import { useAppSelector } from "components/store";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 export default function Certificates() {
+    const t = useStudioTranslation("certificates");
     const isSecureServer = useAppSelector(accessManagerSelectors.isSecureServer);
 
     return (
         <div className="content-padding">
             <div className="hstack justify-content-between mb-4">
-                <AboutViewHeading title="User Access Management" icon="certificate" marginBottom={0} />
+                <AboutViewHeading title={t("title")} icon="certificate" marginBottom={0} />
                 <CertificatesInfoHub />
             </div>
             {isSecureServer ? <CertificatesAuthEnabled /> : <CertificatesAuthDisabled />}

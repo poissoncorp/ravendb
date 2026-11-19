@@ -9,6 +9,9 @@ import {
 import { certificatesUtils } from "components/pages/resources/manageServer/certificates/utils/certificatesUtils";
 import { RootState } from "components/store";
 import DatabaseUtils from "components/utils/DatabaseUtils";
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("certificates");
 
 const selectClearanceFilterOptions = createSelector(
     (state: RootState) => state.certificates.certificates,
@@ -28,9 +31,9 @@ const selectClearanceFilterOptions = createSelector(
         });
 
         return [
-            { value: "Admin", label: "Admin", count: adminCount },
-            { value: "Operator", label: "Operator", count: operatorCount },
-            { value: "User", label: "User", count: userCount },
+            { value: "Admin", label: t("clearance.admin"), count: adminCount },
+            { value: "Operator", label: t("clearance.operator"), count: operatorCount },
+            { value: "User", label: t("clearance.user"), count: userCount },
         ];
     }
 );
@@ -63,10 +66,10 @@ const selectStateFilterOptions = createSelector(
         });
 
         return [
-            { value: "Valid", label: "Valid", count: validCount },
-            { value: "About to expire", label: "About to expire", count: aboutToExpireCount },
-            { value: "Expired", label: "Expired", count: expiredCount },
-            { value: "Disabled", label: "Disabled", count: disabledCount },
+            { value: "Valid", label: t("state.valid"), count: validCount },
+            { value: "About to expire", label: t("state.aboutToExpire"), count: aboutToExpireCount },
+            { value: "Expired", label: t("state.expired"), count: expiredCount },
+            { value: "Disabled", label: t("state.disabled"), count: disabledCount },
         ];
     }
 );
@@ -94,9 +97,9 @@ const selectManagementTypeFilterOptions = createSelector(
         });
 
         return [
-            { value: "SSO", label: "SSO", count: ssoCount },
-            { value: "Client", label: "Client", count: clientCount },
-            { value: "Server", label: "Server", count: serverCount },
+            { value: "SSO", label: t("managementType.sso"), count: ssoCount },
+            { value: "Client", label: t("managementType.client"), count: clientCount },
+            { value: "Server", label: t("managementType.server"), count: serverCount },
         ];
     }
 );

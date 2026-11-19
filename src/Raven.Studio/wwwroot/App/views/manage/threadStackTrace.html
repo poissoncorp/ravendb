@@ -1,44 +1,44 @@
 <div class="modal-dialog modal-lg" role="document" id="threadStackTraceDialog">
     <div class="modal-content">
         <div class="modal-header">
-            <button class="close" data-dismiss="modal" aria-label="Close"><i class="icon-cancel"></i></button>
+            <button class="close" data-dismiss="modal" data-bind="i18nAttr: { 'aria-label': 'debugAdvancedThreadsRuntime:stackTrace.closeLabel' }"><i class="icon-cancel"></i></button>
             <h2 class="modal-title">
                 <i class="icon-thread-stack-trace"></i>
-                <span>Stack Trace</span>
+                <span data-bind="i18n: 'debugAdvancedThreadsRuntime:stackTrace.title'"></span>
             </h2>
         </div>
         <div class="modal-body">
             <div class="form flex-form margin-top">
                 <div class="form-group">
-                    <label class="control-label" for="threadId">Thread ID:</label>
+                    <label class="control-label" for="threadId" data-bind="i18n: 'debugAdvancedThreadsRuntime:stackTrace.threadId'"></label>
                     <div class="form-control-static" id="threadId"><strong data-bind="text: threadId"></strong></div>
                 </div>
                 <div class="form-group">
-                    <label class="control-label" for="threadName">Thread Name:</label>
+                    <label class="control-label" for="threadName" data-bind="i18n: 'debugAdvancedThreadsRuntime:stackTrace.threadName'"></label>
                     <div class="form-control-static" id="threadName"><strong data-bind="text: threadName"></strong></div>
                 </div>
                 <div class="form-group" data-bind="if: threadType() && threadType() !== 'Other' && isThreadAlive()">
-                    <label class="control-label" for="threadType">Thread Type:</label>
+                    <label class="control-label" for="threadType" data-bind="i18n: 'debugAdvancedThreadsRuntime:stackTrace.threadType'"></label>
                     <div class="form-control-static" id="threadType"><strong data-bind="text: threadType"></strong></div>
                 </div>
                 <div class="form-group" data-bind="if: isThreadAlive">
-                    <label class="control-label" for="cpu">CPU Usage:</label>
+                    <label class="control-label" for="cpu" data-bind="i18n: 'debugAdvancedThreadsRuntime:stackTrace.cpuUsage'"></label>
                     <div class="form-control-static" id="cpu"><strong data-bind="text: cpuUsage"></strong></div>
                 </div>
                 <div class="form-group" data-bind="if: isThreadAlive">
-                    <label class="control-label" for="stack">Stack Trace:</label>
+                    <label class="control-label" for="stack" data-bind="i18n: 'debugAdvancedThreadsRuntime:stackTrace.stackTrace'"></label>
                     <div class="form-control-static" id="stack">
                         <i class="margin-left" data-bind="visible: spinners.loading(), css: { 'btn-spinner': spinners.loading() }"></i>
-                        <small class="margin-left margin-left-xs"><strong data-bind="if: !stackTrace().length && !spinners.loading()">N/A</strong></small>
+                        <small class="margin-left margin-left-xs"><strong data-bind="if: !stackTrace().length && !spinners.loading()"><span data-bind="i18n: 'debugAdvancedThreadsRuntime:notAvailable'"></span></strong></small>
                     </div>
                 </div>
                 <div class="panel padding">
                     <div class="padding padding-xs text-center text-warning bg-warning margin-top margin-bottom margin-left margin-right"
                          data-bind="visible: !isThreadAlive() && !spinners.loading()">
-                        <i class="icon-warning"></i><span>Thread is no longer alive</span>
+                        <i class="icon-warning"></i><span data-bind="i18n: 'debugAdvancedThreadsRuntime:stackTrace.threadNotAlive'"></span>
                     </div>
                     <div class="text-center padding" data-bind="visible: spinners.loading(), css: { 'btn-spinner': spinners.loading }">
-                        <span>Loading</span>
+                        <span data-bind="i18n: 'debugAdvancedThreadsRuntime:stackTrace.loading'"></span>
                     </div>
                     <div class="padding" data-bind="css: { panel: stackTrace().length }, visible: isThreadAlive">
                         <div class="text-nowrap stack-trace">
@@ -55,13 +55,13 @@
         </div>
         <div class="modal-footer margin-bottom">
             <button class="btn btn-default" data-bind="click: close">
-                <i class="icon-cancel"></i><span>Cancel</span>
+                <i class="icon-cancel"></i><span data-bind="i18n: 'common:cancel'"></span>
             </button>
-            <button class="btn btn-default" data-bind="click: copyStackTrace, enable: stackTrace().length" title="Copy stack trace to clipboard">
-                <i class="icon-copy-to-clipboard"></i><span>Copy</span>
+            <button class="btn btn-default" data-bind="click: copyStackTrace, enable: stackTrace().length, i18nAttr: { title: 'debugAdvancedThreadsRuntime:stackTrace.copyTitle' }">
+                <i class="icon-copy-to-clipboard"></i><span data-bind="i18n: 'debugAdvancedThreadsRuntime:stackTrace.copy'"></span>
             </button>
-            <button class="btn btn-primary" data-bind="click: refreshStackTrace, enable: !spinners.loading(), css: { 'btn-spinner': spinners.loading }" title="Click to refresh stack trace">
-                <i class="icon-refresh"></i><span>Refresh</span>
+            <button class="btn btn-primary" data-bind="click: refreshStackTrace, enable: !spinners.loading(), css: { 'btn-spinner': spinners.loading }, i18nAttr: { title: 'debugAdvancedThreadsRuntime:stackTrace.refreshTitle' }">
+                <i class="icon-refresh"></i><span data-bind="i18n: 'common:refresh'"></span>
             </button>
         </div>
     </div>

@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("serverWideCommands");
 
 export default class testServerWideAiConnectionStringCommand extends commandBase {
     constructor(
@@ -21,11 +24,11 @@ export default class testServerWideAiConnectionStringCommand extends commandBase
 
         return this.post(url, JSON.stringify(this.settings))
             .fail((response: JQueryXHR) =>
-                this.reportError(`Failed to test AI connection`, response.responseText, response.statusText)
+                this.reportError(t("connectionStrings.testFailed.ai"), response.responseText, response.statusText)
             )
             .done((result: Raven.Server.Documents.AI.AiConnectionTestResult) => {
                 if (!result.Success) {
-                    this.reportError(`Failed to test AI connection`, result.Error);
+                    this.reportError(t("connectionStrings.testFailed.ai"), result.Error);
                 }
             });
     }

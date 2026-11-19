@@ -13,6 +13,7 @@ import VirtualTable from "components/common/virtualTable/VirtualTable";
 import { virtualTableUtils } from "components/common/virtualTable/utils/virtualTableUtils";
 import { analyzerConstants } from "./analyzerConstants";
 import SizeGetter from "components/common/SizeGetter";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 type DebugPackageAnalysisSummary = Raven.Server.Documents.Handlers.Debugging.DebugPackage.DebugPackageAnalysisSummary;
 
@@ -38,6 +39,7 @@ interface ResourceUsageWithSizeProps extends ResourceUsageProps {
 }
 
 function useResourceUsageColumns(availableWidth: number) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const bodyWidth = virtualTableUtils.getTableBodyWidth(
         availableWidth - analyzerConstants.panelHorizontalPaddingInPx
     );
@@ -46,68 +48,71 @@ function useResourceUsageColumns(availableWidth: number) {
     const resourceColumns: ColumnDef<ResourceRow>[] = useMemo(
         () => [
             {
-                header: "Node",
+                header: t("resourceUsage.columns.node"),
                 accessorKey: "node",
                 cell: ({ getValue }) => <NodeTagPill tag={getValue<string>()} />,
                 size: getSize(7),
                 enableSorting: true,
             },
             {
-                header: "Process CPU",
+                header: t("resourceUsage.columns.processCpu"),
                 accessorKey: "processCpu",
                 cell: ({ getValue }) => formatPercentage(getValue<number>()),
                 size: getSize(12),
                 enableSorting: true,
             },
             {
-                header: "Machine CPU",
+                header: t("resourceUsage.columns.machineCpu"),
                 accessorKey: "machineCpu",
                 cell: ({ getValue }) => formatPercentage(getValue<number>()),
                 size: getSize(12),
                 enableSorting: true,
             },
             {
-                header: "Cores",
+                header: t("resourceUsage.columns.cores"),
                 accessorKey: "cores",
                 cell: ({ getValue }) => formatNumber(getValue<number>()),
                 size: getSize(8),
                 enableSorting: true,
             },
             {
-                header: "Working set",
+                header: t("resourceUsage.columns.workingSet"),
                 accessorKey: "workingSet",
                 cell: ({ getValue }) => getValue<string>() ?? "-",
                 size: getSize(13),
             },
             {
-                header: "Available memory",
+                header: t("resourceUsage.columns.availableMemory"),
                 accessorKey: "availableMemory",
                 cell: ({ getValue }) => getValue<string>() ?? "-",
                 size: getSize(16),
             },
             {
-                header: "Dirty memory",
+                header: t("resourceUsage.columns.dirtyMemory"),
                 accessorKey: "dirtyMemory",
                 cell: ResourceDirtyMemoryCell,
                 size: getSize(13),
             },
             {
-                header: "Last GC",
+                header: t("resourceUsage.columns.lastGc"),
                 id: "lastGc",
                 accessorFn: (row) => row.gcGeneration ?? -1,
-                cell: ({ row }) => (row.original.gcGeneration != null ? `Gen ${row.original.gcGeneration}` : "-"),
+                cell: ({ row }) =>
+                    row.original.gcGeneration != null
+                        ? t("resourceUsage.gcGeneration", { generation: row.original.gcGeneration })
+                        : "-",
                 size: getSize(9),
                 enableSorting: true,
             },
             {
-                header: "GC pause",
+                header: t("resourceUsage.columns.gcPause"),
                 accessorKey: "gcPause",
                 cell: ({ getValue }) => formatPercentage(getValue<number>()),
                 size: getSize(10),
                 enableSorting: true,
             },
         ],
-        [getSize]
+        [getSize, t]
     );
 
     return { resourceColumns };
@@ -118,6 +123,7 @@ export default function ResourceUsage({ summary }: ResourceUsageProps) {
 }
 
 function ResourceUsageWithSize({ summary, width }: ResourceUsageWithSizeProps) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const rows = useMemo(() => collectResourceRows(summary), [summary]);
     // a row is created per node, but a node may carry no CPU/memory/GC data at all - only treat the
     // section as populated when at least one node actually reported a resource metric
@@ -145,10 +151,10 @@ function ResourceUsageWithSize({ summary, width }: ResourceUsageWithSizeProps) {
         <div className="resource-usage">
             <div className="panel-bg-1 rounded">
                 <div className="p-4">
-                    <h3 className="mb-3">Resource Usage</h3>
+                    <h3 className="mb-3">{t("resourceUsage.title")}</h3>
                     {!hasResourceData ? (
                         <EmptySet compact className="justify-content-center">
-                            No resource data in the package
+                            {t("resourceUsage.empty")}
                         </EmptySet>
                     ) : (
                         <VirtualTable table={table} heightInPx={heightInPx} />

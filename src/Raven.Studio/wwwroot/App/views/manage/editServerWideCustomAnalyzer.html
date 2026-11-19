@@ -2,29 +2,29 @@
     <div class="flex-header">
         <button type="submit" class="btn btn-primary" data-bind="enable: dirtyFlag().isDirty">
             <i class="icon-save"></i>
-            <span>Save</span>
+            <span data-bind="i18n: 'common:save'"></span>
         </button>
-        <button class="btn btn-default" data-bind="click: cancelOperation" title="Return to Server-Wide Custom Analyzers View">
+        <button class="btn btn-default" data-bind="click: cancelOperation, i18nAttr: { title: 'editServerWideCustomAnalyzer:cancelTitle' }">
             <i class="icon-cancel"></i>
-            <span>Cancel</span>
+            <span data-bind="i18n: 'common:cancel'"></span>
         </button>
-        <label for="importFilePicker" class="btn btn-default pull-right" title="Upload custom analyzer from file">
-            <i class="icon-import"></i><span>Load from file</span>
+        <label for="importFilePicker" class="btn btn-default pull-right" data-bind="i18nAttr: { title: 'editServerWideCustomAnalyzer:loadFromFileTitle' }">
+            <i class="icon-import"></i><span data-bind="i18n: 'common:loadFromFile'"></span>
         </label>
         <div class="input-group file-input">
             <input type="file" id="importFilePicker" data-bind="event: { change: _.partial(fileSelected, $element) }" tabindex="-1" accept=".cs">
         </div>
     </div>
     <div class="panel padding flex-grow flex-vertical" data-bind="with: editedServerWideAnalyzer">
-        <h3 data-bind="text: $parent.isAddingNewAnalyzer() ? `New Server-Wide Custom Analyzer` : `Edit Server-Wide Custom Analyzer`"></h3>
+        <h3 data-bind="i18n: { key: 'editServerWideCustomAnalyzer:heading', options: { context: $parent.isAddingNewAnalyzer() ? 'new' : 'edit' } }"></h3>
         <div class="form-group margin-top" data-bind="validationElement: name">
-            <label class="control-label" for="analyzerName">Analyzer Name</label>
+            <label class="control-label" for="analyzerName" data-bind="i18n: 'editServerWideCustomAnalyzer:nameLabel'"></label>
             <div class="flex-grow">
-                <input type="text" class="form-control" id="analyzerName" placeholder="Enter a name for the server-wide analyzer"
-                       data-bind="textInput: name, enable: $root.isAddingNewAnalyzer" autocomplete="off" >
+                <input type="text" class="form-control" id="analyzerName"
+                       data-bind="textInput: name, enable: $root.isAddingNewAnalyzer, i18nAttr: { placeholder: 'editServerWideCustomAnalyzer:namePlaceholder' }" autocomplete="off" >
             </div>
         </div>
-        <label>Code:</label>
+        <label data-bind="i18n: 'editServerWideCustomAnalyzer:codeLabel'"></label>
         <pre class="form-control margin-top flex-grow"
              data-bind="aceEditor: { code: code, lang:'ace/mode/csharp' }, validationOptions: { errorsAsTitle: false }, validationElement: code" style="height: 300px;">
             </pre>

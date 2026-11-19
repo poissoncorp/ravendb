@@ -20,10 +20,14 @@ import { useDirtyFlag } from "components/hooks/useDirtyFlag";
 import { licenseSelectors } from "components/common/shell/licenseSlice";
 import AdminLogsPersistInfoIcon from "components/pages/resources/manageServer/adminLogs/bits/AdminLogsPersistInfoIcon";
 import Accordion from "react-bootstrap/Accordion";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 type EventListenerConfiguration = Raven.Server.EventListener.EventListenerToLog.EventListenerConfiguration;
 
 export default function AdminLogsConfigEventListener({ targetId }: { targetId: string }) {
+    const t = useStudioTranslation("adminLogs");
+    const commonT = useStudioTranslation("common");
     const dispatch = useAppDispatch();
     const { manageServerService } = useServices();
 
@@ -50,23 +54,23 @@ export default function AdminLogsConfigEventListener({ targetId }: { targetId: s
 
     return (
         <Accordion.Item eventKey={targetId} className="p-1 rounded-3">
-            <Accordion.Header>Event listener</Accordion.Header>
+            <Accordion.Header>{t("diskSettings.eventListener.title")}</Accordion.Header>
             <Accordion.Body>
                 <Form onSubmit={handleSubmit(handleSave)} key={targetId}>
                     <FormGroup>
                         <FormSwitch control={control} name="isEnabled">
-                            Enable
+                            {t("diskSettings.enable")}
                         </FormSwitch>
                     </FormGroup>
                     <Collapse in={isEnabled}>
                         <div>
                             <FormGroup>
-                                <FormLabel>Event Types</FormLabel>
+                                <FormLabel>{t("diskSettings.eventListener.eventTypes")}</FormLabel>
                                 <InputGroup>
                                     <FormSelect
                                         control={control}
                                         name="eventTypes"
-                                        placeholder="Select event types"
+                                        placeholder={t("diskSettings.selectEventTypes")}
                                         options={allEventTypeOptions}
                                         isMulti
                                     />
@@ -80,48 +84,54 @@ export default function AdminLogsConfigEventListener({ targetId }: { targetId: s
                                             )
                                         }
                                     >
-                                        Select all
+                                        {t("diskSettings.selectAll")}
                                     </Button>
                                 </InputGroup>
                             </FormGroup>
                             <FormGroup>
-                                <FormLabel>Minimum Duration</FormLabel>
+                                <FormLabel>{t("diskSettings.eventListener.minDuration")}</FormLabel>
                                 <FormInput
                                     type="number"
                                     control={control}
                                     name="minimumDurationInMs"
-                                    placeholder="Minimum duration in ms"
-                                    addon="ms"
+                                    placeholder={t("diskSettings.eventListener.minDurationPlaceholder")}
+                                    addon={t("diskSettings.msAddon")}
                                 />
                             </FormGroup>
                             <Row>
                                 <Col>
                                     <FormGroup>
-                                        <FormLabel>Allocations Logging Interval</FormLabel>
+                                        <FormLabel>
+                                            {t("diskSettings.eventListener.allocationsLoggingInterval")}
+                                        </FormLabel>
                                         <FormInput
                                             type="number"
                                             control={control}
                                             name="allocationsLoggingIntervalInMs"
-                                            placeholder="Allocations Logging Interval"
-                                            addon="ms"
+                                            placeholder={t("diskSettings.eventListener.allocationsLoggingInterval")}
+                                            addon={t("diskSettings.msAddon")}
                                         />
                                     </FormGroup>
                                 </Col>
                                 <Col>
                                     <FormGroup>
-                                        <FormLabel>Allocations Logging Count</FormLabel>
+                                        <FormLabel>{t("diskSettings.eventListener.allocationsLoggingCount")}</FormLabel>
                                         <FormInput
                                             type="number"
                                             control={control}
                                             name="allocationsLoggingCount"
-                                            placeholder="Allocations Logging Count"
+                                            placeholder={t("diskSettings.eventListener.allocationsLoggingCount")}
                                         />
                                     </FormGroup>
                                 </Col>
                             </Row>
                             {!isCloud && (
                                 <FormCheckbox control={control} name="isPersist">
-                                    Save this configuration in <code>settings.json</code>
+                                    <StudioTrans
+                                        ns="adminLogs"
+                                        i18nKey="persistConfiguration"
+                                        components={{ code: <code /> }}
+                                    />
                                     <AdminLogsPersistInfoIcon />
                                 </FormCheckbox>
                             )}
@@ -135,7 +145,7 @@ export default function AdminLogsConfigEventListener({ targetId }: { targetId: s
                         isSpinning={formState.isSubmitting}
                         disabled={!formState.isDirty}
                     >
-                        Save
+                        {commonT("save")}
                     </ButtonWithSpinner>
                 </Form>
             </Accordion.Body>

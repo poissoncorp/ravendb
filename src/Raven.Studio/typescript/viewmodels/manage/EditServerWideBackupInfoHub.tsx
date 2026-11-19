@@ -8,10 +8,33 @@ import FeatureAvailabilitySummaryWrapper, {
     FeatureAvailabilityData,
 } from "components/common/FeatureAvailabilitySummary";
 import { useLimitedFeatureAvailability } from "components/utils/licenseLimitsUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export function EditServerWideBackupInfoHub() {
+    const t = useStudioTranslation("editServerWideBackup");
+    const commonT = useStudioTranslation("common");
     const hasServerWideBackups = useAppSelector(licenseSelectors.statusValue("HasServerWideBackups"));
     const hasSnapshotBackups = useAppSelector(licenseSelectors.statusValue("HasSnapshotBackups"));
+
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("featureAvailability.serverWideBackups"),
+            featureIcon: "server-wide-backup",
+            community: { value: false },
+            professional: { value: true },
+            enterprise: { value: true },
+            quill: { value: true },
+        },
+        {
+            featureName: t("featureAvailability.snapshotBackups"),
+            featureIcon: "snapshot-backup",
+            community: { value: false },
+            professional: { value: false },
+            enterprise: { value: true },
+            quill: { value: true },
+        },
+    ];
 
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
@@ -33,37 +56,37 @@ export function EditServerWideBackupInfoHub() {
         <AboutViewFloating defaultOpen={hasServerWideBackups ? null : "licensing"}>
             <AccordionItemWrapper targetId="about" icon="about" color="info">
                 <div>
-                    Defining a <strong>Server-Wide backup task</strong> will create an ongoing periodic backup task for
-                    each database in your cluster.
+                    <StudioTrans
+                        ns="editServerWideBackup"
+                        i18nKey="about.serverWideTask"
+                        components={{ strong: <strong /> }}
+                    />
                     <ul className="margin-top-xxs">
-                        <li>You can select specific databases to exclude from the task.</li>
-                        <li>
-                            The configurations set in the Server-Wide task will be applied to the corresponding ongoing
-                            backup task created per database.
-                        </li>
+                        <li>{t("about.excludeItem")}</li>
+                        <li>{t("about.configurationsItem")}</li>
                     </ul>
                 </div>
                 <div>
-                    Configuration options available:
+                    {t("about.configurationOptions")}
                     <ul className="margin-top-xxs">
-                        <li>Customize the backup type (Backup or Snapshot)</li>
-                        <li>Select full and/or incremental backups</li>
-                        <li>Set the backups retention period</li>
-                        <li>Specify destinations, where the backup files will be stored</li>
-                        <li>Opt for backup data encryption to enhance data security</li>
+                        <li>{t("about.backupTypeItem")}</li>
+                        <li>{t("about.backupKindsItem")}</li>
+                        <li>{t("about.retentionItem")}</li>
+                        <li>{t("about.destinationsItem")}</li>
+                        <li>{t("about.encryptionItem")}</li>
                     </ul>
                 </div>
                 <div>
-                    In addition:
+                    {t("about.inAddition")}
                     <ul className="margin-top-xxs">
-                        <li>You can set a responsible node to handle this task.</li>
-                        <li>Disabling this task will disable the corresponding tasks per database.</li>
+                        <li>{t("about.responsibleNodeItem")}</li>
+                        <li>{t("about.disablingItem")}</li>
                     </ul>
                 </div>
                 <hr />
-                <div className="small-label mb-2">useful links</div>
+                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                 <a href={backupTasksDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - Server-Wide Backup Task
+                    <Icon icon="newtab" /> {t("about.docsLink")}
                 </a>
             </AccordionItemWrapper>
             <FeatureAvailabilitySummaryWrapper
@@ -74,22 +97,3 @@ export function EditServerWideBackupInfoHub() {
         </AboutViewFloating>
     );
 }
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "Server-Wide Backups",
-        featureIcon: "server-wide-backup",
-        community: { value: false },
-        professional: { value: true },
-        enterprise: { value: true },
-        quill: { value: true },
-    },
-    {
-        featureName: "Snapshot Backups",
-        featureIcon: "snapshot-backup",
-        community: { value: false },
-        professional: { value: false },
-        enterprise: { value: true },
-        quill: { value: true },
-    },
-];

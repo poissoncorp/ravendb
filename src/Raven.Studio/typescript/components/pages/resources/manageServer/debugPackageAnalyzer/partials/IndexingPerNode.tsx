@@ -12,6 +12,7 @@ import VirtualTable from "components/common/virtualTable/VirtualTable";
 import { virtualTableUtils } from "components/common/virtualTable/utils/virtualTableUtils";
 import { analyzerConstants } from "./analyzerConstants";
 import SizeGetter from "components/common/SizeGetter";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 type DebugPackageAnalysisSummary = Raven.Server.Documents.Handlers.Debugging.DebugPackage.DebugPackageAnalysisSummary;
 
@@ -32,6 +33,7 @@ interface IndexingPerNodeWithSizeProps extends IndexingPerNodeProps {
 }
 
 function useIndexingPerNodeColumns(availableWidth: number) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const bodyWidth = virtualTableUtils.getTableBodyWidth(
         availableWidth - analyzerConstants.panelHorizontalPaddingInPx
     );
@@ -40,35 +42,35 @@ function useIndexingPerNodeColumns(availableWidth: number) {
     const indexingColumns: ColumnDef<IndexingRow>[] = useMemo(
         () => [
             {
-                header: "Node",
+                header: t("indexingPerNode.columns.node"),
                 accessorKey: "node",
                 cell: ({ getValue }) => <NodeTagPill tag={getValue<string>()} />,
                 size: getSize(18),
                 enableSorting: true,
             },
             {
-                header: "Indexed/s",
+                header: t("indexingPerNode.columns.indexed"),
                 accessorKey: "indexed",
                 cell: ({ getValue }) => formatRate(getValue<number>()),
                 size: getSize(27),
                 enableSorting: true,
             },
             {
-                header: "Mapped/s",
+                header: t("indexingPerNode.columns.mapped"),
                 accessorKey: "mapped",
                 cell: ({ getValue }) => formatRate(getValue<number>()),
                 size: getSize(27),
                 enableSorting: true,
             },
             {
-                header: "Reduced/s",
+                header: t("indexingPerNode.columns.reduced"),
                 accessorKey: "reduced",
                 cell: ({ getValue }) => formatRate(getValue<number>()),
                 size: getSize(28),
                 enableSorting: true,
             },
         ],
-        [getSize]
+        [getSize, t]
     );
 
     return { indexingColumns };
@@ -83,6 +85,7 @@ export default function IndexingPerNode({ summary, nodeTag }: IndexingPerNodePro
 }
 
 function IndexingPerNodeWithSize({ summary, nodeTag, width }: IndexingPerNodeWithSizeProps) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const rows = useMemo(() => collectIndexingRows(summary, nodeTag), [summary, nodeTag]);
 
     const { indexingColumns } = useIndexingPerNodeColumns(width);
@@ -107,10 +110,10 @@ function IndexingPerNodeWithSize({ summary, nodeTag, width }: IndexingPerNodeWit
         <div className="indexing-per-node flex-grow-1">
             <div className="panel-bg-1 rounded">
                 <div className="p-4">
-                    <h3 className="mb-3">Indexing per Node</h3>
+                    <h3 className="mb-3">{t("indexingPerNode.title")}</h3>
                     {rows.length === 0 ? (
                         <EmptySet compact className="justify-content-center">
-                            No indexing data in the package
+                            {t("indexingPerNode.empty")}
                         </EmptySet>
                     ) : (
                         <VirtualTable table={table} heightInPx={heightInPx} />

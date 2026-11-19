@@ -15,8 +15,10 @@ import endpoints from "endpoints";
 import { useAppUrls } from "components/hooks/useAppUrls";
 import moment from "moment";
 import genUtils from "common/generalUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function AdminLogsDiskDownloadModal() {
+    const t = useStudioTranslation("adminLogs");
     const dispatch = useAppDispatch();
 
     const { control, handleSubmit, reset } = useForm<FormData>({
@@ -34,7 +36,7 @@ export default function AdminLogsDiskDownloadModal() {
     const { appUrl } = useAppUrls();
 
     const handleDownload: SubmitHandler<FormData> = (data) => {
-        messagePublisher.reportSuccess("Your download will start shortly...");
+        messagePublisher.reportSuccess(t("diskDownload.downloadStarted"));
 
         const $form = $("#downloadLogsForm");
         const url = endpoints.global.adminLogs.adminLogsDownload;
@@ -60,7 +62,7 @@ export default function AdminLogsDiskDownloadModal() {
                 <Modal.Header onCloseClick={() => dispatch(adminLogsActions.isDownloadDiskLogsOpenToggled())}>
                     <h3>
                         <Icon icon="storage" addon="download" />
-                        Download - logs on disk
+                        {t("diskDownload.title")}
                     </h3>
                 </Modal.Header>
                 <Modal.Body>
@@ -70,15 +72,15 @@ export default function AdminLogsDiskDownloadModal() {
                                 <FormDatePicker
                                     control={control}
                                     name="startDate"
-                                    placeholderText="Select start date"
-                                    addon="local"
+                                    placeholderText={t("diskDownload.startDatePlaceholder")}
+                                    addon={t("diskDownload.localAddon")}
                                     showTimeSelect
                                     maxDate={endDate}
                                     disabled={isUsingMinimumDate}
-                                    title={isUsingMaximumDate && "Minimum end date will be used"}
+                                    title={isUsingMaximumDate && t("diskDownload.minimumDateTitle")}
                                 />
                                 <FormSwitch control={control} name="isUsingMinimumDate" className="mt-1">
-                                    Use minimum start date
+                                    {t("diskDownload.useMinimumDate")}
                                 </FormSwitch>
                             </FormGroup>
                         </Col>
@@ -87,15 +89,15 @@ export default function AdminLogsDiskDownloadModal() {
                                 <FormDatePicker
                                     control={control}
                                     name="endDate"
-                                    placeholderText="Select end date"
-                                    addon="local"
+                                    placeholderText={t("diskDownload.endDatePlaceholder")}
+                                    addon={t("diskDownload.localAddon")}
                                     showTimeSelect
                                     minDate={startDate}
                                     disabled={isUsingMaximumDate}
-                                    title={isUsingMaximumDate && "Maximum end date will be used"}
+                                    title={isUsingMaximumDate && t("diskDownload.maximumDateTitle")}
                                 />
                                 <FormSwitch control={control} name="isUsingMaximumDate" className="mt-1">
-                                    Use maximum end date
+                                    {t("diskDownload.useMaximumDate")}
                                 </FormSwitch>
                             </FormGroup>
                         </Col>
@@ -108,11 +110,11 @@ export default function AdminLogsDiskDownloadModal() {
                         onClick={() => dispatch(adminLogsActions.isDownloadDiskLogsOpenToggled())}
                     >
                         <Icon icon="cancel" />
-                        Close
+                        {t("close")}
                     </Button>
                     <Button type="submit" variant="success">
                         <Icon icon="download" />
-                        Download
+                        {t("download")}
                     </Button>
                 </Modal.Footer>
             </Form>

@@ -31,12 +31,16 @@ import { useAsyncCallback } from "react-async-hook";
 import Badge from "react-bootstrap/Badge";
 import Button from "react-bootstrap/Button";
 import IconName from "typings/server/icons";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import type { StudioTranslate } from "common/i18n/resources";
 
 interface CertificatesListItemProps {
     certificate: CertificateItem;
 }
 
 export default function CertificatesListItem({ certificate }: CertificatesListItemProps) {
+    const t = useStudioTranslation("certificates");
     const { manageServerService } = useServices();
     const dispatch = useAppDispatch();
     const confirm = useConfirm();
@@ -59,9 +63,10 @@ export default function CertificatesListItem({ certificate }: CertificatesListIt
     const isServerCertForCommunication = certificate.Thumbprints.includes(serverCertificateForCommunicationThumbprint);
     const isCurrentBrowserCert = certificate.Thumbprints.includes(clientCertificateThumbprint);
     const has2fa = certificate.HasTwoFactor ?? false;
-    const certDisplayName = certificate.Name ?? "<empty name>";
+    const certDisplayName = certificate.Name ?? t("item.emptyName");
 
     const isDisabled = certificate.Disabled ?? false;
+    const toggleContext = isDisabled ? "enable" : "disable";
     const canBeAutomaticallyRenewed = isServerCert && serverCertificateSetupMode === "LetsEncrypt";
     const authorizedSsoUsers =
         certificate.Usage === "SsoServer"
@@ -99,9 +104,9 @@ export default function CertificatesListItem({ certificate }: CertificatesListIt
     const handleRenewServerCertificate = async () => {
         const isConfirmed = await confirm({
             icon: "refresh",
-            title: "Do you want to renew the server certificate?",
+            title: t("item.renewConfirmTitle"),
             actionColor: "primary",
-            confirmText: "Renew certificate",
+            confirmText: t("item.renewConfirm"),
         });
 
         if (isConfirmed) {
@@ -129,16 +134,19 @@ export default function CertificatesListItem({ certificate }: CertificatesListIt
     const handleToggleDisable = async () => {
         const isConfirmed = await confirm({
             icon: isDisabled ? "play" : "stop",
-            title: isDisabled ? "Do you want to enable this certificate?" : "Do you want to disable this certificate?",
+            title: t("item.toggleConfirmTitle", { context: toggleContext }),
             message: (
                 <span>
-                    Certificate: <strong>{certificate.Name}</strong>
-                    <br />
-                    Thumbprint: <code>{certificate.Thumbprint}</code>
+                    <StudioTrans
+                        ns="certificates"
+                        i18nKey="item.toggleConfirmMessage"
+                        components={{ strong: <strong />, br: <br />, code: <code /> }}
+                        options={{ name: certificate.Name, thumbprint: certificate.Thumbprint }}
+                    />
                 </span>
             ),
             actionColor: isDisabled ? "success" : "warning",
-            confirmText: isDisabled ? "Enable certificate" : "Disable certificate",
+            confirmText: t("item.toggle", { context: toggleContext }),
         });
 
         if (!isConfirmed) {
@@ -157,14 +165,19 @@ export default function CertificatesListItem({ certificate }: CertificatesListIt
     const handleDeleteCertificate = async () => {
         const isConfirmed = await confirm({
             icon: "trash",
-            title: "Do you want to delete certificate?",
+            title: t("item.deleteConfirmTitle"),
             message: (
                 <span>
-                    Thumbprint: <code>{certificate.Thumbprint}</code>
+                    <StudioTrans
+                        ns="certificates"
+                        i18nKey="item.deleteConfirmMessage"
+                        components={{ code: <code /> }}
+                        options={{ thumbprint: certificate.Thumbprint }}
+                    />
                 </span>
             ),
             actionColor: "danger",
-            confirmText: "Delete certificate",
+            confirmText: t("item.delete"),
         });
 
         if (isConfirmed) {
@@ -183,48 +196,28 @@ export default function CertificatesListItem({ certificate }: CertificatesListIt
                                 {certDisplayName}
                             </span>
                             {state === "About to expire" && (
-                                <Badge
-                                    bg="warning"
-                                    className="ms-1 fs-6"
-                                    pill
-                                    title="This certificate is about to expire"
-                                >
-                                    <Icon icon="clock" margin="m-0" /> About to expire
+                                <Badge bg="warning" className="ms-1 fs-6" pill title={t("item.aboutToExpireTitle")}>
+                                    <Icon icon="clock" margin="m-0" /> {t("state.aboutToExpire")}
                                 </Badge>
                             )}
                             {isCurrentBrowserCert && (
-                                <Badge
-                                    bg="success"
-                                    className="ms-1 fs-6"
-                                    pill
-                                    title="This is the client certificate currently used by the browser"
-                                >
-                                    Current browser
+                                <Badge bg="success" className="ms-1 fs-6" pill title={t("item.currentBrowserTitle")}>
+                                    {t("item.currentBrowser")}
                                 </Badge>
                             )}
                             {has2fa && (
-                                <Badge
-                                    bg="2fa"
-                                    className="ms-1 fs-6"
-                                    pill
-                                    title="This is the certificate which requires two-factor authentication"
-                                >
-                                    2FA
+                                <Badge bg="2fa" className="ms-1 fs-6" pill title={t("item.twoFactorTitle")}>
+                                    {t("item.twoFactor")}
                                 </Badge>
                             )}
                             {certificate.Usage === "SsoServer" && (
-                                <Badge
-                                    bg="info"
-                                    className="ms-1 fs-6"
-                                    pill
-                                    title="This certificate acts as an SSO server"
-                                >
-                                    SSO Server
+                                <Badge bg="info" className="ms-1 fs-6" pill title={t("item.ssoServerTitle")}>
+                                    {t("item.ssoServer")}
                                 </Badge>
                             )}
                             {certificate.Usage === "SsoClient" && (
                                 <Badge bg="primary" className="ms-1 fs-6" pill>
-                                    SSO User
+                                    {t("item.ssoUser")}
                                 </Badge>
                             )}
                         </div>
@@ -233,10 +226,7 @@ export default function CertificatesListItem({ certificate }: CertificatesListIt
                             variant="link"
                             size="xs"
                             onClick={() =>
-                                copyToClipboard.copy(
-                                    certificate.Thumbprints.join(", "),
-                                    "Successfully copied thumbprints to clipboard"
-                                )
+                                copyToClipboard.copy(certificate.Thumbprints.join(", "), t("item.thumbprintsCopied"))
                             }
                         >
                             <Icon icon="copy" margin="m-0" />
@@ -245,7 +235,7 @@ export default function CertificatesListItem({ certificate }: CertificatesListIt
                     <RichPanelActions>
                         {canClone && (
                             <Button
-                                title="Clone certificate"
+                                title={t("item.clone")}
                                 onClick={() =>
                                     certificate.Usage === "SsoClient"
                                         ? dispatch(certificatesActions.ssoUserCloneModalOpen(certificate))
@@ -258,7 +248,7 @@ export default function CertificatesListItem({ certificate }: CertificatesListIt
                         )}
                         {canEdit && (
                             <Button
-                                title="Edit certificate"
+                                title={t("item.edit")}
                                 onClick={() =>
                                     certificate.Usage === "SsoClient"
                                         ? dispatch(certificatesActions.ssoUserEditModalOpen(certificate))
@@ -271,7 +261,7 @@ export default function CertificatesListItem({ certificate }: CertificatesListIt
                         )}
                         {canToggleDisable && (
                             <ButtonWithSpinner
-                                title={isDisabled ? "Enable certificate" : "Disable certificate"}
+                                title={t("item.toggle", { context: toggleContext })}
                                 variant={isDisabled ? "success" : "warning"}
                                 onClick={handleToggleDisable}
                                 icon={isDisabled ? "play" : "stop"}
@@ -280,7 +270,7 @@ export default function CertificatesListItem({ certificate }: CertificatesListIt
                         )}
                         {canDelete && (
                             <ButtonWithSpinner
-                                title="Delete certificate"
+                                title={t("item.delete")}
                                 variant="danger"
                                 onClick={handleDeleteCertificate}
                                 icon="trash"
@@ -295,11 +285,11 @@ export default function CertificatesListItem({ certificate }: CertificatesListIt
                             label={
                                 <>
                                     <Icon icon="user" />
-                                    Security clearance
+                                    {t("item.securityClearance")}
                                 </>
                             }
                         >
-                            {getFormattedSecurityClearance(certificate.SecurityClearance)}
+                            {getFormattedSecurityClearance(certificate.SecurityClearance, t)}
                         </RichPanelDetailItem>
                     )}
                     {certificate.NotBefore && certificate.Usage !== "SsoClient" && (
@@ -307,7 +297,7 @@ export default function CertificatesListItem({ certificate }: CertificatesListIt
                             label={
                                 <>
                                     <Icon icon="check" />
-                                    Valid from
+                                    {t("item.validFrom")}
                                 </>
                             }
                         >
@@ -319,7 +309,7 @@ export default function CertificatesListItem({ certificate }: CertificatesListIt
                             label={
                                 <>
                                     <Icon icon="expiration" />
-                                    {state === "Expired" ? "Expired at" : "Expiration"}
+                                    {t("item.expiration", { context: state === "Expired" ? "expired" : undefined })}
                                 </>
                             }
                         >
@@ -332,20 +322,20 @@ export default function CertificatesListItem({ certificate }: CertificatesListIt
                         label={
                             <>
                                 <Icon icon="user-info" />
-                                Last used
+                                {t("item.lastUsed")}
                             </>
                         }
                     >
                         {certificate.LastUsedDate
                             ? moment.utc(certificate.LastUsedDate).format(genUtils.basicDateFormat)
-                            : "(not used)"}
+                            : t("item.notUsed")}
                     </RichPanelDetailItem>
                     {certificate.Usage === "SsoServer" && (
                         <RichPanelDetailItem
                             label={
                                 <>
                                     <Icon icon="user" />
-                                    Entries authorized
+                                    {t("item.entriesAuthorized")}
                                 </>
                             }
                         >
@@ -370,7 +360,7 @@ export default function CertificatesListItem({ certificate }: CertificatesListIt
                             label={
                                 <>
                                     <Icon icon="user" />
-                                    Identifiers
+                                    {t("item.identifiers")}
                                 </>
                             }
                         >
@@ -386,12 +376,12 @@ export default function CertificatesListItem({ certificate }: CertificatesListIt
                             label={
                                 <>
                                     <Icon icon="key" />
-                                    Authorizing SSO
+                                    {t("item.authorizingSso")}
                                 </>
                             }
                         >
                             {certificate.AllowAnySsoServer
-                                ? "Allow any SSO to authorize"
+                                ? t("item.allowAnySso")
                                 : ssoServerCertificates
                                       .filter((s) =>
                                           (certificate.SsoServerPublicKeyPinningHashes ?? []).includes(
@@ -399,7 +389,7 @@ export default function CertificatesListItem({ certificate }: CertificatesListIt
                                           )
                                       )
                                       .map((s) => s.Name)
-                                      .join(", ") || "None"}
+                                      .join(", ") || t("item.none")}
                         </RichPanelDetailItem>
                     )}
                     {canBeAutomaticallyRenewed && (
@@ -407,7 +397,7 @@ export default function CertificatesListItem({ certificate }: CertificatesListIt
                             label={
                                 <>
                                     <Icon icon="refresh" />
-                                    Auto renewal date
+                                    {t("item.autoRenewalDate")}
                                 </>
                             }
                         >
@@ -415,12 +405,12 @@ export default function CertificatesListItem({ certificate }: CertificatesListIt
                             <ButtonWithSpinner
                                 variant="link"
                                 size="xs"
-                                title="Renew this server certificate"
+                                title={t("item.renewTitle")}
                                 onClick={handleRenewServerCertificate}
                                 icon="refresh"
                                 isSpinning={asyncRenewServerCertificate.loading}
                             >
-                                Renew now
+                                {t("item.renewNow")}
                             </ButtonWithSpinner>
                         </RichPanelDetailItem>
                     )}
@@ -429,7 +419,7 @@ export default function CertificatesListItem({ certificate }: CertificatesListIt
                             label={
                                 <>
                                     <Icon icon="database" />
-                                    Database permissions
+                                    {t("item.databasePermissions")}
                                 </>
                             }
                         >
@@ -443,6 +433,7 @@ export default function CertificatesListItem({ certificate }: CertificatesListIt
 }
 
 function PermissionsBadge({ certificate }: { certificate: CertificateItem }) {
+    const t = useStudioTranslation("certificates");
     const { SecurityClearance, Permissions } = certificate;
 
     if (
@@ -451,9 +442,9 @@ function PermissionsBadge({ certificate }: { certificate: CertificateItem }) {
         SecurityClearance === "Operator"
     ) {
         return (
-            <Badge bg="faded-success" title="Cluster admin access" pill>
+            <Badge bg="faded-success" title={t("item.clusterAdminAccess")} pill>
                 <Icon icon="cluster" />
-                All
+                {t("item.allDatabases")}
             </Badge>
         );
     }
@@ -467,13 +458,13 @@ function PermissionsBadge({ certificate }: { certificate: CertificateItem }) {
     );
 
     if (dbAccessArray.length === 0) {
-        return <span className="text-danger">None</span>;
+        return <span className="text-danger">{t("item.none")}</span>;
     }
 
     return (
         <div className="d-flex flex-wrap gap-1">
             {dbAccessArray.map(({ databaseName, accessLevel }) => (
-                <Badge key={databaseName} bg={getAccessColor(accessLevel)} title={getAccessTitle(accessLevel)} pill>
+                <Badge key={databaseName} bg={getAccessColor(accessLevel)} title={getAccessTitle(accessLevel, t)} pill>
                     <Icon icon={getAccessIcon(accessLevel)} />
                     {databaseName}
                 </Badge>
@@ -482,14 +473,17 @@ function PermissionsBadge({ certificate }: { certificate: CertificateItem }) {
     );
 }
 
-function getAccessTitle(access: Raven.Client.ServerWide.Operations.Certificates.DatabaseAccess) {
+function getAccessTitle(
+    access: Raven.Client.ServerWide.Operations.Certificates.DatabaseAccess,
+    t: StudioTranslate<"certificates">
+) {
     switch (access) {
         case "Admin":
-            return "Admin access";
+            return t("item.accessTitle", { context: "admin" });
         case "Read":
-            return "Read access";
+            return t("item.accessTitle", { context: "read" });
         case "ReadWrite":
-            return "Read/write access";
+            return t("item.accessTitle", { context: "readWrite" });
         default:
             assertUnreachable(access);
     }
@@ -522,18 +516,19 @@ function getAccessColor(access: Raven.Client.ServerWide.Operations.Certificates.
 }
 
 function getFormattedSecurityClearance(
-    securityClearance: Raven.Client.ServerWide.Operations.Certificates.SecurityClearance
+    securityClearance: Raven.Client.ServerWide.Operations.Certificates.SecurityClearance,
+    t: StudioTranslate<"certificates">
 ): string {
     switch (securityClearance) {
         case "ClusterAdmin":
-            return "Cluster Admin";
+            return t("clearance.clusterAdmin");
         case "ClusterNode":
-            return "ClusterNode";
+            return t("clearance.clusterNode");
         case "Operator":
-            return "Operator";
+            return t("clearance.operator");
         case "ValidUser":
-            return "User";
+            return t("clearance.user");
         default:
-            return "Unknown";
+            return t("clearance.unknown");
     }
 }

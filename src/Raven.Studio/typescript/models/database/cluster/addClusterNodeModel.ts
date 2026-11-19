@@ -1,4 +1,7 @@
 /// <reference path="../../../../typings/tsd.d.ts"/>
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("clusterModels");
 
 class addClusterNodeModel {
     serverUrl = ko.observable<string>();
@@ -32,7 +35,7 @@ class addClusterNodeModel {
 
         this.nodeTag.extend({
             pattern: {
-                message: 'Node tag must contain upper case letters only.',
+                message: t("addNode.nodeTagPattern"),
                 params: '^[A-Z]+$'
             },
             minLength: 1,

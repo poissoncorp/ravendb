@@ -19,6 +19,9 @@ import trafficWatchQueriesDialog = require("viewmodels/manage/trafficWatchQuerie
 import app = require("durandal/app");
 import appUrl = require("common/appUrl");
 import queryTimingsDialog = require("viewmodels/manage/queryTimingsDialog");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("trafficWatch");
 
 type trafficChangeType =
     Raven.Client.Documents.Changes.TrafficWatchChangeType
@@ -78,7 +81,7 @@ class runQueryFeature implements columnPreviewFeature {
         const query = queryCriteria.empty();
 
         query.queryText(value);
-        query.name("Traffic watch query");
+        query.name(t("runQuery.queryName"));
         query.recentQuery(true);
 
         const queryDto = query.toStorageDto();
@@ -89,7 +92,7 @@ class runQueryFeature implements columnPreviewFeature {
     }
     
     syntax(column: virtualColumn, escapedValue: any, element: any): string {
-        if (column.header !== "Custom Info" || escapedValue === generalUtils.escapeHtml("n/a")) {
+        if (column.header !== t("columns.customInfo") || escapedValue === generalUtils.escapeHtml("n/a")) {
             return "";
         }
         
@@ -98,14 +101,14 @@ class runQueryFeature implements columnPreviewFeature {
 
         if (element.Type === "MultiGet") {
             this.queryList = runQueryFeature.getMultiGetQueriesList(generalUtils.unescapeHtml(escapedValue));
-            buttonText = this.queryList.length > 1 ? "Run Query ..." : (this.queryList.length === 1 ? "Run Query" : "");
+            buttonText = this.queryList.length > 1 ? t("runQuery.button", { context: "multiple" }) : (this.queryList.length === 1 ? t("runQuery.button") : "");
         }        
         
         if (element.Type === "Queries" && (element.HttpMethod === "POST" || element.HttpMethod === "GET")) {
-            buttonText = "Run Query";
+            buttonText = t("runQuery.button");
         }
         
-        return buttonText ? `<button class="btn btn-default btn-sm run-query"><i class="icon-query"></i><span>${buttonText}</span></button>` : "";
+        return buttonText ? `<button class="btn btn-default btn-sm run-query"><i class="icon-query"></i><span>${generalUtils.escapeHtml(buttonText)}</span></button>` : "";
     }
 }
 
@@ -136,13 +139,16 @@ interface statistics {
     percentile_99_9: string;
 }
 
-const notAvailableStats: statistics = {
-    min: "n/a",
-    avg: "n/a",
-    percentile_90: "n/a",
-    percentile_99: "n/a",
-    percentile_99_9: "n/a",
-    max: "n/a"
+const notAvailableStats = (): statistics => {
+    const notAvailable = t("notAvailable");
+    return {
+        min: notAvailable,
+        avg: notAvailable,
+        percentile_90: notAvailable,
+        percentile_99: notAvailable,
+        percentile_99_9: notAvailable,
+        max: notAvailable
+    };
 }
 
 class trafficWatch extends viewModelBase {
@@ -193,12 +199,14 @@ class trafficWatch extends viewModelBase {
 
     adminLogsUrl = appUrl.forAdminLogs() + "?highlightTrafficWatch=true"
 
+    adminLogsInfoHtml: string;
+
     stats = {
         sourceIpsCount: ko.observable<string>(),
         httpRequestCount: ko.observable<string>(),
         tcpOperationCount: ko.observable<string>(),
-        requestDuration: ko.observable<statistics>(notAvailableStats),
-        responseSize: ko.observable<statistics>(notAvailableStats)
+        requestDuration: ko.observable<statistics>(notAvailableStats()),
+        responseSize: ko.observable<statistics>(notAvailableStats())
     };
     
     filter = ko.observable<string>();
@@ -216,6 +224,8 @@ class trafficWatch extends viewModelBase {
     
     constructor() {
         super();
+
+        this.adminLogsInfoHtml = t("adminLogsInfo").replace("<a>", `<a href="${generalUtils.escapeHtml(this.adminLogsUrl)}">`);
 
         this.updateStats();
 
@@ -263,7 +273,7 @@ class trafficWatch extends viewModelBase {
                 if (certificatesInfo.WellKnownAdminCerts) {
                     certificatesInfo.WellKnownAdminCerts.forEach(wellKnownCert => {
                         this.certificatesCache.set(wellKnownCert, {
-                            name: "Well known admin certificate",
+                            name: t("wellKnownAdminCertificate"),
                             clearance: "ClusterAdmin"
                         });
                     });
@@ -283,8 +293,8 @@ class trafficWatch extends viewModelBase {
         return (opts: any) => {
             opts.enableHTML = true;
             opts.includeSelectAllOption = true;
-            opts.nSelectedText = " Types Selected";
-            opts.allSelectedText = "All Types";
+            opts.nSelectedText = t("typesSelector.nSelected");
+            opts.allSelectedText = t("typesSelector.allSelected");
             opts.optionLabel = (element: HTMLOptionElement) => {
                 const propertyName = $(element).text();
                 const typeItem = filteredTypeData.find(x => x.propertyName === propertyName);
@@ -404,7 +414,7 @@ class trafficWatch extends viewModelBase {
                                 accessor: (item: TrafficWatchHttpChange) => number,
                                 formatter: (value: number) => string): statistics {
         if (data.length === 0) {
-            return notAvailableStats;
+            return notAvailableStats();
                 }
 
         const scalars: number[] = [];
@@ -454,22 +464,22 @@ class trafficWatch extends viewModelBase {
 
         if (asHtml) {
             const row = (label: string, value: string) =>
-                `<div><div class="data-label">${label}: </div><div class="data-value">${generalUtils.escapeHtml(value)}</div></div>`;
+                `<div><div class="data-label">${generalUtils.escapeHtml(label)} </div><div class="data-value">${generalUtils.escapeHtml(value)}</div></div>`;
 
             let html = `<div class="data-container data-container-lg">`;
-            html += row("Source", item.ClientIP);
-            if (item.ProxyIP) { html += row("Proxy", item.ProxyIP); }
-            if (ssoIdentity) { html += row("SSO user", ssoIdentity); }
-            if (displayName) { html += row("Certificate", displayName); }
-            if (thumbprint) { html += row("Thumbprint", thumbprint); }
+            html += row(t("sourceDetails.source"), item.ClientIP);
+            if (item.ProxyIP) { html += row(t("sourceDetails.proxy"), item.ProxyIP); }
+            if (ssoIdentity) { html += row(t("sourceDetails.ssoUser"), ssoIdentity); }
+            if (displayName) { html += row(t("sourceDetails.certificate"), displayName); }
+            if (thumbprint) { html += row(t("sourceDetails.thumbprint"), thumbprint); }
             html += `</div>`;
             return html;
         } else {
-            const parts = [`Source: ${item.ClientIP}`];
-            if (item.ProxyIP) { parts.push(`Proxy = ${item.ProxyIP}`); }
-            if (ssoIdentity) { parts.push(`SSO user = ${ssoIdentity}`); }
-            if (displayName) { parts.push(`Certificate Name = ${displayName}`); }
-            if (thumbprint) { parts.push(`Certificate Thumbprint = ${thumbprint}`); }
+            const parts = [t("sourceCopy.source", { ip: item.ClientIP })];
+            if (item.ProxyIP) { parts.push(t("sourceCopy.proxy", { ip: item.ProxyIP })); }
+            if (ssoIdentity) { parts.push(t("sourceCopy.ssoUser", { identity: ssoIdentity })); }
+            if (displayName) { parts.push(t("sourceCopy.certificateName", { name: displayName })); }
+            if (thumbprint) { parts.push(t("sourceCopy.certificateThumbprint", { thumbprint })); }
             return parts.join(", ");
         }
     }
@@ -479,10 +489,14 @@ class trafficWatch extends viewModelBase {
             return trafficWatch.stripHostFromUrl(item.RequestUri);
         }
         if (trafficWatch.isTcpItem(item)) {
-            return item.Operation + (item.Source ? " from node " + item.Source : "") + (item.OperationVersion ? " (version " + item.OperationVersion + ")" : "");
+            if (!item.Source && !item.OperationVersion) {
+                return item.Operation;
+            }
+            const context = item.Source && item.OperationVersion ? "nodeAndVersion" : item.Source ? "node" : "version";
+            return t("tcpDetails", { context, operation: item.Operation, node: item.Source, version: item.OperationVersion });
         }
 
-        return "n/a";
+        return t("notAvailable");
     }
 
     private static tryParseUrl(url: string) {
@@ -540,7 +554,7 @@ class trafficWatch extends viewModelBase {
             if (trafficWatch.isHttpItem(item)) {
                 return item.ElapsedMilliseconds.toLocaleString();
             } else {
-                return "n/a";
+                return t("notAvailable");
             }
         }
 
@@ -553,7 +567,7 @@ class trafficWatch extends viewModelBase {
                         app.showBootstrapDialog(new queryTimingsDialog(item.QueryTimings, item.CustomInfo));
                     });
                     
-                    return `<button id="show-timings-${id}" class="text-primary margin-right margin-right-xs btn-link text-decoration-none hover-filter" title="Open query timings">
+                    return `<button id="show-timings-${id}" class="text-primary margin-right margin-right-xs btn-link text-decoration-none hover-filter" title="${generalUtils.escapeHtml(t("openQueryTimings"))}">
                             <i class="icon-stats"></i>
                         </button>`;
                 }
@@ -561,7 +575,7 @@ class trafficWatch extends viewModelBase {
                 return "";
             }
 
-            return "n/a";
+            return t("notAvailable");
         }
         
         
@@ -571,7 +585,7 @@ class trafficWatch extends viewModelBase {
             [
                 new textColumn<Raven.Client.Documents.Changes.TrafficWatchChangeBase>(grid,
                     x => generalUtils.formatUtcDateAsLocal(x.TimeStamp, trafficWatch.dateTimeFormat),
-                    "Timestamp", "11%", {
+                    t("columns.timestamp"), "11%", {
                     extraClass: rowHighlightRules,
                     sortable: "string"
                 }),
@@ -584,40 +598,40 @@ class trafficWatch extends viewModelBase {
                             ? `<span class="icon-certificate text-info margin-right margin-right-xs"></span>${ip}`
                             : ip;
                     },
-                    "Source", "10%", {
+                    t("columns.source"), "10%", {
                     extraClass: rowHighlightRules,
                     useRawValue: () => true
                 }),
                 new textColumn<Raven.Client.Documents.Changes.TrafficWatchChangeBase>(grid,
-                    x => trafficWatch.isHttpItem(x) ? x.ResponseStatusCode : "n/a",
-                    "HTTP Status", "4%", {
+                    x => trafficWatch.isHttpItem(x) ? x.ResponseStatusCode : t("notAvailable"),
+                    t("columns.httpStatus"), "4%", {
                         extraClass: rowHighlightRules,
                         sortable: "number"
                 }),
                 new textColumn<Raven.Client.Documents.Changes.TrafficWatchChangeBase>(grid,
                     x => trafficWatch.isHttpItem(x) ? x.RequestSizeInBytes : null,
-                    "Request Size", "8%", {
+                    t("columns.requestSize"), "8%", {
                         extraClass: rowHighlightRules,
                         sortable: "number",
                         transformValue: generalUtils.formatBytesToSize
                     }),
                 new textColumn<Raven.Client.Documents.Changes.TrafficWatchChangeBase>(grid,
                     x => trafficWatch.isHttpItem(x) ? x.ResponseSizeInBytes : null,
-                    "Response Size", "8%", {
+                    t("columns.responseSize"), "8%", {
                         extraClass: rowHighlightRules,
                         sortable: "number",
                         transformValue: generalUtils.formatBytesToSize
                     }),
                 new textColumn<Raven.Client.Documents.Changes.TrafficWatchChangeBase>(grid,
                     x => x.DatabaseName,
-                    "Database Name", "10%", {
+                    t("columns.databaseName"), "10%", {
                         extraClass: rowHighlightRules,
                         sortable: "string",
                         customComparator: generalUtils.sortAlphaNumeric
                 }),
                 new textColumn<Raven.Client.Documents.Changes.TrafficWatchChangeBase>(grid,
                     x => trafficWatch.isHttpItem(x) ? x.ElapsedMilliseconds : null,
-                    "Duration", "5%", {
+                    t("columns.duration"), "5%", {
                         extraClass: rowHighlightRules,
                         sortable: "number",
                         transformValue: (v, item) => durationProvider(item),
@@ -625,44 +639,44 @@ class trafficWatch extends viewModelBase {
                 }),
                 new textColumn<Raven.Client.Documents.Changes.TrafficWatchChangeBase>(grid,
                     x => trafficWatch.isHttpItem(x) ? x.HttpMethod : "TCP",
-                    "Method", "5%", {
+                    t("columns.method"), "5%", {
                         extraClass: rowHighlightRules,
                         sortable: "string"
                 }),
                 new textColumn<Raven.Client.Documents.Changes.TrafficWatchChangeBase>(grid,
-                    x => trafficWatch.isHttpItem(x) ? x.Type : (trafficWatch.isTcpItem(x) ? x.Operation : "n/a"),
-                    "Type", "5%", {
+                    x => trafficWatch.isHttpItem(x) ? x.Type : (trafficWatch.isTcpItem(x) ? x.Operation : t("notAvailable")),
+                    t("columns.type"), "5%", {
                         extraClass: rowHighlightRules,
                         sortable: "string"
                 }),
                 new textColumn<Raven.Client.Documents.Changes.TrafficWatchChangeBase>(grid,
                     x => trafficWatch.formatDetails(x),
-                    "Details", "13%", {
+                    t("columns.details"), "13%", {
                         extraClass: rowHighlightRules,
                         sortable: "string"
                     }),
                 new textColumn<Raven.Client.Documents.Changes.TrafficWatchChangeBase>(grid,
                     x => trafficWatch.isHttpItem(x) ? trafficWatch.extractTagFromUrl(x.RequestUri) : "",
-                    "Tag", "5%", {
+                    t("columns.tag"), "5%", {
                         extraClass: rowHighlightRules,
                         sortable: "string"
                 }),
                 new textColumn<Raven.Client.Documents.Changes.TrafficWatchChangeBase>(grid,
                     x => x.CustomInfo,
-                    "Custom Info", "8%", {
+                    t("columns.customInfo"), "8%", {
                         extraClass: rowHighlightRules,
                         sortable: "string"
                 }),
                 new textColumn<Raven.Client.Documents.Changes.TrafficWatchChangeBase>(grid,
                     x => trafficWatch.isHttpItem(x) ? x.QueryTimings : null,
-                    "<i class='icon-play' title='Query timings'></i>", "4%", {
+                    `<i class='icon-play' title='${generalUtils.escapeHtml(t("columns.queryTimings"))}'></i>`, "4%", {
                         extraClass: rowHighlightRules,
                         transformValue: (_, item) => timingsProvider(item),
                         useRawValue: () => true,
                     }),
                 new textColumn<Raven.Client.Documents.Changes.TrafficWatchChangeBase>(grid,
-                    x => trafficWatch.isPostgresItem(x) ? x.Username : "n/a",
-                    "Username", "6%", {
+                    x => trafficWatch.isPostgresItem(x) ? x.Username : t("notAvailable"),
+                    t("columns.username"), "6%", {
                         extraClass: rowHighlightRules,
                         sortable: "string",
                     }),
@@ -674,18 +688,18 @@ class trafficWatch extends viewModelBase {
         this.columnPreview.install("virtual-grid", ".js-traffic-watch-tooltip",
             (item: Raven.Client.Documents.Changes.TrafficWatchChangeBase, column: textColumn<Raven.Client.Documents.Changes.TrafficWatchChangeBase>,
              e: JQuery.TriggeredEvent, onValue: (value: any, valueToCopy?: string, wrapValue?: boolean) => void) => {
-                if (column.header === "Duration") {
-                    onValue(trafficWatch.isHttpItem(item) ? item.ElapsedMilliseconds.toLocaleString() + " ms" : "n/a");
-                } else if (column.header === "Details") {
+                if (column.header === t("columns.duration")) {
+                    onValue(trafficWatch.isHttpItem(item) ? t("durationMs", { duration: item.ElapsedMilliseconds.toLocaleString() }) : t("notAvailable"));
+                } else if (column.header === t("columns.details")) {
                     onValue(trafficWatch.formatDetails(item));
-                } else if (column.header === "Timestamp") {
+                } else if (column.header === t("columns.timestamp")) {
                     onValue(moment.utc(item.TimeStamp), item.TimeStamp);
-                } else if (column.header === "Custom Info") {
+                } else if (column.header === t("columns.customInfo")) {
                     onValue(generalUtils.escapeHtml(item.CustomInfo), item.CustomInfo);
-                } else if (column.header === "Source") {
+                } else if (column.header === t("columns.source")) {
                     onValue(this.formatSource(item, true), this.formatSource(item, false), false);
-                } else if (column.header === "Username") {
-                    onValue(trafficWatch.isPostgresItem(item) ? item.Username : "n/a");
+                } else if (column.header === t("columns.username")) {
+                    onValue(trafficWatch.isPostgresItem(item) ? item.Username : t("notAvailable"));
                 }
             }, {
                 additionalFeatures: [runQuery]

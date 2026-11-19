@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("serverWideCommands");
 
 class toggleServerWideTaskCommand extends commandBase {
 
@@ -16,10 +19,8 @@ class toggleServerWideTaskCommand extends commandBase {
         
         const url = endpoints.global.adminServerWide.adminConfigurationServerWideState;
 
-        const operationText = this.disable ? "disable" : "enable";
-     
         return this.post(url + this.urlEncodeArgs(args), null)
-            .fail((response: JQueryXHR) => this.reportError(`Failed to ${operationText} ${this.name} server-wide task. `, response.responseText));
+            .fail((response: JQueryXHR) => this.reportError(t("tasks.toggleFailed", { context: this.disable ? "disable" : "enable", name: this.name }), response.responseText));
     }
 }
 

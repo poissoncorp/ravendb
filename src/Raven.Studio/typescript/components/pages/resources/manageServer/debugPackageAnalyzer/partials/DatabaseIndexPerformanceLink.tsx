@@ -4,6 +4,7 @@ import { Icon } from "components/common/Icon";
 import { useAppSelector } from "components/store";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
 import appUrl from "common/appUrl";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 interface DatabaseIndexPerformanceLinkProps {
     packageId: string;
@@ -19,6 +20,7 @@ export default memo(function DatabaseIndexPerformanceLink({
     database,
     node,
 }: DatabaseIndexPerformanceLinkProps) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const databaseExistsLocally = useAppSelector(databaseSelectors.allDatabases).some((db) => db.name === database);
 
     const href = appUrl.forIndexPerformance(database, null, packageId, node);
@@ -27,23 +29,18 @@ export default memo(function DatabaseIndexPerformanceLink({
         <div className="panel-bg-1 rounded">
             <div className="p-4 hstack gap-3 flex-wrap align-items-center">
                 <div className="vstack">
-                    <h3 className="m-0">Indexing Performance</h3>
-                    <span className="text-muted">
-                        Open the interactive indexing performance timeline from the package in the Indexing Performance
-                        viewer.
-                    </span>
+                    <h3 className="m-0">{t("indexingPerformance.title")}</h3>
+                    <span className="text-muted">{t("indexingPerformance.description")}</span>
                 </div>
                 <div className="hstack gap-2 ms-auto align-items-center">
                     {databaseExistsLocally ? (
                         <Button href={href} target="_blank">
-                            <Icon icon="indexing-performance" /> Open in Indexing Performance viewer
+                            <Icon icon="indexing-performance" /> {t("indexingPerformance.open")}
                         </Button>
                     ) : (
-                        <span
-                            title={`The "${database}" database is not present on this server. Create an empty database named "${database}" to open its indexing performance timeline.`}
-                        >
+                        <span title={t("indexingPerformance.databaseMissing", { database })}>
                             <Button disabled>
-                                <Icon icon="indexing-performance" /> Open in Indexing Performance viewer
+                                <Icon icon="indexing-performance" /> {t("indexingPerformance.open")}
                             </Button>
                         </span>
                     )}

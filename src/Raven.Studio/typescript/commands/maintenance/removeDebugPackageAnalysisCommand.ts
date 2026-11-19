@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("maintenanceCommands");
 
 class removeDebugPackageAnalysisCommand extends commandBase {
 
@@ -13,7 +16,7 @@ class removeDebugPackageAnalysisCommand extends commandBase {
 
         return this.del<void>(url, null, null, { dataType: "text" })
             .fail((response: JQueryXHR) =>
-                this.reportError("Failed to remove the debug package analysis", response.responseText, response.statusText));
+                this.reportError(t("removeDebugPackageAnalysisFailed"), response.responseText, response.statusText));
     }
 }
 

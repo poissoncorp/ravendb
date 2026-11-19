@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { pick } from "lodash";
 import messagePublisher from "common/messagePublisher";
-import pluralizeHelpers from "common/helpers/text/pluralizeHelpers";
 import { useServices } from "components/hooks/useServices";
 import {
     OngoingTaskOperationConfirmType,
@@ -9,6 +8,7 @@ import {
 } from "components/pages/database/tasks/shared/OngoingTaskOperationConfirm";
 import assertUnreachable from "components/utils/assertUnreachable";
 import { ServerWideTaskSharedInfo } from "./serverWideTaskModels";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface OperationConfirm {
     type: OngoingTaskOperationConfirmType;
@@ -21,6 +21,7 @@ export function toOperationConfirmInfo(task: ServerWideTaskSharedInfo): Operatio
 }
 
 export function useServerWideTasksOperations(reload: () => void) {
+    const t = useStudioTranslation("serverWideTasks");
     const { manageServerService } = useServices();
 
     const [togglingTaskIds, setTogglingTaskIds] = useState<number[]>([]);
@@ -52,9 +53,10 @@ export function useServerWideTasksOperations(reload: () => void) {
                 )
             );
             messagePublisher.reportSuccess(
-                `${pluralizeHelpers.pluralize(tasksToToggle.length, "Task", "Tasks", true)} ${
-                    enable ? "enabled" : "disabled"
-                } successfully.`
+                t("operations.toggleSuccess", {
+                    context: enable ? "enabled" : "disabled",
+                    count: tasksToToggle.length,
+                })
             );
             reload();
         } finally {
@@ -71,9 +73,7 @@ export function useServerWideTasksOperations(reload: () => void) {
                 tasks.map((task) => manageServerService.deleteServerWideTask(task.taskType, task.taskName))
             );
 
-            messagePublisher.reportSuccess(
-                `${pluralizeHelpers.pluralize(tasks.length, "Task", "Tasks", true)} deleted successfully.`
-            );
+            messagePublisher.reportSuccess(t("operations.deleteSuccess", { count: tasks.length }));
             reload();
         } finally {
             setDeletingTaskIds((prev) => prev.filter((x) => !ids.includes(x)));

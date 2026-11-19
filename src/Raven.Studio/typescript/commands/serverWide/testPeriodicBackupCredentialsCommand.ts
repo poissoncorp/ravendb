@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("serverWideCommands");
 
 class testPeriodicBackupCredentialsCommand extends commandBase {
     private readonly type: Raven.Server.Documents.PeriodicBackup.PeriodicBackupConnectionType;
@@ -20,10 +23,10 @@ class testPeriodicBackupCredentialsCommand extends commandBase {
         return this.post(url, JSON.stringify(this.connectionConfiguration), null, { dataType: undefined })
             .done((result: Raven.Server.Web.System.NodeConnectionTestResult) => {
                 if (!result.Success) {
-                    this.reportError(`Failed to test connection`, result.Error);
+                    this.reportError(t("backupCredentials.testFailed"), result.Error);
                 }
             })
-            .fail(response => this.reportError(`Connection to ${this.type} failed`,
+            .fail(response => this.reportError(t("backupCredentials.connectionFailed", { type: this.type }),
                     response.responseText, response.statusText));
     }
 }

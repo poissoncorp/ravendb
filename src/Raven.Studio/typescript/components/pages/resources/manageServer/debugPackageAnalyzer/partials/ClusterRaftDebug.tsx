@@ -28,6 +28,8 @@ import { CellWithCopyWrapper } from "components/common/virtualTable/cells/CellWi
 import { virtualTableUtils } from "components/common/virtualTable/utils/virtualTableUtils";
 import { analyzerConstants } from "./analyzerConstants";
 import SizeGetter from "components/common/SizeGetter";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 import "../../advanced/clusterDebug/partials/ClusterDebugSummary.scss";
 import "../../advanced/clusterDebug/partials/ClusterDebugEntries.scss";
 
@@ -69,6 +71,7 @@ function mostRecentCommitTime(views: (RaftDebugView | null)[]): moment.Moment {
 // Reuses the live view's mapRaftDebugView + ClusterDebugGlobalInfo; the summary is adapted for a static
 // snapshot (no live-cluster "current node" / server URLs, absolute timestamps instead of now-relative).
 export default function ClusterRaftDebug({ summary }: ClusterRaftDebugProps) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const { manageServerService } = useServices();
     const packageId = summary.PackageId;
     const nodeTags = useMemo(() => Object.keys(summary.SummaryPerNode ?? {}).sort(), [summary]);
@@ -108,19 +111,19 @@ export default function ClusterRaftDebug({ summary }: ClusterRaftDebugProps) {
         <div className="cluster-raft-debug">
             {raft.loading ? (
                 <div className="hstack gap-2 justify-content-center text-muted py-3">
-                    <Spinner size="sm" data-testid="loader" /> Loading cluster raft log...
+                    <Spinner size="sm" data-testid="loader" /> {t("clusterRaftDebug.loading")}
                 </div>
             ) : results.length === 0 ? (
                 <EmptySet compact className="justify-content-center">
-                    No cluster raft log in the package
+                    {t("clusterRaftDebug.empty")}
                 </EmptySet>
             ) : (
                 <div className="vstack gap-3">
                     <div className="panel-bg-1 rounded">
                         <div className="p-4">
-                            <h3 className="mb-3">Cluster Debug</h3>
+                            <h3 className="mb-3">{t("clusterRaftDebug.title")}</h3>
                             <ClusterDebugGlobalInfo nodes={loadableNodes} cardClassName="panel-bg-2" fillWidth />
-                            <h4 className="mt-3">Summary</h4>
+                            <h4 className="mt-3">{t("clusterRaftDebug.summary.title")}</h4>
                             <RaftSummaryTable results={results} />
                         </div>
                         <LogEntriesCard results={results} />
@@ -132,6 +135,7 @@ export default function ClusterRaftDebug({ summary }: ClusterRaftDebugProps) {
 }
 
 function RaftSummaryTable({ results }: { results: NodeRaftResult[] }) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const hasAnyCriticalError = results.some((r) => !!r.info?.criticalError);
 
     return (
@@ -147,7 +151,9 @@ function RaftSummaryTable({ results }: { results: NodeRaftResult[] }) {
                                         icon={result.info?.role === "Leader" ? "node-leader" : "cluster-member"}
                                         color="node"
                                     />
-                                    <span className="text-nowrap">Node {result.nodeTag}</span>
+                                    <span className="text-nowrap">
+                                        {t("clusterRaftDebug.nodeName", { nodeTag: result.nodeTag })}
+                                    </span>
                                 </span>
                             </div>
                         </th>
@@ -157,18 +163,24 @@ function RaftSummaryTable({ results }: { results: NodeRaftResult[] }) {
             <tbody>
                 <tr>
                     <th>
-                        Role / Phase
+                        {t("clusterRaftDebug.summary.rolePhase")}
                         <PopoverWithHoverWrapper
                             message={
                                 <>
                                     <ul>
                                         <li>
-                                            The node&apos;s role:
-                                            <br />(<i>Leader, Follower, Candidate, or Passive</i>).
+                                            <StudioTrans
+                                                ns="debugPackageAnalyzer"
+                                                i18nKey="clusterRaftDebug.summary.rolePhaseInfoRole"
+                                                components={{ br: <br />, i: <i /> }}
+                                            />
                                         </li>
                                         <li>
-                                            Followers also indicate their current phase:
-                                            <br />(<i>Initial, Negotiation, Snapshot, or Steady</i>).
+                                            <StudioTrans
+                                                ns="debugPackageAnalyzer"
+                                                i18nKey="clusterRaftDebug.summary.rolePhaseInfoPhase"
+                                                components={{ br: <br />, i: <i /> }}
+                                            />
                                         </li>
                                     </ul>
                                 </>
@@ -185,8 +197,8 @@ function RaftSummaryTable({ results }: { results: NodeRaftResult[] }) {
                 </tr>
                 <tr>
                     <th>
-                        Progress
-                        <PopoverWithHoverWrapper message="Percentage of Raft commands committed on the node out of the total in the log.">
+                        {t("clusterRaftDebug.summary.progress")}
+                        <PopoverWithHoverWrapper message={t("clusterRaftDebug.summary.progressInfo")}>
                             <Icon icon="info" color="info" margin="ms-1" />
                         </PopoverWithHoverWrapper>
                     </th>
@@ -197,16 +209,16 @@ function RaftSummaryTable({ results }: { results: NodeRaftResult[] }) {
                                     inline={false}
                                     targetStyle={{ width: "100%" }}
                                     message={
-                                        <>
-                                            First entry index:{" "}
-                                            <strong>{result.info.firstEntryIndex.toLocaleString()}</strong>
-                                            <br />
-                                            Last commit index:{" "}
-                                            <strong>{result.info.commitIndex.toLocaleString()}</strong>
-                                            <br />
-                                            Last log entry index:{" "}
-                                            <strong>{result.info.lastLogEntryIndex.toLocaleString()}</strong>
-                                        </>
+                                        <StudioTrans
+                                            ns="debugPackageAnalyzer"
+                                            i18nKey="clusterRaftDebug.summary.progressDetails"
+                                            components={{ strong: <strong />, br: <br /> }}
+                                            options={{
+                                                firstEntryIndex: result.info.firstEntryIndex.toLocaleString(),
+                                                commitIndex: result.info.commitIndex.toLocaleString(),
+                                                lastLogEntryIndex: result.info.lastLogEntryIndex.toLocaleString(),
+                                            }}
+                                        />
                                     }
                                 >
                                     <ProgressBar
@@ -225,8 +237,8 @@ function RaftSummaryTable({ results }: { results: NodeRaftResult[] }) {
                 </tr>
                 <tr>
                     <th>
-                        Queue size
-                        <PopoverWithHoverWrapper message="Number of Raft commands left to be committed on the node.">
+                        {t("clusterRaftDebug.summary.queueSize")}
+                        <PopoverWithHoverWrapper message={t("clusterRaftDebug.summary.queueSizeInfo")}>
                             <Icon icon="info" color="info" margin="ms-1" />
                         </PopoverWithHoverWrapper>
                     </th>
@@ -238,8 +250,8 @@ function RaftSummaryTable({ results }: { results: NodeRaftResult[] }) {
                 </tr>
                 <tr>
                     <th>
-                        Last commit index
-                        <PopoverWithHoverWrapper message="The index of the last Raft command that was committed on the node.">
+                        {t("clusterRaftDebug.summary.lastCommitIndex")}
+                        <PopoverWithHoverWrapper message={t("clusterRaftDebug.summary.lastCommitIndexInfo")}>
                             <Icon icon="info" color="info" margin="ms-1" />
                         </PopoverWithHoverWrapper>
                     </th>
@@ -257,13 +269,15 @@ function RaftSummaryTable({ results }: { results: NodeRaftResult[] }) {
                                     {result.info.chocked && (
                                         <PopoverWithHoverWrapper
                                             message={
-                                                <>
-                                                    <span className="text-warning">
-                                                        <Icon icon="warning" />
-                                                        Warning:
-                                                    </span>
-                                                    <span> No commits for over 2 minutes</span>
-                                                </>
+                                                <StudioTrans
+                                                    ns="debugPackageAnalyzer"
+                                                    i18nKey="clusterRaftDebug.summary.noCommitsWarning"
+                                                    components={{
+                                                        prefix: <span className="text-warning" />,
+                                                        icon: <Icon icon="warning" />,
+                                                        span: <span />,
+                                                    }}
+                                                />
                                             }
                                         >
                                             <Icon icon="warning" margin="ms-1" />
@@ -278,8 +292,8 @@ function RaftSummaryTable({ results }: { results: NodeRaftResult[] }) {
                 </tr>
                 <tr>
                     <th>
-                        Last committed date
-                        <PopoverWithHoverWrapper message="The time the last Raft command was committed on the node.">
+                        {t("clusterRaftDebug.summary.lastCommittedDate")}
+                        <PopoverWithHoverWrapper message={t("clusterRaftDebug.summary.lastCommittedDateInfo")}>
                             <Icon icon="info" color="info" margin="ms-1" />
                         </PopoverWithHoverWrapper>
                     </th>
@@ -293,7 +307,7 @@ function RaftSummaryTable({ results }: { results: NodeRaftResult[] }) {
                                     <PopoverWithHoverWrapper
                                         message={asAgo ? <>{result.info.lastCommitedTime}</> : null}
                                     >
-                                        <div>{asAgo ?? "n/a"}</div>
+                                        <div>{asAgo ?? t("notAvailable")}</div>
                                     </PopoverWithHoverWrapper>
                                 ) : (
                                     <Unavailable />
@@ -304,8 +318,8 @@ function RaftSummaryTable({ results }: { results: NodeRaftResult[] }) {
                 </tr>
                 <tr>
                     <th>
-                        Last append date
-                        <PopoverWithHoverWrapper message="The time the last command was appended to the Raft log.">
+                        {t("clusterRaftDebug.summary.lastAppendDate")}
+                        <PopoverWithHoverWrapper message={t("clusterRaftDebug.summary.lastAppendDateInfo")}>
                             <Icon icon="info" color="info" margin="ms-1" />
                         </PopoverWithHoverWrapper>
                     </th>
@@ -317,7 +331,7 @@ function RaftSummaryTable({ results }: { results: NodeRaftResult[] }) {
                             <td className="align-content-center" key={result.nodeTag}>
                                 {result.info ? (
                                     <PopoverWithHoverWrapper message={asAgo ? result.info.lastAppendedTime : null}>
-                                        <div>{asAgo ?? "n/a"}</div>
+                                        <div>{asAgo ?? t("notAvailable")}</div>
                                     </PopoverWithHoverWrapper>
                                 ) : (
                                     <Unavailable />
@@ -328,19 +342,13 @@ function RaftSummaryTable({ results }: { results: NodeRaftResult[] }) {
                 </tr>
                 <tr>
                     <th>
-                        Local version
+                        {t("clusterRaftDebug.summary.localVersion")}
                         <PopoverWithHoverWrapper
                             message={
                                 <>
                                     <ul>
-                                        <li>
-                                            Each Raft command has an ID number associated with it (not the log index).
-                                            Newer RavenDB versions may introduce commands with higher version numbers
-                                            that are unknown to nodes running older versions.
-                                        </li>
-                                        <li>
-                                            This value shows the highest Raft command version number known to the node.
-                                        </li>
+                                        <li>{t("clusterRaftDebug.summary.localVersionInfoCommands")}</li>
+                                        <li>{t("clusterRaftDebug.summary.localVersionInfoValue")}</li>
                                     </ul>
                                 </>
                             }
@@ -356,8 +364,8 @@ function RaftSummaryTable({ results }: { results: NodeRaftResult[] }) {
                 </tr>
                 <tr>
                     <th>
-                        Connection
-                        <PopoverWithHoverWrapper message="The node's connection state to other nodes in the cluster.">
+                        {t("clusterRaftDebug.summary.connection")}
+                        <PopoverWithHoverWrapper message={t("clusterRaftDebug.summary.connectionInfo")}>
                             <Icon icon="info" color="info" margin="ms-1" />
                         </PopoverWithHoverWrapper>
                     </th>
@@ -369,12 +377,14 @@ function RaftSummaryTable({ results }: { results: NodeRaftResult[] }) {
                 </tr>
                 {hasAnyCriticalError && (
                     <tr>
-                        <th>Cluster Critical Error</th>
+                        <th>{t("clusterRaftDebug.summary.criticalError")}</th>
                         {results.map((result) => (
                             <td className="align-content-center" key={result.nodeTag}>
                                 {result.info ? (
                                     result.info.criticalError ? (
-                                        <StatePill bg="danger">Critical error</StatePill>
+                                        <StatePill bg="danger">
+                                            {t("clusterRaftDebug.summary.criticalErrorPill")}
+                                        </StatePill>
                                     ) : (
                                         <>-</>
                                     )
@@ -391,7 +401,8 @@ function RaftSummaryTable({ results }: { results: NodeRaftResult[] }) {
 }
 
 function Unavailable() {
-    return <span className="text-muted">n/a</span>;
+    const t = useStudioTranslation("debugPackageAnalyzer");
+    return <span className="text-muted">{t("notAvailable")}</span>;
 }
 
 function Connections({ connections }: { connections: PeerConnection[] }) {
@@ -411,6 +422,7 @@ function Connections({ connections }: { connections: PeerConnection[] }) {
 }
 
 function LogEntriesCard({ results }: { results: NodeRaftResult[] }) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const withLogs = useMemo(() => results.filter((r) => r.view), [results]);
     const [selectedNodeTag, setSelectedNodeTag] = useState<string | null>(null);
 
@@ -424,11 +436,11 @@ function LogEntriesCard({ results }: { results: NodeRaftResult[] }) {
 
     return (
         <div className="p-4 pt-0">
-            <h3 className="hstack align-items-center">Log Entries</h3>
+            <h3 className="hstack align-items-center">{t("clusterRaftDebug.logEntries.title")}</h3>
             <div className="cluster-debug-entries">
                 {withLogs.length === 0 ? (
                     <EmptySet compact className="justify-content-center">
-                        No log entries captured for this node
+                        {t("clusterRaftDebug.logEntries.empty")}
                     </EmptySet>
                 ) : (
                     <>
@@ -447,7 +459,9 @@ function LogEntriesCard({ results }: { results: NodeRaftResult[] }) {
                                                 icon={result.info?.role === "Leader" ? "node-leader" : "cluster-member"}
                                                 color="node"
                                             />
-                                            <span className="text-nowrap">Node {result.nodeTag}</span>
+                                            <span className="text-nowrap">
+                                                {t("clusterRaftDebug.nodeName", { nodeTag: result.nodeTag })}
+                                            </span>
                                         </div>
                                     </button>
                                 </li>
@@ -455,15 +469,18 @@ function LogEntriesCard({ results }: { results: NodeRaftResult[] }) {
                         </ul>
                         {entries.length === 0 ? (
                             <EmptySet compact className="justify-content-center">
-                                No log entries captured for this node
+                                {t("clusterRaftDebug.logEntries.empty")}
                             </EmptySet>
                         ) : (
                             <>
                                 {log && (
                                     <div className="px-1 py-2 small text-muted">
-                                        {entries.length.toLocaleString()} captured / {log.TotalEntries.toLocaleString()}{" "}
-                                        total
-                                        {entries.length > maxEntriesShown ? ` (showing last ${maxEntriesShown})` : ""}
+                                        {t("clusterRaftDebug.logEntries.captured", {
+                                            context: entries.length > maxEntriesShown ? "truncated" : "all",
+                                            captured: entries.length.toLocaleString(),
+                                            total: log.TotalEntries.toLocaleString(),
+                                            limit: maxEntriesShown,
+                                        })}
                                     </div>
                                 )}
                                 <SizeGetter
@@ -481,36 +498,55 @@ function LogEntriesCard({ results }: { results: NodeRaftResult[] }) {
 }
 
 function useLogEntryColumns(availableWidth: number, commitIndex: number) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const bodyWidth = virtualTableUtils.getTableBodyWidth(availableWidth);
     const getSize = useMemo(() => virtualTableUtils.getCellSizeProvider(bodyWidth), [bodyWidth]);
 
     const columns = useMemo<ColumnDef<LogEntry>[]>(
         () => [
-            { header: "Index", accessorKey: "Index", cell: CellWithCopyWrapper, size: getSize(10) },
+            {
+                header: t("clusterRaftDebug.logEntries.columns.index"),
+                accessorKey: "Index",
+                cell: CellWithCopyWrapper,
+                size: getSize(10),
+            },
             {
                 id: "commandType",
-                header: "Command Type",
+                header: t("clusterRaftDebug.logEntries.columns.commandType"),
                 accessorKey: "CommandType",
                 cell: CellWithCopyWrapper,
                 size: getSize(30),
             },
-            { header: "Created", accessorKey: "CreateAt", cell: CellWithCopyWrapper, size: getSize(25) },
             {
-                header: "Size",
+                header: t("clusterRaftDebug.logEntries.columns.created"),
+                accessorKey: "CreateAt",
+                cell: CellWithCopyWrapper,
+                size: getSize(25),
+            },
+            {
+                header: t("clusterRaftDebug.logEntries.columns.size"),
                 accessorFn: (row) => genUtils.formatBytesToSize(row.SizeInBytes),
                 cell: CellWithCopyWrapper,
                 size: getSize(10),
             },
-            { header: "Term", accessorKey: "Term", cell: CellWithCopyWrapper, size: getSize(7) },
             {
-                header: "Status",
-                accessorFn: (row) => (row.Index <= commitIndex ? "Committed" : "Appended"),
+                header: t("clusterRaftDebug.logEntries.columns.term"),
+                accessorKey: "Term",
+                cell: CellWithCopyWrapper,
+                size: getSize(7),
+            },
+            {
+                header: t("clusterRaftDebug.logEntries.columns.status"),
+                accessorFn: (row) =>
+                    row.Index <= commitIndex
+                        ? t("clusterRaftDebug.logEntries.statusCommitted")
+                        : t("clusterRaftDebug.logEntries.statusAppended"),
                 cell: CellWithCopyWrapper,
                 size: getSize(18),
             },
         ],
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        [getSize, commitIndex]
+        [getSize, commitIndex, t]
     );
 
     return { columns };

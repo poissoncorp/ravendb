@@ -17,12 +17,12 @@ import VirtualTable from "components/common/virtualTable/VirtualTable";
 import { virtualTableUtils } from "components/common/virtualTable/utils/virtualTableUtils";
 import { analyzerConstants } from "./analyzerConstants";
 import SizeGetter from "components/common/SizeGetter";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import type { StudioTranslate } from "common/i18n/resources";
 
 type SettingsResult = Raven.Server.Config.SettingsResult;
 type ConfigurationEntryDatabaseValue = Raven.Server.Config.ConfigurationEntryDatabaseValue;
 type SettingOrigin = "Database" | "Server" | "Default";
-
-const securedMask = "[secured]";
 
 interface SettingRow {
     key: string;
@@ -43,6 +43,7 @@ interface DatabaseSettingsWithSizeProps extends DatabaseSettingsProps {
 }
 
 function useDatabaseSettingsColumns(availableWidth: number) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const bodyWidth = virtualTableUtils.getTableBodyWidth(
         availableWidth - analyzerConstants.panelHorizontalPaddingInPx
     );
@@ -51,50 +52,51 @@ function useDatabaseSettingsColumns(availableWidth: number) {
         const getSize = virtualTableUtils.getCellSizeProvider(bodyWidth);
         return [
             {
-                header: "Key",
+                header: t("databaseSettings.columns.key"),
                 accessorKey: "key",
                 cell: SettingKeyCell,
                 size: getSize(33),
             },
             {
-                header: "Category",
+                header: t("databaseSettings.columns.category"),
                 accessorKey: "category",
                 size: getSize(19),
             },
             {
-                header: "Origin",
+                header: t("databaseSettings.columns.origin"),
                 accessorKey: "origin",
                 cell: ({ getValue }) => <OriginBadge origin={getValue<SettingOrigin>()} />,
                 size: getSize(13),
             },
             {
-                header: "Effective value",
+                header: t("databaseSettings.columns.effectiveValue"),
                 accessorKey: "value",
                 cell: SettingValueCell,
                 size: getSize(35),
             },
         ];
-    }, [bodyWidth]);
+    }, [bodyWidth, t]);
 
     return { settingsColumns };
 }
 
 function OriginBadge({ origin }: { origin: SettingOrigin }) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     if (origin === "Database") {
         return (
             <Badge bg="warning" pill>
-                Database
+                {t("databaseSettings.origins.database")}
             </Badge>
         );
     }
     if (origin === "Server") {
         return (
             <Badge bg="info" pill>
-                Server
+                {t("databaseSettings.origins.server")}
             </Badge>
         );
     }
-    return <span className="text-muted">Default</span>;
+    return <span className="text-muted">{t("databaseSettings.origins.default")}</span>;
 }
 
 // On-demand per-node database configuration from the analyzer databases/configuration/settings
@@ -111,6 +113,7 @@ export default memo(function DatabaseSettings({ packageId, database, node }: Dat
 });
 
 function DatabaseSettingsWithSize({ packageId, database, node, width }: DatabaseSettingsWithSizeProps) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const { manageServerService } = useServices();
     // default to the actionable subset: settings actually customized away from their default
     const [showDefaults, setShowDefaults] = useState<boolean>(false);
@@ -122,7 +125,7 @@ function DatabaseSettingsWithSize({ packageId, database, node, width }: Database
         return manageServerService.getDebugPackageDatabaseSettings(packageId, node, database);
     }, [packageId, node, database]);
 
-    const rows = useMemo(() => parseSettings(settings.result), [settings.result]);
+    const rows = useMemo(() => parseSettings(settings.result, t), [settings.result, t]);
     // per-column filtering is handled by the table's built-in filters; this only applies the
     // "show default values" toggle (defaults are hidden by default to surface customized settings)
     const filtered = useMemo(
@@ -150,38 +153,35 @@ function DatabaseSettingsWithSize({ packageId, database, node, width }: Database
             <div className="panel-bg-1 rounded">
                 <div className="p-4 vstack gap-3">
                     <div className="hstack justify-content-between align-items-center flex-wrap gap-2">
-                        <h3 className="m-0">Settings</h3>
+                        <h3 className="m-0">{t("databaseSettings.title")}</h3>
                         {!settings.loading && !settings.error && rows.length > 0 && (
                             <div className="hstack gap-3 align-items-center">
                                 <Form.Check
                                     type="switch"
                                     id="debug-package-settings-show-defaults"
-                                    label="Show default values"
+                                    label={t("databaseSettings.showDefaults")}
                                     checked={showDefaults}
                                     onChange={(e) => setShowDefaults(e.target.checked)}
                                 />
                                 <span className="small-label">
-                                    {filtered.length} of {rows.length}
+                                    {t("databaseSettings.shownOfTotal", { shown: filtered.length, total: rows.length })}
                                 </span>
                             </div>
                         )}
                     </div>
                     {settings.loading ? (
                         <div className="hstack gap-2 justify-content-center text-muted py-3">
-                            <Spinner size="sm" /> Loading configuration for node {node}...
+                            <Spinner size="sm" /> {t("databaseSettings.loading", { node })}
                         </div>
                     ) : settings.error ? (
-                        <RichAlert variant="danger">
-                            Could not load configuration for node {node}. The package may not contain settings for this
-                            database, or the report expired.
-                        </RichAlert>
+                        <RichAlert variant="danger">{t("databaseSettings.loadError", { node })}</RichAlert>
                     ) : rows.length === 0 ? (
                         <EmptySet compact className="justify-content-center">
-                            No configuration settings for {database} on node {node}
+                            {t("databaseSettings.empty", { database, node })}
                         </EmptySet>
                     ) : filtered.length === 0 ? (
                         <EmptySet compact className="justify-content-center">
-                            No customized settings - all are at their default values
+                            {t("databaseSettings.noCustomized")}
                         </EmptySet>
                     ) : (
                         <VirtualTable table={table} heightInPx={heightInPx} />
@@ -203,7 +203,10 @@ function SettingValueCell({ getValue }: { getValue: () => unknown }) {
 
 // Effective value resolution mirrors the live settings model: a database override wins over the
 // server value, which wins over the configured default. Secured / no-access values are masked.
-function parseSettings(result: SettingsResult | null | undefined): SettingRow[] {
+function parseSettings(
+    result: SettingsResult | null | undefined,
+    t: StudioTranslate<"debugPackageAnalyzer">
+): SettingRow[] {
     if (!result?.Settings) {
         return [];
     }
@@ -235,7 +238,7 @@ function parseSettings(result: SettingsResult | null | undefined): SettingRow[] 
         }
 
         if (meta.IsSecured || hasAccess === false) {
-            value = securedMask;
+            value = t("databaseSettings.securedValue");
         }
 
         return { key, category: meta.Category, origin, value, description: meta.Description };

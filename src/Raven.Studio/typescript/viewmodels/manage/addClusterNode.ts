@@ -7,6 +7,9 @@ import generalUtils = require("common/generalUtils");
 import addClusterNodeModel = require("models/database/cluster/addClusterNodeModel");
 import testClusterNodeConnectionCommand = require("commands/database/cluster/testClusterNodeConnectionCommand");
 import popoverUtils = require("common/popoverUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("addClusterNode");
 
 class addClusterNode extends viewModelBase {
 
@@ -39,8 +42,7 @@ class addClusterNode extends viewModelBase {
         
          popoverUtils.longWithHover($(".js-watcher-info"),
             {
-                content: 'A Watcher is a non-voting node in the cluster that is still fully managed by the cluster. <br />' +
-                'A Watcher can be assigned databases and work to be done.'
+                content: t("form.watcherInfo")
             });
     }
     

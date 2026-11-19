@@ -1,5 +1,6 @@
 import React from "react";
 import colorsManager from "common/colorsManager";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 import "./NodeTagPill.scss";
 
 interface NodeTagPillProps {
@@ -7,8 +8,13 @@ interface NodeTagPillProps {
 }
 
 export default function NodeTagPill({ tag }: NodeTagPillProps) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     return (
-        <span className="node-tag-circle" style={{ backgroundColor: nodeColor(tag) }} title={`Node ${tag}`}>
+        <span
+            className="node-tag-circle"
+            style={{ backgroundColor: nodeColor(tag) }}
+            title={t("nodeName", { nodeTag: tag })}
+        >
             {tag}
         </span>
     );

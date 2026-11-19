@@ -30,18 +30,23 @@ import Collapse from "react-bootstrap/Collapse";
 import Form from "react-bootstrap/Form";
 import * as yup from "yup";
 import useUniqueId from "components/hooks/useUniqueId";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import type { StudioTranslate } from "common/i18n/resources";
 
 // exhaustiveStringTuple makes the compiler enforce that every SsoProvider is listed here.
 const ssoProviders = exhaustiveStringTuple<SsoProvider>()("Github", "Google", "Microsoft", "Windows");
 
 const ssoProviderOptions: SelectOption[] = ssoProviders.map((p) => ({ value: p, label: p }));
 
-const identifierPlaceholderByProvider: Record<SsoProvider, string> = {
-    Windows: "Username",
-    Google: "email@gmail.com",
-    Github: "Username or email",
-    Microsoft: "Username or email",
-};
+function getIdentifierPlaceholderByProvider(t: StudioTranslate<"certificates">): Record<SsoProvider, string> {
+    return {
+        Windows: t("ssoUser.usernamePlaceholder"),
+        Google: "email@gmail.com",
+        Github: t("ssoUser.usernameOrEmailPlaceholder"),
+        Microsoft: t("ssoUser.usernameOrEmailPlaceholder"),
+    };
+}
 
 type SsoUserFormClearance = "ValidUser" | "Operator" | "ClusterAdmin";
 
@@ -54,6 +59,8 @@ function toFormSecurityClearance(
 }
 
 export default function CertificatesRegisterSsoUserModal() {
+    const t = useStudioTranslation("certificates");
+    const commonT = useStudioTranslation("common");
     const dispatch = useAppDispatch();
     const { manageServerService } = useServices();
     const { reportEvent } = useEventsCollector();
@@ -71,7 +78,7 @@ export default function CertificatesRegisterSsoUserModal() {
     const sourceForDefaults = ssoUserToEdit ?? ssoUserToClone;
 
     const form = useForm<FormData>({
-        resolver: yupResolver(schema),
+        resolver: yupResolver(getSchema(t)),
         defaultValues: {
             displayName: sourceForDefaults?.Name ?? "",
             ssoIdentifiers:
@@ -157,6 +164,8 @@ export default function CertificatesRegisterSsoUserModal() {
         });
     };
 
+    const identifierPlaceholderByProvider = getIdentifierPlaceholderByProvider(t);
+
     const ssoServerOptions = ssoServerCertificates.map((cert) => ({
         value: cert.PublicKeyPinningHash,
         label: cert.Name,
@@ -183,35 +192,32 @@ export default function CertificatesRegisterSsoUserModal() {
                             margin="me-3"
                         />
                         <h3 id={titleId} className="mb-0">
-                            {isEditing ? "Edit SSO user" : isCloning ? "Clone SSO user" : "Add SSO user"}
+                            {t("ssoUser.title", { context: isEditing ? "edit" : isCloning ? "clone" : "add" })}
                         </h3>
                     </Modal.Header>
                     <Modal.Body>
                         <FormGroup>
-                            <FormLabel>Display name</FormLabel>
+                            <FormLabel>{t("ssoUser.displayName")}</FormLabel>
                             <FormInput
                                 control={control}
                                 type="text"
                                 name="displayName"
-                                placeholder="e.g. Alice Smith"
+                                placeholder={t("ssoUser.displayNamePlaceholder")}
                             />
                         </FormGroup>
                         <FormGroup>
                             <div className="hstack gap-1 mb-1">
                                 <FormLabel className="mb-0 d-flex align-items-center gap-1">
-                                    Identifiers{" "}
+                                    {t("ssoUser.identifiers")}{" "}
                                     <ConditionalPopover
                                         conditions={{
                                             isActive: true,
                                             message: (
-                                                <>
-                                                    Map this user to one or more identity providers.
-                                                    <br />
-                                                    The incoming SSO certificate extension will be matched against these
-                                                    entries.
-                                                    <br />
-                                                    For Windows, specify the domain as well.
-                                                </>
+                                                <StudioTrans
+                                                    ns="certificates"
+                                                    i18nKey="ssoUser.identifiersInfo"
+                                                    components={{ br: <br /> }}
+                                                />
                                             ),
                                         }}
                                         popoverPlacement="right"
@@ -232,7 +238,7 @@ export default function CertificatesRegisterSsoUserModal() {
                                     }
                                 >
                                     <Icon icon="plus" margin="me-1" />
-                                    Add
+                                    {t("ssoUser.addIdentifier")}
                                 </Button>
                             </div>
                             <div className="vstack gap-2">
@@ -246,7 +252,7 @@ export default function CertificatesRegisterSsoUserModal() {
                                                         control={control}
                                                         name={`ssoIdentifiers.${idx}.provider`}
                                                         options={ssoProviderOptions}
-                                                        placeholder="Provider"
+                                                        placeholder={t("ssoUser.providerPlaceholder")}
                                                     />
                                                 </div>
                                                 {provider === "Windows" && (
@@ -254,7 +260,7 @@ export default function CertificatesRegisterSsoUserModal() {
                                                         control={control}
                                                         type="text"
                                                         name={`ssoIdentifiers.${idx}.domain`}
-                                                        placeholder="Domain (e.g. CORP)"
+                                                        placeholder={t("ssoUser.domainPlaceholder")}
                                                     />
                                                 )}
                                                 <FormInput
@@ -262,7 +268,8 @@ export default function CertificatesRegisterSsoUserModal() {
                                                     type="text"
                                                     name={`ssoIdentifiers.${idx}.identifier`}
                                                     placeholder={
-                                                        identifierPlaceholderByProvider[provider] ?? "Username or email"
+                                                        identifierPlaceholderByProvider[provider] ??
+                                                        t("ssoUser.usernameOrEmailPlaceholder")
                                                     }
                                                 />
                                                 <Button
@@ -279,7 +286,7 @@ export default function CertificatesRegisterSsoUserModal() {
                             </div>
                         </FormGroup>
                         <FormGroup>
-                            <FormLabel>Security clearance</FormLabel>
+                            <FormLabel>{t("ssoUser.securityClearance")}</FormLabel>
                             <FormSelect
                                 control={control}
                                 name="securityClearance"
@@ -287,33 +294,37 @@ export default function CertificatesRegisterSsoUserModal() {
                                     [
                                         {
                                             value: "ClusterAdmin",
-                                            label: "Cluster Admin",
+                                            label: t("clearance.clusterAdmin"),
                                             isDisabled: !isClusterAdminOrClusterNode,
                                         },
-                                        { value: "Operator", label: "Operator" },
-                                        { value: "ValidUser", label: "User" },
+                                        { value: "Operator", label: t("clearance.operator") },
+                                        { value: "ValidUser", label: t("clearance.user") },
                                     ] satisfies SelectOption[]
                                 }
                             />
                             {(formValues.securityClearance === "Operator" ||
                                 formValues.securityClearance === "ClusterAdmin") && (
                                 <RichAlert variant="warning" className="mt-2">
-                                    SSO logins bypass RavenDB&apos;s two-factor authentication — RavenDB cannot enforce
-                                    a second factor on the identity provider&apos;s side. Make sure your SSO provider
-                                    requires MFA for identities granted{" "}
-                                    <strong>
-                                        {formValues.securityClearance === "ClusterAdmin" ? "Cluster Admin" : "Operator"}
-                                    </strong>{" "}
-                                    clearance.
+                                    <StudioTrans
+                                        ns="certificates"
+                                        i18nKey="ssoUser.mfaWarning"
+                                        components={{ strong: <strong /> }}
+                                        options={{
+                                            context:
+                                                formValues.securityClearance === "ClusterAdmin"
+                                                    ? "clusterAdmin"
+                                                    : "operator",
+                                        }}
+                                    />
                                 </RichAlert>
                             )}
                         </FormGroup>
                         <hr />
                         <FormGroup>
                             <div className="hstack justify-content-between align-items-center mb-1">
-                                <FormLabel className="mb-0">Authorizing SSO</FormLabel>
+                                <FormLabel className="mb-0">{t("ssoUser.authorizingSso")}</FormLabel>
                                 <FormSwitch control={control} name="allowAnySso">
-                                    Allow any SSO to authorize
+                                    {t("ssoUser.allowAnySso")}
                                 </FormSwitch>
                             </div>
                             <Collapse in={!formValues.allowAnySso}>
@@ -322,23 +333,29 @@ export default function CertificatesRegisterSsoUserModal() {
                                         control={control}
                                         name="ssoServerPublicKeyPinningHashes"
                                         isMulti
-                                        placeholder="Select one or more SSO servers..."
+                                        placeholder={t("ssoUser.ssoServersPlaceholder")}
                                         options={ssoServerOptions}
                                     />
                                 </div>
                             </Collapse>
                         </FormGroup>
                         <hr />
-                        <FormLabel>Database permissions</FormLabel>
+                        <FormLabel>{t("ssoUser.databasePermissions")}</FormLabel>
                         {(formValues.securityClearance === "Operator" ||
                             formValues.securityClearance === "ClusterAdmin") && (
                             <FormGroup>
                                 <RichAlert variant="info">
-                                    With security clearance set to{" "}
-                                    <strong>
-                                        {formValues.securityClearance === "ClusterAdmin" ? "Cluster Admin" : "Operator"}
-                                    </strong>
-                                    , the user will have access to all databases.
+                                    <StudioTrans
+                                        ns="certificates"
+                                        i18nKey="ssoUser.allDatabasesInfo"
+                                        components={{ strong: <strong /> }}
+                                        options={{
+                                            context:
+                                                formValues.securityClearance === "ClusterAdmin"
+                                                    ? "clusterAdmin"
+                                                    : "operator",
+                                        }}
+                                    />
                                 </RichAlert>
                             </FormGroup>
                         )}
@@ -348,7 +365,7 @@ export default function CertificatesRegisterSsoUserModal() {
                                     <div className="hstack gap-2">
                                         <SelectCreatable
                                             className="flex-grow-1"
-                                            placeholder="Select (or enter a database)"
+                                            placeholder={t("ssoUser.databasePlaceholder")}
                                             isClearable
                                             options={allDatabaseNames
                                                 .filter(
@@ -382,7 +399,7 @@ export default function CertificatesRegisterSsoUserModal() {
                                                     className="text-success"
                                                     color="secondary"
                                                 >
-                                                    Admin
+                                                    {t("access.admin")}
                                                 </FormRadio>
                                                 <FormRadio
                                                     control={control}
@@ -391,19 +408,22 @@ export default function CertificatesRegisterSsoUserModal() {
                                                     className="text-warning"
                                                     color="secondary"
                                                 >
-                                                    Read/Write
+                                                    {t("access.readWrite")}
                                                 </FormRadio>
                                                 <ConditionalPopover
                                                     conditions={{
                                                         isActive: !hasReadOnlyCertificates,
                                                         message: (
                                                             <LicenseRestrictedMessage>
-                                                                Current license doesn&apos;t include
-                                                                <br />
-                                                                <strong className="text-info">
-                                                                    <Icon icon="access-read" margin="m-0" /> Read-only
-                                                                    certificates
-                                                                </strong>
+                                                                <StudioTrans
+                                                                    ns="certificates"
+                                                                    i18nKey="access.readOnlyRestricted"
+                                                                    components={{
+                                                                        br: <br />,
+                                                                        strong: <strong className="text-info" />,
+                                                                        icon: <Icon icon="access-read" margin="m-0" />,
+                                                                    }}
+                                                                />
                                                             </LicenseRestrictedMessage>
                                                         ),
                                                     }}
@@ -416,7 +436,7 @@ export default function CertificatesRegisterSsoUserModal() {
                                                         color="secondary"
                                                         disabled={!hasReadOnlyCertificates}
                                                     >
-                                                        Read
+                                                        {t("access.read")}
                                                     </FormRadio>
                                                 </ConditionalPopover>
                                             </div>
@@ -435,7 +455,7 @@ export default function CertificatesRegisterSsoUserModal() {
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="link" onClick={handleClose} className="link-muted">
-                            Cancel
+                            {commonT("cancel")}
                         </Button>
                         <ButtonWithSpinner
                             type="submit"
@@ -443,7 +463,7 @@ export default function CertificatesRegisterSsoUserModal() {
                             className="rounded-pill"
                             isSpinning={formState.isSubmitting}
                         >
-                            {isEditing ? "Save changes" : "Add user"}
+                            {t("ssoUser.submit", { context: isEditing ? "edit" : "add" })}
                         </ButtonWithSpinner>
                     </Modal.Footer>
                 </Form>
@@ -452,30 +472,32 @@ export default function CertificatesRegisterSsoUserModal() {
     );
 }
 
-const ssoIdentifierSchema = yup.object({
-    provider: yup.string<SsoProvider>().required("Provider is required"),
-    domain: yup.string().when("provider", {
-        is: "Windows",
-        then: (s) => s.required("Domain is required for Windows"),
-        otherwise: (s) => s.optional(),
-    }),
-    identifier: yup.string().required("Identifier is required"),
-});
-
-const schema = yup.object({
-    displayName: yup.string().required("Display name is required"),
-    ssoIdentifiers: yup.array().of(ssoIdentifierSchema).min(1, "At least one identifier is required").required(),
-    ssoServerPublicKeyPinningHashes: yup
-        .array()
-        .of(yup.string())
-        .when("allowAnySso", {
-            is: false,
-            then: (s) => s.min(1, "Select at least one authorizing SSO server, or enable 'Allow any SSO to authorize'"),
+function getSchema(t: StudioTranslate<"certificates">) {
+    const ssoIdentifierSchema = yup.object({
+        provider: yup.string<SsoProvider>().required(t("ssoUser.providerRequired")),
+        domain: yup.string().when("provider", {
+            is: "Windows",
+            then: (s) => s.required(t("ssoUser.domainRequired")),
             otherwise: (s) => s.optional(),
         }),
-    allowAnySso: yup.boolean().required(),
-    securityClearance: yup.string<"ValidUser" | "Operator" | "ClusterAdmin">().required(),
-    databasePermissions: certificatesUtils.databasePermissionsSchema,
-});
+        identifier: yup.string().required(t("ssoUser.identifierRequired")),
+    });
 
-type FormData = yup.InferType<typeof schema>;
+    return yup.object({
+        displayName: yup.string().required(t("ssoUser.displayNameRequired")),
+        ssoIdentifiers: yup.array().of(ssoIdentifierSchema).min(1, t("ssoUser.identifiersRequired")).required(),
+        ssoServerPublicKeyPinningHashes: yup
+            .array()
+            .of(yup.string())
+            .when("allowAnySso", {
+                is: false,
+                then: (s) => s.min(1, t("ssoUser.ssoServersRequired")),
+                otherwise: (s) => s.optional(),
+            }),
+        allowAnySso: yup.boolean().required(),
+        securityClearance: yup.string<"ValidUser" | "Operator" | "ClusterAdmin">().required(),
+        databasePermissions: certificatesUtils.databasePermissionsSchema,
+    });
+}
+
+type FormData = yup.InferType<ReturnType<typeof getSchema>>;

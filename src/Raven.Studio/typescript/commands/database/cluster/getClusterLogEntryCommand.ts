@@ -1,5 +1,8 @@
 import endpoints = require("endpoints");
 import commandBase = require("commands/commandBase");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("clusterCommands");
 
 class getClusterLogEntryCommand extends commandBase {
     
@@ -14,7 +17,7 @@ class getClusterLogEntryCommand extends commandBase {
         })
 
         return this.query<Raven.Server.Rachis.RachisConsensus.RachisDebugLogEntry>(url, null)
-            .fail((response: JQueryXHR) => this.reportError("Unable to get cluster log entry", response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("getLogEntryFailed"), response.responseText, response.statusText));
     }
 }
 

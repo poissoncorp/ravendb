@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("clusterCommands");
 
 class testClusterNodeConnectionCommand extends commandBase {
 
@@ -23,10 +26,10 @@ class testClusterNodeConnectionCommand extends commandBase {
         const url = endpoints.global.testConnection.adminTestConnection + this.urlEncodeArgs(args);
 
         return this.post(url, null)
-            .fail((response: JQueryXHR) => this.reportError(`Failed to test connection`, response.responseText, response.statusText))
+            .fail((response: JQueryXHR) => this.reportError(t("testFailed.clusterNode"), response.responseText, response.statusText))
             .done((result: Raven.Server.Web.System.NodeConnectionTestResult) => {
                 if (!result.Success) {
-                    this.reportError(`Failed to test connection`, result.Error);
+                    this.reportError(t("testFailed.clusterNode"), result.Error);
                 }
             });
     }

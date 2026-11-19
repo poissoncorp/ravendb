@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import Form from "react-bootstrap/Form";
 import { useVirtualizer } from "@tanstack/react-virtual";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface GatherDebugInfoDatabaseListProps {
     databaseNames: string[];
@@ -14,6 +15,7 @@ export default function GatherDebugInfoDatabaseList({
     selectedDatabases,
     onToggle,
 }: GatherDebugInfoDatabaseListProps) {
+    const t = useStudioTranslation("gatherDebugInfo");
     const scrollRef = useRef<HTMLDivElement>(null);
 
     const virtualizer = useVirtualizer({
@@ -26,7 +28,7 @@ export default function GatherDebugInfoDatabaseList({
     if (databaseNames.length === 0) {
         return (
             <div className="gather-debug-info-db-scroll">
-                <div className="py-3 text-center text-muted">No databases found</div>
+                <div className="py-3 text-center text-muted">{t("databases.empty")}</div>
             </div>
         );
     }

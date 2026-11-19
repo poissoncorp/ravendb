@@ -21,20 +21,24 @@ import {
     ServerWideTaskStatus,
 } from "./ServerWideTaskPanelShared";
 import { ServerWideExternalReplicationTaskInfo } from "../serverWideTaskModels";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type ServerWideExternalReplicationPanelProps = BaseServerWideTaskPanelProps<ServerWideExternalReplicationTaskInfo>;
 
 function Details(props: { task: ServerWideExternalReplicationTaskInfo }) {
     const { task } = props;
+    const t = useStudioTranslation("serverWideTasks");
 
     return (
         <RichPanelDetails>
             <ServerWideTaskExcludedDatabases task={task} />
-            <RichPanelDetailItem label="Topology discovery URLs">
-                {task.topologyDiscoveryUrls.length > 0 ? task.topologyDiscoveryUrls.join(", ") : "No URLs defined"}
+            <RichPanelDetailItem label={t("replication.discoveryUrls")}>
+                {task.topologyDiscoveryUrls.length > 0
+                    ? task.topologyDiscoveryUrls.join(", ")
+                    : t("replication.noUrls")}
             </RichPanelDetailItem>
             {task.delayReplicationFor && task.delayReplicationFor !== "00:00:00" && (
-                <RichPanelDetailItem label="Replication delay">
+                <RichPanelDetailItem label={t("replication.delay")}>
                     {genUtils.formatTimeSpan(task.delayReplicationFor, true)}
                 </RichPanelDetailItem>
             )}

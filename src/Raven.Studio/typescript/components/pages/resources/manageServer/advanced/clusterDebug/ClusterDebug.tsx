@@ -10,8 +10,11 @@ import { useClusterWideAsync } from "hooks/useClusterWideAsync";
 import ClusterDebugGlobalInfo from "components/pages/resources/manageServer/advanced/clusterDebug/partials/ClusterDebugGlobalInfo";
 import { mapRaftDebugView } from "components/pages/resources/manageServer/advanced/clusterDebug/partials/common";
 import SizeGetter from "components/common/SizeGetter";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function ClusterDebug() {
+    const t = useStudioTranslation("clusterDebug");
+    const commonT = useStudioTranslation("common");
     const { manageServerService } = useServices();
     const [refreshing, setRefreshing] = useState(false);
 
@@ -47,20 +50,20 @@ export default function ClusterDebug() {
         <div className="flex-window padding-xs">
             <div id="cluster-debug" className="bs5 cluster-debug">
                 <div className="flex-shrink-0 hstack gap-2 align-items-start">
-                    <AboutViewHeading title="Cluster Debug" icon="cluster-debug" />
+                    <AboutViewHeading title={t("title")} icon="cluster-debug" />
                     <FlexGrow />
                     <ClusterDebugAboutView />
                 </div>
                 <div className="d-flex align-items-start gap-3 flex-wrap">
                     <ButtonWithSpinner onClick={handleRefresh} variant="primary" isSpinning={refreshing} icon="refresh">
-                        Refresh
+                        {commonT("refresh")}
                     </ButtonWithSpinner>
                     <FlexGrow />
                     <ClusterDebugGlobalInfo nodes={result} />
                 </div>
-                <h3 className="mt-3">Summary</h3>
+                <h3 className="mt-3">{t("summary.heading")}</h3>
                 <ClusterDebugSummary nodes={result} />
-                <h3 className="hstack align-items-center mt-4">Log Entries</h3>
+                <h3 className="hstack align-items-center mt-4">{t("entries.heading")}</h3>
                 <SizeGetter render={(size) => <ClusterDebugEntries availableWidth={size.width} nodes={result} />} />
             </div>
         </div>

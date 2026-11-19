@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("serverWideCommands");
 
 class saveServerWideBackupCommand extends commandBase {
     constructor(private configuration: Raven.Client.ServerWide.Operations.Configuration.ServerWideBackupConfiguration) {
@@ -12,10 +15,9 @@ class saveServerWideBackupCommand extends commandBase {
         
         return this.put<Raven.Client.ServerWide.Operations.Configuration.PutServerWideBackupConfigurationResponse>(url, JSON.stringify(this.configuration))
             .done(() => {
-                const taskTypeText = isNewTask ? "created" : "updated";
-                this.reportSuccess(`The server-wide backup task was ${taskTypeText} successfully`);
+                this.reportSuccess(t("tasks.backupSaved", { context: isNewTask ? "created" : "updated" }));
             })
-            .fail(response => this.reportError(`Failed to save the server-wide backup task: ${this.configuration.Name}`, response.responseText, response.statusText));
+            .fail(response => this.reportError(t("tasks.saveBackupFailed", { name: this.configuration.Name }), response.responseText, response.statusText));
     }
 }
 

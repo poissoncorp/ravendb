@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("serverWideCommands");
 
 class deleteServerWideConnectionStringCommand extends commandBase {
     constructor(
@@ -21,11 +24,11 @@ class deleteServerWideConnectionStringCommand extends commandBase {
 
         return this.del<void>(url, null)
             .done(() =>
-                this.reportSuccess(`Successfully deleted server-wide connection string - ${this.connectionStringName}`)
+                this.reportSuccess(t("connectionStrings.deleteSucceeded", { name: this.connectionStringName }))
             )
             .fail((response: JQueryXHR) =>
                 this.reportError(
-                    `Failed to delete server-wide connection string - ${this.connectionStringName}`,
+                    t("connectionStrings.deleteFailed", { name: this.connectionStringName }),
                     response.responseText,
                     response.statusText
                 )

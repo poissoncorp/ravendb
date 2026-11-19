@@ -5,7 +5,7 @@ import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Dropdown from "react-bootstrap/Dropdown";
 import Form from "react-bootstrap/Form";
 import { useForm, useWatch } from "react-hook-form";
-import { GatherDebugInfoFormData, gatherDebugInfoYupResolver } from "./GatherDebugInfoValidation";
+import { GatherDebugInfoFormData, getGatherDebugInfoYupResolver } from "./GatherDebugInfoValidation";
 import { FormSwitch } from "components/common/Form";
 import ButtonWithSpinner from "components/common/ButtonWithSpinner";
 import { useGatherDebugInfoHelpers } from "./useGatherDebugInfoHelpers";
@@ -14,13 +14,15 @@ import GatherDebugInfoDatabaseList from "./GatherDebugInfoDatabaseList";
 import { Icon } from "components/common/Icon";
 import { AboutViewHeading } from "components/common/AboutView";
 import appUrl = require("common/appUrl");
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 function GatherDebugInfo() {
+    const t = useStudioTranslation("gatherDebugInfo");
     const { defaultValues, isDownloading, allDatabaseNames, onClusterDownload, onServerDownload, abortData } =
         useGatherDebugInfoHelpers();
 
     const { handleSubmit, control, setValue } = useForm<GatherDebugInfoFormData>({
-        resolver: gatherDebugInfoYupResolver,
+        resolver: getGatherDebugInfoYupResolver(t),
         mode: "all",
         defaultValues,
     });
@@ -63,10 +65,8 @@ function GatherDebugInfo() {
     return (
         <div className="flex-window padding-xs">
             <div className="bs5 gather-debug-info content-margin">
-                <AboutViewHeading title="Gather Debug Info" marginBottom={2} icon="gather-debug-information" />
-                <p className="text-muted mb-4">
-                    Generate a comprehensive diagnostic package to assist in troubleshooting and resolving issues.
-                </p>
+                <AboutViewHeading title={t("title")} marginBottom={2} icon="gather-debug-information" />
+                <p className="text-muted mb-4">{t("description")}</p>
 
                 <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                     <Dropdown as={ButtonGroup}>
@@ -78,7 +78,7 @@ function GatherDebugInfo() {
                             isSpinning={isDownloading}
                             onClick={handleClusterDownload}
                         >
-                            Download package for entire cluster
+                            {t("downloadCluster")}
                         </ButtonWithSpinner>
                         <Dropdown.Toggle
                             split
@@ -89,7 +89,7 @@ function GatherDebugInfo() {
                         <Dropdown.Menu>
                             <Dropdown.Item onClick={handleServerDownload}>
                                 <Icon icon="server" />
-                                Download for current server only
+                                {t("downloadServer")}
                             </Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>
@@ -102,7 +102,7 @@ function GatherDebugInfo() {
                             isSpinning={abortData.isAborting}
                             onClick={abortData.toggleIsConfirmVisible}
                         >
-                            Abort
+                            {t("abort")}
                         </ButtonWithSpinner>
                     )}
 
@@ -113,12 +113,12 @@ function GatherDebugInfo() {
                         href={appUrl.forDebugPackageAnalyzer()}
                     >
                         <Icon icon="search" />
-                        Debug Package Analyzer
+                        {t("packageAnalyzer")}
                     </Button>
                 </div>
 
                 <div className="d-flex justify-content-between align-items-center mb-2">
-                    <h4 className="m-0">Select data source</h4>
+                    <h4 className="m-0">{t("dataSource.heading")}</h4>
                     <Button
                         variant="link"
                         size="sm"
@@ -129,29 +129,29 @@ function GatherDebugInfo() {
                             setValue("includeLogs", true);
                         }}
                     >
-                        Select all
+                        {t("selectAll")}
                     </Button>
                 </div>
                 <div className="panel-bg-1 p-3 border border-color-light border-radius-xs mb-4">
                     <div className="d-flex justify-content-between align-items-center">
-                        <span>Include Server</span>
+                        <span>{t("dataSource.includeServer")}</span>
                         <FormSwitch name="includeServer" control={control} color="primary" />
                     </div>
                     <hr className="my-1" />
                     <div className="d-flex justify-content-between align-items-center">
-                        <span>Include Databases</span>
+                        <span>{t("dataSource.includeDatabases")}</span>
                         <FormSwitch name="includeDatabases" control={control} color="primary" />
                     </div>
                     <hr className="my-1" />
                     <div className="d-flex justify-content-between align-items-center">
-                        <span>Include Logs</span>
+                        <span>{t("dataSource.includeLogs")}</span>
                         <FormSwitch name="includeLogs" control={control} color="primary" />
                     </div>
                 </div>
 
                 {includeDatabases && (
                     <>
-                        <h4 className="mb-2">Select databases</h4>
+                        <h4 className="mb-2">{t("databases.heading")}</h4>
                         <div className="panel-bg-1 p-3 border border-color-light border-radius-xs mb-4">
                             <div className="d-flex gap-2">
                                 <button
@@ -160,7 +160,7 @@ function GatherDebugInfo() {
                                     onClick={() => setValue("isSelectAllDatabases", true)}
                                 >
                                     <Icon icon="dbgroup" margin="m-0" />
-                                    Export all databases
+                                    {t("databases.exportAll")}
                                 </button>
                                 <button
                                     type="button"
@@ -168,7 +168,7 @@ function GatherDebugInfo() {
                                     onClick={() => setValue("isSelectAllDatabases", false)}
                                 >
                                     <Icon icon="database" margin="m-0" />
-                                    Customize export
+                                    {t("databases.customize")}
                                 </button>
                             </div>
                             {!isSelectAllDatabases && (
@@ -177,7 +177,7 @@ function GatherDebugInfo() {
                                         <Icon icon="search" margin="m-0" />
                                         <Form.Control
                                             type="text"
-                                            placeholder="Search for database"
+                                            placeholder={t("databases.searchPlaceholder")}
                                             value={dbSearchQuery}
                                             onChange={(e: ChangeEvent<HTMLInputElement>) =>
                                                 setDbSearchQuery(e.target.value)
@@ -198,10 +198,10 @@ function GatherDebugInfo() {
                                     <div className="gather-debug-info-db-list">
                                         <div className="gather-debug-info-db-header">
                                             <span className="gather-debug-info-db-name-col fw-semibold">
-                                                Database name
+                                                {t("databases.nameColumn")}
                                             </span>
                                             <div className="d-flex align-items-center gap-2">
-                                                <span>Select all</span>
+                                                <span>{t("selectAll")}</span>
                                                 <Form.Check
                                                     type="switch"
                                                     checked={allFilteredSelected}

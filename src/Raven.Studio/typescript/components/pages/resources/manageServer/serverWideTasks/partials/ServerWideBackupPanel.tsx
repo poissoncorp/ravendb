@@ -22,22 +22,28 @@ import {
 } from "./ServerWideTaskPanelShared";
 import { ServerWideBackupTaskInfo } from "../serverWideTaskModels";
 import { formatBackupType } from "components/pages/database/tasks/ongoingTasks/panels/PeriodicBackupPanel";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type ServerWideBackupPanelProps = BaseServerWideTaskPanelProps<ServerWideBackupTaskInfo>;
 
 function Details(props: { task: ServerWideBackupTaskInfo }) {
     const { task } = props;
+    const t = useStudioTranslation("serverWideTasks");
 
     return (
         <RichPanelDetails>
             <ServerWideTaskExcludedDatabases task={task} />
-            <RichPanelDetailItem label="Backup type">{formatBackupType(task.backupType, true)}</RichPanelDetailItem>
-            <RichPanelDetailItem label="Destinations">
-                {task.backupDestinations.length > 0 ? task.backupDestinations.join(", ") : "No destinations defined"}
+            <RichPanelDetailItem label={t("backup.backupType")}>
+                {formatBackupType(task.backupType, true)}
             </RichPanelDetailItem>
-            <RichPanelDetailItem label="Encrypted">{task.isEncrypted ? "Yes" : "No"}</RichPanelDetailItem>
+            <RichPanelDetailItem label={t("backup.destinations")}>
+                {task.backupDestinations.length > 0 ? task.backupDestinations.join(", ") : t("backup.noDestinations")}
+            </RichPanelDetailItem>
+            <RichPanelDetailItem label={t("backup.encrypted")}>
+                {task.isEncrypted ? t("backup.yes") : t("backup.no")}
+            </RichPanelDetailItem>
             {task.retentionPolicy && !task.retentionPolicy.Disabled && (
-                <RichPanelDetailItem label="Retention">
+                <RichPanelDetailItem label={t("backup.retention")}>
                     {genUtils.formatTimeSpan(task.retentionPolicy.MinimumBackupAgeToKeep, true)}
                 </RichPanelDetailItem>
             )}

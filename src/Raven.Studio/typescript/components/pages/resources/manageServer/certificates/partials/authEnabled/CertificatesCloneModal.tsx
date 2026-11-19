@@ -24,10 +24,13 @@ import { useEventsCollector } from "components/hooks/useEventsCollector";
 import useCertificatePermissionsConfirm from "components/pages/resources/manageServer/certificates/utils/useCertificatePermissionsConfirm";
 import Modal from "components/common/Modal";
 import useUniqueId from "components/hooks/useUniqueId";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 type SecurityClearance = Raven.Client.ServerWide.Operations.Certificates.SecurityClearance;
 
 export default function CertificatesCloneModal() {
+    const t = useStudioTranslation("certificates");
+    const commonT = useStudioTranslation("common");
     const dispatch = useAppDispatch();
     const { databasesService } = useServices();
     const { reportEvent } = useEventsCollector();
@@ -99,17 +102,17 @@ export default function CertificatesCloneModal() {
                     <Modal.Header className="pt-3 pb-0" onCloseClick={close}>
                         <Icon icon="copy" size="lg" color="primary" margin="me-3" />
                         <h3 id={titleId} className="mb-0">
-                            Clone client certificate
+                            {t("clone.title")}
                         </h3>
                     </Modal.Header>
                     <Modal.Body>
                         <FormGroup>
-                            <FormLabel>Name</FormLabel>
+                            <FormLabel>{t("form.name")}</FormLabel>
                             <FormInput type="text" control={control} name="name" />
                         </FormGroup>
                         <CertificatesSecurityClearanceField />
                         <FormGroup>
-                            <FormLabel>Certificate Passphrase</FormLabel>
+                            <FormLabel>{t("form.passphrase")}</FormLabel>
                             <FormInput type="password" control={control} name="certificatePassphrase" passwordPreview />
                         </FormGroup>
                         <CertificatesExpireField />
@@ -120,7 +123,7 @@ export default function CertificatesCloneModal() {
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="link" onClick={close} className="link-muted">
-                            Cancel
+                            {commonT("cancel")}
                         </Button>
                         <ButtonWithSpinner
                             type="submit"
@@ -128,7 +131,7 @@ export default function CertificatesCloneModal() {
                             className="rounded-pill"
                             isSpinning={formState.isSubmitting}
                         >
-                            Clone certificate
+                            {t("clone.submit")}
                         </ButtonWithSpinner>
                     </Modal.Footer>
                 </form>

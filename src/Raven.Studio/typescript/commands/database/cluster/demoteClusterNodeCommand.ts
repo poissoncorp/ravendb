@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("clusterCommands");
 
 class demoteClusterNodeCommand extends commandBase {
 
@@ -15,7 +18,7 @@ class demoteClusterNodeCommand extends commandBase {
         const url = endpoints.global.rachisAdmin.adminClusterDemote + this.urlEncodeArgs(args);
 
         return this.post<void>(url, null, null, { dataType: undefined })
-            .fail((response: JQueryXHR) => this.reportError("Failed to demote node", response.responseText));
+            .fail((response: JQueryXHR) => this.reportError(t("demoteNodeFailed"), response.responseText));
     }
 }
 

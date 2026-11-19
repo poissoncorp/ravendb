@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
 import certificatesTypes = require("components/pages/resources/manageServer/certificates/utils/certificatesTypes");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("authCommands");
 
 class registerSsoUserEntryCommand extends commandBase {
 
@@ -12,8 +15,8 @@ class registerSsoUserEntryCommand extends commandBase {
         const url = endpoints.global.adminCertificates.adminCertificatesSsoUser;
 
         return this.put<void>(url, JSON.stringify(this.dto), null, { dataType: undefined })
-            .done(() => this.reportSuccess(`SSO user '${this.dto.Name}' was saved successfully`))
-            .fail((response: JQueryXHR) => this.reportError("Unable to save SSO user entry", response.responseText, response.statusText));
+            .done(() => this.reportSuccess(t("registerSsoUserSucceeded", { name: this.dto.Name })))
+            .fail((response: JQueryXHR) => this.reportError(t("registerSsoUserFailed"), response.responseText, response.statusText));
     }
 }
 

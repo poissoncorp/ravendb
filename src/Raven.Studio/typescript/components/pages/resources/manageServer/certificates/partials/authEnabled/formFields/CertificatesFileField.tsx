@@ -7,8 +7,10 @@ import { useFormContext } from "react-hook-form";
 import InputGroup from "react-bootstrap/InputGroup";
 import InputGroupText from "react-bootstrap/InputGroupText";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 export default function CertificatesFileField({ infoPopoverBody }: { infoPopoverBody: ReactNode }) {
+    const t = useStudioTranslation("certificates");
     const { formState, setValue } = useFormContext<CertificatesUploadFormData>();
 
     const [importedFileName, setImportedFileName] = useState<string>(null);
@@ -26,7 +28,7 @@ export default function CertificatesFileField({ infoPopoverBody }: { infoPopover
     return (
         <FormGroup>
             <FormLabel>
-                Certificate File
+                {t("file.label")}
                 <PopoverWithHoverWrapper message={infoPopoverBody}>
                     <Icon icon="info" color="info" margin="ms-1" className="small" id="certificateFilePopover" />
                 </PopoverWithHoverWrapper>
@@ -34,12 +36,12 @@ export default function CertificatesFileField({ infoPopoverBody }: { infoPopover
             <input id="filePicker" type="file" onChange={selectFile} className="d-none" />
             <InputGroup>
                 <span className="static-name form-control d-flex align-items-center">
-                    {importedFileName ? importedFileName : "Select file..."}
+                    {importedFileName ? importedFileName : t("file.selectPlaceholder")}
                 </span>
                 <InputGroupText>
                     <label htmlFor="filePicker" className="cursor-pointer">
                         <Icon icon="folder" />
-                        <span>Browse</span>
+                        <span>{t("file.browse")}</span>
                     </label>
                 </InputGroupText>
             </InputGroup>

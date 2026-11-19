@@ -7,10 +7,25 @@ import { useAppSelector } from "components/store";
 import { useLimitedFeatureAvailability } from "components/utils/licenseLimitsUtils";
 import { useRavenLink } from "hooks/useRavenLink";
 import { Icon } from "components/common/Icon";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export function CertificatesInfoHub() {
+    const t = useStudioTranslation("certificates");
+    const commonT = useStudioTranslation("common");
     const hasReadOnlyCertificates = useAppSelector(licenseSelectors.statusValue("HasReadOnlyCertificates"));
     const certificatesDocsLink = useRavenLink({ hash: "S3G2T1" });
+
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("featureAvailability.readOnlyCertificates"),
+            featureIcon: "access-read",
+            community: { value: false },
+            professional: { value: true },
+            enterprise: { value: true },
+            quill: { value: true },
+        },
+    ];
 
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
@@ -25,58 +40,36 @@ export function CertificatesInfoHub() {
     return (
         <AboutViewFloating>
             <AccordionItemWrapper targetId="about" icon="about" color="info">
-                <p>Manage your server and client certificates from this view.</p>
+                <p>{t("about.intro")}</p>
                 <div>
-                    <strong>Server certificates</strong>:
+                    <StudioTrans ns="certificates" i18nKey="about.serverHeading" components={{ strong: <strong /> }} />
                     <ul>
-                        <li className="margin-top-xxs">
-                            The server certificate can be exported for the purpose of registering on another RavenDB
-                            server, in order to establish one-way trust between the servers.
-                        </li>
-                        <li className="margin-top-xxs">
-                            The server certificate can be replaced as needed - this will apply to all cluster nodes.
-                        </li>
+                        <li className="margin-top-xxs">{t("about.serverExportItem")}</li>
+                        <li className="margin-top-xxs">{t("about.serverReplaceItem")}</li>
                     </ul>
                 </div>
                 <div>
-                    <strong>Client certificates:</strong>
+                    <strong>{t("about.clientHeading")}</strong>
                     <ul>
+                        <li className="margin-top-xxs">{t("about.clientGenerateItem")}</li>
                         <li className="margin-top-xxs">
-                            An admin can generate client certificates with an optional passphrase, and an expiration
-                            period, specifying the security clearance (Cluster Admin / Operator / User)
+                            <StudioTrans
+                                ns="certificates"
+                                i18nKey="about.clientPermissionsItem"
+                                components={{ br: <br /> }}
+                            />
                         </li>
-                        <li className="margin-top-xxs">
-                            With the User security clearance, different access permissions
-                            <br />
-                            (Admin / Read-Write / Read-Only) can be granted per database.
-                        </li>
-                        <li className="margin-top-xxs">
-                            You can upload a client certificate that was exported from another server, allowing access
-                            to users with existing certificates.
-                        </li>
-                        <li className="margin-top-xxs">
-                            RavenDB does not keep track of the client certificate&apos;s private key.
-                        </li>
+                        <li className="margin-top-xxs">{t("about.clientUploadItem")}</li>
+                        <li className="margin-top-xxs">{t("about.privateKeyItem")}</li>
                     </ul>
                 </div>
                 <hr />
-                <div className="small-label mb-2">useful links</div>
+                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                 <a href={certificatesDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - Manage Certificates
+                    <Icon icon="newtab" /> {t("about.docsLink")}
                 </a>
             </AccordionItemWrapper>
             <FeatureAvailabilitySummaryWrapper isUnlimited={hasReadOnlyCertificates} data={featureAvailability} />
         </AboutViewFloating>
     );
 }
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "Read-Only Certificates",
-        featureIcon: "access-read",
-        community: { value: false },
-        professional: { value: true },
-        enterprise: { value: true },
-        quill: { value: true },
-    },
-];

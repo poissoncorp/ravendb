@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("clusterCommands");
 
 class setLicenseLimitsCommand extends commandBase {
 
@@ -17,9 +20,9 @@ class setLicenseLimitsCommand extends commandBase {
 
         return this.post(url, null, null, { dataType: undefined })
             .fail((response: JQueryXHR) => {
-                this.reportError("Failed to set new license limits", response.responseText, response.statusText);
+                this.reportError(t("setLicenseLimitsFailed"), response.responseText, response.statusText);
             })
-            .done(() => this.reportSuccess("Successfully set the new license limit"));
+            .done(() => this.reportSuccess(t("setLicenseLimitsSucceeded")));
     }
 }
 

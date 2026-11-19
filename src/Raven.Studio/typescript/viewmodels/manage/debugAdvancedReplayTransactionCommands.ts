@@ -5,6 +5,9 @@ import database = require("models/resources/database");
 import messagePublisher = require("common/messagePublisher");
 import getNextOperationIdCommand = require("commands/database/studio/getNextOperationIdCommand");
 import notificationCenter = require("common/notifications/notificationCenter");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("debugAdvancedReplayTransactionCommands");
 
 class debugAdvancedReplayTransactionCommands extends viewModelBase {
 
@@ -86,7 +89,7 @@ class debugAdvancedReplayTransactionCommands extends viewModelBase {
     private getNextOperationId(db: database): JQueryPromise<number> {
         return new getNextOperationIdCommand(db).execute()
             .fail((qXHR, textStatus, errorThrown) => {
-                messagePublisher.reportError("Could not get next task id.", errorThrown);
+                messagePublisher.reportError(t("nextTaskIdFailed"), errorThrown);
                 this.isUploading(false);
             });
     }

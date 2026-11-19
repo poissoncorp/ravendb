@@ -21,6 +21,8 @@ import { Icon } from "components/common/Icon";
 import Code, { CodeLanguage } from "components/common/Code";
 import IndexUtils from "components/utils/IndexUtils";
 import IconName from "typings/server/icons";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import type { StudioTranslate } from "common/i18n/resources";
 import "./DatabaseIndexDefinitions.scss";
 
 type IndexDefinition = Raven.Client.Documents.Indexes.IndexDefinition;
@@ -35,6 +37,7 @@ interface DatabaseIndexDefinitionsProps {
 // On-demand per-node index definitions from the analyzer databases/indexes endpoint. The map/reduce
 // functions render through the shared Code component (read-only counterpart of the live index editor).
 export default memo(function DatabaseIndexDefinitions({ packageId, database, node }: DatabaseIndexDefinitionsProps) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const { manageServerService } = useServices();
     // collapsed by default - map/reduce bodies can be large; expand selectively or all at once
     const [expanded, setExpanded] = useState<Set<string>>(new Set());
@@ -70,11 +73,11 @@ export default memo(function DatabaseIndexDefinitions({ packageId, database, nod
             <div className="panel-bg-1 rounded">
                 <div className="p-4">
                     <div className="hstack gap-3 align-items-center mb-3 flex-wrap">
-                        <h3 className="m-0">Index Definitions</h3>
+                        <h3 className="m-0">{t("indexDefinitions.title")}</h3>
                         {indexes.length > 0 && (
                             <Button variant="link" size="sm" className="ms-auto" onClick={toggleAll}>
                                 <Icon icon={allExpanded ? "collapse" : "expand"} />
-                                {allExpanded ? "Collapse all" : "Expand all"}
+                                {allExpanded ? t("indexDefinitions.collapseAll") : t("indexDefinitions.expandAll")}
                             </Button>
                         )}
                     </div>
@@ -83,20 +86,17 @@ export default memo(function DatabaseIndexDefinitions({ packageId, database, nod
                         <div className="panel-bg-1 rounded">
                             <div className="p-4">
                                 <div className="hstack gap-2 justify-content-center text-muted py-3">
-                                    <Spinner size="sm" /> Loading index definitions for node {node}...
+                                    <Spinner size="sm" /> {t("indexDefinitions.loading", { node })}
                                 </div>
                             </div>
                         </div>
                     ) : definitions.error ? (
-                        <RichAlert variant="danger">
-                            Could not load index definitions for node {node}. The package may not contain index
-                            definitions for this database, or the report expired.
-                        </RichAlert>
+                        <RichAlert variant="danger">{t("indexDefinitions.loadError", { node })}</RichAlert>
                     ) : indexes.length === 0 ? (
                         <div className="panel-bg-1 rounded">
                             <div className="p-4">
                                 <EmptySet compact className="justify-content-center">
-                                    No index definitions for {database} on node {node}
+                                    {t("indexDefinitions.empty", { database, node })}
                                 </EmptySet>
                             </div>
                         </div>
@@ -129,12 +129,13 @@ const IndexDefinitionPanel = memo(function IndexDefinitionPanel({
     expanded,
     onToggle,
 }: IndexDefinitionPanelProps) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const language: CodeLanguage = index.Type?.startsWith("JavaScript") ? "javascript" : "csharp";
     const maps = index.Maps ?? [];
     const fields = Object.entries(index.Fields ?? {});
     const sources = Object.keys(index.AdditionalSources ?? {});
     const configuration = Object.entries(index.Configuration ?? {});
-    const extraDetails = collectExtraDetails(index);
+    const extraDetails = collectExtraDetails(index, t);
 
     return (
         <RichPanel>
@@ -143,13 +144,13 @@ const IndexDefinitionPanel = memo(function IndexDefinitionPanel({
                     <RichPanelName>{index.Name}</RichPanelName>
                 </RichPanelInfo>
                 <div className="hstack gap-3 flex-wrap align-items-center ms-auto">
-                    <span className="hstack gap-1" title={indexTypeDescription(index.Type)}>
+                    <span className="hstack gap-1" title={indexTypeDescription(index.Type, t)}>
                         <Icon icon={IndexUtils.indexTypeIcon(index.Type) ?? "index"} margin="m-0" />
                         {IndexUtils.formatType(index.Type)}
                     </span>
-                    <span className="hstack gap-1" title={sourceTypeDescription(index.SourceType)}>
+                    <span className="hstack gap-1" title={sourceTypeDescription(index.SourceType, t)}>
                         <Icon icon={sourceTypeIcon(index.SourceType)} margin="m-0" />
-                        {index.SourceType === "TimeSeries" ? "Time Series" : index.SourceType}
+                        {sourceTypeLabel(index.SourceType, t)}
                     </span>
                     {index.State && index.State !== "Normal" && (
                         <Badge bg="warning" pill>
@@ -158,16 +159,17 @@ const IndexDefinitionPanel = memo(function IndexDefinitionPanel({
                     )}
                     {index.OutputReduceToCollection && (
                         <Badge bg="success" pill>
-                            <Icon icon="documents" margin="m-0" /> Output to {index.OutputReduceToCollection}
+                            <Icon icon="documents" margin="m-0" />{" "}
+                            {t("indexDefinitions.outputTo", { collection: index.OutputReduceToCollection })}
                         </Badge>
                     )}
-                    <span className="hstack gap-1" title="Index scheduling priority">
+                    <span className="hstack gap-1" title={t("indexDefinitions.priorityTitle")}>
                         <Icon icon={priorityIcon(index.Priority)} margin="m-0" />
-                        {index.Priority ?? "Normal"}
+                        {priorityLabel(index.Priority, t)}
                     </span>
-                    <span className="hstack gap-1" title="Index lock mode">
+                    <span className="hstack gap-1" title={t("indexDefinitions.lockModeTitle")}>
                         <Icon icon={lockIcon(index.LockMode)} margin="m-0" />
-                        {lockLabel(index.LockMode)}
+                        {lockLabel(index.LockMode, t)}
                     </span>
                 </div>
                 <RichPanelActions>
@@ -175,7 +177,7 @@ const IndexDefinitionPanel = memo(function IndexDefinitionPanel({
                         variant="secondary"
                         active={expanded}
                         onClick={() => onToggle(index.Name)}
-                        title={expanded ? "Collapse" : "Expand"}
+                        title={expanded ? t("indexDefinitions.collapse") : t("indexDefinitions.expand")}
                         className="btn-toggle-panel"
                     >
                         <Icon icon={expanded ? "fold" : "unfold"} margin="m-0" />
@@ -196,20 +198,25 @@ const IndexDefinitionPanel = memo(function IndexDefinitionPanel({
                     <div className="p-4 vstack gap-3">
                         {maps.map((map, i) => (
                             <div key={i}>
-                                <div className="small-label mb-1">{maps.length > 1 ? `Map ${i + 1}` : "Map"}</div>
+                                <div className="small-label mb-1">
+                                    {t("indexDefinitions.map", {
+                                        context: maps.length > 1 ? "numbered" : "single",
+                                        number: i + 1,
+                                    })}
+                                </div>
                                 <Code language={language} code={map} />
                             </div>
                         ))}
                         {index.Reduce && (
                             <div>
-                                <div className="small-label mb-1">Reduce</div>
+                                <div className="small-label mb-1">{t("indexDefinitions.reduce")}</div>
                                 <Code language={language} code={index.Reduce} />
                             </div>
                         )}
                         {fields.length > 0 && <FieldsTable fields={index.Fields} />}
                         {sources.length > 0 && (
                             <div>
-                                <div className="small-label mb-1">Additional sources</div>
+                                <div className="small-label mb-1">{t("indexDefinitions.additionalSources")}</div>
                                 <div className="hstack gap-1 flex-wrap">
                                     {sources.map((name) => (
                                         <Badge key={name} bg="secondary" pill>
@@ -221,7 +228,7 @@ const IndexDefinitionPanel = memo(function IndexDefinitionPanel({
                         )}
                         {configuration.length > 0 && (
                             <div>
-                                <div className="small-label mb-1">Configuration</div>
+                                <div className="small-label mb-1">{t("indexDefinitions.configuration")}</div>
                                 <div className="vstack">
                                     {configuration.map(([key, value]) => (
                                         <div key={key} className="small">
@@ -238,22 +245,22 @@ const IndexDefinitionPanel = memo(function IndexDefinitionPanel({
     );
 });
 
-function indexTypeDescription(type: IndexDefinition["Type"]): string {
+function indexTypeDescription(type: IndexDefinition["Type"], t: StudioTranslate<"debugPackageAnalyzer">): string {
     switch (type) {
         case "Map":
-            return "Index type: Map";
+            return t("indexDefinitions.indexType.map");
         case "MapReduce":
-            return "Index type: Map-Reduce";
+            return t("indexDefinitions.indexType.mapReduce");
         case "AutoMap":
-            return "Index type: Auto Map (automatically created by RavenDB)";
+            return t("indexDefinitions.indexType.autoMap");
         case "AutoMapReduce":
-            return "Index type: Auto Map-Reduce (automatically created by RavenDB)";
+            return t("indexDefinitions.indexType.autoMapReduce");
         case "JavaScriptMap":
-            return "Index type: Map (JavaScript)";
+            return t("indexDefinitions.indexType.javaScriptMap");
         case "JavaScriptMapReduce":
-            return "Index type: Map-Reduce (JavaScript)";
+            return t("indexDefinitions.indexType.javaScriptMapReduce");
         case "Faulty":
-            return "Index type: Faulty — the index is in an error state";
+            return t("indexDefinitions.indexType.faulty");
         default:
             return null;
     }
@@ -270,6 +277,19 @@ function priorityIcon(priority: IndexDefinition["Priority"]): IconName {
     }
 }
 
+function priorityLabel(priority: IndexDefinition["Priority"], t: StudioTranslate<"debugPackageAnalyzer">): string {
+    switch (priority ?? "Normal") {
+        case "Low":
+            return t("indexDefinitions.priority.low");
+        case "Normal":
+            return t("indexDefinitions.priority.normal");
+        case "High":
+            return t("indexDefinitions.priority.high");
+        default:
+            return priority;
+    }
+}
+
 function lockIcon(lockMode: IndexDefinition["LockMode"]): IconName {
     switch (lockMode) {
         case "LockedIgnore":
@@ -281,14 +301,14 @@ function lockIcon(lockMode: IndexDefinition["LockMode"]): IconName {
     }
 }
 
-function lockLabel(lockMode: IndexDefinition["LockMode"]): string {
+function lockLabel(lockMode: IndexDefinition["LockMode"], t: StudioTranslate<"debugPackageAnalyzer">): string {
     switch (lockMode) {
         case "LockedIgnore":
-            return "Locked (Ignore)";
+            return t("indexDefinitions.lockMode.lockedIgnore");
         case "LockedError":
-            return "Locked (Error)";
+            return t("indexDefinitions.lockMode.lockedError");
         default:
-            return "Unlocked";
+            return t("indexDefinitions.lockMode.unlocked");
     }
 }
 
@@ -303,34 +323,54 @@ function sourceTypeIcon(sourceType: IndexDefinition["SourceType"]): IconName {
     }
 }
 
-function sourceTypeDescription(sourceType: IndexDefinition["SourceType"]): string {
+function sourceTypeLabel(
+    sourceType: IndexDefinition["SourceType"],
+    t: StudioTranslate<"debugPackageAnalyzer">
+): string {
     switch (sourceType) {
         case "Documents":
-            return "Source type: Documents";
+            return t("indexDefinitions.sourceType.documents");
         case "TimeSeries":
-            return "Source type: Time Series";
+            return t("indexDefinitions.sourceType.timeSeries");
         case "Counters":
-            return "Source type: Counters";
+            return t("indexDefinitions.sourceType.counters");
+        default:
+            return sourceType;
+    }
+}
+
+function sourceTypeDescription(
+    sourceType: IndexDefinition["SourceType"],
+    t: StudioTranslate<"debugPackageAnalyzer">
+): string {
+    switch (sourceType) {
+        case "Documents":
+            return t("indexDefinitions.sourceType.documentsTitle");
+        case "TimeSeries":
+            return t("indexDefinitions.sourceType.timeSeriesTitle");
+        case "Counters":
+            return t("indexDefinitions.sourceType.countersTitle");
         default:
             return null;
     }
 }
 
 function FieldsTable({ fields }: { fields: { [key: string]: IndexFieldOptions } }) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const entries = Object.entries(fields);
 
     return (
         <div>
-            <div className="small-label mb-1">Fields ({entries.length})</div>
+            <div className="small-label mb-1">{t("indexDefinitions.fields.title", { count: entries.length })}</div>
             <Table responsive className="m-0 align-middle">
                 <thead>
                     <tr>
-                        <th>Field</th>
-                        <th>Indexing</th>
-                        <th>Storage</th>
-                        <th>Analyzer</th>
-                        <th>Suggestions</th>
-                        <th>Term vector</th>
+                        <th>{t("indexDefinitions.fields.field")}</th>
+                        <th>{t("indexDefinitions.fields.indexing")}</th>
+                        <th>{t("indexDefinitions.fields.storage")}</th>
+                        <th>{t("indexDefinitions.fields.analyzer")}</th>
+                        <th>{t("indexDefinitions.fields.suggestions")}</th>
+                        <th>{t("indexDefinitions.fields.termVector")}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -340,7 +380,7 @@ function FieldsTable({ fields }: { fields: { [key: string]: IndexFieldOptions } 
                             <td>{options.Indexing ?? "-"}</td>
                             <td>{options.Storage ?? "-"}</td>
                             <td>{options.Analyzer ?? "-"}</td>
-                            <td>{options.Suggestions ? "Yes" : "-"}</td>
+                            <td>{options.Suggestions ? t("yes") : "-"}</td>
                             <td>{options.TermVector ?? "-"}</td>
                         </tr>
                     ))}
@@ -352,32 +392,50 @@ function FieldsTable({ fields }: { fields: { [key: string]: IndexFieldOptions } 
 
 // Map-reduce-output, deployment and assembly properties that the live editor surfaces but that the
 // summary/stats views omit - shown as detail chips only when the index actually sets them.
-function collectExtraDetails(index: IndexDefinition): { label: string; value: string }[] {
+function collectExtraDetails(
+    index: IndexDefinition,
+    t: StudioTranslate<"debugPackageAnalyzer">
+): { label: string; value: string }[] {
     const details: { label: string; value: string }[] = [];
 
     if (index.PatternReferencesCollectionName) {
-        details.push({ label: "References collection", value: index.PatternReferencesCollectionName });
+        details.push({
+            label: t("indexDefinitions.details.referencesCollection"),
+            value: index.PatternReferencesCollectionName,
+        });
     }
     if (index.PatternForOutputReduceToCollectionReferences) {
-        details.push({ label: "Output reference pattern", value: index.PatternForOutputReduceToCollectionReferences });
+        details.push({
+            label: t("indexDefinitions.details.outputReferencePattern"),
+            value: index.PatternForOutputReduceToCollectionReferences,
+        });
     }
     if (index.ReduceOutputIndex != null) {
-        details.push({ label: "Reduce output index", value: String(index.ReduceOutputIndex) });
+        details.push({
+            label: t("indexDefinitions.details.reduceOutputIndex"),
+            value: String(index.ReduceOutputIndex),
+        });
     }
     if (index.DeploymentMode) {
-        details.push({ label: "Deployment mode", value: index.DeploymentMode });
+        details.push({ label: t("indexDefinitions.details.deploymentMode"), value: index.DeploymentMode });
     }
     if (index.ArchivedDataProcessingBehavior) {
-        details.push({ label: "Archived data", value: index.ArchivedDataProcessingBehavior });
+        details.push({
+            label: t("indexDefinitions.details.archivedData"),
+            value: index.ArchivedDataProcessingBehavior,
+        });
     }
     if (index.CompoundFields?.length) {
         details.push({
-            label: "Compound fields",
+            label: t("indexDefinitions.details.compoundFields"),
             value: index.CompoundFields.map((group) => group.join(" + ")).join(", "),
         });
     }
     if (index.AdditionalAssemblies?.length) {
-        details.push({ label: "Additional assemblies", value: String(index.AdditionalAssemblies.length) });
+        details.push({
+            label: t("indexDefinitions.details.additionalAssemblies"),
+            value: String(index.AdditionalAssemblies.length),
+        });
     }
 
     return details;

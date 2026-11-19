@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("authCommands");
 
 class deleteCertificateCommand extends commandBase {
 
@@ -14,7 +17,7 @@ class deleteCertificateCommand extends commandBase {
         const url = endpoints.global.adminCertificates.adminCertificates + this.urlEncodeArgs(args);
         
         return this.del<LicenseStatus>(url, null, null)
-            .fail((response: JQueryXHR) => this.reportError("Unable to delete certificate: " + this.certificateThumbprint, response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("deleteFailed", { thumbprint: this.certificateThumbprint }), response.responseText, response.statusText));
     }
 }
 

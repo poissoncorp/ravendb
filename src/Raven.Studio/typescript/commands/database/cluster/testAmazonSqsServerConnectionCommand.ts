@@ -1,6 +1,9 @@
 ﻿import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
 import database = require("models/resources/database");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("clusterCommands");
 
 class testAmazonSqsServerConnectionCommand extends commandBase {
     private readonly db: database | string;
@@ -16,10 +19,10 @@ class testAmazonSqsServerConnectionCommand extends commandBase {
         const url = endpoints.databases.queueEtlConnection.adminEtlQueueAmazonsqsTestConnection;
 
         return this.post<Raven.Server.Web.System.NodeConnectionTestResult>(url, JSON.stringify(this.authentication), this.db, { dataType: undefined })
-            .fail((response: JQueryXHR) => this.reportError(`Failed to test Amazon SQS server connection`, response.responseText, response.statusText))
+            .fail((response: JQueryXHR) => this.reportError(t("testFailed.amazonSqs"), response.responseText, response.statusText))
             .done((result: Raven.Server.Web.System.NodeConnectionTestResult) => {
                 if (!result.Success) {
-                    this.reportError(`Failed to test Amazon SQS server connection`, result.Error);
+                    this.reportError(t("testFailed.amazonSqs"), result.Error);
                 }
             });
     }

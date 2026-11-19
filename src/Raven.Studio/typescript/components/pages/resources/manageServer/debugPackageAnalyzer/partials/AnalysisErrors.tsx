@@ -5,6 +5,7 @@ import { Icon } from "components/common/Icon";
 import IconName from "typings/server/icons";
 import { ThemeColor } from "components/models/common";
 import useBoolean from "components/hooks/useBoolean";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 import NodeTagPill from "./NodeTagPill";
 import DebugPackageDetailsSheet from "./DebugPackageDetailsSheet";
 import { useViewSheet } from "components/common/splitView/ViewSheet";
@@ -45,6 +46,7 @@ function severityRank(severity: AnalyzeErrorSeverity): number {
 // could not be parsed. A heads-up that the analysis is partial, so missing data is not mistaken
 // for an absence of problems.
 export default function AnalysisErrors({ summary }: AnalysisErrorsProps) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const errors = useMemo(
         () => flattenAnalyzeErrors(summary).sort((a, b) => severityRank(b.severity) - severityRank(a.severity)),
         [summary]
@@ -63,7 +65,7 @@ export default function AnalysisErrors({ summary }: AnalysisErrorsProps) {
         open({
             component: (
                 <DebugPackageDetailsSheet
-                    title={`${error.component} on Node ${error.nodeTag}`}
+                    title={t("analysisErrors.exceptionTitle", { component: error.component, nodeTag: error.nodeTag })}
                     content={error.exception}
                     icon={meta.icon}
                     iconColor={meta.color}
@@ -73,14 +75,11 @@ export default function AnalysisErrors({ summary }: AnalysisErrorsProps) {
     };
 
     return (
-        <RichAlert variant={variant} title="The analyzer could not process part of the package">
+        <RichAlert variant={variant} title={t("analysisErrors.title")}>
             <div className="hstack gap-2">
-                <span>
-                    {errors.length} {errors.length === 1 ? "component" : "components"} failed to analyze - some results
-                    may be incomplete.
-                </span>
+                <span>{t("analysisErrors.failed", { count: errors.length })}</span>
                 <Button variant="link" size="sm" className="p-0" onClick={toggleDetails}>
-                    {detailsVisible ? "Hide" : "Show"} details
+                    {t("analysisErrors.details", { context: detailsVisible ? "hide" : "show" })}
                 </Button>
             </div>
             {detailsVisible && (
@@ -99,6 +98,7 @@ function AnalysisErrorsTable({
     errors: FlatAnalyzeError[];
     onShowException: (error: FlatAnalyzeError) => void;
 }) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const containerRef = useRef<HTMLDivElement>(null);
     const { width } = useResizeObserver({ ref: containerRef });
 
@@ -109,34 +109,35 @@ function AnalysisErrorsTable({
         () => [
             {
                 id: "node",
-                header: "Node",
+                header: t("analysisErrors.columns.node"),
                 accessorKey: "nodeTag",
                 size: getSize(10),
                 cell: ({ getValue }) => <NodeTagPill tag={getValue() as string} />,
             },
             {
                 id: "component",
-                header: "Component",
+                header: t("analysisErrors.columns.component"),
                 accessorKey: "component",
                 size: getSize(20),
             },
             {
                 id: "severity",
-                header: "Severity",
+                header: t("analysisErrors.columns.severity"),
                 accessorKey: "severity",
                 size: getSize(15),
                 cell: ({ row }) => {
                     const meta = severityMeta(row.original.severity);
                     return (
                         <span className={`text-${meta.color}`}>
-                            <Icon icon={meta.icon} margin="m-0" /> {row.original.severity}
+                            <Icon icon={meta.icon} margin="m-0" />{" "}
+                            {t("analysisErrors.severity", { context: row.original.severity })}
                         </span>
                     );
                 },
             },
             {
                 id: "message",
-                header: "Message",
+                header: t("analysisErrors.columns.message"),
                 accessorKey: "message",
                 size: getSize(55),
                 cell: ({ row }) => (
@@ -151,14 +152,14 @@ function AnalysisErrorsTable({
                                 className="p-0 ms-auto flex-shrink-0"
                                 onClick={() => onShowException(row.original)}
                             >
-                                View exception
+                                {t("analysisErrors.viewException")}
                             </Button>
                         )}
                     </div>
                 ),
             },
         ],
-        [getSize, onShowException]
+        [getSize, onShowException, t]
     );
 
     const table = useReactTable({

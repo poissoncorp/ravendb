@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("serverWideCommands");
 
 export default class testServerWideAzureQueueStorageServerConnectionCommand extends commandBase {
     constructor(private readonly authentication: Raven.Client.Documents.Operations.ETL.Queue.AzureQueueStorageConnectionSettings) {
@@ -13,11 +16,11 @@ export default class testServerWideAzureQueueStorageServerConnectionCommand exte
             dataType: undefined,
         })
             .fail((response: JQueryXHR) =>
-                this.reportError(`Failed to test Azure Queue Storage server connection`, response.responseText, response.statusText)
+                this.reportError(t("connectionStrings.testFailed.azureQueueStorage"), response.responseText, response.statusText)
             )
             .done((result: Raven.Server.Web.System.NodeConnectionTestResult) => {
                 if (!result.Success) {
-                    this.reportError(`Failed to test Azure Queue Storage server connection`, result.Error);
+                    this.reportError(t("connectionStrings.testFailed.azureQueueStorage"), result.Error);
                 }
             });
     }

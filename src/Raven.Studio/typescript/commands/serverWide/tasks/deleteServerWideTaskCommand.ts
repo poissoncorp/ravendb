@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("serverWideCommands");
 
 class deleteServerWideTaskCommand extends commandBase {
     constructor(private type: Raven.Client.Documents.Operations.OngoingTasks.OngoingTaskType, private name: string) {
@@ -14,7 +17,7 @@ class deleteServerWideTaskCommand extends commandBase {
         const url = endpoints.global.adminServerWide.adminConfigurationServerWideTask + this.urlEncodeArgs(args);
 
         return this.del<Raven.Client.ServerWide.Operations.Configuration.PutServerWideBackupConfigurationResponse>(url, null)
-            .fail((response: JQueryXHR) => this.reportError(`Failed to delete Server-Wide ${this.type} task: ${this.name}`, response.responseText));
+            .fail((response: JQueryXHR) => this.reportError(t("tasks.deleteFailed", { type: this.type, name: this.name }), response.responseText));
     }
 }
 

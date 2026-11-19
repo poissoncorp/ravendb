@@ -24,6 +24,7 @@ import ExpandAllToggle from "./ExpandAllToggle";
 import AnalysisSection from "./AnalysisSection";
 import AnalysisNavRail, { ScopeItem } from "./AnalysisNavRail";
 import { useScrollSpy } from "hooks/useScrollSpy";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 import "./DebugPackageAnalysisView.scss";
 
 type DebugPackageAnalysisSummary = Raven.Server.Documents.Handlers.Debugging.DebugPackage.DebugPackageAnalysisSummary;
@@ -85,6 +86,7 @@ export default function DebugPackageAnalysisView({ summary }: DebugPackageAnalys
 }
 
 function AnalysisBody({ summary }: DebugPackageAnalysisViewProps) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const nodeTags = useMemo(() => Object.keys(summary.SummaryPerNode ?? {}).sort(), [summary]);
     const databaseNames = useMemo(() => collectDatabaseNames(summary), [summary]);
     const [context, setContext] = useState<AnalysisContext>("cluster");
@@ -95,8 +97,9 @@ function AnalysisBody({ summary }: DebugPackageAnalysisViewProps) {
     const [selectedDatabaseNode, setSelectedDatabaseNode] = useState<string>(() => defaultNode(summary, nodeTags));
     const databaseNodes = useMemo(() => collectDatabaseNodes(summary, deferredDatabase), [summary, deferredDatabase]);
     const databaseNodeOptions = useMemo(
-        () => databaseNodes.map((tag): SelectOption<string> => ({ value: tag, label: `Node ${tag}` })),
-        [databaseNodes]
+        () =>
+            databaseNodes.map((tag): SelectOption<string> => ({ value: tag, label: t("nodeName", { nodeTag: tag }) })),
+        [databaseNodes, t]
     );
     // the node selector only lists nodes that actually host the selected database, so fall back to one of
     // them whenever the previously selected node isn't among the new database's nodes
@@ -138,11 +141,11 @@ function AnalysisBody({ summary }: DebugPackageAnalysisViewProps) {
 
     const contextItems = useMemo<ScopeItem<AnalysisContext>[]>(
         () => [
-            { label: "Cluster", value: "cluster", icon: "cluster", count: allIssues.length },
-            { label: "Node", value: "node", icon: "node" },
-            { label: "Database", value: "database", icon: "database" },
+            { label: t("analysisView.scopes.cluster"), value: "cluster", icon: "cluster", count: allIssues.length },
+            { label: t("analysisView.scopes.node"), value: "node", icon: "node" },
+            { label: t("analysisView.scopes.database"), value: "database", icon: "database" },
         ],
-        [allIssues.length]
+        [allIssues.length, t]
     );
 
     const { entries } = useAnalysisSections();
@@ -175,20 +178,20 @@ function AnalysisBody({ summary }: DebugPackageAnalysisViewProps) {
         <>
             {deferredContext === "node" && nodeTags.length > 0 && (
                 <div>
-                    <div className="small-label">Select node</div>
+                    <div className="small-label">{t("analysisView.selectNode")}</div>
                     <Select<ScopeSelectOption>
                         options={nodeTags.map(
                             (tag): ScopeSelectOption => ({
                                 value: tag,
-                                label: `Node ${tag}`,
+                                label: t("nodeName", { nodeTag: tag }),
                                 count: nodeIssueCounts[tag],
                             })
                         )}
                         value={{
                             value: selectedNode,
-                            label: `Node ${selectedNode}`,
+                            label: t("nodeName", { nodeTag: selectedNode }),
                             count: selectedNodeIssueCount,
-                            countTitle: "Issues for the selected node",
+                            countTitle: t("analysisView.nodeIssuesTitle"),
                         }}
                         onChange={(option) => option && setSelectedNode(option.value)}
                         isSearchable={false}
@@ -199,7 +202,7 @@ function AnalysisBody({ summary }: DebugPackageAnalysisViewProps) {
             )}
             {deferredContext === "database" && databaseNames.length > 0 && (
                 <div>
-                    <div className="small-label">Select database</div>
+                    <div className="small-label">{t("analysisView.selectDatabase")}</div>
                     <Select<ScopeSelectOption>
                         options={databaseNames.map(
                             (name): ScopeSelectOption => ({
@@ -214,7 +217,7 @@ function AnalysisBody({ summary }: DebugPackageAnalysisViewProps) {
                                       value: selectedDatabase,
                                       label: selectedDatabase,
                                       count: selectedDatabaseIssueCount,
-                                      countTitle: "Issues for the selected database",
+                                      countTitle: t("analysisView.databaseIssuesTitle"),
                                   }
                                 : null
                         }
@@ -228,7 +231,7 @@ function AnalysisBody({ summary }: DebugPackageAnalysisViewProps) {
             )}
             {deferredContext === "database" && nodeTags.length > 1 && (
                 <PopoverWithHoverWrapper
-                    message={databaseNodes.length <= 1 ? "This database has data on one node only" : null}
+                    message={databaseNodes.length <= 1 ? t("analysisView.singleNodeDatabase") : null}
                     placement="top"
                     overlayProps={{
                         popperConfig: {
@@ -239,12 +242,15 @@ function AnalysisBody({ summary }: DebugPackageAnalysisViewProps) {
                     targetStyle={{ width: "100%" }}
                 >
                     <div>
-                        <div className="small-label">Select node</div>
+                        <div className="small-label">{t("analysisView.selectNode")}</div>
                         <Select<SelectOption<string>>
                             options={databaseNodeOptions}
                             value={
                                 effectiveDatabaseNode
-                                    ? { value: effectiveDatabaseNode, label: `Node ${effectiveDatabaseNode}` }
+                                    ? {
+                                          value: effectiveDatabaseNode,
+                                          label: t("nodeName", { nodeTag: effectiveDatabaseNode }),
+                                      }
                                     : null
                             }
                             onChange={(option) => option && setSelectedDatabaseNode(option.value)}
@@ -273,39 +279,79 @@ function AnalysisBody({ summary }: DebugPackageAnalysisViewProps) {
 
             <div className="analysis-content vstack" ref={contentRef}>
                 {hasAnalyzeErrors(summary) && (
-                    <AnalysisSection id="analysis-errors" label="Analysis Errors" className="mb-3">
+                    <AnalysisSection
+                        id="analysis-errors"
+                        label={t("analysisView.sections.analysisErrors")}
+                        className="mb-3"
+                    >
                         <AnalysisErrors summary={summary} />
                     </AnalysisSection>
                 )}
 
-                <AnalysisSection id="debug-package-analysis-results" label="Analysis Results" className="mb-3">
+                <AnalysisSection
+                    id="debug-package-analysis-results"
+                    label={t("analysisView.sections.analysisResults")}
+                    className="mb-3"
+                >
                     <AnalysisResults issues={contextIssues} />
                 </AnalysisSection>
 
                 {deferredContext === "cluster" && (
                     <>
-                        <AnalysisSection id="cluster-overview" label="Cluster Overview" className="mb-3">
+                        <AnalysisSection
+                            id="cluster-overview"
+                            label={t("analysisView.sections.clusterOverview")}
+                            className="mb-3"
+                        >
                             <ClusterOverview summary={summary} />
                         </AnalysisSection>
-                        <AnalysisSection id="resource-usage" label="Resource Usage" className="mb-3">
+                        <AnalysisSection
+                            id="resource-usage"
+                            label={t("analysisView.sections.resourceUsage")}
+                            className="mb-3"
+                        >
                             <ResourceUsage summary={summary} />
                         </AnalysisSection>
-                        <AnalysisSection id="databases-overview" label="Databases Overview" className="mb-3">
+                        <AnalysisSection
+                            id="databases-overview"
+                            label={t("analysisView.sections.databasesOverview")}
+                            className="mb-3"
+                        >
                             <DatabasesOverview summary={summary} />
                         </AnalysisSection>
-                        <AnalysisSection id="storage-per-database" label="Storage per Database" className="mb-3">
+                        <AnalysisSection
+                            id="storage-per-database"
+                            label={t("analysisView.sections.storagePerDatabase")}
+                            className="mb-3"
+                        >
                             <StoragePerDatabase summary={summary} />
                         </AnalysisSection>
-                        <AnalysisSection id="indexing-per-node" label="Indexing per Node" className="mb-3">
+                        <AnalysisSection
+                            id="indexing-per-node"
+                            label={t("analysisView.sections.indexingPerNode")}
+                            className="mb-3"
+                        >
                             <IndexingPerNode summary={summary} />
                         </AnalysisSection>
-                        <AnalysisSection id="ongoing-tasks" label="Ongoing Tasks" className="mb-3">
+                        <AnalysisSection
+                            id="ongoing-tasks"
+                            label={t("analysisView.sections.ongoingTasks")}
+                            className="mb-3"
+                        >
                             <OngoingTasks summary={summary} />
                         </AnalysisSection>
-                        <AnalysisSection id="raft-debug" label="Cluster Debug" className="mb-3">
+                        <AnalysisSection
+                            id="raft-debug"
+                            label={t("analysisView.sections.clusterDebug")}
+                            className="mb-3"
+                        >
                             <ClusterRaftDebug summary={summary} />
                         </AnalysisSection>
-                        <AnalysisSection id="observer-decisions" label="Cluster Observer Decisions" className="mb-3">
+                        <AnalysisSection
+                            id="observer-decisions"
+                            label={t("analysisView.sections.clusterObserverDecisions")}
+                            className="mb-3"
+                        >
                             <ClusterObserverDecisions summary={summary} />
                         </AnalysisSection>
                     </>
@@ -313,19 +359,35 @@ function AnalysisBody({ summary }: DebugPackageAnalysisViewProps) {
 
                 {deferredContext === "node" && selectedNode && (
                     <>
-                        <AnalysisSection id="node-overview" label="Node Overview" className="mb-3">
+                        <AnalysisSection
+                            id="node-overview"
+                            label={t("analysisView.sections.nodeOverview")}
+                            className="mb-3"
+                        >
                             <NodeOverview summary={summary} nodeTag={selectedNode} />
                         </AnalysisSection>
-                        <AnalysisSection id="performance-metrics" label="Performance Metrics" className="mb-3">
+                        <AnalysisSection
+                            id="performance-metrics"
+                            label={t("analysisView.sections.performanceMetrics")}
+                            className="mb-3"
+                        >
                             <PerformanceMetrics summary={summary} nodeTag={selectedNode} />
                         </AnalysisSection>
-                        <AnalysisSection id="storage-per-database" label="Storage per Database" className="mb-3">
+                        <AnalysisSection
+                            id="storage-per-database"
+                            label={t("analysisView.sections.storagePerDatabase")}
+                            className="mb-3"
+                        >
                             <StoragePerDatabase summary={summary} nodeTag={selectedNode} />
                         </AnalysisSection>
-                        <AnalysisSection id="indexing-per-node" label="Indexing per Node" className="mb-3">
+                        <AnalysisSection
+                            id="indexing-per-node"
+                            label={t("analysisView.sections.indexingPerNode")}
+                            className="mb-3"
+                        >
                             <IndexingPerNode summary={summary} nodeTag={selectedNode} />
                         </AnalysisSection>
-                        <AnalysisSection id="ongoing-tasks" label="Ongoing Tasks">
+                        <AnalysisSection id="ongoing-tasks" label={t("analysisView.sections.ongoingTasks")}>
                             <OngoingTasks summary={summary} nodeTag={selectedNode} />
                         </AnalysisSection>
                     </>
@@ -339,7 +401,7 @@ function AnalysisBody({ summary }: DebugPackageAnalysisViewProps) {
                             selectedNode={effectiveDatabaseNode}
                         />
                     ) : (
-                        <EmptySet>No databases found in the package</EmptySet>
+                        <EmptySet>{t("analysisView.noDatabases")}</EmptySet>
                     ))}
             </div>
         </div>

@@ -15,17 +15,18 @@ import { useAppSelector } from "components/store";
 import { accessManagerSelectors } from "components/common/shell/accessManagerSliceSelectors";
 import FeatureNotAvailable from "components/common/FeatureNotAvailable";
 import { ServerSettingsColumns } from "components/pages/resources/manageServer/serverSettings/useServerSettingsColumns";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function ServerSettings() {
+    const t = useStudioTranslation("serverSettings");
+    const commonT = useStudioTranslation("common");
     const asyncFetchServerSettings = useFetchServerSettings();
     const isClusterAdminOrClusterNode = useAppSelector(accessManagerSelectors.isClusterAdminOrClusterNode);
 
     if (!isClusterAdminOrClusterNode) {
         return (
             <div className="h-100 d-flex align-items-center justify-content-center">
-                <FeatureNotAvailable badgeText="Insufficient access">
-                    You are not authorized to view this page
-                </FeatureNotAvailable>
+                <FeatureNotAvailable badgeText={t("noAccess.badge")}>{t("noAccess.message")}</FeatureNotAvailable>
             </div>
         );
     }
@@ -34,7 +35,7 @@ export default function ServerSettings() {
         <Row className="content-padding h-100">
             <Col className="h-100" md={12} lg={7}>
                 <div className="h-100 flex-column d-flex mb-4">
-                    <AboutViewHeading title="Server Settings" icon="server-settings" />
+                    <AboutViewHeading title={t("title")} icon="server-settings" />
                     {asyncFetchServerSettings.status !== "error" && (
                         <div className="d-flex justify-content-end">
                             <ButtonWithSpinner
@@ -43,7 +44,7 @@ export default function ServerSettings() {
                                 onClick={asyncFetchServerSettings.execute}
                                 isSpinning={asyncFetchServerSettings.loading}
                             >
-                                <Icon icon="refresh" /> Refresh
+                                <Icon icon="refresh" /> {commonT("refresh")}
                             </ButtonWithSpinner>
                         </div>
                     )}

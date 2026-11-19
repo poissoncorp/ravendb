@@ -2,6 +2,9 @@ import appUrl = require("common/appUrl");
 import durandalRouter = require("plugins/router");
 import reactUtils = require("common/reactUtils");
 import ClusterDebug = require("components/pages/resources/manageServer/advanced/clusterDebug/ClusterDebug");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("debugAdvancedParent");
 
 class debugAdvanced {
     
@@ -21,8 +24,8 @@ class debugAdvanced {
                 {
                     route: 'admin/settings/debug/advanced/threadsRuntime',
                     moduleId: require('viewmodels/manage/debugAdvancedThreadsRuntime'),
-                    title: 'Threads Runtime Info',
-                    tabName: "Threads Runtime Info",
+                    title: t("tabs.threadsRuntime"),
+                    tabName: t("tabs.threadsRuntime"),
                     nav: true,
                     hash: appUrl.forDebugAdvancedThreadsRuntime(),
                     requiredAccess: "Operator"
@@ -30,8 +33,8 @@ class debugAdvanced {
                 {
                     route: 'admin/settings/debug/advanced/memoryMappedFiles',
                     moduleId: require('viewmodels/manage/debugAdvancedMemoryMappedFiles'),
-                    title: 'Memory Mapped Files',
-                    tabName: "Memory Mapped Files",
+                    title: t("tabs.memoryMappedFiles"),
+                    tabName: t("tabs.memoryMappedFiles"),
                     nav: true,
                     hash: appUrl.forDebugAdvancedMemoryMappedFiles(),
                     requiredAccess: "Operator"
@@ -39,8 +42,8 @@ class debugAdvanced {
                 {
                     route: 'admin/settings/debug/advanced/observerLog',
                     moduleId: require('viewmodels/manage/debugAdvancedObserverLog'),
-                    title: 'Cluster Observer Log',
-                    tabName: "Cluster Observer Log",
+                    title: t("tabs.observerLog"),
+                    tabName: t("tabs.observerLog"),
                     nav: true,
                     hash: appUrl.forDebugAdvancedObserverLog(),
                     requiredAccess: "Operator"
@@ -49,8 +52,8 @@ class debugAdvanced {
                     route: 'admin/settings/debug/advanced/clusterDebug',
                     // forcing bootstrap 3 as this is child router
                     moduleId: reactUtils.bridgeToReact(ClusterDebug.default, "nonShardedView", false),
-                    title: 'Cluster Debug',
-                    tabName: "Cluster Debug",
+                    title: t("tabs.clusterDebug"),
+                    tabName: t("tabs.clusterDebug"),
                     nav: true,
                     hash: appUrl.forDebugAdvancedClusterDebug(),
                     requiredAccess: "Operator"
@@ -58,8 +61,8 @@ class debugAdvanced {
                 {
                     route: 'admin/settings/debug/advanced/recordTransactionCommands',
                     moduleId: require('viewmodels/manage/debugAdvancedRecordTransactionCommands'),
-                    title: 'Record Transaction Commands',
-                    tabName: "Record Transaction Commands",
+                    title: t("tabs.recordTransactionCommands"),
+                    tabName: t("tabs.recordTransactionCommands"),
                     nav: true,
                     hash: appUrl.forDebugAdvancedRecordTransactionCommands(),
                     requiredAccess: "Operator"
@@ -67,8 +70,8 @@ class debugAdvanced {
                 {
                     route: 'admin/settings/debug/advanced/replayTransactionCommands',
                     moduleId: require('viewmodels/manage/debugAdvancedReplayTransactionCommands'),
-                    title: 'Replay Transaction Commands',
-                    tabName: "Replay Transaction Commands",
+                    title: t("tabs.replayTransactionCommands"),
+                    tabName: t("tabs.replayTransactionCommands"),
                     nav: true,
                     hash: appUrl.forDebugAdvancedReplayTransactionCommands(),
                     requiredAccess: "Operator"

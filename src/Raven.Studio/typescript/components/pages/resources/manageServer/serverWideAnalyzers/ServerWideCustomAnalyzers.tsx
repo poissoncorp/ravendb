@@ -13,8 +13,10 @@ import ServerWideCustomAnalyzersList from "components/pages/resources/manageServ
 import ServerWideCustomAnalyzersInfoHub from "components/pages/resources/manageServer/serverWideAnalyzers/ServerWideCustomAnalyzersInfoHub";
 import Button from "react-bootstrap/Button";
 import { ConditionalPopover } from "components/common/ConditionalPopover";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function ServerWideCustomAnalyzers() {
+    const t = useStudioTranslation("serverWideAnalyzers");
     const { analyzers, setAnalyzers, addNewAnalyzer, removeAnalyzer, mapFromDto } = useCustomAnalyzers();
 
     const hasServerWideCustomAnalyzers = useAppSelector(licenseSelectors.statusValue("HasServerWideAnalyzers"));
@@ -42,7 +44,7 @@ export default function ServerWideCustomAnalyzers() {
                 <Row className="gy-sm">
                     <Col>
                         <AboutViewHeading
-                            title="Server-Wide Analyzers"
+                            title={t("title")}
                             icon="server-wide-custom-analyzers"
                             licenseBadgeText={hasServerWideCustomAnalyzers ? null : "Professional +"}
                         />
@@ -58,12 +60,12 @@ export default function ServerWideCustomAnalyzers() {
                                 onClick={addNewAnalyzer}
                                 disabled={!hasServerWideCustomAnalyzers}
                             >
-                                <Icon icon="plus" /> Add a server-wide custom analyzer
+                                <Icon icon="plus" /> {t("addButton")}
                             </Button>
                         </ConditionalPopover>
 
                         <div className={hasServerWideCustomAnalyzers ? null : "item-disabled pe-none"}>
-                            <HrHeader count={analyzers.length}>Server-wide custom analyzers</HrHeader>
+                            <HrHeader count={analyzers.length}>{t("heading")}</HrHeader>
                             <ServerWideCustomAnalyzersList
                                 analyzers={analyzers}
                                 fetchStatus={asyncGetAnalyzers.status}

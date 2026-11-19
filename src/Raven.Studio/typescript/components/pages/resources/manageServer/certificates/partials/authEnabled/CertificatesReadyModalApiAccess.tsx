@@ -8,6 +8,8 @@ import { useRavenLink } from "components/hooks/useRavenLink";
 import { useAppSelector } from "components/store";
 import { clusterSelectors } from "components/common/shell/clusterSlice";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 type ClientLanguage = Extract<CodeLanguage, "csharp" | "nodejs" | "python" | "java">;
 
@@ -16,6 +18,7 @@ const pfxPathPlaceholder = "C:\\path_to_your_pfx_file\\cert.pfx";
 const dbNamePlaceholder = "your_database_name";
 
 export default function CertificatesReadyModalApiAccess() {
+    const t = useStudioTranslation("certificates");
     const docsLink = useRavenLink({ hash: "RSFSL5" });
 
     const dbName = useAppSelector(databaseSelectors.activeDatabaseName);
@@ -30,18 +33,19 @@ export default function CertificatesReadyModalApiAccess() {
         <Tab.Pane eventKey="api">
             <NumberedList>
                 <NumberedListItem stepKey={1}>
-                    <h4 className="mb-1">Locate and secure the certificate file</h4>
+                    <h4 className="mb-1">{t("apiAccess.locateHeading")}</h4>
                     <p className="mb-0">
-                        Find the automatically downloaded <code>.pfx</code> file in your computer&apos;s
-                        &quot;Downloads&quot; folder and move it to a secure location accessible by your application
-                        (e.g., a protected folder on your server or a cloud secrets vault).
+                        <StudioTrans ns="certificates" i18nKey="apiAccess.locateText" components={{ code: <code /> }} />
                     </p>
                 </NumberedListItem>
                 <NumberedListItem stepKey={2}>
-                    <h4 className="mb-2">Configure your RavenDB client code</h4>
+                    <h4 className="mb-2">{t("apiAccess.configureHeading")}</h4>
                     <p className="mb-2">
-                        Update your application&apos;s code to point the <code>DocumentStore</code> initialization to
-                        the new certificate&apos;s file path and password.
+                        <StudioTrans
+                            ns="certificates"
+                            i18nKey="apiAccess.configureText"
+                            components={{ code: <code /> }}
+                        />
                     </p>
                     <Tab.Container activeKey={clientTab} onSelect={(key: ClientLanguage) => setClientTab(key)}>
                         <div className="segmented-tab-container">
@@ -84,18 +88,19 @@ export default function CertificatesReadyModalApiAccess() {
                         </div>
                     </Tab.Container>
                     <p className="mt-2 mb-0">
-                        For detailed code examples and more information, please refer to the official{" "}
-                        <a href={docsLink} target="_blank">
-                            Documentation <Icon icon="newtab" margin="m-0" />
-                        </a>
-                        .
+                        <StudioTrans
+                            ns="certificates"
+                            i18nKey="apiAccess.docsText"
+                            components={{
+                                a: <a href={docsLink} target="_blank" />,
+                                icon: <Icon icon="newtab" margin="m-0" />,
+                            }}
+                        />
                     </p>
                 </NumberedListItem>
                 <NumberedListItem stepKey={3}>
-                    <h4 className="mb-1">Restart your application</h4>
-                    <p className="mb-0">
-                        Your application must be restarted to load the new certificate file into memory.
-                    </p>
+                    <h4 className="mb-1">{t("apiAccess.restartHeading")}</h4>
+                    <p className="mb-0">{t("apiAccess.restartText")}</p>
                 </NumberedListItem>
             </NumberedList>
         </Tab.Pane>

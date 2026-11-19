@@ -18,6 +18,7 @@ import { virtualTableUtils } from "components/common/virtualTable/utils/virtualT
 import { analyzerConstants } from "./analyzerConstants";
 import SummaryBar from "./SummaryBar";
 import SizeGetter from "components/common/SizeGetter";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 type DebugPackageAnalysisSummary = Raven.Server.Documents.Handlers.Debugging.DebugPackage.DebugPackageAnalysisSummary;
 
@@ -46,6 +47,7 @@ interface TableRow {
 }
 
 function useDatabasesOverviewColumns(availableWidth: number) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const bodyWidth = virtualTableUtils.getTableBodyWidth(
         availableWidth - analyzerConstants.panelHorizontalPaddingInPx
     );
@@ -54,61 +56,61 @@ function useDatabasesOverviewColumns(availableWidth: number) {
     const databasesColumns: ColumnDef<TableRow>[] = useMemo(
         () => [
             {
-                header: "Database",
+                header: t("databasesOverview.columns.database"),
                 accessorKey: "database",
                 cell: DbNameCell,
                 size: getSize(20),
             },
             {
-                header: "Node",
+                header: t("databasesOverview.columns.node"),
                 accessorKey: "nodeTag",
                 cell: DbNodeTagCell,
                 size: getSize(8),
             },
             {
-                header: "Documents",
+                header: t("databasesOverview.columns.documents"),
                 id: "documentsCount",
                 accessorFn: (row) => row.documentsCount?.max ?? -1,
                 cell: DbDocumentsCell,
                 size: getSize(12),
             },
             {
-                header: "Indexes",
+                header: t("databasesOverview.columns.indexes"),
                 id: "indexesCount",
                 accessorFn: (row) => row.indexesCount?.max ?? -1,
                 cell: DbIndexesCell,
                 size: getSize(11),
             },
             {
-                header: "Indexing errors",
+                header: t("databasesOverview.columns.indexingErrors"),
                 id: "indexingErrorsCount",
                 accessorFn: (row) => row.indexingErrorsCount?.max ?? 0,
                 cell: DbIndexingErrorsCell,
                 size: getSize(14),
             },
             {
-                header: "Ongoing tasks",
+                header: t("databasesOverview.columns.ongoingTasks"),
                 id: "ongoingTasksCount",
                 accessorFn: (row) => row.ongoingTasksCount?.max ?? -1,
                 cell: DbOngoingTasksCell,
                 size: getSize(14),
             },
             {
-                header: "Replication factor",
+                header: t("databasesOverview.columns.replicationFactor"),
                 id: "replicationFactor",
                 accessorFn: (row) => row.replicationFactor?.max ?? -1,
                 cell: DbReplicationFactorCell,
                 size: getSize(14),
             },
             {
-                header: "State",
+                header: t("databasesOverview.columns.state"),
                 id: "state",
                 accessorFn: (row) => row.disabled,
                 cell: DbStateCell,
                 size: getSize(7),
             },
         ],
-        [getSize]
+        [getSize, t]
     );
 
     return { databasesColumns };
@@ -119,6 +121,7 @@ export default function DatabasesOverview({ summary }: DatabasesOverviewProps) {
 }
 
 function DatabasesOverviewWithSize({ summary, width }: DatabasesOverviewWithSizeProps) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const rows = useMemo(() => buildDatabasesOverviewRows(summary), [summary]);
     const [expanded, setExpanded] = useExpandAllSync();
 
@@ -150,29 +153,33 @@ function DatabasesOverviewWithSize({ summary, width }: DatabasesOverviewWithSize
         <div className="databases-overview">
             <div className="panel-bg-1 rounded">
                 <div className="p-4 vstack gap-3">
-                    <h3 className="mb-0">Databases Overview</h3>
+                    <h3 className="mb-0">{t("databasesOverview.title")}</h3>
                     <SummaryBar
                         items={[
-                            { icon: "database", count: rows.length, label: "total" },
+                            {
+                                icon: "database",
+                                count: rows.length,
+                                label: t("databasesOverview.summary.total", { count: rows.length }),
+                            },
                             {
                                 icon: "database",
                                 iconAddon: "check",
                                 count: onlineCount,
-                                label: "online",
+                                label: t("databasesOverview.summary.online", { count: onlineCount }),
                                 colorClass: "text-success",
                             },
                             {
                                 icon: "database",
                                 iconAddon: "cancel",
                                 count: disabledCount,
-                                label: "disabled",
+                                label: t("databasesOverview.summary.disabled", { count: disabledCount }),
                                 colorClass: "text-warning",
                             },
                         ]}
                     />
 
                     {rows.length === 0 ? (
-                        <div className="text-muted text-center w-100">No databases found in the package</div>
+                        <div className="text-muted text-center w-100">{t("databasesOverview.empty")}</div>
                     ) : (
                         <VirtualTable table={table} heightInPx={heightInPx} {...expandableRowProps<TableRow>()} />
                     )}
@@ -253,6 +260,7 @@ function DbReplicationFactorCell({ row }: { row: { original: TableRow } }) {
 }
 
 function DbStateCell({ row }: { row: Row<TableRow> }) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     if (row.original.rowKind === "node") {
         return <StateLabel disabled={row.original.disabled} />;
     }
@@ -267,19 +275,21 @@ function DbStateCell({ row }: { row: Row<TableRow> }) {
 
     return (
         <span className="hstack gap-1 text-warning">
-            <Icon icon="database" addon="cancel" margin="m-0" /> {nodes.length - disabledCount}/{nodes.length} online
+            <Icon icon="database" addon="cancel" margin="m-0" />{" "}
+            {t("databasesOverview.partiallyOnline", { online: nodes.length - disabledCount, total: nodes.length })}
         </span>
     );
 }
 
 function StateLabel({ disabled }: { disabled: boolean }) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     return disabled ? (
         <span className="hstack gap-1 text-warning">
-            <Icon icon="database" addon="cancel" margin="m-0" /> Disabled
+            <Icon icon="database" addon="cancel" margin="m-0" /> {t("databasesOverview.disabled")}
         </span>
     ) : (
         <span className="hstack gap-1 text-success">
-            <Icon icon="database" addon="check" margin="m-0" /> Online
+            <Icon icon="database" addon="check" margin="m-0" /> {t("databasesOverview.online")}
         </span>
     );
 }

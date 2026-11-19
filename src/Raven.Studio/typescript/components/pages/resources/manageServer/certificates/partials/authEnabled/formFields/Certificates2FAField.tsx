@@ -18,8 +18,10 @@ import Button from "react-bootstrap/Button";
 import Collapse from "react-bootstrap/Collapse";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 export default function Certificates2FAField({ editingCert }: { editingCert?: CertificateItem }) {
+    const t = useStudioTranslation("certificates");
     const { manageServerService } = useServices();
 
     const { control, setValue, formState } = useFormContext<
@@ -41,13 +43,13 @@ export default function Certificates2FAField({ editingCert }: { editingCert?: Ce
 
     const pendingChange = (() => {
         if (isCurrentKeyRemoved) {
-            return "Disabled on save";
+            return t("twoFactor.pending", { context: "disabled" });
         }
         if (hasCurrentKey && isRegenerate2FAKey) {
-            return "New key on save";
+            return t("twoFactor.pending", { context: "newKey" });
         }
         if (editingCert && !hasCurrentKey && formValues.isRequire2FA) {
-            return "Enabled on save";
+            return t("twoFactor.pending", { context: "enabled" });
         }
         return null;
     })();
@@ -138,21 +140,19 @@ export default function Certificates2FAField({ editingCert }: { editingCert?: Ce
                 <div className="hstack gap-3 align-items-start">
                     <div className="flex-grow-1">
                         <div className="hstack gap-1">
-                            <span className="fw-semibold text-emphasis">Two-factor authentication</span>
+                            <span className="fw-semibold text-emphasis">{t("twoFactor.title")}</span>
                             {pendingChange && (
                                 <Badge bg="faded-warning" pill>
                                     {pendingChange}
                                 </Badge>
                             )}
                         </div>
-                        <div className="small text-muted">
-                            Require a code from an authenticator app in addition to the certificate.
-                        </div>
+                        <div className="small text-muted">{t("twoFactor.description")}</div>
                     </div>
                     <FormSwitch
                         control={control}
                         name="isRequire2FA"
-                        aria-label="Require two-factor authentication"
+                        aria-label={t("twoFactor.switchLabel")}
                         afterChange={resetRegenerate2FAKey}
                     />
                 </div>
@@ -161,8 +161,8 @@ export default function Certificates2FAField({ editingCert }: { editingCert?: Ce
                         <hr className="m-0" />
                         <div className="hstack gap-3">
                             <div className="flex-grow-1">
-                                <div className="text-emphasis">Authentication key</div>
-                                <div className="small text-muted">The current key stays in use.</div>
+                                <div className="text-emphasis">{t("twoFactor.keyLabel")}</div>
+                                <div className="small text-muted">{t("twoFactor.currentKeyInUse")}</div>
                             </div>
                             <Button
                                 ref={generateNewKeyButtonRef}
@@ -170,7 +170,7 @@ export default function Certificates2FAField({ editingCert }: { editingCert?: Ce
                                 onClick={() => toggleRegenerate2FAKey(true)}
                             >
                                 <Icon icon="refresh" />
-                                Generate new key
+                                {t("twoFactor.generateNewKey")}
                             </Button>
                         </div>
                     </>
@@ -182,28 +182,25 @@ export default function Certificates2FAField({ editingCert }: { editingCert?: Ce
                             <div ref={qrContainerRef} className="qrcode rounded-2 overflow-hidden flex-shrink-0" />
                             <div className="vstack gap-2 min-w-0">
                                 <div>
-                                    <div className="text-emphasis">Scan with an authenticator app</div>
-                                    <div className="small text-muted">Or enter this key manually.</div>
+                                    <div className="text-emphasis">{t("twoFactor.scan")}</div>
+                                    <div className="small text-muted">{t("twoFactor.enterManually")}</div>
                                 </div>
                                 <InputGroup>
                                     <Form.Control
                                         ref={authenticationKeyInputRef}
                                         readOnly
                                         value={formValues.authenticationKey ?? ""}
-                                        placeholder="Generating key..."
-                                        aria-label="Authentication key"
+                                        placeholder={t("twoFactor.generatingKey")}
+                                        aria-label={t("twoFactor.keyLabel")}
                                         className="font-monospace"
                                         isInvalid={!!authenticationKeyError}
                                     />
                                     <Button
                                         onClick={() =>
-                                            copyToClipboard.copy(
-                                                formValues.authenticationKey,
-                                                "Authentication key was copied to clipboard"
-                                            )
+                                            copyToClipboard.copy(formValues.authenticationKey, t("twoFactor.keyCopied"))
                                         }
                                         variant="secondary"
-                                        title="Copy authentication key to clipboard"
+                                        title={t("twoFactor.copyKeyTitle")}
                                     >
                                         <Icon icon="copy" margin="m-0" />
                                     </Button>
@@ -215,7 +212,7 @@ export default function Certificates2FAField({ editingCert }: { editingCert?: Ce
                                     <div className="hstack gap-1 flex-wrap">
                                         <span className="text-warning">
                                             <Icon icon="warning" />
-                                            The current key stops working when you save.
+                                            {t("twoFactor.currentKeyStops")}
                                         </span>
                                         <Button
                                             variant="link"
@@ -223,7 +220,7 @@ export default function Certificates2FAField({ editingCert }: { editingCert?: Ce
                                             className="p-0"
                                             onClick={() => toggleRegenerate2FAKey(false)}
                                         >
-                                            Keep current key
+                                            {t("twoFactor.keepCurrentKey")}
                                         </Button>
                                     </div>
                                 )}

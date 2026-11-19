@@ -1,5 +1,8 @@
 ﻿import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("clusterCommands");
 
 class toggleClusterObserverCommand extends commandBase {
 
@@ -17,9 +20,9 @@ class toggleClusterObserverCommand extends commandBase {
         return this.post(basicUrl, null, null, {  dataType: undefined })
             .done(() => {
                 const actionPerformed = this.suspend ? "suspended" : "resumed";
-                this.reportSuccess("Cluster observer was " + actionPerformed);
+                this.reportSuccess(t("observerToggled", { context: actionPerformed }));
             })
-            .fail((response: JQueryXHR) => this.reportError("Failed to toggle cluster observer state", response.responseText));
+            .fail((response: JQueryXHR) => this.reportError(t("toggleObserverFailed"), response.responseText));
     }
 }
 

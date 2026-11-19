@@ -15,6 +15,7 @@ import VirtualTable from "components/common/virtualTable/VirtualTable";
 import { virtualTableUtils } from "components/common/virtualTable/utils/virtualTableUtils";
 import { analyzerConstants } from "./analyzerConstants";
 import SizeGetter from "components/common/SizeGetter";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 type DebugPackageAnalysisSummary = Raven.Server.Documents.Handlers.Debugging.DebugPackage.DebugPackageAnalysisSummary;
 type NodeSummary = DebugPackageAnalysisSummary["SummaryPerNode"][string];
@@ -31,6 +32,7 @@ interface ClusterOverviewWithSizeProps extends ClusterOverviewProps {
 }
 
 function useClusterOverviewColumns(availableWidth: number) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const bodyWidth = virtualTableUtils.getTableBodyWidth(
         availableWidth - analyzerConstants.panelHorizontalPaddingInPx
     );
@@ -39,40 +41,40 @@ function useClusterOverviewColumns(availableWidth: number) {
     const clusterColumns: ColumnDef<ClusterNodeRow>[] = useMemo(
         () => [
             {
-                header: "Node tag",
+                header: t("clusterOverview.columns.nodeTag"),
                 accessorKey: "NodeTag",
                 cell: ({ getValue }) => <NodeTagPill tag={getValue<string>()} />,
                 size: getSize(8),
                 enableSorting: true,
             },
             {
-                header: "Role",
+                header: t("clusterOverview.columns.role"),
                 accessorKey: "NodeState",
                 cell: ClusterRoleCell,
                 size: getSize(10),
                 enableSorting: true,
             },
             {
-                header: "Type",
+                header: t("clusterOverview.columns.type"),
                 accessorKey: "NodeType",
                 size: getSize(10),
                 enableSorting: true,
             },
             {
-                header: "OS",
+                header: t("clusterOverview.columns.os"),
                 accessorKey: "OsName",
                 cell: ClusterOsCell,
                 size: getSize(18),
                 enableSorting: true,
             },
             {
-                header: "Server version",
+                header: t("clusterOverview.columns.serverVersion"),
                 accessorKey: "ServerVersion",
                 size: getSize(14),
                 enableSorting: true,
             },
             {
-                header: "Uptime",
+                header: t("clusterOverview.columns.uptime"),
                 id: "uptime",
                 accessorFn: (row) => parseUpTimeSeconds(row.UpTime),
                 cell: ({ row }) => formatUpTime(row.original.UpTime),
@@ -86,7 +88,7 @@ function useClusterOverviewColumns(availableWidth: number) {
                 size: getSize(28),
             },
         ],
-        [getSize]
+        [getSize, t]
     );
 
     return { clusterColumns };
@@ -97,6 +99,7 @@ export default function ClusterOverview({ summary }: ClusterOverviewProps) {
 }
 
 function ClusterOverviewWithSize({ summary, width }: ClusterOverviewWithSizeProps) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const nodes = useMemo(() => Object.values(summary.SummaryPerNode ?? {}) as NodeSummary[], [summary]);
     const nodeInfos = useMemo(() => nodes.map((n) => n.ClusterNodeInfo).filter(Boolean), [nodes]);
     const rows = useMemo<ClusterNodeRow[]>(
@@ -157,33 +160,44 @@ function ClusterOverviewWithSize({ summary, width }: ClusterOverviewWithSizeProp
         <div className="cluster-overview">
             <div className="panel-bg-1 rounded">
                 <div className="p-4 vstack">
-                    <h3 className="mb-3">Cluster Overview</h3>
+                    <h3 className="mb-3">{t("clusterOverview.title")}</h3>
                     {nodeInfos.length === 0 ? (
                         <EmptySet compact className="justify-content-center">
-                            No cluster overview data in the package
+                            {t("clusterOverview.empty")}
                         </EmptySet>
                     ) : (
                         <>
                             <div className="overview-stats gap-2 mb-3">
                                 <StatTile
-                                    label="Nodes status"
+                                    label={t("clusterOverview.stats.nodesStatus")}
                                     icon={allNodesOnline ? "check" : "warning"}
                                     iconColor={allNodesOnline ? "success" : "warning"}
-                                    value={`${onlineNodes}/${totalNodes} online`}
+                                    value={t("clusterOverview.stats.nodesStatusValue", {
+                                        online: onlineNodes,
+                                        total: totalNodes,
+                                    })}
                                 />
                                 <StatTile
-                                    label="Leader node"
+                                    label={t("clusterOverview.stats.leaderNode")}
                                     icon="node-leader"
                                     iconColor="node"
                                     value={leader?.NodeTag ?? "-"}
                                 />
                                 <StatTile
-                                    label="Cluster uptime"
+                                    label={t("clusterOverview.stats.clusterUptime")}
                                     icon="clock"
                                     value={clusterUpTime != null ? formatUpTime(clusterUpTime) : "-"}
                                 />
-                                <StatTile label="Total databases" icon="database" value={String(totalDatabases)} />
-                                <StatTile label="License tier" icon="license" value="n/a" />
+                                <StatTile
+                                    label={t("clusterOverview.stats.totalDatabases")}
+                                    icon="database"
+                                    value={String(totalDatabases)}
+                                />
+                                <StatTile
+                                    label={t("clusterOverview.stats.licenseTier")}
+                                    icon="license"
+                                    value={t("notAvailable")}
+                                />
                             </div>
 
                             <VirtualTable table={table} heightInPx={heightInPx} />
@@ -196,11 +210,12 @@ function ClusterOverviewWithSize({ summary, width }: ClusterOverviewWithSizeProp
 }
 
 function ClusterRoleCell({ getValue }: { getValue: () => unknown }) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const state = getValue() as string;
     if (!state) {
         return (
             <span className="hstack gap-1 text-danger">
-                <Icon icon="disconnected" margin="m-0" /> Offline
+                <Icon icon="disconnected" margin="m-0" /> {t("clusterOverview.roles.offline")}
             </span>
         );
     }
@@ -208,25 +223,25 @@ function ClusterRoleCell({ getValue }: { getValue: () => unknown }) {
         case "Leader":
             return (
                 <span className="hstack gap-1">
-                    <Icon icon="node-leader" margin="m-0" /> Leader
+                    <Icon icon="node-leader" margin="m-0" /> {t("clusterOverview.roles.leader")}
                 </span>
             );
         case "Follower":
             return (
                 <span className="hstack gap-1">
-                    <Icon icon="cluster-member" margin="m-0" /> Follower
+                    <Icon icon="cluster-member" margin="m-0" /> {t("clusterOverview.roles.follower")}
                 </span>
             );
         case "Candidate":
             return (
                 <span className="hstack gap-1">
-                    <Icon icon="question" margin="m-0" /> Candidate
+                    <Icon icon="question" margin="m-0" /> {t("clusterOverview.roles.candidate")}
                 </span>
             );
         case "Passive":
             return (
                 <span className="hstack gap-1">
-                    <Icon icon="node" margin="m-0" /> Passive
+                    <Icon icon="node" margin="m-0" /> {t("clusterOverview.roles.passive")}
                 </span>
             );
         default:

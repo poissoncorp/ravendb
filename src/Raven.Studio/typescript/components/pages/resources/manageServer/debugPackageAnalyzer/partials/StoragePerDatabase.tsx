@@ -18,6 +18,7 @@ import VirtualTable from "components/common/virtualTable/VirtualTable";
 import { virtualTableUtils } from "components/common/virtualTable/utils/virtualTableUtils";
 import { analyzerConstants } from "./analyzerConstants";
 import SizeGetter from "components/common/SizeGetter";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 type DebugPackageAnalysisSummary = Raven.Server.Documents.Handlers.Debugging.DebugPackage.DebugPackageAnalysisSummary;
 
@@ -46,6 +47,7 @@ interface StoragePerDatabaseWithSizeProps extends StoragePerDatabaseProps {
 }
 
 function useStorageColumns(availableWidth: number) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const bodyWidth = virtualTableUtils.getTableBodyWidth(
         availableWidth - analyzerConstants.panelHorizontalPaddingInPx
     );
@@ -54,40 +56,40 @@ function useStorageColumns(availableWidth: number) {
     const storageColumns: ColumnDef<StorageTableRow>[] = useMemo(
         () => [
             {
-                header: "Database",
+                header: t("storagePerDatabase.columns.database"),
                 accessorKey: "database",
                 cell: StorageDbNameCell,
                 size: getSize(36),
             },
             {
-                header: "Node",
+                header: t("storagePerDatabase.columns.node"),
                 accessorKey: "nodeTag",
                 cell: StorageNodeTagCell,
                 size: getSize(14),
             },
             {
-                header: "Data",
+                header: t("storagePerDatabase.columns.data"),
                 id: "size",
                 accessorFn: (row) => row.size.max,
                 cell: ({ row }) => <RangeCell range={row.original.size} format={formatBytes} />,
                 size: getSize(17),
             },
             {
-                header: "Temp",
+                header: t("storagePerDatabase.columns.temp"),
                 id: "temp",
                 accessorFn: (row) => row.temp.max,
                 cell: ({ row }) => <RangeCell range={row.original.temp} format={formatBytes} />,
                 size: getSize(17),
             },
             {
-                header: "Total",
+                header: t("storagePerDatabase.columns.total"),
                 id: "total",
                 accessorFn: (row) => row.total.max,
                 cell: ({ row }) => <RangeCell range={row.original.total} format={formatBytes} />,
                 size: getSize(16),
             },
         ],
-        [getSize]
+        [getSize, t]
     );
 
     return { storageColumns };
@@ -102,6 +104,7 @@ export default function StoragePerDatabase({ summary, nodeTag }: StoragePerDatab
 }
 
 function StoragePerDatabaseWithSize({ summary, nodeTag, width }: StoragePerDatabaseWithSizeProps) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const rows = useMemo(() => buildStorageRows(summary, nodeTag), [summary, nodeTag]);
     const [expanded, setExpanded] = useExpandAllSync();
 
@@ -129,10 +132,10 @@ function StoragePerDatabaseWithSize({ summary, nodeTag, width }: StoragePerDatab
         <div className="flex-grow-1">
             <div className="panel-bg-1 rounded">
                 <div className="p-4">
-                    <h3 className="mb-3">Storage per Database</h3>
+                    <h3 className="mb-3">{t("storagePerDatabase.title")}</h3>
                     {rows.length === 0 ? (
                         <EmptySet compact className="justify-content-center">
-                            No storage data in the package
+                            {t("storagePerDatabase.empty")}
                         </EmptySet>
                     ) : (
                         <VirtualTable

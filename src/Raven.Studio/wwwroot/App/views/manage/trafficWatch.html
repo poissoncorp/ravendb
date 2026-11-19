@@ -3,13 +3,13 @@
         <div class="flex-horizontal flex-wrap margin-bottom margin-sm">
             <div>
                 <button class="btn btn-primary" data-bind="click: pause, visible: liveClient">
-                    <i class="icon-pause"></i> <span>Pause</span>
+                    <i class="icon-pause"></i> <span data-bind="i18n: 'trafficWatch:pause'"></span>
                 </button>
                 <button class="btn btn-primary" data-bind="click: resume, visible: !liveClient()">
-                    <i class="icon-play"></i> <span>Resume</span>
+                    <i class="icon-play"></i> <span data-bind="i18n: 'trafficWatch:resume'"></span>
                 </button>
                 <button class="btn btn-default" data-bind="click: exportToFile">
-                    <i class="icon-export"></i><span>Export</span>
+                    <i class="icon-export"></i><span data-bind="i18n: 'trafficWatch:export'"></span>
                 </button>
             </div>
             <div class="btn-group-label" data-label="HTTP">
@@ -24,7 +24,7 @@
                             data-bind="options: filteredTypeDataTcp, selectedOptions: selectedTypeNamesTcp, optionsText: 'propertyName', optionsValue: 'propertyName'"></select>
                 </div>
             </div>
-            <div class="btn-group-label" data-label="Request Size">
+            <div class="btn-group-label" data-bind="i18nAttr: { 'data-label': 'trafficWatch:sizeFilter.requestSize' }">
                 <div class="dropdown" data-placement="top">
                     <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <span data-bind="text: requestSizeSummary"></span>
@@ -32,17 +32,17 @@
                     </button>
                     <div class="dropdown-menu size-filter-dropdown padding padding-sm" data-bind="dropdownPanel: true">
                         <div class="size-filter-form-group">
-                            <label>Min (bytes)</label>
-                            <input class="form-control" type="number" min="0" placeholder="Min" data-bind="textInput: requestSizeMin">
+                            <label data-bind="i18n: 'trafficWatch:sizeFilter.minLabel'"></label>
+                            <input class="form-control" type="number" min="0" data-bind="textInput: requestSizeMin, i18nAttr: { placeholder: 'trafficWatch:sizeFilter.minPlaceholder' }">
                         </div>
                         <div class="size-filter-form-group">
-                            <label>Max (bytes)</label>
-                            <input class="form-control" type="number" min="0" placeholder="Max" data-bind="textInput: requestSizeMax">
+                            <label data-bind="i18n: 'trafficWatch:sizeFilter.maxLabel'"></label>
+                            <input class="form-control" type="number" min="0" data-bind="textInput: requestSizeMax, i18nAttr: { placeholder: 'trafficWatch:sizeFilter.maxPlaceholder' }">
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="btn-group-label" data-label="Response Size">
+            <div class="btn-group-label" data-bind="i18nAttr: { 'data-label': 'trafficWatch:sizeFilter.responseSize' }">
                 <div class="dropdown" data-placement="top">
                     <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <span data-bind="text: responseSizeSummary"></span>
@@ -50,28 +50,28 @@
                     </button>
                     <div class="dropdown-menu size-filter-dropdown padding padding-sm" data-bind="dropdownPanel: true">
                         <div class="size-filter-form-group">
-                            <label>Min (bytes)</label>
-                            <input class="form-control" type="number" min="0" placeholder="Min" data-bind="textInput: responseSizeMin">
+                            <label data-bind="i18n: 'trafficWatch:sizeFilter.minLabel'"></label>
+                            <input class="form-control" type="number" min="0" data-bind="textInput: responseSizeMin, i18nAttr: { placeholder: 'trafficWatch:sizeFilter.minPlaceholder' }">
                         </div>
                         <div class="size-filter-form-group">
-                            <label>Max (bytes)</label>
-                            <input class="form-control" type="number" min="0" placeholder="Max" data-bind="textInput: responseSizeMax">
+                            <label data-bind="i18n: 'trafficWatch:sizeFilter.maxLabel'"></label>
+                            <input class="form-control" type="number" min="0" data-bind="textInput: responseSizeMax, i18nAttr: { placeholder: 'trafficWatch:sizeFilter.maxPlaceholder' }">
                         </div>
                     </div>
                 </div>
             </div>
             <div id="trafficFilter">
-                <input class="form-control" placeholder="Filter" data-bind="textInput: filter">
+                <input class="form-control" data-bind="textInput: filter, i18nAttr: { placeholder: 'trafficWatch:filterPlaceholder' }">
             </div>
             <div class="checkbox">
                 <input class="styled" id="onlyErrors" type="checkbox" data-bind="checked: onlyErrors">
-                <label for="onlyErrors">Show errors only</label>
+                <label for="onlyErrors" data-bind="i18n: 'trafficWatch:showErrorsOnly'"></label>
             </div>
         </div>
         <div class="flex-grow"></div>
         <div>
             <i class="icon-info"></i>
-            <small>To set the Traffic Watch logging go to <a data-bind="attr: { href: adminLogsUrl }">Admin Logs View</a></small>
+            <small data-bind="html: adminLogsInfoHtml"></small>
         </div>
     </div>
     <div class="flex-horizontal">
@@ -80,7 +80,7 @@
             <div class="btn-group btn-group-sm" role="group">
                 <div class="dropdown pull-right">
                     <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        <i class="icon-stats"></i><span>Stats</span>
+                        <i class="icon-stats"></i><span data-bind="i18n: 'trafficWatch:stats.button'"></span>
                         <span class="caret"></span>
                     </button>
                     <div class="dropdown-menu stats-menu" data-bind="dropdownPanel: true, template: { name: 'stats-template' }">
@@ -88,10 +88,10 @@
                 </div>
             </div>
             <button class="btn btn-sm btn-info btn-checkable" data-bind="click: toggleTail, css: { active: tailEnabled }">
-                <i class="icon-logs"></i><span>Monitoring (tail -f)</span>
+                <i class="icon-logs"></i><span data-bind="i18n: 'trafficWatch:monitoring'"></span>
             </button>
             <button class="btn btn-sm btn-danger" data-bind="click: clear">
-                <i class="icon-cancel"></i><span>Clear</span>
+                <i class="icon-cancel"></i><span data-bind="i18n: 'trafficWatch:clear'"></span>
             </button>
         </div>
     </div>
@@ -100,49 +100,49 @@
     </div>
 
     <div class="help-block bg-warning text-warning" data-bind="visible: !isConnectedToWebSocket()">
-        <span data-bind="visible: isPauseLogs"><i class="icon-warning"></i><span>Traffic Watch log is paused</span></span>
-        <span data-bind="visible: !isPauseLogs()"><i class="btn-spinner"></i><span class="margin-left">Trying to Connect</span></span>
+        <span data-bind="visible: isPauseLogs"><i class="icon-warning"></i><span data-bind="i18n: 'trafficWatch:paused'"></span></span>
+        <span data-bind="visible: !isPauseLogs()"><i class="btn-spinner"></i><span class="margin-left" data-bind="i18n: 'trafficWatch:connecting'"></span></span>
     </div>
     <div class="has-error" data-bind="visible: isBufferFull">
         <div class="help-block">
-            <i class="icon-danger"></i><span> The log buffer is full. <a href="#" data-bind="click: clear">Clear all entries.</a></span>
+            <i class="icon-danger"></i><span> <span data-bind="i18n: 'trafficWatch:bufferFull'"></span> <a href="#" data-bind="click: clear, i18n: 'trafficWatch:clearAllEntries'"></a></span>
         </div>
     </div>
 
 </div>
 
 <script type="text/html" id="empty-traffic-watch-template">
-    No entries for now.
+    <span data-bind="i18n: 'trafficWatch:empty'"></span>
 </script>
 
 <script type="text/html" id="stats-template">
     <div class="panel margin-left margin-left-sm margin-right margin-right-sm">
         <div class="padding padding-lg margin-top margin-top-sm">
             <div class="row margin-top">
-                <div class="properties-container stats-container flex-horizontal padding padding-sm" data-label="General">
+                <div class="properties-container stats-container flex-horizontal padding padding-sm" data-bind="i18nAttr: { 'data-label': 'trafficWatch:stats.general' }">
                     <div class="property">
-                        <h5><i class="icon-client"></i><span>Source IPs</span></h5>
+                        <h5><i class="icon-client"></i><span data-bind="i18n: 'trafficWatch:stats.sourceIps'"></span></h5>
                         <strong data-bind="text: stats.sourceIpsCount" class="stats-property"></strong>
                     </div>
-                    <div class="property" data-toggle="tooltip" title="Number of HTTP requests <br> (including web sockets)" data-placement="top">
-                        <h5><i class="icon-running-tasks"></i><span>Http Requests</span></h5>
+                    <div class="property" data-toggle="tooltip" data-bind="i18nAttr: { title: 'trafficWatch:stats.httpRequestsTitle' }" data-placement="top">
+                        <h5><i class="icon-running-tasks"></i><span data-bind="i18n: 'trafficWatch:stats.httpRequests'"></span></h5>
                         <strong data-bind="text: stats.httpRequestCount" class="stats-property"></strong>
                     </div>
                     <div class="property">
-                        <h5><i class="icon-running-tasks"></i><span>TCP operations</span></h5>
+                        <h5><i class="icon-running-tasks"></i><span data-bind="i18n: 'trafficWatch:stats.tcpOperations'"></span></h5>
                         <strong data-bind="text: stats.tcpOperationCount" class="stats-property"></strong>
                     </div>
                 </div>
             </div>
             <div class="row margin-top">
-                <div class="properties-container stats-container flex-horizontal padding padding-sm" data-label="Request Duration (HTTP)"
-                     data-toggle="tooltip" title="Requests duration percentiles <br> (excluding web sockets - calculated based on last 2048 items)" data-placement="top">
+                <div class="properties-container stats-container flex-horizontal padding padding-sm"
+                     data-toggle="tooltip" data-bind="i18nAttr: { 'data-label': 'trafficWatch:stats.requestDuration', title: 'trafficWatch:stats.requestDurationTitle' }" data-placement="top">
                     <div class="property right-border">
-                        <h5><i class="icon-average"></i><span>Average</span></h5>
+                        <h5><i class="icon-average"></i><span data-bind="i18n: 'trafficWatch:stats.average'"></span></h5>
                         <strong data-bind="text: stats.requestDuration().avg" class="stats-property"></strong>
                     </div>
                     <div class="property">
-                        <h5><i class="icon-arrow-filled-down"></i><span>Minimum</span></h5>
+                        <h5><i class="icon-arrow-filled-down"></i><span data-bind="i18n: 'trafficWatch:stats.minimum'"></span></h5>
                         <strong data-bind="text: stats.requestDuration().min" class="stats-property"></strong>
                     </div>
                     <div class="property">
@@ -158,21 +158,21 @@
                         <strong data-bind="text: stats.requestDuration().percentile_99_9"></strong>
                     </div>
                     <div class="property">
-                        <h5><i class="icon-arrow-filled-up"></i><span>Maximum</span></h5>
+                        <h5><i class="icon-arrow-filled-up"></i><span data-bind="i18n: 'trafficWatch:stats.maximum'"></span></h5>
                         <strong data-bind="text: stats.requestDuration().max" class="stats-property"></strong>
                     </div>
                 </div>
             </div>
 
             <div class="row margin-top">
-                <div class="properties-container stats-container flex-horizontal padding padding-sm" data-label="Response size (HTTP)"
-                     data-toggle="tooltip" title="Response size percentiles <br> (excluding web sockets - calculated based on last 2048 items)" data-placement="top">
+                <div class="properties-container stats-container flex-horizontal padding padding-sm"
+                     data-toggle="tooltip" data-bind="i18nAttr: { 'data-label': 'trafficWatch:stats.responseSize', title: 'trafficWatch:stats.responseSizeTitle' }" data-placement="top">
                     <div class="property right-border">
-                        <h5><i class="icon-average"></i><span>Average</span></h5>
+                        <h5><i class="icon-average"></i><span data-bind="i18n: 'trafficWatch:stats.average'"></span></h5>
                         <strong data-bind="text: stats.responseSize().avg" class="stats-property"></strong>
                     </div>
                     <div class="property">
-                        <h5><i class="icon-arrow-filled-down"></i><span>Minimum</span></h5>
+                        <h5><i class="icon-arrow-filled-down"></i><span data-bind="i18n: 'trafficWatch:stats.minimum'"></span></h5>
                         <strong data-bind="text: stats.responseSize().min" class="stats-property"></strong>
                     </div>
                     <div class="property">
@@ -188,7 +188,7 @@
                         <strong data-bind="text: stats.responseSize().percentile_99_9"></strong>
                     </div>
                     <div class="property">
-                        <h5><i class="icon-arrow-filled-up"></i><span>Maximum</span></h5>
+                        <h5><i class="icon-arrow-filled-up"></i><span data-bind="i18n: 'trafficWatch:stats.maximum'"></span></h5>
                         <strong data-bind="text: stats.responseSize().max"></strong>
                     </div>
                 </div>
@@ -197,7 +197,7 @@
             <div class="row" data-bind="visible: isDataFiltered">
                 <div class="properties-container pull-right">
                     <small class="text-warning bg-warning padding padding-xs">
-                        <i class="icon-warning"></i><span>Showing stats on filtered data</span>
+                        <i class="icon-warning"></i><span data-bind="i18n: 'trafficWatch:stats.filteredData'"></span>
                     </small>
                 </div>
             </div>

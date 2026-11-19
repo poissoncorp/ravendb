@@ -5,8 +5,10 @@ import { adminLogsSelectors } from "components/pages/resources/manageServer/admi
 import { useAppSelector } from "components/store";
 import moment from "moment";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function AdminLogsExportButton() {
+    const t = useStudioTranslation("adminLogs");
     const eventsCollector = useEventsCollector();
     const filteredLogs = useAppSelector(adminLogsSelectors.filteredLogs);
 
@@ -30,7 +32,7 @@ export default function AdminLogsExportButton() {
             }}
         >
             <Icon icon="export" />
-            Export
+            {t("viewLogs.export")}
         </Button>
     );
 }

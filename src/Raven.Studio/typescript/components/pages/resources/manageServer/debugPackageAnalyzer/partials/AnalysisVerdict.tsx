@@ -1,6 +1,8 @@
 import React from "react";
 import { FlatIssue, summarizeIssues } from "./analyzerUtils";
 import Badge from "react-bootstrap/Badge";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import type { StudioTranslate } from "common/i18n/resources";
 import "./AnalysisVerdict.scss";
 
 type IssueSeverity = Raven.Server.Documents.Handlers.Debugging.DebugPackage.Analyzers.Issues.IssueSeverity;
@@ -13,16 +15,16 @@ interface VerdictMeta {
     label: string;
 }
 
-function verdictMeta(worst: IssueSeverity): VerdictMeta {
+function verdictMeta(worst: IssueSeverity, t: StudioTranslate<"debugPackageAnalyzer">): VerdictMeta {
     switch (worst) {
         case "Error":
-            return { bg: "danger", label: "Needs attention" };
+            return { bg: "danger", label: t("analysisVerdict.needsAttention") };
         case "Warning":
-            return { bg: "warning", label: "Review recommended" };
+            return { bg: "warning", label: t("analysisVerdict.reviewRecommended") };
         case "Info":
-            return { bg: "info", label: "Informational" };
+            return { bg: "info", label: t("analysisVerdict.informational") };
         default:
-            return { bg: "success", label: "Healthy" };
+            return { bg: "success", label: t("analysisVerdict.healthy") };
     }
 }
 
@@ -32,8 +34,9 @@ interface AnalysisVerdictProps {
 }
 
 export default function AnalysisVerdict({ issues }: AnalysisVerdictProps) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const { total, counts, worst } = summarizeIssues(issues);
-    const meta = verdictMeta(worst);
+    const meta = verdictMeta(worst, t);
     const healthy = total === 0;
 
     const segments = [
@@ -43,14 +46,15 @@ export default function AnalysisVerdict({ issues }: AnalysisVerdictProps) {
     ].filter((segment) => segment.count > 0);
 
     const countParts = [
-        counts.Error > 0 ? `${counts.Error} ${counts.Error === 1 ? "error" : "errors"}` : null,
-        counts.Warning > 0 ? `${counts.Warning} ${counts.Warning === 1 ? "warning" : "warnings"}` : null,
-        counts.Info > 0 ? `${counts.Info} info` : null,
+        counts.Error > 0 ? t("analysisVerdict.errors", { count: counts.Error }) : null,
+        counts.Warning > 0 ? t("analysisVerdict.warnings", { count: counts.Warning }) : null,
+        counts.Info > 0 ? t("analysisVerdict.info", { count: counts.Info }) : null,
     ].filter((part): part is string => part !== null);
 
-    const findings = `${total} ${total === 1 ? "finding" : "findings"}`;
-    const caption = healthy ? "No issues found in this package" : `${countParts.join(SEP)}`;
-    const meterLabel = healthy ? caption : `${findings}: ${countParts.join(", ")}`;
+    const caption = healthy ? t("analysisVerdict.noIssues") : `${countParts.join(SEP)}`;
+    const meterLabel = healthy
+        ? caption
+        : t("analysisVerdict.findings", { count: total, details: countParts.join(", ") });
 
     return (
         <div className="analysis-verdict">

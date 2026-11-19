@@ -8,12 +8,26 @@ import { useRavenLink } from "hooks/useRavenLink";
 import { licenseSelectors } from "components/common/shell/licenseSlice";
 import { useAppSelector } from "components/store";
 import { useLimitedFeatureAvailability } from "components/utils/licenseLimitsUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function ServerWideConnectionStringsInfoHub() {
+    const t = useStudioTranslation("serverWideConnectionStrings");
+    const commonT = useStudioTranslation("common");
     const { hasAll, featureAvailability } = useConnectionStringsLicense();
     const hasServerWideConnectionStrings = useAppSelector(
         licenseSelectors.statusValue("HasServerWideConnectionStrings")
     );
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("featureAvailability.serverWide"),
+            featureIcon: "manage-connection-strings",
+            community: { value: false },
+            professional: { value: true },
+            enterprise: { value: true },
+            quill: { value: true },
+        },
+    ];
 
     const serverWideFeatureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
@@ -36,36 +50,31 @@ export default function ServerWideConnectionStringsInfoHub() {
                 targetId="about"
                 icon="about"
                 color="info"
-                heading="About this view"
-                description="Get additional info on this feature"
+                heading={t("about.heading")}
+                description={t("about.description")}
             >
                 <div>
                     <ul>
-                        <li>Use this view to manage server-wide connection strings at the cluster level.</li>
+                        <li>{t("about.manageItem")}</li>
                         <li className="margin-top-xxs">
-                            <strong>Server-wide connection strings</strong> are automatically propagated to ALL
-                            databases in the cluster, unless specific databases are excluded.
+                            <StudioTrans
+                                ns="serverWideConnectionStrings"
+                                i18nKey="about.propagationItem"
+                                components={{ strong: <strong /> }}
+                            />
                         </li>
-                        <li className="margin-top-xxs">
-                            Ongoing tasks defined on a database can use the server-wide connection strings that are
-                            available to that database.
-                        </li>
-                        <li className="margin-top-xxs">
-                            Connection strings that are used by ongoing tasks cannot be deleted.
-                        </li>
-                        <li className="margin-top-xxs">
-                            Server-wide connection strings are not included when exporting a database or restoring it
-                            from backup.
-                        </li>
+                        <li className="margin-top-xxs">{t("about.ongoingTasksItem")}</li>
+                        <li className="margin-top-xxs">{t("about.deleteItem")}</li>
+                        <li className="margin-top-xxs">{t("about.exportItem")}</li>
                     </ul>
                     <hr />
-                    <div className="small-label mb-2">useful links</div>
+                    <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                     <a href={connectionStringsOverviewDocsLink} target="_blank">
-                        <Icon icon="newtab" /> Docs - Connection Strings Overview
+                        <Icon icon="newtab" /> {t("about.overviewDocsLink")}
                     </a>
                     <br />
                     <a href={connectionStringsServerwideDocsLink} target="_blank">
-                        <Icon icon="newtab" /> Docs - Connection Strings Server-wide
+                        <Icon icon="newtab" /> {t("about.serverWideDocsLink")}
                     </a>
                 </div>
             </AccordionItemWrapper>
@@ -77,14 +86,3 @@ export default function ServerWideConnectionStringsInfoHub() {
         </AboutViewAnchored>
     );
 }
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "Server-Wide Connection Strings",
-        featureIcon: "manage-connection-strings",
-        community: { value: false },
-        professional: { value: true },
-        enterprise: { value: true },
-        quill: { value: true },
-    },
-];

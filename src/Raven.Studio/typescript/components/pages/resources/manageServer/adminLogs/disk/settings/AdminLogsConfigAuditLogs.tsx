@@ -5,36 +5,38 @@ import Table from "react-bootstrap/Table";
 import { Icon } from "components/common/Icon";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import Accordion from "react-bootstrap/Accordion";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function AdminLogsConfigAuditLogs({ targetId }: { targetId: string }) {
+    const t = useStudioTranslation("adminLogs");
     const config = useAppSelector(adminLogsSelectors.configs).adminLogsConfig.AuditLogs;
 
     return (
         <Accordion.Item eventKey={targetId} className="p-1 rounded-3">
-            <Accordion.Header>Audit logs</Accordion.Header>
+            <Accordion.Header>{t("diskSettings.auditLogs.title")}</Accordion.Header>
             <Accordion.Body>
                 <h5 className="text-center text-muted text-uppercase">
-                    Read-only
-                    <PopoverWithHoverWrapper message="These settings are not editable here but can be configured through the server configuration.">
+                    {t("diskSettings.readOnly")}
+                    <PopoverWithHoverWrapper message={t("diskSettings.readOnlyInfo")}>
                         <Icon icon="info" color="info" margin="ms-1" />
                     </PopoverWithHoverWrapper>
                 </h5>
                 <Table>
                     <tbody>
                         <tr>
-                            <td>Path</td>
+                            <td>{t("diskSettings.table.path")}</td>
                             <td>
                                 <AdminLogsConfigTableValue value={config.Path} />
                             </td>
                         </tr>
                         <tr>
-                            <td>Level</td>
+                            <td>{t("diskSettings.table.level")}</td>
                             <td>
                                 <AdminLogsConfigTableValue value={config.Level} />
                             </td>
                         </tr>
                         <tr>
-                            <td>Archive Above Size</td>
+                            <td>{t("diskSettings.table.archiveAboveSize")}</td>
                             <td>
                                 <AdminLogsConfigTableValue
                                     value={`${config.ArchiveAboveSizeInMb?.toLocaleString()} MB`}
@@ -42,19 +44,19 @@ export default function AdminLogsConfigAuditLogs({ targetId }: { targetId: strin
                             </td>
                         </tr>
                         <tr>
-                            <td>Maximum Archived Days</td>
+                            <td>{t("diskSettings.table.maxArchivedDays")}</td>
                             <td>
                                 <AdminLogsConfigTableValue value={config.MaxArchiveDays} />
                             </td>
                         </tr>
                         <tr>
-                            <td>Maximum Archived Files</td>
+                            <td>{t("diskSettings.table.maxArchivedFiles")}</td>
                             <td>
                                 <AdminLogsConfigTableValue value={config.MaxArchiveFiles} />
                             </td>
                         </tr>
                         <tr>
-                            <td>Archive File Compression</td>
+                            <td>{t("diskSettings.table.archiveFileCompression")}</td>
                             <td>
                                 <AdminLogsConfigTableValue value={config.EnableArchiveFileCompression} />
                             </td>

@@ -24,6 +24,8 @@ import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import ProgressBar from "react-bootstrap/ProgressBar";
 import { EmptySet } from "components/common/EmptySet";
 import { nodeAwareLoadableData } from "components/models/common";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface ClusterDebugSummaryProps {
     nodes: nodeAwareLoadableData<ClusterDebugNodeInfo>[];
@@ -35,6 +37,7 @@ function jsonUrl(serverUrl: string) {
 
 export default function ClusterDebugSummary(props: ClusterDebugSummaryProps) {
     const { nodes } = props;
+    const t = useStudioTranslation("clusterDebug");
 
     const localNode = useAppSelector(clusterSelectors.localNode);
     const allNodes = useAppSelector(clusterSelectors.allNodes);
@@ -47,7 +50,7 @@ export default function ClusterDebugSummary(props: ClusterDebugSummaryProps) {
 
         if (nodeData.data.installingSnapshot) {
             await dialog({
-                title: "Cluster Snapshot installation progress for node: " + nodeTag,
+                title: t("summary.snapshotDialogTitle", { nodeTag }),
                 modalSize: "lg",
                 message: (
                     <SizeGetter
@@ -66,7 +69,7 @@ export default function ClusterDebugSummary(props: ClusterDebugSummaryProps) {
     const showConnectionDetails = async (connection: Raven.Server.Rachis.RaftDebugView.PeerConnection) => {
         const jsonString = JSON.stringify(connection, null, 4);
         await dialog({
-            title: "Connection details",
+            title: t("summary.connectionDialogTitle"),
             message: <Code code={jsonString} language="json" />,
             modalSize: "lg",
         });
@@ -74,7 +77,7 @@ export default function ClusterDebugSummary(props: ClusterDebugSummaryProps) {
 
     const openCriticalError = (nodeTag: string) => {
         if (nodeTag !== localNode.nodeTag) {
-            messagePublisher.reportInfo("Please go to node " + nodeTag + " to see an error details");
+            messagePublisher.reportInfo(t("summary.goToNode", { nodeTag }));
             return;
         }
 
@@ -83,7 +86,7 @@ export default function ClusterDebugSummary(props: ClusterDebugSummaryProps) {
         const alertId = nodeData.data.criticalError.Id;
         const criticalErrorAlert = notificationCenter.instance.globalNotifications().find((x) => x.id === alertId);
         if (!criticalErrorAlert) {
-            messagePublisher.reportError("Unable to find critical error alert");
+            messagePublisher.reportError(t("summary.criticalErrorNotFound"));
         }
 
         notificationCenter.instance.openDetails(criticalErrorAlert);
@@ -105,18 +108,18 @@ export default function ClusterDebugSummary(props: ClusterDebugSummaryProps) {
                                                 icon={node.data?.role === "Leader" ? "node-leader" : "cluster-member"}
                                                 color="node"
                                             />
-                                            <span className="text-nowrap">Node {node.nodeTag}</span>
+                                            <span className="text-nowrap">{t("node", { nodeTag: node.nodeTag })}</span>
                                         </span>
                                         {localNode?.nodeTag === node.nodeTag && (
                                             <Badge bg="node" pill>
-                                                Current
+                                                {t("currentNode")}
                                             </Badge>
                                         )}
                                         <FlexGrow />
                                         <a
                                             target="_blank"
                                             href={jsonUrl(nodeInfo?.serverUrl)}
-                                            title="See the raw Raft log info and entries (JSON)"
+                                            title={t("summary.rawJsonTitle")}
                                             className="no-decor"
                                         >
                                             <Icon icon="json" margin="m-0" />
@@ -130,18 +133,24 @@ export default function ClusterDebugSummary(props: ClusterDebugSummaryProps) {
                 <tbody>
                     <tr>
                         <th>
-                            Role / Phase
+                            {t("summary.rolePhase")}
                             <PopoverWithHoverWrapper
                                 message={
                                     <>
                                         <ul>
                                             <li>
-                                                The node&apos;s role:
-                                                <br />(<i>Leader, Follower, Candidate, or Passive</i>).
+                                                <StudioTrans
+                                                    ns="clusterDebug"
+                                                    i18nKey="summary.rolePhaseInfo.role"
+                                                    components={{ br: <br />, i: <i /> }}
+                                                />
                                             </li>
                                             <li>
-                                                Followers also indicate their current phase:
-                                                <br />(<i>Initial, Negotiation, Snapshot, or Steady</i>).
+                                                <StudioTrans
+                                                    ns="clusterDebug"
+                                                    i18nKey="summary.rolePhaseInfo.phase"
+                                                    components={{ br: <br />, i: <i /> }}
+                                                />
                                             </li>
                                         </ul>
                                     </>
@@ -159,11 +168,17 @@ export default function ClusterDebugSummary(props: ClusterDebugSummaryProps) {
                                         key={node.nodeTag}
                                     >
                                         <EmptySet color="danger" icon="warning">
-                                            <span>Unable to connect</span>
+                                            <span>{t("summary.unableToConnect")}</span>
                                             <br />
                                             <small className="text-muted">
-                                                There was connection issue with{" "}
-                                                <Icon icon="node" addon="warning" margin="ms-1 me-1" /> {node.nodeTag}
+                                                <StudioTrans
+                                                    ns="clusterDebug"
+                                                    i18nKey="summary.connectionIssue"
+                                                    components={{
+                                                        icon: <Icon icon="node" addon="warning" margin="ms-1 me-1" />,
+                                                    }}
+                                                    options={{ nodeTag: node.nodeTag }}
+                                                />
                                             </small>
                                         </EmptySet>
                                     </td>
@@ -175,7 +190,7 @@ export default function ClusterDebugSummary(props: ClusterDebugSummaryProps) {
                                         if (node.data.installingSnapshot) {
                                             return (
                                                 <div className="d-flex">
-                                                    {node.data.role} / Installing Snapshot{" "}
+                                                    {t("summary.installingSnapshot", { role: node.data.role })}{" "}
                                                     <small className="ms-1">
                                                         <span className="global-spinner spinner-sm"></span>
                                                     </small>
@@ -186,7 +201,7 @@ export default function ClusterDebugSummary(props: ClusterDebugSummaryProps) {
                                                         onClick={() => openInstallationDetails(node.nodeTag)}
                                                     >
                                                         <Icon icon="preview" />
-                                                        View details
+                                                        {t("summary.viewDetails")}
                                                     </Button>
                                                 </div>
                                             );
@@ -200,8 +215,8 @@ export default function ClusterDebugSummary(props: ClusterDebugSummaryProps) {
                     </tr>
                     <tr>
                         <th>
-                            Progress
-                            <PopoverWithHoverWrapper message="Percentage of Raft commands committed on the node out of the total in the log.">
+                            {t("summary.progress")}
+                            <PopoverWithHoverWrapper message={t("summary.progressInfo")}>
                                 <Icon icon="info" color="info" margin="ms-1" />
                             </PopoverWithHoverWrapper>
                         </th>
@@ -214,14 +229,28 @@ export default function ClusterDebugSummary(props: ClusterDebugSummaryProps) {
                                             targetStyle={{ width: "100%" }}
                                             message={
                                                 <>
-                                                    First entry index:{" "}
-                                                    <strong>{node.data.firstEntryIndex.toLocaleString()}</strong>
+                                                    <StudioTrans
+                                                        ns="clusterDebug"
+                                                        i18nKey="summary.firstEntryIndex"
+                                                        components={{ strong: <strong /> }}
+                                                        options={{ index: node.data.firstEntryIndex.toLocaleString() }}
+                                                    />
                                                     <br />
-                                                    Last commit index:{" "}
-                                                    <strong>{node.data.commitIndex.toLocaleString()}</strong>
+                                                    <StudioTrans
+                                                        ns="clusterDebug"
+                                                        i18nKey="summary.lastCommitIndexDetail"
+                                                        components={{ strong: <strong /> }}
+                                                        options={{ index: node.data.commitIndex.toLocaleString() }}
+                                                    />
                                                     <br />
-                                                    Last log entry index:{" "}
-                                                    <strong>{node.data.lastLogEntryIndex.toLocaleString()}</strong>
+                                                    <StudioTrans
+                                                        ns="clusterDebug"
+                                                        i18nKey="summary.lastLogEntryIndex"
+                                                        components={{ strong: <strong /> }}
+                                                        options={{
+                                                            index: node.data.lastLogEntryIndex.toLocaleString(),
+                                                        }}
+                                                    />
                                                     <br />
                                                 </>
                                             }
@@ -241,8 +270,8 @@ export default function ClusterDebugSummary(props: ClusterDebugSummaryProps) {
                     </tr>
                     <tr>
                         <th>
-                            Queue size
-                            <PopoverWithHoverWrapper message="Number of Raft commands left to be committed on the node.">
+                            {t("summary.queueSize")}
+                            <PopoverWithHoverWrapper message={t("summary.queueSizeInfo")}>
                                 <Icon icon="info" color="info" margin="ms-1" />
                             </PopoverWithHoverWrapper>
                         </th>
@@ -256,8 +285,8 @@ export default function ClusterDebugSummary(props: ClusterDebugSummaryProps) {
                     </tr>
                     <tr>
                         <th>
-                            Last commit index
-                            <PopoverWithHoverWrapper message="The index of the last Raft command that was committed on the node.">
+                            {t("summary.lastCommitIndex")}
+                            <PopoverWithHoverWrapper message={t("summary.lastCommitIndexInfo")}>
                                 <Icon icon="info" color="info" margin="ms-1" />
                             </PopoverWithHoverWrapper>
                         </th>
@@ -277,9 +306,9 @@ export default function ClusterDebugSummary(props: ClusterDebugSummaryProps) {
                                                         <>
                                                             <span className="text-warning">
                                                                 <Icon icon="warning" />
-                                                                Warning:
+                                                                {t("summary.warning")}
                                                             </span>
-                                                            <span> No commits for over 2 minutes</span>
+                                                            <span> {t("summary.noCommits")}</span>
                                                         </>
                                                     }
                                                 >
@@ -294,8 +323,8 @@ export default function ClusterDebugSummary(props: ClusterDebugSummaryProps) {
                     </tr>
                     <tr>
                         <th>
-                            Last committed date{" "}
-                            <PopoverWithHoverWrapper message="The time the last Raft command was committed on the node.">
+                            {t("summary.lastCommittedDate")}{" "}
+                            <PopoverWithHoverWrapper message={t("summary.lastCommittedDateInfo")}>
                                 <Icon icon="info" color="info" margin="ms-1" />
                             </PopoverWithHoverWrapper>
                         </th>
@@ -309,7 +338,7 @@ export default function ClusterDebugSummary(props: ClusterDebugSummaryProps) {
                                         <PopoverWithHoverWrapper
                                             message={lastCommitedAsAgo ? <> {node.data.lastCommitedTime}</> : null}
                                         >
-                                            <div>{lastCommitedAsAgo ?? "n/a"}</div>
+                                            <div>{lastCommitedAsAgo ?? t("summary.notAvailable")}</div>
                                         </PopoverWithHoverWrapper>
                                     )}
                                 </ConditionalRender>
@@ -318,8 +347,8 @@ export default function ClusterDebugSummary(props: ClusterDebugSummaryProps) {
                     </tr>
                     <tr>
                         <th>
-                            Last append date
-                            <PopoverWithHoverWrapper message="The time the last command was appended to the Raft log.">
+                            {t("summary.lastAppendDate")}
+                            <PopoverWithHoverWrapper message={t("summary.lastAppendDateInfo")}>
                                 <Icon icon="info" color="info" margin="ms-1" />
                             </PopoverWithHoverWrapper>
                         </th>
@@ -333,7 +362,9 @@ export default function ClusterDebugSummary(props: ClusterDebugSummaryProps) {
                                         <PopoverWithHoverWrapper
                                             message={lastAppendedAsAgo ? node.data.lastAppendedTime : null}
                                         >
-                                            <div id={"last-appended-" + node.nodeTag}>{lastAppendedAsAgo ?? "n/a"}</div>
+                                            <div id={"last-appended-" + node.nodeTag}>
+                                                {lastAppendedAsAgo ?? t("summary.notAvailable")}
+                                            </div>
                                         </PopoverWithHoverWrapper>
                                     )}
                                 </ConditionalRender>
@@ -342,20 +373,13 @@ export default function ClusterDebugSummary(props: ClusterDebugSummaryProps) {
                     </tr>
                     <tr>
                         <th>
-                            Local version
+                            {t("summary.localVersion")}
                             <PopoverWithHoverWrapper
                                 message={
                                     <>
                                         <ul>
-                                            <li>
-                                                Each Raft command has an ID number associated with it (not the log
-                                                index). Newer RavenDB versions may introduce commands with higher
-                                                version numbers that are unknown to nodes running older versions.
-                                            </li>
-                                            <li>
-                                                This value shows the highest Raft command version number known to the
-                                                node.
-                                            </li>
+                                            <li>{t("summary.localVersionInfo.commandId")}</li>
+                                            <li>{t("summary.localVersionInfo.highestVersion")}</li>
                                         </ul>
                                     </>
                                 }
@@ -371,8 +395,8 @@ export default function ClusterDebugSummary(props: ClusterDebugSummaryProps) {
                     </tr>
                     <tr>
                         <th>
-                            Connection
-                            <PopoverWithHoverWrapper message="The node's connection state to other nodes in the cluster.">
+                            {t("summary.connection")}
+                            <PopoverWithHoverWrapper message={t("summary.connectionInfo")}>
                                 <Icon icon="info" color="info" margin="ms-1" />
                             </PopoverWithHoverWrapper>
                         </th>
@@ -383,7 +407,7 @@ export default function ClusterDebugSummary(props: ClusterDebugSummaryProps) {
                                         <div>
                                             {node.data.connections.map((connection) => (
                                                 <Button
-                                                    title="Click to see connection details"
+                                                    title={t("summary.connectionDetailsTitle")}
                                                     size="xs"
                                                     key={connection.Destination}
                                                     onClick={() => showConnectionDetails(connection)}
@@ -402,7 +426,7 @@ export default function ClusterDebugSummary(props: ClusterDebugSummaryProps) {
                     </tr>
                     {hasAnyCriticalError && (
                         <tr>
-                            <th>Cluster Critical Error</th>
+                            <th>{t("summary.criticalError")}</th>
                             {nodes.map((node) => {
                                 return (
                                     <ConditionalRender node={node} key={node.nodeTag}>
@@ -415,7 +439,7 @@ export default function ClusterDebugSummary(props: ClusterDebugSummaryProps) {
                                                         onClick={() => openCriticalError(node.nodeTag)}
                                                     >
                                                         <Icon icon="preview" />
-                                                        View error
+                                                        {t("summary.viewError")}
                                                     </Button>
                                                 ) : (
                                                     <>-</>

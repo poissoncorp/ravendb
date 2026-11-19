@@ -7,8 +7,10 @@ import { CertificatesGenerateFormData } from "components/pages/resources/manageS
 import { useAppSelector } from "components/store";
 import useUniqueId from "components/hooks/useUniqueId";
 import { useFormContext } from "react-hook-form";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 export default function CertificatesSecurityClearanceField() {
+    const t = useStudioTranslation("certificates");
     const isClusterAdminOrClusterNode = useAppSelector(accessManagerSelectors.isClusterAdminOrClusterNode);
     const selectId = useUniqueId("security-clearance-select");
 
@@ -18,7 +20,7 @@ export default function CertificatesSecurityClearanceField() {
 
     return (
         <div className="mb-3">
-            <FormLabel htmlFor={selectId}>Security Clearance</FormLabel>
+            <FormLabel htmlFor={selectId}>{t("clearanceField.label")}</FormLabel>
             <FormSelect
                 inputId={selectId}
                 control={control}
@@ -27,11 +29,11 @@ export default function CertificatesSecurityClearanceField() {
                     [
                         {
                             value: "ClusterAdmin",
-                            label: "Cluster Admin",
+                            label: t("clearance.clusterAdmin"),
                             isDisabled: !isClusterAdminOrClusterNode,
                         },
-                        { value: "Operator", label: "Operator" },
-                        { value: "ValidUser", label: "User" },
+                        { value: "Operator", label: t("clearance.operator") },
+                        { value: "ValidUser", label: t("clearance.user") },
                     ] satisfies SelectOption[]
                 }
             />

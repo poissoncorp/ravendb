@@ -13,6 +13,9 @@ import DatabaseIndexErrors from "./DatabaseIndexErrors";
 import DatabaseSettings from "./DatabaseSettings";
 import AnalysisSection from "./AnalysisSection";
 import genUtils from "common/generalUtils";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import type { StudioTranslate } from "common/i18n/resources";
 
 type DebugPackageAnalysisSummary = Raven.Server.Documents.Handlers.Debugging.DebugPackage.DebugPackageAnalysisSummary;
 
@@ -45,7 +48,8 @@ interface StorageRow {
 // Per-node view of a single database. Documents/indexes/storage are reported per node, so this
 // surfaces divergence between nodes (replication lag, node-local indexing errors, uneven storage).
 export default memo(function DatabaseContextView({ summary, database, selectedNode }: DatabaseContextViewProps) {
-    const overviewRows = useMemo(() => collectOverviewRows(summary, database), [summary, database]);
+    const t = useStudioTranslation("debugPackageAnalyzer");
+    const overviewRows = useMemo(() => collectOverviewRows(summary, database, t), [summary, database, t]);
     const storageRows = useMemo(() => collectStorageRows(summary, database), [summary, database]);
     const overviewNodeTags = useMemo(() => overviewRows.map((row) => row.node), [overviewRows]);
 
@@ -53,42 +57,56 @@ export default memo(function DatabaseContextView({ summary, database, selectedNo
     const totalTemp = storageRows.reduce((sum, row) => sum + row.temp, 0);
 
     if (overviewRows.length === 0 && storageRows.length === 0) {
-        return <EmptySet>No data for {database} in the package</EmptySet>;
+        return <EmptySet>{t("databaseContext.empty", { database })}</EmptySet>;
     }
 
     return (
         <div className="database-context vstack gap-3">
-            <h2 className="database-context-group-heading">Global</h2>
+            <h2 className="database-context-group-heading">{t("databaseContext.groups.global")}</h2>
 
-            <AnalysisSection id="database-overview" label="Database Overview" group="Global">
+            <AnalysisSection
+                id="database-overview"
+                label={t("databaseContext.overview.title")}
+                group={t("databaseContext.groups.global")}
+            >
                 <div className="panel-bg-1 rounded">
                     <div className="p-4 vstack gap-3">
-                        <h3 className="mb-0">Database Overview</h3>
+                        <h3 className="mb-0">{t("databaseContext.overview.title")}</h3>
                         {overviewRows.length === 0 ? (
                             <EmptySet compact className="justify-content-center">
-                                No database overview data in the package
+                                {t("databaseContext.overview.empty")}
                             </EmptySet>
                         ) : (
                             <div className="vstack gap-3">
                                 {overviewRows.map((row) => (
                                     <div key={row.node}>
                                         <div className="hstack gap-1 align-items-center mb-1">
-                                            Node <NodeTagPill tag={row.node} />
+                                            <StudioTrans
+                                                ns="debugPackageAnalyzer"
+                                                i18nKey="databaseContext.nodeHeading"
+                                                components={{ pill: <NodeTagPill tag={row.node} /> }}
+                                            />
                                         </div>
                                         <div className="overview-stats gap-2">
                                             <StatTile
-                                                label="Node status"
+                                                label={t("databaseContext.overview.nodeStatus")}
                                                 icon={row.disabled ? "cancel" : row.online ? "check" : "disconnected"}
                                                 iconColor={row.disabled ? "warning" : row.online ? "success" : "danger"}
-                                                value={row.disabled ? "Disabled" : row.online ? "Online" : "Offline"}
+                                                value={
+                                                    row.disabled
+                                                        ? t("databaseContext.overview.nodeStatusDisabled")
+                                                        : row.online
+                                                          ? t("databaseContext.overview.nodeStatusOnline")
+                                                          : t("databaseContext.overview.nodeStatusOffline")
+                                                }
                                             />
                                             <StatTile
-                                                label="Documents"
+                                                label={t("databaseContext.overview.documents")}
                                                 icon="documents"
                                                 value={formatCount(row.documents)}
                                             />
                                             <StatTile
-                                                label="Indexes"
+                                                label={t("databaseContext.overview.indexes")}
                                                 icon="indexing"
                                                 value={
                                                     row.erroredIndexes > 0 ? (
@@ -104,30 +122,34 @@ export default memo(function DatabaseContextView({ summary, database, selectedNo
                                                 }
                                             />
                                             <StatTile
-                                                label="Indexing errors"
+                                                label={t("databaseContext.overview.indexingErrors")}
                                                 icon="index-errors"
                                                 iconColor={row.indexingErrors > 0 ? "danger" : undefined}
                                                 valueColor={row.indexingErrors > 0 ? "danger" : undefined}
                                                 value={formatCount(row.indexingErrors)}
                                             />
                                             <StatTile
-                                                label="Ongoing tasks"
+                                                label={t("databaseContext.overview.ongoingTasks")}
                                                 icon="ongoing-tasks"
                                                 value={formatCount(row.ongoingTasks)}
                                             />
                                             <StatTile
-                                                label="Alerts"
+                                                label={t("databaseContext.overview.alerts")}
                                                 icon="alerts"
                                                 iconColor={row.alerts > 0 ? "warning" : undefined}
                                                 valueColor={row.alerts > 0 ? "warning" : undefined}
                                                 value={formatCount(row.alerts)}
                                             />
                                             <StatTile
-                                                label="Perf. hints"
+                                                label={t("databaseContext.overview.performanceHints")}
                                                 icon="performance"
                                                 value={formatCount(row.performanceHints)}
                                             />
-                                            <StatTile label="Last backup" icon="backup" value={row.lastBackup} />
+                                            <StatTile
+                                                label={t("databaseContext.overview.lastBackup")}
+                                                icon="backup"
+                                                value={row.lastBackup}
+                                            />
                                         </div>
                                     </div>
                                 ))}
@@ -137,47 +159,59 @@ export default memo(function DatabaseContextView({ summary, database, selectedNo
                 </div>
             </AnalysisSection>
 
-            <AnalysisSection id="database-storage" label="Storage Overview" group="Global">
+            <AnalysisSection
+                id="database-storage"
+                label={t("databaseContext.storage.title")}
+                group={t("databaseContext.groups.global")}
+            >
                 <div className="panel-bg-1 rounded">
                     <div className="p-4 vstack gap-3">
-                        <h3 className="mb-0">Storage Overview</h3>
+                        <h3 className="mb-0">{t("databaseContext.storage.title")}</h3>
                         <div className="overview-stats gap-2">
                             <StatTile
-                                label="Data size"
+                                label={t("databaseContext.storage.dataSize")}
                                 icon="ravendb-data"
                                 value={genUtils.formatBytesToSize(totalData)}
                             />
-                            <StatTile label="Temp size" icon="clock" value={genUtils.formatBytesToSize(totalTemp)} />
                             <StatTile
-                                label="Total size"
+                                label={t("databaseContext.storage.tempSize")}
+                                icon="clock"
+                                value={genUtils.formatBytesToSize(totalTemp)}
+                            />
+                            <StatTile
+                                label={t("databaseContext.storage.totalSize")}
                                 icon="sum"
                                 value={genUtils.formatBytesToSize(totalData + totalTemp)}
                             />
                         </div>
                         {storageRows.length === 0 ? (
                             <EmptySet compact className="justify-content-center">
-                                No storage data in the package
+                                {t("databaseContext.storage.empty")}
                             </EmptySet>
                         ) : (
                             <div className="vstack gap-3">
                                 {storageRows.map((row) => (
                                     <div key={row.node}>
                                         <div className="hstack gap-1 align-items-center mb-1">
-                                            Node <NodeTagPill tag={row.node} />
+                                            <StudioTrans
+                                                ns="debugPackageAnalyzer"
+                                                i18nKey="databaseContext.nodeHeading"
+                                                components={{ pill: <NodeTagPill tag={row.node} /> }}
+                                            />
                                         </div>
                                         <div className="overview-stats gap-2">
                                             <StatTile
-                                                label="Data size"
+                                                label={t("databaseContext.storage.dataSize")}
                                                 icon="ravendb-data"
                                                 value={genUtils.formatBytesToSize(row.data)}
                                             />
                                             <StatTile
-                                                label="Temp size"
+                                                label={t("databaseContext.storage.tempSize")}
                                                 icon="clock"
                                                 value={genUtils.formatBytesToSize(row.temp)}
                                             />
                                             <StatTile
-                                                label="Total size"
+                                                label={t("databaseContext.storage.totalSize")}
                                                 icon="sum"
                                                 value={genUtils.formatBytesToSize(row.data + row.temp)}
                                             />
@@ -190,29 +224,53 @@ export default memo(function DatabaseContextView({ summary, database, selectedNo
                 </div>
             </AnalysisSection>
 
-            <h2 className="database-context-group-heading">Node-scoped</h2>
+            <h2 className="database-context-group-heading">{t("databaseContext.groups.nodeScoped")}</h2>
 
-            <AnalysisSection id="database-stats" label="Statistics" group="Node-scoped">
+            <AnalysisSection
+                id="database-stats"
+                label={t("databaseContext.sections.statistics")}
+                group={t("databaseContext.groups.nodeScoped")}
+            >
                 <DatabaseStats packageId={summary.PackageId} database={database} node={selectedNode} />
             </AnalysisSection>
 
-            <AnalysisSection id="database-index-stats" label="Index Stats" group="Node-scoped">
+            <AnalysisSection
+                id="database-index-stats"
+                label={t("databaseContext.sections.indexStats")}
+                group={t("databaseContext.groups.nodeScoped")}
+            >
                 <DatabaseIndexStats packageId={summary.PackageId} database={database} node={selectedNode} />
             </AnalysisSection>
 
-            <AnalysisSection id="database-index-performance" label="Indexing Performance" group="Node-scoped">
+            <AnalysisSection
+                id="database-index-performance"
+                label={t("databaseContext.sections.indexingPerformance")}
+                group={t("databaseContext.groups.nodeScoped")}
+            >
                 <DatabaseIndexPerformanceLink packageId={summary.PackageId} database={database} node={selectedNode} />
             </AnalysisSection>
 
-            <AnalysisSection id="database-index-definitions" label="Index Definitions" group="Node-scoped">
+            <AnalysisSection
+                id="database-index-definitions"
+                label={t("databaseContext.sections.indexDefinitions")}
+                group={t("databaseContext.groups.nodeScoped")}
+            >
                 <DatabaseIndexDefinitions packageId={summary.PackageId} database={database} node={selectedNode} />
             </AnalysisSection>
 
-            <AnalysisSection id="database-index-errors" label="Index Errors" group="Node-scoped">
+            <AnalysisSection
+                id="database-index-errors"
+                label={t("databaseContext.sections.indexErrors")}
+                group={t("databaseContext.groups.nodeScoped")}
+            >
                 <DatabaseIndexErrors packageId={summary.PackageId} database={database} node={selectedNode} />
             </AnalysisSection>
 
-            <AnalysisSection id="database-ongoing-tasks" label="Ongoing Tasks" group="Node-scoped">
+            <AnalysisSection
+                id="database-ongoing-tasks"
+                label={t("databaseContext.sections.ongoingTasks")}
+                group={t("databaseContext.groups.nodeScoped")}
+            >
                 <DatabaseOngoingTasks
                     packageId={summary.PackageId}
                     database={database}
@@ -221,7 +279,11 @@ export default memo(function DatabaseContextView({ summary, database, selectedNo
                 />
             </AnalysisSection>
 
-            <AnalysisSection id="database-settings" label="Settings" group="Node-scoped">
+            <AnalysisSection
+                id="database-settings"
+                label={t("databaseContext.sections.settings")}
+                group={t("databaseContext.groups.nodeScoped")}
+            >
                 <DatabaseSettings packageId={summary.PackageId} database={database} node={selectedNode} />
             </AnalysisSection>
         </div>
@@ -235,7 +297,11 @@ function formatCount(value: number): string {
     return value.toLocaleString();
 }
 
-function collectOverviewRows(summary: DebugPackageAnalysisSummary, database: string): OverviewRow[] {
+function collectOverviewRows(
+    summary: DebugPackageAnalysisSummary,
+    database: string,
+    t: StudioTranslate<"debugPackageAnalyzer">
+): OverviewRow[] {
     const rows: OverviewRow[] = [];
 
     Object.entries(summary.SummaryPerNode ?? {}).forEach(([nodeTag, node]) => {
@@ -255,7 +321,9 @@ function collectOverviewRows(summary: DebugPackageAnalysisSummary, database: str
                 ongoingTasks: item.OngoingTasksCount,
                 alerts: item.AlertsCount,
                 performanceHints: item.PerformanceHintsCount,
-                lastBackup: lastBackup ? genUtils.formatUtcDateAsLocal(lastBackup) : "Never",
+                lastBackup: lastBackup
+                    ? genUtils.formatUtcDateAsLocal(lastBackup)
+                    : t("databaseContext.overview.lastBackupNever"),
             });
         });
     });

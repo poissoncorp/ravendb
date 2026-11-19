@@ -10,10 +10,12 @@ import { certificatesActions } from "components/pages/resources/manageServer/cer
 import CertificatesReadyModalBrowserAccess from "components/pages/resources/manageServer/certificates/partials/authEnabled/CertificatesReadyModalBrowserAccess";
 import CertificatesReadyModalApiAccess from "components/pages/resources/manageServer/certificates/partials/authEnabled/CertificatesReadyModalApiAccess";
 import "./CertificatesReadyModal.scss";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 type AccessTab = "browser" | "api";
 
 export default function CertificatesReadyModal() {
+    const t = useStudioTranslation("certificates");
     const dispatch = useAppDispatch();
     const docsLink = useRavenLink({ hash: "RSFSL5" });
 
@@ -31,14 +33,10 @@ export default function CertificatesReadyModal() {
         >
             <Modal.Header onCloseClick={close} className="mb-0">
                 <Icon icon="certificate" size="lg" margin="me-3" color="primary" addon="check" />
-                <h3 className="mb-0">Your new certificate is ready</h3>
+                <h3 className="mb-0">{t("ready.title")}</h3>
             </Modal.Header>
             <Modal.Body>
-                <p className="mb-4">
-                    Your new certificate has been created and downloaded to your computer. To begin using it, you need
-                    to install it or move it to a secure location for your application. Choose the option below that
-                    matches how you&apos;ll connect to RavenDB.
-                </p>
+                <p className="mb-4">{t("ready.intro")}</p>
 
                 <Tab.Container activeKey={accessTab} onSelect={(key: AccessTab) => setAccessTab(key)}>
                     <div className="access-tab-container mb-4">
@@ -49,7 +47,7 @@ export default function CertificatesReadyModal() {
                                     className="d-flex align-items-center justify-content-center w-100 text-center border rounded py-2 px-3"
                                 >
                                     <Icon icon="global" />
-                                    Browser Access
+                                    {t("ready.browserTab")}
                                 </Nav.Link>
                             </Nav.Item>
                             <Nav.Item className="flex-grow mb-0">
@@ -58,7 +56,7 @@ export default function CertificatesReadyModal() {
                                     className="d-flex align-items-center justify-content-center w-100 text-center border rounded py-2 px-3"
                                 >
                                     <Icon icon="code" />
-                                    Application Access (API)
+                                    {t("ready.apiTab")}
                                 </Nav.Link>
                             </Nav.Item>
                         </Nav>
@@ -72,10 +70,10 @@ export default function CertificatesReadyModal() {
             </Modal.Body>
             <Modal.Footer className="hstack justify-content-between my-2">
                 <a href={docsLink} target="_blank" className="btn btn-info rounded-pill">
-                    See documentation <Icon icon="newtab" margin="m-0" />
+                    {t("ready.docsLink")} <Icon icon="newtab" margin="m-0" />
                 </a>
                 <Button variant="link" onClick={close} className="link-muted">
-                    Close
+                    {t("ready.close")}
                 </Button>
             </Modal.Footer>
         </Modal>

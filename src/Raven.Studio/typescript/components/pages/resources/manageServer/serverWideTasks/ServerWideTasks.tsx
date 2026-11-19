@@ -30,8 +30,10 @@ import {
     ServerWideTaskSharedInfo,
     ServerWideTaskType,
 } from "./serverWideTaskModels";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function ServerWideTasks() {
+    const t = useStudioTranslation("serverWideTasks");
     const {
         fetchStatus,
         reload,
@@ -59,7 +61,7 @@ export default function ServerWideTasks() {
     return (
         <div className="content-margin">
             <div className="d-flex justify-content-between align-items-center mb-4">
-                <AboutViewHeading title="Server-Wide Tasks" icon="server-wide-tasks" marginBottom={0} />
+                <AboutViewHeading title={t("title")} icon="server-wide-tasks" marginBottom={0} />
                 <div className="d-flex align-items-center gap-3">
                     <PerDatabaseOngoingTasksLink />
                     <ServerWideTasksInfoHub />
@@ -134,6 +136,7 @@ function ServerWideTasksBody({
     isDeletingAny,
     isTogglingStateAny,
 }: ServerWideTasksBodyProps) {
+    const t = useStudioTranslation("serverWideTasks");
     const [selectedTaskIds, setSelectedTaskIds] = useState<number[]>([]);
 
     const filteredTaskIds = filteredTasks.map((x) => x.taskId);
@@ -171,28 +174,28 @@ function ServerWideTasksBody({
     }
 
     if (fetchStatus === "error") {
-        return <LoadError error="Unable to load server-wide tasks" refresh={reload} />;
+        return <LoadError error={t("loadError")} refresh={reload} />;
     }
 
     return (
         <>
             <Button variant="primary" className="rounded-pill mb-3" href={appUrl.forAddServerWideTask()}>
                 <Icon icon="plus" />
-                Add a Server-Wide Task
+                {t("addButton")}
             </Button>
 
-            {tasks.length === 0 && <EmptySet>No server-wide tasks have been created</EmptySet>}
+            {tasks.length === 0 && <EmptySet>{t("empty")}</EmptySet>}
 
             {tasks.length > 0 && (
                 <>
                     <div className="d-flex flex-wrap flex-grow align-items-end gap-3 mb-3">
                         <div className="flex-grow">
-                            <div className="small-label ms-1 mb-1">Filter by name</div>
+                            <div className="small-label ms-1 mb-1">{t("filter.nameLabel")}</div>
                             <Form.Control
                                 type="search"
                                 accessKey="/"
-                                placeholder="e.g. BackupTask"
-                                title="Filter server-wide tasks"
+                                placeholder={t("filter.namePlaceholder")}
+                                title={t("filter.nameTitle")}
                                 className="filtering-input"
                                 value={nameFilter}
                                 onChange={(e: ChangeEvent<HTMLInputElement>) => setNameFilter(e.target.value)}
@@ -201,7 +204,7 @@ function ServerWideTasksBody({
                         <div>
                             <MultiCheckboxToggle
                                 inputItems={typeFilterItems}
-                                label="Filter by type"
+                                label={t("filter.typeLabel")}
                                 selectedItems={selectedTypes}
                                 setSelectedItems={setSelectedTypes}
                             />
@@ -217,13 +220,13 @@ function ServerWideTasksBody({
                         isDeleting={isDeletingAny}
                     />
 
-                    {filteredTasks.length === 0 && <EmptySet>No tasks match your filter criteria</EmptySet>}
+                    {filteredTasks.length === 0 && <EmptySet>{t("filter.noMatch")}</EmptySet>}
 
-                    <TaskSection title="External replication" icon="external-replication" tasks={replicationTasks}>
+                    <TaskSection title={t("taskType.replication")} icon="external-replication" tasks={replicationTasks}>
                         {(task) => <ServerWideExternalReplicationPanel key={task.taskId} task={task} {...panelProps} />}
                     </TaskSection>
 
-                    <TaskSection title="Backup" icon="backup" tasks={backupTasks}>
+                    <TaskSection title={t("taskType.backup")} icon="backup" tasks={backupTasks}>
                         {(task) => <ServerWideBackupPanel key={task.taskId} task={task} {...panelProps} />}
                     </TaskSection>
                 </>

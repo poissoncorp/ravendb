@@ -19,6 +19,8 @@ import { ClusterDebugNodeInfo } from "components/pages/resources/manageServer/ad
 import RichAlert from "components/common/RichAlert";
 import { useClusterDebugFetcher } from "../hooks/useClusterDebugFetcher";
 import { nodeAwareLoadableData } from "components/models/common";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface ClusterDebugEntriesProps {
     availableWidth: number;
@@ -27,6 +29,7 @@ interface ClusterDebugEntriesProps {
 
 export function ClusterDebugEntries(props: ClusterDebugEntriesProps) {
     const { availableWidth, nodes } = props;
+    const t = useStudioTranslation("clusterDebug");
     const localNodeTag = useAppSelector(clusterSelectors.localNodeTag);
 
     const dialog = useDialog();
@@ -40,29 +43,32 @@ export function ClusterDebugEntries(props: ClusterDebugEntriesProps) {
             const entry = await manageServerService.getClusterLogEntry(activeTab, logIndex);
             const jsonString = JSON.stringify(entry, null, 4);
             await dialog({
-                title: "Cluster Log Entry",
+                title: t("entries.previewDialogTitle"),
                 message: <Code code={jsonString} language="json" />,
                 modalSize: "lg",
             });
         },
-        [manageServerService, activeTab, dialog]
+        [manageServerService, activeTab, dialog, t]
     );
 
     const deleteEntry = useCallback(
         async (logIndex: number) => {
             const isConfirmed = await confirm({
-                title: "Delete log entry?",
+                title: t("entries.deleteConfirm.title"),
                 icon: "trash",
-                confirmText: "I understand the risk, delete",
+                confirmText: t("entries.deleteConfirm.confirmText"),
                 message: (
                     <div>
                         <p>
-                            You are about to delete log entry with index <code>{logIndex}</code>.
+                            <StudioTrans
+                                ns="clusterDebug"
+                                i18nKey="entries.deleteConfirm.message"
+                                components={{ code: <code /> }}
+                                options={{ index: logIndex }}
+                            />
                         </p>
                         <RichAlert variant="warning" icon="warning">
-                            Deleting a log entry from the Raft command log can lead to data inconsistencies and cluster
-                            instability. If all nodes are connected and there are no network errors, this Raft command
-                            will be deleted from ALL nodes in the cluster. Proceed with caution.
+                            {t("entries.deleteConfirm.warning")}
                         </RichAlert>
                     </div>
                 ),
@@ -72,7 +78,7 @@ export function ClusterDebugEntries(props: ClusterDebugEntriesProps) {
                 await manageServerService.removeClusterEntryLog(activeTab, logIndex);
             }
         },
-        [manageServerService, activeTab, confirm]
+        [manageServerService, activeTab, confirm, t]
     );
 
     const { dataArray, commitIndex, componentProps } = useClusterDebugFetcher({
@@ -107,11 +113,11 @@ export function ClusterDebugEntries(props: ClusterDebugEntriesProps) {
                                         icon={node.data?.role === "Leader" ? "node-leader" : "cluster-member"}
                                         color="node"
                                     />
-                                    <span className="text-nowrap">Node {node.nodeTag}</span>
+                                    <span className="text-nowrap">{t("node", { nodeTag: node.nodeTag })}</span>
                                 </span>
                                 {node.nodeTag === localNodeTag && (
                                     <Badge bg="node" pill>
-                                        Current
+                                        {t("currentNode")}
                                     </Badge>
                                 )}
                             </div>

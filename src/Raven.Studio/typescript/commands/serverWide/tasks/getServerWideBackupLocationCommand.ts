@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("serverWideCommands");
 
 class getServerWideBackupLocationCommand extends commandBase {
     
@@ -16,7 +19,7 @@ class getServerWideBackupLocationCommand extends commandBase {
         const url = endpoints.global.adminStudioServerWide.adminServerWideBackupDataDirectory + this.urlEncodeArgs(args);
 
         return this.query<Raven.Server.Web.Studio.DataDirectoryResult>(url, null)
-            .fail((response: JQueryXHR) => this.reportError("Failed to calculate the full backup path", response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("tasks.getBackupLocationFailed"), response.responseText, response.statusText));
     }
 }
 

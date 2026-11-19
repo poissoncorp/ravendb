@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("authCommands");
 
 class getClientCertificateCommand extends commandBase {
 
@@ -7,7 +10,7 @@ class getClientCertificateCommand extends commandBase {
         const url = endpoints.global.adminCertificates.certificatesWhoami;
         
         return this.query<Raven.Client.ServerWide.Operations.Certificates.CertificateDefinition & { HasTwoFactor: boolean; TwoFactorExpirationDate: string; }>(url, null)
-            .fail((response: JQueryXHR) => this.reportError("Failed to get client certificate from server", response.responseText,  response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("getClientCertificateFailed"), response.responseText,  response.statusText));
     }
 }
 

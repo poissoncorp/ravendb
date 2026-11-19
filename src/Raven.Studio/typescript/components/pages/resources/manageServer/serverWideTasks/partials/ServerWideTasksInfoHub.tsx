@@ -1,31 +1,40 @@
 import React from "react";
 import { AboutViewFloating, AccordionItemWrapper } from "components/common/AboutView";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export function ServerWideTasksInfoHub() {
+    const t = useStudioTranslation("serverWideTasks");
+
     return (
         <AboutViewFloating>
             <AccordionItemWrapper
                 icon="about"
                 color="info"
-                heading="About this view"
-                description="Get additional info on this feature"
+                heading={t("about.heading")}
+                description={t("about.description")}
                 targetId="about"
             >
                 <p>
-                    <strong>Server-Wide Tasks</strong> are ongoing tasks defined once at the cluster level and applied
-                    to all databases in the cluster.
+                    <StudioTrans ns="serverWideTasks" i18nKey="about.intro" components={{ strong: <strong /> }} />
                 </p>
                 <ul>
                     <li>
-                        <strong>Server-wide Backup</strong> creates periodic backups or snapshots of all databases in
-                        your cluster.
+                        <StudioTrans
+                            ns="serverWideTasks"
+                            i18nKey="about.backupItem"
+                            components={{ strong: <strong /> }}
+                        />
                     </li>
                     <li>
-                        <strong>Server-wide External Replication</strong> creates live replicas of all databases in
-                        another cluster.
+                        <StudioTrans
+                            ns="serverWideTasks"
+                            i18nKey="about.replicationItem"
+                            components={{ strong: <strong /> }}
+                        />
                     </li>
                 </ul>
-                <p>Specific databases can be excluded from each task.</p>
+                <p>{t("about.exclusion")}</p>
             </AccordionItemWrapper>
         </AboutViewFloating>
     );

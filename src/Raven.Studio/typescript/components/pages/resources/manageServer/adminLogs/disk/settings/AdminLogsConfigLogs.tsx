@@ -24,8 +24,12 @@ import AdminLogsPersistInfoIcon from "components/pages/resources/manageServer/ad
 import { adminLogsUtils } from "components/pages/resources/manageServer/adminLogs/common/adminLogsUtils";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import Accordion from "react-bootstrap/Accordion";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function AdminLogsConfigLogs({ targetId }: { targetId: string }) {
+    const t = useStudioTranslation("adminLogs");
+    const commonT = useStudioTranslation("common");
     const dispatch = useAppDispatch();
     const { manageServerService } = useServices();
 
@@ -55,26 +59,27 @@ export default function AdminLogsConfigLogs({ targetId }: { targetId: string }) 
 
     return (
         <Accordion.Item eventKey={targetId} className="p-1 rounded-3">
-            <Accordion.Header>Logs</Accordion.Header>
+            <Accordion.Header>{t("diskSettings.logs.title")}</Accordion.Header>
             <Accordion.Body>
-                <h5 className="text-center text-muted text-uppercase">Set Filters & min level</h5>
+                <h5 className="text-center text-muted text-uppercase">{t("diskSettings.logs.heading")}</h5>
                 <Form onSubmit={handleSubmit(handleSave)} key={targetId}>
                     <Row>
                         <Col>
                             <FormGroup>
                                 <FormLabel>
-                                    Current Minimum Level
-                                    <PopoverWithHoverWrapper
-                                        message="Only log entries at this level or higher will be logged, even if a filter
-                                            matches a lower-level entry."
-                                    >
+                                    {t("diskSettings.currentMinLevel")}
+                                    <PopoverWithHoverWrapper message={t("diskSettings.logs.minLevelInfo")}>
                                         <Icon icon="info" color="info" margin="ms-1" />
                                     </PopoverWithHoverWrapper>
                                 </FormLabel>
                                 <FormSelect control={control} name="minLevel" options={logLevelOptions} />
                                 {!isCloud && (
                                     <FormCheckbox control={control} name="isPersist" className="mt-1">
-                                        Save the minimum level in <code>settings.json</code>
+                                        <StudioTrans
+                                            ns="adminLogs"
+                                            i18nKey="persistMinLevel"
+                                            components={{ code: <code /> }}
+                                        />
                                         <AdminLogsPersistInfoIcon />
                                     </FormCheckbox>
                                 )}
@@ -83,23 +88,25 @@ export default function AdminLogsConfigLogs({ targetId }: { targetId: string }) 
                         <Col>
                             <FormGroup>
                                 <FormLabel>
-                                    Default Filter Action
+                                    {t("defaultFilterAction.label")}
                                     <PopoverWithHoverWrapper
                                         message={
                                             <>
                                                 <p className="mb-1">
-                                                    This action does <strong>Not apply</strong> when no filters are
-                                                    defined.
-                                                    <br />
-                                                    This action <strong>applies</strong> in the following cases:
+                                                    <StudioTrans
+                                                        ns="adminLogs"
+                                                        i18nKey="defaultFilterAction.info"
+                                                        components={{ strong: <strong />, br: <br /> }}
+                                                    />
                                                 </p>
                                                 <ul className="mb-0">
-                                                    <li className="mb-1">
-                                                        When a log entry does Not match any defined filter.
-                                                    </li>
+                                                    <li className="mb-1">{t("defaultFilterAction.noMatchItem")}</li>
                                                     <li>
-                                                        When a log entry matches a filter with a <code>Neutral</code>{" "}
-                                                        action, provided that no subsequent filters apply.
+                                                        <StudioTrans
+                                                            ns="adminLogs"
+                                                            i18nKey="defaultFilterAction.neutralItem"
+                                                            components={{ code: <code /> }}
+                                                        />
                                                     </li>
                                                 </ul>
                                             </>
@@ -118,7 +125,7 @@ export default function AdminLogsConfigLogs({ targetId }: { targetId: string }) 
                         </Col>
                     </Row>
                     <FormGroup className="vstack">
-                        <FormLabel>Filters</FormLabel>
+                        <FormLabel>{t("filters.label")}</FormLabel>
                         <div className="vstack gap-1 mb-1">
                             {filterFieldArray.fields.map((field, idx) => (
                                 <AdminLogsFilterField
@@ -136,7 +143,7 @@ export default function AdminLogsConfigLogs({ targetId }: { targetId: string }) 
                             onClick={() => filterFieldArray.append(adminLogsUtils.initialFilter)}
                         >
                             <Icon icon="plus" />
-                            Add Filter
+                            {t("filters.addButton")}
                         </Button>
                     </FormGroup>
                     <ButtonWithSpinner
@@ -147,31 +154,31 @@ export default function AdminLogsConfigLogs({ targetId }: { targetId: string }) 
                         isSpinning={formState.isSubmitting}
                         disabled={!formState.isDirty}
                     >
-                        Save
+                        {commonT("save")}
                     </ButtonWithSpinner>
                 </Form>
                 <h5 className="text-center text-muted text-uppercase">
-                    Read-only
-                    <PopoverWithHoverWrapper message="These settings are not editable here but can be configured through the server configuration.">
+                    {t("diskSettings.readOnly")}
+                    <PopoverWithHoverWrapper message={t("diskSettings.readOnlyInfo")}>
                         <Icon icon="info" color="info" margin="ms-1" />
                     </PopoverWithHoverWrapper>
                 </h5>
                 <Table className="m-0">
                     <tbody>
                         <tr>
-                            <td>Path</td>
+                            <td>{t("diskSettings.table.path")}</td>
                             <td>
                                 <AdminLogsConfigTableValue value={config.Path} />
                             </td>
                         </tr>
                         <tr>
-                            <td>Minimum Level</td>
+                            <td>{t("diskSettings.table.minLevel")}</td>
                             <td>
                                 <AdminLogsConfigTableValue value={config.MinLevel} />
                             </td>
                         </tr>
                         <tr>
-                            <td>Archive Above Size</td>
+                            <td>{t("diskSettings.table.archiveAboveSize")}</td>
                             <td>
                                 <AdminLogsConfigTableValue
                                     value={`${config.ArchiveAboveSizeInMb?.toLocaleString()} MB`}
@@ -179,19 +186,19 @@ export default function AdminLogsConfigLogs({ targetId }: { targetId: string }) 
                             </td>
                         </tr>
                         <tr>
-                            <td>Maximum Archived Days</td>
+                            <td>{t("diskSettings.table.maxArchivedDays")}</td>
                             <td>
                                 <AdminLogsConfigTableValue value={config.MaxArchiveDays} />
                             </td>
                         </tr>
                         <tr>
-                            <td>Maximum Archived Files</td>
+                            <td>{t("diskSettings.table.maxArchivedFiles")}</td>
                             <td>
                                 <AdminLogsConfigTableValue value={config.MaxArchiveFiles} />
                             </td>
                         </tr>
                         <tr>
-                            <td>Archive File Compression</td>
+                            <td>{t("diskSettings.table.archiveFileCompression")}</td>
                             <td>
                                 <AdminLogsConfigTableValue value={config.EnableArchiveFileCompression} />
                             </td>

@@ -21,8 +21,10 @@ import CertificatesRegisterSsoServerModal from "components/pages/resources/manag
 import CertificatesRegisterSsoUserModal from "components/pages/resources/manageServer/certificates/partials/authEnabled/CertificatesRegisterSsoUserModal";
 import { EmptySet } from "components/common/EmptySet";
 import CertificatesReadyModal from "components/pages/resources/manageServer/certificates/partials/authEnabled/CertificatesReadyModal";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 export default function CertificatesAuthEnabled() {
+    const t = useStudioTranslation("certificates");
     const dispatch = useAppDispatch();
     const isInitialLoad = useAppSelector(certificatesSelectors.isInitialLoad);
     const loadStatus = useAppSelector(certificatesSelectors.loadStatus);
@@ -75,10 +77,7 @@ export default function CertificatesAuthEnabled() {
             </StickyHeader>
             {isInitialLoad && loadStatus === "loading" && <LoadingView />}
             {loadStatus === "failure" && (
-                <LoadError
-                    error="Unable to load certificates"
-                    refresh={() => dispatch(certificatesActions.fetchData())}
-                />
+                <LoadError error={t("loadError")} refresh={() => dispatch(certificatesActions.fetchData())} />
             )}
             {!isInitialLoad && (
                 <>
@@ -86,9 +85,7 @@ export default function CertificatesAuthEnabled() {
                     <CertificatesSsoList />
                     <CertificatesServerList />
                     <CertificatesClientList />
-                    {hasActiveFilter && filteredCertificates.length === 0 && (
-                        <EmptySet>No certificates match the current filters</EmptySet>
-                    )}
+                    {hasActiveFilter && filteredCertificates.length === 0 && <EmptySet>{t("noFilterMatch")}</EmptySet>}
                 </>
             )}
 

@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("clusterCommands");
 
 class promoteClusterNodeCommand extends commandBase {
 
@@ -14,7 +17,7 @@ class promoteClusterNodeCommand extends commandBase {
         const url = endpoints.global.rachisAdmin.adminClusterPromote + this.urlEncodeArgs(args);
 
         return this.post<void>(url, null, null, { dataType: undefined })
-            .fail((response: JQueryXHR) => this.reportError("Failed to promote node", response.responseText));
+            .fail((response: JQueryXHR) => this.reportError(t("promoteNodeFailed"), response.responseText));
     }
 }
 

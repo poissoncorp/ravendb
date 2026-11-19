@@ -12,6 +12,7 @@ import { ThemeColor } from "components/models/common";
 import { FlatIssue, countBy, issueCategories, issueScopes, scopeLabel, summarizeIssues } from "./analyzerUtils";
 import DebugPackageDetailsSheet from "./DebugPackageDetailsSheet";
 import { useViewSheet } from "components/common/splitView/ViewSheet";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 import "./AnalysisResults.scss";
 
 type IssueSeverity = Raven.Server.Documents.Handlers.Debugging.DebugPackage.Analyzers.Issues.IssueSeverity;
@@ -25,6 +26,7 @@ interface AnalysisResultsProps {
 }
 
 export default function AnalysisResults({ issues }: AnalysisResultsProps) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const [category, setCategory] = useState<string>("all");
     const [scope, setScope] = useState<string>("all");
     const [collapsedGroups, setCollapsedGroups] = useState<Set<IssueSeverity>>(() => new Set());
@@ -44,12 +46,16 @@ export default function AnalysisResults({ issues }: AnalysisResultsProps) {
     const severityCounts = useMemo(() => summarizeIssues(filtered).counts, [filtered]);
 
     const categoryItems: InputItem<string>[] = [
-        { label: "All", value: "all", count: issues.length },
-        ...issueCategories.map((c) => ({ label: c, value: c, count: categoryCounts[c] ?? 0 })),
+        { label: t("analysisResults.all"), value: "all", count: issues.length },
+        ...issueCategories.map((c) => ({
+            label: t("analysisResults.category", { context: c }),
+            value: c,
+            count: categoryCounts[c] ?? 0,
+        })),
     ];
 
     const scopeItems: InputItem<string>[] = [
-        { label: "All", value: "all", count: issues.length },
+        { label: t("analysisResults.all"), value: "all", count: issues.length },
         ...issueScopes.map((s) => ({ label: scopeLabel(s), value: s, count: scopeCounts[s] ?? 0 })),
     ];
 
@@ -80,18 +86,18 @@ export default function AnalysisResults({ issues }: AnalysisResultsProps) {
             <div className="panel-bg-1 rounded">
                 <div className="p-4 vstack">
                     <div className="d-flex align-items-center justify-content-between mb-3">
-                        <h3 className="mb-0">Analysis Results</h3>
+                        <h3 className="mb-0">{t("analysisResults.title")}</h3>
                     </div>
 
                     <div className="d-flex gap-2 flex-wrap align-items-end mb-3">
                         <MultiRadioToggle<string>
-                            label="Filter by issue category"
+                            label={t("analysisResults.filterByCategory")}
                             inputItems={categoryItems}
                             selectedItem={category}
                             setSelectedItem={setCategory}
                         />
                         <MultiRadioToggle<string>
-                            label="Filter by scope"
+                            label={t("analysisResults.filterByScope")}
                             inputItems={scopeItems}
                             selectedItem={scope}
                             setSelectedItem={setScope}
@@ -99,7 +105,7 @@ export default function AnalysisResults({ issues }: AnalysisResultsProps) {
                     </div>
 
                     {visibleGroups.length === 0 ? (
-                        <EmptySet>No analysis results match the selected filters</EmptySet>
+                        <EmptySet>{t("analysisResults.empty")}</EmptySet>
                     ) : (
                         <div className="vstack gap-2">
                             {visibleGroups.map((severity) => (
@@ -141,6 +147,7 @@ function SeverityGroup({
     onShowAll,
     onShowLess,
 }: SeverityGroupProps) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const meta = severityMeta(severity);
     const expandable = !collapsed && issues.length > GROUP_ROW_CAP;
     const capped = expandable && !showAll;
@@ -151,7 +158,7 @@ function SeverityGroup({
         <div className="severity-group">
             <button type="button" className="issue-group-header" aria-expanded={!collapsed} onClick={onToggleCollapse}>
                 <Icon icon={collapsed ? "chevron-right" : "chevron-down"} margin="m-0" />
-                <span className="small-label">{meta.plural}</span>
+                <span className="small-label">{t("analysisResults.group", { context: meta.group })}</span>
                 <Badge bg="secondary" pill>
                     {issues.length}
                 </Badge>
@@ -170,14 +177,14 @@ function SeverityGroup({
                                 onClick={onShowAll}
                             >
                                 <Icon icon="expand-vertical" />
-                                Show all {issues.length} {meta.plural}
+                                {t("analysisResults.showAll", { context: meta.group, count: issues.length })}
                             </Button>
                         </div>
                     )}
                     {expandable && showAll && (
                         <div className="d-flex justify-content-end">
                             <Button variant="link" size="xs" onClick={onShowLess}>
-                                Show less
+                                {t("analysisResults.showLess")}
                             </Button>
                         </div>
                     )}
@@ -188,6 +195,7 @@ function SeverityGroup({
 }
 
 function IssueRow({ issue }: { issue: FlatIssue }) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const meta = severityMeta(issue.severity);
 
     return (
@@ -198,7 +206,7 @@ function IssueRow({ issue }: { issue: FlatIssue }) {
                 <IssueDescription issue={issue} meta={meta} />
                 {issue.recommendedAction && (
                     <div className="issue-recommendation">
-                        <strong>Recommended action:</strong> {issue.recommendedAction}
+                        <strong>{t("analysisResults.recommendedAction")}</strong> {issue.recommendedAction}
                     </div>
                 )}
             </div>
@@ -210,6 +218,7 @@ function IssueRow({ issue }: { issue: FlatIssue }) {
 // Some descriptions (e.g. cluster connectivity alerts) embed full stack traces. The row stays compact with a
 // 3-line clamp; "Show more" appears only when the text actually overflows, and opens the full text in a side sheet.
 function IssueDescription({ issue, meta }: { issue: FlatIssue; meta: SeverityMeta }) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const ref = useRef<HTMLDivElement>(null);
     const [overflowing, setOverflowing] = useState(false);
     const { open } = useViewSheet();
@@ -240,7 +249,7 @@ function IssueDescription({ issue, meta }: { issue: FlatIssue; meta: SeverityMet
             </div>
             {overflowing && (
                 <Button variant="link" size="sm" className="p-0" onClick={showDetails}>
-                    Show more
+                    {t("analysisResults.showMore")}
                 </Button>
             )}
         </div>
@@ -248,10 +257,11 @@ function IssueDescription({ issue, meta }: { issue: FlatIssue; meta: SeverityMet
 }
 
 function ScopeBadges({ issue }: { issue: FlatIssue }) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     if (issue.scope === "cluster-wide") {
         return (
             <Badge bg="light" pill>
-                <Icon icon="cluster" /> Cluster-Wide
+                <Icon icon="cluster" /> {t("analysisResults.clusterWide")}
             </Badge>
         );
     }
@@ -276,19 +286,18 @@ interface SeverityMeta {
     icon: IconName;
     color: ThemeColor;
     variant: "danger" | "warning" | "info" | "secondary";
-    label: string;
-    plural: string;
+    group: "error" | "warning" | "info" | "misc";
 }
 
 function severityMeta(severity: IssueSeverity): SeverityMeta {
     switch (severity) {
         case "Error":
-            return { icon: "danger", color: "danger", variant: "danger", label: "Error", plural: "Errors" };
+            return { icon: "danger", color: "danger", variant: "danger", group: "error" };
         case "Warning":
-            return { icon: "warning", color: "warning", variant: "warning", label: "Warning", plural: "Warnings" };
+            return { icon: "warning", color: "warning", variant: "warning", group: "warning" };
         case "Info":
-            return { icon: "info", color: "info", variant: "info", label: "Info alert", plural: "Info alerts" };
+            return { icon: "info", color: "info", variant: "info", group: "info" };
         default:
-            return { icon: "info", color: "muted", variant: "secondary", label: "Other", plural: "Other" };
+            return { icon: "info", color: "muted", variant: "secondary", group: "misc" };
     }
 }

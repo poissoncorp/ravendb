@@ -1,16 +1,16 @@
 <div class="padding">
     <form class="flex-form" data-bind="submit: startRecording" autocomplete="off">
-        <h3>Record Transaction Commands</h3>
+        <h3 data-bind="i18n: 'debugAdvancedRecordTransactionCommands:title'"></h3>
         <div class="bg-warning inline-block padding padding-xs small"><i class="icon-warning"></i>&nbsp;
-            WARNING! Unless you know what you are doing, recording transaction commands <strong>might affect server performance!</strong>
+            <span data-bind="html: $root.warningHtml"></span>
         </div>
         <div class="row margin-top">
             <div class="col-lg-6 col-sm-8">
                 <div class="form-group" data-bind="validationElement: databaseName">
-                    <label class="control-label">Database Name</label>
+                    <label class="control-label" data-bind="i18n: 'debugAdvancedRecordTransactionCommands:databaseName'"></label>
                     <div class="flex-grow">
                         <button class="btn btn-block dropdown-toggle text-left" data-toggle="dropdown">
-                            <span data-bind="text: databaseName() || 'Select database'"></span>
+                            <span data-bind="text: databaseName"></span><span data-bind="i18n: databaseName() ? null : 'debugAdvancedRecordTransactionCommands:selectDatabase'"></span>
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" data-bind="foreach: databaseNames">
@@ -20,11 +20,11 @@
                     </div>
                 </div>
                 <div class="form-group" data-bind="validationElement: outputFile">
-                    <label class="control-label">Output File Path<br /></label>
+                    <label class="control-label"><span data-bind="i18n: 'debugAdvancedRecordTransactionCommands:outputFilePath'"></span><br /></label>
                     <div class="flex-grow" data-bind="validationOptions: { insertMessages: false }">
                         <div class="dropdown btn-block">
                             <input type="text" class="form-control dropdown-toggle" data-toggle="dropdown" id="outputFilePath"
-                                   placeholder="Enter full file path for saving the recorded output" data-bind="textInput: outputFile, hasFocus: outputFilePathHasFocus" />
+                                   data-bind="textInput: outputFile, hasFocus: outputFilePathHasFocus, i18nAttr: { placeholder: 'debugAdvancedRecordTransactionCommands:outputFilePathPlaceholder' }" />
                             <span class="caret dropdown-toggle" data-toggle="dropdown"></span>
                             <ul class="dropdown-menu max-height" data-bind="foreach: outputFilePathOptions, autoComplete: '#outputFilePath'">
                                 <li data-bind="click: $parent.outputFilePathChanged">
@@ -40,18 +40,18 @@
         <hr />
         <button type="submit" class="btn btn-primary">
             <i class="icon-transaction-record"></i>
-            <span>Start recording</span>
+            <span data-bind="i18n: 'debugAdvancedRecordTransactionCommands:startRecording'"></span>
         </button>
         <div class="margin-top" data-bind="if: runningTasks().length, visible: runningTasks().length">
-            <h3>Transaction commands recordings:</h3>
+            <h3 data-bind="i18n: 'debugAdvancedRecordTransactionCommands:recordings.title'"></h3>
             <div class="row">
                 <div class="col-lg-6 col-sm-8">
                     <table class="table table-striped table-condensed table-bordered">
                         <thead>
                             <tr>
-                                <th>Status</th>
-                                <th>Database</th>
-                                <th>Output File Path</th>
+                                <th data-bind="i18n: 'debugAdvancedRecordTransactionCommands:recordings.status'"></th>
+                                <th data-bind="i18n: 'debugAdvancedRecordTransactionCommands:recordings.database'"></th>
+                                <th data-bind="i18n: 'debugAdvancedRecordTransactionCommands:outputFilePath'"></th>
                             </tr>
                         </thead>
                         <tbody data-bind="foreach: runningTasks">
@@ -59,16 +59,16 @@
                                 <td>
                                     <div class="text-success" data-bind="visible: !inProgress()">
                                         <i class="icon-check"></i>
-                                        <span>Completed</span>
+                                        <span data-bind="i18n: 'debugAdvancedRecordTransactionCommands:recordings.completed'"></span>
                                     </div>
                                     <div class="flex-horizontal" data-bind="visible: inProgress()">
                                         <span class="btn-spinner margin-left margin-left-sm">
-                                            <i class=""></i> <span>Running</span>
+                                            <i class=""></i> <span data-bind="i18n: 'debugAdvancedRecordTransactionCommands:recordings.running'"></span>
                                         </span>
                                         <div class="flex-separator"></div>
                                         <button class="btn btn-danger btn-sm" data-bind="click: _.partial($root.stopRecording, databaseName)">
                                             <i class="icon-stop"></i>
-                                            <span>Stop</span>
+                                            <span data-bind="i18n: 'debugAdvancedRecordTransactionCommands:recordings.stop'"></span>
                                         </button>
                                     </div>
                                 </td>

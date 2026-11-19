@@ -22,6 +22,7 @@ import {
 import { ConnectionStringsUrlParameters } from "components/pages/database/settings/connectionStrings/ConnectionStrings";
 import { ConditionalPopover } from "components/common/ConditionalPopover";
 import FeatureNotAvailableInYourLicensePopoverBody from "components/common/FeatureNotAvailableInYourLicensePopoverBody";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 const allStudioEtlTypes = exhaustiveStringTuple<StudioConnectionType>()(
     "Ai",
@@ -40,6 +41,7 @@ const allStudioEtlTypes = exhaustiveStringTuple<StudioConnectionType>()(
 export default function ServerWideConnectionStrings({
     queryParams,
 }: ReactQueryParamsProps<ConnectionStringsUrlParameters>) {
+    const t = useStudioTranslation("serverWideConnectionStrings");
     const dispatch = useAppDispatch();
     const hasOperatorAccess = useAppSelector(accessManagerSelectors.isOperatorOrAbove);
     const hasServerWideConnectionStrings = useAppSelector(
@@ -71,7 +73,7 @@ export default function ServerWideConnectionStrings({
     if (loadStatus === "failure") {
         return (
             <LoadError
-                error="Unable to load server-wide connection strings"
+                error={t("loadError")}
                 refresh={() => dispatch(connectionStringsActions.fetchServerWideData())}
             />
         );
@@ -83,7 +85,7 @@ export default function ServerWideConnectionStrings({
             <Row className="gy-sm">
                 <Col>
                     <AboutViewHeading
-                        title="Server-Wide Connection Strings"
+                        title={t("title")}
                         icon="manage-connection-strings"
                         licenseBadgeText={hasServerWideConnectionStrings ? null : "Professional +"}
                     />
@@ -99,7 +101,7 @@ export default function ServerWideConnectionStrings({
                             disabled={!hasOperatorAccess || !hasServerWideConnectionStrings}
                         >
                             <Icon icon="plus" />
-                            Add a server-wide connection string
+                            {t("addButton")}
                         </Button>
                     </ConditionalPopover>
                     <div className={hasServerWideConnectionStrings ? null : "item-disabled pe-none"}>
@@ -115,6 +117,7 @@ export default function ServerWideConnectionStrings({
 }
 
 function ServerWideConnectionStringsBody() {
+    const t = useStudioTranslation("serverWideConnectionStrings");
     const hasOperatorAccess = useAppSelector(accessManagerSelectors.isOperatorOrAbove);
     const hasServerWideConnectionStrings = useAppSelector(
         licenseSelectors.statusValue("HasServerWideConnectionStrings")
@@ -130,7 +133,7 @@ function ServerWideConnectionStringsBody() {
             <LazyLoad active={isLoading} className="mt-2">
                 {isEmpty ? (
                     <div className="w-100">
-                        <EmptySet>No server-wide connection strings have been defined</EmptySet>
+                        <EmptySet>{t("empty")}</EmptySet>
                     </div>
                 ) : (
                     allStudioEtlTypes.map((type) => (

@@ -7,8 +7,10 @@ import Dropdown from "react-bootstrap/Dropdown";
 import { ConditionalPopover } from "components/common/ConditionalPopover";
 import { useEventsCollector } from "components/hooks/useEventsCollector";
 import endpoints from "endpoints";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 export default function CertificatesManageDropdown() {
+    const t = useStudioTranslation("certificates");
     const dispatch = useAppDispatch();
     const { reportEvent } = useEventsCollector();
     const exportServerCertFormRef = useRef<HTMLFormElement>(null);
@@ -17,36 +19,30 @@ export default function CertificatesManageDropdown() {
     return (
         <>
             <Dropdown>
-                <Dropdown.Toggle title="Manage user access" variant="primary" className="rounded-pill">
-                    Manage user access
+                <Dropdown.Toggle title={t("manage.toggle")} variant="primary" className="rounded-pill">
+                    {t("manage.toggle")}
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
-                    <Dropdown.Header className="small-label">SSO</Dropdown.Header>
+                    <Dropdown.Header className="small-label">{t("managementType.sso")}</Dropdown.Header>
                     <Dropdown.Item onClick={() => dispatch(certificatesActions.isRegisterSsoServerModalOpenToggled())}>
                         <Icon icon="certificate" addon="upload" />
-                        Register SSO server certificate
+                        {t("manage.registerSsoServer")}
                     </Dropdown.Item>
                     <Dropdown.Item onClick={() => dispatch(certificatesActions.isRegisterSsoUserModalOpenToggled())}>
                         <Icon icon="user" addon="plus" />
-                        Add SSO user
+                        {t("manage.addSsoUser")}
                     </Dropdown.Item>
                     <Dropdown.Divider />
-                    <Dropdown.Header className="small-label">Server</Dropdown.Header>
+                    <Dropdown.Header className="small-label">{t("managementType.server")}</Dropdown.Header>
                     <ConditionalPopover
                         conditions={[
                             {
                                 isActive: !hasClusterNodeCertificate,
-                                message: "You need to have a server certificate to export it",
+                                message: t("manage.exportNoServerCert"),
                             },
                             {
                                 isActive: true,
-                                message: (
-                                    <span>
-                                        Export the server certificate(s) without their private key into a .pfx file.
-                                        These certificates can be used during a manual cluster setup, when you need to
-                                        register server certificates to be trusted on other nodes.
-                                    </span>
-                                ),
+                                message: <span>{t("manage.exportInfo")}</span>,
                             },
                         ]}
                         popoverPlacement="right"
@@ -59,13 +55,13 @@ export default function CertificatesManageDropdown() {
                             disabled={!hasClusterNodeCertificate}
                         >
                             <Icon icon="download" />
-                            Export server certificates
+                            {t("manage.exportServerCerts")}
                         </Dropdown.Item>
                     </ConditionalPopover>
                     <ConditionalPopover
                         conditions={{
                             isActive: !hasClusterNodeCertificate,
-                            message: "You need to have a server certificate to replace it",
+                            message: t("manage.replaceNoServerCert"),
                         }}
                     >
                         <Dropdown.Item
@@ -73,18 +69,18 @@ export default function CertificatesManageDropdown() {
                             disabled={!hasClusterNodeCertificate}
                         >
                             <Icon icon="refresh" />
-                            Replace server certificates
+                            {t("manage.replaceServerCerts")}
                         </Dropdown.Item>
                     </ConditionalPopover>
                     <Dropdown.Divider />
-                    <Dropdown.Header className="small-label">Client</Dropdown.Header>
+                    <Dropdown.Header className="small-label">{t("managementType.client")}</Dropdown.Header>
                     <Dropdown.Item onClick={() => dispatch(certificatesActions.isGenerateModalOpenToggled())}>
                         <Icon icon="certificate" addon="plus" />
-                        Generate client certificate
+                        {t("manage.generateClientCert")}
                     </Dropdown.Item>
                     <Dropdown.Item onClick={() => dispatch(certificatesActions.isUploadModalOpenToggled())}>
                         <Icon icon="upload" />
-                        Upload client certificate
+                        {t("manage.uploadClientCert")}
                     </Dropdown.Item>
                 </Dropdown.Menu>
             </Dropdown>

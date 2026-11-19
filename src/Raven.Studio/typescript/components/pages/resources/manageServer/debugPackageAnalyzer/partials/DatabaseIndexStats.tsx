@@ -17,6 +17,8 @@ import { virtualTableUtils } from "components/common/virtualTable/utils/virtualT
 import { analyzerConstants } from "./analyzerConstants";
 import { formatNumber } from "./analyzerUtils";
 import SizeGetter from "components/common/SizeGetter";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import type { StudioTranslate } from "common/i18n/resources";
 
 type IndexStats = Raven.Client.Documents.Indexes.IndexStats;
 type IndexState = Raven.Client.Documents.Indexes.IndexState;
@@ -34,6 +36,7 @@ interface DatabaseIndexStatsWithSizeProps extends DatabaseIndexStatsProps {
 }
 
 function useIndexStatsColumns(availableWidth: number) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const bodyWidth = virtualTableUtils.getTableBodyWidth(
         availableWidth - analyzerConstants.panelHorizontalPaddingInPx
     );
@@ -42,53 +45,53 @@ function useIndexStatsColumns(availableWidth: number) {
         const getSize = virtualTableUtils.getCellSizeProvider(bodyWidth);
         return [
             {
-                header: "Index",
+                header: t("indexStats.columns.index"),
                 accessorKey: "Name",
                 cell: IndexNameCell,
                 size: getSize(28),
             },
             {
-                header: "State",
+                header: t("indexStats.columns.state"),
                 accessorKey: "State",
-                cell: ({ getValue }) => StateCell(getValue<IndexState>()),
+                cell: ({ getValue }) => StateCell(getValue<IndexState>(), t),
                 size: getSize(10),
             },
             {
-                header: "Priority",
+                header: t("indexStats.columns.priority"),
                 accessorKey: "Priority",
                 size: getSize(10),
             },
             {
-                header: "Type",
+                header: t("indexStats.columns.type"),
                 accessorKey: "Type",
                 size: getSize(13),
             },
             {
-                header: "Entries",
+                header: t("indexStats.columns.entries"),
                 accessorKey: "EntriesCount",
                 cell: ({ getValue }) => formatNumber(getValue<number>()),
                 size: getSize(9),
             },
             {
-                header: "Errors",
+                header: t("indexStats.columns.errors"),
                 accessorKey: "ErrorsCount",
                 cell: IndexErrorsCell,
                 size: getSize(9),
             },
             {
-                header: "Stale",
+                header: t("indexStats.columns.stale"),
                 id: "stale",
                 accessorFn: (index) => index.IsStale,
                 cell: IndexStaleCell,
                 size: getSize(10),
             },
             {
-                header: "Lock mode",
+                header: t("indexStats.columns.lockMode"),
                 accessorKey: "LockMode",
                 size: getSize(11),
             },
         ];
-    }, [bodyWidth]);
+    }, [bodyWidth, t]);
 
     return { indexStatsColumns };
 }
@@ -106,6 +109,7 @@ export default memo(function DatabaseIndexStats({ packageId, database, node }: D
 });
 
 function DatabaseIndexStatsWithSize({ packageId, database, node, width }: DatabaseIndexStatsWithSizeProps) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const { manageServerService } = useServices();
 
     const stats = useAsync(async () => {
@@ -136,19 +140,16 @@ function DatabaseIndexStatsWithSize({ packageId, database, node, width }: Databa
         <div className="database-index-stats">
             <div className="panel-bg-1 rounded">
                 <div className="p-4 vstack gap-3">
-                    <h3 className="m-0">Index Stats</h3>
+                    <h3 className="m-0">{t("indexStats.title")}</h3>
                     {stats.loading ? (
                         <div className="hstack gap-2 justify-content-center text-muted py-3">
-                            <Spinner size="sm" /> Loading indexes for node {node}...
+                            <Spinner size="sm" /> {t("indexStats.loading", { node })}
                         </div>
                     ) : stats.error ? (
-                        <RichAlert variant="danger">
-                            Could not load index stats for node {node}. The package may not contain index data for this
-                            database, or the report expired.
-                        </RichAlert>
+                        <RichAlert variant="danger">{t("indexStats.loadError", { node })}</RichAlert>
                     ) : indexes.length === 0 ? (
                         <EmptySet compact className="justify-content-center">
-                            No indexes for {database} on node {node}
+                            {t("indexStats.empty", { database, node })}
                         </EmptySet>
                     ) : (
                         <VirtualTable table={table} heightInPx={heightInPx} />
@@ -174,39 +175,40 @@ function IndexErrorsCell({ row }: { row: { original: IndexStats } }) {
 }
 
 function IndexStaleCell({ getValue }: { getValue: () => unknown }) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     return getValue() ? (
         <span className="hstack gap-1 text-warning">
-            <Icon icon="warning" margin="m-0" /> Stale
+            <Icon icon="warning" margin="m-0" /> {t("indexStats.stale")}
         </span>
     ) : (
-        "Up to date"
+        t("indexStats.upToDate")
     );
 }
 
-function StateCell(state: IndexState) {
+function StateCell(state: IndexState, t: StudioTranslate<"debugPackageAnalyzer">) {
     switch (state) {
         case "Error":
             return (
                 <span className="hstack gap-1 text-danger">
-                    <Icon icon="danger" margin="m-0" /> Error
+                    <Icon icon="danger" margin="m-0" /> {t("indexStats.states.error")}
                 </span>
             );
         case "Disabled":
             return (
                 <span className="hstack gap-1 text-warning">
-                    <Icon icon="cancel" margin="m-0" /> Disabled
+                    <Icon icon="cancel" margin="m-0" /> {t("indexStats.states.disabled")}
                 </span>
             );
         case "Idle":
             return (
                 <span className="hstack gap-1 text-muted">
-                    <Icon icon="clock" margin="m-0" /> Idle
+                    <Icon icon="clock" margin="m-0" /> {t("indexStats.states.idle")}
                 </span>
             );
         default:
             return (
                 <span className="hstack gap-1 text-success">
-                    <Icon icon="check" margin="m-0" /> Normal
+                    <Icon icon="check" margin="m-0" /> {t("indexStats.states.normal")}
                 </span>
             );
     }

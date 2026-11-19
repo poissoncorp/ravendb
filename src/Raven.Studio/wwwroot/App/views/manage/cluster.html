@@ -3,25 +3,25 @@
         <div class="col-sm-12 col-xl-6 flex-vertical flex-shrink-0">
             <div class="flex-header flex-horizontal">
                 <div>
-                    <button data-bind="click: addNode, enable: canAddNodes, visible: accessManager.isClusterAdminOrClusterNode" class="btn btn-primary"><i class="icon-plus"></i><span>Add Node to Cluster</span></button>
-                    <button data-bind="click: bootstrapCluster, visible: canBootstrapCluster, css: { 'btn-spinner': $root.spinners.bootstrap }, disable: $root.spinners.bootstrap"
-                            class="btn btn-primary" title="Click to initialize cluster"><i class="icon-cluster"></i><span>Bootstrap cluster</span></button>
+                    <button data-bind="click: addNode, enable: canAddNodes, visible: accessManager.isClusterAdminOrClusterNode" class="btn btn-primary"><i class="icon-plus"></i><span data-bind="i18n: 'manageCluster:addNode'"></span></button>
+                    <button data-bind="click: bootstrapCluster, visible: canBootstrapCluster, css: { 'btn-spinner': $root.spinners.bootstrap }, disable: $root.spinners.bootstrap, i18nAttr: { title: 'manageCluster:bootstrapTitle' }"
+                            class="btn btn-primary"><i class="icon-cluster"></i><span data-bind="i18n: 'manageCluster:bootstrap'"></span></button>
                 </div>
                 <div class="flex-separator"></div>
                 <div class="flex-end text-muted resources" data-bind="if: utilizedCores() > 0, visible: accessManager.isClusterAdminOrClusterNode">
-                    <div class="text-center"><small>Available cores:</small></div>
+                    <div class="text-center"><small data-bind="i18n: 'manageCluster:cores.available'"></small></div>
                     <div class="text-center">
                         <small>
-                            Assigned: <strong data-bind="text: utilizedCores, css: cssCores" data-toggle="tooltip" title="Total assigned CPU cores" data-animation="true"></strong>
-                            / Licensed: <strong data-bind="text: maxCores" data-toggle="tooltip" title="Total licensed cores" data-animation="true"></strong>
+                            <span data-bind="i18n: 'manageCluster:cores.assigned'"></span> <strong data-bind="text: utilizedCores, css: cssCores, i18nAttr: { title: 'manageCluster:cores.assignedTitle' }" data-toggle="tooltip" data-animation="true"></strong>
+                            / <span data-bind="i18n: 'manageCluster:cores.licensed'"></span> <strong data-bind="text: maxCores, i18nAttr: { title: 'manageCluster:cores.licensedTitle' }" data-toggle="tooltip" data-animation="true"></strong>
                             <span data-bind="if: totalServersCores() > maxCores()">
-                                / Cluster <strong data-bind="text: totalServersCores" data-toggle="tooltip" title="Total cores in the cluster" data-animation="true"></strong>
+                                / <span data-bind="i18n: 'manageCluster:cores.cluster'"></span> <strong data-bind="text: totalServersCores, i18nAttr: { title: 'manageCluster:cores.clusterTitle' }" data-toggle="tooltip" data-animation="true"></strong>
                             </span> 
                         </small>
                     </div>
                 </div>
                 <div class="flex-end text-muted resources">
-                    <div class="text-center"><small>Term:</small></div>
+                    <div class="text-center"><small data-bind="i18n: 'manageCluster:term'"></small></div>
                     <div class="text-center">
                         <small><strong data-bind="text: topology().currentTerm().toLocaleString()"></strong></small>
                     </div>
@@ -30,13 +30,13 @@
             <div data-bind="visible: topology().isPassive()">
                 <div class="passive-node-info bg-info margin-top border-radius-xs">
                     <div class="padding">
-                        <p class="lead margin-bottom-sm">The running server is in a <strong>Passive State</strong>, it is not part of a cluster yet.</p>
-                        <p>Either one of the following can be done to <strong>Bootstrap a Cluster</strong>:</p>
+                        <p class="lead margin-bottom-sm" data-bind="html: passiveStateHtml"></p>
+                        <p data-bind="html: bootstrapOptionsHtml"></p>
                         <ul>
-                            <li>Create a new database</li>
-                            <li>Bootstrap the cluster (see button above)</li>
-                            <li>Add another node (see button above), resulting in both nodes being part of the cluster</li>
-                            <li>Register a license (if not registered yet) in the <a target="_blank" data-bind="attr: { href: aboutViewUrl }">About View</a></li>
+                            <li data-bind="i18n: 'manageCluster:passive.createDatabase'"></li>
+                            <li data-bind="i18n: 'manageCluster:passive.bootstrapCluster'"></li>
+                            <li data-bind="i18n: 'manageCluster:passive.addNode'"></li>
+                            <li data-bind="html: registerLicenseHtml"></li>
                         </ul>
                     </div>
                 </div>
@@ -47,73 +47,73 @@
                     <div class="padding-sm gap-2 hstack flex-wrap">
                         <div class="info-container hstack gap-2">
                                 <div class="node flex-grow">
-                                    <h5>TAG</h5>
+                                    <h5 data-bind="i18n: 'manageCluster:node.tag'"></h5>
                                     <div class="flex-horizontal">
                                         <div>
                                             <h3>
                                                 <a class="destination-name" data-bind="attr: { href: serverUrl }" target="_blank">
                                                     <i data-bind="attr : { class: $root.topology().nodeTag() === tag() ? 'icon-home' : 'icon-cluster-node' }"></i>
-                                                    <span data-bind="text: 'Node ' + tag()"></span>
+                                                    <span data-bind="i18n: { key: 'manageCluster:node.name', options: { nodeTag: tag } }"></span>
                                                 </a>
                                             </h3>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="node-type">
-                                    <h5>TYPE</h5>
+                                    <h5 data-bind="i18n: 'manageCluster:node.type'"></h5>
                                     <h3 data-bind="visible: $root.topology().leader() === tag()">
-                                        <i title="Leader" class="icon-node-leader"></i> <span>Leader</span>
+                                        <i class="icon-node-leader" data-bind="i18nAttr: { title: 'manageCluster:nodeTypes.leader' }"></i> <span data-bind="i18n: 'manageCluster:nodeTypes.leader'"></span>
                                     </h3>
                                     <h3 data-bind="visible: $root.topology().leader() !== tag()">
-                                        <i data-bind="attr: { class: cssIcon, title: type }" ></i> <span data-bind="text: type"></span>
+                                        <i data-bind="attr: { class: cssIcon, title: $root.nodeTypeLabel(type()) }" ></i> <span data-bind="text: $root.nodeTypeLabel(type())"></span>
                                     </h3>
                                 </div>
                         </div>
                         <div class="actions-container flex-grow">
                             <div class="actions">
-                                <button class="btn btn-default" title="Promote watcher to become member/promotable" 
+                                <button class="btn btn-default"
                                         data-bind="click: _.partial($parent.promote, $data), css: { 'btn-spinner': _.includes($root.spinners.promote(), tag()) }, 
-                                                   disable: _.includes($root.spinners.promote(), tag()), visible: createCanBePromotedObservable($root.topology)" >
-                                    <i class="icon-promote"></i> <span>Promote</span>
+                                                   disable: _.includes($root.spinners.promote(), tag()), visible: createCanBePromotedObservable($root.topology), i18nAttr: { title: 'manageCluster:node.promoteTitle' }" >
+                                    <i class="icon-promote"></i> <span data-bind="i18n: 'manageCluster:node.promote'"></span>
                                 </button>
-                                <button class="btn btn-default" title="Demote cluster node to watcher" 
+                                <button class="btn btn-default"
                                         data-bind="click: _.partial($parent.demote, $data), css: { 'btn-spinner': _.includes($root.spinners.demote(), tag()) }, 
-                                                   disable: _.includes($root.spinners.demote(), tag()), visible: createCanBeDemotedObservable($root.topology)" >
-                                    <i class="icon-demote"></i> <span>Demote</span>
+                                                   disable: _.includes($root.spinners.demote(), tag()), visible: createCanBeDemotedObservable($root.topology), i18nAttr: { title: 'manageCluster:node.demoteTitle' }" >
+                                    <i class="icon-demote"></i> <span data-bind="i18n: 'manageCluster:node.demote'"></span>
                                 </button>
                                 <div class="btn-group" data-bind="visible: $root.isOperatorOrAbove">
                                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" 
                                             data-bind="enable: connected() && !isPassive()">
-                                        <span>Operations</span>
+                                        <span data-bind="i18n: 'manageCluster:node.operations'"></span>
                                         <span class="caret"></span>
-                                        <span class="sr-only">Toggle Dropdown</span>
+                                        <span class="sr-only" data-bind="i18n: 'manageCluster:node.toggleDropdown'"></span>
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-right">
                                         <li data-bind="click: _.partial($parent.assignCores, $data), visible: $root.isClusterAdminOrClusterNode">
                                             <a href="#">
                                                 <i class="icon-reassign-cores"></i>
-                                                <span>Reassign cores</span>
+                                                <span data-bind="i18n: 'manageCluster:node.reassignCores'"></span>
                                             </a>
                                         </li>
                                         <li data-bind="click: _.partial($parent.stepDown, $data), visible: $root.topology().leader() === tag() && $root.canStepDown(),
                                                        css: { 'disabled-area' : $root.spinners.stepdown() }">
                                             <a href="#" data-bind="css: { 'btn-spinner': $root.spinners.stepdown }">
                                                 <i class="icon-stepdown"></i>
-                                                <span>Step down</span>
+                                                <span data-bind="i18n: 'manageCluster:node.stepDown'"></span>
                                             </a>
                                         </li>
                                         <li data-bind="click: _.partial($parent.forceTimeout, $data), css: { 'disabled-area' : $root.spinners.forceTimeout }">
                                             <a href="#" data-bind="css: { 'btn-spinner': $root.spinners.forceTimeout }">
                                                 <i class="icon-waiting"></i>
-                                                <span>Force timeout</span>
+                                                <span data-bind="i18n: 'manageCluster:node.forceTimeout'"></span>
                                             </a>
                                         </li>
                                     </ul>
                                 </div>
                                 <button class="btn btn-danger" 
                                         data-bind="click: _.partial($parent.deleteNode, $data), enable: $root.canDeleteNodes() && !_.includes($root.spinners.delete(), tag()),
-                                                   css: { 'btn-spinner': _.includes($root.spinners.delete(), tag()) }, visible: $root.accessManager.isClusterAdminOrClusterNode" 
-                                        title="Remove node from cluster">
+                                                   css: { 'btn-spinner': _.includes($root.spinners.delete(), tag()) }, visible: $root.accessManager.isClusterAdminOrClusterNode,
+                                                   i18nAttr: { title: 'manageCluster:node.removeTitle' }">
                                     <i class="icon-trash"></i>
                                 </button>
                             </div>
@@ -123,31 +123,31 @@
                         <div class="padding-sm">
                             <div class="hstack gap-4 flex-wrap">
                                 <div class="address">
-                                    <h5>ADDRESS</h5>
+                                    <h5 data-bind="i18n: 'manageCluster:node.address'"></h5>
                                     <a target="_blank" data-bind="attr: { href: serverUrl }"><span data-bind="text: serverUrl"></span></a>
                                 </div>
                                 <div class="cores" data-bind="if: utilizedCores">
-                                    <h5><i class="icon-processor"></i> &nbsp; CORES</h5>
-                                    <strong data-bind="text: utilizedCores, css: cssCores, tooltipText: 'Assigned CPU cores limit'" data-toggle="tooltip" data-animation="true"></strong>
+                                    <h5><i class="icon-processor"></i> &nbsp; <span data-bind="i18n: 'manageCluster:node.cores'"></span></h5>
+                                    <strong data-bind="text: utilizedCores, css: cssCores, tooltipText: $root.assignedCoresLimitTitle" data-toggle="tooltip" data-animation="true"></strong>
                                     <span data-bind="if: numberOfCores() && utilizedCores() != -1">
-                                        <span data-bind="numberOfCores() > 0">/ <strong data-bind="text: numberOfCores, tooltipText: 'Total CPU cores count'" data-toggle="tooltip" data-animation="true"></strong></span>
+                                        <span data-bind="numberOfCores() > 0">/ <strong data-bind="text: numberOfCores, tooltipText: $root.totalCoresTitle" data-toggle="tooltip" data-animation="true"></strong></span>
                                     </span>
                                 </div>
                                 <div class="memory" data-bind="if: installedMemoryInGb">
-                                    <h5><i class="icon-memory"></i> &nbsp; MEMORY</h5>
+                                    <h5><i class="icon-memory"></i> &nbsp; <span data-bind="i18n: 'manageCluster:node.memory'"></span></h5>
                                     <strong class="text-emphasis" data-toggle="tooltip" data-html="true" data-bind="tooltipText: memoryTitle " data-animation="true" data-placement="bottom">
-                                        <span data-bind="text: utilizedMemoryInGb"></span>GB
+                                        <span data-bind="i18n: { key: 'manageCluster:node.memoryInGb', options: { value: utilizedMemoryInGb } }"></span>
                                     </strong>
                                     <span data-bind="if: installedMemoryInGb() && installedMemoryInGb() != -1">
-                                        / <strong data-toggle="tooltip" data-animation="true" data-bind="tooltipText: 'Total memory installed on machine'"><span data-bind="text: installedMemory"></span>GB</strong>
+                                        / <strong data-toggle="tooltip" data-animation="true" data-bind="tooltipText: $root.installedMemoryTitle"><span data-bind="i18n: { key: 'manageCluster:node.memoryInGb', options: { value: installedMemory } }"></span></strong>
                                     </span>
                                 </div>
                                 <div class="serverVersion" data-bind="if: nodeServerVersion">
-                                    <h5><i class="icon-server"></i> &nbsp; VERSION</h5>
-                                    <strong class="text-emphasis" data-toggle="tooltip" data-bind="text: nodeServerVersion, tooltipText: 'Server version installed on this node: ' + nodeServerVersion()" data-animation="true"></strong>
+                                    <h5><i class="icon-server"></i> &nbsp; <span data-bind="i18n: 'manageCluster:node.version'"></span></h5>
+                                    <strong class="text-emphasis" data-toggle="tooltip" data-bind="text: nodeServerVersion, tooltipText: $root.serverVersionTitle(nodeServerVersion())" data-animation="true"></strong>
                                 </div>
                                 <div class="os text-center" data-bind="if: osFullName">
-                                    <h5>OS</h5>
+                                    <h5 data-bind="i18n: 'manageCluster:node.os'"></h5>
                                     <strong class="text-emphasis" data-toggle="tooltip" data-html="true" data-bind="tooltipText: osTitle" data-animation="true">
                                         <i data-bind="attr: { class: osIcon }"></i>
                                     </strong>
@@ -157,11 +157,11 @@
                         <div data-bind="visible: $root.topology().anyErrorsEncountered">
                             <div class="flex-horizontal bg-danger" data-bind="visible: errorDetailsShort">
                                 <div class="margin margin-left text-danger">
-                                    Error: <span data-bind="text: errorDetailsShort"></span>
+                                    <span data-bind="i18n: { key: 'manageCluster:node.error', options: { error: errorDetailsShort } }"></span>
                                 </div>
                                 <div class="flex-separator"></div>
                                 <span class="margin margin-right" data-bind="visible: errorDetailsShort() !== errorDetails()">
-                                    <a href="#" data-bind="click: _.partial($root.showErrorDetails, tag())"><small>Show details</small></a>
+                                    <a href="#" data-bind="click: _.partial($root.showErrorDetails, tag())"><small data-bind="i18n: 'manageCluster:node.showDetails'"></small></a>
                                 </span>
                             </div>
                             <div data-bind="visible: !errorDetailsShort()">
@@ -174,17 +174,17 @@
         </div>
         <div class="col-sm-12 col-xl-6 flex-vertical">
             <div class="flex-horizontal flex-header">
-                <div></div><h3>Cluster Topology</h3>
+                <div></div><h3 data-bind="i18n: 'manageCluster:topology.title'"></h3>
                 <div class="flex-separator"></div>
                 <div>
-                    <small title="Go to cluster debug view" class="margin-right-sm">
+                    <small class="margin-right-sm" data-bind="i18nAttr: { title: 'manageCluster:topology.clusterDebugTitle' }">
                         <a data-bind="attr: { href: clusterDebugUrl() }">
-                            <i class="icon-link"></i><span>Cluster Debug</span>
+                            <i class="icon-link"></i><span data-bind="i18n: 'manageCluster:topology.clusterDebug'"></span>
                         </a>
                     </small>
-                    <small title="Go to cluster view documentation">
+                    <small data-bind="i18nAttr: { title: 'manageCluster:topology.guideTitle' }">
                         <a target="_blank" data-bind="attr: { href: 'https://ravendb.net/l/8PH7KR/' + $root.clientVersion() }">
-                            <i class="icon-link"></i><span>Cluster guide</span>
+                            <i class="icon-link"></i><span data-bind="i18n: 'manageCluster:topology.guide'"></span>
                         </a>
                     </small>
                 </div>
@@ -202,24 +202,24 @@
             <div class="panel flex-grow" id="clusterGraphContainer">
             </div>
             <div class="panel legend">
-                <h5>LEGEND:</h5>
+                <h5 data-bind="i18n: 'manageCluster:legend.title'"></h5>
                 <div class="hstack gap-4 flex-wrap">
                     
                     <div>
-                        <h5>NODE TYPE</h5>
+                        <h5 data-bind="i18n: 'manageCluster:legend.nodeType'"></h5>
                         <div class="hstack gap-2">
-                            <span ><i class="icon-crown"></i><span>Leader</span></span>
-                            <span ><i class="icon-cluster-watcher"></i><span>Watcher</span></span>
+                            <span ><i class="icon-crown"></i><span data-bind="i18n: 'manageCluster:nodeTypes.leader'"></span></span>
+                            <span ><i class="icon-cluster-watcher"></i><span data-bind="i18n: 'manageCluster:nodeTypes.watcher'"></span></span>
                         </div>
                         <div class="hstack gap-2">
-                            <span ><i class="icon-cluster-member"></i><span>Member</span></span>
-                            <span ><i class="icon-cluster-promotable"></i><span>Promotable</span></span>
+                            <span ><i class="icon-cluster-member"></i><span data-bind="i18n: 'manageCluster:nodeTypes.member'"></span></span>
+                            <span ><i class="icon-cluster-promotable"></i><span data-bind="i18n: 'manageCluster:nodeTypes.promotable'"></span></span>
                         </div>
                     </div>
                     <div>
-                        <h5>CONNECTION STATUS</h5>
-                        <div><i class="icon-arrow text-success"></i> <span>Active Connection</span></div>
-                        <div><i class="icon-arrow-dashed text-danger"></i> <span>Broken Connection</span></div>
+                        <h5 data-bind="i18n: 'manageCluster:legend.connectionStatus'"></h5>
+                        <div><i class="icon-arrow text-success"></i> <span data-bind="i18n: 'manageCluster:legend.activeConnection'"></span></div>
+                        <div><i class="icon-arrow-dashed text-danger"></i> <span data-bind="i18n: 'manageCluster:legend.brokenConnection'"></span></div>
                     </div>
                 </div>
             </div>

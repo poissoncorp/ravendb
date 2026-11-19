@@ -17,6 +17,7 @@ import VirtualTable from "components/common/virtualTable/VirtualTable";
 import { virtualTableUtils } from "components/common/virtualTable/utils/virtualTableUtils";
 import { analyzerConstants } from "./analyzerConstants";
 import SizeGetter from "components/common/SizeGetter";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 import "./AnalysisResults.scss";
 
 type DebugPackageAnalysisSummary = Raven.Server.Documents.Handlers.Debugging.DebugPackage.DebugPackageAnalysisSummary;
@@ -41,6 +42,7 @@ interface ObserverBodyProps {
 }
 
 function ObserverBody({ results, width }: ObserverBodyProps) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     // fulfilled nodes, ranked so the node that actually captured decisions (the leader) is the default
     const ranked = useMemo(
         () =>
@@ -89,39 +91,45 @@ function ObserverBody({ results, width }: ObserverBodyProps) {
             <div className="hstack gap-2 flex-wrap">
                 <StatTile
                     className="flex-fill"
-                    label="Leader node"
+                    label={t("clusterObserverDecisions.stats.leaderNode")}
                     icon="node-leader"
                     iconColor="node"
-                    value={decisions?.LeaderNode ? <span>{decisions.LeaderNode}</span> : "n/a"}
+                    value={decisions?.LeaderNode ? <span>{decisions.LeaderNode}</span> : t("notAvailable")}
                 />
                 <StatTile
                     className="flex-fill"
-                    label="Term"
+                    label={t("clusterObserverDecisions.stats.term")}
                     icon="document"
-                    value={decisions?.Term?.toLocaleString() ?? "n/a"}
+                    value={decisions?.Term?.toLocaleString() ?? t("notAvailable")}
                 />
                 <StatTile
                     className="flex-fill"
-                    label="Iteration"
+                    label={t("clusterObserverDecisions.stats.iteration")}
                     icon="refresh"
-                    value={decisions?.Iteration?.toLocaleString() ?? "n/a"}
+                    value={decisions?.Iteration?.toLocaleString() ?? t("notAvailable")}
                 />
                 <StatTile
                     className="flex-fill"
-                    label="Observer"
+                    label={t("clusterObserverDecisions.stats.observer")}
                     icon="play"
                     iconColor={decisions?.Suspended ? "warning" : "success"}
-                    value={decisions?.Suspended ? "Suspended" : "Running"}
+                    value={
+                        decisions?.Suspended
+                            ? t("clusterObserverDecisions.stats.suspended")
+                            : t("clusterObserverDecisions.stats.running")
+                    }
                     valueColor={decisions?.Suspended ? "warning" : "success"}
                 />
             </div>
 
             <div className="vstack gap-2">
                 <div className="hstack gap-2 align-items-center flex-wrap">
-                    <h4 className="m-0">Decisions log</h4>
+                    <h4 className="m-0">{t("clusterObserverDecisions.log.title")}</h4>
                     {totalEntries > maxObserverEntriesShown && (
                         <span className="small-label text-muted">
-                            latest {maxObserverEntriesShown.toLocaleString()} shown
+                            {t("clusterObserverDecisions.log.latestShown", {
+                                limit: maxObserverEntriesShown.toLocaleString(),
+                            })}
                         </span>
                     )}
                 </div>
@@ -129,7 +137,7 @@ function ObserverBody({ results, width }: ObserverBodyProps) {
                     <SegmentedControl
                         items={ranked.map((result) => ({
                             value: result.nodeTag,
-                            label: `Node ${result.nodeTag}`,
+                            label: t("nodeName", { nodeTag: result.nodeTag }),
                             count: result.decisions.ObserverLog?.length ?? 0,
                         }))}
                         selected={selectedNode}
@@ -139,7 +147,7 @@ function ObserverBody({ results, width }: ObserverBodyProps) {
 
                 {logEntries.length === 0 ? (
                     <EmptySet compact className="justify-content-center">
-                        No observer decisions captured for this node
+                        {t("clusterObserverDecisions.log.empty")}
                     </EmptySet>
                 ) : (
                     <VirtualTable table={table} heightInPx={heightInPx} />
@@ -152,6 +160,7 @@ function ObserverBody({ results, width }: ObserverBodyProps) {
 // The exported component passes width down so ObserverBody can size its table columns proportionally.
 // ClusterObserverDecisions itself doesn't render a table directly, so SizeGetter wraps ObserverBody.
 export default function ClusterObserverDecisions({ summary }: ClusterObserverDecisionsProps) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const { manageServerService } = useServices();
     const packageId = summary.PackageId;
     const nodeTags = useMemo(() => Object.keys(summary.SummaryPerNode ?? {}).sort(), [summary]);
@@ -175,14 +184,14 @@ export default function ClusterObserverDecisions({ summary }: ClusterObserverDec
     return (
         <div className="panel-bg-1 rounded cluster-observer-decisions">
             <div className="p-4">
-                <h3 className="mb-3">Cluster Observer Decisions</h3>
+                <h3 className="mb-3">{t("clusterObserverDecisions.title")}</h3>
                 {observer.loading ? (
                     <div className="hstack gap-2 justify-content-center text-muted py-3">
-                        <Spinner size="sm" data-testid="loader" /> Loading cluster observer decisions...
+                        <Spinner size="sm" data-testid="loader" /> {t("clusterObserverDecisions.loading")}
                     </div>
                 ) : !hasAnyDecisions ? (
                     <EmptySet compact className="justify-content-center">
-                        No cluster observer decisions in the package
+                        {t("clusterObserverDecisions.empty")}
                     </EmptySet>
                 ) : (
                     <SizeGetter render={({ width }) => <ObserverBody results={results} width={width} />} />
@@ -193,13 +202,14 @@ export default function ClusterObserverDecisions({ summary }: ClusterObserverDec
 }
 
 function useLogColumns(availableWidth: number) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const bodyWidth = virtualTableUtils.getTableBodyWidth(availableWidth);
     const getSize = useMemo(() => virtualTableUtils.getCellSizeProvider(bodyWidth), [bodyWidth]);
 
     const logColumns: ColumnDef<ClusterObserverLogEntry>[] = useMemo(
         () => [
             {
-                header: "Date",
+                header: t("clusterObserverDecisions.log.columns.date"),
                 accessorKey: "Date",
                 enableColumnFilter: false,
                 cell: ({ getValue }) => {
@@ -209,7 +219,7 @@ function useLogColumns(availableWidth: number) {
                 size: getSize(20),
             },
             {
-                header: "Database",
+                header: t("clusterObserverDecisions.log.columns.database"),
                 accessorKey: "Database",
                 cell: ({ getValue }) => {
                     const v = getValue<string>();
@@ -218,7 +228,7 @@ function useLogColumns(availableWidth: number) {
                 size: getSize(20),
             },
             {
-                header: "Message",
+                header: t("clusterObserverDecisions.log.columns.message"),
                 accessorKey: "Message",
                 cell: ({ getValue }) => {
                     const v = getValue<string>();
@@ -227,7 +237,7 @@ function useLogColumns(availableWidth: number) {
                 size: getSize(60),
             },
         ],
-        [getSize]
+        [getSize, t]
     );
 
     return { logColumns };

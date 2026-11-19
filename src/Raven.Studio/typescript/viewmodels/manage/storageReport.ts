@@ -10,7 +10,10 @@ import databaseStorageReportItem = require("models/database/status/databaseStora
 import storageReportSort = require("models/database/status/storageReportSort");
 import router = require("plugins/router");
 import d3 = require("d3");
+import i18nModule = require("common/i18n/i18n");
 import StudioDatabaseState = Raven.Server.Web.System.Processors.Studio.StudioDatabasesHandlerForGetDatabasesState.StudioDatabaseState;
+
+const t = i18nModule.createTranslator("serverStorageReport");
 
 type positionAndSizes = {
     dx: number,
@@ -72,7 +75,7 @@ class storageReport extends viewModelBase {
                 result => {
                     this.databaseStates = result.Databases;
                 },
-                (response: JQueryXHR) => messagePublisher.reportError("Failed to load databases", response.responseText, response.statusText)
+                (response: JQueryXHR) => messagePublisher.reportError(t("loadDatabasesError"), response.responseText, response.statusText)
             );
 
         return $.when<any>(systemReportTask, databaseStatesTask);
@@ -162,10 +165,10 @@ class storageReport extends viewModelBase {
     private mapDataFile(report: Voron.Debugging.DetailedStorageReport): storageReportItem {
         const dataFile = report.DataFile;
 
-        const d = new storageReportItem("Datafile", "data", false, dataFile.AllocatedSpaceInBytes);
+        const d = new storageReportItem(t("items.datafile"), "data", false, dataFile.AllocatedSpaceInBytes);
         const tables = this.mapTables(report.Tables);
-        const trees = this.mapTrees(report.Trees, "Trees");
-        const freeSpace = new storageReportItem("Free", "free", false, report.DataFile.FreeSpaceInBytes, []);
+        const trees = this.mapTrees(report.Trees, t("items.trees"), "trees");
+        const freeSpace = new storageReportItem(t("items.free"), "free", false, report.DataFile.FreeSpaceInBytes, []);
         const preallocatedBuffers = this.mapPreAllocatedBuffers(report.PreAllocatedBuffers);
 
         d.internalChildren = [tables, trees, freeSpace, preallocatedBuffers];
@@ -175,17 +178,19 @@ class storageReport extends viewModelBase {
 
     private mapPreAllocatedBuffers(buffersReport: Voron.Debugging.PreAllocatedBuffersReport): storageReportItem {
         const allocationTree = this.mapTree(buffersReport.AllocationTree);
-        const buffersSpace = new storageReportItem("Pre Allocated Buffers Space", "reserved", false, buffersReport.PreAllocatedBuffersSpaceInBytes);
+        const buffersSpace = new storageReportItem(t("items.preAllocatedBuffersSpace"), "reserved", false, buffersReport.PreAllocatedBuffersSpaceInBytes);
         buffersSpace.pageCount = buffersReport.NumberOfPreAllocatedPages;
 
-        const preAllocatedBuffers = new storageReportItem("Pre Allocated Buffers", "reserved", false, buffersReport.AllocatedSpaceInBytes, [allocationTree, buffersSpace]);
+        const preAllocatedBuffers = new storageReportItem(t("items.preAllocatedBuffers"), "reserved", false, buffersReport.AllocatedSpaceInBytes, [allocationTree, buffersSpace]);
         preAllocatedBuffers.customSizeProvider = (header: boolean) => {
             const allocatedSizeFormatted = generalUtils.formatBytesToSize(buffersReport.AllocatedSpaceInBytes);
             if (header) {
                 return allocatedSizeFormatted;
             }
             const originalSizeFormatted = generalUtils.formatBytesToSize(buffersReport.OriginallyAllocatedSpaceInBytes);
-            return `<span title="${allocatedSizeFormatted} available out of ${originalSizeFormatted} reserved">${allocatedSizeFormatted} (out of ${originalSizeFormatted})</span>`;
+            const sizeOptions = { allocatedSize: allocatedSizeFormatted, originalSize: originalSizeFormatted };
+            const title = generalUtils.escapeHtml(t("size.preAllocatedTitle", sizeOptions));
+            return `<span title="${title}">${generalUtils.escapeHtml(t("size.preAllocated", sizeOptions))}</span>`;
         };
         return preAllocatedBuffers;
     }
@@ -193,14 +198,14 @@ class storageReport extends viewModelBase {
     private mapTables(tables: Voron.Data.Tables.TableReport[]): storageReportItem {
         const mappedTables = tables.map(x => this.mapTable(x));
 
-        return new storageReportItem("Tables", "tables", false, mappedTables.reduce((p, c) => p + c.size, 0), mappedTables);
+        return new storageReportItem(t("items.tables"), "tables", false, mappedTables.reduce((p, c) => p + c.size, 0), mappedTables);
     }
 
     private mapTable(table: Voron.Data.Tables.TableReport): storageReportItem {
-        const structure = this.mapTrees(table.Structure, "Structure");
+        const structure = this.mapTrees(table.Structure, t("items.structure"), "structure");
 
-        const data = new storageReportItem("Table Data", "table_data", false, table.DataSizeInBytes, []);
-        const indexes = this.mapTrees(table.Indexes, "Indexes");
+        const data = new storageReportItem(t("items.tableData"), "table_data", false, table.DataSizeInBytes, []);
+        const indexes = this.mapTrees(table.Indexes, t("items.indexes"), "indexes");
 
         const preallocatedBuffers = this.mapPreAllocatedBuffers(table.PreAllocatedBuffers);
 
@@ -218,8 +223,8 @@ class storageReport extends viewModelBase {
         return tableItem;
     }
 
-    private mapTrees(trees: Voron.Debugging.TreeReport[], name: string): storageReportItem {
-        return new storageReportItem(name, name.toLowerCase(), false, trees.reduce((p, c) => p + c.AllocatedSpaceInBytes, 0), trees.map(x => this.mapTree(x)));
+    private mapTrees(trees: Voron.Debugging.TreeReport[], name: string, type: string): storageReportItem {
+        return new storageReportItem(name, type, false, trees.reduce((p, c) => p + c.AllocatedSpaceInBytes, 0), trees.map(x => this.mapTree(x)));
     }
 
     private mapTree(tree: Voron.Debugging.TreeReport): storageReportItem {
@@ -239,7 +244,8 @@ class storageReport extends viewModelBase {
                 return allocatedSizeFormatted;
             }
             const length = generalUtils.formatBytesToSize(stream.Length);
-            return `<span title="stream length: ${length} / total allocation: ${allocatedSizeFormatted}">${length} / ${allocatedSizeFormatted}</span>`;
+            const title = generalUtils.escapeHtml(t("size.streamTitle", { length, allocatedSize: allocatedSizeFormatted }));
+            return `<span title="${title}">${length} / ${allocatedSizeFormatted}</span>`;
         }
 
         return item;
@@ -250,14 +256,14 @@ class storageReport extends viewModelBase {
 
         const mappedJournals = journals.map(journal => 
             new storageReportItem(
-                "Journal #" + journal.Number,
+                t("items.journal", { number: journal.Number }),
                 "journal",
                 false,
                 journal.AllocatedSpaceInBytes,
                 []
             ));
 
-        return new storageReportItem("Journals", "journals", false, mappedJournals.reduce((p, c) => p + c.size, 0), mappedJournals);
+        return new storageReportItem(t("items.journals"), "journals", false, mappedJournals.reduce((p, c) => p + c.size, 0), mappedJournals);
     }
     
     private mapTempFiles(report: Voron.Debugging.DetailedStorageReport): storageReportItem {
@@ -277,7 +283,7 @@ class storageReport extends viewModelBase {
             return item;
         });
 
-        return new storageReportItem("Temporary Files", "tempFiles", false, mappedTemps.reduce((p, c) => p + c.size, 0), mappedTemps);
+        return new storageReportItem(t("items.temporaryFiles"), "tempFiles", false, mappedTemps.reduce((p, c) => p + c.size, 0), mappedTemps);
     }
 
     private initGraph() {
@@ -516,14 +522,14 @@ class storageReport extends viewModelBase {
         this.tooltip.transition()
             .duration(200)
             .style("opacity", 1);
-        let html = "<span class='name'>Name: " + d.name + "</span>";
+        let html = "<span class='name'>" + t("tooltip.name", { name: generalUtils.escapeHtml(d.name) }) + "</span>";
         if (d.showType) {
-            html += "<span>Type: <strong>" + _.upperFirst(d.type) + "</strong></span>";
+            html += "<span>" + t("tooltip.type", { type: generalUtils.escapeHtml(_.upperFirst(d.type)) }) + "</span>";
         }
         if (this.shouldDisplayNumberOfEntries(d)) {
-            html += "<span>Entries: <strong>" + d.numberOfEntries.toLocaleString() + "</strong></span>";
+            html += "<span>" + t("tooltip.entries", { entries: d.numberOfEntries.toLocaleString() }) + "</span>";
         }
-        html += "<span class='size'>Size: <strong>" + d.formatSize(true) + "</strong></span>";
+        html += "<span class='size'>" + t("tooltip.size", { size: d.formatSize(true) }) + "</span>";
 
         this.tooltip.html(html);
         this.onMouseMove();

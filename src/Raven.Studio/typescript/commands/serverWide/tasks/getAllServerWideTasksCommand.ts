@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("serverWideCommands");
 
 class getAllServerWideTasksCommand extends commandBase {
 
@@ -18,9 +21,9 @@ class getAllServerWideTasksCommand extends commandBase {
         return this.query<Raven.Server.Web.System.AdminStudioServerWideHandler.ServerWideTasksResult>(url, null)
             .fail((response: JQueryXHR) => {
                 if (this.taskName) {
-                    this.reportError(`Failed to get Server-Wide task: ${this.taskName}`, response.responseText, response.statusText);
+                    this.reportError(t("tasks.getFailed", { name: this.taskName }), response.responseText, response.statusText);
                 } else {
-                    this.reportError(`Failed to get all Server-Wide tasks`, response.responseText, response.statusText);
+                    this.reportError(t("tasks.getAllFailed"), response.responseText, response.statusText);
                 }
             });
     }

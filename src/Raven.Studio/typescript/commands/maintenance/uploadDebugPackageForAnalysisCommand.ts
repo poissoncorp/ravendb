@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("maintenanceCommands");
 
 type DebugPackageAnalysisSummary = Raven.Server.Documents.Handlers.Debugging.DebugPackage.DebugPackageAnalysisSummary;
 
@@ -21,7 +24,7 @@ class uploadDebugPackageForAnalysisCommand extends commandBase {
 
         return this.post<DebugPackageAnalysisSummary>(url, this.file, null, options, 60000)
             .fail((response: JQueryXHR) =>
-                this.reportError("Failed to analyze the debug package", response.responseText, response.statusText));
+                this.reportError(t("analyzeDebugPackageFailed"), response.responseText, response.statusText));
     }
 }
 

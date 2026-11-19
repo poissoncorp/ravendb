@@ -2,14 +2,14 @@
     <div class="flex-header">
         <button type="submit" class="btn btn-primary" data-bind="enable: dirtyFlag().isDirty">
             <i class="icon-save"></i>
-            <span>Save</span>
+            <span data-bind="i18n: 'common:save'"></span>
         </button>
-        <button class="btn btn-default" data-bind="click: cancelOperation" title="Return to Server-Wide Custom Sorters View">
+        <button class="btn btn-default" data-bind="click: cancelOperation, i18nAttr: { title: 'editServerWideCustomSorter:cancelTitle' }">
             <i class="icon-cancel"></i>
-            <span>Cancel</span>
+            <span data-bind="i18n: 'common:cancel'"></span>
         </button>
-        <label for="importFilePicker" class="btn btn-default pull-right" title="Upload custom sorter from file">
-            <i class="icon-import"></i><span>Load from file</span>
+        <label for="importFilePicker" class="btn btn-default pull-right" data-bind="i18nAttr: { title: 'editServerWideCustomSorter:loadFromFileTitle' }">
+            <i class="icon-import"></i><span data-bind="i18n: 'common:loadFromFile'"></span>
         </label>
         <div class="input-group file-input">
             <input type="file" id="importFilePicker" data-bind="event: { change: _.partial(fileSelected, $element) }" tabindex="-1" accept=".cs">
@@ -17,21 +17,21 @@
     </div>
     <div class="panel padding flex-grow flex-vertical" data-bind="with: editedServerWideSorter">
         <div class="flex-horizontal">
-            <h3 data-bind="text: $parent.isAddingNewSorter() ? `New Server-Wide Custom Sorter` : `Edit Server-Wide Custom Sorter`"></h3>
+            <h3 data-bind="i18n: { key: 'editServerWideCustomSorter:heading', options: { context: $parent.isAddingNewSorter() ? 'new' : 'edit' } }"></h3>
             <div class="flex-separator"></div>
             <small class="text-info bg-info padding padding-xs">
                 <i class="icon-info"></i>
-                <span>To test this server-wide sorter go to the Custom Sorters View in a database</span>
+                <span data-bind="i18n: 'editServerWideCustomSorter:testInfo'"></span>
             </small>
         </div>
         <div class="form-group margin-top" data-bind="validationElement: name">
-            <label class="control-label" for="sorterName">Sorter Name</label>
+            <label class="control-label" for="sorterName" data-bind="i18n: 'editServerWideCustomSorter:nameLabel'"></label>
             <div class="flex-grow">
-                <input type="text" class="form-control" id="sorterName" placeholder="Enter a name for the server-wide sorter"
-                       data-bind="textInput: name, enable: $root.isAddingNewSorter" autocomplete="off" >
+                <input type="text" class="form-control" id="sorterName"
+                       data-bind="textInput: name, enable: $root.isAddingNewSorter, i18nAttr: { placeholder: 'editServerWideCustomSorter:namePlaceholder' }" autocomplete="off" >
             </div>
         </div>
-        <label>Code:</label>
+        <label data-bind="i18n: 'editServerWideCustomSorter:codeLabel'"></label>
         <pre class="form-control margin-top flex-grow"
              data-bind="aceEditor: { code: code, lang:'ace/mode/csharp' }, validationOptions: { errorsAsTitle: false }, validationElement: code" style="height: 300px;">
             </pre>

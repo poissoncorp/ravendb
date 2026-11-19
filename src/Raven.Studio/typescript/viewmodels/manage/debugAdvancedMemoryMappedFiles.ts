@@ -7,6 +7,9 @@ import generalUtils = require("common/generalUtils");
 import getDebugMemoryStatsCommand = require("commands/database/debug/getDebugMemoryStatsCommand");
 import prismjs = require("prismjs");
 import typeUtils = require("common/typeUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("debugAdvancedMemoryMappedFiles");
 
 type memoryMappingItem = {
     Directory: string;
@@ -102,16 +105,16 @@ class memoryMappedFiles extends viewModelBase {
         grid.setDefaultSortBy(3, "desc");
         grid.init(fetcher, () =>
             [
-                new textColumn<memoryMappingItem>(grid, x => x.Directory, "Directory", "15%", {
+                new textColumn<memoryMappingItem>(grid, x => x.Directory, t("columns.directory"), "15%", {
                     sortable: "string"
                 }),
-                new textColumn<memoryMappingItem>(grid, x => x.FileName, "File Name", "25%", {
+                new textColumn<memoryMappingItem>(grid, x => x.FileName, t("columns.fileName"), "25%", {
                     sortable: "string"
                 }),
-                new textColumn<memoryMappingItem>(grid, x => x.HumaneFileSize, "File Size", "15%", {
+                new textColumn<memoryMappingItem>(grid, x => x.HumaneFileSize, t("columns.fileSize"), "15%", {
                     sortable: x => x.FileSize
                 }),
-                new textColumn<memoryMappingItem>(grid, x => x.HumaneTotalMapped, "Total Mapped", "30%", {
+                new textColumn<memoryMappingItem>(grid, x => x.HumaneTotalMapped, t("columns.totalMapped"), "30%", {
                     sortable: x => x.TotalMapped
                 }),
             ]
@@ -121,7 +124,7 @@ class memoryMappedFiles extends viewModelBase {
             (entry: memoryMappingItem, 
                                     column: textColumn<memoryMappingItem>, 
                                     e: JQuery.TriggeredEvent, onValue: (context: any, valueToCopy?: string) => void) => {
-            if (column.header === "Total Mapped") {
+            if (column.header === t("columns.totalMapped")) {
                 const json = JSON.stringify(entry.Mappings, null, 4);
                 const html = prismjs.highlight(json, prismjs.languages.javascript, "js");
                 onValue(html, json);

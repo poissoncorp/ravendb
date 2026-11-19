@@ -2,6 +2,7 @@ import { Icon } from "components/common/Icon";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "components/common/Modal";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface GatherDebugInfoAbortConfirmProps {
     isOpen: boolean;
@@ -10,6 +11,9 @@ interface GatherDebugInfoAbortConfirmProps {
 }
 
 export default function GatherDebugInfoAbortConfirm({ isOpen, toggle, onConfirm }: GatherDebugInfoAbortConfirmProps) {
+    const t = useStudioTranslation("gatherDebugInfo");
+    const commonT = useStudioTranslation("common");
+
     const onSubmit = () => {
         onConfirm();
         toggle();
@@ -17,17 +21,17 @@ export default function GatherDebugInfoAbortConfirm({ isOpen, toggle, onConfirm 
 
     return (
         <Modal show={isOpen} onHide={toggle} contentClassName="modal-border bulge-warning">
-            <Modal.Header closeButton={false}>Are you sure?</Modal.Header>
+            <Modal.Header closeButton={false}>{t("abortConfirm.title")}</Modal.Header>
             <Modal.Body>
-                <div className="text-center lead">Do you want to abort package creation?</div>
+                <div className="text-center lead">{t("abortConfirm.message")}</div>
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="link" onClick={toggle} className="link-muted">
-                    Cancel
+                    {commonT("cancel")}
                 </Button>
                 <Button variant="warning" onClick={onSubmit} className="rounded-pill">
                     <Icon icon="cancel" className="me-1" />
-                    Abort
+                    {t("abort")}
                 </Button>
             </Modal.Footer>
         </Modal>

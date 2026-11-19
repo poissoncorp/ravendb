@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("maintenanceCommands");
 
 class getStackTraceForThreadCommand extends commandBase {
 
@@ -15,7 +18,7 @@ class getStackTraceForThreadCommand extends commandBase {
         const url = endpoints.global.threads.adminDebugThreadsStackTrace + this.urlEncodeArgs(args);
         
         return this.query<threadStackTraceResponseDto>(url, null, null)
-            .fail((response: JQueryXHR) => this.reportError("Unable to fetch stack trace for thread: " + this.threadId, response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("fetchThreadStackTraceFailed", { threadId: this.threadId }), response.responseText, response.statusText));
     }
 }
 

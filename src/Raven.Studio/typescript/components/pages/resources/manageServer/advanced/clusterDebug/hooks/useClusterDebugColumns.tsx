@@ -4,6 +4,7 @@ import Button from "react-bootstrap/Button";
 import { Icon } from "components/common/Icon";
 import classNames from "classnames";
 import { CellWithCopyWrapper } from "components/common/virtualTable/cells/CellWithCopy";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export function useClusterDebugColumns(
     availableWidth: number,
@@ -11,12 +12,15 @@ export function useClusterDebugColumns(
     showInlinePreview: (logIndex: number) => void,
     deleteEntry: (logIndex: number) => void
 ) {
+    const t = useStudioTranslation("clusterDebug");
+    const commonT = useStudioTranslation("common");
+
     const columns: ColumnDef<Raven.Server.Rachis.RachisConsensus.RachisDebugLogEntry>[] = [
         {
-            header: "Preview",
+            header: t("entries.columns.preview"),
             cell: (context) => (
                 <Button
-                    title="Show item preview"
+                    title={t("entries.columns.previewTitle")}
                     variant="secondary"
                     onClick={() => showInlinePreview(context.row.original.Index)}
                     className={classNames({ invisible: context.row.original.SizeInBytes === 0 })}
@@ -27,47 +31,48 @@ export function useClusterDebugColumns(
             size: 70,
         },
         {
-            header: "Index",
+            header: t("entries.columns.index"),
             accessorKey: "Index",
             cell: CellWithCopyWrapper,
             size: 100,
         },
         {
             id: "commandType",
-            header: "Command Type",
+            header: t("entries.columns.commandType"),
             accessorKey: "CommandType",
             cell: CellWithCopyWrapper,
             size: 0, // see code below - we do here flex-grow
         },
         {
-            header: "Created",
+            header: t("entries.columns.created"),
             accessorKey: "CreateAt",
             cell: CellWithCopyWrapper,
             size: 250,
         },
         {
-            header: "Size",
+            header: t("entries.columns.size"),
             accessorFn: (row) => genUtils.formatBytesToSize(row.SizeInBytes),
             cell: CellWithCopyWrapper,
             size: 100,
         },
         {
-            header: "Term",
+            header: t("entries.columns.term"),
             accessorKey: "Term",
             cell: CellWithCopyWrapper,
             size: 70,
         },
         {
-            header: "Status",
-            accessorFn: (row) => (row.Index <= commitIndex ? "Commited" : "Appended"),
+            header: t("entries.columns.status"),
+            accessorFn: (row) =>
+                row.Index <= commitIndex ? t("entries.columns.statusCommitted") : t("entries.columns.statusAppended"),
             cell: CellWithCopyWrapper,
             size: 150,
         },
         {
-            header: "Delete",
+            header: commonT("delete"),
             cell: (context) => (
                 <Button
-                    title="Delete Log Entry"
+                    title={t("entries.columns.deleteTitle")}
                     variant="danger"
                     onClick={() => deleteEntry(context.row.original.Index)}
                 >

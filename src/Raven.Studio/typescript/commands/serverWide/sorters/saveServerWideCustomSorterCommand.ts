@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("serverWideCommands");
 
 class saveServerWideCustomSorterCommand extends commandBase {
     
@@ -15,8 +18,8 @@ class saveServerWideCustomSorterCommand extends commandBase {
         };
 
         return this.put<void>(url, JSON.stringify(payload), null, { dataType: undefined })
-            .done(() => this.reportSuccess(`Saved Server-Wide Custom Sorter ${this.sorterDto.Name}`))
-            .fail((response: JQueryXHR) => this.reportError("Failed to save Server-Wide Custom Sorter", response.responseText, response.statusText));
+            .done(() => this.reportSuccess(t("sorters.saveSucceeded", { name: this.sorterDto.Name })))
+            .fail((response: JQueryXHR) => this.reportError(t("sorters.saveFailed"), response.responseText, response.statusText));
     }
 }
 

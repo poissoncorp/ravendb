@@ -3,6 +3,7 @@ import React from "react";
 import classNames from "classnames";
 import { ClusterDebugNodeInfo } from "components/pages/resources/manageServer/advanced/clusterDebug/partials/common";
 import { nodeAwareLoadableData } from "components/models/common";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface ClusterDebugGlobalInfoProps {
     nodes: nodeAwareLoadableData<ClusterDebugNodeInfo>[];
@@ -10,6 +11,7 @@ interface ClusterDebugGlobalInfoProps {
     fillWidth?: boolean;
 }
 export default function ClusterDebugGlobalInfo(props: ClusterDebugGlobalInfoProps) {
+    const t = useStudioTranslation("clusterDebug");
     const { nodes, cardClassName, fillWidth } = props;
     const hasAnyData = nodes.some((x) => x.status === "success");
     const successNodes = nodes.filter((x) => x.status === "success");
@@ -24,7 +26,7 @@ export default function ClusterDebugGlobalInfo(props: ClusterDebugGlobalInfoProp
                 <div className={classNames("card p-2 border-radius-xs vstack", cardClassName)}>
                     <small className="small-label">
                         <Icon icon="document" />
-                        Term
+                        {t("globalInfo.term")}
                     </small>
                     <h5 className="mt-1 mb-0">
                         <strong>{term}</strong>
@@ -35,7 +37,7 @@ export default function ClusterDebugGlobalInfo(props: ClusterDebugGlobalInfoProp
                 <div className={classNames("card p-2 border-radius-xs vstack", cardClassName)}>
                     <small className="small-label">
                         <Icon icon="cluster" />
-                        Cluster version
+                        {t("globalInfo.clusterVersion")}
                     </small>
                     <h5 className="mt-1 mb-0">
                         <strong>{clusterVersion}</strong>

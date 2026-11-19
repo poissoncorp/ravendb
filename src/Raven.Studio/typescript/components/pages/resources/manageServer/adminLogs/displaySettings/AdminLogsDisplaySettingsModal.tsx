@@ -12,8 +12,11 @@ import Button from "react-bootstrap/Button";
 import Modal from "components/common/Modal";
 import Form from "react-bootstrap/Form";
 import * as yup from "yup";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function AdminLogsDisplaySettingsModal() {
+    const t = useStudioTranslation("adminLogs");
+    const commonT = useStudioTranslation("common");
     const dispatch = useAppDispatch();
 
     const maxLogsCount = useAppSelector(adminLogsSelectors.maxLogsCount);
@@ -39,17 +42,17 @@ export default function AdminLogsDisplaySettingsModal() {
                 <Modal.Header onCloseClick={() => dispatch(adminLogsActions.isDisplaySettingsOpenToggled())}>
                     <h3>
                         <Icon icon="client" addon="settings" />
-                        Settings - display
+                        {t("displaySettings.title")}
                     </h3>
                 </Modal.Header>
                 <Modal.Body>
                     <FormGroup>
-                        <FormLabel>Maximum logs count</FormLabel>
+                        <FormLabel>{t("displaySettings.maxLogsCount")}</FormLabel>
                         <FormInput
                             type="number"
                             control={control}
                             name="maxLogsCount"
-                            placeholder="Maximum logs count"
+                            placeholder={t("displaySettings.maxLogsCount")}
                         />
                     </FormGroup>
                 </Modal.Body>
@@ -60,11 +63,11 @@ export default function AdminLogsDisplaySettingsModal() {
                         onClick={() => dispatch(adminLogsActions.isDisplaySettingsOpenToggled())}
                     >
                         <Icon icon="cancel" />
-                        Close
+                        {t("close")}
                     </Button>
                     <Button type="submit" variant="success" disabled={!formState.isDirty}>
                         <Icon icon="save" />
-                        Save
+                        {commonT("save")}
                     </Button>
                 </Modal.Footer>
             </Form>

@@ -23,6 +23,7 @@ import { Icon } from "components/common/Icon";
 import React, { useState } from "react";
 import { useAsyncCallback } from "react-async-hook";
 import { SubmitHandler, useForm, useWatch } from "react-hook-form";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 import Collapse from "react-bootstrap/Collapse";
 import InputGroup from "react-bootstrap/InputGroup";
 import Form from "react-bootstrap/Form";
@@ -38,6 +39,7 @@ interface ServerWideCustomSortersListItemProps {
 
 export default function ServerWideCustomSortersListItem(props: ServerWideCustomSortersListItemProps) {
     const { initialSorter, takenNames, remove, markAsSaved } = props;
+    const t = useStudioTranslation("serverWideSorters");
 
     const form = useForm<CustomSorterFormData>({
         resolver: createCustomSorterYupResolver(takenNames),
@@ -90,7 +92,7 @@ export default function ServerWideCustomSortersListItem(props: ServerWideCustomS
                 <RichPanelHeader>
                     <RichPanelInfo>
                         <RichPanelName>
-                            {formValues.name || "New sorter name"}
+                            {formValues.name || t("item.newNameFallback")}
                             {(formState.isDirty || isNew) && <span className="text-warning ms-1">*</span>}
                         </RichPanelName>
                     </RichPanelInfo>
@@ -99,11 +101,11 @@ export default function ServerWideCustomSortersListItem(props: ServerWideCustomS
                         {isEditMode ? (
                             <>
                                 <Button key="save" type="submit" variant="success" disabled={formState.isSubmitting}>
-                                    <Icon icon="save" /> Save changes
+                                    <Icon icon="save" /> {t("item.saveButton")}
                                 </Button>
                                 <Button key="cancel" type="button" variant="secondary" onClick={onDiscard}>
                                     <Icon icon="cancel" />
-                                    Discard
+                                    {t("item.discardButton")}
                                 </Button>
                             </>
                         ) : (
@@ -134,12 +136,12 @@ export default function ServerWideCustomSortersListItem(props: ServerWideCustomS
                         <RichPanelDetails className="vstack gap-3 p-4">
                             {isNew && (
                                 <InputGroup className="vstack mb-1">
-                                    <FormLabel>Name</FormLabel>
+                                    <FormLabel>{t("item.nameLabel")}</FormLabel>
                                     <FormInput
                                         type="text"
                                         control={control}
                                         name="name"
-                                        placeholder="Enter a sorter name"
+                                        placeholder={t("item.namePlaceholder")}
                                     />
                                 </InputGroup>
                             )}
@@ -147,7 +149,7 @@ export default function ServerWideCustomSortersListItem(props: ServerWideCustomS
                                 <div className="d-flex justify-content-end">
                                     <FormLabel className="btn btn-link btn-xs text-right">
                                         <Icon icon="upload" />
-                                        Load from a file
+                                        {t("item.loadFromFile")}
                                         <input
                                             type="file"
                                             className="d-none"

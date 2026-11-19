@@ -18,10 +18,14 @@ import Form from "react-bootstrap/Form";
 import Modal from "components/common/Modal";
 import * as yup from "yup";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 type AdminLogsConfig = Raven.Client.ServerWide.Operations.Logs.GetLogsConfigurationResult["AdminLogs"];
 
 export default function AdminLogsViewSettingsModal() {
+    const t = useStudioTranslation("adminLogs");
+    const commonT = useStudioTranslation("common");
     const config = useAppSelector(adminLogsSelectors.configs).adminLogsConfig.AdminLogs;
 
     const { control, handleSubmit, reset, formState } = useForm<AdminLogsViewSettingsFormData>({
@@ -54,28 +58,31 @@ export default function AdminLogsViewSettingsModal() {
                 <Modal.Header onCloseClick={() => dispatch(adminLogsActions.isViewSettingOpenToggled())}>
                     <h3>
                         <Icon icon="client" addon="settings" />
-                        Settings - logs on this view
+                        {t("viewSettings.title")}
                     </h3>
                 </Modal.Header>
                 <Modal.Body>
                     <FormGroup>
                         <FormLabel>
-                            Default Filter Action
+                            {t("defaultFilterAction.label")}
                             <PopoverWithHoverWrapper
                                 message={
                                     <>
                                         <p className="mb-1">
-                                            This action does <strong>Not apply</strong> when no filters are defined.
-                                            <br />
-                                            This action <strong>applies</strong> in the following cases:
+                                            <StudioTrans
+                                                ns="adminLogs"
+                                                i18nKey="defaultFilterAction.info"
+                                                components={{ strong: <strong />, br: <br /> }}
+                                            />
                                         </p>
                                         <ul className="mb-0">
-                                            <li className="mb-1">
-                                                When a log entry does Not match any defined filter.
-                                            </li>
+                                            <li className="mb-1">{t("defaultFilterAction.noMatchItem")}</li>
                                             <li>
-                                                When a log entry matches a filter with a <code>Neutral</code> action,
-                                                provided that no subsequent filters apply.
+                                                <StudioTrans
+                                                    ns="adminLogs"
+                                                    i18nKey="defaultFilterAction.neutralItem"
+                                                    components={{ code: <code /> }}
+                                                />
                                             </li>
                                         </ul>
                                     </>
@@ -92,7 +99,7 @@ export default function AdminLogsViewSettingsModal() {
                         />
                     </FormGroup>
                     <FormGroup className="vstack">
-                        <FormLabel>Filters</FormLabel>
+                        <FormLabel>{t("filters.label")}</FormLabel>
                         <div className="vstack gap-1 mb-1">
                             {filterFieldArray.fields.map((field, idx) => (
                                 <AdminLogsFilterField
@@ -110,7 +117,7 @@ export default function AdminLogsViewSettingsModal() {
                             onClick={() => filterFieldArray.append(adminLogsUtils.initialFilter)}
                         >
                             <Icon icon="plus" />
-                            Add Filter
+                            {t("filters.addButton")}
                         </Button>
                     </FormGroup>
                 </Modal.Body>
@@ -121,7 +128,7 @@ export default function AdminLogsViewSettingsModal() {
                         onClick={() => dispatch(adminLogsActions.isViewSettingOpenToggled())}
                     >
                         <Icon icon="cancel" />
-                        Close
+                        {t("close")}
                     </Button>
                     <ButtonWithSpinner
                         type="submit"
@@ -130,7 +137,7 @@ export default function AdminLogsViewSettingsModal() {
                         isSpinning={formState.isSubmitting}
                         disabled={!formState.isDirty}
                     >
-                        Save
+                        {commonT("save")}
                     </ButtonWithSpinner>
                 </Modal.Footer>
             </Form>

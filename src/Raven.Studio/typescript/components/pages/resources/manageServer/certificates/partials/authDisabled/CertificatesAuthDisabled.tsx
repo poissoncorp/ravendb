@@ -5,8 +5,11 @@ import { NumberedList, NumberedListItem } from "components/common/NumberedList";
 import Card from "react-bootstrap/Card";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function CertificatesAuthDisabled() {
+    const t = useStudioTranslation("certificates");
     const certificatesDocsLink = useRavenLink({ hash: "RSFSL5" });
 
     return (
@@ -14,42 +17,52 @@ export default function CertificatesAuthDisabled() {
             <Col sm={12} lg={7} className="mx-auto">
                 <Card className="p-5 rounded">
                     <h3 className="text-warning mb-1">
-                        <Icon icon="unsecure" /> Authentication is disabled
+                        <Icon icon="unsecure" /> {t("authDisabled.heading")}
                     </h3>
-                    <p className="lead mb-0">
-                        RavenDB uses certificates to authenticate clients, but the server certificate information has
-                        not been set up.
-                    </p>
+                    <p className="lead mb-0">{t("authDisabled.lead")}</p>
                     <hr />
-                    <strong>In order to set up authentication for your server, proceed with the following:</strong>
+                    <strong>{t("authDisabled.stepsIntro")}</strong>
                     <NumberedList className="mt-3 mb-4">
                         <NumberedListItem stepKey={1}>
-                            Locate the <code>settings.json</code> file in your server directory.
+                            <StudioTrans
+                                ns="certificates"
+                                i18nKey="authDisabled.locateStep"
+                                components={{ code: <code /> }}
+                            />
                         </NumberedListItem>
                         <NumberedListItem stepKey={2}>
-                            Enter your .pfx certificate path under <code>Security.Certificate.Path</code>, or if you are
-                            using an executable or command that returns a .pfx file, place it under{" "}
-                            <code>Security.Certificate.Load.Exec</code>.
+                            <StudioTrans
+                                ns="certificates"
+                                i18nKey="authDisabled.pathStep"
+                                components={{ code: <code /> }}
+                            />
                         </NumberedListItem>
                         <NumberedListItem stepKey={3}>
-                            Please ensure that all <code>ServerUrl</code> configurations use HTTPS protocol instead of
-                            HTTP.
+                            <StudioTrans
+                                ns="certificates"
+                                i18nKey="authDisabled.httpsStep"
+                                components={{ code: <code /> }}
+                            />
                         </NumberedListItem>
-                        <NumberedListItem stepKey={4}>
-                            Save and restart the server to apply the changes.
-                        </NumberedListItem>
+                        <NumberedListItem stepKey={4}>{t("authDisabled.restartStep")}</NumberedListItem>
                     </NumberedList>
                     <RichAlert variant="info">
-                        If either option is specified, RavenDB will use <i>HTTPS/SSL</i> for all network activities.
-                        <br />
-                        The certificate path setting takes precedence over executable configuration options.
+                        <StudioTrans
+                            ns="certificates"
+                            i18nKey="authDisabled.httpsInfo"
+                            components={{ i: <i />, br: <br /> }}
+                        />
                     </RichAlert>
                     <hr />
                     <span>
-                        For more information please see{" "}
-                        <a href={certificatesDocsLink} target="_blank">
-                            RavenDB Documentation <Icon icon="newtab" />
-                        </a>
+                        <StudioTrans
+                            ns="certificates"
+                            i18nKey="authDisabled.moreInfo"
+                            components={{
+                                a: <a href={certificatesDocsLink} target="_blank" />,
+                                icon: <Icon icon="newtab" />,
+                            }}
+                        />
                     </span>
                 </Card>
             </Col>

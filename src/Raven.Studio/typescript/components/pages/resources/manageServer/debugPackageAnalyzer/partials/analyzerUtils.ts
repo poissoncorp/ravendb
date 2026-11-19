@@ -1,5 +1,6 @@
 import IconName from "typings/server/icons";
 import genUtils from "common/generalUtils";
+import { createTranslator } from "common/i18n/i18n";
 
 type OSType = Raven.Client.ServerWide.Operations.OSType;
 type DebugPackageAnalysisSummary = Raven.Server.Documents.Handlers.Debugging.DebugPackage.DebugPackageAnalysisSummary;
@@ -50,13 +51,14 @@ export const issueCategories: IssueCategory[] = ["General", "Cluster", "Server",
 export const issueScopes: IssueScope[] = ["cluster-wide", "node", "database"];
 
 export function scopeLabel(scope: IssueScope): string {
+    const t = createTranslator("debugPackageAnalyzer");
     switch (scope) {
         case "cluster-wide":
-            return "Cluster-Wide";
+            return t("analysisResults.scopes.clusterWide");
         case "node":
-            return "Node";
+            return t("analysisResults.scopes.node");
         case "database":
-            return "Database";
+            return t("analysisResults.scopes.database");
         default:
             return scope;
     }

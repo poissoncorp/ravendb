@@ -19,6 +19,10 @@ import eventsCollector = require("common/eventsCollector");
 import accessManager = require("common/shell/accessManager");
 import generalUtils = require("common/generalUtils");
 import typeUtils = require("common/typeUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("manageCluster");
+const tCommon = i18nModule.createTranslator("common");
 
 class cluster extends viewModelBase {
 
@@ -29,6 +33,13 @@ class cluster extends viewModelBase {
     topology = clusterTopologyManager.default.topology;
     accessManager = accessManager.default;
     aboutViewUrl = appUrl.forAbout();
+
+    passiveStateHtml = t("passive.state");
+    bootstrapOptionsHtml = t("passive.bootstrapOptions");
+    registerLicenseHtml = t("passive.registerLicense", { aboutViewUrl: generalUtils.escapeHtml(this.aboutViewUrl) });
+    assignedCoresLimitTitle = t("node.assignedCoresLimitTitle");
+    totalCoresTitle = t("node.totalCoresTitle");
+    installedMemoryTitle = t("node.installedMemoryTitle");
 
     canDeleteNodes: KnockoutComputed<boolean>;
     canAddNodes: KnockoutComputed<boolean>;
@@ -146,9 +157,26 @@ class cluster extends viewModelBase {
         this.updateHelpLink("11HBHO");
     }
 
+    serverVersionTitle(version: string) {
+        return t("node.versionTitle", { version });
+    }
+
+    nodeTypeLabel(type: clusterNodeType) {
+        switch (type) {
+            case "Member":
+                return t("nodeTypes.member");
+            case "Promotable":
+                return t("nodeTypes.promotable");
+            case "Watcher":
+                return t("nodeTypes.watcher");
+            default:
+                return type;
+        }
+    }
+
     promote(node: clusterNode) {
-        this.confirmationMessage("Are you sure?", "Do you want to promote current node to become member/promotable?", {
-            buttons: ["Cancel", "Yes, promote"]
+        this.confirmationMessage(t("confirm.title"), t("confirm.promote"), {
+            buttons: [tCommon("cancel"), t("confirm.promoteButton")]
         })
             .done(result => {
                if (result.can) {
@@ -162,8 +190,8 @@ class cluster extends viewModelBase {
     }
 
     demote(node: clusterNode) {
-         this.confirmationMessage("Are you sure?", "Do you want to demote current node to become watcher?", {
-             buttons: ["Cancel", "Yes, demote"]
+         this.confirmationMessage(t("confirm.title"), t("confirm.demote"), {
+             buttons: [tCommon("cancel"), t("confirm.demoteButton")]
          })
             .done(result => {
                if (result.can) {
@@ -177,8 +205,8 @@ class cluster extends viewModelBase {
     }
 
     stepDown() {
-        this.confirmationMessage("Are you sure?", `Do you want current leader to step down?`, {
-            buttons: ["Cancel", "Step down"]
+        this.confirmationMessage(t("confirm.title"), t("confirm.stepDown"), {
+            buttons: [tCommon("cancel"), t("confirm.stepDownButton")]
         })
             .done(result => {
                 if (result.can) {
@@ -192,8 +220,8 @@ class cluster extends viewModelBase {
     }
 
     deleteNode(node: clusterNode) {
-        this.confirmationMessage("Are you sure?", `Do you want to remove ${generalUtils.escapeHtml(node.serverUrl())} from cluster?`,{
-            buttons: ["Cancel", "Remove"],
+        this.confirmationMessage(t("confirm.title"), t("confirm.remove", { serverUrl: generalUtils.escapeHtml(node.serverUrl()) }),{
+            buttons: [tCommon("cancel"), t("confirm.removeButton")],
             html: true
         })
             .done(result => {
@@ -219,8 +247,8 @@ class cluster extends viewModelBase {
     }
 
     forceTimeout(node: clusterNode) {
-        this.confirmationMessage("Are you sure?", `Do you want force timeout on waiting for leader?`, {
-            buttons: ["Cancel", "Yes, force"]
+        this.confirmationMessage(t("confirm.title"), t("confirm.forceTimeout"), {
+            buttons: [tCommon("cancel"), t("confirm.forceTimeoutButton")]
         })
             .done(result => {
                 if (result.can) {
@@ -248,7 +276,7 @@ class cluster extends viewModelBase {
     showErrorDetails(tag: string) {
         const node = this.topology().nodes().find(x => x.tag() === tag);
 
-        app.showBootstrapDialog(new showDataDialog("Error details. Node: " + tag, node.errorDetails(), "plain"));
+        app.showBootstrapDialog(new showDataDialog(t("node.errorDetailsTitle", { nodeTag: tag }), node.errorDetails(), "plain"));
     }
 }
 

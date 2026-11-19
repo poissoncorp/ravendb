@@ -18,10 +18,13 @@ import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import { useRef } from "react";
 import { flushSync } from "react-dom";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 type SecurityClearance = Raven.Client.ServerWide.Operations.Certificates.SecurityClearance;
 
 export default function CertificatesPermissionsField() {
+    const t = useStudioTranslation("certificates");
     const allDatabaseNames = useAppSelector(databaseSelectors.allDatabaseNames);
     const hasReadOnlyCertificates = useAppSelector(licenseSelectors.statusValue("HasReadOnlyCertificates"));
 
@@ -51,14 +54,14 @@ export default function CertificatesPermissionsField() {
 
     return (
         <>
-            <FormLabel htmlFor={databaseSelectId}>Database Permissions</FormLabel>
+            <FormLabel htmlFor={databaseSelectId}>{t("permissions.label")}</FormLabel>
             <AccessToAllDatabasesInfo securityClearance={formValues.securityClearance} />
             <Collapse in={formValues.securityClearance === "ValidUser"}>
                 <div>
                     <FormGroup>
                         <SelectCreatable
                             inputId={databaseSelectId}
-                            placeholder="Select (or enter) a database"
+                            placeholder={t("permissions.databasePlaceholder")}
                             isClearable
                             options={allDatabaseNames
                                 .filter((x) => !formValues.databasePermissions.map((x) => x.databaseName).includes(x))
@@ -90,7 +93,7 @@ export default function CertificatesPermissionsField() {
                                 <FlexGrow />
                                 <div
                                     role="radiogroup"
-                                    aria-label={`Access level for ${field.databaseName}`}
+                                    aria-label={t("permissions.accessLevelFor", { database: field.databaseName })}
                                     className="hstack gap-3"
                                 >
                                     <FormRadio
@@ -100,7 +103,7 @@ export default function CertificatesPermissionsField() {
                                         className="text-success"
                                         color="secondary"
                                     >
-                                        Admin
+                                        {t("access.admin")}
                                     </FormRadio>
                                     <FormRadio
                                         control={control}
@@ -109,18 +112,22 @@ export default function CertificatesPermissionsField() {
                                         className="text-warning"
                                         color="secondary"
                                     >
-                                        Read/Write
+                                        {t("access.readWrite")}
                                     </FormRadio>
                                     <ConditionalPopover
                                         conditions={{
                                             isActive: !hasReadOnlyCertificates,
                                             message: (
                                                 <LicenseRestrictedMessage>
-                                                    Current license doesn&apos;t include
-                                                    <br />
-                                                    <strong className="text-info">
-                                                        <Icon icon="access-read" margin="m-0" /> Read-only certificates
-                                                    </strong>
+                                                    <StudioTrans
+                                                        ns="certificates"
+                                                        i18nKey="access.readOnlyRestricted"
+                                                        components={{
+                                                            br: <br />,
+                                                            strong: <strong className="text-info" />,
+                                                            icon: <Icon icon="access-read" margin="m-0" />,
+                                                        }}
+                                                    />
                                                 </LicenseRestrictedMessage>
                                             ),
                                         }}
@@ -133,7 +140,7 @@ export default function CertificatesPermissionsField() {
                                             color="secondary"
                                             disabled={!hasReadOnlyCertificates}
                                         >
-                                            Read
+                                            {t("access.read")}
                                         </FormRadio>
                                     </ConditionalPopover>
                                 </div>
@@ -141,7 +148,7 @@ export default function CertificatesPermissionsField() {
                                     variant="outline-danger"
                                     size="sm"
                                     className="border-0 ms-3"
-                                    title={`Remove ${field.databaseName}`}
+                                    title={t("permissions.remove", { database: field.databaseName })}
                                     onClick={() => removePermission(idx)}
                                     data-remove-permission
                                 >
@@ -158,23 +165,15 @@ export default function CertificatesPermissionsField() {
 
 function AccessToAllDatabasesInfo({ securityClearance }: { securityClearance: SecurityClearance }) {
     if (securityClearance === "Operator" || securityClearance === "ClusterAdmin") {
-        const getClearanceLabel = () => {
-            if (securityClearance === "ClusterAdmin") {
-                return "Cluster Admin";
-            }
-
-            if (securityClearance === "Operator") {
-                return "Operator";
-            }
-
-            return null;
-        };
-
         return (
             <FormGroup>
                 <RichAlert variant="info">
-                    With security clearance set to <strong>{getClearanceLabel()}</strong>, the user of this certificate
-                    will have access to all databases.
+                    <StudioTrans
+                        ns="certificates"
+                        i18nKey="permissions.allDatabasesInfo"
+                        components={{ strong: <strong /> }}
+                        options={{ context: securityClearance === "ClusterAdmin" ? "clusterAdmin" : "operator" }}
+                    />
                 </RichAlert>
             </FormGroup>
         );

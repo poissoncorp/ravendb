@@ -1,7 +1,7 @@
 <div class="flex-vertical absolute-fill content-margin running-queries">
     <div class="flex-horizontal flex-shrink-0">
         <div>
-            <input class="form-control filter" placeholder="Filter by index name or query" data-bind="textInput: filter">
+            <input class="form-control filter" data-bind="textInput: filter, i18nAttr: { placeholder: 'runningQueries:filterPlaceholder' }">
         </div>
         <div class="btn-group">
             <select id="visibleDbsSelector" size="5" multiple="multiple"
@@ -12,7 +12,7 @@
         <div class="flex-separator"></div>
         <div class="btn-group">
             <button class="btn btn-sm btn-info btn-checkable" data-bind="click: toggleTail, css: { active: tailEnabled }">
-                <i class="icon-logs"></i> <span>Monitoring (tail -f)</span>
+                <i class="icon-logs"></i> <span data-bind="i18n: 'runningQueries:monitoring'"></span>
             </button>
         </div>
     </div>
@@ -26,7 +26,7 @@
 </div>
 
 <script type="text/html" id="empty-running-queries-template">
-    No running queries for now.
+    <span data-bind="i18n: 'runningQueries:empty'"></span>
 </script>
 
 <div class="tooltip json-preview lg js-running-queries-tooltip" style="opacity: 0">

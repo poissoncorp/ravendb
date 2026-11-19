@@ -19,6 +19,8 @@ import * as yup from "yup";
 import { Icon } from "components/common/Icon";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import Accordion from "react-bootstrap/Accordion";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 type MicrosoftLogsConfig = Raven.Client.ServerWide.Operations.Logs.GetLogsConfigurationResult["MicrosoftLogs"];
 
@@ -27,6 +29,8 @@ interface AdminLogsConfigMicrosoftLogsProps {
 }
 
 export default function AdminLogsConfigMicrosoftLogs({ targetId }: AdminLogsConfigMicrosoftLogsProps) {
+    const t = useStudioTranslation("adminLogs");
+    const commonT = useStudioTranslation("common");
     const dispatch = useAppDispatch();
     const { manageServerService } = useServices();
 
@@ -51,16 +55,16 @@ export default function AdminLogsConfigMicrosoftLogs({ targetId }: AdminLogsConf
 
     return (
         <Accordion.Item eventKey={targetId} className="p-1 rounded-3">
-            <Accordion.Header>Microsoft logs</Accordion.Header>
+            <Accordion.Header>{t("diskSettings.microsoftLogs.title")}</Accordion.Header>
             <Accordion.Body>
-                <h5 className="text-center text-muted text-uppercase">Set min level</h5>
+                <h5 className="text-center text-muted text-uppercase">{t("diskSettings.microsoftLogs.heading")}</h5>
                 <Form onSubmit={handleSubmit(handleSave)} key={targetId}>
                     <FormGroup>
-                        <FormLabel>Current Minimum Level</FormLabel>
+                        <FormLabel>{t("diskSettings.currentMinLevel")}</FormLabel>
                         <FormSelect control={control} name="minLevel" options={logLevelOptions} />
                         {!isCloud && (
                             <FormCheckbox control={control} name="isPersist" className="mt-1">
-                                Save the minimum level in <code>settings.json</code>
+                                <StudioTrans ns="adminLogs" i18nKey="persistMinLevel" components={{ code: <code /> }} />
                                 <AdminLogsPersistInfoIcon />
                             </FormCheckbox>
                         )}
@@ -73,19 +77,19 @@ export default function AdminLogsConfigMicrosoftLogs({ targetId }: AdminLogsConf
                         isSpinning={formState.isSubmitting}
                         disabled={!formState.isDirty}
                     >
-                        Save
+                        {commonT("save")}
                     </ButtonWithSpinner>
                 </Form>
                 <h5 className="text-center text-muted text-uppercase">
-                    Read-only
-                    <PopoverWithHoverWrapper message="This setting is not editable here but can be configured through the server configuration.">
+                    {t("diskSettings.readOnly")}
+                    <PopoverWithHoverWrapper message={t("diskSettings.readOnlyInfoSingle")}>
                         <Icon icon="info" color="info" margin="ms-1" />
                     </PopoverWithHoverWrapper>
                 </h5>
                 <Table className="m-0">
                     <tbody>
                         <tr>
-                            <td>Minimum Level</td>
+                            <td>{t("diskSettings.table.minLevel")}</td>
                             <td>
                                 <AdminLogsConfigTableValue value={config.MinLevel} />
                             </td>

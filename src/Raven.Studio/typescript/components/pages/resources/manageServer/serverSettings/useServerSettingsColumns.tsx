@@ -9,6 +9,7 @@ import {
     CellWithDescription,
     CellWithDescriptionProps,
 } from "components/common/virtualTable/cells/CellWithDescription";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export interface ServerSettingsColumns {
     configurationKey: string;
@@ -18,31 +19,32 @@ export interface ServerSettingsColumns {
 }
 
 export function useServerSettingsColumns(availableWidth: number) {
+    const t = useStudioTranslation("serverSettings");
     const bodyWidth = virtualTableUtils.getTableBodyWidth(availableWidth);
     const getSize = virtualTableUtils.getCellSizeProvider(bodyWidth);
 
     const serverSettingsColumns: ColumnDef<ServerSettingsColumns>[] = useMemo(
         () => [
             {
-                header: "Configuration Key",
+                header: t("columns.configurationKey"),
                 accessorKey: "configurationKey",
                 cell: CellConfigurationKeyValueWrapper,
                 size: getSize(33.33),
             },
             {
-                header: "Effective Value",
+                header: t("columns.effectiveValue"),
                 accessorKey: "effectiveValue",
                 cell: CellEffectiveValueWrapper,
                 size: getSize(33.33),
             },
             {
-                header: "Origin",
+                header: t("columns.origin"),
                 accessorKey: "origin",
                 cell: CellOriginValueWrapper,
                 size: getSize(33.33),
             },
         ],
-        [getSize]
+        [getSize, t]
     );
 
     return serverSettingsColumns;
@@ -82,16 +84,16 @@ function CellEffectiveValueWrapper({
     return <CellValueWrapper getValue={getValue} {...props} />;
 }
 
-const titleValueField: Record<ServerSettingsColumns["origin"], string> = {
-    Server: "Value has been customized, overriding the default settings",
-    Default: "No customized value has been set",
-    Database: "",
-};
-
 function CellOriginValueWrapper({
     getValue,
     ...props
 }: CellContext<ServerSettingsColumns, ServerSettingsColumns["origin"]>) {
+    const t = useStudioTranslation("serverSettings");
+    const titleValueField: Record<ServerSettingsColumns["origin"], string> = {
+        Server: t("origin.serverDescription"),
+        Default: t("origin.defaultDescription"),
+        Database: "",
+    };
     const conditionalIconName: IconName = getValue() === "Server" ? "server" : "default";
     return (
         <>

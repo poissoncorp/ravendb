@@ -8,6 +8,7 @@ import { RichAlert } from "components/common/RichAlert";
 import StatTile from "./StatTile";
 import genUtils from "common/generalUtils";
 import { formatNumber } from "./analyzerUtils";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 type DatabaseStatistics = Raven.Client.Documents.Operations.DatabaseStatistics;
 
@@ -20,6 +21,7 @@ interface DatabaseStatsProps {
 // On-demand per-node database statistics from the analyzer databases/stats endpoint - the full
 // DatabaseStatistics (counts, sizes, change vector, stale indexes) beyond the per-node overview.
 export default memo(function DatabaseStats({ packageId, database, node }: DatabaseStatsProps) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const { manageServerService } = useServices();
 
     const stats = useAsync(async () => {
@@ -35,86 +37,91 @@ export default memo(function DatabaseStats({ packageId, database, node }: Databa
         <div className="database-stats">
             <div className="panel-bg-1 rounded">
                 <div className="p-4 vstack gap-3">
-                    <h3 className="m-0">Statistics</h3>
+                    <h3 className="m-0">{t("databaseStats.title")}</h3>
                     {stats.loading ? (
                         <div className="hstack gap-2 justify-content-center text-muted py-3">
-                            <Spinner size="sm" /> Loading statistics for node {node}...
+                            <Spinner size="sm" /> {t("databaseStats.loading", { node })}
                         </div>
                     ) : stats.error ? (
-                        <RichAlert variant="danger">
-                            Could not load statistics for node {node}. The package may not contain stats for this
-                            database, or the report expired.
-                        </RichAlert>
+                        <RichAlert variant="danger">{t("databaseStats.loadError", { node })}</RichAlert>
                     ) : !info ? (
                         <EmptySet compact className="justify-content-center">
-                            No statistics for {database} on node {node}
+                            {t("databaseStats.empty", { database, node })}
                         </EmptySet>
                     ) : (
                         <>
                             <div className="overview-stats gap-2">
                                 <StatTile
-                                    label="Documents"
+                                    label={t("databaseStats.documents")}
                                     icon="documents"
                                     value={formatNumber(info.CountOfDocuments)}
                                 />
-                                <StatTile label="Indexes" icon="indexing" value={formatNumber(info.CountOfIndexes)} />
                                 <StatTile
-                                    label="Attachments"
+                                    label={t("databaseStats.indexes")}
+                                    icon="indexing"
+                                    value={formatNumber(info.CountOfIndexes)}
+                                />
+                                <StatTile
+                                    label={t("databaseStats.attachments")}
                                     icon="attachment"
                                     value={formatNumber(info.CountOfAttachments)}
                                 />
                                 <StatTile
-                                    label="Revisions"
+                                    label={t("databaseStats.revisions")}
                                     icon="revisions"
                                     value={formatNumber(info.CountOfRevisionDocuments)}
                                 />
                                 <StatTile
-                                    label="Conflicts"
+                                    label={t("databaseStats.conflicts")}
                                     icon="conflicts"
                                     value={formatNumber(info.CountOfDocumentsConflicts)}
                                 />
                                 <StatTile
-                                    label="Tombstones"
+                                    label={t("databaseStats.tombstones")}
                                     icon="tombstones"
                                     value={formatNumber(info.CountOfTombstones)}
                                 />
                                 <StatTile
-                                    label="Counters"
+                                    label={t("databaseStats.counters")}
                                     icon="new-counter"
                                     value={formatNumber(info.CountOfCounterEntries)}
                                 />
                                 <StatTile
-                                    label="Time series segments"
+                                    label={t("databaseStats.timeSeriesSegments")}
                                     icon="timeseries-settings"
                                     value={formatNumber(info.CountOfTimeSeriesSegments)}
                                 />
                                 <StatTile
-                                    label="Size on disk"
+                                    label={t("databaseStats.sizeOnDisk")}
                                     icon="storage"
                                     value={info.SizeOnDisk?.HumaneSize ?? "-"}
                                 />
                                 <StatTile
-                                    label="Temp buffers"
+                                    label={t("databaseStats.tempBuffers")}
                                     icon="clock"
                                     value={info.TempBuffersSizeOnDisk?.HumaneSize ?? "-"}
                                 />
-                                <StatTile label="Database ID" icon="hash" value={info.DatabaseId} />
+                                <StatTile label={t("databaseStats.databaseId")} icon="hash" value={info.DatabaseId} />
                                 <StatTile
-                                    label="Last indexing time"
+                                    label={t("databaseStats.lastIndexingTime")}
                                     icon="index-history"
                                     value={
                                         info.LastIndexingTime
                                             ? genUtils.formatUtcDateAsLocal(info.LastIndexingTime)
-                                            : "Never"
+                                            : t("databaseStats.never")
                                     }
                                 />
                                 <StatTile
-                                    label="Architecture"
+                                    label={t("databaseStats.architecture")}
                                     icon="processor"
-                                    value={info.Is64Bit ? "64-bit" : "32-bit"}
+                                    value={
+                                        info.Is64Bit
+                                            ? t("databaseStats.architecture64Bit")
+                                            : t("databaseStats.architecture32Bit")
+                                    }
                                 />
                                 <StatTile
-                                    label="Change vector"
+                                    label={t("databaseStats.changeVector")}
                                     icon="vector"
                                     value={info.DatabaseChangeVector || "-"}
                                 />
@@ -122,7 +129,9 @@ export default memo(function DatabaseStats({ packageId, database, node }: Databa
 
                             {info.StaleIndexes?.length > 0 && (
                                 <div>
-                                    <div className="small-label mb-1">Stale indexes ({info.StaleIndexes.length})</div>
+                                    <div className="small-label mb-1">
+                                        {t("databaseStats.staleIndexes", { count: info.StaleIndexes.length })}
+                                    </div>
                                     <div className="hstack gap-1 flex-wrap">
                                         {info.StaleIndexes.map((name) => (
                                             <Badge key={name} bg="warning" pill>

@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("serverWideCommands");
 
 class getServerWideCustomAnalyzersCommand extends commandBase {
 
@@ -12,7 +15,7 @@ class getServerWideCustomAnalyzersCommand extends commandBase {
 
         return this.query<Array<Raven.Client.Documents.Indexes.Analysis.AnalyzerDefinition>>(url, null, null, x => x.Analyzers)
             .fail((response: JQueryXHR) => {
-                this.reportError("Failed to get Server-Wide Custom Analyzers", response.responseText, response.statusText);
+                this.reportError(t("analyzers.getFailed"), response.responseText, response.statusText);
             });
     }
 }

@@ -12,21 +12,17 @@ import { certificatesSelectors } from "components/pages/resources/manageServer/c
 import { useAppSelector } from "components/store";
 import Badge from "react-bootstrap/Badge";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 export default function CertificatesWellKnownList() {
+    const t = useStudioTranslation("certificates");
     const wellKnownAdminCerts = useAppSelector(certificatesSelectors.wellKnownAdminCerts);
     const wellKnownIssuers = useAppSelector(certificatesSelectors.wellKnownIssuers);
 
     return (
         <div className="vstack mt-3">
-            <WellKnownItem
-                title="Well known admin certificates defined by system administrator"
-                wellKnownThumbprints={wellKnownAdminCerts}
-            />
-            <WellKnownItem
-                title="Well known issuer certificates defined by system administrator"
-                wellKnownThumbprints={wellKnownIssuers}
-            />
+            <WellKnownItem title={t("wellKnown.adminTitle")} wellKnownThumbprints={wellKnownAdminCerts} />
+            <WellKnownItem title={t("wellKnown.issuerTitle")} wellKnownThumbprints={wellKnownIssuers} />
         </div>
     );
 }
@@ -37,6 +33,7 @@ interface WellKnownItemProps {
 }
 
 function WellKnownItem({ title, wellKnownThumbprints }: WellKnownItemProps) {
+    const t = useStudioTranslation("certificates");
     const nameOrThumbprintFilter = useAppSelector(certificatesSelectors.nameOrThumbprintFilter);
     const clearanceFilter = useAppSelector(certificatesSelectors.clearanceFilter);
 
@@ -58,7 +55,7 @@ function WellKnownItem({ title, wellKnownThumbprints }: WellKnownItemProps) {
 
     return (
         <RichPanel className="flex-row with-status" hover>
-            <RichPanelStatus color="info">Well known</RichPanelStatus>
+            <RichPanelStatus color="info">{t("wellKnown.status")}</RichPanelStatus>
             <div className="flex-grow">
                 <RichPanelHeader>
                     <div>
@@ -70,10 +67,7 @@ function WellKnownItem({ title, wellKnownThumbprints }: WellKnownItemProps) {
                             variant="link"
                             size="xs"
                             onClick={() =>
-                                copyToClipboard.copy(
-                                    wellKnownThumbprints.join(", "),
-                                    "Successfully copied thumbprints to clipboard"
-                                )
+                                copyToClipboard.copy(wellKnownThumbprints.join(", "), t("item.thumbprintsCopied"))
                             }
                         >
                             <Icon icon="copy" margin="m-0" />
@@ -85,23 +79,23 @@ function WellKnownItem({ title, wellKnownThumbprints }: WellKnownItemProps) {
                         label={
                             <>
                                 <Icon icon="user" />
-                                Security clearance
+                                {t("item.securityClearance")}
                             </>
                         }
                     >
-                        Cluster Admin
+                        {t("clearance.clusterAdmin")}
                     </RichPanelDetailItem>
                     <RichPanelDetailItem
                         label={
                             <>
                                 <Icon icon="database" />
-                                Database permissions
+                                {t("item.databasePermissions")}
                             </>
                         }
                     >
                         <Badge bg="faded-success" pill>
                             <Icon icon="user" />
-                            All
+                            {t("item.allDatabases")}
                         </Badge>
                     </RichPanelDetailItem>
                 </RichPanelDetails>

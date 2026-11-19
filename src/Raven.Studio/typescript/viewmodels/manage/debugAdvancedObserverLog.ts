@@ -11,6 +11,9 @@ import toggleClusterObserverCommand = require("commands/database/cluster/toggleC
 import eventsCollector = require("common/eventsCollector");
 import clusterTopologyManager = require("common/shell/clusterTopologyManager");
 import fileDownloader = require("common/fileDownloader");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("debugAdvancedObserverLog");
 
 class clusterObserverLog extends viewModelBase {
 
@@ -23,6 +26,8 @@ class clusterObserverLog extends viewModelBase {
     topology = clusterTopologyManager.default.topology;
     observerSuspended = ko.observable<boolean>();
     noLeader = ko.observable<boolean>(false);
+
+    leaderOnlyHtml = t("leaderOnly");
 
     private gridController = ko.observable<virtualGridController<Raven.Server.ServerWide.Maintenance.ClusterObserverLogEntry>>();
     private columnPreview = new columnPreviewPlugin<Raven.Server.ServerWide.Maintenance.ClusterObserverLogEntry>();
@@ -75,14 +80,14 @@ class clusterObserverLog extends viewModelBase {
         grid.headerVisible(true);
         grid.init(fetcher, () =>
             [
-                new textColumn<Raven.Server.ServerWide.Maintenance.ClusterObserverLogEntry>(grid, x => generalUtils.formatUtcDateAsLocal(x.Date), "Date", "20%", {
+                new textColumn<Raven.Server.ServerWide.Maintenance.ClusterObserverLogEntry>(grid, x => generalUtils.formatUtcDateAsLocal(x.Date), t("columns.date"), "20%", {
                     sortable: x => x.Date
                 }),
-                new textColumn<Raven.Server.ServerWide.Maintenance.ClusterObserverLogEntry>(grid, x => x.Database, "Database", "20%", {
+                new textColumn<Raven.Server.ServerWide.Maintenance.ClusterObserverLogEntry>(grid, x => x.Database, t("columns.database"), "20%", {
                     sortable: "string",
                     customComparator: generalUtils.sortAlphaNumeric
                 }),
-                new textColumn<Raven.Server.ServerWide.Maintenance.ClusterObserverLogEntry>(grid, x => x.Message, "Message", "60%")
+                new textColumn<Raven.Server.ServerWide.Maintenance.ClusterObserverLogEntry>(grid, x => x.Message, t("columns.message"), "60%")
             ]
         );
 
@@ -91,7 +96,7 @@ class clusterObserverLog extends viewModelBase {
              column: textColumn<Raven.Server.ServerWide.Maintenance.ClusterObserverLogEntry>, e: JQuery.TriggeredEvent, 
              onValue: (context: any, valueToCopy?: string) => void) => {
             const value = column.getCellValue(entry);
-            if (column.header === "Date") {
+            if (column.header === t("columns.date")) {
                 onValue(moment.utc(entry.Date), entry.Date);
             } else if (value !== undefined) {
                 onValue(generalUtils.escapeHtml(value), value);
@@ -161,8 +166,8 @@ class clusterObserverLog extends viewModelBase {
     }
 
     suspendObserver() {
-        this.confirmationMessage("Are you sure?", "Do you want to suspend cluster observer?", {
-            buttons: ["No", "Yes, suspend"]
+        this.confirmationMessage(t("confirm.title"), t("confirm.suspend"), {
+            buttons: [t("confirm.no"), t("confirm.suspendButton")]
         })
             .done(result => {
                 if (result.can) {
@@ -179,8 +184,8 @@ class clusterObserverLog extends viewModelBase {
     }
 
     resumeObserver() {
-        this.confirmationMessage("Are you sure?", "Do you want to resume cluster observer?", {
-            buttons: ["No", "Yes, resume"]
+        this.confirmationMessage(t("confirm.title"), t("confirm.resume"), {
+            buttons: [t("confirm.no"), t("confirm.resumeButton")]
         })
             .done(result => {
                 if (result.can) {

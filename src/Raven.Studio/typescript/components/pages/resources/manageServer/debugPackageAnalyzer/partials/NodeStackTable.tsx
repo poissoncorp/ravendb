@@ -4,6 +4,7 @@ import { Row } from "@tanstack/react-table";
 import { Icon } from "components/common/Icon";
 import NodeTagPill from "./NodeTagPill";
 import { MetricRange, formatRange } from "./analyzerUtils";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 import "./NodeStackTable.scss";
 
 // Shared building blocks for the node-grouped analyzer tables (Databases Overview, Ongoing Tasks,
@@ -12,12 +13,13 @@ import "./NodeStackTable.scss";
 
 // Small, muted chevron shown on expandable parent rows; rotates to indicate the expanded state.
 export function ExpandIndicator({ expanded }: { expanded: boolean }) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     return (
         <Icon
             icon="chevron-right"
             size="sm"
             margin="m-0"
-            title={expanded ? "Collapse" : "Expand"}
+            title={expanded ? t("nodeTable.collapse") : t("nodeTable.expand")}
             className={classNames("node-table-chevron", { expanded })}
         />
     );
@@ -47,6 +49,7 @@ export function canExpandNodeRow<T extends { subRows?: unknown[] }>(row: Row<T>)
 // tooltip hinting that the per-node values are one expand away. Node sub-rows pass an equal min/max
 // and so render a plain single value through the same component.
 export function RangeCell({ range, format }: { range: MetricRange; format: (value: number) => string }) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const diverged = format(range.min) !== format(range.max);
     const text = formatRange(range, format);
 
@@ -55,7 +58,7 @@ export function RangeCell({ range, format }: { range: MetricRange; format: (valu
     }
 
     return (
-        <span className="node-range-diverged" title="Data differs across nodes - expand for details">
+        <span className="node-range-diverged" title={t("nodeTable.valuesDiffer")}>
             {text}
         </span>
     );

@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("serverWideCommands");
 
 class getServerWideTaskInfoCommand<T extends Raven.Client.ServerWide.Operations.OngoingTasks.ServerWideExternalReplication |
                                              Raven.Client.ServerWide.Operations.Configuration.ServerWideBackupConfiguration> extends commandBase {
@@ -11,7 +14,7 @@ class getServerWideTaskInfoCommand<T extends Raven.Client.ServerWide.Operations.
     execute(): JQueryPromise<Raven.Server.Web.System.ServerWideTasksResult<T>> {
         return this.getServerWideTaskInfo()
             .fail((response: JQueryXHR) => {
-                this.reportError(`Failed to get info for the server-wide ${this.taskType} task with name: ${this.taskName}.`, response.responseText, response.statusText);
+                this.reportError(t("tasks.getInfoFailed", { type: this.taskType, name: this.taskName }), response.responseText, response.statusText);
             });
     }
 

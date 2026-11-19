@@ -28,6 +28,7 @@ import ButtonWithSpinner from "components/common/ButtonWithSpinner";
 import { FormAceEditor, FormInput, FormLabel } from "components/common/Form";
 import fileImporter from "common/fileImporter";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface ServerWideCustomAnalyzersListItemProps {
     initialAnalyzer: CustomAnalyzerFormData;
@@ -36,6 +37,7 @@ interface ServerWideCustomAnalyzersListItemProps {
 
 export default function ServerWideCustomAnalyzersListItem(props: ServerWideCustomAnalyzersListItemProps) {
     const { initialAnalyzer, remove } = props;
+    const t = useStudioTranslation("serverWideAnalyzers");
 
     const form = useForm<CustomAnalyzerFormData>({
         resolver: customAnalyzerYupResolver,
@@ -87,7 +89,7 @@ export default function ServerWideCustomAnalyzersListItem(props: ServerWideCusto
                 <RichPanelHeader>
                     <RichPanelInfo>
                         <RichPanelName>
-                            {formValues.name || "New analyzer name"}
+                            {formValues.name || t("item.newNameFallback")}
                             {(formState.isDirty || isNew) && <span className="text-warning ms-1">*</span>}
                         </RichPanelName>
                     </RichPanelInfo>
@@ -96,11 +98,11 @@ export default function ServerWideCustomAnalyzersListItem(props: ServerWideCusto
                         {isEditMode ? (
                             <>
                                 <Button key="save" type="submit" variant="success" disabled={formState.isSubmitting}>
-                                    <Icon icon="save" /> Save changes
+                                    <Icon icon="save" /> {t("item.saveButton")}
                                 </Button>
                                 <Button key="cancel" type="button" variant="secondary" onClick={onDiscard}>
                                     <Icon icon="cancel" />
-                                    Discard
+                                    {t("item.discardButton")}
                                 </Button>
                             </>
                         ) : (
@@ -131,12 +133,12 @@ export default function ServerWideCustomAnalyzersListItem(props: ServerWideCusto
                         <RichPanelDetails className="vstack gap-3 p-4">
                             {isNew && (
                                 <InputGroup className="vstack mb-1">
-                                    <FormLabel>Name</FormLabel>
+                                    <FormLabel>{t("item.nameLabel")}</FormLabel>
                                     <FormInput
                                         type="text"
                                         control={control}
                                         name="name"
-                                        placeholder="Enter analyzer name"
+                                        placeholder={t("item.namePlaceholder")}
                                     />
                                 </InputGroup>
                             )}
@@ -144,7 +146,7 @@ export default function ServerWideCustomAnalyzersListItem(props: ServerWideCusto
                                 <div className="d-flex justify-content-end">
                                     <FormLabel className="btn btn-link btn-xs text-right">
                                         <Icon icon="upload" />
-                                        Load from a file
+                                        {t("item.loadFromFile")}
                                         <input
                                             type="file"
                                             className="d-none"

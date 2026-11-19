@@ -11,7 +11,10 @@ import fileDownloader = require("common/fileDownloader");
 import fileImporter = require("common/fileImporter");
 import genUtils = require("common/generalUtils");
 import icomoonHelpers = require("common/helpers/view/icomoonHelpers");
+import i18nModule = require("common/i18n/i18n");
 import ThreadInfo = Raven.Server.Dashboard.ThreadInfo;
+
+const t = i18nModule.createTranslator("captureStackTraces");
 
 type stackFrame = {
     short: string;
@@ -142,7 +145,7 @@ class captureStackTraces extends viewModelBase {
             })
             .fail((xhr: JQueryXHR) => {
                 this.spinners.loading(false);
-                this.error("Failed to load stack traces from the debug package: " + (xhr.responseText || xhr.statusText));
+                this.error(t("loadFromPackageFailed", { error: xhr.responseText || xhr.statusText }));
             });
     }
     
@@ -366,7 +369,7 @@ class captureStackTraces extends viewModelBase {
             .attr("class", "title")
             .attr('text-anchor', 'start')
             .attr("x", 3)
-            .text(d => this.pluralize(d.threadIds.length, "THREAD", "THREADS", true));
+            .text(d => t("threads", { count: d.threadIds.length }));
         
         const cpuUsageContainer = enteringNodes
             .filter(d => d.cpuUsage != null)
@@ -387,7 +390,7 @@ class captureStackTraces extends viewModelBase {
             .attr('text-anchor', 'start')
             .attr("x", stackInfo.boxPadding)
             .attr("y", -16)
-            .text("CPU");
+            .text(t("cpu"));
 
         enteringNodes.filter(d => d.depth > 0).each(function (d: stackInfo, index: number) {
             if (d.threadNamesHeight() > 0) {
@@ -438,7 +441,7 @@ class captureStackTraces extends viewModelBase {
             })
             .on("click", d => this.onCopyStack(d))
             .append("title")
-            .text("Copy stack to clipboard");
+            .text(t("copyStackTitle"));
         
         buttonGroup
             .append("text")
@@ -531,7 +534,7 @@ class captureStackTraces extends viewModelBase {
                         }
                         
                         const serverUrl = tagMapping[stack.NodeTag];
-                        stack.NodeUrl = serverUrl || "<Unknown URL>";
+                        stack.NodeUrl = serverUrl || t("unknownUrl");
                     });
                     this.clusterWideData(stacks);
                     this.selectedClusterWideData(stacks[0]);
@@ -557,7 +560,7 @@ class captureStackTraces extends viewModelBase {
         this.assignThreadsInfo(collatedStacks);
         
         collatedStacks.filter(x => x.stackTrace.length === 0).forEach(emptyStack => {
-            emptyStack.stackTrace = ["Stack Trace is not available"];
+            emptyStack.stackTrace = [t("stackTraceNotAvailable")];
         });
         
         this.updateGraph(collatedStacks);
@@ -604,7 +607,7 @@ class captureStackTraces extends viewModelBase {
                 const ids = groupByName[key].map((x: ThreadInfo) => x.Id);
                 
                 const shortName = ids.length > 2 ? (
-                    "[" + ids[0] + "," + ids[1] + " and " + (ids.length - 2) + " more] " + key
+                    t("threadIdsAndMore", { firstId: ids[0], secondId: ids[1], count: ids.length - 2, threadName: key })
                 ) : "[" + ids.join(",") + "] " + key;
                 
                 return {
@@ -642,7 +645,7 @@ class captureStackTraces extends viewModelBase {
             data = data.parent;
         } while (data);
      
-        copyToClipboard.copy(stackFrames.join("\r\n"), "Stack trace was copied to clipboard");
+        copyToClipboard.copy(stackFrames.join("\r\n"), t("stackCopied"));
     }
     
     exportAsJson() {

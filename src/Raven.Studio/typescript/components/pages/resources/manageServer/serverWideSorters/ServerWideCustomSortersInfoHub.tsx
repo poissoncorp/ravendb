@@ -8,11 +8,25 @@ import { useRavenLink } from "components/hooks/useRavenLink";
 import { useAppSelector } from "components/store";
 import { useLimitedFeatureAvailability } from "components/utils/licenseLimitsUtils";
 import React from "react";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function ServerWideCustomSortersInfoHub() {
+    const t = useStudioTranslation("serverWideSorters");
+    const commonT = useStudioTranslation("common");
     const customSortersDocsLink = useRavenLink({ hash: "XI6BMT" });
 
     const hasServerWideCustomSorters = useAppSelector(licenseSelectors.statusValue("HasServerWideCustomSorters"));
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("featureAvailability.serverWide"),
+            featureIcon: "server-wide-custom-sorters",
+            community: { value: false },
+            professional: { value: true },
+            enterprise: { value: true },
+            quill: { value: true },
+        },
+    ];
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
         overwrites: [
@@ -27,50 +41,50 @@ export default function ServerWideCustomSortersInfoHub() {
         <AboutViewAnchored defaultOpen={hasServerWideCustomSorters ? null : "licensing"}>
             <AccordionItemWrapper targetId="1" icon="about" color="info">
                 <p>
-                    A <strong>Custom Sorter</strong> allows you to define how documents will be ordered in the query
-                    results
-                    <br />
-                    according to your specific requirements.
+                    <StudioTrans
+                        ns="serverWideSorters"
+                        i18nKey="about.sorters"
+                        components={{ strong: <strong />, br: <br /> }}
+                    />
                 </p>
                 <div>
-                    <strong>In this view</strong>, you can add your own sorters:
+                    <StudioTrans
+                        ns="serverWideSorters"
+                        i18nKey="about.inThisView"
+                        components={{ strong: <strong /> }}
+                    />
                     <ul className="margin-top-xxs">
-                        <li>
-                            The custom sorters added here can be used with queries in ALL databases in your cluster.
-                        </li>
-                        <li>Note: custom sorters are not supported when querying Corax indexes.</li>
+                        <li>{t("about.allDatabasesItem")}</li>
+                        <li>{t("about.coraxItem")}</li>
                     </ul>
                 </div>
                 <div>
-                    Provide <code>C#</code> code in the editor view, or upload from file:
+                    <StudioTrans ns="serverWideSorters" i18nKey="about.provideCode" components={{ code: <code /> }} />
                     <ul className="margin-top-xxs">
-                        <li>The sorter name must be the same as the sorter&apos;s class name in your code.</li>
+                        <li>{t("about.nameItem")}</li>
                         <li>
-                            Inherit from <code>Lucene.Net.Search.FieldComparator</code>
+                            <StudioTrans
+                                ns="serverWideSorters"
+                                i18nKey="about.inheritItem"
+                                components={{ code: <code /> }}
+                            />
                         </li>
                         <li>
-                            Code must be compilable and include all necessary <code>using</code> statements.
+                            <StudioTrans
+                                ns="serverWideSorters"
+                                i18nKey="about.compilableItem"
+                                components={{ code: <code /> }}
+                            />
                         </li>
                     </ul>
                 </div>
                 <hr />
-                <div className="small-label mb-2">useful links</div>
+                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                 <a href={customSortersDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - Custom Sorters
+                    <Icon icon="newtab" /> {t("about.docsLink")}
                 </a>
             </AccordionItemWrapper>
             <FeatureAvailabilitySummaryWrapper isUnlimited={hasServerWideCustomSorters} data={featureAvailability} />
         </AboutViewAnchored>
     );
 }
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "Server-Wide Custom Sorters",
-        featureIcon: "server-wide-custom-sorters",
-        community: { value: false },
-        professional: { value: true },
-        enterprise: { value: true },
-        quill: { value: true },
-    },
-];

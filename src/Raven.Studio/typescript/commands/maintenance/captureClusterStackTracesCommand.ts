@@ -3,6 +3,9 @@ import endpoints = require("endpoints");
 
 import jszipUtils = require("jszip-utils");
 import jszip = require("jszip");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("maintenanceCommands");
 
 class captureClusterStackTracesCommand extends commandBase {
 
@@ -33,7 +36,7 @@ class captureClusterStackTracesCommand extends commandBase {
             }
         });
         
-        task.fail(error => this.reportError("Unable to fetch stack traces", error));
+        task.fail(error => this.reportError(t("fetchStackTracesFailed"), error));
         
         return task;
     }
@@ -75,7 +78,7 @@ class captureClusterStackTracesCommand extends commandBase {
                                     Stacks: null,
                                     NodeUrl: null,
                                     Threads: [],
-                                    Error: "Unable to find stack traces for given node."
+                                    Error: t("nodeStackTracesNotFound")
                                 });
                             }
                         })

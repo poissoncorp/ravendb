@@ -4,26 +4,28 @@ import { CertificatesCloneFormData } from "components/pages/resources/manageServ
 import { CertificatesGenerateFormData } from "components/pages/resources/manageServer/certificates/partials/authEnabled/CertificatesGenerateModal";
 import { ExpireTimeUnit } from "components/pages/resources/manageServer/certificates/utils/certificatesTypes";
 import { useFormContext } from "react-hook-form";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 export default function CertificatesExpireField() {
+    const t = useStudioTranslation("certificates");
     const { control } = useFormContext<CertificatesGenerateFormData | CertificatesCloneFormData>();
 
     return (
         <FormGroup>
-            <FormLabel>Expire in</FormLabel>
+            <FormLabel>{t("expire.label")}</FormLabel>
             <FormInput
                 type="number"
                 control={control}
                 name="expireIn"
-                placeholder="Validity period (Default: 60 months)"
+                placeholder={t("expire.placeholder")}
                 addon={
                     <FormSelect
                         control={control}
                         name="expireTimeUnits"
                         options={
                             [
-                                { value: "days", label: "Days" },
-                                { value: "months", label: "Months" },
+                                { value: "days", label: t("expire.days") },
+                                { value: "months", label: t("expire.months") },
                             ] satisfies SelectOption<ExpireTimeUnit>[]
                         }
                     />

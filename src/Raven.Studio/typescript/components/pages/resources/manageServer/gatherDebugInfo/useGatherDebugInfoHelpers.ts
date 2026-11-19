@@ -15,6 +15,8 @@ import { useDirtyFlag } from "components/hooks/useDirtyFlag";
 import { useAsyncCallback } from "react-async-hook";
 import viewHelpers = require("common/helpers/view/viewHelpers");
 import { FormCheckboxesOption } from "components/common/Form";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { createTranslator } from "common/i18n/i18n";
 import DebugInfoPackageContentType = Raven.Server.Documents.Handlers.Debugging.ServerWideDebugInfoPackageHandler.DebugInfoPackageContentType;
 
 const adminDebugInfoPackage = endpoints.global.serverWideDebugInfoPackage.adminDebugInfoPackage;
@@ -27,6 +29,7 @@ interface DownloadPackageRequestDto {
 }
 
 export function useGatherDebugInfoHelpers() {
+    const t = useStudioTranslation("gatherDebugInfo");
     const { value: isDownloading, setValue: setIsDownloading } = useBoolean(false);
     const { value: isAbortConfirmVisible, toggle: toggleIsAbortConfirmVisible } = useBoolean(false);
     const { databasesService } = useServices();
@@ -37,7 +40,7 @@ export function useGatherDebugInfoHelpers() {
 
     const asyncGetNextOperationId = useAsyncCallback(() => databasesService.getNextOperationId(null), {
         onError(error) {
-            messagePublisher.reportError("Could not get next task id.", error.message);
+            messagePublisher.reportError(t("nextOperationIdError"), error.message);
             setIsDownloading(false);
         },
     });
@@ -118,19 +121,16 @@ const defaultValues: GatherDebugInfoFormData = {
 };
 
 function confirmLeavingPage(): JQueryDeferred<confirmDialogResult> {
+    const t = createTranslator("gatherDebugInfo");
     const abortResult = $.Deferred<confirmDialogResult>();
 
     // TODO Use a react component if the dirty flag is already moved
 
-    const confirmation = viewHelpers.confirmationMessage(
-        "Abort Debug Package Creation",
-        "Leaving this page will abort package creation.<br>How do you want to proceed?",
-        {
-            buttons: ["Stay on this page", "Leave and Abort"],
-            forceRejectWithResolve: true,
-            html: true,
-        }
-    );
+    const confirmation = viewHelpers.confirmationMessage(t("leaveConfirm.title"), t("leaveConfirm.message"), {
+        buttons: [t("leaveConfirm.stay"), t("leaveConfirm.leave")],
+        forceRejectWithResolve: true,
+        html: true,
+    });
 
     confirmation.done((result: confirmDialogResult) => abortResult.resolve(result));
     return abortResult;

@@ -1,48 +1,48 @@
 <div class="flex-vertical absolute-fill content-margin capture-stack-traces">
     <div class="flex-horizontal flex-shrink-0 toolbar">
         <div>
-            Capture Stack Traces for:
+            <span data-bind="i18n: 'captureStackTraces:captureFor'"></span>
 
             <div class="btn-group margin-left-xs">
                 <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                    <span data-bind="text: clusterWide() ? 'entire cluster' : 'current server only'"></span>
+                    <span data-bind="i18n: clusterWide() ? 'captureStackTraces:scope.cluster' : 'captureStackTraces:scope.server'"></span>
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu">
-                    <li><a href="#" data-bind="click: _.partial(clusterWide, false)">current server only</a></li>
-                    <li><a href="#" data-bind="click: _.partial(clusterWide, true)">entire cluster</a></li>
+                    <li><a href="#" data-bind="click: _.partial(clusterWide, false), i18n: 'captureStackTraces:scope.server'"></a></li>
+                    <li><a href="#" data-bind="click: _.partial(clusterWide, true), i18n: 'captureStackTraces:scope.cluster'"></a></li>
                 </ul>
             </div>
             
             <div class="btn btn-primary" data-bind="click: captureStacks, css: { 'btn-spinner': spinners.loading }, disable: spinners.loading">
                 <i class="icon-parallel-stacks"></i> 
-                <span>Capture</span>
+                <span data-bind="i18n: 'captureStackTraces:capture'"></span>
             </div>
             
-            <button class="btn btn-default margin-left" data-bind="click: exportAsJson, enable: hasAnyData, visible: !isImport()" title="Export current stack traces to a file">
-                <i class="icon-export"></i><span>Export</span>
+            <button class="btn btn-default margin-left" data-bind="click: exportAsJson, enable: hasAnyData, visible: !isImport(), i18nAttr: { title: 'captureStackTraces:exportTitle' }">
+                <i class="icon-export"></i><span data-bind="i18n: 'captureStackTraces:export'"></span>
             </button>
 
             <label for="importStacksFilePicker" class="btn btn-default">
-                <i class="icon-import"></i><span>Import</span>
+                <i class="icon-import"></i><span data-bind="i18n: 'captureStackTraces:import'"></span>
             </label>
 
-            <div class="input-group file-input" title="Import stack traces from file">
+            <div class="input-group file-input" data-bind="i18nAttr: { title: 'captureStackTraces:importTitle' }">
                 <input type="file" id="importStacksFilePicker" data-bind="event: { change: _.partial(fileSelected, $element) }" tabindex="-1" accept=".json">
             </div>
         </div>
          
         <div class="flex-separator"></div>
         <div data-bind="if: clusterWideData().length && selectedClusterWideData()">
-            Show stack traces for: 
+            <span data-bind="i18n: 'captureStackTraces:showFor'"></span>
 
             <div class="btn-group">
                 <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                    <span data-bind="text: 'Node ' + selectedClusterWideData().NodeTag + ' (' + selectedClusterWideData().NodeUrl + ')'"></span>
+                    <span data-bind="i18n: { key: 'captureStackTraces:node', options: { nodeTag: selectedClusterWideData().NodeTag, nodeUrl: selectedClusterWideData().NodeUrl } }"></span>
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" data-bind="foreach: clusterWideData">
-                    <li><a href="#" data-bind="text: 'Node ' + NodeTag + ' (' + NodeUrl + ')', click: _.partial($root.selectedClusterWideData, $data)"></a></li>
+                    <li><a href="#" data-bind="i18n: { key: 'captureStackTraces:node', options: { nodeTag: NodeTag, nodeUrl: NodeUrl } }, click: _.partial($root.selectedClusterWideData, $data)"></a></li>
                 </ul>
             </div>
         </div>

@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
 import certificatesTypes = require("components/pages/resources/manageServer/certificates/utils/certificatesTypes");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("authCommands");
 
 class replaceClusterCertificateCommand extends commandBase {
 
@@ -16,8 +19,8 @@ class replaceClusterCertificateCommand extends commandBase {
         const url = endpoints.global.adminCertificates.adminCertificatesReplaceClusterCert + this.urlEncodeArgs(args);
         
         return this.post<void>(url, JSON.stringify(this.dto), null, { dataType: undefined })
-            .done(() => this.reportSuccess("The server certificate(s) will be replaced when all the nodes confirm receipt. An alert will be raised upon success."))
-            .fail((response: JQueryXHR) => this.reportError("Unable to replace server certificate", response.responseText, response.statusText));
+            .done(() => this.reportSuccess(t("replaceClusterCertificateSucceeded")))
+            .fail((response: JQueryXHR) => this.reportError(t("replaceClusterCertificateFailed"), response.responseText, response.statusText));
     }
 }
 

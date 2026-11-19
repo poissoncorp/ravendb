@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
 import database = require("models/resources/database");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("clusterCommands");
 
 class testSqlConnectionStringCommand extends commandBase {
 
@@ -22,10 +25,10 @@ class testSqlConnectionStringCommand extends commandBase {
         const url = endpoints.databases.sqlEtl.adminEtlSqlTestConnection + this.urlEncodeArgs(args);
 
         return this.post(url, this.connectionString, this.db)
-            .fail((response: JQueryXHR) => this.reportError(`Failed to test SQL connection`, response.responseText, response.statusText))
+            .fail((response: JQueryXHR) => this.reportError(t("testFailed.sql"), response.responseText, response.statusText))
             .done((result: Raven.Server.Web.System.NodeConnectionTestResult) => {
                 if (!result.Success) {
-                    this.reportError(`Failed to test SQL connection`, result.Error);
+                    this.reportError(t("testFailed.sql"), result.Error);
                 }
             });
     }

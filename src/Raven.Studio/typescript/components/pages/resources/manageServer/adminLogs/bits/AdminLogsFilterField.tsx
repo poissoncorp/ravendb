@@ -13,6 +13,8 @@ import InputGroup from "react-bootstrap/InputGroup";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 type FormData = AdminLogsViewSettingsFormData | AdminLogsConfigLogsFormData;
 
@@ -28,6 +30,7 @@ interface AdminLogsFilterFieldProps {
 }
 
 export default function AdminLogsFilterField({ control, idx, remove }: AdminLogsFilterFieldProps) {
+    const t = useStudioTranslation("adminLogs");
     const formValues = useWatch({ control });
 
     const maxLevel = formValues.filters[idx].maxLevel;
@@ -62,7 +65,7 @@ export default function AdminLogsFilterField({ control, idx, remove }: AdminLogs
             <Row>
                 <Col md={4}>
                     <FormGroup className="flex-grow-1">
-                        <FormLabel>Minimum level</FormLabel>
+                        <FormLabel>{t("filterField.minLevel")}</FormLabel>
                         <FormSelect
                             control={control}
                             name={`filters.${idx}.minLevel`}
@@ -73,7 +76,7 @@ export default function AdminLogsFilterField({ control, idx, remove }: AdminLogs
                 </Col>
                 <Col md={4}>
                     <FormGroup className="flex-grow-1">
-                        <FormLabel>Maximum level</FormLabel>
+                        <FormLabel>{t("filterField.maxLevel")}</FormLabel>
                         <FormSelect
                             control={control}
                             name={`filters.${idx}.maxLevel`}
@@ -85,37 +88,46 @@ export default function AdminLogsFilterField({ control, idx, remove }: AdminLogs
                 <Col md={4}>
                     <FormGroup className="flex-grow-1">
                         <FormLabel>
-                            Action
+                            {t("filterField.action")}
                             <PopoverWithHoverWrapper
                                 message={
                                     <>
-                                        <p>
-                                            The selected action will apply to all log entries that match the
-                                            filter&apos;s logging-rules (condition + min + max levels):
-                                        </p>
+                                        <p>{t("filterField.actionInfo.intro")}</p>
                                         <ul className="mb-1">
                                             <li className="mb-1">
-                                                <code>Ignore</code> - The log entry will Not be logged.
+                                                <StudioTrans
+                                                    ns="adminLogs"
+                                                    i18nKey="filterField.actionInfo.ignore"
+                                                    components={{ code: <code /> }}
+                                                />
                                             </li>
                                             <li className="mb-1">
-                                                <code>IgnoreFinal</code> - The log entry will Not be logged.
-                                                <br />
-                                                Any subsequent filters with the same logging-rules as this filter will
-                                                be ignored.
+                                                <StudioTrans
+                                                    ns="adminLogs"
+                                                    i18nKey="filterField.actionInfo.ignoreFinal"
+                                                    components={{ code: <code />, br: <br /> }}
+                                                />
                                             </li>
                                             <li className="mb-1">
-                                                <code>Log</code> - The log entry will be logged.
+                                                <StudioTrans
+                                                    ns="adminLogs"
+                                                    i18nKey="filterField.actionInfo.log"
+                                                    components={{ code: <code /> }}
+                                                />
                                             </li>
                                             <li className="mb-1">
-                                                <code>LogFinal</code> - The log entry will be logged.
-                                                <br />
-                                                Any subsequent filters with the same logging-rules as this filter will
-                                                be ignored.
+                                                <StudioTrans
+                                                    ns="adminLogs"
+                                                    i18nKey="filterField.actionInfo.logFinal"
+                                                    components={{ code: <code />, br: <br /> }}
+                                                />
                                             </li>
                                             <li>
-                                                <code>Neutral</code> - The action to take is deferred to the next filter
-                                                that matches the log entry. If no other filter matches, the
-                                                &quot;Default Filter Action&quot; will be applied.
+                                                <StudioTrans
+                                                    ns="adminLogs"
+                                                    i18nKey="filterField.actionInfo.neutral"
+                                                    components={{ code: <code /> }}
+                                                />
                                             </li>
                                         </ul>
                                     </>
@@ -130,18 +142,24 @@ export default function AdminLogsFilterField({ control, idx, remove }: AdminLogs
             </Row>
             <div className="flex-grow-1 mb-0">
                 <FormLabel className="d-flex">
-                    Condition
+                    {t("filterField.condition")}
                     <PopoverWithHoverWrapper
                         message={
                             <>
                                 <hr className="p-0 m-0" />
                                 <p>
-                                    This expression will be evaluated against the log entries.
-                                    <br />
-                                    Some examples are:
+                                    <StudioTrans
+                                        ns="adminLogs"
+                                        i18nKey="filterField.conditionInfo.intro"
+                                        components={{ br: <br /> }}
+                                    />
                                 </p>
                                 <p>
-                                    Log entries related to <strong>database &quot;DB1&quot;</strong>:
+                                    <StudioTrans
+                                        ns="adminLogs"
+                                        i18nKey="filterField.conditionInfo.database"
+                                        components={{ strong: <strong /> }}
+                                    />
                                     <br />
                                     <code>
                                         contains(&apos;&#36;&#123;event-properties:item=Resource&#125;&apos;,
@@ -149,8 +167,11 @@ export default function AdminLogsFilterField({ control, idx, remove }: AdminLogs
                                     </code>
                                 </p>
                                 <p>
-                                    Log entries for <strong>database &quot;DB2&quot;</strong> with an{" "}
-                                    <strong>exception</strong>:
+                                    <StudioTrans
+                                        ns="adminLogs"
+                                        i18nKey="filterField.conditionInfo.databaseWithException"
+                                        components={{ strong: <strong /> }}
+                                    />
                                     <br />
                                     <code>
                                         contains(&apos;&#36;&#123;event-properties:item=Resource&#125;&apos;,
@@ -158,7 +179,11 @@ export default function AdminLogsFilterField({ control, idx, remove }: AdminLogs
                                     </code>
                                 </p>
                                 <p>
-                                    Log entries associated with <strong>index &quot;MyIndex&quot;</strong>:
+                                    <StudioTrans
+                                        ns="adminLogs"
+                                        i18nKey="filterField.conditionInfo.index"
+                                        components={{ strong: <strong /> }}
+                                    />
                                     <br />
                                     <code>
                                         contains(&apos;&#36;&#123;event-properties:item=Component&#125;&apos;,
@@ -166,18 +191,22 @@ export default function AdminLogsFilterField({ control, idx, remove }: AdminLogs
                                     </code>
                                 </p>
                                 <p>
-                                    Log entries from a specific <strong>logger</strong>:
+                                    <StudioTrans
+                                        ns="adminLogs"
+                                        i18nKey="filterField.conditionInfo.logger"
+                                        components={{ strong: <strong /> }}
+                                    />
                                     <br />
                                     <code>logger &#61;&#61; &apos;Voron.Impl.Journal.WriteAheadJournal&apos;</code>
                                 </p>
                                 <p>
-                                    Log entries that exceed a certain length:
+                                    {t("filterField.conditionInfo.length")}
                                     <br />
                                     <code>length(message) &gt; 200</code>
                                 </p>
                                 <hr className="p-0 m-0" />
                                 <p className="m-0">
-                                    Learn more about conditions in:
+                                    {t("filterField.conditionInfo.learnMore")}
                                     <br />
                                     <a href="https://github.com/NLog/NLog/wiki/When-filter#conditions" target="_blank">
                                         github.com/NLog/NLog/wiki/When-filter#conditions
@@ -206,6 +235,7 @@ export default function AdminLogsFilterField({ control, idx, remove }: AdminLogs
 }
 
 export function LevelOption(props: OptionProps<LevelOptionProps>) {
+    const t = useStudioTranslation("adminLogs");
     const { data } = props;
 
     const getDisabledReason = (): string => {
@@ -213,10 +243,10 @@ export function LevelOption(props: OptionProps<LevelOptionProps>) {
             return null;
         }
         if (data.level === "min") {
-            return "The minimum level cannot be higher than the maximum level";
+            return t("filterField.minLevelDisabled");
         }
         if (data.level === "max") {
-            return "The maximum level cannot be lower than the minimum level";
+            return t("filterField.maxLevelDisabled");
         }
     };
 

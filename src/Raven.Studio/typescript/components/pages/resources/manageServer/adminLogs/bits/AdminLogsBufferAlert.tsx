@@ -5,6 +5,7 @@ import {
 } from "components/pages/resources/manageServer/adminLogs/store/adminLogsSlice";
 import { useAppDispatch, useAppSelector } from "components/store";
 import Button from "react-bootstrap/Button";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function AdminLogsBufferAlert() {
     const dispatch = useAppDispatch();
@@ -29,11 +30,15 @@ export default function AdminLogsBufferAlert() {
             }}
             onCancel={() => dispatch(adminLogsActions.isBufferFullAlertOpenSet(false))}
         >
-            Log buffer is full. Either increase buffer size in &apos;Display settings&apos; or{" "}
-            <Button variant="link" onClick={() => dispatch(adminLogsActions.logsSet([]))} className="p-0">
-                clear all entries
-            </Button>
-            .
+            <StudioTrans
+                ns="adminLogs"
+                i18nKey="list.bufferFullAlert"
+                components={{
+                    button: (
+                        <Button variant="link" onClick={() => dispatch(adminLogsActions.logsSet([]))} className="p-0" />
+                    ),
+                }}
+            />
         </RichAlert>
     );
 }

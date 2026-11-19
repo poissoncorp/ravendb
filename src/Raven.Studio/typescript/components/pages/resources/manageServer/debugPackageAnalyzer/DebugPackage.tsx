@@ -9,8 +9,10 @@ import PackageSummary from "./partials/PackageSummary";
 import { flattenIssues } from "./partials/analyzerUtils";
 import "./DebugPackage.scss";
 import appUrl = require("common/appUrl");
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 export default function DebugPackage() {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const { view, onFileSelected, summary, fileName, reset, isAnalyzing, error } = useDebugPackageAnalyzer();
 
     const isUploadView = view === "upload" || view === "analyzing";
@@ -32,15 +34,13 @@ export default function DebugPackage() {
                 <div className="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-4">
                     <div>
                         <AboutViewHeading
-                            title="Debug Package Analyzer"
+                            title={t("title")}
                             icon="gather-debug-information"
                             iconAddon="search"
                             marginBottom={1}
                             backUrl={appUrl.forDebugPackage()}
                         />
-                        <p className="text-muted fs-5 mb-0">
-                            Examine the package to identify the problem with your server
-                        </p>
+                        <p className="text-muted fs-5 mb-0">{t("description")}</p>
                     </div>
                     {view === "loaded" && (
                         <PackageSummary

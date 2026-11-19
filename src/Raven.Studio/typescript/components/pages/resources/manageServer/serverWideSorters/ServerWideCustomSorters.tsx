@@ -15,8 +15,10 @@ import ServerWideCustomSortersInfoHub from "components/pages/resources/manageSer
 import RichAlert from "components/common/RichAlert";
 import Button from "react-bootstrap/Button";
 import { ConditionalPopover } from "components/common/ConditionalPopover";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function ServerWideCustomSorters() {
+    const t = useStudioTranslation("serverWideSorters");
     const { sorters, setSorters, addNewSorter, removeSorter, mapFromDto, markAsSaved } = useCustomSorters();
 
     const hasServerWideCustomSorters = useAppSelector(licenseSelectors.statusValue("HasServerWideCustomSorters"));
@@ -44,15 +46,11 @@ export default function ServerWideCustomSorters() {
                 <Row className="gy-sm">
                     <Col>
                         <AboutViewHeading
-                            title="Server-Wide Sorters"
+                            title={t("title")}
                             icon="server-wide-custom-sorters"
                             licenseBadgeText={hasServerWideCustomSorters ? null : "Professional +"}
                         />
-                        {sorters.length > 0 && (
-                            <RichAlert variant="info">
-                                To test server-wide sorters, go to the Custom Sorters view in a database
-                            </RichAlert>
-                        )}
+                        {sorters.length > 0 && <RichAlert variant="info">{t("testInfo")}</RichAlert>}
                         <ConditionalPopover
                             conditions={{
                                 isActive: !hasServerWideCustomSorters,
@@ -66,11 +64,11 @@ export default function ServerWideCustomSorters() {
                                 disabled={!hasServerWideCustomSorters}
                             >
                                 <Icon icon="plus" />
-                                Add a server-wide custom sorter
+                                {t("addButton")}
                             </Button>
                         </ConditionalPopover>
                         <div className={hasServerWideCustomSorters ? null : "item-disabled pe-none"}>
-                            <HrHeader count={sorters.length}>Server-wide custom sorters</HrHeader>
+                            <HrHeader count={sorters.length}>{t("heading")}</HrHeader>
                             <ServerWideCustomSortersList
                                 sorters={sorters}
                                 fetchStatus={asyncGetSorters.status}

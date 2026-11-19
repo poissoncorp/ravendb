@@ -18,6 +18,9 @@ import EditServerWideBackupInfoHub = require("./EditServerWideBackupInfoHub");
 import accessManager = require("common/shell/accessManager");
 import store = require("components/store");
 import databaseSliceSelectors = require("components/common/shell/databaseSliceSelectors");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("editServerWideBackup");
 
 class editServerWideBackup extends viewModelBase {
 
@@ -50,10 +53,24 @@ class editServerWideBackup extends viewModelBase {
     };
 
     overrideViaExternalScriptDisableReason: KnockoutComputed<string>;
-    
+
+    licenseRestrictedTooltip: string;
+    backupTypePlaceholder: string;
+    snapshotNotSupportedInShardedHtml: string;
+    shardedDatabasesExcludedHtml: string;
+    encryptionKeyUsageNoteHtml: string;
+
     constructor() {
         super();
         this.bindToCurrentInstance("testCredentials", "setState");
+
+        const upgradeLink = "<a href='https://ravendb.net/l/FLDLO4' target='_blank'>";
+        this.licenseRestrictedTooltip = `<div class='padding'>${t("licenseRestrictedTooltip").replace("<a>", upgradeLink)}</div>`;
+        this.backupTypePlaceholder = t("backupTypePlaceholder");
+        this.snapshotNotSupportedInShardedHtml = t("snapshotNotSupportedInSharded").replace("<icon/>", `<i class="icon-sharding text-shard"></i>`);
+        this.shardedDatabasesExcludedHtml = t("excludeDatabases.shardedExcluded");
+        this.encryptionKeyUsageNoteHtml = t("encryption.keyUsageNote");
+
         this.infoHubView = ko.pureComputed(() => ({
             component: EditServerWideBackupInfoHub.EditServerWideBackupInfoHub
         }));
@@ -148,7 +165,7 @@ class editServerWideBackup extends viewModelBase {
         $('.edit-backup [data-toggle="tooltip"]').tooltip();
 
         $(".edit-backup .js-option-disabled").tooltip({
-            title: "Destination was disabled by administrator",
+            title: t("destinationDisabled"),
             placement: "right"
         });
     }
@@ -166,24 +183,27 @@ class editServerWideBackup extends viewModelBase {
                 content: tasksCommonContent.backupAgeInfo
             });
 
+        const testCredentialsInfo = t("popovers.testCredentials");
+
         popoverUtils.longWithHover($(".bucket-info"),
             {
-                content: tasksCommonContent.textForPopover("Bucket", "Server-Wide Backup")
+                content: `${t("popovers.bucketRequired")}<br /> ${testCredentialsInfo}`
             });
 
         popoverUtils.longWithHover($(".bucket-gcs-info"),
             {
-                content: tasksCommonContent.textForPopoverGCS("Bucket", "Server-Wide Backup")
+                content: `${t("popovers.bucketRequired")}<br /> ${testCredentialsInfo}<br />` +
+                    `<a href='https://cloud.google.com/storage/docs/bucket-naming' target='_blank'>${t("popovers.bucketNamingGuidelines")}</a>`
             });
 
         popoverUtils.longWithHover($(".storage-container-info"),
             {
-                content: tasksCommonContent.textForPopover("Storage container", "Server-Wide Backup") 
+                content: `${t("popovers.storageContainerRequired")}<br /> ${testCredentialsInfo}`
             });
 
         popoverUtils.longWithHover($(".vault-info"),
             {
-                content: tasksCommonContent.textForPopover("Vault", "Server-Wide Backup") 
+                content: `${t("popovers.vaultRequired")}<br /> ${testCredentialsInfo}`
             });
 
         popoverUtils.longWithHover($(".ftp-host-info"),

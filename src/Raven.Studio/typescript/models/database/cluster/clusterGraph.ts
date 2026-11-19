@@ -5,6 +5,9 @@ import clusterNode = require("models/database/cluster/clusterNode");
 import graphHelper = require("common/helpers/graph/graphHelper");
 import icomoonHelpers = require("common/helpers/view/icomoonHelpers");
 import _ = require("lodash");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("clusterModels");
 
 interface clusterNodeWithLayout extends clusterNode {
     x: number;
@@ -255,12 +258,12 @@ class clusterGraph {
                 return "";
             }
             if (node.type() === "Watcher") {
-                return "WAITING";
+                return t("graph.state.waiting");
             }
             if (isPassive) {
-                return "PASSIVE";
+                return t("graph.state.passive");
             }
-            return "VOTING";
+            return t("graph.state.voting");
         };
 
         selection

@@ -10,8 +10,10 @@ import {
     ServerWideTaskInfo,
     ServerWideTaskType,
 } from "./serverWideTaskModels";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export function useServerWideTasks() {
+    const t = useStudioTranslation("serverWideTasks");
     const { manageServerService } = useServices();
 
     const [nameFilter, setNameFilter] = useState("");
@@ -64,10 +66,10 @@ export function useServerWideTasks() {
     const typeFilterItems: InputItem<ServerWideTaskType>[] = [
         {
             value: "Replication",
-            label: "External replication",
+            label: t("taskType.replication"),
             count: tasks.filter((x) => x.taskType === "Replication").length,
         },
-        { value: "Backup", label: "Backup", count: tasks.filter((x) => x.taskType === "Backup").length },
+        { value: "Backup", label: t("taskType.backup"), count: tasks.filter((x) => x.taskType === "Backup").length },
     ];
 
     return {

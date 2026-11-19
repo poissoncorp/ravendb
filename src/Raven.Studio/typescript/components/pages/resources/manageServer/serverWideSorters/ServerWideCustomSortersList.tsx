@@ -5,6 +5,7 @@ import React from "react";
 import { AsyncStateStatus } from "react-async-hook";
 import ServerWideCustomSortersListItem from "components/pages/resources/manageServer/serverWideSorters/ServerWideCustomSortersListItem";
 import { CustomSorter } from "components/common/customSorters/useCustomSorters";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface ServerWideCustomSortersListProps {
     sorters: CustomSorter[];
@@ -17,17 +18,18 @@ interface ServerWideCustomSortersListProps {
 
 export default function ServerWideCustomSortersList(props: ServerWideCustomSortersListProps) {
     const { sorters, fetchStatus, reload, remove, takenNames, markAsSaved } = props;
+    const t = useStudioTranslation("serverWideSorters");
 
     if (fetchStatus === "loading") {
         return <LoadingView />;
     }
 
     if (fetchStatus === "error") {
-        return <LoadError error="Unable to load custom sorters" refresh={reload} />;
+        return <LoadError error={t("loadError")} refresh={reload} />;
     }
 
     if (sorters.length === 0) {
-        return <EmptySet>No server-wide custom sorters have been defined</EmptySet>;
+        return <EmptySet>{t("empty")}</EmptySet>;
     }
 
     return sorters.map((sorter, idx) => (

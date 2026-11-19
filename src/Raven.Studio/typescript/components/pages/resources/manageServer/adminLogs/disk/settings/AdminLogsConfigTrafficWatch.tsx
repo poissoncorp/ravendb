@@ -22,12 +22,16 @@ import InputGroup from "react-bootstrap/InputGroup";
 import Form from "react-bootstrap/Form";
 import * as yup from "yup";
 import Accordion from "react-bootstrap/Accordion";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 type TrafficWatchChangeType = Raven.Client.Documents.Changes.TrafficWatchChangeType;
 type TrafficWatchConfiguration =
     Raven.Client.ServerWide.Operations.TrafficWatch.PutTrafficWatchConfigurationOperation.Parameters;
 
 export default function AdminLogsConfigTrafficWatch({ targetId }: { targetId: string }) {
+    const t = useStudioTranslation("adminLogs");
+    const commonT = useStudioTranslation("common");
     const dispatch = useAppDispatch();
     const { manageServerService } = useServices();
 
@@ -74,26 +78,26 @@ export default function AdminLogsConfigTrafficWatch({ targetId }: { targetId: st
 
     return (
         <Accordion.Item eventKey={targetId} className="p-1 rounded-3">
-            <Accordion.Header>Traffic watch</Accordion.Header>
+            <Accordion.Header>{t("diskSettings.trafficWatch.title")}</Accordion.Header>
             <Accordion.Body>
                 <Form onSubmit={handleSubmit(handleSave)} key={targetId}>
                     <FormGroup>
                         <FormSwitch control={control} name="isEnabled">
-                            Enable
+                            {t("diskSettings.enable")}
                         </FormSwitch>
                     </FormGroup>
                     <Collapse in={isEnabled}>
                         <div>
                             <FormGroup>
                                 <FormSwitch control={control} name="isFilterByChangeType">
-                                    Filter by Change Type
+                                    {t("diskSettings.trafficWatch.filterByChangeType")}
                                 </FormSwitch>
                                 <Collapse in={isFilterByChangeType}>
                                     <InputGroup>
                                         <FormSelect
                                             control={control}
                                             name="changeTypes"
-                                            placeholder="Select event types"
+                                            placeholder={t("diskSettings.selectEventTypes")}
                                             options={changeTypesOptions}
                                             isMulti
                                         />
@@ -107,21 +111,21 @@ export default function AdminLogsConfigTrafficWatch({ targetId }: { targetId: st
                                                 )
                                             }
                                         >
-                                            Select all
+                                            {t("diskSettings.selectAll")}
                                         </Button>
                                     </InputGroup>
                                 </Collapse>
                             </FormGroup>
                             <FormGroup>
                                 <FormSwitch control={control} name="isFilterByStatusCode">
-                                    Filter by HTTP Status Code
+                                    {t("diskSettings.trafficWatch.filterByStatusCode")}
                                 </FormSwitch>
                                 <Collapse in={isFilterByStatusCode}>
                                     <InputGroup>
                                         <FormSelect
                                             control={control}
                                             name="statusCodes"
-                                            placeholder="Select status codes"
+                                            placeholder={t("diskSettings.trafficWatch.selectStatusCodes")}
                                             options={statusCodesOptions}
                                             isMulti
                                         />
@@ -135,21 +139,21 @@ export default function AdminLogsConfigTrafficWatch({ targetId }: { targetId: st
                                                 )
                                             }
                                         >
-                                            Select all
+                                            {t("diskSettings.selectAll")}
                                         </Button>
                                     </InputGroup>
                                 </Collapse>
                             </FormGroup>
                             <FormGroup>
                                 <FormSwitch control={control} name="isFilterByDatabaseName">
-                                    Filter by Database
+                                    {t("diskSettings.trafficWatch.filterByDatabase")}
                                 </FormSwitch>
                                 <Collapse in={isFilterByDatabaseName}>
                                     <InputGroup>
                                         <FormSelect
                                             control={control}
                                             name="databaseNames"
-                                            placeholder="Select databases"
+                                            placeholder={t("diskSettings.trafficWatch.selectDatabases")}
                                             options={databaseOptions}
                                             isMulti
                                         />
@@ -163,21 +167,21 @@ export default function AdminLogsConfigTrafficWatch({ targetId }: { targetId: st
                                                 )
                                             }
                                         >
-                                            Select all
+                                            {t("diskSettings.selectAll")}
                                         </Button>
                                     </InputGroup>
                                 </Collapse>
                             </FormGroup>
                             <FormGroup>
                                 <FormSwitch control={control} name="isFilterByHttpMethod">
-                                    Filter by HTTP Method
+                                    {t("diskSettings.trafficWatch.filterByHttpMethod")}
                                 </FormSwitch>
                                 <Collapse in={isFilterByHttpMethod}>
                                     <InputGroup>
                                         <FormSelect
                                             control={control}
                                             name="httpMethods"
-                                            placeholder="Select HTTP methods"
+                                            placeholder={t("diskSettings.trafficWatch.selectHttpMethods")}
                                             options={httpMethodsOptions}
                                             isMulti
                                         />
@@ -191,7 +195,7 @@ export default function AdminLogsConfigTrafficWatch({ targetId }: { targetId: st
                                                 )
                                             }
                                         >
-                                            Select all
+                                            {t("diskSettings.selectAll")}
                                         </Button>
                                     </InputGroup>
                                 </Collapse>
@@ -199,7 +203,7 @@ export default function AdminLogsConfigTrafficWatch({ targetId }: { targetId: st
                             {isUsingHttps && (
                                 <FormGroup>
                                     <FormSwitch control={control} name="isFilterByCertificateThumbprint">
-                                        Filter by Certificate Thumbprint
+                                        {t("diskSettings.trafficWatch.filterByCertificateThumbprint")}
                                     </FormSwitch>
 
                                     <Collapse in={isFilterByCertificateThumbprint}>
@@ -210,7 +214,9 @@ export default function AdminLogsConfigTrafficWatch({ targetId }: { targetId: st
                                                         type="text"
                                                         control={control}
                                                         name={`certificateThumbprints.${idx}.value`}
-                                                        placeholder="Certificate Thumbprint"
+                                                        placeholder={t(
+                                                            "diskSettings.trafficWatch.certificateThumbprintPlaceholder"
+                                                        )}
                                                         addon={
                                                             <Button
                                                                 type="button"
@@ -236,46 +242,50 @@ export default function AdminLogsConfigTrafficWatch({ targetId }: { targetId: st
                                                 onClick={() => thumbprintFieldsArray.append({ value: "" })}
                                             >
                                                 <Icon icon="plus" />
-                                                Add
+                                                {t("diskSettings.trafficWatch.addThumbprint")}
                                             </Button>
                                         </div>
                                     </Collapse>
                                 </FormGroup>
                             )}
                             <FormGroup>
-                                <FormLabel>Minimum Request Size</FormLabel>
+                                <FormLabel>{t("diskSettings.trafficWatch.minRequestSize")}</FormLabel>
                                 <FormInput
                                     type="number"
                                     control={control}
                                     name="minimumRequestSizeInBytes"
-                                    placeholder="Minimum Request Size"
-                                    addon="bytes"
+                                    placeholder={t("diskSettings.trafficWatch.minRequestSize")}
+                                    addon={t("diskSettings.bytesAddon")}
                                 />
                             </FormGroup>
                             <FormGroup>
-                                <FormLabel>Minimum Request Duration</FormLabel>
+                                <FormLabel>{t("diskSettings.trafficWatch.minRequestDuration")}</FormLabel>
                                 <FormInput
                                     type="number"
                                     control={control}
                                     name="minimumRequestDurationInMs"
-                                    placeholder="Minimum Duration"
-                                    addon="ms"
+                                    placeholder={t("diskSettings.trafficWatch.minDurationPlaceholder")}
+                                    addon={t("diskSettings.msAddon")}
                                 />
                             </FormGroup>
                             <FormGroup>
-                                <FormLabel>Minimum Response Size</FormLabel>
+                                <FormLabel>{t("diskSettings.trafficWatch.minResponseSize")}</FormLabel>
                                 <FormInput
                                     type="number"
                                     control={control}
                                     name="minimumResponseSizeInBytes"
-                                    placeholder="Minimum Response Size"
-                                    addon="bytes"
+                                    placeholder={t("diskSettings.trafficWatch.minResponseSize")}
+                                    addon={t("diskSettings.bytesAddon")}
                                 />
                             </FormGroup>
                             {!isCloud && (
                                 <FormGroup>
                                     <FormSwitch control={control} name="isPersist">
-                                        Save this configuration in <code>settings.json</code>
+                                        <StudioTrans
+                                            ns="adminLogs"
+                                            i18nKey="persistConfiguration"
+                                            components={{ code: <code /> }}
+                                        />
                                         <AdminLogsPersistInfoIcon />
                                     </FormSwitch>
                                 </FormGroup>
@@ -290,7 +300,7 @@ export default function AdminLogsConfigTrafficWatch({ targetId }: { targetId: st
                         isSpinning={formState.isSubmitting}
                         disabled={!formState.isDirty}
                     >
-                        Save
+                        {commonT("save")}
                     </ButtonWithSpinner>
                 </Form>
             </Accordion.Body>

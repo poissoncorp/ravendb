@@ -21,10 +21,14 @@ import useCertificatePermissionsConfirm from "components/pages/resources/manageS
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import useUniqueId from "components/hooks/useUniqueId";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 type SecurityClearance = Raven.Client.ServerWide.Operations.Certificates.SecurityClearance;
 
 export default function CertificatesUploadModal() {
+    const t = useStudioTranslation("certificates");
+    const commonT = useStudioTranslation("common");
     const dispatch = useAppDispatch();
     const { manageServerService } = useServices();
     const { reportEvent } = useEventsCollector();
@@ -81,25 +85,28 @@ export default function CertificatesUploadModal() {
                     <Modal.Header className="pt-3 pb-0" onCloseClick={close}>
                         <Icon icon="upload" size="lg" color="primary" margin="me-3" />
                         <h3 id={titleId} className="mb-0">
-                            Upload client certificate
+                            {t("upload.title")}
                         </h3>
                     </Modal.Header>
                     <Modal.Body>
                         <FormGroup>
-                            <FormLabel>Name</FormLabel>
+                            <FormLabel>{t("form.name")}</FormLabel>
                             <FormInput control={control} type="text" name="name" />
                         </FormGroup>
                         <CertificatesSecurityClearanceField />
                         <CertificatesFileField
                             infoPopoverBody={
                                 <div>
-                                    Select a <strong>.pfx file</strong> with single or multiple certificates. All
-                                    certificates will be imported under a single certificate entry.
+                                    <StudioTrans
+                                        ns="certificates"
+                                        i18nKey="upload.fileInfo"
+                                        components={{ strong: <strong /> }}
+                                    />
                                 </div>
                             }
                         />
                         <FormGroup>
-                            <FormLabel className="form-label">Certificate Passphrase</FormLabel>
+                            <FormLabel className="form-label">{t("form.passphrase")}</FormLabel>
                             <FormInput type="password" control={control} name="certificatePassphrase" passwordPreview />
                         </FormGroup>
                         <CertificatesExpireField />
@@ -110,7 +117,7 @@ export default function CertificatesUploadModal() {
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="link" onClick={close} className="link-muted">
-                            Cancel
+                            {commonT("cancel")}
                         </Button>
                         <ButtonWithSpinner
                             type="submit"
@@ -118,7 +125,7 @@ export default function CertificatesUploadModal() {
                             className="rounded-pill"
                             isSpinning={formState.isSubmitting}
                         >
-                            Upload certificate
+                            {t("upload.submit")}
                         </ButtonWithSpinner>
                     </Modal.Footer>
                 </Form>

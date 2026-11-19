@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("maintenanceCommands");
 
 type EventListenerConfigurationDto = Raven.Server.EventListener.EventListenerToLog.EventListenerConfiguration;
 
@@ -15,10 +18,10 @@ class saveAdminLogsEventListenerConfigurationCommand extends commandBase {
         const url = endpoints.global.adminLogs.adminEventListenerConfiguration;
 
         return this.post<void>(url, JSON.stringify(this.config), null, { dataType: undefined })
-            .done(() => this.reportSuccess("Event Listener configuration was successfully set"))
+            .done(() => this.reportSuccess(t("saveEventListenerConfigurationSucceeded")))
             .fail((response: JQueryXHR) =>
                 this.reportError(
-                    "Failed to set Event Listener configuration",
+                    t("saveEventListenerConfigurationFailed"),
                     response.responseText,
                     response.statusText
                 )

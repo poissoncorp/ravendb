@@ -8,29 +8,29 @@
                     <button type="button" class="btn btn-primary"
                             data-bind="click: refresh, enable: !spinners.refresh(), css: { 'btn-spinner': spinners.refresh() }">
                         <i class="icon-refresh"></i>
-                        <span>Refresh</span>
+                        <span data-bind="i18n: 'common:refresh'"></span>
                     </button>
                 </div>
                 <div>
-                    <input class="form-control" placeholder="Filter" data-bind="textInput: filter">
+                    <input class="form-control" data-bind="textInput: filter, i18nAttr: { placeholder: 'debugAdvancedObserverLog:filterPlaceholder' }">
                 </div>
-                <div data-bind="visible: !noLeader()">Term: <span data-bind="text: topology().currentTerm().toLocaleString()"></span></div>
+                <div data-bind="visible: !noLeader(), i18n: { key: 'debugAdvancedObserverLog:term', options: { term: topology().currentTerm().toLocaleString() } }"></div>
                 <div class="flex-separator"></div>
                 <div>
                     <button class="btn btn-default" data-bind="click: exportToFile">
-                        <i class="icon-export"></i><span>Export</span>
+                        <i class="icon-export"></i><span data-bind="i18n: 'debugAdvancedObserverLog:export'"></span>
                     </button>
                 </div>
                 <div data-bind="visible: !noLeader()">
-                    <button class="btn btn-default" title="Cluster observer won't be making any decisions"
-                            data-bind="click: suspendObserver, visible: !$root.observerSuspended(), enable: !spinners.toggleObserver(), css: { 'btn-spinner': spinners.toggleObserver() }">
+                    <button class="btn btn-default"
+                            data-bind="click: suspendObserver, visible: !$root.observerSuspended(), enable: !spinners.toggleObserver(), css: { 'btn-spinner': spinners.toggleObserver() }, i18nAttr: { title: 'debugAdvancedObserverLog:suspendTitle' }">
                         <i class="icon-pause"></i>
-                        <span>Suspend cluster observer</span>
+                        <span data-bind="i18n: 'debugAdvancedObserverLog:suspend'"></span>
                     </button>
-                    <button class="btn btn-success" title="Resume cluster observer"
-                            data-bind="click: resumeObserver, visible: $root.observerSuspended(), enable: !spinners.toggleObserver(), css: { 'btn-spinner': spinners.toggleObserver() }">
+                    <button class="btn btn-success"
+                            data-bind="click: resumeObserver, visible: $root.observerSuspended(), enable: !spinners.toggleObserver(), css: { 'btn-spinner': spinners.toggleObserver() }, i18nAttr: { title: 'debugAdvancedObserverLog:resume' }">
                         <i class="icon-play"></i>
-                        <span>Resume cluster observer</span>
+                        <span data-bind="i18n: 'debugAdvancedObserverLog:resume'"></span>
                     </button>
                 </div>
             </div>
@@ -46,17 +46,13 @@
     </div>
     <div class="has-error" data-bind="visible: termChanged()">
         <div class="help-block">
-            <i class="icon-danger"></i><span>A term has changed. Your results are stale. <a href="#" data-bind="click: refresh">Refresh.</a></span>
+            <i class="icon-danger"></i><span><span data-bind="i18n: 'debugAdvancedObserverLog:termChanged'"></span> <a href="#" data-bind="click: refresh, i18n: 'debugAdvancedObserverLog:termChangedRefresh'"></a></span>
         </div>
     </div>
 </div>
 <script type="text/html" id="empty-cluster-log-template">
-    <div class="text-danger" data-bind="visible: $root.noLeader">
-        Cluster Observer Log entries are only available on <strong>Leader</strong> node.
-    </div>
-    <div data-bind="visible: !$root.noLeader()">
-        No entries found.
-    </div>
+    <div class="text-danger" data-bind="visible: $root.noLeader, html: $root.leaderOnlyHtml"></div>
+    <div data-bind="visible: !$root.noLeader(), i18n: 'debugAdvancedObserverLog:noEntries'"></div>
 </script>
 <div class="tooltip json-preview lg js-observer-log-tooltip" style="opacity: 0">
 </div>

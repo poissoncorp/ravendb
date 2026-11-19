@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("maintenanceCommands");
 
 class adminJsScriptCommand extends commandBase {
     
@@ -24,8 +27,8 @@ class adminJsScriptCommand extends commandBase {
 
         const url = endpoints.global.adminDatabases.adminConsole + this.urlEncodeArgs(args);
         return this.post(url, JSON.stringify(payload))
-            .done(() => this.reportSuccess("Script executed"))
-            .fail((response: JQueryXHR) => this.reportError("Script failed", response.responseText, response.statusText));
+            .done(() => this.reportSuccess(t("adminJsScriptSucceeded")))
+            .fail((response: JQueryXHR) => this.reportError(t("adminJsScriptFailed"), response.responseText, response.statusText));
     }
 }
 

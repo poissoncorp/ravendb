@@ -4,8 +4,10 @@ import CertificatesListItem from "components/pages/resources/manageServer/certif
 import { certificatesSelectors } from "components/pages/resources/manageServer/certificates/store/certificatesSliceSelectors";
 import { useAppSelector } from "components/store";
 import Badge from "react-bootstrap/Badge";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 export default function CertificatesSsoList() {
+    const t = useStudioTranslation("certificates");
     const filteredCertificates = useAppSelector(certificatesSelectors.filteredCertificates);
 
     const ssoServerCerts = filteredCertificates.filter((c) => c.Usage === "SsoServer");
@@ -22,14 +24,14 @@ export default function CertificatesSsoList() {
         <div>
             <HrHeader count={allSsoServerCerts.length + allSsoUserCerts.length}>
                 <Icon icon="key" />
-                SSO
+                {t("managementType.sso")}
             </HrHeader>
             {ssoServerCerts.length > 0 && (
                 <>
                     <div className="ms-1 mb-2">
                         <Badge bg="secondary" className="me-2">
                             <Icon icon="certificate" margin="me-1" />
-                            {` Certificates: ${allSsoServerCerts.length}`}
+                            {` ${t("sso.certificatesBadge", { count: allSsoServerCerts.length })}`}
                         </Badge>
                     </div>
                     {ssoServerCerts.map((cert) => (
@@ -42,7 +44,7 @@ export default function CertificatesSsoList() {
                     <div className="ms-1 mb-2 mt-3">
                         <Badge bg="secondary" className="me-2">
                             <Icon icon="user" margin="me-1" />
-                            {` Users: ${allSsoUserCerts.length}`}
+                            {` ${t("sso.usersBadge", { count: allSsoUserCerts.length })}`}
                         </Badge>
                     </div>
                     {ssoUserCerts.map((cert) => (

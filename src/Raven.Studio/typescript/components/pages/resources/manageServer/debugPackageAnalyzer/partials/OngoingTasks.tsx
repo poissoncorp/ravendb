@@ -17,6 +17,8 @@ import { virtualTableUtils } from "components/common/virtualTable/utils/virtualT
 import { analyzerConstants } from "./analyzerConstants";
 import Badge from "react-bootstrap/Badge";
 import SizeGetter from "components/common/SizeGetter";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import type { StudioTranslate } from "common/i18n/resources";
 
 type DebugPackageAnalysisSummary = Raven.Server.Documents.Handlers.Debugging.DebugPackage.DebugPackageAnalysisSummary;
 type DatabaseOngoingTasksInfoItem = Raven.Server.Dashboard.DatabaseOngoingTasksInfoItem;
@@ -27,28 +29,30 @@ type DatabaseOngoingTasksInfoItem = Raven.Server.Dashboard.DatabaseOngoingTasksI
 type TaskCountField = Extract<keyof DatabaseOngoingTasksInfoItem, `${string}Count`>;
 
 // the summary reports task counts per node (the Database field is not populated), so we aggregate by task type
-const taskTypeLabels: Record<TaskCountField, string> = {
-    ExternalReplicationCount: "External Replication",
-    ReplicationHubCount: "Replication Hub",
-    ReplicationSinkCount: "Replication Sink",
-    RavenEtlCount: "RavenDB ETL",
-    SqlEtlCount: "SQL ETL",
-    OlapEtlCount: "OLAP ETL",
-    ElasticSearchEtlCount: "Elasticsearch ETL",
-    KafkaEtlCount: "Kafka ETL",
-    RabbitMqEtlCount: "RabbitMQ ETL",
-    AzureQueueStorageEtlCount: "Azure Queue Storage ETL",
-    AmazonSqsEtlCount: "Amazon SQS ETL",
-    SnowflakeEtlCount: "Snowflake ETL",
-    KafkaSinkCount: "Kafka Sink",
-    RabbitMqSinkCount: "RabbitMQ Sink",
-    AzureServiceBusSinkCount: "Azure Service Bus Sink",
-    CdcSinkCount: "CDC Sink",
-    PeriodicBackupCount: "Backup",
-    SubscriptionCount: "Subscription",
-    EmbeddingsGenerationCount: "Embeddings Generation",
-    GenAiCount: "GenAI",
-};
+function taskTypeLabels(t: StudioTranslate<"debugPackageAnalyzer">): Record<TaskCountField, string> {
+    return {
+        ExternalReplicationCount: t("taskTypes.externalReplication"),
+        ReplicationHubCount: t("taskTypes.replicationHub"),
+        ReplicationSinkCount: t("taskTypes.replicationSink"),
+        RavenEtlCount: "RavenDB ETL",
+        SqlEtlCount: "SQL ETL",
+        OlapEtlCount: "OLAP ETL",
+        ElasticSearchEtlCount: "Elasticsearch ETL",
+        KafkaEtlCount: "Kafka ETL",
+        RabbitMqEtlCount: "RabbitMQ ETL",
+        AzureQueueStorageEtlCount: t("taskTypes.azureQueueStorageEtl"),
+        AmazonSqsEtlCount: t("taskTypes.amazonSqsEtl"),
+        SnowflakeEtlCount: "Snowflake ETL",
+        KafkaSinkCount: t("taskTypes.kafkaSink"),
+        RabbitMqSinkCount: t("taskTypes.rabbitMqSink"),
+        AzureServiceBusSinkCount: t("taskTypes.azureServiceBusSink"),
+        CdcSinkCount: t("taskTypes.cdcSink"),
+        PeriodicBackupCount: t("taskTypes.backup"),
+        SubscriptionCount: t("taskTypes.subscription"),
+        EmbeddingsGenerationCount: t("taskTypes.embeddingsGeneration"),
+        GenAiCount: t("taskTypes.genAi"),
+    };
+}
 
 interface TaskTableRow {
     rowKind: "task" | "node";
@@ -70,6 +74,7 @@ interface OngoingTasksWithSizeProps extends OngoingTasksProps {
 }
 
 function useOngoingTasksColumns(availableWidth: number) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const bodyWidth = virtualTableUtils.getTableBodyWidth(
         availableWidth - analyzerConstants.panelHorizontalPaddingInPx
     );
@@ -78,25 +83,25 @@ function useOngoingTasksColumns(availableWidth: number) {
     const taskColumns: ColumnDef<TaskTableRow>[] = useMemo(
         () => [
             {
-                header: "Task",
+                header: t("ongoingTasks.columns.task"),
                 accessorKey: "label",
                 cell: OngoingTaskLabelCell,
                 size: getSize(57),
             },
             {
-                header: "Node",
+                header: t("ongoingTasks.columns.node"),
                 accessorKey: "nodeTag",
                 cell: OngoingTaskNodeTagCell,
                 size: getSize(21),
             },
             {
-                header: "Count",
+                header: t("ongoingTasks.columns.count"),
                 accessorKey: "count",
                 cell: ({ getValue }) => getValue<number>().toLocaleString(),
                 size: getSize(22),
             },
         ],
-        [getSize]
+        [getSize, t]
     );
 
     return { taskColumns };
@@ -111,7 +116,8 @@ export default function OngoingTasks({ summary, nodeTag }: OngoingTasksProps) {
 }
 
 function OngoingTasksWithSize({ summary, nodeTag, width }: OngoingTasksWithSizeProps) {
-    const rows = useMemo(() => buildTaskRows(summary, nodeTag), [summary, nodeTag]);
+    const t = useStudioTranslation("debugPackageAnalyzer");
+    const rows = useMemo(() => buildTaskRows(summary, t, nodeTag), [summary, nodeTag, t]);
     const [expanded, setExpanded] = useExpandAllSync();
     const total = rows.reduce((sum, r) => sum + r.count, 0);
 
@@ -140,14 +146,14 @@ function OngoingTasksWithSize({ summary, nodeTag, width }: OngoingTasksWithSizeP
             <div className="panel-bg-1 rounded">
                 <div className="p-4 vstack gap-3">
                     <div className="hstack gap-2 align-items-center">
-                        <h3 className="mb-0">Ongoing Tasks</h3>
+                        <h3 className="mb-0">{t("ongoingTasks.title")}</h3>
                         <Badge bg="secondary" pill>
                             {total.toLocaleString()}
                         </Badge>
                     </div>
                     {rows.length === 0 ? (
                         <EmptySet compact className="justify-content-center">
-                            No ongoing tasks in the package
+                            {t("ongoingTasks.empty")}
                         </EmptySet>
                     ) : (
                         <VirtualTable table={table} heightInPx={heightInPx} {...expandableRowProps<TaskTableRow>()} />
@@ -178,7 +184,12 @@ function OngoingTaskNodeTagCell({ row }: { row: Row<TaskTableRow> }) {
     return tags.length > 0 ? <NodeTagPillStack tags={tags} /> : null;
 }
 
-function buildTaskRows(summary: DebugPackageAnalysisSummary, nodeTag?: string): TaskTableRow[] {
+function buildTaskRows(
+    summary: DebugPackageAnalysisSummary,
+    t: StudioTranslate<"debugPackageAnalyzer">,
+    nodeTag?: string
+): TaskTableRow[] {
+    const labels = taskTypeLabels(t);
     const byType = new Map<
         string,
         {
@@ -193,8 +204,8 @@ function buildTaskRows(summary: DebugPackageAnalysisSummary, nodeTag?: string): 
         }
 
         (node.DatabasesOngoingTasks?.Items ?? []).forEach((item) => {
-            (Object.keys(taskTypeLabels) as TaskCountField[]).forEach((field) => {
-                const label = taskTypeLabels[field];
+            (Object.keys(labels) as TaskCountField[]).forEach((field) => {
+                const label = labels[field];
                 const count = item[field];
                 if (count > 0) {
                     let agg = byType.get(label);

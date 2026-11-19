@@ -19,10 +19,13 @@ import { FormGroup, FormLabel } from "components/common/Form";
 import Modal from "components/common/Modal";
 import Form from "react-bootstrap/Form";
 import useUniqueId from "components/hooks/useUniqueId";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 type SecurityClearance = Raven.Client.ServerWide.Operations.Certificates.SecurityClearance;
 
 export default function CertificatesEditModal() {
+    const t = useStudioTranslation("certificates");
+    const commonT = useStudioTranslation("common");
     const dispatch = useAppDispatch();
     const { manageServerService } = useServices();
     const { reportEvent } = useEventsCollector();
@@ -83,12 +86,12 @@ export default function CertificatesEditModal() {
                     <Modal.Header className="pt-3 pb-0" onCloseClick={close}>
                         <Icon icon="certificate" addon="edit" size="lg" color="primary" margin="me-3" />
                         <h3 id={titleId} className="mb-0">
-                            Edit client certificate
+                            {t("edit.title")}
                         </h3>
                     </Modal.Header>
                     <Modal.Body>
                         <FormGroup>
-                            <FormLabel>Name</FormLabel>
+                            <FormLabel>{t("form.name")}</FormLabel>
                             <Form.Control type="text" value={certificate.Name} disabled />
                         </FormGroup>
                         <CertificatesSecurityClearanceField />
@@ -99,7 +102,7 @@ export default function CertificatesEditModal() {
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="link" onClick={close} className="link-muted">
-                            Cancel
+                            {commonT("cancel")}
                         </Button>
                         <ButtonWithSpinner
                             type="submit"
@@ -108,7 +111,7 @@ export default function CertificatesEditModal() {
                             isSpinning={formState.isSubmitting}
                         >
                             <Icon icon="save" />
-                            Save changes
+                            {t("edit.submit")}
                         </ButtonWithSpinner>
                     </Modal.Footer>
                 </form>

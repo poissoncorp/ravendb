@@ -4,6 +4,8 @@ import Button from "react-bootstrap/Button";
 import Collapse from "react-bootstrap/Collapse";
 import { Icon } from "components/common/Icon";
 import useBoolean from "components/hooks/useBoolean";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import type { StudioTranslate } from "common/i18n/resources";
 
 interface AnalysisErrorProps {
     error: any;
@@ -11,21 +13,22 @@ interface AnalysisErrorProps {
 }
 
 export default function AnalysisError({ error, onReset }: AnalysisErrorProps) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const { value: detailsVisible, toggle: toggleDetails } = useBoolean(false);
 
-    const message = extractMessage(error);
+    const message = extractMessage(error, t);
     const details = extractDetails(error);
 
     return (
-        <RichAlert variant="danger" title="Failed to analyze the debug package">
+        <RichAlert variant="danger" title={t("analysisError.title")}>
             <p className="mb-2">{message}</p>
             <div className="hstack gap-2 mb-2">
                 <Button variant="primary" size="sm" className="rounded-pill" onClick={onReset}>
-                    <Icon icon="refresh" /> Try another package
+                    <Icon icon="refresh" /> {t("analysisError.tryAnotherPackage")}
                 </Button>
                 {details && (
                     <Button variant="link" size="sm" onClick={toggleDetails}>
-                        {detailsVisible ? "Hide" : "Show"} exception details
+                        {t("analysisError.exceptionDetails", { context: detailsVisible ? "hide" : "show" })}
                     </Button>
                 )}
             </div>
@@ -40,9 +43,9 @@ export default function AnalysisError({ error, onReset }: AnalysisErrorProps) {
     );
 }
 
-function extractMessage(error: any): string {
+function extractMessage(error: any, t: StudioTranslate<"debugPackageAnalyzer">): string {
     if (!error) {
-        return "An unknown error occurred while analyzing the debug package.";
+        return t("analysisError.unknownError");
     }
 
     const parsed = tryParseJson(error.responseText);
@@ -50,9 +53,7 @@ function extractMessage(error: any): string {
         return parsed.Message;
     }
 
-    return (
-        error.statusText || error.message || "The package could not be analyzed. It may be corrupted or unsupported."
-    );
+    return error.statusText || error.message || t("analysisError.notAnalyzable");
 }
 
 function extractDetails(error: any): string {

@@ -19,8 +19,13 @@ import InputGroup from "react-bootstrap/InputGroup";
 import InputGroupText from "react-bootstrap/InputGroupText";
 import { useAsyncCallback } from "react-async-hook";
 import useUniqueId from "components/hooks/useUniqueId";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import type { StudioTranslate } from "common/i18n/resources";
 
 export default function CertificatesRegisterSsoServerModal() {
+    const t = useStudioTranslation("certificates");
+    const commonT = useStudioTranslation("common");
     const dispatch = useAppDispatch();
     const { manageServerService } = useServices();
     const { reportEvent } = useEventsCollector();
@@ -29,7 +34,7 @@ export default function CertificatesRegisterSsoServerModal() {
     const close = () => dispatch(certificatesActions.isRegisterSsoServerModalOpenToggled());
 
     const form = useForm<FormData>({
-        resolver: yupResolver(schema),
+        resolver: yupResolver(getSchema(t)),
         defaultValues: {
             name: "",
             certificateAsBase64: "",
@@ -51,9 +56,7 @@ export default function CertificatesRegisterSsoServerModal() {
         } catch (e) {
             // Normalize the jqXHR error into a plain Error here (where the caught value is untyped) so the UI can
             // read asyncFetchCert.error.message without casting the typed Error to JQueryXHR.
-            throw new Error(
-                e?.responseJSON?.Error ?? "Failed to fetch certificate from URL. Use the file upload below."
-            );
+            throw new Error(e?.responseJSON?.Error ?? t("ssoServer.fetchError"));
         }
     });
 
@@ -112,28 +115,32 @@ export default function CertificatesRegisterSsoServerModal() {
                     <Modal.Header className="pt-3 pb-0" onCloseClick={close}>
                         <Icon icon="certificate" size="lg" color="primary" margin="me-3" />
                         <h3 id={titleId} className="mb-0">
-                            Register SSO server certificate
+                            {t("ssoServer.title")}
                         </h3>
                     </Modal.Header>
                     <Modal.Body>
                         <FormGroup>
-                            <FormLabel>Name</FormLabel>
-                            <FormInput control={control} type="text" name="name" placeholder="e.g. My SSO Server" />
+                            <FormLabel>{t("form.name")}</FormLabel>
+                            <FormInput
+                                control={control}
+                                type="text"
+                                name="name"
+                                placeholder={t("ssoServer.namePlaceholder")}
+                            />
                         </FormGroup>
                         <FormGroup>
                             <div className="hstack gap-1 mb-1">
                                 <FormLabel className="mb-0 d-flex align-items-center gap-1">
-                                    SSO server URL{" "}
+                                    {t("ssoServer.urlLabel")}{" "}
                                     <ConditionalPopover
                                         conditions={{
                                             isActive: true,
                                             message: (
-                                                <>
-                                                    Enter the SSO server&apos;s URL (e.g.{" "}
-                                                    <code>https://sso.example.com</code>). RavenDB will fetch the public
-                                                    certificate from <code>/api/certificate</code> on that server — any
-                                                    path is ignored. If unreachable, use the file upload below.
-                                                </>
+                                                <StudioTrans
+                                                    ns="certificates"
+                                                    i18nKey="ssoServer.urlInfo"
+                                                    components={{ code: <code /> }}
+                                                />
                                             ),
                                         }}
                                         popoverPlacement="right"
@@ -160,14 +167,14 @@ export default function CertificatesRegisterSsoServerModal() {
                                     isSpinning={asyncFetchCert.loading}
                                     disabled={!urlInput.trim() || asyncFetchCert.loading}
                                 >
-                                    Fetch
+                                    {t("ssoServer.fetch")}
                                 </ButtonWithSpinner>
                             </InputGroup>
                             {urlError && <div className="text-danger small mt-1">{urlError}</div>}
                             {urlLoaded && (
                                 <div className="text-success small mt-1">
                                     <Icon icon="check" margin="me-1" />
-                                    Loaded from {urlLoaded}
+                                    {t("ssoServer.loadedFrom", { url: urlLoaded })}
                                 </div>
                             )}
                         </FormGroup>
@@ -175,16 +182,16 @@ export default function CertificatesRegisterSsoServerModal() {
                             <FormGroup>
                                 <div className="hstack gap-1">
                                     <FormLabel className="d-flex align-items-center gap-1">
-                                        Or upload certificate file{" "}
+                                        {t("ssoServer.uploadLabel")}{" "}
                                         <ConditionalPopover
                                             conditions={{
                                                 isActive: true,
                                                 message: (
-                                                    <>
-                                                        Select the SSO server&apos;s public certificate file (
-                                                        <code>.pfx</code> or <code>.cer</code>). Only the public key is
-                                                        needed — no private key or passphrase required.
-                                                    </>
+                                                    <StudioTrans
+                                                        ns="certificates"
+                                                        i18nKey="ssoServer.uploadInfo"
+                                                        components={{ code: <code /> }}
+                                                    />
                                                 ),
                                             }}
                                             popoverPlacement="right"
@@ -196,12 +203,12 @@ export default function CertificatesRegisterSsoServerModal() {
                                 <input id="ssoServerFilePicker" type="file" onChange={selectFile} className="d-none" />
                                 <InputGroup>
                                     <span className="static-name form-control d-flex align-items-center">
-                                        {importedFileName ? importedFileName : "Select file..."}
+                                        {importedFileName ? importedFileName : t("file.selectPlaceholder")}
                                     </span>
                                     <InputGroupText>
                                         <label htmlFor="ssoServerFilePicker" className="cursor-pointer">
                                             <Icon icon="folder" />
-                                            <span>Browse</span>
+                                            <span>{t("file.browse")}</span>
                                         </label>
                                     </InputGroupText>
                                 </InputGroup>
@@ -215,7 +222,7 @@ export default function CertificatesRegisterSsoServerModal() {
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="link" onClick={close} className="link-muted">
-                            Cancel
+                            {commonT("cancel")}
                         </Button>
                         <ButtonWithSpinner
                             type="submit"
@@ -223,7 +230,7 @@ export default function CertificatesRegisterSsoServerModal() {
                             className="rounded-pill"
                             isSpinning={formState.isSubmitting}
                         >
-                            Register certificate
+                            {t("ssoServer.submit")}
                         </ButtonWithSpinner>
                     </Modal.Footer>
                 </Form>
@@ -232,9 +239,11 @@ export default function CertificatesRegisterSsoServerModal() {
     );
 }
 
-const schema = yup.object({
-    name: yup.string().required(),
-    certificateAsBase64: yup.string().required("Certificate is required — use URL import or browse for a file"),
-});
+function getSchema(t: StudioTranslate<"certificates">) {
+    return yup.object({
+        name: yup.string().required(),
+        certificateAsBase64: yup.string().required(t("ssoServer.certificateRequired")),
+    });
+}
 
-type FormData = yup.InferType<typeof schema>;
+type FormData = yup.InferType<ReturnType<typeof getSchema>>;

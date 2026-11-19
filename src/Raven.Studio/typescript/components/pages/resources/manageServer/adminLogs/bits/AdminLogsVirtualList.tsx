@@ -11,8 +11,11 @@ import { useAppDispatch, useAppSelector } from "components/store";
 import assertUnreachable from "components/utils/assertUnreachable";
 import { useRef, useLayoutEffect } from "react";
 import Table from "react-bootstrap/Table";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import type { StudioTranslate } from "common/i18n/resources";
 
 export default function AdminLogsVirtualList(props: { availableHeightInPx: number }) {
+    const t = useStudioTranslation("adminLogs");
     const dispatch = useAppDispatch();
 
     const filteredLogs = useAppSelector(adminLogsSelectors.filteredLogs);
@@ -105,7 +108,7 @@ export default function AdminLogsVirtualList(props: { availableHeightInPx: numbe
                                                         )
                                                         .map((key: keyof AdminLogsMessage) => (
                                                             <tr key={key}>
-                                                                <td>{getFormattedFieldName(key)}</td>
+                                                                <td>{getFormattedFieldName(key, t)}</td>
                                                                 <td>{String(log[key] ?? "-")}</td>
                                                             </tr>
                                                         ))}
@@ -143,12 +146,12 @@ function getTextColor(level: AdminLogsMessage["Level"]): string {
     }
 }
 
-function getFormattedFieldName(fieldName: keyof AdminLogsMessage): string {
+function getFormattedFieldName(fieldName: keyof AdminLogsMessage, t: StudioTranslate<"adminLogs">): string {
     switch (fieldName) {
         case "ThreadID":
-            return "Thread ID";
+            return t("list.fieldNames.threadId");
         case "NodeTag":
-            return "Node Tag";
+            return t("list.fieldNames.nodeTag");
         default:
             return fieldName;
     }

@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("serverWideCommands");
 
 class deleteServerWideCustomAnalyzerCommand extends commandBase {
     private readonly name: string;
@@ -17,8 +20,8 @@ class deleteServerWideCustomAnalyzerCommand extends commandBase {
         const url = endpoints.global.adminAnalyzers.adminAnalyzers + this.urlEncodeArgs(args);
         
         return this.del<void>(url, null) 
-            .done(() => this.reportSuccess(`Deleted Server-Wide Custom Analyzer: ${this.name}`))
-            .fail((response: JQueryXHR) => this.reportError("Failed to delete Server-Wide Custom Analyzer: " + this.name, response.responseText, response.statusText));
+            .done(() => this.reportSuccess(t("analyzers.deleteSucceeded", { name: this.name })))
+            .fail((response: JQueryXHR) => this.reportError(t("analyzers.deleteFailed", { name: this.name }), response.responseText, response.statusText));
     }
 }
 

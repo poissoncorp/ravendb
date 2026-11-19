@@ -3,6 +3,9 @@ import clusterTopology = require("models/database/cluster/clusterTopology");
 import generalUtils = require("common/generalUtils");
 import license = require("models/auth/licenseModel");
 import accessManager = require("common/shell/accessManager");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("clusterModels");
 
 class clusterNode {
     tag = ko.observable<string>();
@@ -37,7 +40,7 @@ class clusterNode {
 
             let fullName = osInfo.FullName;
             if (!osInfo.Is64Bit) {
-                fullName += ` 32-bit`;
+                fullName = t("node.osName32Bit", { name: fullName });
             }
             return fullName;
         });
@@ -48,14 +51,16 @@ class clusterNode {
                 return null;
             }
 
-            let osTitle = `<div>OS Name: <strong>${this.osFullName()}</strong>`;
+            let osTitle = `<div>${t("node.osTooltip.name", { name: generalUtils.escapeHtml(this.osFullName()) })}`;
 
             if (osInfo.Version) {
-                osTitle += `<br />Version: <strong>${osInfo.Version}</strong>`;
+                osTitle += `<br />${t("node.osTooltip.version", { version: generalUtils.escapeHtml(osInfo.Version) })}`;
             }
             if (osInfo.BuildVersion) {
-                const type = osInfo.Type === "Linux" ? "Kernel" : "Build";
-                osTitle += `<br />${type} Version: <strong>${osInfo.BuildVersion}</strong>`;
+                osTitle += `<br />${t("node.osTooltip.buildVersion", {
+                    context: osInfo.Type === "Linux" ? "kernel" : "build",
+                    version: generalUtils.escapeHtml(osInfo.BuildVersion),
+                })}`;
             }
 
             osTitle += "</div>";
@@ -64,9 +69,7 @@ class clusterNode {
         
         this.osIcon = ko.pureComputed(() => clusterNode.osIcon(this.osInfo().Type));
 
-        this.memoryTitle =
-            `License limit on single node.<br> 
-             Doesn't apply to memory-mapped files managed by the OS.`;
+        this.memoryTitle = t("node.memoryTooltip");
     }
     
     static osIcon(type: Raven.Client.ServerWide.Operations.OSType) {
@@ -173,15 +176,15 @@ class clusterNode {
             const topology = topologyProvider();
             if (!topology.leader()) {
                 if (this.type() === "Watcher") {
-                    return "Waiting";
+                    return t("node.state.waiting");
                 } else if (this.isPassive()) {
-                    return "Passive";
+                    return t("node.state.passive");
                 } else {
-                    return this.connected() ? "Voting" : "Error";
+                    return this.connected() ? t("node.state.voting") : t("node.state.error");
                 }
             }
 
-            return this.connected() ? "Active" : "Error";
+            return this.connected() ? t("node.state.active") : t("node.state.error");
         });
     }
 

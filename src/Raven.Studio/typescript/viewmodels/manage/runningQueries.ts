@@ -10,6 +10,9 @@ import killQueryCommand = require("commands/database/query/killQueryCommand");
 import messagePublisher = require("common/messagePublisher");
 import generalUtils = require("common/generalUtils");
 import prismjs = require("prismjs");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("runningQueries");
 
 type ExecutingQueryInfoWithCache = {
     DatabaseName: string;
@@ -77,8 +80,8 @@ class runningQueries extends viewModelBase {
         super.attached();
         awesomeMultiselect.build($("#visibleDbsSelector"), opts => {
             opts.includeSelectAllOption = true;
-            opts.nSelectedText = " databased selected";
-            opts.allSelectedText = "All databases selected";
+            opts.nSelectedText = t("databasesSelector.nSelected");
+            opts.allSelectedText = t("databasesSelector.allSelected");
         });
     }
 
@@ -90,26 +93,26 @@ class runningQueries extends viewModelBase {
         grid.setDefaultSortBy(3, "desc");
         grid.init(() => this.fetchData(), () =>
             [
-                new actionColumn<ExecutingQueryInfoWithCache>(grid, x => this.killQuery(x), "Abort", `<i class="icon-force"></i>`, "70px",
+                new actionColumn<ExecutingQueryInfoWithCache>(grid, x => this.killQuery(x), t("columns.abort"), `<i class="icon-force"></i>`, "70px",
                     {
-                        title: () => 'Abort this query'
+                        title: () => t("columns.abortTitle")
                     }),
-                new textColumn<ExecutingQueryInfoWithCache>(grid, x => x.DatabaseName, "Database Name", "15%", {
+                new textColumn<ExecutingQueryInfoWithCache>(grid, x => x.DatabaseName, t("columns.databaseName"), "15%", {
                     sortable: "string"
                 }),
-                new textColumn<ExecutingQueryInfoWithCache>(grid, x => x.IndexName, "Index Name", "20%", {
+                new textColumn<ExecutingQueryInfoWithCache>(grid, x => x.IndexName, t("columns.indexName"), "20%", {
                     sortable: "string"
                 }),
-                new textColumn<ExecutingQueryInfoWithCache>(grid, x => x.RunningQuery.DurationInMs.toLocaleString() + " ms", "Duration", "10%", {
+                new textColumn<ExecutingQueryInfoWithCache>(grid, x => t("durationMs", { duration: x.RunningQuery.DurationInMs.toLocaleString() }), t("columns.duration"), "10%", {
                     sortable: x => x.RunningQuery.DurationInMs
                 }),
-                new textColumn<ExecutingQueryInfoWithCache>(grid, x => x.RunningQuery.IsStreaming, "Streaming", "10%", {
+                new textColumn<ExecutingQueryInfoWithCache>(grid, x => x.RunningQuery.IsStreaming, t("columns.streaming"), "10%", {
                     sortable: "string"
                 }),
-                new textColumn<ExecutingQueryInfoWithCache>(grid, x => (x.RunningQuery.QueryInfo as Raven.Client.Documents.Queries.IndexQuery<any>).Query, "Query", "30%", {
+                new textColumn<ExecutingQueryInfoWithCache>(grid, x => (x.RunningQuery.QueryInfo as Raven.Client.Documents.Queries.IndexQuery<any>).Query, t("columns.query"), "30%", {
                     sortable: "string"
                 }),
-                new textColumn<ExecutingQueryInfoWithCache>(grid, x => x.RunningQuery.QueryInfo, "Details", "15%")
+                new textColumn<ExecutingQueryInfoWithCache>(grid, x => x.RunningQuery.QueryInfo, t("columns.details"), "15%")
             ]
         );
 
@@ -119,7 +122,7 @@ class runningQueries extends viewModelBase {
 
                 let value = column.getCellValue(item);
             
-                if (column.header === "Duration") {
+                if (column.header === t("columns.duration")) {
                     value = {
                         Duration: item.RunningQuery.Duration, 
                         StartTime: item.RunningQuery.StartTime
@@ -139,14 +142,14 @@ class runningQueries extends viewModelBase {
     private killQuery(query: ExecutingQueryInfoWithCache) {
         const db = databasesManager.default.getDatabaseByName(query.DatabaseName);
         
-        this.confirmationMessage("Abort the query", "Do you want to abort query for index: " + generalUtils.escapeHtml(query.IndexName) + "?", {
+        this.confirmationMessage(t("abortConfirm.title"), t("abortConfirm.message", { indexName: generalUtils.escapeHtml(query.IndexName) }), {
             html: true
         })
             .done(result => {
                 if (result.can) {
                     killQueryCommand.byIndexAndQueryId(db, query.IndexName, query.RunningQuery.QueryId)
                         .execute()
-                        .done(() => messagePublisher.reportSuccess("Aborting query"));
+                        .done(() => messagePublisher.reportSuccess(t("aborting")));
                 }
             });
     }

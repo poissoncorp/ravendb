@@ -27,8 +27,10 @@ import { Switch } from "components/common/Checkbox";
 import { FlexGrow } from "components/common/FlexGrow";
 import AdminLogsFilterState from "components/pages/resources/manageServer/adminLogs/bits/AdminLogsFilterState";
 import { ConditionalPopover } from "components/common/ConditionalPopover";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function AdminLogs() {
+    const t = useStudioTranslation("adminLogs");
     const dispatch = useAppDispatch();
     const eventsCollector = useEventsCollector();
     const { manageServerService } = useServices();
@@ -89,11 +91,11 @@ export default function AdminLogs() {
                         <Card.Header className="d-flex justify-content-between flex-wrap gap-2 p-2">
                             <h4 className="mb-0 lh-base d-flex align-items-center">
                                 <Icon icon="client" />
-                                Logs on this view
+                                {t("viewLogs.title")}
                                 {isPaused && (
                                     <span className="ms-2 text-uppercase text-warning">
                                         <Icon icon="warning" />
-                                        Paused
+                                        {t("viewLogs.paused")}
                                     </span>
                                 )}
                             </h4>
@@ -103,7 +105,7 @@ export default function AdminLogs() {
                                 />
                                 <Icon icon="logs" addon="arrow-filled-up" />
                                 <span className="lh-1">
-                                    <strong>Min level:</strong>
+                                    <strong>{t("minLevel")}</strong>
                                 </span>{" "}
                                 <Select
                                     value={enabledLogLevelOptions.find(
@@ -124,19 +126,18 @@ export default function AdminLogs() {
                                     popoverPlacement="top"
                                     conditions={{
                                         isActive: isBufferFull,
-                                        message:
-                                            "Log buffer is full. Either increase buffer size in 'Display settings' or clear all entries.",
+                                        message: t("viewLogs.bufferFullPopover"),
                                     }}
                                 >
                                     <Button
                                         type="button"
                                         variant={isPaused ? "success" : "warning"}
-                                        title={isPaused ? "Click to resume logging" : "Click to pause logging"}
+                                        title={isPaused ? t("viewLogs.resumeTitle") : t("viewLogs.pauseTitle")}
                                         onClick={() => dispatch(adminLogsActions.isPausedToggled())}
                                         disabled={isBufferFull}
                                     >
                                         <Icon icon={isPaused ? "play" : "pause"} />
-                                        {isPaused ? "Resume" : "Pause"}
+                                        {isPaused ? t("viewLogs.resume") : t("viewLogs.pause")}
                                     </Button>
                                 </ConditionalPopover>
                                 <Button
@@ -148,15 +149,15 @@ export default function AdminLogs() {
                                     }}
                                 >
                                     <Icon icon="cancel" />
-                                    Clear
+                                    {t("viewLogs.clear")}
                                 </Button>
                                 <Switch
                                     selected={isMonitorTail}
                                     toggleSelection={() => dispatch(adminLogsActions.isMonitorTailToggled())}
                                     color="primary"
-                                    title="Toggle monitor (tail -f)"
+                                    title={t("viewLogs.monitorTitle")}
                                 >
-                                    Monitor (tail -f)
+                                    {t("viewLogs.monitor")}
                                 </Switch>
                                 <FlexGrow />
                                 <div className="d-flex gap-2">
@@ -169,7 +170,7 @@ export default function AdminLogs() {
                                         icon="settings"
                                         disabled={configsLoadStatus !== "success"}
                                     >
-                                        Settings
+                                        {t("settings")}
                                     </ButtonWithSpinner>
                                 </div>
                                 {isViewSettingOpen && <AdminLogsViewSettingsModal />}
@@ -182,7 +183,7 @@ export default function AdminLogs() {
                         <Card.Header className="d-flex justify-content-between flex-wrap gap-2 p-2">
                             <h4 className="mb-0 lh-base d-flex align-items-center">
                                 <Icon icon="drive" />
-                                Logs on disk
+                                {t("diskLogs.title")}
                             </h4>
                             <div className="d-flex align-items-center">
                                 <AdminLogsFilterState
@@ -190,7 +191,7 @@ export default function AdminLogs() {
                                 />
                                 <Icon icon="logs" addon="arrow-filled-up" />
                                 <span className="lh-1 me-1">
-                                    <strong>Min level:</strong>
+                                    <strong>{t("minLevel")}</strong>
                                 </span>
                                 {configsLoadStatus === "loading" ? (
                                     <LazyLoad active>
@@ -210,7 +211,7 @@ export default function AdminLogs() {
                                     onClick={() => dispatch(adminLogsActions.isDownloadDiskLogsOpenToggled())}
                                 >
                                     <Icon icon="download" />
-                                    Download
+                                    {t("download")}
                                 </Button>
                                 {isDownloadDiskLogsOpen && <AdminLogsDiskDownloadModal />}
                                 <ButtonWithSpinner
@@ -221,7 +222,7 @@ export default function AdminLogs() {
                                     isSpinning={configsLoadStatus === "loading"}
                                     disabled={configsLoadStatus !== "success"}
                                 >
-                                    Settings
+                                    {t("settings")}
                                 </ButtonWithSpinner>
                                 {isDiscSettingOpen && <AdminLogsDiskSettingsModal />}
                             </div>
@@ -233,7 +234,7 @@ export default function AdminLogs() {
                 <div className="clearable-input flex-grow-1">
                     <Form.Control
                         type="text"
-                        placeholder="Search..."
+                        placeholder={t("list.searchPlaceholder")}
                         value={localFilter}
                         onChange={(e: ChangeEvent<HTMLInputElement>) => handleFilterChange(e.target.value)}
                         className="pe-4"
@@ -253,7 +254,7 @@ export default function AdminLogs() {
                         onClick={() => dispatch(adminLogsActions.isAllExpandedToggled())}
                     >
                         <Icon icon={isAllExpanded ? "collapse-vertical" : "expand-vertical"} />
-                        {isAllExpanded ? "Collapse all" : "Expand all"}
+                        {isAllExpanded ? t("list.collapseAll") : t("list.expandAll")}
                     </Button>
                     <Button
                         type="button"
@@ -261,7 +262,7 @@ export default function AdminLogs() {
                         onClick={() => dispatch(adminLogsActions.isDisplaySettingsOpenToggled())}
                     >
                         <Icon icon="table" />
-                        Display settings
+                        {t("list.displaySettings")}
                     </Button>
                 </div>
                 {isDisplaySettingsOpen && <AdminLogsDisplaySettingsModal />}

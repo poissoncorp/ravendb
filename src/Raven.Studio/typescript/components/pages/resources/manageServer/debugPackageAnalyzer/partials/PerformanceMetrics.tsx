@@ -24,6 +24,8 @@ import classNames from "classnames";
 import SizeGetter from "components/common/SizeGetter";
 import SegmentedControl from "components/common/SegmentedControl";
 import IconName from "typings/server/icons";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import type { StudioTranslate } from "common/i18n/resources";
 
 type DebugPackageAnalysisSummary = Raven.Server.Documents.Handlers.Debugging.DebugPackage.DebugPackageAnalysisSummary;
 type CpuUsageAnalysisInfo =
@@ -47,14 +49,6 @@ interface PerformanceMetricsWithSizeProps extends PerformanceMetricsProps {
     width: number;
 }
 
-const metricTabs: { label: string; value: MetricTab; icon: IconName }[] = [
-    { label: "CPU", value: "cpu", icon: "processor" },
-    { label: "Memory", value: "memory", icon: "memory" },
-    { label: "GC", value: "gc", icon: "gc" },
-    { label: "Network", value: "network", icon: "global" },
-    { label: "Threads", value: "threads", icon: "thread-stack-trace" },
-];
-
 export default function PerformanceMetrics({ summary, nodeTag }: PerformanceMetricsProps) {
     return (
         <SizeGetter
@@ -64,14 +58,26 @@ export default function PerformanceMetrics({ summary, nodeTag }: PerformanceMetr
 }
 
 function PerformanceMetricsWithSize({ summary, nodeTag, width }: PerformanceMetricsWithSizeProps) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const node = summary.SummaryPerNode?.[nodeTag];
     const [tab, setTab] = useState<MetricTab>("cpu");
+
+    const metricTabs = useMemo<{ label: string; value: MetricTab; icon: IconName }[]>(
+        () => [
+            { label: t("performanceMetrics.tabs.cpu"), value: "cpu", icon: "processor" },
+            { label: t("performanceMetrics.tabs.memory"), value: "memory", icon: "memory" },
+            { label: t("performanceMetrics.tabs.gc"), value: "gc", icon: "gc" },
+            { label: t("performanceMetrics.tabs.network"), value: "network", icon: "global" },
+            { label: t("performanceMetrics.tabs.threads"), value: "threads", icon: "thread-stack-trace" },
+        ],
+        [t]
+    );
 
     return (
         <div className="performance-metrics">
             <div className="panel-bg-1 rounded">
                 <div className="p-4 vstack gap-3">
-                    <h3 className="m-0">Performance Metrics</h3>
+                    <h3 className="m-0">{t("performanceMetrics.title")}</h3>
                     <SegmentedControl<MetricTab> items={metricTabs} selected={tab} onSelect={setTab} fullWidth />
                     {tab === "cpu" && <CpuTab cpu={node?.CpuUsageInfo} width={width} />}
                     {tab === "memory" && <MemoryTab memory={node?.MemoryUsageInfo} width={width} />}
@@ -88,7 +94,7 @@ function PerformanceMetricsWithSize({ summary, nodeTag, width }: PerformanceMetr
                                     target="_blank"
                                     rel="noreferrer"
                                 >
-                                    <Icon icon="stack-traces" /> Open in Stack Traces viewer
+                                    <Icon icon="stack-traces" /> {t("performanceMetrics.openStackTraces")}
                                 </Button>
                             </div>
                             <ThreadsTab packageId={summary.PackageId} nodeTag={nodeTag} width={width} />
@@ -103,37 +109,58 @@ function PerformanceMetricsWithSize({ summary, nodeTag, width }: PerformanceMetr
 // --- CPU tab ---
 
 function CpuTab({ cpu, width }: { cpu?: CpuUsageAnalysisInfo; width: number }) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     if (!cpu) {
         return (
             <EmptySet compact className="justify-content-center">
-                No CPU data in the package
+                {t("performanceMetrics.cpu.empty")}
             </EmptySet>
         );
     }
     return (
         <>
             <div className="overview-stats gap-2">
-                <StatTile label="Process CPU" icon="hammer-driver" value={formatPercentage(cpu.CurrentCpuUsage)} />
                 <StatTile
-                    label="Machine CPU"
+                    label={t("performanceMetrics.cpu.processCpu")}
+                    icon="hammer-driver"
+                    value={formatPercentage(cpu.CurrentCpuUsage)}
+                />
+                <StatTile
+                    label={t("performanceMetrics.cpu.machineCpu")}
                     icon="studio-configuration"
                     value={formatPercentage(cpu.CurrentMachineCpuUsage)}
                 />
-                <StatTile label="Average CPU" icon="graph-range" value={formatPercentage(cpu.AverageCpuUsage)} />
-                <StatTile label="Kernel time" icon="settings" value={formatPercentage(cpu.KernelTimePercentage)} />
-                <StatTile label="Cores" icon="processor" value={formatNumber(cpu.NumberOfCores)} />
-                <StatTile label="Utilized cores" icon="swap" value={formatNumber(cpu.UtilizedCores)} />
+                <StatTile
+                    label={t("performanceMetrics.cpu.averageCpu")}
+                    icon="graph-range"
+                    value={formatPercentage(cpu.AverageCpuUsage)}
+                />
+                <StatTile
+                    label={t("performanceMetrics.cpu.kernelTime")}
+                    icon="settings"
+                    value={formatPercentage(cpu.KernelTimePercentage)}
+                />
+                <StatTile
+                    label={t("performanceMetrics.cpu.cores")}
+                    icon="processor"
+                    value={formatNumber(cpu.NumberOfCores)}
+                />
+                <StatTile
+                    label={t("performanceMetrics.cpu.utilizedCores")}
+                    icon="swap"
+                    value={formatNumber(cpu.UtilizedCores)}
+                />
             </div>
             <div className="d-flex gap-3">
                 <ThreadList
                     className="flex-fill"
-                    title="Top current CPU usage threads"
+                    title={t("performanceMetrics.cpu.topCurrentThreads")}
                     threads={cpu.TopCurrentCpuUsageThreads}
                     width={Math.floor(width / 2)}
                 />
                 <ThreadList
                     className="flex-fill"
-                    title="Top overall CPU usage threads"
+                    title={t("performanceMetrics.cpu.topOverallThreads")}
                     threads={cpu.TopOverallCpuUsageThreads}
                     width={Math.floor(width / 2)}
                 />
@@ -145,6 +172,7 @@ function CpuTab({ cpu, width }: { cpu?: CpuUsageAnalysisInfo; width: number }) {
 type ThreadItem = { name: string };
 
 function useThreadListColumns(availableWidth: number) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const bodyWidth = virtualTableUtils.getTableBodyWidth(
         availableWidth - analyzerConstants.panelHorizontalPaddingInPx
     );
@@ -153,12 +181,12 @@ function useThreadListColumns(availableWidth: number) {
     const threadListColumns: ColumnDef<ThreadItem>[] = useMemo(
         () => [
             {
-                header: "Thread",
+                header: t("performanceMetrics.cpu.threadColumn"),
                 accessorKey: "name",
                 size: getSize(100),
             },
         ],
-        [getSize]
+        [getSize, t]
     );
 
     return { threadListColumns };
@@ -206,6 +234,7 @@ function ThreadList({
 type MemoryMetric = { label: string; value: string };
 
 function useMemoryMetricColumns(availableWidth: number) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const bodyWidth = virtualTableUtils.getTableBodyWidth(
         availableWidth - analyzerConstants.panelHorizontalPaddingInPx
     );
@@ -214,18 +243,18 @@ function useMemoryMetricColumns(availableWidth: number) {
     const memoryMetricColumns: ColumnDef<MemoryMetric>[] = useMemo(
         () => [
             {
-                header: "Metric",
+                header: t("performanceMetrics.memory.columns.metric"),
                 accessorKey: "label",
                 size: getSize(75),
             },
             {
-                header: "Value",
+                header: t("performanceMetrics.memory.columns.value"),
                 accessorKey: "value",
                 cell: MemoryValueCell,
                 size: getSize(25),
             },
         ],
-        [getSize]
+        [getSize, t]
     );
 
     return { memoryMetricColumns };
@@ -236,30 +265,46 @@ function MemoryValueCell({ getValue }: { getValue: () => unknown }) {
 }
 
 function MemoryTab({ memory, width }: { memory?: MemoryAnalysisInfo; width: number }) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const metrics = useMemo<MemoryMetric[]>(() => {
         if (!memory) {
             return [];
         }
         return [
-            { label: "Managed allocations", value: memory.Managed?.ManagedAllocations },
             {
-                label: "Lucene managed allocations (term cache)",
+                label: t("performanceMetrics.memory.metrics.managedAllocations"),
+                value: memory.Managed?.ManagedAllocations,
+            },
+            {
+                label: t("performanceMetrics.memory.metrics.luceneManagedTermCache"),
                 value: memory.Managed?.LuceneManagedAllocationsForTermCache,
             },
-            { label: "Unmanaged allocations", value: memory.Unmanaged?.UnmanagedAllocations },
-            { label: "Encryption buffers in use", value: memory.Unmanaged?.EncryptionBuffersInUse },
-            { label: "Encryption buffers pool", value: memory.Unmanaged?.EncryptionBuffersPool },
-            { label: "Encryption locked memory", value: memory.Unmanaged?.EncryptionLockedMemory },
             {
-                label: "Lucene unmanaged allocations (sorting)",
+                label: t("performanceMetrics.memory.metrics.unmanagedAllocations"),
+                value: memory.Unmanaged?.UnmanagedAllocations,
+            },
+            {
+                label: t("performanceMetrics.memory.metrics.encryptionBuffersInUse"),
+                value: memory.Unmanaged?.EncryptionBuffersInUse,
+            },
+            {
+                label: t("performanceMetrics.memory.metrics.encryptionBuffersPool"),
+                value: memory.Unmanaged?.EncryptionBuffersPool,
+            },
+            {
+                label: t("performanceMetrics.memory.metrics.encryptionLockedMemory"),
+                value: memory.Unmanaged?.EncryptionLockedMemory,
+            },
+            {
+                label: t("performanceMetrics.memory.metrics.luceneUnmanagedSorting"),
                 value: memory.Unmanaged?.LuceneUnmanagedAllocationsForSorting,
             },
             {
-                label: "Lucene unmanaged allocations (term cache)",
+                label: t("performanceMetrics.memory.metrics.luceneUnmanagedTermCache"),
                 value: memory.Unmanaged?.LuceneUnmanagedAllocationsForTermCache,
             },
         ];
-    }, [memory]);
+    }, [memory, t]);
 
     const { memoryMetricColumns } = useMemoryMetricColumns(width);
 
@@ -279,7 +324,7 @@ function MemoryTab({ memory, width }: { memory?: MemoryAnalysisInfo; width: numb
     if (!memory) {
         return (
             <EmptySet compact className="justify-content-center">
-                No memory data in the package
+                {t("performanceMetrics.memory.empty")}
             </EmptySet>
         );
     }
@@ -289,18 +334,34 @@ function MemoryTab({ memory, width }: { memory?: MemoryAnalysisInfo; width: numb
     return (
         <>
             <div className="overview-stats gap-2">
-                <StatTile label="Working set" icon="storage-used" value={memory.WorkingSet} />
-                <StatTile label="Physical memory" icon="memory" value={memory.PhysicalMemory} />
-                <StatTile label="Available memory" icon="storage-free" value={memory.AvailableMemory} />
-                <StatTile label="Available for processing" icon="swap" value={memory.AvailableMemoryForProcessing} />
                 <StatTile
-                    label="Dirty memory"
+                    label={t("performanceMetrics.memory.workingSet")}
+                    icon="storage-used"
+                    value={memory.WorkingSet}
+                />
+                <StatTile
+                    label={t("performanceMetrics.memory.physicalMemory")}
+                    icon="memory"
+                    value={memory.PhysicalMemory}
+                />
+                <StatTile
+                    label={t("performanceMetrics.memory.availableMemory")}
+                    icon="storage-free"
+                    value={memory.AvailableMemory}
+                />
+                <StatTile
+                    label={t("performanceMetrics.memory.availableForProcessing")}
+                    icon="swap"
+                    value={memory.AvailableMemoryForProcessing}
+                />
+                <StatTile
+                    label={t("performanceMetrics.memory.dirtyMemory")}
                     icon="clean"
                     iconColor={warnColor}
                     value={memory.DirtyMemory}
                     valueColor={warnColor}
                 />
-                <StatTile label="Memory mapped" icon="map" value={memory.MemoryMapped} />
+                <StatTile label={t("performanceMetrics.memory.memoryMapped")} icon="map" value={memory.MemoryMapped} />
             </div>
             <VirtualTable table={table} heightInPx={heightInPx} />
         </>
@@ -312,6 +373,7 @@ function MemoryTab({ memory, width }: { memory?: MemoryAnalysisInfo; width: numb
 type GenerationRow = { label: string; size: GenerationInfoSize };
 
 function useGcGenerationColumns(availableWidth: number) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const bodyWidth = virtualTableUtils.getTableBodyWidth(
         availableWidth - analyzerConstants.panelHorizontalPaddingInPx
     );
@@ -319,55 +381,56 @@ function useGcGenerationColumns(availableWidth: number) {
 
     const gcGenerationColumns: ColumnDef<GenerationRow>[] = useMemo(
         () => [
-            { header: "Generation", accessorKey: "label", size: getSize(22) },
+            { header: t("performanceMetrics.gc.columns.generation"), accessorKey: "label", size: getSize(22) },
             {
-                header: "Size before",
+                header: t("performanceMetrics.gc.columns.sizeBefore"),
                 id: "sizeBefore",
                 accessorFn: (row) => row.size?.SizeBeforeBytes ?? 0,
                 cell: ({ getValue }) => genUtils.formatBytesToSize(getValue<number>()),
                 size: getSize(18),
             },
             {
-                header: "Size after",
+                header: t("performanceMetrics.gc.columns.sizeAfter"),
                 id: "sizeAfter",
                 accessorFn: (row) => row.size?.SizeAfterBytes ?? 0,
                 cell: ({ getValue }) => genUtils.formatBytesToSize(getValue<number>()),
                 size: getSize(18),
             },
             {
-                header: "Fragmentation before",
+                header: t("performanceMetrics.gc.columns.fragmentationBefore"),
                 id: "fragBefore",
                 accessorFn: (row) => row.size?.FragmentationBeforeBytes ?? 0,
                 cell: ({ getValue }) => genUtils.formatBytesToSize(getValue<number>()),
                 size: getSize(21),
             },
             {
-                header: "Fragmentation after",
+                header: t("performanceMetrics.gc.columns.fragmentationAfter"),
                 id: "fragAfter",
                 accessorFn: (row) => row.size?.FragmentationAfterBytes ?? 0,
                 cell: ({ getValue }) => genUtils.formatBytesToSize(getValue<number>()),
                 size: getSize(21),
             },
         ],
-        [getSize]
+        [getSize, t]
     );
 
     return { gcGenerationColumns };
 }
 
 function GcTab({ gc, width }: { gc?: GcMemoryInfo; width: number }) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const generations = useMemo<GenerationRow[]>(() => {
         if (!gc) {
             return [];
         }
         return [
-            { label: "Gen 0", size: gc.Gen0HeapSize },
-            { label: "Gen 1", size: gc.Gen1HeapSize },
-            { label: "Gen 2", size: gc.Gen2HeapSize },
-            { label: "Large object heap", size: gc.LargeObjectHeapSize },
-            { label: "Pinned object heap", size: gc.PinnedObjectHeapSize },
+            { label: t("performanceMetrics.gc.generation", { generation: 0 }), size: gc.Gen0HeapSize },
+            { label: t("performanceMetrics.gc.generation", { generation: 1 }), size: gc.Gen1HeapSize },
+            { label: t("performanceMetrics.gc.generation", { generation: 2 }), size: gc.Gen2HeapSize },
+            { label: t("performanceMetrics.gc.largeObjectHeap"), size: gc.LargeObjectHeapSize },
+            { label: t("performanceMetrics.gc.pinnedObjectHeap"), size: gc.PinnedObjectHeapSize },
         ];
-    }, [gc]);
+    }, [gc, t]);
 
     const { gcGenerationColumns } = useGcGenerationColumns(width);
 
@@ -387,7 +450,7 @@ function GcTab({ gc, width }: { gc?: GcMemoryInfo; width: number }) {
     if (!gc) {
         return (
             <EmptySet compact className="justify-content-center">
-                No GC data in the package
+                {t("performanceMetrics.gc.empty")}
             </EmptySet>
         );
     }
@@ -395,29 +458,45 @@ function GcTab({ gc, width }: { gc?: GcMemoryInfo; width: number }) {
     return (
         <>
             <div className="overview-stats gap-2">
-                <StatTile label="Last GC generation" icon="gc" value={`Gen ${gc.Generation}`} />
-                <StatTile label="GC index" icon="hash" value={formatNumber(gc.Index)} />
-                <StatTile label="Pause time" icon="pause" value={formatPercentage(gc.PauseTimePercentage)} />
                 <StatTile
-                    label="Total heap after"
+                    label={t("performanceMetrics.gc.lastGeneration")}
+                    icon="gc"
+                    value={t("performanceMetrics.gc.generation", { generation: gc.Generation })}
+                />
+                <StatTile label={t("performanceMetrics.gc.gcIndex")} icon="hash" value={formatNumber(gc.Index)} />
+                <StatTile
+                    label={t("performanceMetrics.gc.pauseTime")}
+                    icon="pause"
+                    value={formatPercentage(gc.PauseTimePercentage)}
+                />
+                <StatTile
+                    label={t("performanceMetrics.gc.totalHeapAfter")}
                     icon="memory"
                     value={genUtils.formatBytesToSize(gc.TotalHeapSizeAfterBytes)}
                 />
-                <StatTile label="Concurrent" icon="shuffle" value={gc.Concurrent ? "Yes" : "No"} />
                 <StatTile
-                    label="Compacted"
+                    label={t("performanceMetrics.gc.concurrent")}
+                    icon="shuffle"
+                    value={gc.Concurrent ? t("yes") : t("no")}
+                />
+                <StatTile
+                    label={t("performanceMetrics.gc.compacted")}
                     icon="compact"
-                    value={gc.Compacted ? "Yes" : "No"}
+                    value={gc.Compacted ? t("yes") : t("no")}
                     valueColor={gc.Compacted ? "success" : undefined}
                 />
             </div>
             <div>
-                <div className="small-label ms-1 mb-1">Heap by generation</div>
+                <div className="small-label ms-1 mb-1">{t("performanceMetrics.gc.heapByGeneration")}</div>
                 <VirtualTable table={table} heightInPx={heightInPx} />
             </div>
             {gc.PauseDurationsInMs?.length > 0 && (
                 <div className="text-muted">
-                    Pause durations: {gc.PauseDurationsInMs.map((ms) => `${ms} ms`).join(", ")}
+                    {t("performanceMetrics.gc.pauseDurations", {
+                        durations: gc.PauseDurationsInMs.map((ms) =>
+                            t("performanceMetrics.durationMs", { duration: ms })
+                        ).join(", "),
+                    })}
                 </div>
             )}
         </>
@@ -427,6 +506,7 @@ function GcTab({ gc, width }: { gc?: GcMemoryInfo; width: number }) {
 // --- Network tab ---
 
 function useNetworkColumns(availableWidth: number) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const bodyWidth = virtualTableUtils.getTableBodyWidth(
         availableWidth - analyzerConstants.panelHorizontalPaddingInPx
     );
@@ -435,14 +515,14 @@ function useNetworkColumns(availableWidth: number) {
     const tcpColumns: ColumnDef<TcpConnections>[] = useMemo(
         () => [
             {
-                header: "TCP state",
+                header: t("performanceMetrics.network.tcpColumns.tcpState"),
                 id: "state",
                 accessorFn: (row) => row.TcpState ?? "",
                 size: getSize(25),
                 enableSorting: true,
             },
             {
-                header: "Connections",
+                header: t("performanceMetrics.network.tcpColumns.connections"),
                 id: "connections",
                 accessorFn: (row) => row.NumberOfConnectionsInState ?? 0,
                 cell: ({ getValue }) => formatNumber(getValue<number>()),
@@ -450,33 +530,33 @@ function useNetworkColumns(availableWidth: number) {
                 enableSorting: true,
             },
             {
-                header: "Top remote endpoints",
+                header: t("performanceMetrics.network.tcpColumns.topRemoteEndpoints"),
                 id: "endpoints",
                 accessorFn: (row) => formatTopConnections(row.TopConnectionsInState),
                 size: getSize(57),
             },
         ],
-        [getSize]
+        [getSize, t]
     );
 
     const pingColumns: ColumnDef<PingResult>[] = useMemo(
         () => [
             {
-                header: "Target node",
+                header: t("performanceMetrics.network.pingColumns.targetNode"),
                 accessorKey: "Url",
                 size: getSize(35),
                 enableSorting: true,
             },
             {
-                header: "Setup-alive",
+                header: t("performanceMetrics.network.pingColumns.setupAlive"),
                 id: "setup",
                 accessorFn: (row) => row.SetupAlive?.Time ?? 0,
-                cell: ({ row }) => formatPingMs(row.original.SetupAlive?.Time),
+                cell: ({ row }) => formatPingMs(row.original.SetupAlive?.Time, t),
                 size: getSize(18),
                 enableSorting: true,
             },
             {
-                header: "TCP ping",
+                header: t("performanceMetrics.network.pingColumns.tcpPing"),
                 id: "tcp",
                 accessorFn: (row) => row.TcpInfo?.ReceiveTime ?? 0,
                 cell: PingTcpCell,
@@ -484,7 +564,7 @@ function useNetworkColumns(availableWidth: number) {
                 enableSorting: true,
             },
             {
-                header: "Status",
+                header: t("performanceMetrics.network.pingColumns.status"),
                 id: "status",
                 accessorFn: (row) => (row.SetupAlive?.Error || row.TcpInfo?.Error ? 1 : 0),
                 cell: PingStatusCell,
@@ -492,35 +572,38 @@ function useNetworkColumns(availableWidth: number) {
                 enableSorting: true,
             },
         ],
-        [getSize]
+        [getSize, t]
     );
 
     return { tcpColumns, pingColumns };
 }
 
 function PingTcpCell({ row }: { row: { original: PingResult } }) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const tcpPing = row.original.TcpInfo?.ReceiveTime;
     const pingClass = tcpPing > 5000 ? "text-danger" : tcpPing > 2000 ? "text-warning" : "";
-    return <span className={pingClass}>{formatPingMs(tcpPing)}</span>;
+    return <span className={pingClass}>{formatPingMs(tcpPing, t)}</span>;
 }
 
 function PingStatusCell({ row }: { row: { original: PingResult } }) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const setupError = row.original.SetupAlive?.Error;
     const tcpError = row.original.TcpInfo?.Error;
     const hasError = Boolean(setupError || tcpError);
     return hasError ? (
         <span className="text-danger" title={[setupError, tcpError].filter(Boolean).join(" | ")}>
-            <Icon icon="warning" margin="m-0" /> Error
+            <Icon icon="warning" margin="m-0" /> {t("performanceMetrics.network.pingError")}
         </span>
     ) : (
         <span className="hstack gap-1 text-success">
-            <Icon icon="check" margin="m-0" /> OK
+            <Icon icon="check" margin="m-0" /> {t("performanceMetrics.network.pingOk")}
         </span>
     );
 }
 
 // Network info is not in the summary; fetch it on demand from the analyzer network endpoint.
 function NetworkTab({ packageId, nodeTag, width }: { packageId: string; nodeTag: string; width: number }) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const { manageServerService } = useServices();
     const network = useAsync(
         () => manageServerService.getDebugPackageNetworkInfo(packageId, nodeTag),
@@ -561,25 +644,20 @@ function NetworkTab({ packageId, nodeTag, width }: { packageId: string; nodeTag:
     if (network.loading) {
         return (
             <div className="hstack gap-2 justify-content-center text-muted py-3">
-                <Spinner size="sm" /> Loading network info for node {nodeTag}...
+                <Spinner size="sm" /> {t("performanceMetrics.network.loading", { nodeTag })}
             </div>
         );
     }
 
     if (network.error) {
-        return (
-            <RichAlert variant="warning">
-                Could not load network info for node {nodeTag}. The analysis report may have expired on the server
-                (re-upload the package to inspect), or this data was not captured.
-            </RichAlert>
-        );
+        return <RichAlert variant="warning">{t("performanceMetrics.network.loadError", { nodeTag })}</RichAlert>;
     }
 
     const info = network.result;
     if (!info) {
         return (
             <EmptySet compact className="justify-content-center">
-                No network data in the package
+                {t("performanceMetrics.network.empty")}
             </EmptySet>
         );
     }
@@ -588,24 +666,28 @@ function NetworkTab({ packageId, nodeTag, width }: { packageId: string; nodeTag:
         <>
             <div className="overview-stats gap-2">
                 <StatTile
-                    label="Active TCP connections"
+                    label={t("performanceMetrics.network.activeTcpConnections")}
                     icon="global"
                     value={formatNumber(info.TotalActiveTcpConnections)}
                 />
-                <StatTile label="Connection states" icon="link" value={formatNumber(info.TcpConnections?.length)} />
+                <StatTile
+                    label={t("performanceMetrics.network.connectionStates")}
+                    icon="link"
+                    value={formatNumber(info.TcpConnections?.length)}
+                />
             </div>
             {tcpCount === 0 ? (
                 <EmptySet compact className="justify-content-center">
-                    No TCP connection data in the package
+                    {t("performanceMetrics.network.tcpEmpty")}
                 </EmptySet>
             ) : (
                 <VirtualTable table={tcpTable} heightInPx={tcpHeightInPx} />
             )}
             <div>
-                <div className="small-label ms-1 mb-1">Node-to-node ping (from node {nodeTag})</div>
+                <div className="small-label ms-1 mb-1">{t("performanceMetrics.network.pingTitle", { nodeTag })}</div>
                 {pingCount === 0 ? (
                     <EmptySet compact className="justify-content-center">
-                        No ping test data in the package
+                        {t("performanceMetrics.network.pingEmpty")}
                     </EmptySet>
                 ) : (
                     <VirtualTable table={pingTable} heightInPx={pingHeightInPx} />
@@ -618,6 +700,7 @@ function NetworkTab({ packageId, nodeTag, width }: { packageId: string; nodeTag:
 // --- Threads tab ---
 
 function useThreadColumns(availableWidth: number) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const bodyWidth = virtualTableUtils.getTableBodyWidth(
         availableWidth - analyzerConstants.panelHorizontalPaddingInPx
     );
@@ -626,7 +709,7 @@ function useThreadColumns(availableWidth: number) {
     const threadColumns: ColumnDef<ThreadInfo>[] = useMemo(
         () => [
             {
-                header: "Thread",
+                header: t("performanceMetrics.threads.columns.thread"),
                 id: "name",
                 accessorFn: (row) => row.Name ?? "",
                 cell: ThreadNameCell,
@@ -634,7 +717,7 @@ function useThreadColumns(availableWidth: number) {
                 enableSorting: true,
             },
             {
-                header: "CPU",
+                header: t("performanceMetrics.threads.columns.cpu"),
                 id: "cpu",
                 accessorFn: (row) => row.CpuUsage ?? 0,
                 cell: ({ row }) => formatPercentage(row.original.CpuUsage),
@@ -642,14 +725,14 @@ function useThreadColumns(availableWidth: number) {
                 enableSorting: true,
             },
             {
-                header: "State",
+                header: t("performanceMetrics.threads.columns.state"),
                 id: "state",
                 accessorFn: (row) => row.State ?? "",
                 size: getSize(13),
                 enableSorting: true,
             },
             {
-                header: "Processor time",
+                header: t("performanceMetrics.threads.columns.processorTime"),
                 id: "processorTime",
                 accessorFn: (row) => genUtils.timeSpanToSeconds(row.TotalProcessorTime) ?? 0,
                 cell: ({ row }) => row.original.TotalProcessorTime,
@@ -657,7 +740,7 @@ function useThreadColumns(availableWidth: number) {
                 enableSorting: true,
             },
             {
-                header: "Unmanaged alloc.",
+                header: t("performanceMetrics.threads.columns.unmanagedAlloc"),
                 id: "unmanaged",
                 accessorFn: (row) => row.UnmanagedAllocationsInBytes ?? 0,
                 cell: ({ row }) => genUtils.formatBytesToSize(row.original.UnmanagedAllocationsInBytes ?? 0),
@@ -665,7 +748,7 @@ function useThreadColumns(availableWidth: number) {
                 enableSorting: true,
             },
             {
-                header: "IO read",
+                header: t("performanceMetrics.threads.columns.ioRead"),
                 id: "ioRead",
                 accessorFn: (row) => row.IoStats?.ReadBytes ?? 0,
                 cell: ({ row }) => formatThreadIo(row.original.IoStats?.ReadBytes),
@@ -673,7 +756,7 @@ function useThreadColumns(availableWidth: number) {
                 enableSorting: true,
             },
             {
-                header: "IO write",
+                header: t("performanceMetrics.threads.columns.ioWrite"),
                 id: "ioWrite",
                 accessorFn: (row) => row.IoStats?.WriteBytes ?? 0,
                 cell: ({ row }) => formatThreadIo(row.original.IoStats?.WriteBytes),
@@ -681,7 +764,7 @@ function useThreadColumns(availableWidth: number) {
                 enableSorting: true,
             },
         ],
-        [getSize]
+        [getSize, t]
     );
 
     return { threadColumns };
@@ -698,6 +781,7 @@ function ThreadNameCell({ row }: { row: { original: ThreadInfo } }) {
 
 // Thread runtime info is not in the summary; fetch on demand from the analyzer threads/runaway endpoint.
 function ThreadsTab({ packageId, nodeTag, width }: { packageId: string; nodeTag: string; width: number }) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const { manageServerService } = useServices();
     const threads = useAsync(
         () => manageServerService.getDebugPackageThreadsInfo(packageId, nodeTag),
@@ -723,25 +807,20 @@ function ThreadsTab({ packageId, nodeTag, width }: { packageId: string; nodeTag:
     if (threads.loading) {
         return (
             <div className="hstack gap-2 justify-content-center text-muted py-3">
-                <Spinner size="sm" /> Loading threads for node {nodeTag}...
+                <Spinner size="sm" /> {t("performanceMetrics.threads.loading", { nodeTag })}
             </div>
         );
     }
 
     if (threads.error) {
-        return (
-            <RichAlert variant="warning">
-                Could not load threads for node {nodeTag}. The analysis report may have expired on the server (re-upload
-                the package to inspect), or this data was not captured.
-            </RichAlert>
-        );
+        return <RichAlert variant="warning">{t("performanceMetrics.threads.loadError", { nodeTag })}</RichAlert>;
     }
 
     const info = threads.result;
     if (!info) {
         return (
             <EmptySet compact className="justify-content-center">
-                No threads data in the package
+                {t("performanceMetrics.threads.empty")}
             </EmptySet>
         );
     }
@@ -749,18 +828,30 @@ function ThreadsTab({ packageId, nodeTag, width }: { packageId: string; nodeTag:
     return (
         <>
             <div className="overview-stats gap-2">
-                <StatTile label="Process CPU" icon="hammer-driver" value={formatPercentage(info.ProcessCpuUsage)} />
-                <StatTile label="Threads" icon="thread-stack-trace" value={formatNumber(info.ThreadsCount)} />
                 <StatTile
-                    label="Dedicated threads"
+                    label={t("performanceMetrics.threads.processCpu")}
+                    icon="hammer-driver"
+                    value={formatPercentage(info.ProcessCpuUsage)}
+                />
+                <StatTile
+                    label={t("performanceMetrics.threads.threadsCount")}
+                    icon="thread-stack-trace"
+                    value={formatNumber(info.ThreadsCount)}
+                />
+                <StatTile
+                    label={t("performanceMetrics.threads.dedicatedThreads")}
                     icon="stack-traces"
                     value={formatNumber(info.DedicatedThreadsCount)}
                 />
-                <StatTile label="Active cores" icon="processor" value={formatNumber(info.ActiveCores)} />
+                <StatTile
+                    label={t("performanceMetrics.threads.activeCores")}
+                    icon="processor"
+                    value={formatNumber(info.ActiveCores)}
+                />
             </div>
             {table.getRowCount() === 0 ? (
                 <EmptySet compact className="justify-content-center">
-                    No threads in the package
+                    {t("performanceMetrics.threads.noThreads")}
                 </EmptySet>
             ) : (
                 <VirtualTable table={table} heightInPx={heightInPx} />
@@ -769,8 +860,8 @@ function ThreadsTab({ packageId, nodeTag, width }: { packageId: string; nodeTag:
     );
 }
 
-function formatPingMs(ms: number | undefined): string {
-    return ms == null ? "-" : `${formatNumber(ms)} ms`;
+function formatPingMs(ms: number | undefined, t: StudioTranslate<"debugPackageAnalyzer">): string {
+    return ms == null ? "-" : t("performanceMetrics.durationMs", { duration: formatNumber(ms) });
 }
 
 function formatTopConnections(top: { [endpoint: string]: number }): string {

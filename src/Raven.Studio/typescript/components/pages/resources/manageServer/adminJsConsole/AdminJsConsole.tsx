@@ -28,6 +28,9 @@ import { useRavenLink } from "components/hooks/useRavenLink";
 import RichAlert from "components/common/RichAlert";
 import DatabaseUtils from "components/utils/DatabaseUtils";
 import { DatabaseSharedInfo } from "components/models/databases";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import type { StudioTranslate } from "common/i18n/resources";
 
 type TargetKind = "server" | "database" | "shard" | "orchestrator";
 
@@ -42,7 +45,7 @@ const accessibleVariableByKind: Record<TargetKind, string> = {
     orchestrator: "orchestratorCtx",
 };
 
-function getDatabaseTargets(db: DatabaseSharedInfo): TargetOption[] {
+function getDatabaseTargets(db: DatabaseSharedInfo, t: StudioTranslate<"adminJsConsole">): TargetOption[] {
     if (!db.isSharded) {
         return db.currentNode.isRelevant
             ? [{ value: db.name, label: db.name, icon: "database", kind: "database" }]
@@ -68,7 +71,7 @@ function getDatabaseTargets(db: DatabaseSharedInfo): TargetOption[] {
     return [
         {
             value: db.name,
-            label: `${db.name} (orchestrator)`,
+            label: t("targets.orchestrator", { name: db.name }),
             icon: "orchestrator",
             iconColor: "orchestrator",
             kind: "orchestrator",
@@ -80,6 +83,8 @@ function getDatabaseTargets(db: DatabaseSharedInfo): TargetOption[] {
 // TODO https://issues.hibernatingrhinos.com/issue/RavenDB-7588
 
 export default function AdminJSConsole() {
+    const t = useStudioTranslation("adminJsConsole");
+    const commonT = useStudioTranslation("common");
     const { value: isScriptValid, setValue: setIsScriptValid } = useBoolean(true);
     const { manageServerService } = useServices();
     const { reportEvent } = useEventsCollector();
@@ -89,19 +94,19 @@ export default function AdminJSConsole() {
     const adminJsConsoleDocsLink = useRavenLink({ hash: "IBUJ7M" });
 
     const allTargets: TargetOption[] = useMemo(() => {
-        const databaseTargets = allDatabases.flatMap(getDatabaseTargets);
+        const databaseTargets = allDatabases.flatMap((db) => getDatabaseTargets(db, t));
 
         return [
             {
                 value: serverTargetValue,
-                label: "Server",
+                label: t("targets.server"),
                 icon: "server",
                 kind: "server",
                 horizontalSeparatorLine: databaseTargets.length > 0,
             },
             ...databaseTargets,
         ];
-    }, [allDatabases]);
+    }, [allDatabases, t]);
 
     const { handleSubmit, control, reset, formState, watch } = useForm<AdminJsConsoleFormData>({
         resolver: adminJsConsoleYupResolver,
@@ -136,20 +141,16 @@ export default function AdminJSConsole() {
             <Col xxl={12}>
                 <Row className="gy-sm">
                     <Col>
-                        <AboutViewHeading title="Admin JS Console" icon="administrator-js-console" />
+                        <AboutViewHeading title={t("title")} icon="administrator-js-console" />
                         <Col>
-                            <RichAlert variant="warning" title="Warning" className="mb-3">
-                                <div>
-                                    Do not use the console unless you are sure about what you&apos;re doing. Running a
-                                    script in the Admin Console could cause your server to crash, cause loss of data, or
-                                    other irreversible harm.
-                                </div>
+                            <RichAlert variant="warning" title={t("warning.title")} className="mb-3">
+                                <div>{t("warning.message")}</div>
                             </RichAlert>
 
                             <Form onSubmit={handleSubmit(onSave)} autoComplete="off">
                                 <Card>
                                     <Card.Header className="hstack gap-4 flex-wrap">
-                                        <h3 className="m-0">Script target</h3>
+                                        <h3 className="m-0">{t("scriptTarget")}</h3>
                                         <FormSelect
                                             control={control}
                                             name="target"
@@ -161,14 +162,18 @@ export default function AdminJSConsole() {
                                             }}
                                         />
                                         <div className="text-info">
-                                            Accessible within the script under <code>{accessibleVariable}</code>{" "}
-                                            variable
+                                            <StudioTrans
+                                                ns="adminJsConsole"
+                                                i18nKey="accessibleVariable"
+                                                components={{ code: <code /> }}
+                                                options={{ variable: accessibleVariable }}
+                                            />
                                         </div>
                                     </Card.Header>
                                     <Card.Body>
                                         <div className="admin-js-console-grid">
                                             <div>
-                                                <h3>Script</h3>
+                                                <h3>{t("script")}</h3>
                                             </div>
                                             <FormAceEditor
                                                 control={control}
@@ -185,7 +190,7 @@ export default function AdminJSConsole() {
                                                 disabled={!isScriptValid}
                                             />
                                             <div>
-                                                <h3>Script result</h3>
+                                                <h3>{t("scriptResult")}</h3>
                                             </div>
                                             <AceEditor
                                                 mode="javascript"
@@ -203,18 +208,17 @@ export default function AdminJSConsole() {
                         <AboutViewAnchored>
                             <AccordionItemWrapper targetId="1" icon="about" color="info">
                                 <p>
-                                    <strong>Admin JS Console</strong> is a specialized feature primarily intended for
-                                    resolving server errors. It provides a direct interface to the underlying system,
-                                    granting the capacity to execute scripts for intricate server operations.
+                                    <StudioTrans
+                                        ns="adminJsConsole"
+                                        i18nKey="about.intro"
+                                        components={{ strong: <strong /> }}
+                                    />
                                 </p>
-                                <p>
-                                    It is predominantly intended for advanced troubleshooting and rectification
-                                    procedures executed by system administrators or RavenDB support.
-                                </p>
+                                <p>{t("about.usage")}</p>
                                 <hr />
-                                <div className="small-label mb-2">useful links</div>
+                                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                                 <a href={adminJsConsoleDocsLink} target="_blank">
-                                    <Icon icon="newtab" /> Docs - Admin JS Console
+                                    <Icon icon="newtab" /> {t("about.docsLink")}
                                 </a>
                             </AccordionItemWrapper>
                         </AboutViewAnchored>

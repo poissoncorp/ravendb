@@ -17,6 +17,8 @@ import { virtualTableUtils } from "components/common/virtualTable/utils/virtualT
 import { analyzerConstants } from "./analyzerConstants";
 import SummaryBar from "./SummaryBar";
 import SizeGetter from "components/common/SizeGetter";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import type { StudioTranslate } from "common/i18n/resources";
 
 type OngoingTask = Raven.Client.Documents.Operations.OngoingTasks.OngoingTask;
 type OngoingTaskType = Raven.Client.Documents.Operations.OngoingTasks.OngoingTaskType;
@@ -35,6 +37,7 @@ interface DatabaseOngoingTasksWithSizeProps extends DatabaseOngoingTasksProps {
 }
 
 function useDatabaseOngoingTasksColumns(availableWidth: number) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const bodyWidth = virtualTableUtils.getTableBodyWidth(
         availableWidth - analyzerConstants.panelHorizontalPaddingInPx
     );
@@ -43,56 +46,55 @@ function useDatabaseOngoingTasksColumns(availableWidth: number) {
         const getSize = virtualTableUtils.getCellSizeProvider(bodyWidth);
         return [
             {
-                header: "Task",
+                header: t("databaseOngoingTasks.columns.task"),
                 id: "type",
-                accessorFn: (task) => taskTypeLabel(task.TaskType),
+                accessorFn: (task) => taskTypeLabel(task.TaskType, t),
                 cell: ({ getValue }) => <span>{getValue<string>()}</span>,
                 size: getSize(25),
             },
             {
-                header: "Name",
+                header: t("databaseOngoingTasks.columns.name"),
                 accessorKey: "TaskName",
                 cell: TaskNameCell,
                 size: getSize(33),
             },
             {
-                header: "Responsible node",
+                header: t("databaseOngoingTasks.columns.responsibleNode"),
                 id: "responsibleNode",
                 accessorFn: (task) => task.ResponsibleNode?.NodeTag ?? "",
                 cell: TaskResponsibleNodeCell,
                 size: getSize(20),
             },
             {
-                header: "State",
+                header: t("databaseOngoingTasks.columns.state"),
                 id: "state",
                 accessorFn: (task) => task.TaskState ?? "",
                 cell: ({ row }) => <TaskStateBadge task={row.original} />,
                 size: getSize(22),
             },
         ];
-    }, [bodyWidth]);
+    }, [bodyWidth, t]);
 
     return { taskColumns };
 }
 
-const taskTypeLabels: Partial<Record<OngoingTaskType, string>> = {
-    Replication: "External Replication",
-    RavenEtl: "RavenDB ETL",
-    SqlEtl: "SQL ETL",
-    OlapEtl: "OLAP ETL",
-    ElasticSearchEtl: "Elasticsearch ETL",
-    QueueEtl: "Queue ETL",
-    QueueSink: "Queue Sink",
-    Backup: "Backup",
-    Subscription: "Subscription",
-    PullReplicationAsHub: "Replication Hub",
-    PullReplicationAsSink: "Replication Sink",
-    SnowflakeEtl: "Snowflake ETL",
-    EmbeddingsGeneration: "Embeddings Generation",
-    GenAi: "GenAI",
-};
-
-function taskTypeLabel(type: OngoingTaskType): string {
+function taskTypeLabel(type: OngoingTaskType, t: StudioTranslate<"debugPackageAnalyzer">): string {
+    const taskTypeLabels: Partial<Record<OngoingTaskType, string>> = {
+        Replication: t("taskTypes.externalReplication"),
+        RavenEtl: "RavenDB ETL",
+        SqlEtl: "SQL ETL",
+        OlapEtl: "OLAP ETL",
+        ElasticSearchEtl: "Elasticsearch ETL",
+        QueueEtl: t("taskTypes.queueEtl"),
+        QueueSink: t("taskTypes.queueSink"),
+        Backup: t("taskTypes.backup"),
+        Subscription: t("taskTypes.subscription"),
+        PullReplicationAsHub: t("taskTypes.replicationHub"),
+        PullReplicationAsSink: t("taskTypes.replicationSink"),
+        SnowflakeEtl: "Snowflake ETL",
+        EmbeddingsGeneration: t("taskTypes.embeddingsGeneration"),
+        GenAi: t("taskTypes.genAi"),
+    };
     return taskTypeLabels[type] ?? type;
 }
 
@@ -127,6 +129,7 @@ function DatabaseOngoingTasksWithSize({
     selectedNode,
     width,
 }: DatabaseOngoingTasksWithSizeProps) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     const { manageServerService } = useServices();
 
     const tasksAsync = useAsync(async () => {
@@ -148,12 +151,12 @@ function DatabaseOngoingTasksWithSize({
 
     const allTasks = tasksAsync.result ?? EMPTY_TASKS;
     const tasks = useMemo(
-        () => (selectedNode ? allTasks.filter((t) => t.ResponsibleNode?.NodeTag === selectedNode) : allTasks),
+        () => (selectedNode ? allTasks.filter((task) => task.ResponsibleNode?.NodeTag === selectedNode) : allTasks),
         [allTasks, selectedNode]
     );
 
-    const enabledCount = tasks.filter((t) => !t.Error && t.TaskState === "Enabled").length;
-    const disabledCount = tasks.filter((t) => !t.Error && t.TaskState === "Disabled").length;
+    const enabledCount = tasks.filter((task) => !task.Error && task.TaskState === "Enabled").length;
+    const disabledCount = tasks.filter((task) => !task.Error && task.TaskState === "Disabled").length;
 
     const { taskColumns } = useDatabaseOngoingTasksColumns(width);
 
@@ -172,17 +175,17 @@ function DatabaseOngoingTasksWithSize({
 
     const emptyMessage =
         allTasks.length === 0
-            ? `No ongoing tasks for ${database} in the package`
-            : `No ongoing tasks running on node ${selectedNode} for ${database}`;
+            ? t("databaseOngoingTasks.empty", { database })
+            : t("databaseOngoingTasks.emptyOnNode", { nodeTag: selectedNode, database });
 
     return (
         <div className="database-ongoing-tasks">
             <div className="panel-bg-1 rounded">
                 <div className="p-4 vstack gap-3">
-                    <h3 className="mb-0">Ongoing Tasks</h3>
+                    <h3 className="mb-0">{t("databaseOngoingTasks.title")}</h3>
                     {tasksAsync.loading ? (
                         <div className="hstack gap-2 justify-content-center text-muted py-3">
-                            <Spinner size="sm" /> Loading ongoing tasks...
+                            <Spinner size="sm" /> {t("databaseOngoingTasks.loading")}
                         </div>
                     ) : tasks.length === 0 ? (
                         <EmptySet compact className="justify-content-center">
@@ -195,20 +198,25 @@ function DatabaseOngoingTasksWithSize({
                                     {
                                         icon: "ongoing-tasks",
                                         count: tasks.length,
-                                        label: selectedNode ? `on node ${selectedNode}` : "total",
+                                        label: selectedNode
+                                            ? t("databaseOngoingTasks.summary.onNode", {
+                                                  count: tasks.length,
+                                                  nodeTag: selectedNode,
+                                              })
+                                            : t("databaseOngoingTasks.summary.total", { count: tasks.length }),
                                     },
                                     {
                                         icon: "ongoing-tasks",
                                         iconAddon: "check",
                                         count: enabledCount,
-                                        label: "active",
+                                        label: t("databaseOngoingTasks.summary.active", { count: enabledCount }),
                                         colorClass: "text-success",
                                     },
                                     {
                                         icon: "ongoing-tasks",
                                         iconAddon: "cancel",
                                         count: disabledCount,
-                                        label: "disabled",
+                                        label: t("databaseOngoingTasks.summary.disabled", { count: disabledCount }),
                                         colorClass: "text-warning",
                                     },
                                 ]}
@@ -228,21 +236,23 @@ function TaskNameCell({ getValue }: { getValue: () => unknown }) {
 }
 
 function TaskResponsibleNodeCell({ row }: { row: { original: OngoingTask } }) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     return row.original.ResponsibleNode?.NodeTag ? (
         <span className="hstack gap-1 align-items-center">
             <NodeTagPill tag={row.original.ResponsibleNode.NodeTag} />
-            {row.original.PinToMentorNode && <span className="small-label">(pinned)</span>}
+            {row.original.PinToMentorNode && <span className="small-label">{t("databaseOngoingTasks.pinned")}</span>}
         </span>
     ) : (
-        <span className="text-muted">Not assigned</span>
+        <span className="text-muted">{t("databaseOngoingTasks.notAssigned")}</span>
     );
 }
 
 function TaskStateBadge({ task }: { task: OngoingTask }) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     if (task.Error) {
         return (
             <span className="hstack gap-1 text-danger">
-                <Icon icon="danger" margin="m-0" /> Error
+                <Icon icon="danger" margin="m-0" /> {t("databaseOngoingTasks.states.error")}
             </span>
         );
     }
@@ -250,19 +260,19 @@ function TaskStateBadge({ task }: { task: OngoingTask }) {
         case "Enabled":
             return (
                 <span className="hstack gap-1 text-success">
-                    <Icon icon="check" margin="m-0" /> Active
+                    <Icon icon="check" margin="m-0" /> {t("databaseOngoingTasks.states.active")}
                 </span>
             );
         case "Disabled":
             return (
                 <span className="hstack gap-1 text-warning">
-                    <Icon icon="cancel" margin="m-0" /> Disabled
+                    <Icon icon="cancel" margin="m-0" /> {t("databaseOngoingTasks.states.disabled")}
                 </span>
             );
         case "PartiallyEnabled":
             return (
                 <span className="hstack gap-1 text-warning">
-                    <Icon icon="warning" margin="m-0" /> Partially enabled
+                    <Icon icon="warning" margin="m-0" /> {t("databaseOngoingTasks.states.partiallyEnabled")}
                 </span>
             );
         default:

@@ -5,6 +5,7 @@ import IconName from "typings/server/icons";
 import { AnalysisSectionEntry } from "./AnalysisSectionsContext";
 import "./AnalysisNavRail.scss";
 import Badge from "react-bootstrap/Badge";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 export interface ScopeItem<TScope extends string> {
     value: TScope;
@@ -36,8 +37,9 @@ export default function AnalysisNavRail<TScope extends string>({
     activeSectionId,
     onSelectSection,
 }: AnalysisNavRailProps<TScope>) {
+    const t = useStudioTranslation("debugPackageAnalyzer");
     return (
-        <nav className="analysis-rail rounded" aria-label="Analysis navigation">
+        <nav className="analysis-rail rounded" aria-label={t("analysisView.navigation")}>
             <div className="analysis-rail-scope" role="tablist">
                 {scopeItems.map((item) => (
                     <button

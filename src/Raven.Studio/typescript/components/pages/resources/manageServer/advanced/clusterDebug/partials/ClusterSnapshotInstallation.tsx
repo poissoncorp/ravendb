@@ -5,6 +5,7 @@ import { virtualTableUtils } from "components/common/virtualTable/utils/virtualT
 import { CellWithCopyWrapper } from "components/common/virtualTable/cells/CellWithCopy";
 import DateFormatterCell from "components/common/virtualTable/cells/CellDateFormatter";
 import genUtils from "common/generalUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface ClusterSnapshotInstallationProps {
     messages: Raven.Server.Rachis.RachisDebugMessage[];
@@ -12,6 +13,7 @@ interface ClusterSnapshotInstallationProps {
 }
 
 export default function ClusterSnapshotInstallation(props: ClusterSnapshotInstallationProps) {
+    const t = useStudioTranslation("clusterDebug");
     const { messages, availableWidth } = props;
 
     const bodyWidth = virtualTableUtils.getTableBodyWidth(availableWidth);
@@ -19,13 +21,13 @@ export default function ClusterSnapshotInstallation(props: ClusterSnapshotInstal
 
     const messagesColumns: ColumnDef<Raven.Server.Rachis.RachisDebugMessage>[] = [
         {
-            header: "Time",
+            header: t("snapshotInstallation.time"),
             accessorKey: "At",
             cell: (props) => <DateFormatterCell {...props} displayFormat={genUtils.dateFormat} />,
             size: getSize(25),
         },
         {
-            header: "Message",
+            header: t("snapshotInstallation.message"),
             accessorKey: "Message",
             cell: CellWithCopyWrapper,
             size: getSize(75),

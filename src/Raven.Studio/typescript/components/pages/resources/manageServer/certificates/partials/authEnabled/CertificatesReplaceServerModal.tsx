@@ -18,8 +18,12 @@ import { useEventsCollector } from "components/hooks/useEventsCollector";
 import classNames from "classnames";
 import Modal from "components/common/Modal";
 import useUniqueId from "components/hooks/useUniqueId";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function CertificatesReplaceServerModal() {
+    const t = useStudioTranslation("certificates");
+    const commonT = useStudioTranslation("common");
     const dispatch = useAppDispatch();
     const { manageServerService } = useServices();
     const { reportEvent } = useEventsCollector();
@@ -70,20 +74,15 @@ export default function CertificatesReplaceServerModal() {
                     <Modal.Header className="pt-3 pb-0" onCloseClick={close}>
                         <Icon icon="refresh" size="lg" color="warning" margin="me-3" />
                         <h3 id={titleId} className="mb-0">
-                            Replace server certificates (cluster-wide)
+                            {t("replace.title")}
                         </h3>
                     </Modal.Header>
                     <Modal.Body>
                         <LazyLoad active={asyncGetClusterDomains.loading}>
                             <RichAlert title="" variant="info" className="my-2">
-                                <span>
-                                    Replace all server certificates in the cluster without shutting down the servers.
-                                    The update will happen when all nodes of the cluster confirm the replacement, or
-                                    when there is 3 days or less left until expiration.
-                                </span>
+                                <span>{t("replace.info")}</span>
                                 <div className={classNames(asyncGetClusterDomains.result?.length ? "" : "d-none")}>
-                                    Please verify that the new certificate contains all of the following domain names in
-                                    the Subject Alternative Names field (SAN) of the certificate:
+                                    {t("replace.domainsInfo")}
                                     <ul className="mt-2">
                                         {asyncGetClusterDomains.result?.map((domain, idx) => (
                                             <li key={idx}>{domain}</li>
@@ -92,27 +91,29 @@ export default function CertificatesReplaceServerModal() {
                                 </div>
                             </RichAlert>
                         </LazyLoad>
-                        <CertificatesFileField infoPopoverBody="Certificate file cannot be password protected." />
+                        <CertificatesFileField infoPopoverBody={t("replace.fileInfo")} />
                         <FormGroup>
-                            <FormLabel>Certificate Passphrase</FormLabel>
+                            <FormLabel>{t("form.passphrase")}</FormLabel>
                             <FormInput type="password" control={control} name="certificatePassphrase" passwordPreview />
                         </FormGroup>
                         <FormGroup>
                             <FormSwitch control={control} name="isReplaceImmediately">
-                                Replace immediately
+                                {t("replace.immediately")}
                             </FormSwitch>
                         </FormGroup>
                         {formValues.isReplaceImmediately && (
                             <RichAlert variant="warning">
-                                If Replace immediately is specified, RavenDB will replace certificate by force, even if
-                                some nodes are not responding. In that case, you will have to manually replace the
-                                certificate in those nodes. <strong>Use with care.</strong>
+                                <StudioTrans
+                                    ns="certificates"
+                                    i18nKey="replace.immediatelyWarning"
+                                    components={{ strong: <strong /> }}
+                                />
                             </RichAlert>
                         )}
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="link" onClick={close} className="link-muted">
-                            Cancel
+                            {commonT("cancel")}
                         </Button>
                         <ButtonWithSpinner
                             type="submit"
@@ -120,7 +121,7 @@ export default function CertificatesReplaceServerModal() {
                             className="rounded-pill"
                             isSpinning={formState.isSubmitting}
                         >
-                            Replace certificate
+                            {t("replace.submit")}
                         </ButtonWithSpinner>
                     </Modal.Footer>
                 </form>

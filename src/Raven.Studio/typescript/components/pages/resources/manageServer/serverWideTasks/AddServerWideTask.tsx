@@ -6,8 +6,10 @@ import { licenseSelectors } from "components/common/shell/licenseSlice";
 import { AddTaskCardList, TaskCardCategory } from "components/pages/database/tasks/shared/AddTaskCardList";
 import { PerDatabaseOngoingTasksLink } from "./partials/PerDatabaseOngoingTasksLink";
 import { ServerWideTasksInfoHub } from "./partials/ServerWideTasksInfoHub";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function AddServerWideTask() {
+    const t = useStudioTranslation("serverWideTasks");
     const hasServerWideBackups = useAppSelector(licenseSelectors.statusValue("HasServerWideBackups"));
     const hasServerWideExternalReplications = useAppSelector(
         licenseSelectors.statusValue("HasServerWideExternalReplications")
@@ -15,13 +17,12 @@ export default function AddServerWideTask() {
 
     const serverWideTasks: TaskCardCategory[] = [
         {
-            categoryName: "External replication",
+            categoryName: t("taskType.replication"),
             categoryIcon: "external-replication",
             tasks: [
                 {
-                    title: "Server-wide External Replication",
-                    description:
-                        "Create live replicas of all databases in your cluster, replicating each to a corresponding RavenDB database with the same name in another cluster.",
+                    title: t("add.replicationTitle"),
+                    description: t("add.replicationDescription"),
                     iconName: "external-replication",
                     variant: "Replication",
                     target: "serverWideExternalReplication",
@@ -32,13 +33,12 @@ export default function AddServerWideTask() {
             ],
         },
         {
-            categoryName: "Backup",
+            categoryName: t("taskType.backup"),
             categoryIcon: "backup",
             tasks: [
                 {
-                    title: "Server-wide Backup",
-                    description:
-                        "Create periodic backups or snapshots of all databases in your cluster, managing schedule, retention, and destination from a single task.",
+                    title: t("add.backupTitle"),
+                    description: t("add.backupDescription"),
                     iconName: "periodic-backup",
                     variant: "Backup",
                     target: "serverWidePeriodicBackup",
@@ -54,7 +54,7 @@ export default function AddServerWideTask() {
         <div className="content-margin">
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <AboutViewHeading
-                    title="Add a Server-Wide Task"
+                    title={t("add.title")}
                     icon="server-wide-tasks"
                     iconAddon="plus"
                     backUrl={appUrl.forServerWideTasks()}

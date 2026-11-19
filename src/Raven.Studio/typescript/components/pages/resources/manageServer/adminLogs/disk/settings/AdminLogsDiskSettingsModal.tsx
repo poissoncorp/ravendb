@@ -9,10 +9,12 @@ import { useAppDispatch } from "components/store";
 import { useState } from "react";
 import Modal from "components/common/Modal";
 import Accordion from "react-bootstrap/Accordion";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type ConfigSection = "logs" | "auditLogs" | "microsoftLogs" | "trafficWatch" | "eventListener";
 
 export default function AdminLogsDiskSettingsModal() {
+    const t = useStudioTranslation("adminLogs");
     const dispatch = useAppDispatch();
     const [open, setOpen] = useState<ConfigSection>(null);
 
@@ -29,7 +31,7 @@ export default function AdminLogsDiskSettingsModal() {
             <Modal.Header onCloseClick={() => dispatch(adminLogsActions.isDiscSettingOpenToggled())}>
                 <h3>
                     <Icon icon="drive" addon="settings" />
-                    Settings - logs on disk
+                    {t("diskSettings.title")}
                 </h3>
             </Modal.Header>
             <Modal.Body>
