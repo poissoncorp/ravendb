@@ -13,29 +13,33 @@ import React from "react";
 import Table from "react-bootstrap/Table";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface MergeIndexesCardProps {
     mergable: UseIndexCleanupResult["mergable"];
 }
 
 export default function MergeIndexesCard({ mergable }: MergeIndexesCardProps) {
+    const t = useStudioTranslation("indexCleanup");
     const hasIndexCleanup = useAppSelector(licenseSelectors.statusValue("HasIndexCleanup"));
 
     return (
         <Card>
             <Card className="bg-faded-primary p-4 m-1 d-block">
                 <div className="text-limit-width">
-                    <h2>Merge indexes</h2>
-                    Combining several indexes with similar purposes into a single index can reduce the number of times
-                    that data needs to be scanned.
-                    <br />
-                    Once a <strong>NEW</strong> merged index definition is created, the original indexes can be removed.
+                    <h2>{t("mergeIndexes.title")}</h2>
+                    <StudioTrans
+                        ns="indexCleanup"
+                        i18nKey="mergeIndexes.description"
+                        components={{ br: <br />, strong: <strong /> }}
+                    />
                 </div>
             </Card>
             {hasIndexCleanup && (
                 <div className="p-2">
                     {mergable.data.length === 0 ? (
-                        <EmptySet>No indexes to merge</EmptySet>
+                        <EmptySet>{t("mergeIndexes.empty")}</EmptySet>
                     ) : (
                         <MainPanel mergable={mergable} />
                     )}
@@ -46,6 +50,7 @@ export default function MergeIndexesCard({ mergable }: MergeIndexesCardProps) {
 }
 
 function MainPanel({ mergable }: MergeIndexesCardProps) {
+    const t = useStudioTranslation("indexCleanup");
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
 
     return (
@@ -56,10 +61,10 @@ function MainPanel({ mergable }: MergeIndexesCardProps) {
                         <tr>
                             <td></td>
                             <td width={300}>
-                                <div className="small-label">Last query time</div>
+                                <div className="small-label">{t("columns.lastQueryTime")}</div>
                             </td>
                             <td width={300}>
-                                <div className="small-label">Last indexing time</div>
+                                <div className="small-label">{t("columns.lastIndexingTime")}</div>
                             </td>
                         </tr>
                     </tbody>
@@ -77,7 +82,7 @@ function MainPanel({ mergable }: MergeIndexesCardProps) {
                                 onClick={() => mergable.navigateToMergeSuggestion(mergableGroup)}
                             >
                                 <Icon icon="merge" />
-                                Review suggested merge
+                                {t("mergeIndexes.reviewButton")}
                             </Button>
                         </div>
                         <div className="flex-grow-1">

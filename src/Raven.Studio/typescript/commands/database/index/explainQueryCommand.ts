@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("indexCommands");
 
 class explainQueryCommand extends commandBase {
 
@@ -21,7 +24,7 @@ class explainQueryCommand extends commandBase {
 
         return this.post(url, JSON.stringify(payload), this.db)
             .fail((response: JQueryXHR) => {
-                this.reportError("Failed to explain query", response.responseText, response.statusText);
+                this.reportError(t("explainQueryFailed"), response.responseText, response.statusText);
             });
     }
 }

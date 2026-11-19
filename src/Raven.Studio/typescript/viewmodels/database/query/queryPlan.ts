@@ -1,6 +1,9 @@
 ﻿import d3 = require("d3");
 import genUtils = require("common/generalUtils");
 import icomoonHelpers = require("common/helpers/view/icomoonHelpers");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("query");
 
 type parameterFrame = {
     label: string;
@@ -144,7 +147,7 @@ class executionInfo {
             delete remainingParams[WellKnownParams.LowValue];
             delete remainingParams[WellKnownParams.HighValue];
             
-            this.parameters.push({ label: "Range: " + lowParenthesis + lowFormatted + " ; " + highFormatted + highParenthesis });
+            this.parameters.push({ label: t("plan.range", { low: lowParenthesis + lowFormatted, high: highFormatted + highParenthesis }) });
         }
         
         if (WellKnownParams.Ascending in remainingParams) {
@@ -158,25 +161,25 @@ class executionInfo {
             const boost = remainingParams[WellKnownParams.IsBoosting] === "True";
             delete remainingParams[WellKnownParams.IsBoosting];
             
-            let factorPart = "";
+            let boostFactor: string = null;
 
             if (WellKnownParams.BoostFactor in remainingParams) {
-                const boostFactor = remainingParams[WellKnownParams.BoostFactor];
+                boostFactor = remainingParams[WellKnownParams.BoostFactor];
                 delete remainingParams[WellKnownParams.BoostFactor];
-                
-                factorPart = " (factor: " + boostFactor + ")";
             }
             
             const icon = icomoonHelpers.getCodePointForCanvas(boost ? "check" : "cancel"); 
             const iconColor = boost ? "boost-true" : "boost-false";
+            const boostContext = boost ? "true" : "false";
+            const factorPart = boostFactor != null ? " " + genUtils.escapeHtml(t("plan.boostFactor", { factor: boostFactor })) : "";
             
             this.parameters.push(
                 { 
-                    label: `<tspan dy="4">Boosting: </tspan>
+                    label: `<tspan dy="4">${genUtils.escapeHtml(t("plan.boosting"))} </tspan>
                             <tspan dy="4" class="icon-style ${iconColor}">${icon}</tspan>
                             <tspan dy="-4">${factorPart}</tspan>`, 
                     html: true, 
-                    customTitle: "Boosting: " + (boost ? "true" : "false") + factorPart 
+                    customTitle: boostFactor != null ? t("plan.boostingTitleWithFactor", { context: boostContext, factor: boostFactor }) : t("plan.boostingTitle", { context: boostContext })
                 });
         }
 
@@ -188,13 +191,13 @@ class executionInfo {
             
             switch (confidence) {
                 case "High":
-                    this.parameters.push({ label: "Count: " + countFormatted });
+                    this.parameters.push({ label: t("plan.count", { value: countFormatted }) });
                     break;
                 case "Normal":
-                    this.parameters.push({ label: "Count: ~" + countFormatted });
+                    this.parameters.push({ label: t("plan.countApproximate", { value: countFormatted }) });
                     break;
                 case "Low":
-                    this.parameters.push({ label: "Count: <unknown>" });
+                    this.parameters.push({ label: t("plan.countUnknown") });
                     break;
             }
 
@@ -207,7 +210,7 @@ class executionInfo {
             if (field) {
                 const fieldTokens = field.split("|").map(x => x.trim());
                 if (fieldTokens.length > 0) {
-                    this.parameters.push({ label: "Field:" });
+                    this.parameters.push({ label: t("plan.field") });
                     this.parameters.push(...fieldTokens.map(x => ({ label: x, leftPadding: executionInfo.parametersIndent })));
                 }
             }
@@ -265,12 +268,12 @@ class executionInfo {
                 parsed.map((order, idx) => {
                     const icon = icomoonHelpers.getCodePointForCanvas(order.ascending ? "corax-sort-az" : "corax-sort-za");
                     this.parameters.push({
-                        label: `<tspan dy="4">Comparer #${idx}: </tspan><tspan dy="4" class="icon-style order-icon"> ${icon}</tspan>`,
+                        label: `<tspan dy="4">${genUtils.escapeHtml(t("plan.comparer", { index: idx }))} </tspan><tspan dy="4" class="icon-style order-icon"> ${icon}</tspan>`,
                         html: true,
-                        customTitle: order.ascending ? "Order: Ascending" : "Order: Descending"
+                        customTitle: t("plan.comparerOrder", { context: order.ascending ? "ascending" : "descending" })
                     });
                     this.parameters.push({
-                        label: "Field: ",
+                        label: t("plan.field"),
                         leftPadding: executionInfo.parametersIndent
                     });
                     this.parameters.push({
@@ -278,7 +281,7 @@ class executionInfo {
                         leftPadding: executionInfo.parametersIndent * 2,
                     });
                     this.parameters.push({
-                        label: "Field Type: " + order.fieldType,
+                        label: t("plan.fieldType", { fieldType: order.fieldType }),
                         leftPadding: executionInfo.parametersIndent
                     });
                 })
@@ -306,9 +309,9 @@ class executionInfo {
     labelForDirection() {
         switch (this.direction) {
             case "corax-backward": 
-                return "Iterator Direction: backward";
+                return t("plan.iteratorDirection", { context: "backward" });
             case "corax-forward":
-                return "Iterator Direction: forward";
+                return t("plan.iteratorDirection", { context: "forward" });
             default: 
                 return null;
         }
@@ -317,9 +320,9 @@ class executionInfo {
     labelForOrder() {
         switch (this.order) {
             case "corax-sort-az":
-                return "Order: ascending";
+                return t("plan.order", { context: "ascending" });
             case "corax-sort-za":
-                return "Order: descending";
+                return t("plan.order", { context: "descending" });
             default:
                 return null;
         }
@@ -561,7 +564,7 @@ class queryPlan {
             .attr('x', -queryPlan.maxBoxWidth / 2 + 10)
             .attr("y", executionInfo.headerSize / 2)
             .attr("class", "icon-style execution-type-icon")
-            .attr("title", x => "Operation Type: " + x.operationName)
+            .attr("title", x => t("plan.operationType", { operationName: x.operationName }))
             .html(x => icomoonHelpers.getCodePointForCanvas(x.icon));
 
         enteringNodes

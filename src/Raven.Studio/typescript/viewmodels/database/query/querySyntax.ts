@@ -1,6 +1,9 @@
 import dialogViewModelBase = require("viewmodels/dialogViewModelBase");
 import viewModelBase = require("viewmodels/viewModelBase");
 import copyToClipboard = require("common/copyToClipboard");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("query");
 
 class querySyntax extends dialogViewModelBase {
 
@@ -17,12 +20,13 @@ class querySyntax extends dialogViewModelBase {
 
     copySample(sampleTitle: string) {
         const sampleText = querySyntax.samples.find(x => x.title === sampleTitle).text;
-        copyToClipboard.copy(sampleText, "Sample has been copied to clipboard", this.dialogContainer);
+        copyToClipboard.copy(sampleText, t("syntaxDialog.copied"), this.dialogContainer);
     }
 
-    static readonly samples: Array<sampleCode> = [
+    static get samples(): Array<sampleCode> {
+        return [
         { 
-            title: "Simple collection query",
+            title: t("syntaxDialog.samples.simpleCollectionQuery"),
             text:
 `from Orders
 where Lines.Count > 4
@@ -35,7 +39,7 @@ select Lines[].ProductName as ProductNames, OrderedAt, ShipTo.City`,
 <span class="token keyword">select</span> Lines[].ProductName <span class="token keyword">as</span> ProductNames, OrderedAt, ShipTo.City`
         },
         {
-            title: "Using JavaScript select",
+            title: t("syntaxDialog.samples.javaScriptSelect"),
             text:
 `from Orders as o
 load o.Company as c
@@ -54,7 +58,7 @@ select {
 <span class="token punctuation">}</span>`
         },
         {
-            title: "Group by",
+            title: t("syntaxDialog.samples.groupBy"),
             text:
 `from Orders
 group by Company
@@ -71,7 +75,7 @@ include Company`,
 <span class="token keyword">include</span> Company`
         },
         {
-            title: "Querying an index",
+            title: t("syntaxDialog.samples.queryingIndex"),
             text:
 `from index 'Orders/Totals' as i
 where i.Total > 10000
@@ -92,7 +96,7 @@ select {
 <span class="token punctuation">}</span>`
         },
         {
-            title: "Vector search",
+            title: t("syntaxDialog.samples.vectorSearch"),
             text:
 `from Products
 where vector.search(embedding.text(Name), "italian food", 0.8)`,
@@ -101,7 +105,8 @@ where vector.search(embedding.text(Name), "italian food", 0.8)`,
 // Search for Products with a 'Name' that is semantically close to "italian food".
 <span class="token keyword">where vector.search</span><span class="token punctuation">(</span>embedding.text<span class="token punctuation">(</span>Name<span class="token punctuation">)</span>, <span class="token string">&quot;italian food&quot;</span>, <span class="token number">0.8</span><span class="token punctuation">)</span>`
         }
-    ];
+        ];
+    }
 }
 
 export = querySyntax;

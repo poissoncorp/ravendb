@@ -1,6 +1,5 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import fileDownloader from "common/fileDownloader";
-import pluralizeHelpers from "common/helpers/text/pluralizeHelpers";
 import ButtonWithSpinner from "components/common/ButtonWithSpinner";
 import { FormRadioToggleWithIcon, FormSelect } from "components/common/Form";
 import { Icon } from "components/common/Icon";
@@ -24,6 +23,8 @@ import * as yup from "yup";
 import RichAlert from "components/common/RichAlert";
 import Button from "react-bootstrap/Button";
 import Modal from "components/common/Modal";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 type ExportMode = "database" | "file";
 
@@ -35,6 +36,8 @@ interface ExportIndexesProps {
 
 export function ExportIndexes(props: ExportIndexesProps) {
     const { toggle, indexes, selectedNames } = props;
+    const t = useStudioTranslation("indexesList");
+    const commonT = useStudioTranslation("common");
 
     const getHasDatabaseWriteAccess = useAppSelector(accessManagerSelectors.getHasDatabaseWriteAccess);
 
@@ -45,6 +48,18 @@ export function ExportIndexes(props: ExportIndexesProps) {
         .sort();
 
     const databaseOptions: SelectOption[] = availableDatabaseNames.map((x) => ({ label: x, value: x }));
+
+    const databaseRadioToggleItem: RadioToggleWithIconInputItem<ExportMode> = {
+        label: t("export.toDatabase"),
+        value: "database",
+        iconName: "database",
+    };
+
+    const fileRadioToggleItem: RadioToggleWithIconInputItem<ExportMode> = {
+        label: t("export.toFile"),
+        value: "file",
+        iconName: "document",
+    };
 
     const { control, formState, handleSubmit, setValue, watch } = useForm<FormData>({
         defaultValues: {
@@ -72,7 +87,7 @@ export function ExportIndexes(props: ExportIndexesProps) {
         if (exportMode === "database" && !!databaseName && !hasDatabaseAdminAccess) {
             availableIndexes = selectedStaticIndexes.filter((x) => !IndexUtils.isCsharpIndex(x));
             unavailableIndexes = selectedStaticIndexes.filter((x) => IndexUtils.isCsharpIndex(x));
-            setDisabledReason("Creating a C# index requires database administrator access");
+            setDisabledReason(t("migration.csharpRequiresAdmin"));
         }
 
         return {
@@ -137,9 +152,12 @@ export function ExportIndexes(props: ExportIndexesProps) {
                 <Modal.Header className="vstack gap-4" onCloseClick={toggle}>
                     <Icon icon="index-import" color="primary" className="text-center fs-1" margin="m-0" />
                     <div className="lead text-center">
-                        You&apos;re about to <span className="fw-bold">export</span> selected{" "}
-                        <span className="fw-bold">({filteredIndexes.availableIndexes.length})</span>{" "}
-                        {pluralizeHelpers.pluralize(filteredIndexes.availableIndexes.length, "index", "indexes", true)}
+                        <StudioTrans
+                            ns="indexesList"
+                            i18nKey="export.title"
+                            components={{ span: <span className="fw-bold" /> }}
+                            options={{ count: filteredIndexes.availableIndexes.length }}
+                        />
                     </div>
                 </Modal.Header>
                 <Modal.Body className="vstack gap-4">
@@ -159,7 +177,7 @@ export function ExportIndexes(props: ExportIndexesProps) {
                             <FormSelect
                                 control={control}
                                 name="databaseName"
-                                placeholder="Select destination database"
+                                placeholder={t("export.destinationPlaceholder")}
                                 options={databaseOptions}
                             />
                         </InputGroup>
@@ -173,47 +191,36 @@ export function ExportIndexes(props: ExportIndexesProps) {
 
                     <div className="vstack gap-2">
                         {filteredIndexes.isAnyAutoIndexSelected && (
-                            <RichAlert variant="info">All selected Auto-indexes are skipped</RichAlert>
+                            <RichAlert variant="info">{t("export.autoIndexesSkipped")}</RichAlert>
                         )}
-                        {exportMode === "database" && (
-                            <RichAlert variant="info">
-                                All conflicting indexes in the destination database will be overwritten after the export
-                                is completed
-                            </RichAlert>
-                        )}
+                        {exportMode === "database" && <RichAlert variant="info">{t("export.overwriteInfo")}</RichAlert>}
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button type="button" variant="link" title="Cancel" className="link-muted" onClick={toggle}>
-                        Cancel
+                    <Button
+                        type="button"
+                        variant="link"
+                        title={commonT("cancel")}
+                        className="link-muted"
+                        onClick={toggle}
+                    >
+                        {commonT("cancel")}
                     </Button>
                     <ButtonWithSpinner
                         type="submit"
                         variant="success"
-                        title="Export indexes"
+                        title={t("export.submitTitle")}
                         className="rounded-pill"
                         isSpinning={formState.isSubmitting}
                         icon="export"
                     >
-                        Export indexes to a {exportMode}
+                        {t("export.submit", { context: exportMode })}
                     </ButtonWithSpinner>
                 </Modal.Footer>
             </Form>
         </Modal>
     );
 }
-
-const databaseRadioToggleItem: RadioToggleWithIconInputItem<ExportMode> = {
-    label: "To a database",
-    value: "database",
-    iconName: "database",
-};
-
-const fileRadioToggleItem: RadioToggleWithIconInputItem<ExportMode> = {
-    label: "To a file",
-    value: "file",
-    iconName: "document",
-};
 
 const schema = yup.object({
     exportMode: yup.string<ExportMode>().required(),

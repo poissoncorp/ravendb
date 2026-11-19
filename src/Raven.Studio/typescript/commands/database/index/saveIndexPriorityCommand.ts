@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("indexCommands");
 
 class saveIndexPriorityCommand extends commandBase {
 
@@ -27,9 +30,9 @@ class saveIndexPriorityCommand extends commandBase {
         
         return this.post<void>(url, JSON.stringify(payload), this.db, { dataType: undefined })
             .done(() => {
-                this.reportSuccess(`${this.indexName} Priority was set to ${this.priority}`);
+                this.reportSuccess(t("prioritySet", { indexName: this.indexName, priority: this.priority }));
             })
-            .fail((response: JQueryXHR) => this.reportError("Failed to set index priority", response.responseText));
+            .fail((response: JQueryXHR) => this.reportError(t("setPriorityFailed"), response.responseText));
     }
 }
 

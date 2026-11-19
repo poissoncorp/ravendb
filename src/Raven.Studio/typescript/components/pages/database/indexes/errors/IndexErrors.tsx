@@ -7,8 +7,10 @@ import { IndexErrorsPanel } from "components/pages/database/indexes/errors/Index
 import { useIndexErrors } from "components/pages/database/indexes/errors/hooks/useIndexErrors";
 import useIndexErrorsTable from "components/pages/database/indexes/errors/hooks/useIndexErrorsTable";
 import IndexErrorsAboutView from "components/pages/database/indexes/errors/IndexErrorsAboutView";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function IndexErrors() {
+    const t = useStudioTranslation("indexErrors");
     const { indexErrorsPanelTable } = useIndexErrorsTable();
     const { errorInfoItems, asyncFetchAllErrorCount, erroredIndexNames, erroredActionNames } = useIndexErrors();
 
@@ -16,7 +18,7 @@ export default function IndexErrors() {
         <Row className="content-margin">
             <Col>
                 <div className="flex-shrink-0 hstack gap-2 align-items-start justify-content-between">
-                    <AboutViewHeading icon="index-errors" title="Index Errors" />
+                    <AboutViewHeading icon="index-errors" title={t("title")} />
                     <IndexErrorsAboutView />
                 </div>
                 <IndexErrorsActions

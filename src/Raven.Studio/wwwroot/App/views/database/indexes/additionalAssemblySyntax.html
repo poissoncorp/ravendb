@@ -2,18 +2,16 @@
     <div class="modal-content">
         <div class="modal-body">
             <div data-bind="compose: additionalTextView"></div>
-            <h3 class="margin-top">
-                <strong>C# </strong>Example
-            </h3>
+            <h3 class="margin-top" data-bind="html: csharpExampleHtml"></h3>
             <div>
-                To use:<br>
+                <span data-bind="i18n: 'editIndex:additionalSyntax.toUse'"></span><br>
                 <ol>
-                    <li><small>Add the <strong>DocumentFormat.OpenXml</strong> NuGet package in the Additional Assemblies Tab.</small></li>
-                    <li><small>Upload the source file in the Additional Sources Tab.</small></li>
+                    <li><small data-bind="html: addPackageHtml"></small></li>
+                    <li><small data-bind="i18n: 'editIndex:additionalSyntax.uploadSource'"></small></li>
                 </ol>
             </div>
             <div data-bind="foreach: $data.constructor.csharpSamples">
-                <pre class="copy-area"><a href="#" class="copy-button-hidden" title="Copy code sample" data-bind="click: _.partial($root.copySample, title)"><i class="icon-copy"></i></a><span data-bind="html: html"></span></pre>
+                <pre class="copy-area"><a href="#" class="copy-button-hidden" data-bind="click: _.partial($root.copySample, title), i18nAttr: { title: 'editIndex:syntaxSamples.copyTitle' }"><i class="icon-copy"></i></a><span data-bind="html: html"></span></pre>
             </div>
         </div>
     </div>

@@ -8,23 +8,26 @@ import { useAppSelector } from "components/store";
 import React from "react";
 import Table from "react-bootstrap/Table";
 import Card from "react-bootstrap/Card";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface UnmergableIndexesCardProps {
     unmergable: UseIndexCleanupResult["unmergable"];
 }
 
 export default function UnmergableIndexesCard({ unmergable }: UnmergableIndexesCardProps) {
+    const t = useStudioTranslation("indexCleanup");
+
     return (
         <Card>
             <Card className="bg-faded-primary m-1 p-4">
                 <div className="text-limit-width">
-                    <h2>Unmergeable indexes</h2>
-                    The following indexes cannot be merged. See the specific reason explanation provided for each index.
+                    <h2>{t("unmergeable.title")}</h2>
+                    {t("unmergeable.description")}
                 </div>
             </Card>
 
             {unmergable.data.length === 0 ? (
-                <EmptySet>No unmergeable indexes</EmptySet>
+                <EmptySet>{t("unmergeable.empty")}</EmptySet>
             ) : (
                 <MainPanel unmergable={unmergable} />
             )}
@@ -33,6 +36,7 @@ export default function UnmergableIndexesCard({ unmergable }: UnmergableIndexesC
 }
 
 function MainPanel({ unmergable }: UnmergableIndexesCardProps) {
+    const t = useStudioTranslation("indexCleanup");
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
 
     return (
@@ -43,11 +47,11 @@ function MainPanel({ unmergable }: UnmergableIndexesCardProps) {
                         <thead>
                             <tr>
                                 <td>
-                                    <div className="small-label">Index name</div>
+                                    <div className="small-label">{t("columns.indexName")}</div>
                                 </td>
 
                                 <td>
-                                    <div className="small-label">Unmergeable reason</div>
+                                    <div className="small-label">{t("unmergeable.reason")}</div>
                                 </td>
                             </tr>
                         </thead>

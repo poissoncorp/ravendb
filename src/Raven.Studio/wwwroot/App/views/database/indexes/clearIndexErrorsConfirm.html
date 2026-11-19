@@ -17,17 +17,14 @@
             </div>
             <div class="bg-info padding padding-xs margin-top margin-top-md flex-horizontal">
                 <span class="flex-start"><i class="icon-info"></i></span>
-                <span class="margin-left margin-left-sm">
-                    While the current indexing errors will be cleared,<br>
-                    an index with an 'Error state' will Not be set back to 'Normal state'.
-                </span>
+                <span class="margin-left margin-left-sm" data-bind="html: errorStateInfoHtml"></span>
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-bind="click: cancel">Cancel</button>
+            <button type="button" class="btn btn-default" data-bind="click: cancel, i18n: 'common:cancel'"></button>
             <button type="button" class="btn btn-primary" data-bind="click: clearIndexes, css: { 'btn-spinner': spinners.clear }">
                 <i class="icon-trash"></i>
-                <span>Clear Index Errors</span>
+                <span data-bind="i18n: 'clearIndexErrorsConfirm:clearButton'"></span>
             </button>
         </div>
     </div>

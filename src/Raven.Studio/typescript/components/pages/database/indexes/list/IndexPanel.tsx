@@ -41,6 +41,9 @@ import IndexPriority = Raven.Client.Documents.Indexes.IndexPriority;
 import IndexLockMode = Raven.Client.Documents.Indexes.IndexLockMode;
 import IndexRunningStatus = Raven.Client.Documents.Indexes.IndexRunningStatus;
 import IndexSourceType = Raven.Client.Documents.Indexes.IndexSourceType;
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import type { StudioTranslate } from "common/i18n/resources";
 
 export interface IndexPanelProps {
     index: IndexSharedInfo;
@@ -89,6 +92,7 @@ function getLockColor(index: IndexSharedInfo) {
 
 export function IndexPanelInternal(props: IndexPanelProps, ref: ForwardedRef<HTMLDivElement>) {
     const { index, selected, toggleSelection, hasReplacement, globalIndexingStatus, resetIndex } = props;
+    const t = useStudioTranslation("indexesList");
 
     const hasDatabaseWriteAccess = useAppSelector(accessManagerSelectors.getHasDatabaseWriteAccess)();
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
@@ -223,32 +227,41 @@ export function IndexPanelInternal(props: IndexPanelProps, ref: ForwardedRef<HTM
                                             {!updatingLocalPriority && index.priority === "Normal" && (
                                                 <span>
                                                     <Icon icon="check" />
-                                                    <span>Normal Priority</span>
+                                                    <span>{t("panel.priority.normal")}</span>
                                                 </span>
                                             )}
                                             {!updatingLocalPriority && index.priority === "Low" && (
                                                 <span>
                                                     <Icon icon="coffee" />
-                                                    <span>Low Priority</span>
+                                                    <span>{t("panel.priority.low")}</span>
                                                 </span>
                                             )}
                                             {!updatingLocalPriority && index.priority === "High" && (
                                                 <span>
                                                     <Icon icon="force" />
-                                                    <span>High Priority</span>
+                                                    <span>{t("panel.priority.high")}</span>
                                                 </span>
                                             )}
                                         </Dropdown.Toggle>
 
                                         <Dropdown.Menu>
-                                            <Dropdown.Item onClick={(e) => setPriority(e, "Low")} title="Low">
-                                                <Icon icon="coffee" /> <span>Low Priority</span>
+                                            <Dropdown.Item
+                                                onClick={(e) => setPriority(e, "Low")}
+                                                title={t("panel.priority.lowTitle")}
+                                            >
+                                                <Icon icon="coffee" /> <span>{t("panel.priority.low")}</span>
                                             </Dropdown.Item>
-                                            <Dropdown.Item onClick={(e) => setPriority(e, "Normal")} title="Normal">
-                                                <Icon icon="check" /> <span>Normal Priority</span>
+                                            <Dropdown.Item
+                                                onClick={(e) => setPriority(e, "Normal")}
+                                                title={t("panel.priority.normalTitle")}
+                                            >
+                                                <Icon icon="check" /> <span>{t("panel.priority.normal")}</span>
                                             </Dropdown.Item>
-                                            <Dropdown.Item onClick={(e) => setPriority(e, "High")} title="High">
-                                                <Icon icon="force" /> <span>High Priority</span>
+                                            <Dropdown.Item
+                                                onClick={(e) => setPriority(e, "High")}
+                                                title={t("panel.priority.highTitle")}
+                                            >
+                                                <Icon icon="force" /> <span>{t("panel.priority.high")}</span>
                                             </Dropdown.Item>
                                         </Dropdown.Menu>
                                     </Dropdown>
@@ -268,19 +281,19 @@ export function IndexPanelInternal(props: IndexPanelProps, ref: ForwardedRef<HTM
                                                 {index.lockMode === "Unlock" && (
                                                     <span>
                                                         <Icon icon="unlock" />
-                                                        <span>Unlocked</span>
+                                                        <span>{t("panel.lockMode.unlocked")}</span>
                                                     </span>
                                                 )}
                                                 {index.lockMode === "LockedIgnore" && (
                                                     <span>
                                                         <Icon icon="lock" />
-                                                        <span>Locked</span>
+                                                        <span>{t("panel.lockMode.locked")}</span>
                                                     </span>
                                                 )}
                                                 {index.lockMode === "LockedError" && (
                                                     <span>
                                                         <Icon icon="lock-error" />
-                                                        <span>Locked (Error)</span>
+                                                        <span>{t("panel.lockMode.lockedError")}</span>
                                                     </span>
                                                 )}
                                             </Dropdown.Toggle>
@@ -288,22 +301,22 @@ export function IndexPanelInternal(props: IndexPanelProps, ref: ForwardedRef<HTM
                                             <Dropdown.Menu>
                                                 <Dropdown.Item
                                                     onClick={(e) => setLockMode(e, "Unlock")}
-                                                    title="Unlocked: The index is unlocked for changes; apps can modify it, e.g. via IndexCreation.CreateIndexes()."
+                                                    title={t("panel.lockMode.unlockTitle")}
                                                 >
-                                                    <Icon icon="unlock" /> <span>Unlock</span>
+                                                    <Icon icon="unlock" /> <span>{t("actions.unlock")}</span>
                                                 </Dropdown.Item>
                                                 <Dropdown.Divider />
                                                 <Dropdown.Item
                                                     onClick={(e) => setLockMode(e, "LockedIgnore")}
-                                                    title="Locked: The index is locked for changes; apps cannot modify it. Programmatic attempts to modify the index will be ignored."
+                                                    title={t("panel.lockMode.lockTitle")}
                                                 >
-                                                    <Icon icon="lock" /> <span>Lock</span>
+                                                    <Icon icon="lock" /> <span>{t("actions.lock")}</span>
                                                 </Dropdown.Item>
                                                 <Dropdown.Item
                                                     onClick={(e) => setLockMode(e, "LockedError")}
-                                                    title="Locked + Error: The index is locked for changes; apps cannot modify it. An error will be thrown if an app attempts to modify it."
+                                                    title={t("panel.lockMode.lockErrorTitle")}
                                                 >
-                                                    <Icon icon="lock-error" /> <span>Lock (Error)</span>
+                                                    <Icon icon="lock-error" /> <span>{t("actions.lockError")}</span>
                                                 </Dropdown.Item>
                                             </Dropdown.Menu>
                                         </Dropdown>
@@ -322,18 +335,18 @@ export function IndexPanelInternal(props: IndexPanelProps, ref: ForwardedRef<HTM
                                            requiredAccess: 'DatabaseReadWrite', requiredAccessOptions: { strategy: 'disable' }"
                                 >
                                     {updatingState && <Spinner size="sm" className="me-2" />}
-                                    <span>Set State</span>
+                                    <span>{t("panel.setState")}</span>
                                 </Dropdown.Toggle>
 
                                 <Dropdown.Menu>
-                                    <Dropdown.Item onClick={startIndexing} title="Start indexing">
-                                        <Icon icon="play" /> <span>Start indexing</span>
+                                    <Dropdown.Item onClick={startIndexing} title={t("actions.startIndexing")}>
+                                        <Icon icon="play" /> <span>{t("actions.startIndexing")}</span>
                                     </Dropdown.Item>
-                                    <Dropdown.Item onClick={disableIndexing} title="Disable indexing">
-                                        <Icon icon="stop" color="danger" /> <span>Disable indexing</span>
+                                    <Dropdown.Item onClick={disableIndexing} title={t("actions.disableIndexing")}>
+                                        <Icon icon="stop" color="danger" /> <span>{t("actions.disableIndexing")}</span>
                                     </Dropdown.Item>
-                                    <Dropdown.Item onClick={pauseIndexing} title="Pause until restart">
-                                        <Icon icon="pause" color="warning" /> <span>Pause indexing until restart</span>
+                                    <Dropdown.Item onClick={pauseIndexing} title={t("panel.pauseIndexingTitle")}>
+                                        <Icon icon="pause" color="warning" /> <span>{t("actions.pauseIndexing")}</span>
                                     </Dropdown.Item>
                                 </Dropdown.Menu>
                             </Dropdown>
@@ -343,14 +356,14 @@ export function IndexPanelInternal(props: IndexPanelProps, ref: ForwardedRef<HTM
                             <Dropdown as={ButtonGroup}>
                                 <Button variant="secondary" href={queryUrl}>
                                     <Icon icon="search" />
-                                    <span>Query</span>
+                                    <span>{t("panel.query")}</span>
                                 </Button>
                                 <Dropdown.Toggle variant="secondary" className="dropdown-toggle" />
 
                                 <Dropdown.Menu>
                                     <Dropdown.Item href={termsUrl}>
                                         {" "}
-                                        <Icon icon="terms" /> Terms{" "}
+                                        <Icon icon="terms" /> {t("panel.terms")}{" "}
                                     </Dropdown.Item>
                                 </Dropdown.Menu>
                             </Dropdown>
@@ -358,12 +371,12 @@ export function IndexPanelInternal(props: IndexPanelProps, ref: ForwardedRef<HTM
 
                         <ButtonGroup>
                             {!IndexUtils.isAutoIndex(index) && hasDatabaseWriteAccess && (
-                                <Button variant="secondary" href={editUrl} title="Edit index">
+                                <Button variant="secondary" href={editUrl} title={t("panel.editTitle")}>
                                     <Icon icon="edit" margin="m-0" />
                                 </Button>
                             )}
                             {(IndexUtils.isAutoIndex(index) || !hasDatabaseWriteAccess) && (
-                                <Button href={editUrl} variant="secondary" title="View index">
+                                <Button href={editUrl} variant="secondary" title={t("panel.viewTitle")}>
                                     <Icon icon="preview" margin="m-0" />
                                 </Button>
                             )}
@@ -371,12 +384,16 @@ export function IndexPanelInternal(props: IndexPanelProps, ref: ForwardedRef<HTM
 
                         {localFaultyNodeInfo && (
                             <Button variant="secondary" onClick={() => openFaulty(localFaultyNodeInfo.location)}>
-                                Open faulty index
+                                {t("actions.openFaulty")}
                             </Button>
                         )}
                         {!IndexUtils.isAutoIndex(index) && (
                             <>
-                                <Button variant="secondary" title="Export index" onClick={toggleIsExportIndexModalOpen}>
+                                <Button
+                                    variant="secondary"
+                                    title={t("panel.exportTitle")}
+                                    onClick={toggleIsExportIndexModalOpen}
+                                >
                                     <Icon icon="export" margin="m-0" />
                                 </Button>
                                 {isExportIndexModalOpen && (
@@ -392,9 +409,9 @@ export function IndexPanelInternal(props: IndexPanelProps, ref: ForwardedRef<HTM
                             <>
                                 <ResetIndexesButton
                                     resetIndex={resetIndex}
-                                    sideBySideDisabledReason={getSideBySideResetDisabledReason(index)}
+                                    sideBySideDisabledReason={getSideBySideResetDisabledReason(index, t)}
                                 />
-                                <Button variant="danger" onClick={deleteIndex} title="Delete the index">
+                                <Button variant="danger" onClick={deleteIndex} title={t("panel.deleteTitle")}>
                                     <Icon icon="trash" margin="m-0" />
                                 </Button>
                             </>
@@ -406,7 +423,7 @@ export function IndexPanelInternal(props: IndexPanelProps, ref: ForwardedRef<HTM
                         <Button
                             variant="secondary"
                             onClick={togglePanelCollapsed}
-                            title={panelCollapsed ? "Expand distribution details" : "Collapse distribution details"}
+                            title={panelCollapsed ? t("panel.expandDetailsTitle") : t("panel.collapseDetailsTitle")}
                             className="btn-toggle-panel rounded-pill"
                         >
                             <Icon icon={panelCollapsed ? "unfold" : "fold"} margin="m-0" />
@@ -421,26 +438,40 @@ export function IndexPanelInternal(props: IndexPanelProps, ref: ForwardedRef<HTM
                                         <>
                                             {index.reduceOutputCollectionName && (
                                                 <span>
-                                                    Reduce Results are saved in Collection:
-                                                    <br />
-                                                    <strong>{index.reduceOutputCollectionName}</strong>
+                                                    <StudioTrans
+                                                        ns="indexesList"
+                                                        i18nKey="panel.reduceResultsCollection"
+                                                        components={{ br: <br />, strong: <strong /> }}
+                                                        options={{ collection: index.reduceOutputCollectionName }}
+                                                    />
                                                 </span>
                                             )}
                                             {index.collectionNameForReferenceDocuments && (
                                                 <span>
                                                     <br />
-                                                    Referencing Documents are saved in Collection:
-                                                    <br />
-                                                    <strong>{index.collectionNameForReferenceDocuments}</strong>
+                                                    <StudioTrans
+                                                        ns="indexesList"
+                                                        i18nKey="panel.referencingDocumentsCollection"
+                                                        components={{ br: <br />, strong: <strong /> }}
+                                                        options={{
+                                                            collection: index.collectionNameForReferenceDocuments,
+                                                        }}
+                                                    />
                                                 </span>
                                             )}
                                             {!index.collectionNameForReferenceDocuments &&
                                                 index.patternForReferencesToReduceOutputCollection && (
                                                     <span>
                                                         <br />
-                                                        Referencing Documents are saved in Collection:
-                                                        <br />
-                                                        <strong>{index.reduceOutputCollectionName}/References</strong>
+                                                        <StudioTrans
+                                                            ns="indexesList"
+                                                            i18nKey="panel.referencingDocumentsCollection"
+                                                            components={{ br: <br />, strong: <strong /> }}
+                                                            options={{
+                                                                collection:
+                                                                    index.reduceOutputCollectionName + "/References",
+                                                            }}
+                                                        />
                                                     </span>
                                                 )}
                                         </>
@@ -468,12 +499,12 @@ export function IndexPanelInternal(props: IndexPanelProps, ref: ForwardedRef<HTM
                         <RichPanelDetailItem>
                             {hasReplacement && (
                                 <Badge pill bg="warning" className="ms-3">
-                                    OLD
+                                    {t("panel.oldBadge")}
                                 </Badge>
                             )}
                             {isReplacement && (
                                 <Badge pill bg="warning" className="ms-3">
-                                    NEW
+                                    {t("panel.newBadge")}
                                 </Badge>
                             )}
                         </RichPanelDetailItem>
@@ -515,25 +546,26 @@ export function IndexPanelInternal(props: IndexPanelProps, ref: ForwardedRef<HTM
 
 function IndexSourceTypeComponent(props: { sourceType: IndexSourceType }) {
     const { sourceType } = props;
+    const t = useStudioTranslation("indexesList");
 
     return (
         <RichPanelDetailItem>
             {sourceType === "Counters" && (
                 <>
-                    <Icon icon="new-counter" title="Index source: Counters" />
-                    Counters
+                    <Icon icon="new-counter" title={t("panel.source.countersTitle")} />
+                    {t("panel.source.counters")}
                 </>
             )}
             {sourceType === "TimeSeries" && (
                 <>
-                    <Icon icon="timeseries" title="Index source: Time Series" />
-                    Time Series
+                    <Icon icon="timeseries" title={t("panel.source.timeSeriesTitle")} />
+                    {t("panel.source.timeSeries")}
                 </>
             )}
             {sourceType === "Documents" && (
                 <>
-                    <Icon icon="documents" title="Index source: Documents" />
-                    Documents
+                    <Icon icon="documents" title={t("panel.source.documentsTitle")} />
+                    {t("panel.source.documents")}
                 </>
             )}
         </RichPanelDetailItem>
@@ -548,6 +580,7 @@ interface InlineDetailsProps {
 
 function InlineDetails(props: InlineDetailsProps) {
     const { index, toggleLocationDetails, errorsUrl } = props;
+    const t = useStudioTranslation("indexesList");
 
     const estimatedEntries = IndexUtils.estimateEntriesCount(index)?.toLocaleString() ?? "-";
     const errorsCount = index.nodesInfo.filter((x) => x.details).reduce((prev, x) => prev + x.details.errorCount, 0);
@@ -556,14 +589,14 @@ function InlineDetails(props: InlineDetailsProps) {
         <>
             <RichPanelDetailItem>
                 <Icon icon="list" />
-                Entries
+                {t("panel.entries")}
                 <div className="value">{estimatedEntries}</div>
             </RichPanelDetailItem>
             {errorsCount > 0 && (
-                <a href={errorsUrl} title="View indexing errors">
+                <a href={errorsUrl} title={t("panel.errorsTitle")}>
                     <RichPanelDetailItem className="index-detail-item text-danger">
                         <Icon icon="warning" />
-                        Errors
+                        {t("panel.errors")}
                         <div className="value">{errorsCount.toLocaleString()}</div>
                     </RichPanelDetailItem>
                 </a>
@@ -580,13 +613,15 @@ interface ReferencedCollectionsProps {
 }
 
 function ReferencedCollections({ collections }: ReferencedCollectionsProps) {
+    const t = useStudioTranslation("indexesList");
+
     if (!collections?.length) {
         return null;
     }
 
     return (
         <RichPanelDetailItem>
-            <Icon icon="referenced-collections" title="Referenced collections" />
+            <Icon icon="referenced-collections" title={t("panel.referencedCollectionsTitle")} />
             <div style={{ maxWidth: "300px" }}>{collections.join(", ")}</div>
         </RichPanelDetailItem>
     );
@@ -596,15 +631,15 @@ export default ReferencedCollections;
 
 const indexUniqueId = (index: IndexSharedInfo) => "index_" + index.name;
 
-function getSideBySideResetDisabledReason(index: IndexSharedInfo) {
+function getSideBySideResetDisabledReason(index: IndexSharedInfo, t: StudioTranslate<"indexesList">) {
     if (IndexUtils.isSideBySide(index)) {
-        return "Replacement cannot be reset side by side";
+        return t("panel.resetDisabledReason.replacement");
     }
     if (IndexUtils.isAutoIndex(index)) {
-        return "Auto index cannot be reset side by side";
+        return t("panel.resetDisabledReason.autoIndex");
     }
     if (index.type === "MapReduce" && index.reduceOutputCollectionName != null) {
-        return "Side by side index reset is not supported for map-reduce indexes with output reduce to collection";
+        return t("panel.resetDisabledReason.mapReduceOutput");
     }
 
     return null;

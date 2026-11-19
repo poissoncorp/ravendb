@@ -17,6 +17,7 @@ import messagePublisher from "common/messagePublisher";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
 import { useAppSelector } from "components/store";
 import DatabaseUtils from "components/utils/DatabaseUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type IndexStats = Map<string, Raven.Client.Documents.Indexes.IndexStats>;
 
@@ -57,6 +58,8 @@ export interface MergeSuggestionsError {
 }
 
 export default function useIndexCleanup() {
+    const t = useStudioTranslation("indexCleanup");
+    const commonT = useStudioTranslation("common");
     const db = useAppSelector(databaseSelectors.activeDatabase);
 
     const [activeTab, setActiveTab] = useState(0);
@@ -258,10 +261,10 @@ export default function useIndexCleanup() {
         const confirmData = getIndexInfoForDelete(indexNames.map((x) => indexStats.get(x)));
 
         const isConfirmed = await confirm({
-            title: `Delete ${confirmData.indexesInfoForDelete.length === 1 ? "index" : "indexes"}?`,
+            title: t("deleteConfirm.title", { count: confirmData.indexesInfoForDelete.length }),
             message: <DeleteIndexesConfirmBody {...confirmData} />,
             icon: "trash",
-            confirmText: "Delete",
+            confirmText: commonT("delete"),
             actionColor: "danger",
         });
 
@@ -273,7 +276,7 @@ export default function useIndexCleanup() {
         await Promise.all(tasks);
 
         if (tasks.length > 1) {
-            messagePublisher.reportSuccess(`Successfully deleted ${tasks.length} indexes!`);
+            messagePublisher.reportSuccess(t("deleteConfirm.success", { count: tasks.length }));
         }
 
         filterIndexes(confirmData.indexesInfoForDelete.map((x) => x.indexName));

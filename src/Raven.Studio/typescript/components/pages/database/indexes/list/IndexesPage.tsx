@@ -35,6 +35,8 @@ import useBoolean from "components/hooks/useBoolean";
 import { GlobalPauseIndexingConfirm } from "components/pages/resources/databases/partials/GlobalPauseIndexingConfirm";
 import { GlobalResumeIndexingConfirm } from "components/pages/resources/databases/partials/GlobalResumeIndexingConfirm";
 import ButtonWithSpinner from "components/common/ButtonWithSpinner";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface IndexesPageProps {
     stale?: boolean;
@@ -43,6 +45,7 @@ interface IndexesPageProps {
 }
 
 export function IndexesPage({ queryParams }: ReactQueryParamsProps<IndexesPageProps>) {
+    const t = useStudioTranslation("indexesList");
     const db = useAppSelector(databaseSelectors.activeDatabase);
     const hasDatabaseWriteAccess = useAppSelector(accessManagerSelectors.getHasDatabaseWriteAccess)();
     const { reportEvent } = useEventsCollector();
@@ -200,17 +203,21 @@ export function IndexesPage({ queryParams }: ReactQueryParamsProps<IndexesPagePr
                                                             : "database"
                                                     }
                                                 />
-                                                {staticClusterLimitStatus === "limitReached" ? "Cluster" : "Database"}{" "}
-                                                has reached the maximum number of static indexes allowed per{" "}
-                                                {staticClusterLimitStatus === "limitReached" ? "cluster" : "database"}{" "}
-                                                by your license.
-                                                <br />
-                                                Delete unused indexes or{" "}
-                                                <strong>
-                                                    <a href={upgradeLicenseLink} target="_blank">
-                                                        upgrade your license
-                                                    </a>
-                                                </strong>
+                                                <StudioTrans
+                                                    ns="indexesList"
+                                                    i18nKey="page.newIndexLimit"
+                                                    components={{
+                                                        br: <br />,
+                                                        strong: <strong />,
+                                                        a: <a href={upgradeLicenseLink} target="_blank" />,
+                                                    }}
+                                                    options={{
+                                                        context:
+                                                            staticClusterLimitStatus === "limitReached"
+                                                                ? "cluster"
+                                                                : "database",
+                                                    }}
+                                                />
                                             </div>
                                         ),
                                     }}
@@ -223,7 +230,7 @@ export function IndexesPage({ queryParams }: ReactQueryParamsProps<IndexesPagePr
                                             className="button-dropdown-btn"
                                         >
                                             <Icon icon="index" addon="plus" />
-                                            <span>New index</span>
+                                            <span>{t("page.newIndex")}</span>
                                         </Button>
                                         <Dropdown.Toggle
                                             variant="primary"
@@ -233,10 +240,10 @@ export function IndexesPage({ queryParams }: ReactQueryParamsProps<IndexesPagePr
                                         <Dropdown.Menu>
                                             <Dropdown.Item
                                                 onClick={toggleIsImportIndexModalOpen}
-                                                title="Import indexes from a file"
+                                                title={t("page.importIndexesTitle")}
                                             >
                                                 <Icon icon="index-import" />
-                                                <span>Import indexes</span>
+                                                <span>{t("page.importIndexes")}</span>
                                             </Dropdown.Item>
                                         </Dropdown.Menu>
                                     </Dropdown>
@@ -251,7 +258,7 @@ export function IndexesPage({ queryParams }: ReactQueryParamsProps<IndexesPagePr
                                         isSpinning={asyncResumeGlobalIndexing.loading}
                                         icon="play"
                                     >
-                                        Resume indexing
+                                        {t("page.resumeIndexing")}
                                     </ButtonWithSpinner>
                                     {isGlobalResumeIndexingOpen && (
                                         <GlobalResumeIndexingConfirm
@@ -271,7 +278,7 @@ export function IndexesPage({ queryParams }: ReactQueryParamsProps<IndexesPagePr
                                         isSpinning={asyncPauseGlobalIndexing.loading}
                                         icon="pause"
                                     >
-                                        Pause indexing
+                                        {t("page.pauseIndexing")}
                                     </ButtonWithSpinner>
                                     {isGlobalPauseIndexingOpen && (
                                         <GlobalPauseIndexingConfirm
@@ -329,7 +336,7 @@ export function IndexesPage({ queryParams }: ReactQueryParamsProps<IndexesPagePr
                         groups.map((group) => {
                             return (
                                 <div className="mb-4" key={"group-" + group.name}>
-                                    <h2 className="mt-0" title={"Collection: " + group.name}>
+                                    <h2 className="mt-0" title={t("page.collectionTitle", { name: group.name })}>
                                         {group.name}
                                     </h2>
                                     <IndexesPageList {...indexesPageListCommonProps} indexes={group.indexes} />

@@ -8,6 +8,8 @@ import {
 import ActionContextUtils from "components/utils/actionContextUtils";
 import RichAlert from "components/common/RichAlert";
 import Modal from "components/common/Modal";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface ConfirmSwapSideBySideIndexProps {
     indexName: string;
@@ -18,6 +20,8 @@ interface ConfirmSwapSideBySideIndexProps {
 
 export function ConfirmSwapSideBySideIndex(props: ConfirmSwapSideBySideIndexProps) {
     const { indexName, toggle, onConfirm, allActionContexts } = props;
+    const t = useStudioTranslation("indexesList");
+    const commonT = useStudioTranslation("common");
 
     const [selectedActionContexts, setSelectedActionContexts] = useState<DatabaseActionContexts[]>(allActionContexts);
 
@@ -31,7 +35,11 @@ export function ConfirmSwapSideBySideIndex(props: ConfirmSwapSideBySideIndexProp
             <Modal.Header className="vstack gap-3" onCloseClick={toggle}>
                 <Icon icon="index" color="warning" addon="swap" className="fs-1" margin="m-0" />
                 <div className="text-center lead">
-                    You&apos;re about to <span className="text-warning">swap</span> following index
+                    <StudioTrans
+                        ns="indexesList"
+                        i18nKey="swapConfirm.title"
+                        components={{ span: <span className="text-warning" /> }}
+                    />
                 </div>
             </Modal.Header>
             <Modal.Body className="vstack gap-4 position-relative">
@@ -40,12 +48,11 @@ export function ConfirmSwapSideBySideIndex(props: ConfirmSwapSideBySideIndexProp
                     {indexName}
                 </span>
                 <RichAlert variant="warning">
-                    Clicking <strong>Swap Now</strong> will immediately replace the current index definition with the
-                    replacement index.
+                    <StudioTrans ns="indexesList" i18nKey="swapConfirm.info" components={{ strong: <strong /> }} />
                 </RichAlert>
                 {ActionContextUtils.showContextSelector(allActionContexts) && (
                     <div>
-                        <h4>Select context</h4>
+                        <h4>{t("swapConfirm.selectContext")}</h4>
                         <MultipleDatabaseLocationSelector
                             allActionContexts={allActionContexts}
                             selectedActionContexts={selectedActionContexts}
@@ -56,11 +63,11 @@ export function ConfirmSwapSideBySideIndex(props: ConfirmSwapSideBySideIndexProp
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="link" onClick={toggle} className="link-muted">
-                    Cancel
+                    {commonT("cancel")}
                 </Button>
                 <Button variant="warning" onClick={onSubmit} className="rounded-pill">
                     <Icon icon="swap" />
-                    Swap Now
+                    {t("swapConfirm.confirm")}
                 </Button>
             </Modal.Footer>
         </Modal>

@@ -2,6 +2,9 @@
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
 import genUtils = require("common/generalUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("indexCommands");
 
 type optsNames = {
     name: string;
@@ -61,9 +64,14 @@ class togglePauseIndexingCommand extends commandBase {
 
     getFailTitle() {
         const locationText = genUtils.formatLocation(this.location);
-        const failText = `Failed to ${this.start ? "resume" : "pause"} ${this.name ? `index ${this.name}` : "all indexes"} for ${locationText}`;
+        if (this.name) {
+            const options = { indexName: this.name, location: locationText };
+            return this.start ? t("resumeIndexFailed", options) : t("pauseIndexFailed", options);
+        }
 
-        return failText;
+        return this.start
+            ? t("resumeAllFailed", { location: locationText })
+            : t("pauseAllFailed", { location: locationText });
     }
 }
 

@@ -13,8 +13,11 @@ import TestIndexResult = Raven.Server.Documents.Indexes.Test.TestIndexResult;
 import assertUnreachable = require("components/utils/assertUnreachable");
 import prismjs = require("prismjs");
 import rqlLanguageService = require("common/rqlLanguageService");
+import i18nModule = require("common/i18n/i18n");
 import aceEditorBindingHandler = require("common/bindingHelpers/aceEditorBindingHandler");
 import configurationConstants = require("configuration");
+
+const t = i18nModule.createTranslator("indexModels");
 
 type testTabName = "queryResults" | "indexEntries" | "mapResults" | "reduceResults";
 type fetcherType = (skip: number, take: number) => JQueryPromise<pagedResult<documentObject>>;
@@ -144,7 +147,7 @@ class testIndex {
                 showSelectAllCheckbox: false,
                 enableInlinePreview: true,
                 createHyperlinks: false,
-                customInlinePreview: doc => documentBasedColumnsProvider.showPreview(doc, "Entry preview")
+                customInlinePreview: doc => documentBasedColumnsProvider.showPreview(doc, t("testIndex.entryPreview"))
             });
 
             this.columnsSelector.init(this.gridController(),

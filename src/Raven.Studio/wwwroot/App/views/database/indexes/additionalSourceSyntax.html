@@ -4,19 +4,15 @@
             <div data-bind="compose: additionalTextView"></div>
             <div class="row">
                 <div class="col-lg-6">
-                    <h3 class="margin-top">
-                        <strong>C# </strong>Example
-                    </h3>
+                    <h3 class="margin-top" data-bind="html: csharpExampleHtml"></h3>
                     <div data-bind="foreach: $data.constructor.csharpSamples">
-                        <pre class="copy-area"><a href="#" class="copy-button-hidden" title="Copy code sample" data-bind="click: _.partial($root.copySample, title)"><i class="icon-copy"></i></a><span data-bind="html: html"></span></pre>
+                        <pre class="copy-area"><a href="#" class="copy-button-hidden" data-bind="click: _.partial($root.copySample, title), i18nAttr: { title: 'editIndex:syntaxSamples.copyTitle' }"><i class="icon-copy"></i></a><span data-bind="html: html"></span></pre>
                     </div>
                 </div>
                 <div class="col-lg-6">
-                    <h3 class="margin-top">
-                        <strong>JavaScript </strong>Example
-                    </h3>
+                    <h3 class="margin-top" data-bind="html: javascriptExampleHtml"></h3>
                     <div data-bind="foreach: $data.constructor.javascriptSamples">
-                        <pre class="copy-area"><a href="#" class="copy-button-hidden" title="Copy code sample" data-bind="click: _.partial($root.copySample, title)"><i class="icon-copy"></i></a><span data-bind="html: html"></span></pre>
+                        <pre class="copy-area"><a href="#" class="copy-button-hidden" data-bind="click: _.partial($root.copySample, title), i18nAttr: { title: 'editIndex:syntaxSamples.copyTitle' }"><i class="icon-copy"></i></a><span data-bind="html: html"></span></pre>
                     </div>
                 </div>
             </div>

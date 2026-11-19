@@ -1,7 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
-import pluralizeHelpers = require("common/helpers/text/pluralizeHelpers");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("indexCommands");
 
 class saveIndexDefinitionCommand extends commandBase {
     private readonly indexes: Raven.Client.Documents.Indexes.IndexDefinition[];
@@ -17,14 +19,14 @@ class saveIndexDefinitionCommand extends commandBase {
 
     execute(): JQueryPromise<string> {
 
-        const pluralizeName = pluralizeHelpers.pluralize(this.indexes.length, "index", "indexes", true);
+        const count = this.indexes.length;
 
         return this.saveDefinition()
             .fail((response: JQueryXHR) => {
-                this.reportError("Failed to save " + pluralizeName, response.responseText, response.statusText);
+                this.reportError(t("saveFailed", { count }), response.responseText, response.statusText);
             })
             .done(() => {
-                this.reportSuccess(`${pluralizeName} saved successfully`);
+                this.reportSuccess(t("saved", { count }));
             });
     }
 

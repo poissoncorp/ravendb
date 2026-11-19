@@ -8,9 +8,23 @@ import { useLimitedFeatureAvailability } from "components/utils/licenseLimitsUti
 import React from "react";
 import { Icon } from "components/common/Icon";
 import { useRavenLink } from "hooks/useRavenLink";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function IndexCleanupAboutView() {
+    const t = useStudioTranslation("indexCleanup");
+    const commonT = useStudioTranslation("common");
     const hasIndexCleanup = useAppSelector(licenseSelectors.statusValue("HasIndexCleanup"));
+
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("featureAvailability.indexCleanup"),
+            featureIcon: "index-cleanup",
+            community: { value: false },
+            professional: { value: true },
+            enterprise: { value: true },
+            quill: { value: true },
+        },
+    ];
 
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
@@ -27,34 +41,15 @@ export default function IndexCleanupAboutView() {
     return (
         <AboutViewFloating defaultOpen={hasIndexCleanup ? null : "licensing"}>
             <AccordionItemWrapper targetId="about" icon="about" color="info">
-                <p>
-                    Maintaining multiple indexes can lower performance. Every time data is inserted, updated, or
-                    deleted, the corresponding indexes need to be updated as well, which can lead to increased write
-                    latency.
-                </p>
-                <p className="mb-0">
-                    To counter these performance issues, RavenDB recommends a set of actions to optimize the number of
-                    indexes. Note that when merging or removing indexes, you need to update the index reference in your
-                    application.
-                </p>
+                <p>{t("about.performance")}</p>
+                <p className="mb-0">{t("about.recommendations")}</p>
                 <hr />
-                <div className="small-label mb-2">useful links</div>
+                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                 <a href={indexCleanupDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - Index Cleanup
+                    <Icon icon="newtab" /> {t("about.docsLink")}
                 </a>
             </AccordionItemWrapper>
             <FeatureAvailabilitySummaryWrapper isUnlimited={hasIndexCleanup} data={featureAvailability} />
         </AboutViewFloating>
     );
 }
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "Index Cleanup",
-        featureIcon: "index-cleanup",
-        community: { value: false },
-        professional: { value: true },
-        enterprise: { value: true },
-        quill: { value: true },
-    },
-];

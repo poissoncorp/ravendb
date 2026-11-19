@@ -13,19 +13,19 @@
                             <li data-bind="click: $root.setSelectedIndex"><a href="#" data-bind="text: $data"></a></li>
                             <!-- /ko -->
                             <!-- ko if: indexes().length === 0 -->
-                            <li data-bind="click: function() { }"><a href="#">No indexes available</a></li>
+                            <li data-bind="click: function() { }"><a href="#" data-bind="i18n: 'visualizer:noIndexes'"></a></li>
                             <!-- /ko -->
                         </ul>
                         <div class="bg-info">
-                            <i class="icon-info text-info"></i> <span>Map indexes are not available in a 'MapReduce' visualizer.</span>
+                            <i class="icon-info text-info"></i> <span data-bind="i18n: 'visualizer:mapIndexesNotAvailable'"></span>
                         </div>
                     </div>
                 </div>
 
                 <div class="form-group form-group-dropdown" data-bind="visible: hasIndexSelected() && !detailsGraph.viewActive()">
                     <div class="input-group">
-                        <input id="documentId" type="text" data-bind="textInput: documents.documentId, hasFocus: documents.hasFocusDocumentId"
-                               class="form-control" placeholder="Document ID" autocomplete="off">
+                        <input id="documentId" type="text" data-bind="textInput: documents.documentId, hasFocus: documents.hasFocusDocumentId, i18nAttr: { placeholder: 'visualizer:documentIdPlaceholder' }"
+                               class="form-control" autocomplete="off">
                         <span class="input-group-btn" style="width: auto">
                             <button data-bind="click: addCurrentDocumentId, enable: !!documents.documentId() && !spinners.addDocument(), css: { 'btn-spinner': spinners.addDocument } "
                                     class="btn btn-default" type="button">
@@ -45,10 +45,10 @@
                 
                 <div data-bind="visible: detailsGraph.viewActive" class="flex-horizontal">
                     <button data-bind="click: detailsGraph.goToMasterView, if: detailsGraph.viewActive" class="btn btn-default margin-right">
-                        <i class="icon-arrow-left"></i> <span>Back</span>
+                        <i class="icon-arrow-left"></i> <span data-bind="i18n: 'visualizer:back'"></span>
                     </button>
 
-                    <div data-bind="if: detailsGraph.currentTree">Reduce tree for key: <code class="margin-left margin-sm" data-bind="text: detailsGraph.currentTree().displayName"></code></div>
+                    <div data-bind="if: detailsGraph.currentTree"><span data-bind="i18n: 'visualizer:reduceTreeForKey'"></span> <code class="margin-left margin-sm" data-bind="text: detailsGraph.currentTree().displayName"></code></div>
                 </div>
 
             </div>
@@ -61,17 +61,17 @@
                 <i class="icon-info icon-xl"></i>
 
                 <ol>
-                    <li>Select index.</li>
-                    <li>Enter document ids.</li>
-                    <li>Select your area of interest by dragging. Zoom with the scroll wheel on your mouse.</li>
-                    <li>Click on the tree for MapReduce details. </li>
+                    <li data-bind="i18n: 'visualizer:instructions.selectIndex'"></li>
+                    <li data-bind="i18n: 'visualizer:instructions.enterDocumentIds'"></li>
+                    <li data-bind="i18n: 'visualizer:instructions.selectArea'"></li>
+                    <li data-bind="i18n: 'visualizer:instructions.clickTree'"></li>
                 </ol>
             </div>
             
-            <button class="btn btn-default nav-arrow left" title="Go to previous Map-Reduce tree" data-bind="click: detailsGraph.goToPreviousTree, enable: detailsGraph.canNavigateToPreviousTree, visible: detailsGraph.viewActive">
+            <button class="btn btn-default nav-arrow left" data-bind="i18nAttr: { title: 'visualizer:previousTree' }, click: detailsGraph.goToPreviousTree, enable: detailsGraph.canNavigateToPreviousTree, visible: detailsGraph.viewActive">
                 <i class="icon-arrow-filled-left"></i>
             </button>
-            <button class="btn btn-default nav-arrow right" title="Go to next Map-Reduce tree" data-bind="click: detailsGraph.goToNextTree, enable: detailsGraph.canNavigateToNextTree, visible: detailsGraph.viewActive">
+            <button class="btn btn-default nav-arrow right" data-bind="i18nAttr: { title: 'visualizer:nextTree' }, click: detailsGraph.goToNextTree, enable: detailsGraph.canNavigateToNextTree, visible: detailsGraph.viewActive">
                 <i class="icon-arrow-filled-right"></i>
             </button>
         </div>

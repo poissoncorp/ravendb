@@ -6,6 +6,8 @@ import React from "react";
 import Badge from "react-bootstrap/Badge";
 import Card from "react-bootstrap/Card";
 import Nav from "react-bootstrap/Nav";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 const mergeSuggestionErrors = require("Content/img/pages/indexCleanup/merge-suggestion-errors.svg");
 
@@ -15,6 +17,7 @@ interface MergeSuggestionsErrorsNavItemProps {
 }
 
 export default function MergeSuggestionsErrorsNavItem({ carousel, errors }: MergeSuggestionsErrorsNavItemProps) {
+    const t = useStudioTranslation("indexCleanup");
     const hasIndexCleanup = useAppSelector(licenseSelectors.statusValue("HasIndexCleanup"));
 
     return (
@@ -25,14 +28,12 @@ export default function MergeSuggestionsErrorsNavItem({ carousel, errors }: Merg
                 })}
                 onClick={() => carousel.setActiveTab(4)}
             >
-                <img src={mergeSuggestionErrors} alt="Merge suggestion errors" />
+                <img src={mergeSuggestionErrors} alt={t("nav.mergeSuggestionsErrorsAlt")} />
                 <Badge className="rounded-pill fs-5" bg="primary">
                     {hasIndexCleanup ? errors.data.length : "?"}
                 </Badge>
                 <h4 className="text-center">
-                    Merge suggestions
-                    <br />
-                    errors
+                    <StudioTrans ns="indexCleanup" i18nKey="nav.mergeSuggestionsErrors" components={{ br: <br /> }} />
                 </h4>
             </Card>
         </Nav.Item>

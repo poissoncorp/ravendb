@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("indexCommands");
 
 class getIndexStalenessReasonsCommand extends commandBase {
 
@@ -26,7 +29,7 @@ class getIndexStalenessReasonsCommand extends commandBase {
 
         return this.query<indexStalenessReasonsResponse>(url, args, this.db)
             .fail((response: JQueryXHR) => {
-                this.reportError("Failed to get index staleness reasons.", response.responseText, response.statusText);
+                this.reportError(t("getStalenessReasonsFailed"), response.responseText, response.statusText);
             });
     }
 }

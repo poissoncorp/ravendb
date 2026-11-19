@@ -5,6 +5,7 @@ import VirtualTable from "components/common/virtualTable/VirtualTable";
 import { AsyncStateStatus } from "react-async-hook";
 import { useMemo } from "react";
 import { virtualTableConstants } from "components/common/virtualTable/utils/virtualTableConstants";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface IndexErrorsPanelTableProps {
     status: AsyncStateStatus;
@@ -27,6 +28,7 @@ export function IndexErrorsPanelTable({
     table,
     disableLinks,
 }: IndexErrorsPanelTableProps) {
+    const t = useStudioTranslation("indexErrors");
     const { indexErrorsPanelColumns } = useIndexErrorsPanelColumns(width);
 
     const data = useMemo(() => indexErrors ?? [], [indexErrors]);
@@ -41,7 +43,7 @@ export function IndexErrorsPanelTable({
     return (
         <>
             {status === "error" ? (
-                <LoadError error="Error during loading identities" refresh={refresh} />
+                <LoadError error={t("panel.loadError")} refresh={refresh} />
             ) : (
                 <VirtualTable
                     heightInPx={400}

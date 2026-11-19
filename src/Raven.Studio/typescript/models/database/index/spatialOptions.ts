@@ -1,5 +1,8 @@
 /// <reference path="../../../../typings/tsd.d.ts"/>
 import jsonUtil = require("common/jsonUtil");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("indexModels");
 
 class spatialOptions {
     maxTreeLevel = ko.observable<number>();
@@ -158,9 +161,13 @@ class spatialOptions {
                 y /= milesToKm;
             }
 
-            return "Precision at equator; X: " + x.toFixed(6) + ", Y: " + y.toFixed(6) + " " + units.toLowerCase();
+            return t("spatial.precisionAtEquator", {
+                x: x.toFixed(6),
+                y: y.toFixed(6),
+                context: units.toLowerCase() as Lowercase<typeof units>,
+            });
         } else {
-            return "Precision; X: " + x.toFixed(6) + ", Y: " + y.toFixed(6);
+            return t("spatial.precision", { x: x.toFixed(6), y: y.toFixed(6) });
         }
     }
 

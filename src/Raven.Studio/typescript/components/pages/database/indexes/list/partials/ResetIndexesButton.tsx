@@ -4,6 +4,7 @@ import { Icon } from "components/common/Icon";
 import React from "react";
 import Dropdown from "react-bootstrap/Dropdown";
 import { CustomDropdownToggle } from "components/common/Dropdown";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface ResetIndexesButtonProps {
     resetIndex: (mode?: Raven.Client.Documents.Indexes.IndexResetMode) => void;
@@ -16,6 +17,8 @@ export default function ResetIndexesButton({
     isRounded,
     sideBySideDisabledReason,
 }: ResetIndexesButtonProps) {
+    const t = useStudioTranslation("indexesList");
+
     return (
         <Dropdown>
             <Dropdown.Toggle
@@ -26,9 +29,9 @@ export default function ResetIndexesButton({
                 <Icon icon="reset-index" margin="m-0" />
             </Dropdown.Toggle>
             <Dropdown.Menu>
-                <Dropdown.Item onClick={() => resetIndex("InPlace")} title="Reset index in place">
+                <Dropdown.Item onClick={() => resetIndex("InPlace")} title={t("resetButton.inPlaceTitle")}>
                     <Icon icon="reset-index" addon="arrow-down" />
-                    Reset in place
+                    {t("resetButton.inPlace")}
                 </Dropdown.Item>
                 <ConditionalPopover
                     conditions={{
@@ -38,11 +41,11 @@ export default function ResetIndexesButton({
                 >
                     <Dropdown.Item
                         onClick={() => resetIndex("SideBySide")}
-                        title="Reset index side by side"
+                        title={t("resetButton.sideBySideTitle")}
                         disabled={!!sideBySideDisabledReason}
                     >
                         <Icon icon="reset-index" addon="swap" />
-                        Reset side by side
+                        {t("resetButton.sideBySide")}
                     </Dropdown.Item>
                 </ConditionalPopover>
             </Dropdown.Menu>

@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("queryCommands");
 
 type killByIndexAndQueryId = {
     indexName: string,
@@ -30,7 +33,7 @@ class killQueryCommand extends commandBase {
                 if (response.status === 404) {
                     task.resolve(null);
                 } else {
-                    this.reportError("Failed to kill the query", response.responseText, response.statusText);
+                    this.reportError(t("killFailed"), response.responseText, response.statusText);
                     task.reject();
                 }
             });

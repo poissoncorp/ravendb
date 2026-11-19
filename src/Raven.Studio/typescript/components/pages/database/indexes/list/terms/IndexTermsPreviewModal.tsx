@@ -3,6 +3,7 @@ import Modal from "components/common/Modal";
 import { Icon } from "components/common/Icon";
 import React, { useState } from "react";
 import Code from "components/common/Code";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface IndexTermsPreviewModalProps {
     isOpen: boolean;
@@ -17,6 +18,7 @@ export default function IndexTermsPreviewModal({
     termIndex,
     fieldTerms,
 }: IndexTermsPreviewModalProps) {
+    const t = useStudioTranslation("indexTerms");
     const [currentIndex, setCurrentIndex] = useState<number>(termIndex);
 
     const term = fieldTerms[currentIndex] ?? "";
@@ -42,7 +44,7 @@ export default function IndexTermsPreviewModal({
                 <div className="text-center">
                     <Icon icon="terms" color="primary" margin="me-0" className="fs-1" />
                 </div>
-                <div className="text-center lead">Indexing term value</div>
+                <div className="text-center lead">{t("preview.title")}</div>
             </Modal.Header>
             <Modal.Body>
                 <Code code={term} language="plaintext" />
@@ -56,7 +58,7 @@ export default function IndexTermsPreviewModal({
                         className="rounded-pill"
                     >
                         <Icon icon="arrow-thin-left" />
-                        Previous
+                        {t("preview.previous")}
                     </Button>
                     <Button
                         variant="secondary"
@@ -64,12 +66,12 @@ export default function IndexTermsPreviewModal({
                         disabled={!canNavigateToNextTerm}
                         className="rounded-pill"
                     >
-                        Next
+                        {t("preview.next")}
                         <Icon icon="arrow-thin-right" margin="ms-1" />
                     </Button>
                 </div>
                 <Button className="rounded-pill" variant="primary" onClick={toggleModal} type="button">
-                    Close
+                    {t("preview.close")}
                 </Button>
             </Modal.Footer>
         </Modal>

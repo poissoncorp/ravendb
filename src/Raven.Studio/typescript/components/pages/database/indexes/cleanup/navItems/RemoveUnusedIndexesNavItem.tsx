@@ -6,6 +6,8 @@ import React from "react";
 import Badge from "react-bootstrap/Badge";
 import Card from "react-bootstrap/Card";
 import Nav from "react-bootstrap/Nav";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 const removeUnusedImg = require("Content/img/pages/indexCleanup/remove-unused.svg");
 
@@ -15,6 +17,7 @@ interface RemoveUnusedIndexesNavItemProps {
 }
 
 export default function RemoveUnusedIndexesNavItem({ carousel, unused }: RemoveUnusedIndexesNavItemProps) {
+    const t = useStudioTranslation("indexCleanup");
     const hasIndexCleanup = useAppSelector(licenseSelectors.statusValue("HasIndexCleanup"));
 
     return (
@@ -23,13 +26,12 @@ export default function RemoveUnusedIndexesNavItem({ carousel, unused }: RemoveU
                 className={classNames("p-3", "card-tab", { active: carousel.activeTab === 2 })}
                 onClick={() => carousel.setActiveTab(2)}
             >
-                <img src={removeUnusedImg} alt="Remove unused indexes " />
+                <img src={removeUnusedImg} alt={t("nav.removeUnusedAlt")} />
                 <Badge className="rounded-pill fs-5" bg={unused.data.length !== 0 ? "primary" : "secondary"}>
                     {hasIndexCleanup ? unused.data.length : "?"}
                 </Badge>
                 <h4 className="text-center">
-                    Remove <br />
-                    unused indexes
+                    <StudioTrans ns="indexCleanup" i18nKey="nav.removeUnused" components={{ br: <br /> }} />
                 </h4>
             </Card>
         </Nav.Item>

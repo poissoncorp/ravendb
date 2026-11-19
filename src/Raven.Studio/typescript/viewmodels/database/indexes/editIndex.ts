@@ -67,6 +67,11 @@ import genUtils = require("common/generalUtils");
 import storeCompat = require("components/storeCompat");
 import chatbotSlice = require("components/shell/chatbot/store/chatbotSlice");
 import collectionsTracker = require("common/helpers/database/collectionsTracker");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("editIndex");
+
+type AssemblySource = Parameters<additionalAssembly["setAssemblySourceType"]>[0];
 
 class editIndex extends shardViewModelBase {
     
@@ -77,6 +82,9 @@ class editIndex extends shardViewModelBase {
 
     isEditingExistingIndex = ko.observable<boolean>(false);
     indexesToDeleteAfterMerge = ko.observableArray<string>([]); // represents index merge mode
+    mergeSuggestionHtml = ko.pureComputed(() =>
+        t("mergeSuggestion", { indexes: generalUtils.escapeHtml(this.indexesToDeleteAfterMerge().join(", ")) })
+    );
     editedIndex = ko.observable<indexDefinition>();
     isAutoIndex = ko.observable<boolean>(false);
     
@@ -123,7 +131,7 @@ class editIndex extends shardViewModelBase {
     
     defaultDeploymentMode = ko.observable<Raven.Client.Documents.Indexes.IndexDeploymentMode>();
     defaultDeploymentModeFormatted = ko.pureComputed(() => {
-        return this.defaultDeploymentMode() === "Rolling" ? "Database default (rolling - one node at a time)" : "Database default (parallel - all nodes concurrently)";
+        return t("deploymentMode.databaseDefault", { context: this.defaultDeploymentMode() === "Rolling" ? "rolling" : "parallel" });
     });
 
     effectiveDeploymentMode = ko.pureComputed(() => {
@@ -153,6 +161,9 @@ class editIndex extends shardViewModelBase {
     infoHubView: ReactInKnockout<typeof EditIndexInfoHub.EditIndexInfoHub>;
     isAddingNewIndex = ko.observable<boolean>(true);
     indexingAnalyzerSettings = ko.observable<indexingDatabaseSettingsTypes.IndexingDatabaseSettingsType>();
+
+    readonly compoundFieldsIgnoredHtml = t("fields.compoundFieldsIgnored");
+    readonly selectCollectionText = t("schemaDefinitions.selectCollection");
 
     constructor(db: database) {
         super(db);
@@ -207,11 +218,11 @@ class editIndex extends shardViewModelBase {
         }
         switch (mode) {
             case "ArchivedOnly":
-                return "=> Only archived documents will be included";
+                return t("archivedData.behaviorDescription.archivedOnly");
             case "IncludeArchived":
-                return "=> Both archived and non-archived documents will be included";
+                return t("archivedData.behaviorDescription.includeArchived");
             case "ExcludeArchived":
-                return "=> Only non-archived documents will be included";
+                return t("archivedData.behaviorDescription.excludeArchived");
             default:
                 assertUnreachable.default(mode);
         }
@@ -219,15 +230,15 @@ class editIndex extends shardViewModelBase {
 
     formatArchivedDataProcessingBehavior(mode: Raven.Client.Documents.DataArchival.ArchivedDataProcessingBehavior) {
         if (!mode) {
-            return "Default";
+            return t("archivedData.behavior.default");
         }
         switch (mode) {
             case "ArchivedOnly":
-                return "Archived Only";
+                return t("archivedData.behavior.archivedOnly");
             case "IncludeArchived":
-                return "Include Archived";
+                return t("archivedData.behavior.includeArchived");
             case "ExcludeArchived":
-                return "Exclude Archived";
+                return t("archivedData.behavior.excludeArchived");
             default:
                 assertUnreachable.default(mode);
         }
@@ -236,12 +247,28 @@ class editIndex extends shardViewModelBase {
     formatDeploymentMode(mode: Raven.Client.Documents.Indexes.IndexDeploymentMode) {
         switch (mode) {
             case "Rolling":
-                return "Rolling (one node at a time)";
+                return t("deploymentMode.rolling");
             case "Parallel":
-                return "Parallel (all nodes concurrently)";
+                return t("deploymentMode.parallel");
             default:
                 return this.defaultDeploymentModeFormatted();
         }
+    }
+
+    formatAssemblySource(source: AssemblySource) {
+        switch (source) {
+            case "Server Runtime":
+                return t("additionalAssemblies.serverRuntime");
+            case "Path":
+                return t("additionalAssemblies.path");
+            default:
+                return source;
+        }
+    }
+
+    getIndexingTitle(effectiveIndexing: string) {
+        const searchImplied = indexFieldOptions.IndexingWithSearchImplied.find((x) => x.value === "Search (implied)");
+        return effectiveIndexing === searchImplied.label ? t("fieldOptions.indexingNotDefinedTitle") : effectiveIndexing;
     }
 
     private updateTestIndexName(name: string) {
@@ -292,7 +319,7 @@ class editIndex extends shardViewModelBase {
             }
             
             const hasAdditionalSources = this.editedIndex().additionalSources().length > 0;
-            const text = hasAdditionalSources ? "Click source file to view" : "No additional sources uploaded";
+            const text = hasAdditionalSources ? t("additionalSources.clickToView") : t("additionalSources.empty");
             const icon = hasAdditionalSources ? "" : `<i class="icon-lg icon-empty-set"></i>`
 
             return `<div class="sourcePreview text-center text-muted margin-top">
@@ -320,7 +347,7 @@ class editIndex extends shardViewModelBase {
 
         this.inheritSearchEngineText = ko.pureComputed(() => {
             const engine = this.defaultSearchEngine();
-            return `Inherit (${engine})`;
+            return t("configuration.inheritSearchEngine", { engine });
         });
 
         this.effectiveSearchEngine = ko.pureComputed(() => {
@@ -359,13 +386,13 @@ class editIndex extends shardViewModelBase {
 
         this.cloneButtonTitle = ko.pureComputed(() => {
             if (this.databaseLimitStatus() === "limitReached") {
-                return "The database has reached the maximum number of static indexes allowed by your license per database.";
+                return t("toolbar.cloneTitle", { context: "databaseLimitReached" });
             }
             if (this.clusterLimitStatus() === "limitReached") {
-                return "The cluster has reached the maximum number of static indexes allowed by your license per cluster.";
+                return t("toolbar.cloneTitle", { context: "clusterLimitReached" });
             }
 
-            return "Clone this index";
+            return t("toolbar.cloneTitle");
         });
     }
     
@@ -402,7 +429,7 @@ class editIndex extends shardViewModelBase {
                             return canActivateResult;
                         }
                     } catch (e) {
-                        messagePublisher.reportError("Could not load " + indexToEditName + " index");
+                        messagePublisher.reportError(t("messages.loadIndexFailed", { indexName: indexToEditName }));
                         canActivateResult.resolve({ redirect: appUrl.forIndexes(db) });
                         
                         return canActivateResult;
@@ -413,7 +440,7 @@ class editIndex extends shardViewModelBase {
                     this.fetchIndexToEdit(indexToEditName)
                         .done(() => canActivateResult.resolve({ can: true }))
                         .fail(() => {
-                            messagePublisher.reportError("Could not find " + indexToEditName + " index");
+                            messagePublisher.reportError(t("messages.indexNotFound", { indexName: indexToEditName }));
                             canActivateResult.resolve({ redirect: appUrl.forIndexes(db) });
                         });
                     return canActivateResult;
@@ -491,15 +518,15 @@ class editIndex extends shardViewModelBase {
         popoverUtils.longWithHover($("#reduce-output-info"),
             {
                 content:
-                    `<small>Reduce results will be saved into documents that will be created under the provided collection name.</small>`
+                    `<small>${t("reduce.outputToCollectionInfo")}</small>`
             });
 
         popoverUtils.longWithHover($("#reference-docs-info"),
             {
                 content:
                     `<ul class="padding padding-xs margin-top margin-top-xs margin-left margin-bottom margin-bottom-xs">
-                         <li><small>A <i>Reference Collection</i> with documents that reference the above <i>Reduce Results Collection</i> will be created.</small></li>
-                         <li><small>The collection name and the referencing document IDs pattern can be customized here below.</small></li>
+                         <li><small>${t("reduce.createReferencesInfo.referenceCollection")}</small></li>
+                         <li><small>${t("reduce.createReferencesInfo.customize")}</small></li>
                      </ul>`
             });
         
@@ -507,9 +534,8 @@ class editIndex extends shardViewModelBase {
             {
                 content:
                     `<ul class="padding padding-xs margin-top margin-top-xs margin-left margin-bottom margin-bottom-xs">
-                         <li><small><strong>The pattern</strong> entered is used to create the IDs for the Reference Collection documents.</small></li>
-                         <li><small>Use any combination of index-field(s) and fixed text in the pattern.<br>
-                                    i.e. <strong>fixed-text / {index-field-1} / {index-field-2}</strong></small>
+                         <li><small>${t("reduce.referencePatternInfo.usage")}</small></li>
+                         <li><small>${t("reduce.referencePatternInfo.example", { example: "fixed-text / {index-field-1} / {index-field-2}" })}</small>
                          </li>
                      </ul>`
             });
@@ -518,8 +544,8 @@ class editIndex extends shardViewModelBase {
             {
                 content:
                     `<ul class="padding padding-xs margin-top margin-top-xs margin-left margin-bottom margin-bottom-xs">
-                         <li><small>Enter a name for the Referencing Documents Collection.</small></li>
-                         <li><small><strong>Default name</strong> is: <strong>{reduce-results-collection-name} / References.</strong></small></li>
+                         <li><small>${t("reduce.referenceCollectionNameInfo.enterName")}</small></li>
+                         <li><small>${t("reduce.referenceCollectionNameInfo.defaultName", { defaultName: "{reduce-results-collection-name} / References" })}</small></li>
                      </ul>`
             });
     }
@@ -532,7 +558,7 @@ class editIndex extends shardViewModelBase {
         
         this.registerDisposableDelegateHandler($body, "click", ".js-change-to-corax", (event: JQuery.TriggeredEvent) => {
             this.searchEngineConfiguration("Corax");
-            messagePublisher.reportSuccess("Changed Index search engine to Corax");
+            messagePublisher.reportSuccess(t("fields.changedToCorax"));
             
             $(".popover").popover("hide");
             
@@ -549,7 +575,7 @@ class editIndex extends shardViewModelBase {
                     validator: (val: string) => {
                         return val === this.originalIndexName || !_.includes(this.indexesNames(), val);
                     },
-                    message: "Already being used by an existing index."
+                    message: t("indexName.alreadyUsed")
                 }]
         });
     }
@@ -631,7 +657,7 @@ class editIndex extends shardViewModelBase {
             return ko.pureComputed(() => generalUtils.formatUtcDateAsLocal(utcTime));
         }
         
-        return "N/A";
+        return t("history.notAvailable");
     }
 
     getDeploymentDuration(item: Raven.Client.ServerWide.IndexHistoryEntry, nodeTag: string): string {
@@ -640,7 +666,7 @@ class editIndex extends shardViewModelBase {
             const finishedUtc = item.RollingDeployment[nodeTag].FinishedAt;
             
             if (!startedUtc || !finishedUtc) {
-                return "N/A";
+                return t("history.notAvailable");
             }
 
             const started = moment.utc(startedUtc);
@@ -650,7 +676,7 @@ class editIndex extends shardViewModelBase {
             return generalUtils.formatDuration(moment.duration(diff), true);
         }
         
-        return "N/A";
+        return t("history.notAvailable");
     }
 
     useIndexRevisionItem(item: Raven.Client.ServerWide.IndexHistoryEntry) {
@@ -728,15 +754,15 @@ class editIndex extends shardViewModelBase {
     getTimeTooltip(utcTime: string, isRevisionTime = false) {
         return ko.pureComputed(() => {
             if (utcTime) {
-                const clickInfo = `<div class="margin-top margin-top-sm">Click to load this index revision</div>`;
+                const clickInfo = `<div class="margin-top margin-top-sm">${t("history.clickToLoad")}</div>`;
                 
                 return `<div class="data-container">
                             <div>
-                                <div class="data-label">UTC:</div>
+                                <div class="data-label">${t("history.utc")}</div>
                                 <div class="data-value">${utcTime}</div>
                             </div>
                             <div>
-                                <div class="data-label">Relative:</div>
+                                <div class="data-label">${t("history.relative")}</div>
                                 <div class="data-value">${generalUtils.formatDurationByDate(moment.utc(utcTime), true)}</div>
                             </div>
                             ${isRevisionTime ? clickInfo : ''}
@@ -1239,7 +1265,7 @@ class editIndex extends shardViewModelBase {
         eventsCollector.default.reportEvent("index", "generate-csharp-code");
         new getCSharpIndexDefinitionCommand(this.editedIndex().name(), this.db, this.db.getFirstLocation(this.localNodeTag))
             .execute()
-            .done((data: string) => app.showBootstrapDialog(new showDataDialog("C# Index Definition", data, "csharp")));
+            .done((data: string) => app.showBootstrapDialog(new showDataDialog(t("toolbar.cSharpDefinitionTitle"), data, "csharp")));
     }
 
     openDumpDialog() {
@@ -1384,15 +1410,15 @@ class editIndex extends shardViewModelBase {
         this.setupDisableReasons();
         
         popoverUtils.longWithHover($(".js-add-compound-field-btn"), {
-            content: () => this.canUseCoraxSearchEngine() ? "" : `Compound fields are only available for Corax Search Engine. 
-                    <a class="btn btn-primary js-change-to-corax" href="#">Change to Corax</a>`,
+            content: () => this.canUseCoraxSearchEngine() ? "" : `${t("fields.compoundFieldsCoraxOnly")} 
+                    <a class="btn btn-primary js-change-to-corax" href="#">${t("fields.changeToCorax")}</a>`,
             html: true,
             placement: "right"
         });
 
         popoverUtils.longWithHover($(".js-add-vector-field-btn"), {
-            content: () => this.canUseCoraxSearchEngine() ? "" : `Vector search is only available for Corax Search Engine. 
-                    <a class="btn btn-primary js-change-to-corax" href="#">Change to Corax</a>`,
+            content: () => this.canUseCoraxSearchEngine() ? "" : `${t("fields.vectorSearchCoraxOnly")} 
+                    <a class="btn btn-primary js-change-to-corax" href="#">${t("fields.changeToCorax")}</a>`,
             html: true,
             placement: "bottom"
         });
@@ -1400,28 +1426,27 @@ class editIndex extends shardViewModelBase {
         popoverUtils.longWithHover($(".js-store-field-info"), 
             {
                 content: `
-                         <h3 class="margin-top">Please verify whether you need to store the field in the index:</h3>
+                         <h3 class="margin-top">${t("fieldOptions.storeInfo.title")}</h3>
                          <ul class="padding padding-xs margin-top margin-left margin-bottom-xs">
                              <li class="margin-bottom"><small>
-                                 <strong>Storing the field is Not necessary</strong> in order to filter by the field when querying the index.<br>
-                                 Full-text search is also available without storing the field.</small>
+                                 ${t("fieldOptions.storeInfo.notNecessary")}<br>
+                                 ${t("fieldOptions.storeInfo.fullTextSearch")}</small>
                              </li>
                              <li class="margin-bottom"><small>
-                                 <div class="margin-bottom"><strong>Only Store the field when</strong> you want to compute a value during indexing<br>
-                                 and use it in your projection at query time.</div>
-                                 Disadvantage:
+                                 <div class="margin-bottom">${t("fieldOptions.storeInfo.onlyWhen")}</div>
+                                 ${t("fieldOptions.storeInfo.disadvantage")}
                                  <ul>
-                                     <li>Index size on disk will increase (the field value is stored in the index).</li>
+                                     <li>${t("fieldOptions.storeInfo.indexSizeIncrease")}</li>
                                  </ul>
-                                 Advantage:
+                                 ${t("fieldOptions.storeInfo.advantage")}
                                  <ul>
-                                     <li>The value is fetched directly from the index (instead of from the document store).</li>
+                                     <li>${t("fieldOptions.storeInfo.fetchedFromIndex")}</li>
                                  </ul></small>
                              </li>
                          </ul>
                          <small class="margin-left">
                              <a target="_blank" href="https://ravendb.net/l/GHX7NJ/${viewModelBase.clientVersion()}">
-                                 <i class="icon-link"></i><span>Store tutorial</span>
+                                 <i class="icon-link"></i><span>${t("fieldOptions.storeInfo.tutorial")}</span>
                              </a>
                          </small>
                          `,

@@ -4,36 +4,36 @@
             <button type="button" class="close" data-bind="click: cancel" aria-hidden="true">
                 <i class="icon-cancel"></i>
             </button>
-            <h4 class="modal-title">Select force action</h4>
+            <h4 class="modal-title" data-bind="i18n: 'forceParallelDeploymentConfirm:title'"></h4>
         </div>
         <div class="modal-body">
             <div>
-                <h3><strong>Parallel Indexing - All Nodes</strong></h3>
+                <h3><strong data-bind="i18n: 'forceParallelDeploymentConfirm:allNodes.heading'"></strong></h3>
                 <div>
-                    Indexing deployment will be continued in Parallel mode on all nodes.
+                    <span data-bind="i18n: 'forceParallelDeploymentConfirm:allNodes.description'"></span>
                     <div class="text-right margin-top">
                         <button type="button" class="btn btn-warning" data-bind="click: _.partial(forceDeploymentMode, false)">
-                            <i class="icon-force"></i><span>Force Parallel - All</span>
+                            <i class="icon-force"></i><span data-bind="i18n: 'forceParallelDeploymentConfirm:allNodes.forceButton'"></span>
                         </button>
                     </div>
                 </div>
             </div>
             <div data-bind="visible: canForceCurrentNode">
                 <hr />
-                <h3><strong>Parallel Indexing - Current Node Only</strong></h3>
+                <h3><strong data-bind="i18n: 'forceParallelDeploymentConfirm:currentNode.heading'"></strong></h3>
                 <div>
-                    Indexing deployment on this node only will continue in parallel to all other nodes.<br />
-                    Indexing deployment on all other nodes will be continued in Rolling mode.
+                    <span data-bind="i18n: 'forceParallelDeploymentConfirm:currentNode.description'"></span><br />
+                    <span data-bind="i18n: 'forceParallelDeploymentConfirm:currentNode.otherNodesDescription'"></span>
                     <div class="text-right margin-top">
                         <button type="button" class="btn btn-warning" data-bind="click: _.partial(forceDeploymentMode, true)">
-                            <i class="icon-force"></i><span>Force Parallel - Current</span>
+                            <i class="icon-force"></i><span data-bind="i18n: 'forceParallelDeploymentConfirm:currentNode.forceButton'"></span>
                         </button>
                     </div>
                 </div>
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-default pull-left" data-bind="click: cancel">Close</button>
+            <button type="button" class="btn btn-default pull-left" data-bind="click: cancel, i18n: 'forceParallelDeploymentConfirm:close'"></button>
         </div>
     </div>
 </div>

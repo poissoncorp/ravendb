@@ -20,6 +20,9 @@ import moment = require("moment");
 import genUtils = require("common/generalUtils");
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import { useRavenLink } from "components/hooks/useRavenLink";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import type { StudioTranslate } from "common/i18n/resources";
 
 interface IndexDistributionProps {
     index: IndexSharedInfo;
@@ -37,13 +40,16 @@ interface ItemWithTooltipProps {
     sharded: boolean;
 }
 
-function getFormattedTime(date: Date): string {
-    return date ? genUtils.formatDurationByDate(moment(date)) + " ago" : "-";
+function getFormattedTime(date: Date, t: StudioTranslate<"indexesList">): string {
+    return date ? t("distribution.timeAgo", { duration: genUtils.formatDurationByDate(moment(date)) }) : "-";
 }
 
 function ItemWithTooltip(props: ItemWithTooltipProps) {
     const { nodeInfo, sharded, openFaulty, showStaleReason, globalIndexingStatus, index } = props;
-    const entriesCount = nodeInfo.details?.faulty ? "n/a" : (nodeInfo.details?.entriesCount ?? "");
+    const t = useStudioTranslation("indexesList");
+    const entriesCount = nodeInfo.details?.faulty
+        ? t("distribution.notAvailable")
+        : (nodeInfo.details?.entriesCount ?? "");
 
     const shard = (
         <div className="top shard">
@@ -69,8 +75,8 @@ function ItemWithTooltip(props: ItemWithTooltipProps) {
                 </div>
                 <div className="entries">{entriesCount.toLocaleString()}</div>
                 <div className="errors">{nodeInfo.details?.errorCount.toLocaleString() ?? ""}</div>
-                <div className="text-center">{getFormattedTime(nodeInfo.details?.lastIndexingTime)}</div>
-                <div className="text-center">{getFormattedTime(nodeInfo.details?.lastQueryingTime)}</div>
+                <div className="text-center">{getFormattedTime(nodeInfo.details?.lastIndexingTime, t)}</div>
+                <div className="text-center">{getFormattedTime(nodeInfo.details?.lastQueryingTime, t)}</div>
 
                 <IndexProgress nodeInfo={nodeInfo} />
 
@@ -82,7 +88,7 @@ function ItemWithTooltip(props: ItemWithTooltipProps) {
                             size="xs"
                             onClick={() => openFaulty(nodeInfo.location)}
                         >
-                            Open faulty index
+                            {t("actions.openFaulty")}
                         </Button>
                     </div>
                 )}
@@ -102,6 +108,7 @@ function ItemWithTooltip(props: ItemWithTooltipProps) {
 
 export function IndexDistribution(props: IndexDistributionProps) {
     const { index, globalIndexingStatus, showStaleReason, openFaulty } = props;
+    const t = useStudioTranslation("indexesList");
 
     const totalErrors = index.nodesInfo
         .filter((x) => x.status === "success")
@@ -112,7 +119,7 @@ export function IndexDistribution(props: IndexDistributionProps) {
 
     const earliestCreatedTimestamp = IndexUtils.getEarliestCreatedTimestamp(index);
     const formattedEarliestCreatedTimestamp = earliestCreatedTimestamp
-        ? genUtils.formatDurationByDate(moment(earliestCreatedTimestamp)) + " ago"
+        ? t("distribution.timeAgo", { duration: genUtils.formatDurationByDate(moment(earliestCreatedTimestamp)) })
         : null;
 
     const items = (
@@ -143,27 +150,27 @@ export function IndexDistribution(props: IndexDistributionProps) {
                     <div className="top"></div>
                     {sharded && (
                         <div className="node">
-                            <Icon icon="node" /> Node
+                            <Icon icon="node" /> {t("distribution.legend.node")}
                         </div>
                     )}
                     <div>
-                        <Icon icon="list" /> Entries
+                        <Icon icon="list" /> {t("distribution.legend.entries")}
                     </div>
                     <div>
-                        <Icon icon="warning" /> Errors
+                        <Icon icon="warning" /> {t("distribution.legend.errors")}
                     </div>
                     <div>
-                        <Icon icon="index-history" /> Indexed
+                        <Icon icon="index-history" /> {t("distribution.legend.indexed")}
                     </div>
                     <div>
-                        <Icon icon="queries" /> Queried
+                        <Icon icon="queries" /> {t("distribution.legend.queried")}
                     </div>
                     <div>
-                        <Icon icon="changes" /> State
+                        <Icon icon="changes" /> {t("distribution.legend.state")}
                     </div>
                 </DistributionLegend>
                 <DistributionSummary>
-                    <div className="top">Total</div>
+                    <div className="top">{t("distribution.total")}</div>
                     {sharded && <div> </div>}
                     <div>{estimatedEntries}</div>
                     <div>{totalErrors}</div>
@@ -173,7 +180,8 @@ export function IndexDistribution(props: IndexDistributionProps) {
             </LocationDistribution>
             {formattedEarliestCreatedTimestamp && (
                 <div className="small">
-                    <span className="text-muted">Created:</span> <strong>{formattedEarliestCreatedTimestamp}</strong>
+                    <span className="text-muted">{t("distribution.created")}</span>{" "}
+                    <strong>{formattedEarliestCreatedTimestamp}</strong>
                 </div>
             )}
         </div>
@@ -263,70 +271,71 @@ function getIcon(statusChecker: IndexDistributionStatusChecker): IconName {
     return "check";
 }
 
-function getStateText(statusChecker: IndexDistributionStatusChecker): string {
+function getStateTextKey(statusChecker: IndexDistributionStatusChecker) {
     if (statusChecker.everyFailure()) {
-        return "Load errors";
+        return "loadErrors";
     }
     if (statusChecker.someFailure()) {
-        return "Some load errors";
+        return "someLoadErrors";
     }
     if (statusChecker.everyFaulty()) {
-        return "Faulty";
+        return "faulty";
     }
     if (statusChecker.someFaulty()) {
-        return "Some faulty";
+        return "someFaulty";
     }
     if (statusChecker.everyErrors()) {
-        return "Errors";
+        return "errors";
     }
     if (statusChecker.someErrors()) {
-        return "Some errored";
+        return "someErrored";
     }
     if (statusChecker.everyDisabled()) {
-        return "Disabled";
+        return "disabled";
     }
     if (statusChecker.someDisabled()) {
-        return "Some disabled";
+        return "someDisabled";
     }
     if (statusChecker.everyPaused()) {
-        return "Paused";
+        return "paused";
     }
     if (statusChecker.somePaused()) {
-        return "Some paused";
+        return "somePaused";
     }
     if (statusChecker.everyPending()) {
-        return "Pending";
+        return "pending";
     }
     if (statusChecker.somePending()) {
-        return "Some pending";
+        return "somePending";
     }
     if (statusChecker.someStale()) {
-        return "Running";
+        return "running";
     }
     if (statusChecker.everyIdle()) {
-        return "Idle";
+        return "idle";
     }
-    return "Up to date";
+    return "upToDate";
 }
 
 export function JoinedIndexProgress(props: JoinedIndexProgressProps) {
     const { index, onClick } = props;
+    const t = useStudioTranslation("indexesList");
 
     const overallProgress = calculateOverallProgress(index);
 
     const statusChecker = new IndexDistributionStatusChecker(index);
-    const stateText = getStateText(statusChecker);
+    const stateTextKey = getStateTextKey(statusChecker);
 
     return (
         <ProgressCircle
             inline
             state={getState(statusChecker)}
             icon={getIcon(statusChecker)}
-            progress={stateText === "Running" ? overallProgress : null}
+            progress={stateTextKey === "running" ? overallProgress : null}
             onClick={onClick}
             descClassName="d-flex align-items-center"
         >
-            {stateText}
+            {t(`distribution.state.${stateTextKey}`)}
             {statusChecker.everyIdle() && <IdleIndexInfoIcon />}
         </ProgressCircle>
     );
@@ -334,11 +343,12 @@ export function JoinedIndexProgress(props: JoinedIndexProgressProps) {
 
 export function IndexProgress(props: IndexProgressProps) {
     const { nodeInfo } = props;
+    const t = useStudioTranslation("indexesList");
 
     if (nodeInfo.status === "failure") {
         return (
             <ProgressCircle state="failed" icon="cancel">
-                Load error
+                {t("distribution.progress.loadError")}
             </ProgressCircle>
         );
     }
@@ -350,7 +360,7 @@ export function IndexProgress(props: IndexProgressProps) {
     if (nodeInfo.details.faulty) {
         return (
             <ProgressCircle state="failed" icon="cancel">
-                Faulty
+                {t("distribution.progress.faulty")}
             </ProgressCircle>
         );
     }
@@ -358,7 +368,7 @@ export function IndexProgress(props: IndexProgressProps) {
     if (nodeInfo.details.state === "Error") {
         return (
             <ProgressCircle state="failed" icon="cancel">
-                Error
+                {t("distribution.progress.error")}
             </ProgressCircle>
         );
     }
@@ -366,7 +376,7 @@ export function IndexProgress(props: IndexProgressProps) {
     if (nodeInfo.details.state === "Idle") {
         return (
             <ProgressCircle state="success" icon="check" descClassName="d-flex align-items-center">
-                Idle
+                {t("distribution.progress.idle")}
                 <IdleIndexInfoIcon />
             </ProgressCircle>
         );
@@ -387,7 +397,7 @@ export function IndexProgress(props: IndexProgressProps) {
                 icon={nodeInfo.details.status === "Running" ? null : icon}
                 progress={progress}
             >
-                {nodeInfo.details.status}
+                {getStatusText(nodeInfo.details.status, t)}
             </ProgressCircle>
         );
     }
@@ -399,36 +409,46 @@ export function IndexProgress(props: IndexProgressProps) {
     ) {
         return (
             <ProgressCircle state="running" icon={icon}>
-                {nodeInfo.details.status}
+                {getStatusText(nodeInfo.details.status, t)}
             </ProgressCircle>
         );
     }
 
     return (
         <ProgressCircle state="success" icon={icon}>
-            up to date
+            {t("distribution.progress.upToDate")}
         </ProgressCircle>
     );
 }
 
+function getStatusText(status: IndexRunningStatus, t: StudioTranslate<"indexesList">): string {
+    switch (status) {
+        case "Disabled":
+            return t("indexStatus.disabled");
+        case "Paused":
+            return t("indexStatus.paused");
+        case "Pending":
+            return t("indexStatus.pending");
+        case "Running":
+            return t("indexStatus.running");
+        default:
+            assertUnreachable(status);
+    }
+}
+
 function IdleIndexInfoIcon() {
+    const t = useStudioTranslation("indexesList");
     const docsLink = useRavenLink({ hash: "2VWBSO" });
 
     return (
         <PopoverWithHoverWrapper
             message={
                 <>
-                    An auto-index becomes Idle when the time difference between its last-query-time and the most recent
-                    time the database was queried (using any other index) exceeds a configurable threshold (default 30
-                    min).
-                    <br />
-                    <br />
-                    While idle, it is not considered disabled and continues indexing relevant data. If it remains idle,
-                    it will be deleted after a configurable duration (default: 72 hrs).
+                    <StudioTrans ns="indexesList" i18nKey="distribution.idleInfo" components={{ br: <br /> }} />
                     <br />
                     <br />
                     <a href={docsLink} target="_blank">
-                        Docs - Index states
+                        {t("distribution.idleDocsLink")}
                     </a>
                 </>
             }

@@ -6,6 +6,8 @@ import React from "react";
 import Badge from "react-bootstrap/Badge";
 import Card from "react-bootstrap/Card";
 import Nav from "react-bootstrap/Nav";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 const mergeIndexesImg = require("Content/img/pages/indexCleanup/merge-indexes.svg");
 
@@ -15,6 +17,7 @@ interface MergeIndexesNavItemProps {
 }
 
 export default function MergeIndexesNavItem({ carousel, mergable }: MergeIndexesNavItemProps) {
+    const t = useStudioTranslation("indexCleanup");
     const hasIndexCleanup = useAppSelector(licenseSelectors.statusValue("HasIndexCleanup"));
 
     return (
@@ -23,14 +26,12 @@ export default function MergeIndexesNavItem({ carousel, mergable }: MergeIndexes
                 className={classNames("p-3", "card-tab", { active: carousel.activeTab === 0 })}
                 onClick={() => carousel.setActiveTab(0)}
             >
-                <img src={mergeIndexesImg} alt="Merge indexes" />
+                <img src={mergeIndexesImg} alt={t("nav.mergeIndexesAlt")} />
                 <Badge className="rounded-pill fs-5" bg={mergable.data.length !== 0 ? "primary" : "secondary"}>
                     {hasIndexCleanup ? mergable.data.length : "?"}
                 </Badge>
                 <h4 className="text-center">
-                    Merge
-                    <br />
-                    indexes
+                    <StudioTrans ns="indexCleanup" i18nKey="nav.mergeIndexes" components={{ br: <br /> }} />
                 </h4>
             </Card>
         </Nav.Item>

@@ -6,6 +6,9 @@ import app = require("durandal/app");
 import d3 = require('d3');
 import rbush = require("rbush");
 import colorsManager = require("common/colorsManager");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("visualizer");
 
 abstract class reduceValuesFormatter {
     static formatData(data: any) {
@@ -968,8 +971,9 @@ class visualizerGraphDetails {
                 ctx.textAlign = "center";
                 ctx.fillStyle = this.colors.nestedSectionFg; 
                 ctx.font = "11px 'Figtree', 'Helvetica Neue', Helvetica, Arial, sans-serif";
-                ctx.fillText("NESTED", page.width - nestedSectionMargins.rightMargin - nestedSectionMargins.width / 2, nestedSectionMargins.topMargin + 3);
-                ctx.fillText("SECTION", page.width - nestedSectionMargins.rightMargin - nestedSectionMargins.width / 2, nestedSectionMargins.topMargin + 15);
+                t("details.nestedSection")
+                    .split("\n")
+                    .forEach((line, lineIndex) => ctx.fillText(line, page.width - nestedSectionMargins.rightMargin - nestedSectionMargins.width / 2, nestedSectionMargins.topMargin + 3 + lineIndex * 12));
             }
            
             this.drawAggregation(ctx, page);
@@ -995,7 +999,7 @@ class visualizerGraphDetails {
             ctx.fillStyle = this.colors.collapsedLeafsFg;
             ctx.textAlign = "center";
             ctx.textBaseline = "top";
-            ctx.fillText(page.aggregationCount + " leafs collapsed", page.width / 2, pageItem.margins.pageNumberTopMargin);
+            ctx.fillText(t("details.leafsCollapsed", { count: page.aggregationCount }), page.width / 2, pageItem.margins.pageNumberTopMargin);
 
         } finally {
             ctx.restore();
@@ -1008,7 +1012,7 @@ class visualizerGraphDetails {
         ctx.fillStyle = this.colors.entriesBg;
         ctx.textAlign = "left";
         ctx.textBaseline = "top";
-        ctx.fillText("Entries:", pageItem.margins.aggragationTextHorizontalPadding, leaf.entriesTextY);
+        ctx.fillText(t("details.entries"), pageItem.margins.aggragationTextHorizontalPadding, leaf.entriesTextY);
 
         for (let i = 0; i < entries.length; i++) {
             const entry = entries[i];
@@ -1033,7 +1037,7 @@ class visualizerGraphDetails {
         ctx.fillStyle = this.colors.aggregationLabel;
         ctx.textAlign = "left";
         ctx.textBaseline = "top";
-        ctx.fillText("Aggregation:", pageItem.margins.aggragationTextHorizontalPadding, pageItem.margins.pageNumberTopMargin);
+        ctx.fillText(t("details.aggregation"), pageItem.margins.aggragationTextHorizontalPadding, pageItem.margins.pageNumberTopMargin);
 
         ctx.fillStyle = this.colors.aggregationValue;
         ctx.font = "12px 'Figtree', 'Helvetica Neue', Helvetica, Arial, sans-serif";

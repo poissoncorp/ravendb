@@ -4,14 +4,14 @@
             <button type="button" class="close" data-bind="click: close" aria-hidden="true">
                 <i class="icon-cancel"></i>
             </button>
-            <h4 class="modal-title">Dynamic query explanation</h4>
+            <h4 class="modal-title" data-bind="i18n: 'query:explain.title'"></h4>
         </div>
         <div class="modal-body">
 
             <div class="modal-details">
                 <div class="details-item">
                     <div class="row">
-                        <div class="col-sm-3 text-right">Index used:</div>
+                        <div class="col-sm-3 text-right" data-bind="i18n: 'query:explain.indexUsed'"></div>
                         <div class="col-sm-9 details-value" data-bind="text: indexUsed"></div>
                     </div>
                 </div>
@@ -22,13 +22,13 @@
             <div data-bind="visible: explanation().length">
                 <hr />
                 
-                <p>Other candidates:</p>
+                <p data-bind="i18n: 'query:explain.otherCandidates'"></p>
 
                 <table class="table table-striped" >
                     <thead>
                     <tr>
-                        <th>Index name</th>
-                        <th>Rejection reason</th>
+                        <th data-bind="i18n: 'query:explain.indexName'"></th>
+                        <th data-bind="i18n: 'query:explain.rejectionReason'"></th>
                     </tr>
                     </thead>
                     <tbody data-bind="foreach: explanation">
@@ -40,12 +40,11 @@
                 </table>
             </div>
             
-            <div class="text-center" data-bind="visible: !explanation().length">
-                There were no other candidates to handle this query. 
+            <div class="text-center" data-bind="visible: !explanation().length, i18n: 'query:explain.noOtherCandidates'">
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-primary" data-bind="click: close">OK</button>
+            <button type="button" class="btn btn-primary" data-bind="click: close, i18n: 'query:explain.ok'"></button>
         </div>
     </div>
 </div>

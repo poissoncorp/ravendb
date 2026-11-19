@@ -5,7 +5,6 @@ import {
     DatabaseActionContexts,
     MultipleDatabaseLocationSelector,
 } from "components/common/MultipleDatabaseLocationSelector";
-import { capitalize } from "lodash";
 import assertUnreachable from "components/utils/assertUnreachable";
 import { Icon } from "components/common/Icon";
 import classNames from "classnames";
@@ -14,6 +13,9 @@ import IndexRunningStatus = Raven.Client.Documents.Indexes.IndexRunningStatus;
 import Modal from "components/common/Modal";
 import Accordion from "react-bootstrap/Accordion";
 import Badge from "react-bootstrap/Badge";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import type { StudioTranslate } from "common/i18n/resources";
 
 type operationType = "pause" | "disable" | "start";
 
@@ -46,13 +48,14 @@ interface BulkIndexOperationConfirmProps {
 
 export function BulkIndexOperationConfirm(props: BulkIndexOperationConfirmProps) {
     const { type, indexes, toggle, allActionContexts, onConfirm } = props;
+    const t = useStudioTranslation("indexesList");
+    const tCommon = useStudioTranslation("common");
 
-    const infinitive = getInfinitiveForType(type);
     const icon = getIcon(type);
 
     const [selectedActionContexts, setSelectedActionContexts] = useState<DatabaseActionContexts[]>(allActionContexts);
 
-    const indexGroups = getIndexGroups(type, indexes).filter((x) => x.indexes.length > 0);
+    const indexGroups = getIndexGroups(type, indexes, t).filter((x) => x.indexes.length > 0);
     const defaultActiveKey = indexGroups.length === 1 ? ["indexGroup0"] : [];
 
     const onSubmit = () => {
@@ -69,7 +72,7 @@ export function BulkIndexOperationConfirm(props: BulkIndexOperationConfirmProps)
             size="lg"
         >
             <Modal.Header className="hstack pb-2 mb-0" onCloseClick={toggle}>
-                <div className="text-center lead">Confirm {infinitive} Operation</div>
+                <div className="text-center lead">{t("bulkConfirm.title", { context: type })}</div>
             </Modal.Header>
             <Modal.Body className="vstack gap-1 pt-0">
                 {indexGroups.map((indexGroup, idx) => {
@@ -106,7 +109,7 @@ export function BulkIndexOperationConfirm(props: BulkIndexOperationConfirmProps)
                                                         <Icon
                                                             icon={getStatusIcon(index.currentStatus)}
                                                             color={getStatusColor(index.currentStatus)}
-                                                            title={getStatusTitle(index.currentStatus)}
+                                                            title={getStatusTitle(index.currentStatus, t)}
                                                             margin="m-0"
                                                         />
                                                         {indexGroup.destinationStatus && (
@@ -119,7 +122,10 @@ export function BulkIndexOperationConfirm(props: BulkIndexOperationConfirmProps)
                                                                 <Icon
                                                                     icon={getStatusIcon(indexGroup.destinationStatus)}
                                                                     color={getStatusColor(indexGroup.destinationStatus)}
-                                                                    title={getStatusTitle(indexGroup.destinationStatus)}
+                                                                    title={getStatusTitle(
+                                                                        indexGroup.destinationStatus,
+                                                                        t
+                                                                    )}
                                                                     margin="m-0"
                                                                 />
                                                             </>
@@ -138,7 +144,7 @@ export function BulkIndexOperationConfirm(props: BulkIndexOperationConfirmProps)
                 <div className="mt-2">
                     {ActionContextUtils.showContextSelector(allActionContexts) && (
                         <div>
-                            <h4 className="fw-light mb-1">Select context</h4>
+                            <h4 className="fw-light mb-1">{t("bulkConfirm.selectContext")}</h4>
                             <MultipleDatabaseLocationSelector
                                 allActionContexts={allActionContexts}
                                 selectedActionContexts={selectedActionContexts}
@@ -150,18 +156,14 @@ export function BulkIndexOperationConfirm(props: BulkIndexOperationConfirmProps)
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="link" onClick={toggle} className="link-muted">
-                    Cancel
+                    {tCommon("cancel")}
                 </Button>
                 <Button variant={getColorForType(type)} onClick={onSubmit} className="rounded-pill">
-                    <Icon icon={icon} /> {infinitive}
+                    <Icon icon={icon} /> {t("bulkConfirm.confirm", { context: type })}
                 </Button>
             </Modal.Footer>
         </Modal>
     );
-}
-
-function getInfinitiveForType(type: operationType) {
-    return capitalize(type);
 }
 
 function getColorForType(type: operationType) {
@@ -203,16 +205,16 @@ function getStatusColor(status: IndexRunningStatus) {
     }
 }
 
-function getStatusTitle(status: IndexRunningStatus) {
+function getStatusTitle(status: IndexRunningStatus, t: StudioTranslate<"indexesList">) {
     switch (status) {
         case "Disabled":
-            return "Disabled";
+            return t("indexStatus.disabled");
         case "Paused":
-            return "Paused";
+            return t("indexStatus.paused");
         case "Running":
-            return "Running";
+            return t("indexStatus.running");
         case "Pending":
-            return "Pending";
+            return t("indexStatus.pending");
         default:
             assertUnreachable(status);
     }
@@ -230,7 +232,11 @@ function getIcon(type: operationType) {
             assertUnreachable(type);
     }
 }
-function getIndexGroups(type: operationType, indexes: IndexSharedInfo[]): IndexGroup[] {
+function getIndexGroups(
+    type: operationType,
+    indexes: IndexSharedInfo[],
+    t: StudioTranslate<"indexesList">
+): IndexGroup[] {
     switch (type) {
         case "disable": {
             const affectedIndexGrouped: AffectedIndexesGrouped = indexes.reduce(
@@ -256,16 +262,18 @@ function getIndexGroups(type: operationType, indexes: IndexSharedInfo[]): IndexG
             return [
                 {
                     title: (
-                        <>
-                            Indexes to <strong className="text-danger margin-left-xxxs">Disable</strong>
-                        </>
+                        <StudioTrans
+                            ns="indexesList"
+                            i18nKey="bulkConfirm.toDisable"
+                            components={{ strong: <strong className="text-danger margin-left-xxxs" /> }}
+                        />
                     ),
                     indexes: affectedIndexGrouped.disabling,
 
                     destinationStatus: "Disabled",
                 },
                 {
-                    title: "Skipping already disabled indexes",
+                    title: t("bulkConfirm.skippingDisabled"),
                     indexes: affectedIndexGrouped.skipping,
                 },
             ];
@@ -292,16 +300,18 @@ function getIndexGroups(type: operationType, indexes: IndexSharedInfo[]): IndexG
             return [
                 {
                     title: (
-                        <>
-                            Indexes to <strong className="text-warning margin-left-xxxs">Pause</strong>
-                        </>
+                        <StudioTrans
+                            ns="indexesList"
+                            i18nKey="bulkConfirm.toPause"
+                            components={{ strong: <strong className="text-warning margin-left-xxxs" /> }}
+                        />
                     ),
                     indexes: affectedIndexGrouped.pausing,
 
                     destinationStatus: "Paused",
                 },
                 {
-                    title: "Skipping already paused or disabled indexes",
+                    title: t("bulkConfirm.skippingPausedOrDisabled"),
                     indexes: affectedIndexGrouped.skipping,
                 },
             ];
@@ -329,9 +339,11 @@ function getIndexGroups(type: operationType, indexes: IndexSharedInfo[]): IndexG
             return [
                 {
                     title: (
-                        <>
-                            Indexes to <strong className="text-success margin-left-xxxs">Enable</strong>
-                        </>
+                        <StudioTrans
+                            ns="indexesList"
+                            i18nKey="bulkConfirm.toEnable"
+                            components={{ strong: <strong className="text-success margin-left-xxxs" /> }}
+                        />
                     ),
                     indexes: affectedIndexGrouped.enabling,
 
@@ -339,9 +351,11 @@ function getIndexGroups(type: operationType, indexes: IndexSharedInfo[]): IndexG
                 },
                 {
                     title: (
-                        <>
-                            Indexes to <strong className="text-success margin-left-xxxs">Resume</strong>
-                        </>
+                        <StudioTrans
+                            ns="indexesList"
+                            i18nKey="bulkConfirm.toResume"
+                            components={{ strong: <strong className="text-success margin-left-xxxs" /> }}
+                        />
                     ),
                     indexes: affectedIndexGrouped.resuming,
 

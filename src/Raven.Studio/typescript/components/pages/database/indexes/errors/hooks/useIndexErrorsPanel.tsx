@@ -9,8 +9,10 @@ import messagePublisher from "common/messagePublisher";
 import { indexErrorsUtils } from "components/pages/database/indexes/errors/IndexErrorsUtils";
 import { ColumnFilter } from "@tanstack/react-table";
 import genUtils from "common/generalUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export function useIndexErrorsPanel({ errorItem, table, asyncFetchAllErrorCount }: IndexErrorsPanelProps) {
+    const t = useStudioTranslation("indexErrors");
     const { indexesService } = useServices();
     const dbName = useAppSelector(databaseSelectors.activeDatabaseName);
     const { value: panelCollapsed, toggle: togglePanelCollapsed } = useBoolean(true);
@@ -27,7 +29,7 @@ export function useIndexErrorsPanel({ errorItem, table, asyncFetchAllErrorCount 
         {
             onSuccess: async () => {
                 messagePublisher.reportSuccess(
-                    `Successfully cleared index errors for ${genUtils.formatLocation(errorItem.location)}!`
+                    t("deleteModal.success", { location: genUtils.formatLocation(errorItem.location) })
                 );
                 closeDeleteModal();
                 await asyncFetchAllErrorCount.execute();

@@ -8,11 +8,26 @@ import { useLimitedFeatureAvailability } from "components/utils/licenseLimitsUti
 import React from "react";
 import { Icon } from "components/common/Icon";
 import { useRavenLink } from "hooks/useRavenLink";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export function EditIndexInfoHub() {
+    const t = useStudioTranslation("editIndex");
+    const commonT = useStudioTranslation("common");
     const hasAdditionalAssembliesFromNuGet = useAppSelector(
         licenseSelectors.statusValue("HasAdditionalAssembliesFromNuGet")
     );
+
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("featureAvailability.additionalAssembliesFromNuGet"),
+            featureIcon: "additional-assemblies",
+            community: { value: false },
+            professional: { value: true },
+            enterprise: { value: true },
+            quill: { value: true },
+        },
+    ];
 
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
@@ -29,48 +44,31 @@ export function EditIndexInfoHub() {
         <AboutViewFloating>
             <AccordionItemWrapper targetId="about" icon="about" color="info">
                 <p>
-                    Create a new index or edit an existing one in this view.
-                    <br />
-                    The indexing process will immediately start upon saving the index.
+                    <StudioTrans ns="editIndex" i18nKey="about.intro" components={{ br: <br /> }} />
                 </p>
                 <ul>
                     <li>
-                        Various index types can be created:
-                        <br />
-                        Map / Multi-Map / Map-Reduce / Multi-Map-Reduce
+                        <StudioTrans ns="editIndex" i18nKey="about.indexTypes" components={{ br: <br /> }} />
                     </li>
                     <li className="margin-top-xxs">
-                        Select a deployment mode for the index:
-                        <br />
-                        Parallel / Rolling
+                        <StudioTrans ns="editIndex" i18nKey="about.deploymentMode" components={{ br: <br /> }} />
                     </li>
                     <li className="margin-top-xxs">
-                        You can configure the index fields for:
-                        <br />
-                        Full-text search, Highlighting, Suggestions, Spatial queries,
-                        <br />
-                        and Store index fields.
+                        <StudioTrans ns="editIndex" i18nKey="about.fields" components={{ br: <br /> }} />
                     </li>
                     <li className="margin-top-xxs">
-                        Customize the index configuration:
-                        <br />
-                        e.g. select indexing engine: Corax / Lucene
+                        <StudioTrans ns="editIndex" i18nKey="about.configuration" components={{ br: <br /> }} />
                     </li>
+                    <li className="margin-top-xxs">{t("about.additionalSources")}</li>
+                    <li className="margin-top-xxs">{t("about.test")}</li>
                     <li className="margin-top-xxs">
-                        Add additional assemblies and sources to enhance your index functions by referencing classes and
-                        methods from other files.
-                    </li>
-                    <li className="margin-top-xxs">The index can be tested in this view before saving it.</li>
-                    <li className="margin-top-xxs">
-                        Index history is available when editing an existing index,
-                        <br />
-                        showing the latest index revisions.
+                        <StudioTrans ns="editIndex" i18nKey="about.history" components={{ br: <br /> }} />
                     </li>
                 </ul>
                 <hr />
-                <div className="small-label mb-2">useful links</div>
+                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                 <a href={indexViewDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - Index View
+                    <Icon icon="newtab" /> {t("about.docsLink")}
                 </a>
             </AccordionItemWrapper>
             <FeatureAvailabilitySummaryWrapper
@@ -80,14 +78,3 @@ export function EditIndexInfoHub() {
         </AboutViewFloating>
     );
 }
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "Additional Assemblies from NuGet",
-        featureIcon: "additional-assemblies",
-        community: { value: false },
-        professional: { value: true },
-        enterprise: { value: true },
-        quill: { value: true },
-    },
-];

@@ -2,40 +2,40 @@
     <div class="flex-vertical absolute-fill">
         <div class="flex-horizontal flex-wrap margin-bottom margin-bottom-sm" role="form">
             <div class="form-inline">
-                <input type="text" accesskey="/" class="form-control" placeholder="Filter" title="Filter indexes (Alt+/)" data-bind="textInput: searchText, enable: hasAnyData" />
-                <button class="btn btn-default" data-bind="click: expandAll, visible: canExpandAll, enable: hasAnyData" title="Expand all indexes performance details"><i class="icon-expand"></i><span>Expand All</span></button>
-                <button class="btn btn-default" data-bind="click: collapseAll, visible: !canExpandAll(), enable: hasAnyData" title="Collapse all indexes performance details"><i class="icon-collapse"></i><span>Collapse All</span></button>
-                <button class="btn btn-default" data-bind="click: exportAsJson, enable: hasAnyData, visible: !isImport()" title="Export current performance graph to a file">
-                    <i class="icon-export"></i><span>Export</span>
+                <input type="text" accesskey="/" class="form-control" data-bind="textInput: searchText, enable: hasAnyData, i18nAttr: { placeholder: 'indexPerformance:filterPlaceholder', title: 'indexPerformance:filterTitle' }" />
+                <button class="btn btn-default" data-bind="click: expandAll, visible: canExpandAll, enable: hasAnyData, i18nAttr: { title: 'indexPerformance:expandAllTitle' }"><i class="icon-expand"></i><span data-bind="i18n: 'indexPerformance:expandAll'"></span></button>
+                <button class="btn btn-default" data-bind="click: collapseAll, visible: !canExpandAll(), enable: hasAnyData, i18nAttr: { title: 'indexPerformance:collapseAllTitle' }"><i class="icon-collapse"></i><span data-bind="i18n: 'indexPerformance:collapseAll'"></span></button>
+                <button class="btn btn-default" data-bind="click: exportAsJson, enable: hasAnyData, visible: !isImport(), i18nAttr: { title: 'indexPerformance:exportTitle' }">
+                    <i class="icon-export"></i><span data-bind="i18n: 'indexPerformance:export'"></span>
                 </button>
                 <label for="importFilePicker" class="btn btn-default">
-                    <i class="icon-import"></i><span>Import</span>
+                    <i class="icon-import"></i><span data-bind="i18n: 'indexPerformance:import'"></span>
                 </label>
-                <div class="input-group file-input" title="Import performance graph file">
+                <div class="input-group file-input" data-bind="i18nAttr: { title: 'indexPerformance:importTitle' }">
                     <input type="file" id="importFilePicker" data-bind="event: { change: _.partial(fileSelected, $element) }" tabindex="-1" accept=".json">
                 </div>
             </div>
         </div>
         <div class="flex-horizontal flex-shrink-0">
             <div data-bind="visible: liveViewClient() && !bufferIsFull()">
-                <small>Data buffer usage: <span data-bind="text: bufferUsage() + '%'"></span></small>
+                <small data-bind="i18n: { key: 'indexPerformance:bufferUsage', options: { usage: bufferUsage } }"></small>
             </div>
             <div data-bind="visible: bufferIsFull">
-                <small>Data buffer is full, clear graph data to continue</small>
+                <small data-bind="i18n: 'indexPerformance:bufferFull'"></small>
             </div>
             <div class="flex-separator"></div>
             <button class="btn btn-default btn-sm margin-right margin-right-sm" data-bind="click: clearBrush, visible: clearSelectionVisible">
-                <span>Clear selection</span>
+                <span data-bind="i18n: 'indexPerformance:clearSelection'"></span>
             </button>
-            <button class="btn btn-sm btn-default" data-bind="click: closeImport, visible: isImport" title="Return to currently selected database performance graph">
-                <i class="icon-cancel"></i><span data-bind="text: 'Close import (' + importFileName() + ')'">Close import</span>
+            <button class="btn btn-sm btn-default" data-bind="click: closeImport, visible: isImport, i18nAttr: { title: 'indexPerformance:closeImportTitle' }">
+                <i class="icon-cancel"></i><span data-bind="i18n: { key: 'indexPerformance:closeImport', options: { fileName: importFileName } }"></span>
             </button>
             <div class="btn-group" data-bind="visible: !isImport()">
                 <button class="btn btn-sm btn-info btn-checkable" data-bind="click: toggleScroll, css: { active: autoScroll }">
-                    <i class="icon-logs"></i> <span>Monitoring (tail -f)</span>
+                    <i class="icon-logs"></i> <span data-bind="i18n: 'indexPerformance:monitoring'"></span>
                 </button>
                 <button class="btn btn-sm btn-danger" data-bind="click: clearGraphWithConfirm">
-                    <i class="icon-cancel"></i><span>Clear graph</span>
+                    <i class="icon-cancel"></i><span data-bind="i18n: 'indexPerformance:clearGraph'"></span>
                 </button>
             </div>
         </div>
@@ -45,11 +45,11 @@
                     <div class="col-sm-8 col-sm-offset-2 col-lg-6 col-lg-offset-3">
                         <div data-bind="visible: !loading()">
                             <i class="icon-xl icon-empty-set text-muted"></i>
-                            <h2 class="text-center text-muted">No data.</h2>
+                            <h2 class="text-center text-muted" data-bind="i18n: 'indexPerformance:noData'"></h2>
                         </div>
                         <div data-bind="visible: loading()">
                             <i class="icon-xl global-spinner text-muted"></i>
-                            <h2 class="text-center text-muted">Loading ...</h2>
+                            <h2 class="text-center text-muted" data-bind="i18n: 'indexPerformance:loading'"></h2>
                         </div>
                     </div>
                 </div>
@@ -136,7 +136,7 @@
         </div>
         <div class="results-error" data-bind="visible: !isConnectedToWebSocket() && !isImport()">
             <div class="help-block bg-warning text-warning">
-                <span><i class="btn-spinner"></i><span class="margin-left">Trying to Connect</span></span>
+                <span><i class="btn-spinner"></i><span class="margin-left" data-bind="i18n: 'indexPerformance:tryingToConnect'"></span></span>
             </div>
         </div>
     </div>

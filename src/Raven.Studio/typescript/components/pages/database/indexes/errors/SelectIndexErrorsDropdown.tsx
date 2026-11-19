@@ -12,13 +12,14 @@ import { ColumnFiltersState, Updater } from "@tanstack/react-table";
 import Dropdown from "react-bootstrap/Dropdown";
 import { CustomDropdownToggle } from "components/common/Dropdown";
 import { ConditionalPopover } from "components/common/ConditionalPopover";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface SelectIndexErrorsDropdownProps {
     indexesList: NameAndCount[];
     filters: ColumnFiltersState;
     setFilters: (updater: Updater<ColumnFiltersState>) => void;
     isLoading: boolean;
-    dropdownTypeLabelText: string;
+    labelContext: "indexes" | "actions";
     dropdownType: IndexErrorsDropdownType;
 }
 
@@ -27,14 +28,15 @@ export function SelectIndexErrorsDropdown({
     dropdownType,
     setFilters,
     filters,
-    dropdownTypeLabelText,
+    labelContext,
     isLoading,
 }: SelectIndexErrorsDropdownProps) {
+    const t = useStudioTranslation("indexErrors");
     const { setSelectedIndexes, labelText, selectedColumnFilters } = useIndexErrorsDropdown({
         filters,
         dropdownType,
         setFilters,
-        dropdownTypeLabelText,
+        labelContext,
     });
 
     const { selectionState, toggleOne, toggleAll } = useCheckboxes({
@@ -48,7 +50,7 @@ export function SelectIndexErrorsDropdown({
             <ConditionalPopover
                 conditions={{
                     isActive: indexesList.length === 0,
-                    message: `No ${dropdownTypeLabelText} with indexing errors available`,
+                    message: t("filter.noItems", { context: labelContext }),
                 }}
             >
                 <Dropdown.Toggle

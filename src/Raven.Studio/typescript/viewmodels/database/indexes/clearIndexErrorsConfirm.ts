@@ -3,6 +3,9 @@ import database = require("models/resources/database");
 import dialogViewModelBase = require("viewmodels/dialogViewModelBase");
 import clearIndexErrorsCommand = require("commands/database/index/clearIndexErrorsCommand");
 import messagePublisher = require("common/messagePublisher");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("clearIndexErrorsConfirm");
 
 class clearIndexErrorsConfirm extends dialogViewModelBase {
 
@@ -10,6 +13,7 @@ class clearIndexErrorsConfirm extends dialogViewModelBase {
     
     title: string;
     subTitleHtml: string;
+    errorStateInfoHtml = t("errorStateInfo");
     clearErrorsTask = $.Deferred<boolean>();
     indexesToClear = ko.observableArray<string>();
     clearAllIndexes = ko.observable<boolean>();
@@ -24,16 +28,16 @@ class clearIndexErrorsConfirm extends dialogViewModelBase {
         this.clearAllIndexes(!indexesToClear);
        
         if (this.clearAllIndexes()) {
-            this.title = "Clear errors for ALL indexes ?";
-            this.subTitleHtml = "Errors will be cleared for ALL indexes";
+            this.title = t("title", { context: "all" });
+            this.subTitleHtml = t("subTitle", { context: "all" });
 
         } else if (this.indexesToClear() && this.indexesToClear().length === 1) {
-            this.title = "Clear index Errors?";
-            this.subTitleHtml = "You're clearing errors from this index:";
+            this.title = t("title", { context: "single" });
+            this.subTitleHtml = t("subTitle", { context: "single" });
 
         } else {
-            this.title = "Clear indexes Errors?";
-            this.subTitleHtml = `You're clearing errors for <strong>${this.indexesToClear().length}</strong> indexes:`;
+            this.title = t("title", { context: "multiple" });
+            this.subTitleHtml = t("subTitleMultiple", { count: this.indexesToClear().length });
         }
     }
 
@@ -46,9 +50,9 @@ class clearIndexErrorsConfirm extends dialogViewModelBase {
         const rejectedCount = results.filter(x => x.status === "rejected").length;
 
         if (rejectedCount === 0) {
-            messagePublisher.reportSuccess("Done clearing indexing errors.");
+            messagePublisher.reportSuccess(t("clearSucceeded"));
         } else {
-            messagePublisher.reportError("Failed to clean indexes errors (" + rejectedCount + " / " + results.length + " failed)");
+            messagePublisher.reportError(t("clearFailed", { failed: rejectedCount, total: results.length }));
         }
         this.spinners.clear(false);
 

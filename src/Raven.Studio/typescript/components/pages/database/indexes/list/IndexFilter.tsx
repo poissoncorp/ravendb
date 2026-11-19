@@ -10,6 +10,9 @@ import { SortDropdown, SortDropdownRadioList, sortItem } from "components/common
 import Button from "react-bootstrap/Button";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import SearchEngineType = Raven.Client.Documents.Indexes.SearchEngineType;
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import type { StudioTranslate } from "common/i18n/resources";
 
 interface IndexFilterProps {
     filter: IndexFilterCriteria;
@@ -23,6 +26,11 @@ interface IndexFilterProps {
 export default function IndexFilter(props: IndexFilterProps) {
     const { filter, setFilter, filterByStatusOptions, filterByTypeOptions, filterByEngineOptions, indexesCount } =
         props;
+    const t = useStudioTranslation("indexesList");
+
+    const sortByOptions = getSortByOptions(t);
+    const sortDirectionOptions = getSortDirectionOptions(t);
+    const groupByOptions = getGroupByOptions(t);
 
     // TODO sharding
 
@@ -78,13 +86,13 @@ export default function IndexFilter(props: IndexFilterProps) {
     return (
         <div className="hstack flex-wrap align-items-end gap-3 my-3 justify-content-end">
             <div className="flex-grow">
-                <div className="small-label ms-1 mb-1">Filter by name</div>
+                <div className="small-label ms-1 mb-1">{t("filter.nameLabel")}</div>
                 <div className="clearable-input">
                     <Form.Control
                         type="text"
                         accessKey="/"
-                        placeholder="e.g. Orders/ByCompany/*"
-                        title="Filter indexes"
+                        placeholder={t("filter.namePlaceholder")}
+                        title={t("filter.nameTitle")}
                         className="filtering-input"
                         value={filter.searchText}
                         onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -103,46 +111,46 @@ export default function IndexFilter(props: IndexFilterProps) {
 
             <MultiCheckboxToggle
                 inputItems={filterByStatusOptions}
-                label="Filter by state"
+                label={t("filter.stateLabel")}
                 selectedItems={filter.statuses}
                 setSelectedItems={(x) => onFilterValueChange("statuses", x)}
                 selectAll
-                selectAllLabel="All"
+                selectAllLabel={t("filter.stateAll")}
                 selectAllCount={indexesCount}
             />
             <MultiCheckboxToggle
                 inputItems={filterByTypeOptions}
-                label="Filter by type"
+                label={t("filter.typeLabel")}
                 selectedItems={filter.types}
                 setSelectedItems={(x) => onFilterValueChange("types", x)}
                 selectAllCount={indexesCount}
             />
             <MultiCheckboxToggle
                 inputItems={filterByEngineOptions}
-                label="Filter by engines"
+                label={t("filter.engineLabel")}
                 selectedItems={filter.searchEngine}
                 setSelectedItems={(x) => onFilterValueChange("searchEngine", x)}
                 selectAllCount={indexesCount}
             />
             <div>
-                <div className="small-label ms-1 mb-1">Sort & Group</div>
+                <div className="small-label ms-1 mb-1">{t("filter.sortAndGroupLabel")}</div>
 
                 <SortDropdown label={<SortLabel filter={filter} />}>
                     <SortDropdownRadioList
                         radioOptions={sortByOptions}
-                        label="Sort by"
+                        label={t("filter.sortByLabel")}
                         selected={filter.sortBy}
                         setSelected={(x) => onFilterValueChange("sortBy", x)}
                     />
                     <SortDropdownRadioList
                         radioOptions={sortDirectionOptions}
-                        label="Sort direction"
+                        label={t("filter.sortDirectionLabel")}
                         selected={filter.sortDirection}
                         setSelected={(x) => onFilterValueChange("sortDirection", x)}
                     />
                     <SortDropdownRadioList
                         radioOptions={groupByOptions}
-                        label="Group by"
+                        label={t("filter.groupByLabel")}
                         selected={filter.groupBy}
                         setSelected={(x) => onFilterValueChange("groupBy", x)}
                     />
@@ -151,13 +159,7 @@ export default function IndexFilter(props: IndexFilterProps) {
             {/* TODO: `Processing Speed: <strong>${Math.floor(totalProcessedPerSecond).toLocaleString()}</strong> docs / sec`;*/}
             <PopoverWithHoverWrapper
                 placement="bottom"
-                message={
-                    <>
-                        Automatically refreshes the list of indexes.
-                        <br />
-                        Might result in list flickering.
-                    </>
-                }
+                message={<StudioTrans ns="indexesList" i18nKey="filter.autoRefreshInfo" components={{ br: <br /> }} />}
             >
                 <Switch
                     id="autoRefresh"
@@ -166,31 +168,41 @@ export default function IndexFilter(props: IndexFilterProps) {
                     color="info"
                     className="mt-1"
                 >
-                    <span>Auto refresh is {filter.autoRefresh ? "on" : "off"}</span>
+                    <span>{t("filter.autoRefresh", { context: filter.autoRefresh ? "on" : "off" })}</span>
                 </Switch>
             </PopoverWithHoverWrapper>
         </div>
     );
 }
 
-const sortByOptions: sortItem<IndexSortBy>[] = [
-    { value: "name", label: "Name" },
-    { value: "createdTimestamp", label: "Creation time" },
-    { value: "lastIndexingTime", label: "Last indexing time" },
-    { value: "lastQueryingTime", label: "Last querying time" },
-];
+function getSortByOptions(t: StudioTranslate<"indexesList">): sortItem<IndexSortBy>[] {
+    return [
+        { value: "name", label: t("filter.sortBy.name") },
+        { value: "createdTimestamp", label: t("filter.sortBy.creationTime") },
+        { value: "lastIndexingTime", label: t("filter.sortBy.lastIndexingTime") },
+        { value: "lastQueryingTime", label: t("filter.sortBy.lastQueryingTime") },
+    ];
+}
 
-const sortDirectionOptions: sortItem<SortDirection>[] = [
-    { value: "asc", label: "Ascending" },
-    { value: "desc", label: "Descending" },
-];
+function getSortDirectionOptions(t: StudioTranslate<"indexesList">): sortItem<SortDirection>[] {
+    return [
+        { value: "asc", label: t("filter.sortDirection.ascending") },
+        { value: "desc", label: t("filter.sortDirection.descending") },
+    ];
+}
 
-const groupByOptions: sortItem<IndexGroupBy>[] = (["Collection", "None"] satisfies IndexGroupBy[]).map((x) => ({
-    value: x,
-    label: x,
-}));
+function getGroupByOptions(t: StudioTranslate<"indexesList">): sortItem<IndexGroupBy>[] {
+    return [
+        { value: "Collection", label: t("filter.groupBy.collection") },
+        { value: "None", label: t("filter.groupBy.none") },
+    ];
+}
 
 function SortLabel({ filter }: { filter: IndexFilterCriteria }) {
+    const t = useStudioTranslation("indexesList");
+    const sortByOptions = getSortByOptions(t);
+    const groupByOptions = getGroupByOptions(t);
+
     return (
         <>
             {sortByOptions.find((x) => x.value === filter.sortBy).label}

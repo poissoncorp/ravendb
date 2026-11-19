@@ -17,6 +17,9 @@ import shardViewModelBase = require("viewmodels/shardViewModelBase");
 import database = require("models/resources/database");
 import DatabaseUtils = require("components/utils/DatabaseUtils");
 import typeUtils = require("common/typeUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("indexPerformance");
 
 type rTreeLeaf = {
     minX: number;
@@ -1108,7 +1111,7 @@ class indexPerformance extends shardViewModelBase {
 
                     if (dx > 30) {
                         context.fillStyle = this.colors.stripeTextColor;
-                        const text = op.Name.startsWith("Collection_") ? `${op.Name.substr("Collection_".length)} (Collection)` : op.Name;
+                        const text = op.Name.startsWith("Collection_") ? t("graph.collectionOperation", { name: op.Name.substr("Collection_".length) }) : op.Name;
                         const textWidth = context.measureText(text).width;
                         const truncatedText = graphHelper.truncText(text, textWidth, dx - 4);
                         if (truncatedText) {
@@ -1170,7 +1173,7 @@ class indexPerformance extends shardViewModelBase {
             if (isFaulty) {
                 context.font = "12px 'Figtree', 'Helvetica Neue', Helvetica, Arial, sans-serif";
                 context.fillStyle = this.colors.faulty;
-                context.fillText("(Faulty)", rectWidth - faultyWidth, yScale(indexName) + textShift);
+                context.fillText(t("graph.faulty"), rectWidth - faultyWidth, yScale(indexName) + textShift);
             }
         });
     }
@@ -1228,8 +1231,8 @@ class indexPerformance extends shardViewModelBase {
         const currentDatum = this.tooltip.datum();
 
         if (currentDatum !== element) {
-            const tooltipHtml = '<div class="tooltip-li">Gap start time: <div class="value">' + (element).start.toLocaleTimeString() + '</div></div>'
-                + '<div class="tooltip-li">Gap duration: <div class="value">' + generalUtils.formatMillis((element).durationInMillis) + '</div></div>';
+            const tooltipHtml = '<div class="tooltip-li">' + t("tooltip.gapStartTime") + ' <div class="value">' + (element).start.toLocaleTimeString() + '</div></div>'
+                + '<div class="tooltip-li">' + t("tooltip.gapDuration") + ' <div class="value">' + generalUtils.formatMillis((element).durationInMillis) + '</div></div>';
             this.handleTooltip(element, tooltipHtml, { x, y }, false);
         }
     } 
@@ -1247,40 +1250,40 @@ class indexPerformance extends shardViewModelBase {
         }
         
         if (currentDatum !== element || reuseTooltip) {
-            let tooltipHtml = `<div class="tooltip-header">${generalUtils.escapeHtml(element.Name)}</div> <div class="tooltip-li"> Duration: <div class="value">${generalUtils.formatMillis((element).DurationInMs)}</div></div>` ;
+            let tooltipHtml = `<div class="tooltip-header">${generalUtils.escapeHtml(element.Name)}</div> <div class="tooltip-li"> ${t("tooltip.duration")} <div class="value">${generalUtils.formatMillis((element).DurationInMs)}</div></div>` ;
 
             const opWithParent = element as IndexingPerformanceOperationWithParent;
 
             if (opWithParent.Parent) {
                 const parentStats = opWithParent.Parent;
                 let countsDetails: string;
-                countsDetails = `<div class="tooltip-header">Entries details</div>`;
-                countsDetails += `<div class="tooltip-li">Input Count: <div class="value">${parentStats.InputCount.toLocaleString()}</div></div>`;
-                countsDetails += `<div class="tooltip-li">Output Count: <div class="value">${parentStats.OutputCount.toLocaleString()}</div></div>`;
-                countsDetails += `<div class="tooltip-li">Failed Count: <div class="value">${parentStats.FailedCount.toLocaleString()}</div></div>`;
-                countsDetails += `<div class="tooltip-li">Success Count: <div class="value">${parentStats.SuccessCount.toLocaleString()}</div></div>`;
-                countsDetails += `<div class="tooltip-li">Documents Size: <div class="value">${parentStats.DocumentsSize.HumaneSize}</div></div>`;
+                countsDetails = `<div class="tooltip-header">${t("tooltip.entriesDetails")}</div>`;
+                countsDetails += `<div class="tooltip-li">${t("tooltip.inputCount")} <div class="value">${parentStats.InputCount.toLocaleString()}</div></div>`;
+                countsDetails += `<div class="tooltip-li">${t("tooltip.outputCount")} <div class="value">${parentStats.OutputCount.toLocaleString()}</div></div>`;
+                countsDetails += `<div class="tooltip-li">${t("tooltip.failedCount")} <div class="value">${parentStats.FailedCount.toLocaleString()}</div></div>`;
+                countsDetails += `<div class="tooltip-li">${t("tooltip.successCount")} <div class="value">${parentStats.SuccessCount.toLocaleString()}</div></div>`;
+                countsDetails += `<div class="tooltip-li">${t("tooltip.documentsSize")} <div class="value">${parentStats.DocumentsSize.HumaneSize}</div></div>`;
 
                 if (parentStats.TombstoneDeleteSuccesses > 0) {
-                    countsDetails += `<div class="tooltip-li">Tombstone Delete Successes: <div class="value">${parentStats.TombstoneDeleteSuccesses.toLocaleString()}</div></div>`;
+                    countsDetails += `<div class="tooltip-li">${t("tooltip.tombstoneDeleteSuccesses")} <div class="value">${parentStats.TombstoneDeleteSuccesses.toLocaleString()}</div></div>`;
                 }
                 
                 if (parentStats.InputCount > 0) {
-                    countsDetails += `<div class="tooltip-li">Average Document Size: <div class="value">${generalUtils.formatBytesToSize(parentStats.DocumentsSize.SizeInBytes / parentStats.InputCount)}</div></div>`;
+                    countsDetails += `<div class="tooltip-li">${t("tooltip.averageDocumentSize")} <div class="value">${generalUtils.formatBytesToSize(parentStats.DocumentsSize.SizeInBytes / parentStats.InputCount)}</div></div>`;
                 }
 
                 if (parentStats.AllocatedManagedBytes) {
-                    countsDetails += `<div class="tooltip-li">Managed Allocations (accumulated): <div class="value">${parentStats.AllocatedManagedBytes.HumaneSize}</div></div>`;
+                    countsDetails += `<div class="tooltip-li">${t("tooltip.managedAllocations")} <div class="value">${parentStats.AllocatedManagedBytes.HumaneSize}</div></div>`;
                 }
                 
                 if (parentStats.AllocatedUnmanagedBytes) {
-                    countsDetails += `<div class="tooltip-li">Unmanaged Allocations: <div class="value">${parentStats.AllocatedUnmanagedBytes.HumaneSize}</div></div>`;
+                    countsDetails += `<div class="tooltip-li">${t("tooltip.unmanagedAllocations")} <div class="value">${parentStats.AllocatedUnmanagedBytes.HumaneSize}</div></div>`;
                 }
                 
                 if (element.DurationInMs > 0) {
                     const durationInSec = element.DurationInMs / 1000;
-                    countsDetails += `<div class="tooltip-li">Processed Data Speed: <div class="value">${generalUtils.formatBytesToSize(parentStats.DocumentsSize.SizeInBytes / durationInSec)}/sec</div></div>`;
-                    countsDetails += `<div class="tooltip-li">Document Processing Speed: <div class="value">${Math.floor(parentStats.InputCount / durationInSec).toLocaleString()} docs/sec</div></div>`;
+                    countsDetails += `<div class="tooltip-li">${t("tooltip.processedDataSpeed")} <div class="value">${t("tooltip.processedDataSpeedValue", { size: generalUtils.formatBytesToSize(parentStats.DocumentsSize.SizeInBytes / durationInSec) })}</div></div>`;
+                    countsDetails += `<div class="tooltip-li">${t("tooltip.documentProcessingSpeed")} <div class="value">${t("tooltip.documentProcessingSpeedValue", { value: Math.floor(parentStats.InputCount / durationInSec).toLocaleString() })}</div></div>`;
                 }
 
                 tooltipHtml += countsDetails;
@@ -1288,58 +1291,58 @@ class indexPerformance extends shardViewModelBase {
 
             if (element.CommitDetails) {
                 let commitDetails: string;
-                commitDetails = `<div class="tooltip-header">Commit details</div>`;
-                commitDetails += `<div class="tooltip-li">Modified pages: <div class="value">${element.CommitDetails.NumberOfModifiedPages.toLocaleString()}</div></div>`;
-                commitDetails += `<div class="tooltip-li">Pages written to disk: <div class="value">${element.CommitDetails.NumberOf4KbsWrittenToDisk.toLocaleString()}</div></div>`;
+                commitDetails = `<div class="tooltip-header">${t("tooltip.commitDetails")}</div>`;
+                commitDetails += `<div class="tooltip-li">${t("tooltip.modifiedPages")} <div class="value">${element.CommitDetails.NumberOfModifiedPages.toLocaleString()}</div></div>`;
+                commitDetails += `<div class="tooltip-li">${t("tooltip.pagesWrittenToDisk")} <div class="value">${element.CommitDetails.NumberOf4KbsWrittenToDisk.toLocaleString()}</div></div>`;
                 tooltipHtml += commitDetails;
             }
 
             if (element.LuceneMergeDetails) {
                 let luceneMergeDetails: string;
-                luceneMergeDetails = `<div class="tooltip-header">Lucene Merge Details</div>`;
-                luceneMergeDetails += `<div class="tooltip-li">Total merges: <div class="value">${element.LuceneMergeDetails.TotalMergesCount.toLocaleString()}</div></div>`;
-                luceneMergeDetails += `<div class="tooltip-li">Executed merges: <div class="value">${element.LuceneMergeDetails.ExecutedMergesCount.toLocaleString()}</div></div>`;
+                luceneMergeDetails = `<div class="tooltip-header">${t("tooltip.luceneMergeDetails")}</div>`;
+                luceneMergeDetails += `<div class="tooltip-li">${t("tooltip.totalMerges")} <div class="value">${element.LuceneMergeDetails.TotalMergesCount.toLocaleString()}</div></div>`;
+                luceneMergeDetails += `<div class="tooltip-li">${t("tooltip.executedMerges")} <div class="value">${element.LuceneMergeDetails.ExecutedMergesCount.toLocaleString()}</div></div>`;
                 if (element.LuceneMergeDetails.MergedFilesCount > 0) {
-                    luceneMergeDetails += `<div class="tooltip-li">Merged files: <div class="value">${element.LuceneMergeDetails.MergedFilesCount.toLocaleString()}</div></div>`;
+                    luceneMergeDetails += `<div class="tooltip-li">${t("tooltip.mergedFiles")} <div class="value">${element.LuceneMergeDetails.MergedFilesCount.toLocaleString()}</div></div>`;
                 }
                 if (element.LuceneMergeDetails.MergedDocumentsCount > 0) {
-                    luceneMergeDetails += `<div class="tooltip-li">Merged documents: <div class="value">${element.LuceneMergeDetails.MergedDocumentsCount.toLocaleString()}</div></div>`;
+                    luceneMergeDetails += `<div class="tooltip-li">${t("tooltip.mergedDocuments")} <div class="value">${element.LuceneMergeDetails.MergedDocumentsCount.toLocaleString()}</div></div>`;
                 }
                 tooltipHtml += luceneMergeDetails;
             }
             
             if (element.CleanupDetails) {
                 let cleanupDetails : string;
-                cleanupDetails = `<div class="tooltip-header">Cleanup details</div>`;
+                cleanupDetails = `<div class="tooltip-header">${t("tooltip.cleanupDetails")}</div>`;
                 if (element.CleanupDetails.BatchCompleteReason) {
-                    cleanupDetails += `<div class="tooltip-li">Batch complete reason: <div class="value">${element.CleanupDetails.BatchCompleteReason}</div></div>`;
+                    cleanupDetails += `<div class="tooltip-li">${t("tooltip.batchCompleteReason")} <div class="value">${element.CleanupDetails.BatchCompleteReason}</div></div>`;
                 }
-                cleanupDetails += `<div class="tooltip-li">Delete successes: <div class="value">${element.CleanupDetails.DeleteSuccesses.toLocaleString()}</div></div>`;
+                cleanupDetails += `<div class="tooltip-li">${t("tooltip.deleteSuccesses")} <div class="value">${element.CleanupDetails.DeleteSuccesses.toLocaleString()}</div></div>`;
                 tooltipHtml += cleanupDetails;
             }
 
             if (element.MapDetails) {
                 let mapDetails: string;
-                mapDetails = `<div class="tooltip-header">Map details</div>`;
-                mapDetails += `<div class="tooltip-li">Allocation budget: <div class="value">${generalUtils.formatBytesToSize(element.MapDetails.AllocationBudget)}</div></div>`;
-                mapDetails += `<div class="tooltip-li">Batch status: <div class="value">${element.MapDetails.BatchCompleteReason || 'In progress'}</div></div>`;
-                mapDetails += `<div class="tooltip-li">Currently allocated: <div class="value">${generalUtils.formatBytesToSize(element.MapDetails.CurrentlyAllocated)} </div></div>`;
-                mapDetails += `<div class="tooltip-li">Process private memory: <div class="value">${generalUtils.formatBytesToSize(element.MapDetails.ProcessPrivateMemory)}</div></div>`;
-                mapDetails += `<div class="tooltip-li">Process working set: <div class="value">${generalUtils.formatBytesToSize(element.MapDetails.ProcessWorkingSet)}</div></div>`;
+                mapDetails = `<div class="tooltip-header">${t("tooltip.mapDetails")}</div>`;
+                mapDetails += `<div class="tooltip-li">${t("tooltip.allocationBudget")} <div class="value">${generalUtils.formatBytesToSize(element.MapDetails.AllocationBudget)}</div></div>`;
+                mapDetails += `<div class="tooltip-li">${t("tooltip.batchStatus")} <div class="value">${element.MapDetails.BatchCompleteReason || t("tooltip.inProgress")}</div></div>`;
+                mapDetails += `<div class="tooltip-li">${t("tooltip.currentlyAllocated")} <div class="value">${generalUtils.formatBytesToSize(element.MapDetails.CurrentlyAllocated)} </div></div>`;
+                mapDetails += `<div class="tooltip-li">${t("tooltip.processPrivateMemory")} <div class="value">${generalUtils.formatBytesToSize(element.MapDetails.ProcessPrivateMemory)}</div></div>`;
+                mapDetails += `<div class="tooltip-li">${t("tooltip.processWorkingSet")} <div class="value">${generalUtils.formatBytesToSize(element.MapDetails.ProcessWorkingSet)}</div></div>`;
                 tooltipHtml += mapDetails;
             }
 
             if (element.ReferenceDetails) {
                 let referenceDetails: string;
-                referenceDetails = `<div class="tooltip-header">Reference details</div>`;
-                referenceDetails += `<div class="tooltip-li">Reference attempts: <div class="value">${element.ReferenceDetails.ReferenceAttempts.toLocaleString()} </div></div>`;
-                referenceDetails += `<div class="tooltip-li">Reference successes: <div class="value">${element.ReferenceDetails.ReferenceSuccesses.toLocaleString()} </div></div>`;
-                referenceDetails += `<div class="tooltip-li">Reference errors: <div class="value">${element.ReferenceDetails.ReferenceErrors.toLocaleString()} </div></div>`;
-                referenceDetails += `<div class="tooltip-li">Allocation budget: <div class="value">${generalUtils.formatBytesToSize(element.ReferenceDetails.AllocationBudget)}</div></div>`;
-                referenceDetails += `<div class="tooltip-li">Currently allocated: <div class="value">${generalUtils.formatBytesToSize(element.ReferenceDetails.CurrentlyAllocated)} </div></div>`;
-                referenceDetails += `<div class="tooltip-li">Process private memory: <div class="value">${generalUtils.formatBytesToSize(element.ReferenceDetails.ProcessPrivateMemory)}</div></div>`;
-                referenceDetails += `<div class="tooltip-li">Process working set: <div class="value">${generalUtils.formatBytesToSize(element.ReferenceDetails.ProcessWorkingSet)}</div></div>`;
-                referenceDetails += `<div class="tooltip-li">Batch complete reason: <div class="value">${element.ReferenceDetails.BatchCompleteReason}</div></div>`;
+                referenceDetails = `<div class="tooltip-header">${t("tooltip.referenceDetails")}</div>`;
+                referenceDetails += `<div class="tooltip-li">${t("tooltip.referenceAttempts")} <div class="value">${element.ReferenceDetails.ReferenceAttempts.toLocaleString()} </div></div>`;
+                referenceDetails += `<div class="tooltip-li">${t("tooltip.referenceSuccesses")} <div class="value">${element.ReferenceDetails.ReferenceSuccesses.toLocaleString()} </div></div>`;
+                referenceDetails += `<div class="tooltip-li">${t("tooltip.referenceErrors")} <div class="value">${element.ReferenceDetails.ReferenceErrors.toLocaleString()} </div></div>`;
+                referenceDetails += `<div class="tooltip-li">${t("tooltip.allocationBudget")} <div class="value">${generalUtils.formatBytesToSize(element.ReferenceDetails.AllocationBudget)}</div></div>`;
+                referenceDetails += `<div class="tooltip-li">${t("tooltip.currentlyAllocated")} <div class="value">${generalUtils.formatBytesToSize(element.ReferenceDetails.CurrentlyAllocated)} </div></div>`;
+                referenceDetails += `<div class="tooltip-li">${t("tooltip.processPrivateMemory")} <div class="value">${generalUtils.formatBytesToSize(element.ReferenceDetails.ProcessPrivateMemory)}</div></div>`;
+                referenceDetails += `<div class="tooltip-li">${t("tooltip.processWorkingSet")} <div class="value">${generalUtils.formatBytesToSize(element.ReferenceDetails.ProcessWorkingSet)}</div></div>`;
+                referenceDetails += `<div class="tooltip-li">${t("tooltip.batchCompleteReason")} <div class="value">${element.ReferenceDetails.BatchCompleteReason}</div></div>`;
                 tooltipHtml += referenceDetails;
             }
 
@@ -1347,18 +1350,18 @@ class indexPerformance extends shardViewModelBase {
                 let reduceDetails: string;
 
                 if (element.ReduceDetails.TreesReduceDetails) {
-                    reduceDetails = `<div class="tooltip-header">Trees details</div>`;
-                    reduceDetails += `<div class="tooltip-li">Modified leafs: <div class="value">${element.ReduceDetails.TreesReduceDetails.NumberOfModifiedLeafs.toLocaleString()} (compressed: ${element.ReduceDetails.TreesReduceDetails.NumberOfCompressedLeafs.toLocaleString()})</div></div>`;
-                    reduceDetails += `<div class="tooltip-li">Modified branches: <div class="value">${element.ReduceDetails.TreesReduceDetails.NumberOfModifiedBranches.toLocaleString()}</div></div>`;
+                    reduceDetails = `<div class="tooltip-header">${t("tooltip.treesDetails")}</div>`;
+                    reduceDetails += `<div class="tooltip-li">${t("tooltip.modifiedLeafs")} <div class="value">${t("tooltip.modifiedLeafsValue", { modified: element.ReduceDetails.TreesReduceDetails.NumberOfModifiedLeafs.toLocaleString(), compressed: element.ReduceDetails.TreesReduceDetails.NumberOfCompressedLeafs.toLocaleString() })}</div></div>`;
+                    reduceDetails += `<div class="tooltip-li">${t("tooltip.modifiedBranches")} <div class="value">${element.ReduceDetails.TreesReduceDetails.NumberOfModifiedBranches.toLocaleString()}</div></div>`;
                 }
                 else {
-                    reduceDetails = `<div class="tooltip-header">Reduce details</div>`;
-                    reduceDetails += `<div class="tooltip-li">Reduce attempts: <div class="value">${element.ReduceDetails.ReduceAttempts.toLocaleString()} </div></div>`;
-                    reduceDetails += `<div class="tooltip-li">Reduce successes: <div class="value">${element.ReduceDetails.ReduceSuccesses.toLocaleString()} </div></div>`;
-                    reduceDetails += `<div class="tooltip-li">Reduce errors: <div class="value">${element.ReduceDetails.ReduceErrors.toLocaleString()} </div></div>`;
-                    reduceDetails += `<div class="tooltip-li">Currently allocated: <div class="value">${generalUtils.formatBytesToSize(element.ReduceDetails.CurrentlyAllocated)} </div></div>`;
-                    reduceDetails += `<div class="tooltip-li">Process private memory: <div class="value">${generalUtils.formatBytesToSize(element.ReduceDetails.ProcessPrivateMemory)}</div></div>`;
-                    reduceDetails += `<div class="tooltip-li">Process working set: <div class="value">${generalUtils.formatBytesToSize(element.ReduceDetails.ProcessWorkingSet)}</div></div>`;
+                    reduceDetails = `<div class="tooltip-header">${t("tooltip.reduceDetails")}</div>`;
+                    reduceDetails += `<div class="tooltip-li">${t("tooltip.reduceAttempts")} <div class="value">${element.ReduceDetails.ReduceAttempts.toLocaleString()} </div></div>`;
+                    reduceDetails += `<div class="tooltip-li">${t("tooltip.reduceSuccesses")} <div class="value">${element.ReduceDetails.ReduceSuccesses.toLocaleString()} </div></div>`;
+                    reduceDetails += `<div class="tooltip-li">${t("tooltip.reduceErrors")} <div class="value">${element.ReduceDetails.ReduceErrors.toLocaleString()} </div></div>`;
+                    reduceDetails += `<div class="tooltip-li">${t("tooltip.currentlyAllocated")} <div class="value">${generalUtils.formatBytesToSize(element.ReduceDetails.CurrentlyAllocated)} </div></div>`;
+                    reduceDetails += `<div class="tooltip-li">${t("tooltip.processPrivateMemory")} <div class="value">${generalUtils.formatBytesToSize(element.ReduceDetails.ProcessPrivateMemory)}</div></div>`;
+                    reduceDetails += `<div class="tooltip-li">${t("tooltip.processWorkingSet")} <div class="value">${generalUtils.formatBytesToSize(element.ReduceDetails.ProcessWorkingSet)}</div></div>`;
                 }
                 
                 tooltipHtml += reduceDetails;
@@ -1425,13 +1428,13 @@ class indexPerformance extends shardViewModelBase {
 
             // Data validation
             if (!Array.isArray(importedData)) {
-                messagePublisher.reportError("Invalid indexing performance file format", undefined, undefined);
+                messagePublisher.reportError(t("importInvalidFormat"), undefined, undefined);
             } else {
                 this.applyPerformanceData(importedData);
             }
         }
         catch (e) {
-            messagePublisher.reportError("Failed to import indexing performance data", undefined, undefined);
+            messagePublisher.reportError(t("importFailed"), undefined, undefined);
         }
     }
 
@@ -1457,11 +1460,11 @@ class indexPerformance extends shardViewModelBase {
         new getDebugPackageDatabaseIndexPerformanceCommand(packageId, nodeTag, this.db.name)
             .execute()
             .done((results) => {
-                this.importFileName(`${this.db.name} @ node ${nodeTag} (debug package)`);
+                this.importFileName(t("debugPackageImportName", { databaseName: this.db.name, nodeTag }));
                 this.applyPerformanceData(results || []);
             })
             .fail((response: JQueryXHR) => {
-                messagePublisher.reportError("Failed to load indexing performance from the debug package", response.responseText, response.statusText);
+                messagePublisher.reportError(t("loadFromPackageFailed"), response.responseText, response.statusText);
             })
             .always(() => this.packageLoading(false));
     }
@@ -1475,7 +1478,7 @@ class indexPerformance extends shardViewModelBase {
     }
 
     clearGraphWithConfirm() {
-        this.confirmationMessage("Clear graph data", "Do you want to discard all collected indexing performance information?")
+        this.confirmationMessage(t("clearGraphConfirm.title"), t("clearGraphConfirm.message"))
             .done(result => {
                 if (result.can) {
                     this.clearGraph();

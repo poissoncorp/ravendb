@@ -5,6 +5,9 @@ import canvasIcons = require("common/helpers/graph/canvasIcons");
 import d3 = require('d3');
 import rbush = require("rbush");
 import colorsManager = require("common/colorsManager");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("visualizer");
 
 abstract class abstractPageItem {
     static readonly pageWidth = 20;
@@ -658,8 +661,8 @@ class visualizerGraphGlobal {
     }
 
     private onTrashClicked(item: documentItem) {
-        viewHelpers.confirmationMessage("Are you sure?", "Do you want to remove document: " + item.name + " from analysis?", {
-            buttons: ["No", "Yes, delete"]
+        viewHelpers.confirmationMessage(t("removeDocument.title"), t("removeDocument.message", { name: item.name }), {
+            buttons: [t("removeDocument.cancel"), t("removeDocument.confirm")]
         })
             .done(result => {
                 if (result.can) {

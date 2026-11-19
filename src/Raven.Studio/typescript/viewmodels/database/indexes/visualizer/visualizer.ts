@@ -8,6 +8,9 @@ import eventsCollector = require("common/eventsCollector");
 import shardViewModelBase = require("viewmodels/shardViewModelBase");
 import database = require("models/resources/database");
 import typeUtils = require("common/typeUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("visualizer");
 
 type autoCompleteItem = {
     label: string;
@@ -18,7 +21,9 @@ class visualizer extends shardViewModelBase {
 
     view = require("views/database/indexes/visualizer/visualizer.html");
 
-    static readonly noIndexSelected = "Select an index";
+    static get noIndexSelected() {
+        return t("noIndexSelected");
+    }
 
     indexes = ko.observableArray<string>();
     indexName = ko.observable<string>();

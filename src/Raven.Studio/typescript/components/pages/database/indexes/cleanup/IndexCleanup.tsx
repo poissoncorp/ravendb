@@ -18,15 +18,17 @@ import UnmergableIndexesCard from "components/pages/database/indexes/cleanup/car
 import MergeSuggestionsErrorsCarouselCard from "components/pages/database/indexes/cleanup/carouselCards/MergeSuggestionsErrorsCarouselCard";
 import { LazyLoad } from "components/common/LazyLoad";
 import Carousel from "react-bootstrap/Carousel";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export function IndexCleanup() {
+    const t = useStudioTranslation("indexCleanup");
     const { asyncFetchStats, carousel, mergable, surpassing, unused, unmergable, errors } = useIndexCleanup();
     const hasIndexCleanup = useAppSelector(licenseSelectors.statusValue("HasIndexCleanup"));
 
     const isLoadActive = asyncFetchStats.status === "not-requested" || asyncFetchStats.status === "loading";
 
     if (hasIndexCleanup && asyncFetchStats.status === "error") {
-        return <LoadError error="Unable to load index cleanup data" refresh={asyncFetchStats.execute} />;
+        return <LoadError error={t("loadError")} refresh={asyncFetchStats.execute} />;
     }
 
     return (
@@ -34,7 +36,7 @@ export function IndexCleanup() {
             <div className="flex-shrink-0 hstack gap-2 mb-4 align-items-start">
                 <AboutViewHeading
                     icon="index-cleanup"
-                    title="Index Cleanup"
+                    title={t("title")}
                     licenseBadgeText={hasIndexCleanup ? null : "Professional +"}
                 />
                 <FlexGrow />

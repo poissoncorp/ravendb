@@ -13,6 +13,7 @@ import { indexErrorsUtils } from "components/pages/database/indexes/errors/Index
 import { useAppSelector } from "components/store";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
 import { useAppUrls } from "hooks/useAppUrls";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface IndexErrorsSheetProps {
     errorDetails: ReactTableRow<IndexErrorPerDocument>;
@@ -27,6 +28,7 @@ export default function IndexErrorsSheet({
     initialIndex,
     disableLinks = false,
 }: IndexErrorsSheetProps) {
+    const t = useStudioTranslation("indexErrors");
     const { close } = useViewSheet();
     const dbName = useAppSelector(databaseSelectors.activeDatabaseName);
     const { appUrl } = useAppUrls();
@@ -43,14 +45,14 @@ export default function IndexErrorsSheet({
             <ViewSheet.Header>
                 <h3 className="mb-0">
                     <Icon icon="warning" color="warning" />
-                    Indexing error details
+                    {t("sheet.title")}
                 </h3>
             </ViewSheet.Header>
             <ViewSheet.Body className="m-2">
                 <SheetSlideTransition currentIndex={currentIndex} direction={direction} className="vstack gap-3">
                     {error.IndexName && (
                         <div className="d-flex justify-content-between align-items-center pb-1 border-bottom border-secondary">
-                            <div className="small-label">Index name</div>
+                            <div className="small-label">{t("sheet.indexName")}</div>
                             {disableLinks ? (
                                 <div className="fw-bold text-truncate">{error.IndexName}</div>
                             ) : (
@@ -62,7 +64,7 @@ export default function IndexErrorsSheet({
                     )}
                     {error.Document && (
                         <div className="d-flex justify-content-between align-items-center pb-1 border-bottom border-secondary">
-                            <div className="small-label">Document ID</div>
+                            <div className="small-label">{t("sheet.documentId")}</div>
                             <CellDocumentId
                                 id={error.Document}
                                 databaseName={dbName}
@@ -72,13 +74,13 @@ export default function IndexErrorsSheet({
                     )}
                     {error.LocalTime && (
                         <div className="d-flex justify-content-between align-items-center pb-1 border-bottom border-secondary">
-                            <div className="small-label">Date</div>
+                            <div className="small-label">{t("sheet.date")}</div>
                             <div className="fw-bold text-truncate">{error.LocalTime}</div>
                         </div>
                     )}
                     {error.Action && (
                         <div className="d-flex justify-content-between align-items-center pb-1 border-bottom border-secondary">
-                            <div className="small-label">Action</div>
+                            <div className="small-label">{t("sheet.action")}</div>
                             <div className="fw-bold text-truncate">{error.Action}</div>
                         </div>
                     )}
@@ -89,7 +91,7 @@ export default function IndexErrorsSheet({
                 <SheetNavigationButtons hasPrevious={hasPrevious} hasNext={hasNext} navigate={navigate} />
                 <Button variant="secondary" onClick={close}>
                     <Icon icon="close" />
-                    Close
+                    {t("sheet.close")}
                 </Button>
             </ViewSheet.Footer>
         </ViewSheet>

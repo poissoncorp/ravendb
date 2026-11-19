@@ -1,5 +1,6 @@
 import { LicenseLimitReachStatus } from "components/utils/licenseLimitsUtils";
 import RichAlert from "components/common/RichAlert";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface IndexesPageLicenseLimitsProps {
     staticClusterLimitStatus: LicenseLimitReachStatus;
@@ -41,17 +42,19 @@ export default function IndexesPageLicenseLimits({
                     iconAddon="warning"
                     className="mb-3"
                 >
-                    Cluster {staticClusterLimitStatus === "limitReached" ? "has reached" : "is reaching"} the{" "}
-                    <strong>maximum number of static indexes</strong> allowed per cluster by your license{" "}
-                    <strong>
-                        ({staticClusterCount}/{staticClusterLimit})
-                    </strong>
-                    . Delete unused indexes or{" "}
-                    <strong>
-                        <a href={upgradeLicenseLink} target="_blank" className="no-decor">
-                            upgrade your license
-                        </a>
-                    </strong>
+                    <StudioTrans
+                        ns="indexesList"
+                        i18nKey="licenseLimits.staticCluster"
+                        components={{
+                            strong: <strong />,
+                            a: <a href={upgradeLicenseLink} target="_blank" className="no-decor" />,
+                        }}
+                        options={{
+                            context: staticClusterLimitStatus,
+                            used: staticClusterCount,
+                            limit: staticClusterLimit,
+                        }}
+                    />
                 </RichAlert>
             )}
 
@@ -62,17 +65,15 @@ export default function IndexesPageLicenseLimits({
                     iconAddon="warning"
                     className="mb-3"
                 >
-                    Cluster {autoClusterLimitStatus === "limitReached" ? "has reached" : "is reaching"} the{" "}
-                    <strong>maximum number of auto indexes</strong> allowed per cluster by your license{" "}
-                    <strong>
-                        ({autoClusterCount}/{autoClusterLimit})
-                    </strong>
-                    . Delete unused indexes or{" "}
-                    <strong>
-                        <a href={upgradeLicenseLink} target="_blank" className="no-decor">
-                            upgrade your license
-                        </a>
-                    </strong>
+                    <StudioTrans
+                        ns="indexesList"
+                        i18nKey="licenseLimits.autoCluster"
+                        components={{
+                            strong: <strong />,
+                            a: <a href={upgradeLicenseLink} target="_blank" className="no-decor" />,
+                        }}
+                        options={{ context: autoClusterLimitStatus, used: autoClusterCount, limit: autoClusterLimit }}
+                    />
                 </RichAlert>
             )}
 
@@ -83,17 +84,19 @@ export default function IndexesPageLicenseLimits({
                     iconAddon="warning"
                     className="mb-3"
                 >
-                    Database {staticDatabaseLimitStatus === "limitReached" ? "has reached" : "is reaching"} the{" "}
-                    <strong>maximum number of static indexes</strong> allowed per database by your license{" "}
-                    <strong>
-                        ({staticDatabaseCount}/{staticDatabaseLimit})
-                    </strong>
-                    . Delete unused indexes or{" "}
-                    <strong>
-                        <a href={upgradeLicenseLink} target="_blank" className="no-decor">
-                            upgrade your license
-                        </a>
-                    </strong>
+                    <StudioTrans
+                        ns="indexesList"
+                        i18nKey="licenseLimits.staticDatabase"
+                        components={{
+                            strong: <strong />,
+                            a: <a href={upgradeLicenseLink} target="_blank" className="no-decor" />,
+                        }}
+                        options={{
+                            context: staticDatabaseLimitStatus,
+                            used: staticDatabaseCount,
+                            limit: staticDatabaseLimit,
+                        }}
+                    />
                 </RichAlert>
             )}
 
@@ -104,17 +107,19 @@ export default function IndexesPageLicenseLimits({
                     iconAddon="warning"
                     className="mb-3"
                 >
-                    Database {autoDatabaseLimitStatus === "limitReached" ? "has reached" : "is reaching"} the{" "}
-                    <strong>maximum number of auto indexes</strong> allowed per database by your license{" "}
-                    <strong>
-                        ({autoDatabaseCount}/{autoDatabaseLimit})
-                    </strong>
-                    . Delete unused indexes or{" "}
-                    <strong>
-                        <a href={upgradeLicenseLink} target="_blank" className="no-decor">
-                            upgrade your license
-                        </a>
-                    </strong>
+                    <StudioTrans
+                        ns="indexesList"
+                        i18nKey="licenseLimits.autoDatabase"
+                        components={{
+                            strong: <strong />,
+                            a: <a href={upgradeLicenseLink} target="_blank" className="no-decor" />,
+                        }}
+                        options={{
+                            context: autoDatabaseLimitStatus,
+                            used: autoDatabaseCount,
+                            limit: autoDatabaseLimit,
+                        }}
+                    />
                 </RichAlert>
             )}
         </>

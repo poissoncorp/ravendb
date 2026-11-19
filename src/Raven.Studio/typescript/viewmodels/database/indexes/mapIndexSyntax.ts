@@ -1,9 +1,15 @@
 import dialogViewModelBase = require("viewmodels/dialogViewModelBase");
 import copyToClipboard = require("common/copyToClipboard");
+import generalUtils = require("common/generalUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("editIndex");
 
 class mapIndexSyntax extends dialogViewModelBase {
 
     view = require("views/database/indexes/mapIndexSyntax.html");
+
+    descriptionHtml = t("mapSyntax.description");
     
     dialogContainer: Element;
 
@@ -15,7 +21,11 @@ class mapIndexSyntax extends dialogViewModelBase {
 
     copySample(sampleTitle: string) {
         const sampleText = mapIndexSyntax.samples.find(x => x.title === sampleTitle).text;
-        copyToClipboard.copy(sampleText, "Sample has been copied to clipboard", this.dialogContainer);
+        copyToClipboard.copy(sampleText, t("syntaxSamples.copied"), this.dialogContainer);
+    }
+
+    exampleHeadingHtml(title: string) {
+        return t("mapSyntax.exampleHeading", { language: generalUtils.escapeHtml(title.trim()) });
     }
 
     static readonly samples: Array<sampleCode> = [

@@ -10,6 +10,7 @@ import React from "react";
 import Table from "react-bootstrap/Table";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface MergeSuggestionsErrorsCarouselCardProps {
     errors: MergeSuggestionsError[];
@@ -17,13 +18,14 @@ interface MergeSuggestionsErrorsCarouselCardProps {
 
 export default function MergeSuggestionsErrorsCarouselCard(props: MergeSuggestionsErrorsCarouselCardProps) {
     const { errors } = props;
+    const t = useStudioTranslation("indexCleanup");
 
     return (
         <Card>
             <Card className="bg-faded-primary m-1 p-4">
                 <div className="text-limit-width">
-                    <h2>Merge suggestions errors</h2>
-                    The following errors have been encountered when trying to create index merge suggestions.
+                    <h2>{t("mergeSuggestionsErrors.title")}</h2>
+                    {t("mergeSuggestionsErrors.description")}
                 </div>
             </Card>
 
@@ -34,11 +36,11 @@ export default function MergeSuggestionsErrorsCarouselCard(props: MergeSuggestio
                             <thead>
                                 <tr>
                                     <th>
-                                        <div className="small-label">Index name</div>
+                                        <div className="small-label">{t("columns.indexName")}</div>
                                     </th>
 
                                     <th>
-                                        <div className="small-label">Error</div>
+                                        <div className="small-label">{t("mergeSuggestionsErrors.error")}</div>
                                     </th>
                                     <th />
                                 </tr>
@@ -61,6 +63,7 @@ interface ErrorTableRowProps {
 }
 
 function ErrorTableRow({ error }: ErrorTableRowProps) {
+    const t = useStudioTranslation("indexCleanup");
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
 
     const { value: isStackTraceVisible, toggle: toggleIsStackTraceVisible } = useBoolean(false);
@@ -92,12 +95,12 @@ function ErrorTableRow({ error }: ErrorTableRowProps) {
                         {isStackTraceVisible ? (
                             <>
                                 <Icon icon="collapse-vertical" />
-                                Hide details
+                                {t("mergeSuggestionsErrors.hideDetails")}
                             </>
                         ) : (
                             <>
                                 <Icon icon="expand-vertical" />
-                                Show details
+                                {t("mergeSuggestionsErrors.showDetails")}
                             </>
                         )}
                     </Button>
@@ -109,7 +112,7 @@ function ErrorTableRow({ error }: ErrorTableRowProps) {
                     size="sm"
                     className="rounded-pill"
                     onClick={() =>
-                        copyToClipboard.copy(error.message + error.stackTrace, "Error has been copied to clipboard")
+                        copyToClipboard.copy(error.message + error.stackTrace, t("mergeSuggestionsErrors.copied"))
                     }
                 >
                     <Icon icon="copy-to-clipboard" margin="m-0" />

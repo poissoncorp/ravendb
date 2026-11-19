@@ -4,16 +4,16 @@
             <button type="button" class="close" data-bind="click: close" aria-hidden="true">
                 <i class="icon-cancel"></i>
             </button>
-            <h3 class="modal-title">Optimize Index</h3>
+            <h3 class="modal-title" data-bind="i18n: 'editIndex:optimize.title'"></h3>
         </div>
         <div class="modal-body">
             <div class="padding">
                 <div class="bg-info padding">
                     <small>
                         <ul class="margin-bottom-sm margin-top-sm">
-                            <li>The Optimize process will remove unnecessary data from the index and rewrite it to a more optimal form.</li>
-                            <li>The index will be disabled while optimization is in progress.</li>
-                            <li>Optimizing the index does not trigger re-indexing.</li>
+                            <li data-bind="i18n: 'editIndex:optimize.removeUnnecessaryData'"></li>
+                            <li data-bind="i18n: 'editIndex:optimize.indexDisabled'"></li>
+                            <li data-bind="i18n: 'editIndex:optimize.noReindexing'"></li>
                         </ul>
                     </small>
                 </div>
@@ -21,18 +21,18 @@
             
             <form class="flex-form" data-bind="submit: optimizeIndex" autocomplete="off">
                 <div class="form-group margin-top word-break">
-                    <label class="control-label">Index Name</label>
+                    <label class="control-label" data-bind="i18n: 'editIndex:indexName.title'"></label>
                     <strong class="form-control-static" data-bind="text: indexName"></strong>
                 </div>
             </form>
         </div>
         <div class="modal-footer">
             <div>
-                <button class="btn btn-default" data-bind="click: close" title="Close this dialog">
-                    <i class="icon-cancel"></i><span>Close</span>
+                <button class="btn btn-default" data-bind="click: close, i18nAttr: { title: 'editIndex:dialog.closeTitle' }">
+                    <i class="icon-cancel"></i><span data-bind="i18n: 'editIndex:dialog.close'"></span>
                 </button>
                 <button type="submit" class="btn btn-primary" data-bind="click: optimizeIndex">
-                    <i class="icon-compact"></i><span>Optimize index files</span>
+                    <i class="icon-compact"></i><span data-bind="i18n: 'editIndex:optimize.optimizeFiles'"></span>
                 </button>
             </div>
         </div>

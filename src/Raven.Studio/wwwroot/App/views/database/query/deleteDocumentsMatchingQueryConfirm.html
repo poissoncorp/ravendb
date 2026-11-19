@@ -4,28 +4,27 @@
             <button type="button" class="close" data-bind="click: cancel" aria-hidden="true">
                 <i class="icon-cancel"></i>
             </button>
-            <h4 class="modal-title" data-bind="visible: totalDocCount > 0">Delete the documents matching your query?</h4>
-            <h4 class="modal-title" data-bind="visible: totalDocCount === 0">No documents to delete</h4>
+            <h4 class="modal-title" data-bind="visible: totalDocCount > 0, i18n: 'query:deleteDocuments.dialogTitle'"></h4>
+            <h4 class="modal-title" data-bind="visible: totalDocCount === 0, i18n: 'query:deleteDocuments.noDocumentsTitle'"></h4>
         </div>
         <div class="modal-body">
             <div data-bind="visible: totalDocCount > 0" class="margin-top word-break">
                 <p>
-                    <span>You're deleting </span>
+                    <span data-bind="i18n: 'query:deleteDocuments.deleting'"></span>
                     <strong data-bind="text: totalDocCount.toLocaleString() + (hasMore ? '+' : '')"></strong>
-                    <span data-bind="visible: totalDocCount > 1, text: ' documents '"></span>
-                    <span data-bind="visible: totalDocCount == 1, text: ' document '"></span>
-                    <span>from <strong data-bind="text: indexName"></strong></span>
+                    <span data-bind="i18n: { key: 'query:deleteDocuments.documentsFrom', options: { count: totalDocCount } }"></span>
+                    <strong data-bind="text: indexName"></strong>
                 </p>
-                <p>These documents match the following query:</p>
+                <p data-bind="i18n: 'query:deleteDocuments.matchingQuery'"></p>
             </div>
             <div data-bind="visible: totalDocCount === 0" class="margin-top">
-                <p>There are no documents matching your query:</p>
+                <p data-bind="i18n: 'query:deleteDocuments.noMatchingDocuments'"></p>
             </div>
             <pre data-bind="text: queryText"></pre>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-bind="click: cancel">Cancel</button>
-            <button type="button" class="btn btn-danger" data-bind="click: deleteDocs, visible: totalDocCount > 0">Delete</button>
+            <button type="button" class="btn btn-default" data-bind="click: cancel, i18n: 'common:cancel'"></button>
+            <button type="button" class="btn btn-danger" data-bind="click: deleteDocs, visible: totalDocCount > 0, i18n: 'common:delete'"></button>
         </div>
     </div>
 </div>

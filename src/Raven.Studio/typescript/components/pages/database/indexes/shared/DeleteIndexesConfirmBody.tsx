@@ -1,5 +1,7 @@
 import React from "react";
 import RichAlert from "components/common/RichAlert";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export interface IndexInfoForDelete {
     indexName: string;
@@ -16,6 +18,7 @@ export default function DeleteIndexesConfirmBody({
     lockedIndexNames,
     indexesInfoForDelete,
 }: DeleteIndexesConfirmBodyProps) {
+    const t = useStudioTranslation("indexesShared");
     const showWarning = indexesInfoForDelete.some((x) => x.reduceOutputCollection);
 
     return (
@@ -23,14 +26,12 @@ export default function DeleteIndexesConfirmBody({
             {indexesInfoForDelete.length > 0 && (
                 <div>
                     <p>
-                        You are deleting{" "}
-                        {indexesInfoForDelete.length > 1 ? (
-                            <span>
-                                <strong>{indexesInfoForDelete.length}</strong> indexes:
-                            </span>
-                        ) : (
-                            <span>index:</span>
-                        )}
+                        <StudioTrans
+                            ns="indexesShared"
+                            i18nKey="deleteConfirm.intro"
+                            components={{ strong: <strong /> }}
+                            options={{ count: indexesInfoForDelete.length }}
+                        />
                     </p>
                     <ul className="overflow-auto" style={{ maxHeight: "200px" }}>
                         {indexesInfoForDelete.map((x) => (
@@ -38,8 +39,11 @@ export default function DeleteIndexesConfirmBody({
                                 <strong>{x.indexName}</strong>
                                 {x.reduceOutputCollection && (
                                     <small className="ms-1">
-                                        (Reduce Results Collections: {x.reduceOutputCollection}
-                                        {x.referenceCollection && `, ${x.referenceCollection}`})
+                                        {t("deleteConfirm.reduceResultsCollections", {
+                                            reduceOutputCollection: x.reduceOutputCollection,
+                                            referenceCollection: x.referenceCollection,
+                                            context: x.referenceCollection ? "withReference" : undefined,
+                                        })}
                                     </small>
                                 )}
                             </li>
@@ -49,7 +53,7 @@ export default function DeleteIndexesConfirmBody({
             )}
             {lockedIndexNames.length > 0 && (
                 <div>
-                    <p>Skipping locked indexes:</p>
+                    <p>{t("deleteConfirm.skippingLocked")}</p>
                     <ul className="overflow-auto" style={{ maxHeight: "200px" }}>
                         {lockedIndexNames.map((x) => (
                             <li key={x}>
@@ -64,18 +68,21 @@ export default function DeleteIndexesConfirmBody({
                     <hr />
                     <RichAlert variant="warning" className="align-items-start">
                         <div>
-                            &apos;Reduce Results Collections&apos; were created by the index(es).
+                            {t("deleteConfirm.reduceResultsWarning")}
                             <ul className="mt-2 mb-2 ps-3">
                                 <li>
-                                    <strong>Note</strong>:<br />
-                                    Clicking &apos;Delete&apos; will remove the index(es), but not the Reduce Results
-                                    Collection(s). You need to manually remove the documents from these collections.
+                                    <StudioTrans
+                                        ns="indexesShared"
+                                        i18nKey="deleteConfirm.reduceResultsNote"
+                                        components={{ strong: <strong />, br: <br /> }}
+                                    />
                                 </li>
                                 <li className="mt-1">
-                                    <strong>Important</strong>:<br />
-                                    If running in a cluster, these documents must be deleted from{" "}
-                                    <strong>each node individually</strong>, because their deletion is not replicated
-                                    between nodes.
+                                    <StudioTrans
+                                        ns="indexesShared"
+                                        i18nKey="deleteConfirm.reduceResultsImportant"
+                                        components={{ strong: <strong />, br: <br /> }}
+                                    />
                                 </li>
                             </ul>
                         </div>

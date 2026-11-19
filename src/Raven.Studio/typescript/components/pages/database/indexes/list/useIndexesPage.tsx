@@ -48,6 +48,8 @@ import Accordion from "react-bootstrap/Accordion";
 import Badge from "react-bootstrap/Badge";
 import classNames from "classnames";
 import { Icon } from "components/common/Icon";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 type IndexEvent =
     | Raven.Client.Documents.Changes.IndexChange
@@ -70,7 +72,15 @@ export interface SwapSideBySideData {
     inProgress: (indexName: string) => boolean;
 }
 
+const LOCK_MODE_CONTEXT = {
+    Unlock: "unlock",
+    LockedIgnore: "lockedIgnore",
+    LockedError: "lockedError",
+} as const satisfies Record<IndexLockMode, string>;
+
 export function useIndexesPage(stale: boolean, isImportOpen: boolean) {
+    const t = useStudioTranslation("indexesList");
+    const tCommon = useStudioTranslation("common");
     const autoDatabaseLimit = useAppSelector(licenseSelectors.statusValue("MaxNumberOfAutoIndexesPerDatabase"));
     const staticDatabaseLimit = useAppSelector(licenseSelectors.statusValue("MaxNumberOfStaticIndexesPerDatabase"));
 
@@ -278,7 +288,7 @@ export function useIndexesPage(stale: boolean, isImportOpen: boolean) {
                     }
                 }
             } catch {
-                messagePublisher.reportError("Failed to load global indexing status for node " + nodeTag);
+                messagePublisher.reportError(t("messages.globalStatusLoadError", { nodeTag }));
             }
         }
 
@@ -372,9 +382,9 @@ export function useIndexesPage(stale: boolean, isImportOpen: boolean) {
             }
 
             await Promise.all(disableRequests);
-            messagePublisher.reportSuccess(`${indexes.length === 1 ? "Index" : "Indexes"} disabled successfully.`);
+            messagePublisher.reportSuccess(t("messages.disabled", { count: indexes.length }));
         },
-        [indexesService, db.name, eventsCollector]
+        [indexesService, db.name, eventsCollector, t]
     );
 
     const disableIndexes = useCallback(
@@ -421,9 +431,9 @@ export function useIndexesPage(stale: boolean, isImportOpen: boolean) {
             }
 
             await Promise.all(pauseRequests);
-            messagePublisher.reportSuccess(`${indexes.length === 1 ? "Index" : "Indexes"} paused successfully.`);
+            messagePublisher.reportSuccess(t("messages.paused", { count: indexes.length }));
         },
-        [eventsCollector, indexesService, db.name]
+        [eventsCollector, indexesService, db.name, t]
     );
 
     const pauseIndexes = useCallback(
@@ -478,9 +488,9 @@ export function useIndexesPage(stale: boolean, isImportOpen: boolean) {
             }
 
             await Promise.all(startRequests);
-            messagePublisher.reportSuccess(`${indexes.length === 1 ? "Index" : "Indexes"} started successfully.`);
+            messagePublisher.reportSuccess(t("messages.started", { count: indexes.length }));
         },
-        [eventsCollector, indexesService, db.name]
+        [eventsCollector, indexesService, db.name, t]
     );
 
     const startIndexes = useCallback(
@@ -519,13 +529,13 @@ export function useIndexesPage(stale: boolean, isImportOpen: boolean) {
                     while (indexes.length) {
                         await setIndexLockModeInternal(indexes.pop(), lockMode);
                     }
-                    messagePublisher.reportSuccess("Lock mode was set to: " + IndexUtils.formatLockMode(lockMode));
+                    messagePublisher.reportSuccess(t("messages.lockModeSet", { context: LOCK_MODE_CONTEXT[lockMode] }));
                 } finally {
                     setGlobalLockChanges(false);
                 }
             }
         },
-        [eventsCollector, setIndexLockModeInternal]
+        [eventsCollector, setIndexLockModeInternal, t]
     );
 
     const confirmSetLockModeSelectedIndexes = useCallback(
@@ -540,7 +550,12 @@ export function useIndexesPage(stale: boolean, isImportOpen: boolean) {
                 icon: IndexUtils.getLockIcon(lockMode),
                 title: (
                     <span>
-                        Do you want to <strong>{IndexUtils.formatActionLockMode(lockMode)}</strong> selected indexes?
+                        <StudioTrans
+                            ns="indexesList"
+                            i18nKey="lockModeConfirm.title"
+                            components={{ strong: <strong /> }}
+                            options={{ context: LOCK_MODE_CONTEXT[lockMode] }}
+                        />
                     </span>
                 ),
                 actionColor: "primary",
@@ -554,10 +569,12 @@ export function useIndexesPage(stale: boolean, isImportOpen: boolean) {
                         >
                             <Accordion.Item eventKey="0">
                                 <Accordion.Header>
-                                    Indexes to{" "}
-                                    <strong className="text-primary margin-left-xxxs">
-                                        {IndexUtils.formatActionLockMode(lockMode)}
-                                    </strong>{" "}
+                                    <StudioTrans
+                                        ns="indexesList"
+                                        i18nKey="lockModeConfirm.indexesTo"
+                                        components={{ strong: <strong className="text-primary margin-left-xxxs" /> }}
+                                        options={{ context: LOCK_MODE_CONTEXT[lockMode] }}
+                                    />{" "}
                                     <Badge className="ms-1 px-1 align-self-center rounded-2" bg="secondary">
                                         {indexes.length}
                                     </Badge>
@@ -585,9 +602,7 @@ export function useIndexesPage(stale: boolean, isImportOpen: boolean) {
                                 </Accordion.Collapse>
                             </Accordion.Item>
                         </Accordion>
-                        <RichAlert variant="info">
-                            Static-indexes only will be set, &apos;Lock Mode&apos; is not relevant for auto-indexes.
-                        </RichAlert>
+                        <RichAlert variant="info">{t("lockModeConfirm.staticOnly")}</RichAlert>
                     </div>
                 ),
             });
@@ -596,7 +611,7 @@ export function useIndexesPage(stale: boolean, isImportOpen: boolean) {
                 await setLockModeSelectedIndexes(lockMode, indexes);
             }
         },
-        [getSelectedIndexes, confirm, setLockModeSelectedIndexes]
+        [getSelectedIndexes, confirm, setLockModeSelectedIndexes, t]
     );
 
     const confirmDeleteIndexes = async (indexes: IndexSharedInfo[]): Promise<void> => {
@@ -605,10 +620,10 @@ export function useIndexesPage(stale: boolean, isImportOpen: boolean) {
         const confirmData = getIndexInfoForDelete(indexes);
 
         const isConfirmed = await confirm({
-            title: `Delete ${confirmData.indexesInfoForDelete.length === 1 ? "index" : "indexes"}?`,
+            title: t("deleteConfirm.title", { count: confirmData.indexesInfoForDelete.length }),
             message: <DeleteIndexesConfirmBody {...confirmData} />,
             icon: "trash",
-            confirmText: "Delete",
+            confirmText: tCommon("delete"),
             actionColor: "danger",
         });
 
@@ -620,7 +635,7 @@ export function useIndexesPage(stale: boolean, isImportOpen: boolean) {
         await Promise.all(tasks);
 
         if (tasks.length > 1) {
-            messagePublisher.reportSuccess(`Successfully deleted ${tasks.length} indexes!`);
+            messagePublisher.reportSuccess(t("messages.deleted", { count: tasks.length }));
         }
 
         const deletedIndexNames = confirmData.indexesInfoForDelete.map((x) => x.indexName);
@@ -645,9 +660,9 @@ export function useIndexesPage(stale: boolean, isImportOpen: boolean) {
     const setIndexLockMode = useCallback(
         async (index: IndexSharedInfo, lockMode: IndexLockMode) => {
             await setIndexLockModeInternal(index, lockMode);
-            messagePublisher.reportSuccess("Lock mode was set to: " + IndexUtils.formatLockMode(lockMode));
+            messagePublisher.reportSuccess(t("messages.lockModeSet", { context: LOCK_MODE_CONTEXT[lockMode] }));
         },
-        [setIndexLockModeInternal]
+        [setIndexLockModeInternal, t]
     );
 
     const toggleSelection = (index: IndexSharedInfo) => {
@@ -664,10 +679,15 @@ export function useIndexesPage(stale: boolean, isImportOpen: boolean) {
         const isConfirmed = await confirm({
             title: (
                 <span>
-                    Do you want to open faulty index <strong>{index.name}</strong>?
+                    <StudioTrans
+                        ns="indexesList"
+                        i18nKey="openFaultyConfirm.title"
+                        components={{ strong: <strong /> }}
+                        options={{ name: index.name }}
+                    />
                 </span>
             ),
-            confirmText: "Open",
+            confirmText: t("openFaultyConfirm.confirm"),
             actionColor: "primary",
         });
 
@@ -703,7 +723,7 @@ export function useIndexesPage(stale: boolean, isImportOpen: boolean) {
                 }
 
                 await Promise.all(resetRequests);
-                messagePublisher.reportSuccess("Index " + indexName + " restarted successfully.");
+                messagePublisher.reportSuccess(t("messages.restarted", { name: indexName }));
             } finally {
                 // wait a bit and trigger refresh
                 await delay(1_000);
@@ -729,7 +749,7 @@ export function useIndexesPage(stale: boolean, isImportOpen: boolean) {
             }
 
             await Promise.all(swapRequests);
-            messagePublisher.reportSuccess("Index " + swapSideBySideConfirmIndexName + " replaced successfully.");
+            messagePublisher.reportSuccess(t("messages.replaced", { name: swapSideBySideConfirmIndexName }));
         } finally {
             setSwapNowProgress((item) => item.filter((x) => x !== swapSideBySideConfirmIndexName));
         }
@@ -760,7 +780,7 @@ export function useIndexesPage(stale: boolean, isImportOpen: boolean) {
                 ? {
                       value: staticDatabaseLimit,
                       badgeColor: staticIndexReachStatus === "closeToLimit" ? "warning" : "danger",
-                      message: `Your license allows ${staticDatabaseLimit} Static Indexes`,
+                      message: t("filter.staticLicenseLimit", { count: staticDatabaseLimit }),
                   }
                 : null;
 
@@ -769,25 +789,25 @@ export function useIndexesPage(stale: boolean, isImportOpen: boolean) {
                 ? {
                       value: autoDatabaseLimit,
                       badgeColor: autoIndexReachStatus === "closeToLimit" ? "warning" : "danger",
-                      message: `Your license allows ${autoDatabaseLimit} Auto Indexes`,
+                      message: t("filter.autoLicenseLimit", { count: autoDatabaseLimit }),
                   }
                 : null;
 
         return [
             {
                 value: "StaticIndex",
-                label: "Static",
+                label: t("filter.type.static"),
                 count: staticIndexCount,
                 limit: staticIndexInputLimit,
             },
             {
                 value: "AutoIndex",
-                label: "Auto",
+                label: t("filter.type.auto"),
                 count: autoIndexCount,
                 limit: autoIndexInputLimit,
             },
         ] satisfies InputItem<IndexType>[];
-    }, [autoDatabaseLimit, staticDatabaseLimit, stats.indexes]);
+    }, [autoDatabaseLimit, staticDatabaseLimit, stats.indexes, t]);
 
     const filterByEngineOptions: InputItem<SearchEngineType>[] = useMemo(() => {
         const luceneCount = stats.indexes.filter((x) => x.searchEngine === "Lucene").length;
@@ -830,14 +850,14 @@ export function useIndexesPage(stale: boolean, isImportOpen: boolean) {
         }
 
         return [
-            { value: "Normal", label: "Normal", count: normal },
-            { value: "ErrorOrFaulty", label: "Error Or Faulty", count: errorOrFaulty },
-            { value: "Stale", label: "Stale", count: stale },
-            { value: "Paused", label: "Paused", count: paused },
-            { value: "Disabled", label: "Disabled", count: disabled },
-            { value: "Idle", label: "Idle", count: idle },
+            { value: "Normal", label: t("filter.state.normal"), count: normal },
+            { value: "ErrorOrFaulty", label: t("filter.state.errorOrFaulty"), count: errorOrFaulty },
+            { value: "Stale", label: t("filter.state.stale"), count: stale },
+            { value: "Paused", label: t("filter.state.paused"), count: paused },
+            { value: "Disabled", label: t("filter.state.disabled"), count: disabled },
+            { value: "Idle", label: t("filter.state.idle"), count: idle },
         ];
-    }, [stats.indexes]);
+    }, [stats.indexes, t]);
 
     return {
         loading,

@@ -1,4 +1,7 @@
 /// <reference path="../../../../typings/tsd.d.ts"/>
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("queryModels");
 
 class querySort {
 
@@ -32,13 +35,13 @@ class querySort {
     toHumanizedString(): string {
         switch (this.sortType()) {
             case "Ascending":
-                return this.fieldName() + " ascending"
+                return t("sort.ascending", { field: this.fieldName() });
             case "Descending":
-                return this.fieldName() + " descending";
+                return t("sort.descending", { field: this.fieldName() });
             case "Range Ascending":
-                return this.fieldName() + " range";
+                return t("sort.rangeAscending", { field: this.fieldName() });
             case "Range Descending":
-                return this.fieldName() + " range descending";
+                return t("sort.rangeDescending", { field: this.fieldName() });
         }
     }
 

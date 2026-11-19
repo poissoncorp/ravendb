@@ -14,6 +14,7 @@ import IndexErrorsSheet from "components/pages/database/indexes/errors/IndexErro
 import { OpenSheetOptions, useViewSheet } from "components/common/splitView/ViewSheet";
 import React from "react";
 import { CellDateWithRelativeTimeWrapper } from "components/common/virtualTable/cells/CellDateWithRelativeTime";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 declare module "@tanstack/react-table" {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -51,18 +52,19 @@ function openIndexErrorsSheet(
 const defaultCellSize = 95 / 5;
 
 export function useIndexErrorsPanelColumns(availableWidth: number) {
+    const t = useStudioTranslation("indexErrors");
     const bodyWidth = virtualTableUtils.getTableBodyWidth(availableWidth);
 
     const indexErrorsPanelColumns = useMemo((): ColumnDef<IndexErrorPerDocument>[] => {
         const getSize = virtualTableUtils.getCellSizeProvider(bodyWidth);
         return [
             {
-                header: "Show",
+                header: t("columns.show"),
                 cell: CellValueButtonWrapper,
                 size: 70,
             },
             {
-                header: "Index Name",
+                header: t("columns.indexName"),
                 accessorKey: "IndexName",
                 cell: HyperlinkIndexCellValue,
                 size: getSize(defaultCellSize),
@@ -70,19 +72,19 @@ export function useIndexErrorsPanelColumns(availableWidth: number) {
                 enableColumnFilter: false,
             },
             {
-                header: "Document ID",
+                header: t("columns.documentId"),
                 accessorKey: "Document",
                 cell: HyperLinkDocumentCellValue,
                 size: getSize(defaultCellSize),
             },
             {
-                header: "Date",
+                header: t("columns.date"),
                 accessorKey: "Timestamp",
                 cell: CellDateWithRelativeTimeWrapper,
                 size: getSize(defaultCellSize),
             },
             {
-                header: "Action",
+                header: t("columns.action"),
                 accessorKey: "Action",
                 cell: CellValueWrapper,
                 size: getSize(defaultCellSize / 2),
@@ -90,13 +92,13 @@ export function useIndexErrorsPanelColumns(availableWidth: number) {
                 enableColumnFilter: false,
             },
             {
-                header: "Error",
+                header: t("columns.error"),
                 accessorKey: "Error",
                 cell: IndexErrorsCellWithCopyWrapper,
                 size: getSize(defaultCellSize * 1.5),
             },
         ];
-    }, [bodyWidth]);
+    }, [bodyWidth, t]);
 
     return { indexErrorsPanelColumns };
 }
@@ -168,10 +170,11 @@ const CellValueButtonWrapper = ({ row, table }: CellValueButtonWrapperProps) => 
 type IndexErrorsCellWithCopyWrapperProps = CellContext<IndexErrorPerDocument, unknown>;
 
 const IndexErrorsCellWithCopyWrapper = ({ getValue, row, table }: IndexErrorsCellWithCopyWrapperProps) => {
+    const t = useStudioTranslation("indexErrors");
     const { open } = useViewSheet();
 
     const additionalButtons = (
-        <Button size="sm" onClick={() => openIndexErrorsSheet(open, table, row)} title="Show error details">
+        <Button size="sm" onClick={() => openIndexErrorsSheet(open, table, row)} title={t("columns.showErrorDetails")}>
             <Icon icon="preview" margin="m-0" />
         </Button>
     );

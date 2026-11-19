@@ -1,6 +1,9 @@
 ﻿/// <reference path="../../../../typings/tsd.d.ts"/>
 import jsonUtil = require("common/jsonUtil");
 import common = require("components/utils/common");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("indexModels");
 
 type VectorEmbeddingTypeWithoutText = Exclude<Raven.Client.Documents.Indexes.Vector.VectorEmbeddingType, "Text">;
 
@@ -90,7 +93,7 @@ class vectorOptions {
                         }
                         return allowedMappings[srcValue] && allowedMappings[srcValue].indexOf(destValue) !== -1;
                     },
-                    message: "Destination embedding type is invalid for the selected source embedding type.",
+                    message: t("vector.invalidDestinationType"),
                 },
             ],
         });
@@ -100,7 +103,7 @@ class vectorOptions {
             validation: [
                 {
                     validator: () => !(this.sourceEmbeddingType() === "Text" && this.dimensions() !== null),
-                    message: "Dimensions are set internally by the embedder."
+                    message: t("vector.dimensionsSetByEmbedder")
                 }
             ]
         });
@@ -108,21 +111,21 @@ class vectorOptions {
         this.dimensions.extend({
             min: {
                 params: 0,
-                message: "Number of vector dimensions has to be positive."
+                message: t("vector.dimensionsPositive")
             },
         });
 
         this.numberOfEdges.extend({
             min: {
                 params: 0,
-                message: "Number of edges has to be positive."
+                message: t("vector.edgesPositive")
             },
         });
 
         this.numberOfCandidatesForIndexing.extend({
             min: {
                 params: 0,
-                message: "Number of candidate nodes has to be positive."
+                message: t("vector.candidatesPositive")
             }
         });
     }

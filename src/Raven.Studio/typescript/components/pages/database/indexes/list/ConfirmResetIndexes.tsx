@@ -13,6 +13,8 @@ import Modal from "components/common/Modal";
 import classNames from "classnames";
 import Accordion from "react-bootstrap/Accordion";
 import Badge from "react-bootstrap/Badge";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface ConfirmResetIndexesProps {
     indexes: IndexSharedInfo[];
@@ -24,6 +26,8 @@ interface ConfirmResetIndexesProps {
 
 export function ConfirmResetIndexes(props: ConfirmResetIndexesProps) {
     const { indexes, mode, allActionContexts, onConfirm, closeConfirm } = props;
+    const t = useStudioTranslation("indexesList");
+    const commonT = useStudioTranslation("common");
 
     const hasAutoIndexes = indexes.some(IndexUtils.isAutoIndex);
     const hasReplacements = indexes.some(IndexUtils.isSideBySide);
@@ -46,22 +50,22 @@ export function ConfirmResetIndexes(props: ConfirmResetIndexesProps) {
             return null;
         }
 
-        let prefix = "";
+        let context: "autoIndexes" | "replacements" | "autoIndexesAndReplacements" = null;
 
         if (hasAutoIndexes && !hasReplacements) {
-            prefix = "Auto indexes";
+            context = "autoIndexes";
         }
         if (hasReplacements && !hasAutoIndexes) {
-            prefix = "Replacements";
+            context = "replacements";
         }
         if (hasAutoIndexes && hasReplacements) {
-            prefix = "Auto indexes and replacements";
+            context = "autoIndexesAndReplacements";
         }
-        if (prefix === "") {
+        if (context == null) {
             return null;
         }
 
-        return prefix + " cannot be reset Side by side so they will be skipped.";
+        return t("resetConfirm.sideBySideWarning", { context });
     };
 
     const sideBySideWarning = getSideBySideWarning();
@@ -78,7 +82,7 @@ export function ConfirmResetIndexes(props: ConfirmResetIndexesProps) {
     return (
         <Modal show onHide={closeConfirm} contentClassName="modal-border bulge-warning" size="lg">
             <Modal.Header className="hstack pb-2 mb-0" onCloseClick={closeConfirm}>
-                <div className="text-center lead">Confirm Reset Operation</div>
+                <div className="text-center lead">{t("resetConfirm.title")}</div>
             </Modal.Header>
             <Modal.Body className="vstack gap-4 pt-0">
                 <div className="vstack gap-2">
@@ -90,7 +94,11 @@ export function ConfirmResetIndexes(props: ConfirmResetIndexesProps) {
                     >
                         <Accordion.Item eventKey="0">
                             <Accordion.Header>
-                                Indexes to <strong className="text-warning margin-left-xxxs">Reset</strong>{" "}
+                                <StudioTrans
+                                    ns="indexesList"
+                                    i18nKey="resetConfirm.indexesToReset"
+                                    components={{ strong: <strong className="text-warning margin-left-xxxs" /> }}
+                                />{" "}
                                 <Badge className="ms-1 px-1 align-self-center rounded-circle" bg="secondary">
                                     {indexNamesToReset.length}
                                 </Badge>
@@ -119,26 +127,34 @@ export function ConfirmResetIndexes(props: ConfirmResetIndexesProps) {
                         {sideBySideWarning && <RichAlert variant="warning">{sideBySideWarning}</RichAlert>}
                         <RichAlert variant="warning">
                             <div>
-                                <strong>Reset</strong> will remove all existing indexed data
-                                {ActionContextUtils.showContextSelector(allActionContexts) ? (
-                                    <span> from the selected context.</span>
-                                ) : (
-                                    <span> from node {allActionContexts[0].nodeTag}.</span>
-                                )}
+                                <StudioTrans
+                                    ns="indexesList"
+                                    i18nKey="resetConfirm.removeData"
+                                    components={{ strong: <strong /> }}
+                                    options={{
+                                        context: ActionContextUtils.showContextSelector(allActionContexts)
+                                            ? "selectedContext"
+                                            : "node",
+                                        nodeTag: allActionContexts[0].nodeTag,
+                                    }}
+                                />
                                 <br />
-                                <span>All items matched by the index definition will be re-indexed.</span>
+                                <span>{t("resetConfirm.reindexInfo")}</span>
                             </div>
                         </RichAlert>
                         <RichAlert variant="info">
-                            <strong>Reset mode: </strong>
-                            {mode === "InPlace" && <span>In place</span>}
-                            {mode === "SideBySide" && <span>Side by side</span>}
+                            <StudioTrans
+                                ns="indexesList"
+                                i18nKey="resetConfirm.mode"
+                                components={{ strong: <strong /> }}
+                                options={{ context: mode === "InPlace" ? "inPlace" : "sideBySide" }}
+                            />
                         </RichAlert>
                     </div>
                 </div>
                 {ActionContextUtils.showContextSelector(allActionContexts) && (
                     <div>
-                        <h4 className="fw-light mb-1">Select context</h4>
+                        <h4 className="fw-light mb-1">{t("resetConfirm.selectContext")}</h4>
                         <MultipleDatabaseLocationSelector
                             allActionContexts={allActionContexts}
                             selectedActionContexts={selectedActionContexts}
@@ -149,7 +165,7 @@ export function ConfirmResetIndexes(props: ConfirmResetIndexesProps) {
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="link" onClick={closeConfirm} className="link-muted">
-                    Cancel
+                    {commonT("cancel")}
                 </Button>
                 <Button
                     variant="warning"
@@ -158,7 +174,7 @@ export function ConfirmResetIndexes(props: ConfirmResetIndexesProps) {
                     disabled={selectedActionContexts.length === 0}
                 >
                     <Icon icon="reset-index" />
-                    Reset
+                    {t("resetConfirm.confirm")}
                 </Button>
             </Modal.Footer>
         </Modal>

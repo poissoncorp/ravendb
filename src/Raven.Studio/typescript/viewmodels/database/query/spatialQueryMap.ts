@@ -6,11 +6,14 @@ import genUtils = require("common/generalUtils");
 import spatialCircleModel = require("models/database/query/spatialCircleModel");
 import spatialPolygonModel = require("models/database/query/spatialPolygonModel");
 import prismjs = require("prismjs");
+import i18nModule = require("common/i18n/i18n");
 
 import L = require("leaflet");
 require("leaflet.markercluster");
 
 const markerIcon = require("Content/img/leaflet/marker-icon.svg");
+
+const t = i18nModule.createTranslator("query");
 
 class spatialQueryMap extends viewModelBase {
 
@@ -38,8 +41,8 @@ class spatialQueryMap extends viewModelBase {
         const osmMap = this.getStreetMapTileLayer();
         const otmMap = this.getTopographyMapTileLayer();
         const baseLayers = {
-            "Streets Map": osmMap,
-            "Topography Map": otmMap
+            [t("spatial.streetsMap")]: osmMap,
+            [t("spatial.topographyMap")]: otmMap
         };
 
         const generatePopupHtml = (doc: document) => {
@@ -51,7 +54,7 @@ class spatialQueryMap extends viewModelBase {
             text = prismjs.highlight(text, prismjs.languages.javascript, "js");
 
             return `<div>
-                          <h4>Document: ${genUtils.escapeHtml(doc.getId())}</h4>
+                          <h4>${genUtils.escapeHtml(t("spatial.popupDocument", { id: doc.getId() }))}</h4>
                           <pre>${text}</pre>
                     </div>`;
         }
@@ -78,7 +81,7 @@ class spatialQueryMap extends viewModelBase {
             markersGroup.addLayers(markers);
             const numberOfMarkersInLayer = markers.length;
             
-            const controlLayerText = `<span>Point fields: <span class="number-of-markers pull-right padding padding-xs">${numberOfMarkersInLayer}</span></span>
+            const controlLayerText = `<span>${genUtils.escapeHtml(t("spatial.pointFields"))} <span class="number-of-markers pull-right padding padding-xs">${numberOfMarkersInLayer}</span></span>
                                       <div class='margin-left-sm'>
                                           <span>${genUtils.escapeHtml(markersLayer.latitudeProperty)}</span><br>
                                           <span>${genUtils.escapeHtml(markersLayer.longitudeProperty)}</span>
@@ -99,11 +102,11 @@ class spatialQueryMap extends viewModelBase {
         const circleLayer = L.layerGroup(circleArray);
         
         if (polyArray.length) {
-            (dataLayers as any)["Polygons"] = polyLayer;
+            (dataLayers as any)[t("spatial.polygons")] = polyLayer;
         }
         
         if (circleArray.length) {
-            (dataLayers as any)["Circles"] = circleLayer;
+            (dataLayers as any)[t("spatial.circles")] = circleLayer;
         }
 
         // Must init L.map w/ some options, otherwise method Circle.getBounds() will fail
@@ -129,14 +132,14 @@ class spatialQueryMap extends viewModelBase {
     private getStreetMapTileLayer(): L.TileLayer {
         const osmLink = `<a href="http://openstreetmap.org">OpenStreetMap</a>`;
         const osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-        const osmAttrib = `&copy; ${osmLink} Contributors`;
+        const osmAttrib = t("spatial.attribution", { link: osmLink });
         return L.tileLayer(osmUrl, {attribution: osmAttrib});
     }
     
     private getTopographyMapTileLayer(): L.TileLayer {
         const otmLink = `<a href="http://opentopomap.org/">OpenTopoMap</a>`;
         const otmUrl = `http://{s}.tile.opentopomap.org/{z}/{x}/{y}.png`;
-        const otmAttrib = `&copy; ${otmLink} Contributors`;
+        const otmAttrib = t("spatial.attribution", { link: otmLink });
         return L.tileLayer(otmUrl, {attribution: otmAttrib});
     } 
     

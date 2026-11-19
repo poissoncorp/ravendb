@@ -4,6 +4,9 @@ import database = require("models/resources/database");
 import dialogViewModelBase = require("viewmodels/dialogViewModelBase");
 import messagePublisher = require("common/messagePublisher");
 import IndexLockMode = Raven.Client.Documents.Indexes.IndexLockMode;
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("editIndex");
 
 class indexInfoForDelete {
     indexName: string;
@@ -36,6 +39,8 @@ class deleteIndexesConfirm extends dialogViewModelBase {
     title: string;
     subTitleHtml: string;
     showWarning = false;
+    warningNoteHtml = t("deleteConfirm.warning.note");
+    warningImportantHtml = t("deleteConfirm.warning.important");
     deleteTask = $.Deferred<boolean>();
 
     indexesInfoForDelete: indexInfoForDelete[] = [];
@@ -72,11 +77,11 @@ class deleteIndexesConfirm extends dialogViewModelBase {
         })
         
         if (this.indexesInfoForDelete.length === 1) {
-            this.title = "Delete index?";
-            this.subTitleHtml = `You're deleting index:`;
+            this.title = t("deleteConfirm.title", { context: "single" });
+            this.subTitleHtml = t("deleteConfirm.subTitle");
         } else {
-            this.title = "Delete indexes?";
-            this.subTitleHtml = `You're deleting <strong>${this.indexesInfoForDelete.length}</strong> indexes:`;
+            this.title = t("deleteConfirm.title", { context: "multiple" });
+            this.subTitleHtml = t("deleteConfirm.subTitleMultiple", { count: this.indexesInfoForDelete.length });
         }
 
         this.showWarning = this.indexesInfoForDelete.some(x => x.reduceOutputCollection);
@@ -89,7 +94,7 @@ class deleteIndexesConfirm extends dialogViewModelBase {
         $.when.apply($, deleteTasks)
             .done(() => {
                 if (this.indexesInfoForDelete.length > 1) {
-                    messagePublisher.reportSuccess("Successfully deleted " + this.indexesInfoForDelete.length + " indexes!");
+                    messagePublisher.reportSuccess(t("deleteConfirm.success", { count: this.indexesInfoForDelete.length }));
                 }
                 this.deleteTask.resolve(true);
             })

@@ -4,11 +4,9 @@
     <div class="time-series-legend scroll">
         <div class="checkbox margin-bottom margin-bottom-md">
             <input id="connectPoints" class="styled" type="checkbox" data-bind="checked: connectPoints">
-            <label for="connectPoints">
-                Connect Points
-            </label>
+            <label for="connectPoints" data-bind="i18n: 'query:timeSeries.connectPoints'"></label>
         </div>
-        <h4 class="ts-legend-header">LEGEND</h4>
+        <h4 class="ts-legend-header" data-bind="i18n: 'query:timeSeries.legend'"></h4>
         <div class="flex-grow" style="position: relative">
             <div data-bind="foreach: allTimeSeries">
                 <div data-bind="text: sectionName" class="section-name margin-top"></div>

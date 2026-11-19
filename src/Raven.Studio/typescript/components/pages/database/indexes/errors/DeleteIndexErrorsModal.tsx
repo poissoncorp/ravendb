@@ -11,7 +11,8 @@ import { FormGroup, FormLabel } from "components/common/Form";
 import useDeleteConfirmation from "hooks/useDeleteConfirmation";
 import studioSettings from "common/settings/studioSettings";
 import messagePublisher from "common/messagePublisher";
-import pluralizeHelpers from "common/helpers/text/pluralizeHelpers";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface DeleteIndexErrorsModalProps {
     location: databaseLocationSpecifier;
@@ -28,6 +29,8 @@ export default function DeleteIndexErrorsModal({
     onConfirm,
     onClose,
 }: DeleteIndexErrorsModalProps) {
+    const t = useStudioTranslation("indexErrors");
+    const commonT = useStudioTranslation("common");
     const asyncGlobalSettings = useAsync(async () => await studioSettings.default.globalSettings(), []);
 
     const isRequireTypedConfirm =
@@ -37,7 +40,7 @@ export default function DeleteIndexErrorsModal({
 
     const toggleIsRequireTypedConfirm = async () => {
         if (!asyncGlobalSettings.result) {
-            messagePublisher.reportError("Failed to load studio global settings");
+            messagePublisher.reportError(t("deleteModal.loadSettingsFailed"));
             return;
         }
 
@@ -51,28 +54,31 @@ export default function DeleteIndexErrorsModal({
                 <h3>
                     <Icon icon="trash" color="danger" />
                     <span>
-                        Delete errors for <Icon icon="node" color="node" margin="m-0" />{" "}
-                        <strong>{location.nodeTag}</strong>
-                        {location.shardNumber != null && (
-                            <>
-                                {" "}
-                                <Icon icon="shard" color="shard" margin="m-0" />{" "}
-                                <strong>#{location.shardNumber}</strong>
-                            </>
-                        )}
-                        ?
+                        <StudioTrans
+                            ns="indexErrors"
+                            i18nKey="deleteModal.title"
+                            components={{
+                                nodeIcon: <Icon icon="node" color="node" margin="m-0" />,
+                                shardIcon: <Icon icon="shard" color="shard" margin="m-0" />,
+                                strong: <strong />,
+                            }}
+                            options={{
+                                nodeTag: location.nodeTag,
+                                shardNumber: location.shardNumber,
+                                context: location.shardNumber != null ? "shard" : undefined,
+                            }}
+                        />
                     </span>
                 </h3>
             </Modal.Header>
             <Modal.Body className="pt-0">
                 <SelectedIndexesInfo selectedIndexNames={selectedIndexNames} />
                 <RichAlert variant="info" className="mt-3">
-                    While the current indexing errors will be cleared, an index in an <b>Error state</b> will not be set
-                    back to the <b>Normal</b> state.
+                    <StudioTrans ns="indexErrors" i18nKey="deleteModal.info" components={{ b: <b /> }} />
                 </RichAlert>
                 {isRequireTypedConfirm && (
                     <FormGroup className="mt-3">
-                        <FormLabel className="fw-bold">Type DELETE to confirm</FormLabel>
+                        <FormLabel className="fw-bold">{t("deleteModal.typeToConfirm")}</FormLabel>
                         <Form.Control placeholder="DELETE" value={confirmText} onChange={handleTextChange} />
                     </FormGroup>
                 )}
@@ -84,11 +90,11 @@ export default function DeleteIndexErrorsModal({
                     disabled={!asyncGlobalSettings.result}
                     color="primary"
                 >
-                    Require typed confirmation
+                    {t("deleteModal.requireTypedConfirmation")}
                 </Switch>
                 <div className="hstack gap-2 flex-grow-1 justify-content-end">
                     <Button variant="link" onClick={onClose} className="link-muted">
-                        Cancel
+                        {commonT("cancel")}
                     </Button>
                     <ButtonWithSpinner
                         isSpinning={isDeleting}
@@ -97,7 +103,7 @@ export default function DeleteIndexErrorsModal({
                         className="rounded-pill"
                         disabled={!isConfirmed || isDeleting}
                     >
-                        Delete
+                        {commonT("delete")}
                     </ButtonWithSpinner>
                 </div>
             </Modal.Footer>
@@ -113,16 +119,23 @@ function SelectedIndexesInfo({ selectedIndexNames }: SelectedIndexesInfoProps) {
     if (selectedIndexNames.length === 0) {
         return (
             <p>
-                Errors will be deleted for <strong>ALL</strong> indexes. <br />
-                To delete errors for <b>specific indexes</b>, select them in the dropdown.
+                <StudioTrans
+                    ns="indexErrors"
+                    i18nKey="deleteModal.allIndexes"
+                    components={{ strong: <strong />, br: <br />, b: <b /> }}
+                />
             </p>
         );
     }
 
     return (
         <div>
-            You&#39;re deleting errors for <b>{selectedIndexNames.length}</b>{" "}
-            {pluralizeHelpers.pluralize(selectedIndexNames.length, "index", "indexes", true)}:
+            <StudioTrans
+                ns="indexErrors"
+                i18nKey="deleteModal.selectedIndexes"
+                components={{ b: <b /> }}
+                options={{ count: selectedIndexNames.length }}
+            />
             <ul>
                 {selectedIndexNames.map((indexName) => (
                     <li key={indexName} title={indexName} className="text-truncate">

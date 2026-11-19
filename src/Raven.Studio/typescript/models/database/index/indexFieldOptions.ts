@@ -4,13 +4,16 @@ import vectorOptions = require("models/database/index/vectorOptions");
 import jsonUtil = require("common/jsonUtil");
 import models = require("models/database/settings/databaseSettingsModels");
 import typeUtils = require("common/typeUtils")
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("indexModels");
 
 function labelMatcher<T>(labels: Array<valueAndLabelItem<T, string>>): (arg: T) => string {
     return(arg) => labels.find(x => x.value === arg).label;
 }
 
 function yesNoLabelProvider(arg: boolean) {
-    return arg ? "Yes" : "No";
+    return arg ? t("fieldOptions.yes") : t("fieldOptions.no");
 }
 
 type indexingTypes = Raven.Client.Documents.Indexes.FieldIndexing | "Search (implied)";
@@ -52,43 +55,48 @@ class indexFieldOptions {
 
     static readonly DefaultFieldOptions = "__all_fields";
     
-    static readonly TermVectors: Array<valueAndLabelItem<Raven.Client.Documents.Indexes.FieldTermVector, string>> = [{
-            label: "No",
+    static get TermVectors(): Array<valueAndLabelItem<Raven.Client.Documents.Indexes.FieldTermVector, string>> {
+        return [{
+            label: t("fieldOptions.termVector.no"),
             value: "No"
         }, {
-            label: "With offsets",
+            label: t("fieldOptions.termVector.withOffsets"),
             value: "WithOffsets"
         }, {
-            label: "With positions",
+            label: t("fieldOptions.termVector.withPositions"),
             value: "WithPositions"
         }, {
-            label: "With positions and offsets",
+            label: t("fieldOptions.termVector.withPositionsAndOffsets"),
             value: "WithPositionsAndOffsets"
         }, {
-            label: "Yes",
+            label: t("fieldOptions.termVector.yes"),
             value: "Yes"
         }
-    ];
+        ];
+    }
 
-    static readonly Indexing: Array<valueAndLabelItem<Raven.Client.Documents.Indexes.FieldIndexing, string>> = [
+    static get Indexing(): Array<valueAndLabelItem<Raven.Client.Documents.Indexes.FieldIndexing, string>> {
+        return [
         {
-            label: "Default",
+            label: t("fieldOptions.indexing.default"),
             value: "Default"
         }, {
-            label: "No",
+            label: t("fieldOptions.indexing.no"),
             value: "No"
-            
+
         }, {
-            label: "Exact",
+            label: t("fieldOptions.indexing.exact"),
             value: "Exact"
-            
+
         }, {
-            label: "Search",
+            label: t("fieldOptions.indexing.search"),
             value: "Search"
         }];
+    }
 
-    static readonly IndexingWithSearchImplied: Array<valueAndLabelItem<indexingTypes, string>> =
-        [...indexFieldOptions.Indexing, { label: "Search (implied)", value: "Search (implied)" }];
+    static get IndexingWithSearchImplied(): Array<valueAndLabelItem<indexingTypes, string>> {
+        return [...indexFieldOptions.Indexing, { label: t("fieldOptions.indexing.searchImplied"), value: "Search (implied)" }];
+    }
     
     static readonly SpatialType: Array<Raven.Client.Documents.Indexes.Spatial.SpatialFieldType> = ["Cartesian", "Geography"];
     
@@ -477,17 +485,16 @@ class indexFieldOptions {
         }
         
         this.disabledAnalyzerText("");
-        const helpMsg = "To set a different analyzer, select the 'Indexing.Search' option first.";
         
         if (thisIndexing === "Exact" || (!thisIndexing && parentIndexing === "Exact")) {
             if ((localAnalyzerConfiguration || hasDatabaseDefaultChanged) && isAnalyzerNameInDictionary) {
                 this.analyzer(null);
                 placeHolder = defaultFieldAnalyzer;
-                this.disabledAnalyzerText(`${defaultFieldAnalyzer} is used when selecting Indexing.Exact. ` + helpMsg);
+                this.disabledAnalyzerText(t("fieldOptions.analyzer.usedWithExact", { analyzer: defaultFieldAnalyzer }));
             } else {
                 this.analyzer(null);
                 placeHolder = "Keyword Analyzer";
-                this.disabledAnalyzerText("KeywordAnalyzer is used when selecting Indexing.Exact. " + helpMsg);
+                this.disabledAnalyzerText(t("fieldOptions.analyzer.usedWithExact", { analyzer: "KeywordAnalyzer" }));
             }
         }
 
@@ -495,16 +502,16 @@ class indexFieldOptions {
             if ((localAnalyzerConfiguration || hasDatabaseDefaultChanged) && isAnalyzerNameInDictionary) {
                 placeHolder = defaultFieldAnalyzer;
                 this.analyzer(null);
-                this.disabledAnalyzerText(`${defaultFieldAnalyzer} is used when selecting Indexing.Default. ` + helpMsg);
+                this.disabledAnalyzerText(t("fieldOptions.analyzer.usedWithDefault", { analyzer: defaultFieldAnalyzer }));
             } else {
                 this.analyzer(null);
                 placeHolder = "LowerCase Keyword Analyzer";
-                this.disabledAnalyzerText("LowerCaseKeywordAnalyzer is used when selecting Indexing.Default. " + helpMsg);
+                this.disabledAnalyzerText(t("fieldOptions.analyzer.usedWithDefault", { analyzer: "LowerCaseKeywordAnalyzer" }));
             }
         }
 
         if (thisIndexing === "Search (implied)") {
-            this.disabledAnalyzerText("Cannot edit analyzer when Search is implied");
+            this.disabledAnalyzerText(t("fieldOptions.analyzer.searchImplied"));
         }
 
         if (!thisIndexing && parentIndexing === "Search") {
@@ -543,7 +550,7 @@ class indexFieldOptions {
     }
 
     private defaultComputed<T>(extractor: (field: indexFieldOptions) => T, labelProvider?: (arg: T) => string): KnockoutComputed<string> {
-        return ko.pureComputed(() => "Inherit (" + this.parent().extractEffectiveValue(x => extractor(x), false, labelProvider) + ")");
+        return ko.pureComputed(() => t("fieldOptions.inherit", { value: this.parent().extractEffectiveValue(x => extractor(x), false, labelProvider) }));
     }
 
     private extractEffectiveValue<T>(extractor: (field: indexFieldOptions) => T, wrapWithDefault: boolean, labelProvider?: (arg: T) => string): string {
@@ -561,7 +568,7 @@ class indexFieldOptions {
 
         const label = labelProvider ? labelProvider(value) : value;
 
-        return (index > 0 && wrapWithDefault) ? "Inherit (" + label + ")" : <any>label;
+        return (index > 0 && wrapWithDefault) ? t("fieldOptions.inherit", { value: String(label) }) : <any>label;
     }
 
     private initValidation() {
@@ -573,7 +580,7 @@ class indexFieldOptions {
             validation: [
                 {
                     validator: () => this.indexDefinitionHasReduce() || this.indexOrStore(),
-                    message: "'Indexing' and 'Store' cannot be set to 'No' at the same time. A field must be either Indexed or Stored."
+                    message: t("fieldOptions.indexOrStore")
                 }
             ]
         });

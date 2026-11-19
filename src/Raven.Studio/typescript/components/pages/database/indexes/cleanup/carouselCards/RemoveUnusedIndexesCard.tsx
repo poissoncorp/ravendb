@@ -14,27 +14,30 @@ import React from "react";
 import Badge from "react-bootstrap/Badge";
 import Table from "react-bootstrap/Table";
 import Card from "react-bootstrap/Card";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface RemoveUnusedIndexesCardProps {
     unused: UseIndexCleanupResult["unused"];
 }
 
 export default function RemoveUnusedIndexesCard({ unused }: RemoveUnusedIndexesCardProps) {
+    const t = useStudioTranslation("indexCleanup");
+
     return (
         <Card>
             <Card className="bg-faded-primary m-1 p-4">
                 <div className="text-limit-width">
-                    <h2>Remove unused indexes</h2>
-                    Unused indexes still consume resources. Indexes that have not been queried for over a week are
-                    listed below. Review the list and consider deleting any unnecessary indexes.
+                    <h2>{t("removeUnused.title")}</h2>
+                    {t("removeUnused.description")}
                 </div>
             </Card>
-            {unused.data.length === 0 ? <EmptySet>No unused indexes</EmptySet> : <MainPanel unused={unused} />}
+            {unused.data.length === 0 ? <EmptySet>{t("removeUnused.empty")}</EmptySet> : <MainPanel unused={unused} />}
         </Card>
     );
 }
 
 function MainPanel({ unused }: RemoveUnusedIndexesCardProps) {
+    const t = useStudioTranslation("indexCleanup");
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
 
     return (
@@ -47,7 +50,7 @@ function MainPanel({ unused }: RemoveUnusedIndexesCardProps) {
                 disabled={unused.selected.length === 0}
             >
                 <Icon icon="trash" />
-                Delete selected indexes
+                {t("removeUnused.deleteButton")}
                 <Badge bg="faded-primary" className="rounded-pill ms-1">
                     {unused.selected.length}
                 </Badge>
@@ -67,14 +70,14 @@ function MainPanel({ unused }: RemoveUnusedIndexesCardProps) {
                                     />
                                 </td>
                                 <td className="align-middle">
-                                    <div className="small-label">Unused index</div>
+                                    <div className="small-label">{t("removeUnused.unusedIndex")}</div>
                                 </td>
 
                                 <td className="align-middle">
-                                    <div className="small-label">Last query time</div>
+                                    <div className="small-label">{t("columns.lastQueryTime")}</div>
                                 </td>
                                 <td className="align-middle">
-                                    <div className="small-label">Last indexing time</div>
+                                    <div className="small-label">{t("columns.lastIndexingTime")}</div>
                                 </td>
                             </tr>
                         </thead>

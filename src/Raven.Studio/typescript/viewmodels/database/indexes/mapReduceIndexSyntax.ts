@@ -1,9 +1,16 @@
 import dialogViewModelBase = require("viewmodels/dialogViewModelBase");
 import copyToClipboard = require("common/copyToClipboard");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("editIndex");
 
 class mapReduceIndexSyntax extends dialogViewModelBase {
 
     view = require("views/database/indexes/mapReduceIndexSyntax.html");
+
+    descriptionHtml = t("mapReduceSyntax.description");
+    linqExampleHtml = t("mapReduceSyntax.exampleHeading", { language: "LINQ" });
+    javascriptExampleHtml = t("mapReduceSyntax.exampleHeading", { language: "JavaScript" });
 
     dialogContainer: Element;
 
@@ -17,7 +24,7 @@ class mapReduceIndexSyntax extends dialogViewModelBase {
         const sampleText = [...mapReduceIndexSyntax.linqSamples, ...mapReduceIndexSyntax.javascriptSamples]
             .find(x => x.title === sampleTitle).text;
         
-        copyToClipboard.copy(sampleText, "Sample has been copied to clipboard", this.dialogContainer);
+        copyToClipboard.copy(sampleText, t("syntaxSamples.copied"), this.dialogContainer);
     }
 
     static readonly linqSamples: Array<sampleCode> = [

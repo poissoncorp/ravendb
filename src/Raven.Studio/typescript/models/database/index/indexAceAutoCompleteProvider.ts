@@ -5,6 +5,9 @@ import indexDefinition = require("models/database/index/indexDefinition");
 import getCollectionsStatsCommand = require("commands/database/documents/getCollectionsStatsCommand");
 import collectionsStats = require("models/database/documents/collectionsStats");
 import getDocumentsPreviewCommand = require("commands/database/documents/getDocumentsPreviewCommand");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("indexModels");
 
 class indexAceAutoCompleteProvider {
     constructor(private activeDatabase: database, private editedIndex: KnockoutObservable<indexDefinition>) {
@@ -14,7 +17,7 @@ class indexAceAutoCompleteProvider {
     indexMapCompleter(editor: AceAjax.Editor, session: AceAjax.IEditSession, pos: AceAjax.Position, prefix: string, callback: (errors: any[], worldlist: { name: string; value: string; score: number; meta: string }[]) => void) {
         this.getIndexMapCompleterValues(editor, session, pos)
             .done((x: string[]) => {
-                callback(null, x.map((val: string) => ({ name: val, value: val, score: 100, meta: "suggestion" })));
+                callback(null, x.map((val: string) => ({ name: val, value: val, score: 100, meta: t("autoComplete.suggestion") })));
             })
             .fail(() => {
                 callback([{ error: "notext" }], null);
@@ -23,7 +26,7 @@ class indexAceAutoCompleteProvider {
 
     indexReduceCompleter(editor: AceAjax.Editor, session: AceAjax.IEditSession, pos: AceAjax.Position, prefix: string, callback: (errors: any[], worldlist: { name: string; value: string; score: number; meta: string }[]) => void) {
         const autoCompletes = this.getIndexReduceCompleterValues();
-        callback(null, autoCompletes.map(curField => ({ name: curField, value: curField, score: 100, meta: "suggestion" })));
+        callback(null, autoCompletes.map(curField => ({ name: curField, value: curField, score: 100, meta: t("autoComplete.suggestion") })));
     }
 
     private getIndexMapCompleterValues(editor: AceAjax.Editor, session: AceAjax.IEditSession, pos: AceAjax.Position): JQueryPromise<string[]> {
@@ -76,7 +79,7 @@ class indexAceAutoCompleteProvider {
                         .done(x => returnedDeferred.resolve(x))
                         .fail(() => returnedDeferred.reject());
                 } else {
-                    returnedDeferred.resolve(["Methodical Syntax Not Supported"]);
+                    returnedDeferred.resolve([t("autoComplete.methodicalSyntaxNotSupported")]);
                 }
             } else {
                 returnedDeferred.reject();

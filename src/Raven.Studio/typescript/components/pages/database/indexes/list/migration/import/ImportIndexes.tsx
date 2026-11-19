@@ -24,6 +24,8 @@ import Button from "react-bootstrap/Button";
 import * as yup from "yup";
 import RichAlert from "components/common/RichAlert";
 import { Modal } from "components/common/Modal";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 type IndexDefinition = Raven.Client.Documents.Indexes.IndexDefinition;
 
@@ -35,6 +37,8 @@ interface ImportIndexesProps {
 
 export function ImportIndexes(props: ImportIndexesProps) {
     const { toggle } = props;
+    const t = useStudioTranslation("indexesList");
+    const commonT = useStudioTranslation("common");
 
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
     const hasDatabaseWriteAccess = useAppSelector(accessManagerSelectors.getHasDatabaseWriteAccess)();
@@ -47,6 +51,18 @@ export function ImportIndexes(props: ImportIndexesProps) {
 
     const databaseOptions: SelectOption[] = availableDatabaseNames.map((x) => ({ label: x, value: x }));
 
+    const databaseRadioToggleItem: RadioToggleWithIconInputItem<ImportMode> = {
+        label: t("import.fromDatabase"),
+        value: "database",
+        iconName: "database",
+    };
+
+    const fileRadioToggleItem: RadioToggleWithIconInputItem<ImportMode> = {
+        label: t("import.fromFile"),
+        value: "file",
+        iconName: "document",
+    };
+
     const { control, formState, handleSubmit, setValue } = useForm<FormData>({
         mode: "all",
         defaultValues: {
@@ -58,7 +74,7 @@ export function ImportIndexes(props: ImportIndexesProps) {
     });
     const { importMode, selectedDatabaseName, selectedIndexNames } = useWatch({ control });
 
-    const disabledReason = hasDatabaseAdminAccess ? null : "Creating a C# index requires database administrator access";
+    const disabledReason = hasDatabaseAdminAccess ? null : t("migration.csharpRequiresAdmin");
     const [indexDefinitions, setIndexDefinitions] = useState<IndexDefinition[]>([]);
     const filteredIndexes = useMemo(() => {
         const sortedIndexes = [...indexDefinitions].sort((a, b) => a.Name.localeCompare(b.Name));
@@ -145,13 +161,13 @@ export function ImportIndexes(props: ImportIndexesProps) {
                 setIndexDefinitions(fileContent.Indexes as IndexDefinition[]);
             } catch (e) {
                 clearIndexes();
-                messagePublisher.reportError("Failed to load file", e.message);
+                messagePublisher.reportError(t("import.loadFileError"), e.message);
             }
         };
 
         reader.onerror = function () {
             clearIndexes();
-            messagePublisher.reportError("Failed to load file", reader.error.message);
+            messagePublisher.reportError(t("import.loadFileError"), reader.error.message);
         };
 
         reader.readAsText(file);
@@ -181,7 +197,11 @@ export function ImportIndexes(props: ImportIndexesProps) {
                 <Modal.Header onCloseClick={toggle} className="vstack gap-4">
                     <Icon icon="index-import" color="primary" className="text-center fs-1" margin="m-0" />
                     <div className="lead text-center">
-                        You&apos;re about to <span className="fw-bold">import</span> indexes
+                        <StudioTrans
+                            ns="indexesList"
+                            i18nKey="import.title"
+                            components={{ span: <span className="fw-bold" /> }}
+                        />
                     </div>
                 </Modal.Header>
                 <Modal.Body className="vstack gap-4">
@@ -202,7 +222,7 @@ export function ImportIndexes(props: ImportIndexesProps) {
                             <FormSelect
                                 control={control}
                                 name="selectedDatabaseName"
-                                placeholder="Select origin database"
+                                placeholder={t("import.originPlaceholder")}
                                 options={databaseOptions}
                             />
                         </InputGroup>
@@ -224,9 +244,7 @@ export function ImportIndexes(props: ImportIndexesProps) {
 
                     {!indexDefinitions?.length && (
                         <EmptySet compact className="text-muted">
-                            No indexes found.
-                            <br />
-                            You can select a database or a file with indexes.
+                            <StudioTrans ns="indexesList" i18nKey="import.empty" components={{ br: <br /> }} />
                         </EmptySet>
                     )}
 
@@ -238,44 +256,30 @@ export function ImportIndexes(props: ImportIndexesProps) {
 
                     <div className="vstack gap-2">
                         {selectedDatabaseName && importMode === "database" && filteredIndexes.isAnyAutoIndex && (
-                            <RichAlert variant="info">All Auto-indexes will be skipped</RichAlert>
+                            <RichAlert variant="info">{t("import.autoIndexesSkipped")}</RichAlert>
                         )}
-                        <RichAlert variant="info">
-                            All conflicting indexes will be overwritten after the import is completed
-                        </RichAlert>
+                        <RichAlert variant="info">{t("import.overwriteInfo")}</RichAlert>
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button type="button" variant="link" className="link-muted" onClick={toggle}>
-                        Cancel
+                        {commonT("cancel")}
                     </Button>
                     <ButtonWithSpinner
                         type="submit"
                         variant="success"
-                        title="Import indexes"
+                        title={t("import.submitTitle")}
                         className="rounded-pill"
                         icon="import"
                         isSpinning={formState.isSubmitting}
                     >
-                        Import indexes from a {importMode}
+                        {t("import.submit", { context: importMode })}
                     </ButtonWithSpinner>
                 </Modal.Footer>
             </Form>
         </Modal>
     );
 }
-
-const databaseRadioToggleItem: RadioToggleWithIconInputItem<ImportMode> = {
-    label: "From a database",
-    value: "database",
-    iconName: "database",
-};
-
-const fileRadioToggleItem: RadioToggleWithIconInputItem<ImportMode> = {
-    label: "From a file",
-    value: "file",
-    iconName: "document",
-};
 
 const formSchema = yup.object({
     importMode: yup.string<ImportMode>().required(),

@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("indexCommands");
 
 class testIndexCommand extends commandBase {
 
@@ -13,7 +16,7 @@ class testIndexCommand extends commandBase {
         
         return this.post(url, JSON.stringify(this.testRequest), this.db)
             .fail((response: JQueryXHR) => {
-                this.reportError("Failed to test index", response.responseText, response.statusText);
+                this.reportError(t("testFailed"), response.responseText, response.statusText);
             });
     }
 }

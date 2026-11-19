@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("indexCommands");
 
 class getIndexNamesCommand extends commandBase {
 
@@ -24,7 +27,7 @@ class getIndexNamesCommand extends commandBase {
         
         const url = endpoints.databases.index.indexes;
         return this.query(url, args, this.db, (x: resultsDto<string>) => x.Results)
-            .fail((response: JQueryXHR) => this.reportError("Failed to get the database indexes", response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("getNamesFailed"), response.responseText, response.statusText));
     }
 } 
 

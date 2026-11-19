@@ -5,6 +5,9 @@ import endpoints = require("endpoints");
 import appUrl = require("common/appUrl");
 import queryCriteria = require("models/database/query/queryCriteria");
 import queryUtil = require("common/queryUtil");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("queryCommands");
 
 interface QueryCommandProps {
     db: database | string;
@@ -71,13 +74,13 @@ class queryCommand extends commandBase {
             })
             .fail((response: JQueryXHR) => {
                 if (response.status === 404) {
-                    this.reportError("Error querying index", "Index was not found", response.statusText)
+                    this.reportError(t("errorQueryingIndex"), t("indexNotFound"), response.statusText)
                 } else {
                     const responseText = response.responseText;
-                    let errorTitle = "Error querying index";
+                    let errorTitle = t("errorQueryingIndex");
 
                     if (responseText.includes(queryCommand.missingEndOfQuery)) {
-                        errorTitle = "Incorrect query command syntax";
+                        errorTitle = t("incorrectSyntax");
                     }
                     
                     this.reportError(errorTitle, responseText, response.statusText);

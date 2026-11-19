@@ -22,14 +22,17 @@ import { LoadError } from "components/common/LoadError";
 import { HStack } from "components/common/utilities/HStack";
 import Accordion from "react-bootstrap/Accordion";
 import AccordionCollapse from "react-bootstrap/AccordionCollapse";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function IndexTerms({ pathParams }: ReactPathParamsProps) {
+    const t = useStudioTranslation("indexTerms");
     const indexName = pathParams[0];
 
     const { asyncGetIndexEntriesFields, indexTerms, termsLoadedAmount, loadMore, editUrl } = useIndexTerms(indexName);
 
     if (asyncGetIndexEntriesFields.error) {
-        return <LoadError error="Error during getting fields" refresh={asyncGetIndexEntriesFields.execute} />;
+        return <LoadError error={t("loadError")} refresh={asyncGetIndexEntriesFields.execute} />;
     }
 
     return (
@@ -38,17 +41,22 @@ export default function IndexTerms({ pathParams }: ReactPathParamsProps) {
                 <Col className="d-flex align-items-center gap-2">
                     <h3 className="mb-0">
                         <Icon icon="terms" />
-                        Index terms for <a href={editUrl}>{indexName}</a>
+                        <StudioTrans
+                            ns="indexTerms"
+                            i18nKey="title"
+                            components={{ a: <a href={editUrl} /> }}
+                            options={{ indexName }}
+                        />
                     </h3>
                     <Badge bg="primary" className="rounded-pill">
-                        {termsLoadedAmount} loaded
+                        {t("loaded", { count: termsLoadedAmount })}
                     </Badge>
                 </Col>
             </Row>
             <Row className="mt-3">
                 {asyncGetIndexEntriesFields.loading && <LoadingView />}
                 {!asyncGetIndexEntriesFields.loading && indexTerms.length === 0 && (
-                    <EmptySet iconSize="lg">No fields were found</EmptySet>
+                    <EmptySet iconSize="lg">{t("noFields")}</EmptySet>
                 )}
                 {indexTerms.map((field) => (
                     <IndexTermsAccordions key={field.name} field={field} indexName={indexName} loadMore={loadMore} />
@@ -65,6 +73,8 @@ interface IndexTermsAccordionsProps {
 }
 
 function IndexTermsAccordions({ field, indexName, loadMore }: IndexTermsAccordionsProps) {
+    const t = useStudioTranslation("indexTerms");
+
     return (
         <Accordion
             key={field.name}
@@ -81,12 +91,12 @@ function IndexTermsAccordions({ field, indexName, loadMore }: IndexTermsAccordio
                         <HStack className="gap-1">
                             {field.type === "Dynamic" && (
                                 <Badge data-testid="term-dynamic-field" bg="light" pill>
-                                    Dynamic field
+                                    {t("field.dynamic")}
                                 </Badge>
                             )}
                             {field.termType === "Vector" && (
                                 <Badge data-testid="term-vector-field" bg="light" pill>
-                                    Vector field
+                                    {t("field.vector")}
                                 </Badge>
                             )}
                             <Badge bg="secondary" pill>
@@ -98,7 +108,7 @@ function IndexTermsAccordions({ field, indexName, loadMore }: IndexTermsAccordio
                 </Accordion.Header>
                 <AccordionCollapse unmountOnExit mountOnEnter eventKey={field.name}>
                     <Accordion.Body>
-                        {field.terms.length === 0 && <EmptySet iconSize="lg">No entries were found.</EmptySet>}
+                        {field.terms.length === 0 && <EmptySet iconSize="lg">{t("field.noEntries")}</EmptySet>}
                         <div>
                             {field.terms.map((term, index) => (
                                 <IndexTermItem
@@ -122,7 +132,7 @@ function IndexTermsAccordions({ field, indexName, loadMore }: IndexTermsAccordio
                                     onClick={() => loadMore.execute(field.name)}
                                     className="rounded-pill"
                                 >
-                                    Load more
+                                    {t("field.loadMore")}
                                 </ButtonWithSpinner>
                             </span>
                         )}
@@ -142,6 +152,7 @@ interface IndexTermItemProps {
 }
 
 function IndexTermItem({ index, term, indexName, field, fieldTerms }: IndexTermItemProps) {
+    const t = useStudioTranslation("indexTerms");
     const { value: isOpen, toggle: toggleIsOpen } = useBoolean(false);
     const dbName = useAppSelector(databaseSelectors.activeDatabaseName);
 
@@ -150,7 +161,7 @@ function IndexTermItem({ index, term, indexName, field, fieldTerms }: IndexTermI
         const queryText = queryUtil.formatIndexQuery(indexName, field.name, term, field.termType);
 
         query.queryText(queryText);
-        query.name(`Index terms for ${indexName} (${field.name}: ${term})`);
+        query.name(t("term.queryName", { indexName, fieldName: field.name, term }));
         query.recentQuery(true);
         const queryDto = query.toStorageDto();
         savedQueriesStorage.saveAndNavigate(dbName, queryDto);
@@ -168,19 +179,25 @@ function IndexTermItem({ index, term, indexName, field, fieldTerms }: IndexTermI
                         variant="link"
                         size="sm"
                         className="p-0"
-                        title="Query index with given term"
+                        title={t("term.queryTitle")}
                     >
                         <Icon icon="query" margin="m-0" />
                     </Button>
-                    <Button onClick={toggleIsOpen} variant="link" size="sm" className="p-0" title="Preview item">
-                        <Icon icon="preview" margin="m-0" />
-                    </Button>
                     <Button
-                        onClick={() => copyToClipboard.copy(term, "Index term was copied to clipboard")}
+                        onClick={toggleIsOpen}
                         variant="link"
                         size="sm"
                         className="p-0"
-                        title="Copy to clipboard"
+                        title={t("term.previewTitle")}
+                    >
+                        <Icon icon="preview" margin="m-0" />
+                    </Button>
+                    <Button
+                        onClick={() => copyToClipboard.copy(term, t("term.copied"))}
+                        variant="link"
+                        size="sm"
+                        className="p-0"
+                        title={t("term.copyTitle")}
                     >
                         <Icon icon="copy-to-clipboard" margin="m-0" />
                     </Button>

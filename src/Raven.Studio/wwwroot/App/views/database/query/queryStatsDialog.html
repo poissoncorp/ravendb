@@ -4,30 +4,30 @@
             <button type="button" class="close" data-bind="click: cancel" aria-hidden="true">
                 <i class="icon-cancel"></i>
             </button>
-            <h4 class="modal-title">Query Stats</h4>
+            <h4 class="modal-title" data-bind="i18n: 'query:stats.title'"></h4>
         </div>
         <div class="modal-body" data-bind="with: queryStats">
             <form class="form-horizontal" role="form">
                 <div class="form-group">
-                    <label class="col-md-3 control-label">Total Results:</label>
+                    <label class="col-md-3 control-label" data-bind="i18n: 'query:stats.totalResults'"></label>
                     <div class="col-md-9">
                         <p class="form-control-static" data-bind="text: $root.totalResults"></p>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-md-3 control-label">Status</label>
+                    <label class="col-md-3 control-label" data-bind="i18n: 'query:stats.status'"></label>
                     <div class="col-md-9">
-                        <p class="form-control-static" data-bind="text: IsStale ? 'Stale' : 'Up to date'"></p>
+                        <p class="form-control-static" data-bind="i18n: IsStale ? 'query:stats.stale' : 'query:stats.upToDate'"></p>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-md-3 control-label">Duration:</label>
+                    <label class="col-md-3 control-label" data-bind="i18n: 'query:stats.duration'"></label>
                     <div class="col-md-9">
-                        <p class="form-control-static" data-bind="text: ((typeof (DurationInMs) !== 'undefined') ? DurationInMs.toLocaleString() : '? ') + ' ms'"></p>
+                        <p class="form-control-static" data-bind="i18n: { key: 'query:durationMs', options: { duration: (typeof (DurationInMs) !== 'undefined') ? DurationInMs.toLocaleString() : '?' } }"></p>
                     </div>
                 </div>
                 <div class="form-group" data-bind="visible: !$root.isGraphQuery">
-                    <label class="col-md-3 control-label">Index:</label>
+                    <label class="col-md-3 control-label" data-bind="i18n: 'query:stats.index'"></label>
                     <div class="col-md-9">
                         <p class="form-control-static force-text-wrap">
                             <a target="_blank" data-bind="text: IndexName, attr: { href: $root.selectedIndexEditUrl}, visible: $root.canNavigateToIndex"></a>
@@ -46,7 +46,7 @@
                 </div>
                     -->
                 <div class="form-group">
-                    <label class="col-md-3 control-label">ETag:</label>
+                    <label class="col-md-3 control-label" data-bind="i18n: 'query:stats.etag'"></label>
                     <div class="col-md-9">
                         <p class="form-control-static" data-bind="text: ResultEtag"></p>
                     </div>
@@ -54,7 +54,7 @@
             </form>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-primary" data-bind="click: cancel">Close</button>
+            <button type="button" class="btn btn-primary" data-bind="click: cancel, i18n: 'query:stats.close'"></button>
         </div>
     </div>
 </div>

@@ -8,6 +8,7 @@ import { Icon } from "components/common/Icon";
 import { ResetIndexesData, SwapSideBySideData } from "./useIndexesPage";
 import IndexPriority = Raven.Client.Documents.Indexes.IndexPriority;
 import IndexLockMode = Raven.Client.Documents.Indexes.IndexLockMode;
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export interface IndexesPageListProps {
     indexes: IndexSharedInfo[];
@@ -46,6 +47,8 @@ export default function IndexesPageList({
     toggleSelection,
     highlightCallback,
 }: IndexesPageListProps) {
+    const t = useStudioTranslation("indexesList");
+
     return (
         <>
             {indexes.map((index: any) => {
@@ -75,17 +78,17 @@ export default function IndexesPageList({
                             <Card className="mb-0 px-5 py-2 bg-faded-warning">
                                 <div className="flex-horizontal">
                                     <div className="title me-4">
-                                        <Icon icon="swap" /> Side by side
+                                        <Icon icon="swap" /> {t("sideBySide.title")}
                                     </div>
                                     <ButtonWithSpinner
                                         variant="warning"
                                         size="sm"
                                         onClick={() => swapSideBySideData.setIndexName(index.name)}
-                                        title="Click to replace the current index definition with the replacement index"
+                                        title={t("sideBySide.swapNowTitle")}
                                         isSpinning={swapSideBySideData.inProgress(index.name)}
                                         icon="force"
                                     >
-                                        Swap now
+                                        {t("sideBySide.swapNow")}
                                     </ButtonWithSpinner>
                                 </div>
                             </Card>

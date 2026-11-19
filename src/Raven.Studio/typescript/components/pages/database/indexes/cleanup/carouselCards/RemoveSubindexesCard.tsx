@@ -14,24 +14,25 @@ import React from "react";
 import Badge from "react-bootstrap/Badge";
 import Table from "react-bootstrap/Table";
 import Card from "react-bootstrap/Card";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface RemoveSubindexesCardProps {
     surpassing: UseIndexCleanupResult["surpassing"];
 }
 
 export default function RemoveSubindexesCard({ surpassing }: RemoveSubindexesCardProps) {
+    const t = useStudioTranslation("indexCleanup");
+
     return (
         <Card>
             <Card className="bg-faded-primary m-1 p-4">
                 <div className="text-limit-width">
-                    <h2>Remove sub-indexes</h2>
-                    If an index is completely covered by another index (i.e., all its fields are present in the larger
-                    index) maintaining it does not provide any value and only adds unnecessary overhead. You can remove
-                    the subset index without losing any query optimization benefits.
+                    <h2>{t("removeSubindexes.title")}</h2>
+                    {t("removeSubindexes.description")}
                 </div>
             </Card>
             {surpassing.data.length === 0 ? (
-                <EmptySet>No subset indexes</EmptySet>
+                <EmptySet>{t("removeSubindexes.empty")}</EmptySet>
             ) : (
                 <MainPanel surpassing={surpassing} />
             )}
@@ -40,6 +41,7 @@ export default function RemoveSubindexesCard({ surpassing }: RemoveSubindexesCar
 }
 
 function MainPanel({ surpassing }: RemoveSubindexesCardProps) {
+    const t = useStudioTranslation("indexCleanup");
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
 
     return (
@@ -52,7 +54,7 @@ function MainPanel({ surpassing }: RemoveSubindexesCardProps) {
                 disabled={surpassing.selected.length === 0}
             >
                 <Icon icon="trash" />
-                Delete selected sub-indexes{" "}
+                {t("removeSubindexes.deleteButton")}{" "}
                 <Badge bg="faded-primary" className="rounded-pill ms-1">
                     {surpassing.selected.length}
                 </Badge>
@@ -73,17 +75,17 @@ function MainPanel({ surpassing }: RemoveSubindexesCardProps) {
                                     />
                                 </td>
                                 <td className="align-middle">
-                                    <div className="small-label">Sub-index</div>
+                                    <div className="small-label">{t("removeSubindexes.subindex")}</div>
                                 </td>
                                 <td width={50}></td>
                                 <td className="align-middle">
-                                    <div className="small-label">Containing index</div>
+                                    <div className="small-label">{t("removeSubindexes.containingIndex")}</div>
                                 </td>
                                 <td className="align-middle">
-                                    <div className="small-label">Last query time (sub-index)</div>
+                                    <div className="small-label">{t("removeSubindexes.lastQueryTime")}</div>
                                 </td>
                                 <td className="align-middle">
-                                    <div className="small-label">Last indexing time (sub-index)</div>
+                                    <div className="small-label">{t("removeSubindexes.lastIndexingTime")}</div>
                                 </td>
                             </tr>
                         </thead>

@@ -19,6 +19,8 @@ import { NamedProgress, NamedProgressItem } from "components/common/NamedProgres
 import { Icon } from "components/common/Icon";
 import copyToClipboard from "common/copyToClipboard";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import type { StudioTranslate } from "common/i18n/resources";
 
 interface IndexProgressTooltipProps {
     target: HTMLElement;
@@ -30,6 +32,7 @@ interface IndexProgressTooltipProps {
 
 export function IndexProgressTooltip(props: IndexProgressTooltipProps) {
     const { target, nodeInfo, index, globalIndexingStatus, showStaleReason } = props;
+    const t = useStudioTranslation("indexesList");
 
     if (nodeInfo.status === "failure") {
         return (
@@ -38,7 +41,7 @@ export function IndexProgressTooltip(props: IndexProgressTooltipProps) {
                     <div>
                         <div className="d-flex justify-content-between flex-wrap">
                             <span className="text-danger">
-                                <Icon icon="warning" /> Unable to load index status
+                                <Icon icon="warning" /> {t("tooltip.loadError")}
                             </span>
                             <Button
                                 className="rounded-pill"
@@ -47,11 +50,11 @@ export function IndexProgressTooltip(props: IndexProgressTooltipProps) {
                                 onClick={() =>
                                     copyToClipboard.copy(
                                         nodeInfo.loadError.responseJSON.Message,
-                                        "Copied error message to clipboard"
+                                        t("tooltip.errorCopied")
                                     )
                                 }
                             >
-                                <Icon icon="copy" /> <span>Copy to clipboard</span>
+                                <Icon icon="copy" /> <span>{t("tooltip.copyToClipboard")}</span>
                             </Button>
                         </div>
                         <div className="error-message text-danger mt-3">{nodeInfo.loadError.responseJSON.Message}</div>
@@ -75,25 +78,33 @@ export function IndexProgressTooltip(props: IndexProgressTooltipProps) {
                 <LocationSpecificDetailsItemsContainer>
                     <LocationSpecificDetailsItem>
                         <StatePill bg={pillColor(index, nodeInfo.details, globalIndexingStatus)}>
-                            {pillText(index, nodeInfo.details, globalIndexingStatus)}
+                            {pillText(index, nodeInfo.details, globalIndexingStatus, t)}
                         </StatePill>
                     </LocationSpecificDetailsItem>
                     <LocationSpecificDetailsItem>
-                        <Icon icon="list" /> {nodeInfo.details.entriesCount.toLocaleString()} entries
+                        <Icon icon="list" />{" "}
+                        {t("tooltip.entries", {
+                            count: nodeInfo.details.entriesCount,
+                            entries: nodeInfo.details.entriesCount.toLocaleString(),
+                        })}
                     </LocationSpecificDetailsItem>
                     <LocationSpecificDetailsItem
                         className={classNames("errors", {
                             "text-danger": nodeInfo.details.errorCount > 0,
                         })}
                     >
-                        <Icon icon="warning" margin="me-sm-1" /> {nodeInfo.details.errorCount.toLocaleString()} errors
+                        <Icon icon="warning" margin="me-sm-1" />{" "}
+                        {t("tooltip.errors", {
+                            count: nodeInfo.details.errorCount,
+                            errors: nodeInfo.details.errorCount.toLocaleString(),
+                        })}
                     </LocationSpecificDetailsItem>
                     {nodeInfo.details.stale ? (
                         <LocationSpecificDetailsItem className="status updating">
                             <div>
                                 <div>
                                     <Icon icon="waiting" margin="me-xl-1" />{" "}
-                                    {formatTimeLeftToProcess(nodeInfo.progress?.global, nodeInfo.details)}
+                                    {formatTimeLeftToProcess(nodeInfo.progress?.global, nodeInfo.details, t)}
                                 </div>
                                 <div className="mt-2">
                                     <a
@@ -101,14 +112,14 @@ export function IndexProgressTooltip(props: IndexProgressTooltipProps) {
                                         className="mt-2"
                                         onClick={withPreventDefault(() => showStaleReason(nodeInfo.location))}
                                     >
-                                        show staleness reason
+                                        {t("tooltip.showStalenessReason")}
                                     </a>
                                 </div>
                             </div>
                         </LocationSpecificDetailsItem>
                     ) : (
                         <LocationSpecificDetailsItem className="status">
-                            <Icon icon="check" margin="me-sm-1" /> Up to date
+                            <Icon icon="check" margin="me-sm-1" /> {t("tooltip.upToDate")}
                         </LocationSpecificDetailsItem>
                     )}
                 </LocationSpecificDetailsItemsContainer>
@@ -117,11 +128,15 @@ export function IndexProgressTooltip(props: IndexProgressTooltipProps) {
                     nodeInfo.progress.collections.map((collection) => {
                         return (
                             <NamedProgress name={collection.name} key={collection.name}>
-                                <NamedProgressItem progress={collection.documents}>documents</NamedProgressItem>
-                                <NamedProgressItem progress={collection.tombstones}>tombstones</NamedProgressItem>
+                                <NamedProgressItem progress={collection.documents}>
+                                    {t("tooltip.progress.documents")}
+                                </NamedProgressItem>
+                                <NamedProgressItem progress={collection.tombstones}>
+                                    {t("tooltip.progress.tombstones")}
+                                </NamedProgressItem>
                                 {index.sourceType === "TimeSeries" && (
                                     <NamedProgressItem progress={collection.deletedTimeSeries}>
-                                        deleted time series
+                                        {t("tooltip.progress.deletedTimeSeries")}
                                     </NamedProgressItem>
                                 )}
                             </NamedProgress>
@@ -164,28 +179,33 @@ function pillColor(
     return "success";
 }
 
-function pillText(index: IndexSharedInfo, details: IndexNodeInfoDetails, globalIndexingStatus: IndexRunningStatus) {
+function pillText(
+    index: IndexSharedInfo,
+    details: IndexNodeInfoDetails,
+    globalIndexingStatus: IndexRunningStatus,
+    t: StudioTranslate<"indexesList">
+) {
     if (details.faulty) {
-        return "Faulty";
+        return t("tooltip.pill.faulty");
     }
 
     if (IndexUtils.isErrorState(details)) {
-        return "Error";
+        return t("tooltip.pill.error");
     }
 
     if (IndexUtils.isPausedState(details, globalIndexingStatus)) {
-        return "Paused";
+        return t("tooltip.pill.paused");
     }
 
     if (IndexUtils.isDisabledState(details, globalIndexingStatus)) {
-        return "Disabled";
+        return t("tooltip.pill.disabled");
     }
 
     if (IndexUtils.isIdleState(details, globalIndexingStatus)) {
-        return "Idle";
+        return t("tooltip.pill.idle");
     }
 
-    return "Normal";
+    return t("tooltip.pill.normal");
 }
 
 function isCompleted(progress: Progress, stale: boolean) {
@@ -196,52 +216,63 @@ function isDisabled(status: IndexRunningStatus) {
     return status === "Disabled" || status === "Paused";
 }
 
-function formatTimeLeftToProcess(progress: IndexingProgress, nodeDetails: IndexNodeInfoDetails) {
+function formatTimeLeftToProcess(
+    progress: IndexingProgress,
+    nodeDetails: IndexNodeInfoDetails,
+    t: StudioTranslate<"indexesList">
+) {
     if (!progress) {
-        return "Updating...";
+        return t("tooltip.timeLeft.updating");
     }
 
     const { total, processed, processedPerSecond } = progress;
 
     if (isDisabled(nodeDetails.status)) {
-        return "Overall progress";
+        return t("tooltip.timeLeft.overallProgress");
     }
 
     if (isCompleted(progress, nodeDetails.stale)) {
-        return "Indexing completed";
+        return t("tooltip.timeLeft.completed");
     }
 
     const leftToProcess = total - processed;
     if (leftToProcess === 0 || processedPerSecond === 0) {
-        return formatDefaultTimeLeftMessage(progress, nodeDetails);
+        return formatDefaultTimeLeftMessage(progress, nodeDetails, t);
     }
 
     const timeLeftInSec = leftToProcess / processedPerSecond;
     if (timeLeftInSec <= 0) {
-        return formatDefaultTimeLeftMessage(progress, nodeDetails);
+        return formatDefaultTimeLeftMessage(progress, nodeDetails, t);
     }
 
     const formattedDuration = genUtils.formatDuration(moment.duration(timeLeftInSec * 1000), true, 2, true);
     if (!formattedDuration) {
-        return formatDefaultTimeLeftMessage(progress, nodeDetails);
+        return formatDefaultTimeLeftMessage(progress, nodeDetails, t);
     }
-
-    let message = `Estimated time left: ${formattedDuration}`;
 
     if (leftToProcess !== 0 && processedPerSecond !== 0) {
-        message += ` (${(processedPerSecond | 0).toLocaleString()} / sec)`;
+        return t("tooltip.timeLeft.estimatedWithRate", {
+            duration: formattedDuration,
+            rate: (processedPerSecond | 0).toLocaleString(),
+        });
     }
 
-    return message;
+    return t("tooltip.timeLeft.estimated", { duration: formattedDuration });
 }
 
-function formatDefaultTimeLeftMessage(progress: Progress, details: IndexNodeInfoDetails) {
+function formatDefaultTimeLeftMessage(
+    progress: Progress,
+    details: IndexNodeInfoDetails,
+    t: StudioTranslate<"indexesList">
+) {
     const { total, processed } = progress;
     const { stale } = details;
 
     if (total === processed && stale) {
-        return "Processed all documents and tombstones, finalizing";
+        return t("tooltip.timeLeft.finalizing");
     }
 
-    return isDisabled(details.status) ? "Index is " + details.status : "Overall progress";
+    return isDisabled(details.status)
+        ? t("tooltip.timeLeft.indexIs", { context: details.status === "Paused" ? "paused" : "disabled" })
+        : t("tooltip.timeLeft.overallProgress");
 }

@@ -6,6 +6,9 @@ import colorsManager = require("common/colorsManager");
 import genUtils = require("common/generalUtils");
 import moment = require("moment");
 import typeUtils = require("common/typeUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("query");
 
 interface graphData {
     pointSeries: graphSeries<dataPoint>[];
@@ -93,7 +96,7 @@ abstract class timeSeriesContainer<T> {
     abstract getClosestItems(pointInTime: Date): Array<closestItem<T>>;
     
     protected getSeriesValuesNames(valuesCount: number, dto: timeSeriesQueryResultDto) {
-        const seriesValuesName = typeUtils.range(valuesCount).map((_, idx) => "Value #" + (idx + 1));
+        const seriesValuesName = typeUtils.range(valuesCount).map((_, idx) => t("timeSeries.valueName", { number: idx + 1 }));
 
         if (dto && dto["@metadata"] && dto["@metadata"]["@timeseries-named-values"]) {
             const namedValues = dto["@metadata"]["@timeseries-named-values"];
@@ -315,8 +318,8 @@ class timeSeriesPlotDetails extends viewModelBase {
            allData.map(x => documentIdsSet.add(x.documentId));
            
            const numberOfDocuments =  Array.from(documentIdsSet).length;
-           return numberOfDocuments === 1 ? `TS - ${genUtils.truncateDocumentId(allData[0].documentId)}` :
-                                            `TS - ${numberOfDocuments} documents`;
+           return numberOfDocuments === 1 ? t("timeSeries.tab", { documentId: genUtils.truncateDocumentId(allData[0].documentId) }) :
+                                            t("timeSeries.tabDocuments", { count: numberOfDocuments });
         });
         
         this.tabInfo = ko.pureComputed(() => {
@@ -325,7 +328,7 @@ class timeSeriesPlotDetails extends viewModelBase {
            allData.map(x => documentIdsSet.add(`<span class="document-id">${genUtils.escapeHtml(x.documentId)}</span> - ${x.name}`));
            
            return `<div class="tab-info-tooltip padding padding-sm">
-                       <div class="margin-bottom margin-bottom-sm"><strong>Time Series Graph for:</strong></div>
+                       <div class="margin-bottom margin-bottom-sm"><strong>${genUtils.escapeHtml(t("timeSeries.graphFor"))}</strong></div>
                        <div class="text-left">${Array.from(documentIdsSet).join("<br>")}</div>
                    </div>`;
         });

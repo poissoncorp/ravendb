@@ -1,8 +1,11 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
 import genUtils = require("common/generalUtils");
+import i18nModule = require("common/i18n/i18n");
 
 type IndexResetMode = Raven.Client.Documents.Indexes.IndexResetMode;
+
+const t = i18nModule.createTranslator("indexCommands");
 
 class resetIndexCommand extends commandBase {
 
@@ -30,7 +33,7 @@ class resetIndexCommand extends commandBase {
         const locationText = genUtils.formatLocation(this.location);
 
         return this.reset<{ IndexId: number }>(url, null, this.databaseName)
-            .fail((response: JQueryXHR) => this.reportError(`Failed to reset index ${this.indexName} for ${locationText}`, response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("resetFailed", { indexName: this.indexName, location: locationText }), response.responseText, response.statusText));
     }
 }
 

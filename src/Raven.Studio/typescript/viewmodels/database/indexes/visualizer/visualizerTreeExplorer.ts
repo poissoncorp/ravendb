@@ -5,6 +5,9 @@ import columnPreviewPlugin = require("widgets/virtualGrid/columnPreviewPlugin");
 import dialogViewModelBase = require("viewmodels/dialogViewModelBase");
 import aceEditorBindingHandler = require("common/bindingHelpers/aceEditorBindingHandler");
 import prismjs = require("prismjs");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("visualizer");
 
 class visualizerTreeExplorer extends dialogViewModelBase {
 
@@ -56,7 +59,7 @@ class visualizerTreeExplorer extends dialogViewModelBase {
             return new textColumn<Raven.Server.Documents.Indexes.Debugging.MapResultInLeaf>(this.gridController(), x => x.Data[key], generalUtils.escapeHtml(key), (80 / keys.length) + "%");
         });
 
-        columns.push(new textColumn<Raven.Server.Documents.Indexes.Debugging.MapResultInLeaf>(this.gridController(), x => x.Source || '-', "Source Document", "20%"));
+        columns.push(new textColumn<Raven.Server.Documents.Indexes.Debugging.MapResultInLeaf>(this.gridController(), x => x.Source || '-', t("treeExplorer.sourceDocument"), "20%"));
         return columns;
     }
 

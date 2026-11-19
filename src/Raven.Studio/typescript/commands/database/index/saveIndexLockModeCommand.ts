@@ -2,6 +2,9 @@ import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
 import indexes = require("components/models/indexes");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("indexCommands");
 
 class saveIndexLockModeCommand extends commandBase {
 
@@ -27,7 +30,7 @@ class saveIndexLockModeCommand extends commandBase {
         const url = endpoints.databases.index.indexesSetLock;
 
         return this.post(url, JSON.stringify(payload), this.db, { dataType: undefined })
-            .fail((response: JQueryXHR) => this.reportError("Failed to set index lock mode", response.responseText));
+            .fail((response: JQueryXHR) => this.reportError(t("setLockModeFailed"), response.responseText));
     }
 } 
 

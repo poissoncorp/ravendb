@@ -1,7 +1,10 @@
 ﻿import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
 import IndexMergeResults = Raven.Server.Documents.Indexes.IndexMerging.IndexMergeResults;
+
+const t = i18nModule.createTranslator("indexCommands");
 
 class getIndexMergeSuggestionsCommand extends commandBase {
 
@@ -18,7 +21,7 @@ class getIndexMergeSuggestionsCommand extends commandBase {
         return this.query<IndexMergeResults>(url, null, this.db)
             .fail((response: JQueryXHR) => {
                 if (!commandBase.isLicenseLimitException(response)) {
-                    this.reportError("Failed to get index merge suggestions", response.responseText, response.statusText)
+                    this.reportError(t("getMergeSuggestionsFailed"), response.responseText, response.statusText)
                 }
             });
     }

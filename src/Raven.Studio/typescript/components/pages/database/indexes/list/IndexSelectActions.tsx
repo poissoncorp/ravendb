@@ -11,6 +11,8 @@ import useBoolean from "components/hooks/useBoolean";
 import Dropdown from "react-bootstrap/Dropdown";
 import genUtils = require("common/generalUtils");
 import IndexLockMode = Raven.Client.Documents.Indexes.IndexLockMode;
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface IndexSelectActionProps {
     allIndexes: IndexSharedInfo[];
@@ -39,6 +41,8 @@ export default function IndexSelectAction(props: IndexSelectActionProps) {
         toggleSelectAll,
         onCancel,
     } = props;
+    const t = useStudioTranslation("indexesList");
+    const tCommon = useStudioTranslation("common");
 
     const [globalLockChanges] = useState(false);
     // TODO: IDK I just wanted it to compile
@@ -54,18 +58,23 @@ export default function IndexSelectAction(props: IndexSelectActionProps) {
                 toggleSelection={toggleSelectAll}
                 selected={selectionState === "AllSelected"}
                 indeterminate={selectionState === "SomeSelected"}
-                title="Select all or none"
+                title={t("selection.selectAllTitle")}
                 color="primary"
                 size="lg"
                 className="ms-3"
             >
-                <span className="small-label">Select all</span>
+                <span className="small-label">{t("selection.selectAll")}</span>
             </Checkbox>
 
             <SelectionActions active={selectedIndexes.length > 0}>
                 <div className="d-flex flex-wrap align-items-center justify-content-center gap-2">
                     <div className="lead text-nowrap">
-                        <strong className="text-emphasis me-1">{selectedIndexes.length}</strong> selected
+                        <StudioTrans
+                            ns="indexesList"
+                            i18nKey="selection.selected"
+                            components={{ strong: <strong className="text-emphasis me-1" /> }}
+                            options={{ count: selectedIndexes.length }}
+                        />
                     </div>
                     <div className="hstack gap-2 flex-wrap justify-content-center">
                         <Button
@@ -75,7 +84,7 @@ export default function IndexSelectAction(props: IndexSelectActionProps) {
                             className="rounded-pill flex-grow-0"
                         >
                             <Icon icon="index-export" />
-                            <span>Export {selectedIndexes.length > 1 ? "indexes" : "index"}</span>
+                            <span>{t("selection.export", { count: selectedIndexes.length })}</span>
                         </Button>
                         {isExportIndexModalOpen && (
                             <ExportIndexes
@@ -88,24 +97,24 @@ export default function IndexSelectAction(props: IndexSelectActionProps) {
                         <Dropdown>
                             <Dropdown.Toggle
                                 variant="secondary"
-                                title="Set the indexing state for the selected indexes"
+                                title={t("selection.setStateTitle")}
                                 disabled={selectedIndexes.length === 0}
                                 data-bind="enable: $root.globalIndexingStatus() === 'Running' && selectedIndexesName().length && !spinners.globalLockChanges()"
                                 className="rounded-pill"
                             >
                                 {globalLockChanges && <Spinner size="sm" className="me-1" />}
                                 {!globalLockChanges && <Icon icon="play" />}
-                                Set indexing state
+                                {t("selection.setState")}
                             </Dropdown.Toggle>
                             <Dropdown.Menu>
-                                <Dropdown.Item onClick={startSelectedIndexes} title="Start indexing">
-                                    <Icon icon="play" /> <span>Start indexing</span>
+                                <Dropdown.Item onClick={startSelectedIndexes} title={t("actions.startIndexing")}>
+                                    <Icon icon="play" /> <span>{t("actions.startIndexing")}</span>
                                 </Dropdown.Item>
-                                <Dropdown.Item onClick={disableSelectedIndexes} title="Disable indexing">
-                                    <Icon icon="stop" color="danger" /> <span>Disable indexing</span>
+                                <Dropdown.Item onClick={disableSelectedIndexes} title={t("actions.disableIndexing")}>
+                                    <Icon icon="stop" color="danger" /> <span>{t("actions.disableIndexing")}</span>
                                 </Dropdown.Item>
-                                <Dropdown.Item onClick={pauseSelectedIndexes} title="Pause indexing until restart">
-                                    <Icon icon="pause" color="warning" /> <span>Pause indexing until restart</span>
+                                <Dropdown.Item onClick={pauseSelectedIndexes} title={t("actions.pauseIndexing")}>
+                                    <Icon icon="pause" color="warning" /> <span>{t("actions.pauseIndexing")}</span>
                                 </Dropdown.Item>
                             </Dropdown.Menu>
                         </Dropdown>
@@ -113,35 +122,35 @@ export default function IndexSelectAction(props: IndexSelectActionProps) {
                         <Dropdown>
                             <Dropdown.Toggle
                                 variant="secondary"
-                                title="Set the lock mode for the selected indexes"
+                                title={t("selection.setLockModeTitle")}
                                 disabled={selectedIndexes.length === 0}
                                 data-bind="enable: $root.globalIndexingStatus() === 'Running' && selectedIndexesName().length && !spinners.globalLockChanges()"
                                 className="rounded-pill"
                             >
                                 {globalLockChanges && <Spinner size="sm" className="me-1" />}
                                 {!globalLockChanges && <Icon icon="lock" />}
-                                Set lock mode
+                                {t("selection.setLockMode")}
                             </Dropdown.Toggle>
 
                             <Dropdown.Menu>
                                 <Dropdown.Item
                                     onClick={() => setLockModeSelectedIndexes("Unlock")}
-                                    title="Unlock selected indexes"
+                                    title={t("selection.unlockTitle")}
                                 >
-                                    <Icon icon="unlock" /> <span>Unlock</span>
+                                    <Icon icon="unlock" /> <span>{t("actions.unlock")}</span>
                                 </Dropdown.Item>
                                 <Dropdown.Item
                                     onClick={() => setLockModeSelectedIndexes("LockedIgnore")}
-                                    title="Lock selected indexes"
+                                    title={t("selection.lockTitle")}
                                 >
-                                    <Icon icon="lock" /> <span>Lock</span>
+                                    <Icon icon="lock" /> <span>{t("actions.lock")}</span>
                                 </Dropdown.Item>
                                 <Dropdown.Divider />
                                 <Dropdown.Item
                                     onClick={() => setLockModeSelectedIndexes("LockedError")}
-                                    title="Lock (Error) selected indexes"
+                                    title={t("selection.lockErrorTitle")}
                                 >
-                                    <Icon icon="lock-error" /> <span>Lock (Error)</span>
+                                    <Icon icon="lock-error" /> <span>{t("actions.lockError")}</span>
                                 </Dropdown.Item>
                             </Dropdown.Menu>
                         </Dropdown>
@@ -153,11 +162,11 @@ export default function IndexSelectAction(props: IndexSelectActionProps) {
                             className="rounded-pill flex-grow-0"
                         >
                             <Icon icon="trash" />
-                            <span>Delete</span>
+                            <span>{tCommon("delete")}</span>
                         </Button>
                     </div>
                     <Button onClick={onCancel} variant="link">
-                        Cancel
+                        {tCommon("cancel")}
                     </Button>
                 </div>
             </SelectionActions>

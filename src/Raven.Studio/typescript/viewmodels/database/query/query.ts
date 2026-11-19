@@ -51,6 +51,10 @@ import store = require("components/store");
 import storeCompat = require("components/storeCompat");
 import chatbotSlice = require("components/shell/chatbot/store/chatbotSlice");
 import aiAssistantSlice = require("components/common/shell/aiAssistantSlice");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("query");
+const commonT = i18nModule.createTranslator("common");
 
 type queryResultTab = "results" | "explanations" | "queryPlan" | "timings" | "revisions";
 
@@ -84,12 +88,12 @@ class timeSeriesTableDetails {
     constructor(public documentId: string, public name: string, public value: timeSeriesQueryResultDto) {
 
         this.tabText = ko.pureComputed(() => {
-            return `TS - ${generalUtils.truncateDocumentId(this.documentId)}`;
+            return t("timeSeries.tab", { documentId: generalUtils.truncateDocumentId(this.documentId) });
         });
 
         this.tabInfo = ko.pureComputed(() => {
             return `<div class="tab-info-tooltip padding padding-sm">
-                       <div class="margin-bottom margin-bottom-sm"><strong>Time Series Table for:</strong></div>
+                       <div class="margin-bottom margin-bottom-sm"><strong>${generalUtils.escapeHtml(t("timeSeries.tableFor"))}</strong></div>
                        <div class="text-left document-id">${generalUtils.escapeHtml(this.documentId)}</div>
                    </div>`;
         });
@@ -144,7 +148,9 @@ class query extends shardViewModelBase {
     view = require("views/database/query/query.html");
 
     static readonly recentQueryLimit = 6;
-    static readonly recentKeyword = 'Recent Query';
+    static get recentKeyword() {
+        return t("savedQueries.recentQuery");
+    }
 
     static readonly ContainerSelector = "#queryContainer";
     static readonly $body = $("body");
@@ -285,6 +291,7 @@ class query extends shardViewModelBase {
     rawJsonUrl = ko.observable<string>();
 
     containsAsterixQuery: KnockoutComputed<boolean>; // query contains: *.* ?
+    readonly asteriskWarningHtml = t("asteriskWarning");
 
     queriedIndex: KnockoutComputed<string>;
     queriedIndexInfo = ko.observable<Raven.Client.Documents.Operations.EssentialIndexInformation>();
@@ -295,11 +302,17 @@ class query extends shardViewModelBase {
     queriedFieldsOnly = ko.observable<boolean>(false);
     queriedIndexEntries = ko.observable<boolean>(false);
     
+    resultsSummaryHtml: KnockoutComputed<string>;
+    readonly storedFieldsOnlyHtml = t("summary.storedFieldsOnly");
+    readonly rawIndexEntriesHtml = t("summary.rawIndexEntries");
+
     queryResultsContainMatchingDocuments: KnockoutComputed<boolean>;
     
     isEmptyFieldsResult = ko.observable<boolean>(false);
+    noStoredFieldsHtml: KnockoutComputed<string>;
     
     showFanOutWarning = ko.observable<boolean>(false);
+    fanOutWarningHtml: KnockoutComputed<string>;
 
     $downloadForm: JQuery;
     
@@ -364,7 +377,7 @@ class query extends shardViewModelBase {
             const indexName = this.queriedIndex();
 
             if (indexName === "AllDocs") {
-                return "All Documents";
+                return t("index.allDocuments");
             }
 
             return indexName;
@@ -378,7 +391,7 @@ class query extends shardViewModelBase {
             }
                     
             if (indexName === "AllDocs") {
-                return "All Documents";
+                return t("index.allDocuments");
             }
 
             const collectionRegex = /collection\/(.*)/;
@@ -476,14 +489,14 @@ class query extends shardViewModelBase {
         this.deleteDocumentDisableReason = ko.pureComputed(() => {
             const hasAnyItemSelected = this.gridController() ? this.gridController().getSelectedItems().length > 0 : false;
             if (hasAnyItemSelected) {
-                return "Please unselect all items before deleting documents";
+                return t("deleteDocuments.unselectItems");
             }
             
             const canDelete = this.canDeleteDocumentsMatchingQuery();
             if (canDelete) {
                 return "";
             } else {
-                return "Available only for Map indexes (that are not defined on Counters or Time Series)";
+                return t("deleteDocuments.mapIndexesOnly");
             }
         });
         
@@ -557,12 +570,30 @@ class query extends shardViewModelBase {
         });
 
         this.spatialResultsOnMapText = ko.pureComputed(() => 
-            this.hasMoreSpatialResultsForMap() ? `Showing first ${this.numberOfMarkers().toLocaleString()} results on map.` : "");
+            this.hasMoreSpatialResultsForMap() ? t("spatial.showingFirst", { count: this.numberOfMarkers(), formattedCount: this.numberOfMarkers().toLocaleString() }) : "");
 
         this.numberOfMarkersText = ko.pureComputed(() => {
             const markersNumber = this.numberOfMarkers().toLocaleString();
             return this.hasMoreSpatialResultsForMap() ? markersNumber + "+" : markersNumber;
         });
+
+        this.resultsSummaryHtml = ko.pureComputed(() => {
+            const stats = this.queryStats();
+            if (!stats) {
+                return "";
+            }
+
+            return t("summary.usedToGetResults", {
+                context: this.fromCache() ? "cached" : "fresh",
+                duration: generalUtils.escapeHtml(this.formatTime(stats.DurationInMs))
+            });
+        });
+
+        this.noStoredFieldsHtml = ko.pureComputed(() =>
+            t("results.noStoredFields", { name: generalUtils.escapeHtml(this.queriedIndexLabel()) }));
+
+        this.fanOutWarningHtml = ko.pureComputed(() =>
+            t("results.fanOutWarning", { url: generalUtils.escapeHtml("https://ravendb.net/l/LT8GZF/" + this.clientVersion()) }));
     }
 
     private initValidation(): void {
@@ -647,7 +678,7 @@ class query extends shardViewModelBase {
             enableInlinePreview: true,
             detectTimeSeries: true,
             customInlinePreview: doc => {
-                documentBasedColumnsProvider.showPreview(doc, this.criteria().indexEntries() ? "Index Entry Preview" : null);
+                documentBasedColumnsProvider.showPreview(doc, this.criteria().indexEntries() ? t("results.indexEntryPreview") : null);
             },
             timeSeriesActionHandler: (type, documentId, name, value) => {
                 if (type === "plot") {
@@ -729,17 +760,16 @@ class query extends shardViewModelBase {
         this.queryFetcher.subscribe(() => grid.reset());
         
         const queryTimingsLink = "https://ravendb.net/l/4FEPMK/" + this.clientVersion();
-        const queryTimingsDetails = `<a target="_blank" href="${queryTimingsLink}">Query Timings</a>`;
         
         popoverUtils.longWithHover($(".query-time-info"),
             {
-                content: `<small>View timings details by including ${queryTimingsDetails}</small>`,
+                content: `<small>${t("summary.timingsInfo", { url: generalUtils.escapeHtml(queryTimingsLink) })}</small>`,
                 html: true
             });
 
         this.columnPreview.install("virtual-grid", ".js-query-tooltip", 
             (doc: document, column: virtualColumn, e: JQuery.TriggeredEvent, onValue: (context: any, valueToCopy: string) => void) => {
-            if (this.currentTab() === "explanations" && column.header === "Explanation") {
+            if (this.currentTab() === "explanations" && column.header === t("explanations.columns.explanation")) {
                 // we don't want to show inline preview for Explanation column, as value doesn't contain full message
                 // which might be misleading - use preview button to obtain entire explanation 
                 return;
@@ -773,7 +803,7 @@ class query extends shardViewModelBase {
                 showPreview(value);
             }
             
-            if (this.currentTab() === "revisions" && column.header === "Last Modified") {
+            if (this.currentTab() === "revisions" && column.header === t("revisions.columns.lastModified")) {
                 const rawValue = (doc as any);
                 onValue(moment.utc(rawValue.lastModified), rawValue.lastModified);
             }
@@ -863,37 +893,37 @@ class query extends shardViewModelBase {
     
     private explanationsColumns(grid: virtualGridController<any>): virtualColumn[] {
         return [
-            new actionColumn<explanationItem>(grid, doc => this.showExplanationDetails(doc), "Show", `<i class="icon-preview"></i>`, "72px", {
-                title: () => 'Show detailed explanation'
+            new actionColumn<explanationItem>(grid, doc => this.showExplanationDetails(doc), t("explanations.columns.show"), `<i class="icon-preview"></i>`, "72px", {
+                title: () => t("explanations.columns.showTitle")
             }),
-            new textColumn<explanationItem>(grid, x => x.id, "Id", "30%"),
-            new textColumn<explanationItem>(grid, x => x.explanations.map(x => x.split("\n")[0]).join(", "), "Explanation", "50%")
+            new textColumn<explanationItem>(grid, x => x.id, t("explanations.columns.id"), "30%"),
+            new textColumn<explanationItem>(grid, x => x.explanations.map(x => x.split("\n")[0]).join(", "), t("explanations.columns.explanation"), "50%")
         ];
     }
 
     private revisionsColumns(grid: virtualGridController<any>): virtualColumn[] {
         return [
-            new actionColumn<includedRevisionItem>(grid, x => this.showRevisionDetails(x.revision), "Show", `<i class="icon-preview"></i>`, "72px", {
-                    title: () => 'Show revision preview'
+            new actionColumn<includedRevisionItem>(grid, x => this.showRevisionDetails(x.revision), t("revisions.columns.show"), `<i class="icon-preview"></i>`, "72px", {
+                    title: () => t("revisions.columns.showTitle")
                 }),
-            new textColumn<includedRevisionItem>(grid, x => x.revision, "Revision", "15%"),
-            new hyperlinkColumn<includedRevisionItem>(grid, x => x.sourceDocument, x => appUrl.forEditDoc(x.sourceDocument, this.db), "Source Document", "25%", {
+            new textColumn<includedRevisionItem>(grid, x => x.revision, t("revisions.columns.revision"), "15%"),
+            new hyperlinkColumn<includedRevisionItem>(grid, x => x.sourceDocument, x => appUrl.forEditDoc(x.sourceDocument, this.db), t("revisions.columns.sourceDocument"), "25%", {
                     sortable: "string"
                 }),
-            new textColumn<includedRevisionItem>(grid, x => generalUtils.formatUtcDateAsLocal(x.lastModified, query.dateTimeFormat), "Last Modified", "25%", {
+            new textColumn<includedRevisionItem>(grid, x => generalUtils.formatUtcDateAsLocal(x.lastModified, query.dateTimeFormat), t("revisions.columns.lastModified"), "25%", {
                     sortable: "string"
                 }),
-            new textColumn<includedRevisionItem>(grid, x => x.changeVector, "Change Vector", "25%") 
+            new textColumn<includedRevisionItem>(grid, x => x.changeVector, t("revisions.columns.changeVector"), "25%")
         ];
     }
     
     private showExplanationDetails(details: explanationItem): void {
-        app.showBootstrapDialog(new showDataDialog("Explanation for: " + details.id, details.explanations.join("\r\n"), "plain"));
+        app.showBootstrapDialog(new showDataDialog(t("explanations.detailsTitle", { id: details.id }), details.explanations.join("\r\n"), "plain"));
     }
 
     private showRevisionDetails(revisionDocument: string): void {
         const text = JSON.stringify(revisionDocument, null, 4);
-        app.showBootstrapDialog(new showDataDialog("Revision item", text, "javascript"));
+        app.showBootstrapDialog(new showDataDialog(t("revisions.detailsTitle"), text, "javascript"));
     }
 
     private loadSavedQueries(): void {
@@ -941,7 +971,7 @@ class query extends shardViewModelBase {
                 this.navigate(appUrl.forQuery(this.db));
             }
         } else if (indexNameOrRecentQueryHash) {
-            messagePublisher.reportError(`Could not find index or recent query: ${indexNameOrRecentQueryHash}`);
+            messagePublisher.reportError(t("index.notFoundOrRecentQuery", { name: indexNameOrRecentQueryHash }));
             // fallback to All Documents, but show error
             this.runQueryOnIndex(queryUtil.AllDocs);
         }
@@ -967,7 +997,7 @@ class query extends shardViewModelBase {
     }
 
     killQuery() {
-        this.confirmationMessage("Abort the query", "Do you want to abort currently running query?")
+        this.confirmationMessage(t("abort.confirmTitle"), t("abort.confirmMessage"))
             .done(result => {
                 if (result.can) {
                     this.showKillQueryButton(false);
@@ -1039,7 +1069,7 @@ class query extends shardViewModelBase {
                 this.rawJsonUrl(appUrl.forDatabaseQuery(database) + queryCmd.getUrl("GET"));
             } catch (error) {
                 // it may throw when unable to compute query parameters, etc.
-                messagePublisher.reportError("Unable to run the query", error.message, null, false);
+                messagePublisher.reportError(t("runFailed"), error.message, null, false);
                 this.spinners.isLoading(false);
                 return;
             }
@@ -1228,7 +1258,7 @@ class query extends shardViewModelBase {
                         const isAiAssistantDisabled = aiAssistantSlice.aiAssistantSelectors.isDisabled(storeState);
 
                         if (!isAiAssistantDisabled) {
-                            const errorMessage = request.status === 404 ? "Index was not found" : request.responseJSON?.Message;
+                            const errorMessage = request.status === 404 ? t("index.notFound") : request.responseJSON?.Message;
                             const isQueryErrorInContext = chatbotSlice.chatbotSelectors.attachedContexts(storeState)
                                 .find((x) => x.type === "QueryError" && x.query === criteriaForFetcher.queryText());
                             
@@ -1285,8 +1315,8 @@ class query extends shardViewModelBase {
                 
                 // Verify if name already exists
                 if (savedQueriesStorage.getSavedQueries(this.db).find(x => x.name.toUpperCase() === this.querySaveName().toUpperCase())) {
-                    this.confirmationMessage(`Query ${generalUtils.escapeHtml(this.querySaveName())} already exists`, `Overwrite existing query?`, {
-                        buttons: ["No", "Overwrite"],
+                    this.confirmationMessage(t("save.alreadyExists", { name: generalUtils.escapeHtml(this.querySaveName()) }), t("save.overwriteQuestion"), {
+                        buttons: [t("save.no"), t("save.overwrite")],
                         html: true
                     })
                         .done(result => {
@@ -1317,7 +1347,7 @@ class query extends shardViewModelBase {
         this.saveToStorage(criteria, false);
         this.querySaveName(null);
         this.saveQueryValidationGroup.errors.showAllMessages(false);
-        messagePublisher.reportSuccess("Query saved successfully");
+        messagePublisher.reportSuccess(t("save.saved"));
     }
 
     private saveRecentQueryToStorage(criteria: storedQueryDto, optionalSavedQueryName?: string): void {
@@ -1370,7 +1400,7 @@ class query extends shardViewModelBase {
 
     private getRecentQueryName(): string {
         const [collectionIndexName, type] = queryUtil.getCollectionOrIndexName(this.criteria().queryText());
-        return type !== "unknown" ? query.recentKeyword + " (" + collectionIndexName + ")" : query.recentKeyword;
+        return type !== "unknown" ? t("savedQueries.recentQueryFor", { name: collectionIndexName }) : query.recentKeyword;
     }
 
     previewQuery(item: storedQueryDto): void {
@@ -1400,8 +1430,8 @@ class query extends shardViewModelBase {
     }
 
     removeQuery(item: storedQueryDto): void {
-        this.confirmationMessage("Query", `Are you sure you want to delete query '${generalUtils.escapeHtml(item.name)}'?`, {
-            buttons: ["Cancel", "Delete"],
+        this.confirmationMessage(t("savedQueries.deleteTitle"), t("savedQueries.deleteConfirm", { name: generalUtils.escapeHtml(item.name) }), {
+            buttons: [commonT("cancel"), commonT("delete")],
             html: true
         })
             .done(result => {
@@ -1637,11 +1667,11 @@ class query extends shardViewModelBase {
 
         notificationCenter.instance.monitorOperation(db, operationId)
             .done(() => {
-                messagePublisher.reportSuccess("Successfully deleted documents");
+                messagePublisher.reportSuccess(t("deleteDocuments.success"));
                 this.refresh();
             })
             .fail((exception: Raven.Client.Documents.Operations.OperationExceptionResult) => {
-                messagePublisher.reportError("Could not delete documents: " + exception.Message, exception.Error, null, false);
+                messagePublisher.reportError(t("deleteDocuments.failed", { message: exception.Message }), exception.Error, null, false);
             });
     }
     
@@ -1905,10 +1935,10 @@ class query extends shardViewModelBase {
     
     formatTime(input: number) {
         if (!input) {
-            return "<1 ms";
+            return t("durationBelowOneMs");
         }
         
-        return input.toLocaleString() + " ms";
+        return t("durationMs", { duration: input.toLocaleString() });
     }
 }
 

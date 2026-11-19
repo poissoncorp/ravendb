@@ -28,6 +28,7 @@ import useUniqueId from "hooks/useUniqueId";
 import "./IndexErrorsPanelTooltip.scss";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import DeleteIndexErrorsModal from "components/pages/database/indexes/errors/DeleteIndexErrorsModal";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export interface IndexErrorsPanelProps {
     errorItem: ErrorInfoItem;
@@ -37,6 +38,7 @@ export interface IndexErrorsPanelProps {
 
 export function IndexErrorsPanel(props: IndexErrorsPanelProps) {
     const { table, asyncFetchAllErrorCount, errorItem } = props;
+    const t = useStudioTranslation("indexErrors");
     const hasDatabaseWriteAccess = useAppSelector(accessManagerSelectors.getHasDatabaseWriteAccess)();
 
     const {
@@ -58,7 +60,7 @@ export function IndexErrorsPanel(props: IndexErrorsPanelProps) {
     if (asyncFetchErrorDetails.status === "error" || props.asyncFetchAllErrorCount.status === "error") {
         return (
             <RichPanel className="flex-row with-status">
-                <RichPanelStatus className="bg-striped-danger">Error</RichPanelStatus>
+                <RichPanelStatus className="bg-striped-danger">{t("panel.status.error")}</RichPanelStatus>
                 <div className="flex-grow-1" style={{ width: 0 }}>
                     <RichPanelHeader>
                         <RichPanelInfo>
@@ -80,7 +82,7 @@ export function IndexErrorsPanel(props: IndexErrorsPanelProps) {
                             <Button
                                 variant="secondary"
                                 onClick={togglePanelCollapsed}
-                                title={panelCollapsed ? "Expand errors details" : "Collapse errors details"}
+                                title={panelCollapsed ? t("panel.expandDetails") : t("panel.collapseDetails")}
                                 className="btn-toggle-panel rounded-pill"
                             >
                                 <Icon icon={panelCollapsed ? "unfold" : "fold"} margin="m-0" />
@@ -126,10 +128,10 @@ export function IndexErrorsPanel(props: IndexErrorsPanelProps) {
                                 disabled={isLoading}
                                 variant="warning"
                                 onClick={openDeleteModal}
-                                title="Click to delete errors from the selected indexes"
+                                title={t("panel.deleteErrorsTitle")}
                             >
                                 <Icon icon="trash" />
-                                Delete errors
+                                {t("panel.deleteErrors")}
                             </Button>
                         </RichPanelActions>
                     )}
@@ -164,20 +166,22 @@ interface IndexErrorsPanelStatusProps {
 }
 
 function IndexErrorsPanelStatus({ isLoading, hasErrors, status }: IndexErrorsPanelStatusProps) {
+    const t = useStudioTranslation("indexErrors");
+
     if (isLoading) {
         return (
             <RichPanelStatus color="secondary" data-testid="loader">
-                Loading
+                {t("panel.status.loading")}
             </RichPanelStatus>
         );
     }
 
     if (hasErrors) {
-        return <RichPanelStatus color="danger">Errors</RichPanelStatus>;
+        return <RichPanelStatus color="danger">{t("panel.status.errors")}</RichPanelStatus>;
     }
 
     if (status === "success") {
-        return <RichPanelStatus color="success">OK</RichPanelStatus>;
+        return <RichPanelStatus color="success">{t("panel.status.ok")}</RichPanelStatus>;
     }
 
     return null;
@@ -202,6 +206,7 @@ function IndexErrorsPanelDetailsStatus({
     hasErrors,
     table,
 }: IndexErrorsPanelDetailsStatusProps) {
+    const t = useStudioTranslation("indexErrors");
     const { value: panelCollapsed, toggle: togglePanelCollapsed } = useBoolean(false);
     const ref = useRef<HTMLDivElement>(null);
     const { width } = useResizeObserver({ ref });
@@ -216,7 +221,7 @@ function IndexErrorsPanelDetailsStatus({
                             <Button
                                 variant="secondary"
                                 onClick={togglePanelCollapsed}
-                                title={panelCollapsed ? "Expand errors details" : "Collapse errors details"}
+                                title={panelCollapsed ? t("panel.expandDetails") : t("panel.collapseDetails")}
                                 className="btn-toggle-panel rounded-pill"
                             >
                                 <Icon icon={panelCollapsed ? "unfold" : "fold"} margin="m-0" />
@@ -225,21 +230,21 @@ function IndexErrorsPanelDetailsStatus({
                         <RichPanelDetailItem>
                             <span className="text-danger">
                                 <Icon icon="warning" />
-                                Total count
+                                {t("panel.totalCount")}
                             </span>
-                            <div className="value">{errorItem.totalErrorCount} errors</div>
+                            <div className="value">{t("panel.errorsCount", { count: errorItem.totalErrorCount })}</div>
                         </RichPanelDetailItem>
                         <PopoverWithHoverWrapper
                             message={
                                 <>
                                     <div className="index-errors-details-tooltip__container">
-                                        <b>UTC: </b>
+                                        <b>{t("panel.utc")}</b>
                                         <time className="index-errors-details-tooltip__date">
                                             {moment.utc(newestDate).toISOString()}
                                         </time>
                                     </div>
                                     <div className="index-errors-details-tooltip__container">
-                                        <b>Relative: </b>
+                                        <b>{t("panel.relative")}</b>
                                         <time>{genUtils.formatDurationByDate(moment.utc(newestDate), true)}</time>
                                     </div>
                                 </>
@@ -248,7 +253,7 @@ function IndexErrorsPanelDetailsStatus({
                             <RichPanelDetailItem id={mostRecentDateId}>
                                 <span>
                                     <Icon icon="clock" />
-                                    Most recent
+                                    {t("panel.mostRecent")}
                                 </span>
                                 <div className="value">
                                     {newestDate ? moment(newestDate).format(genUtils.dateFormat) : ""}

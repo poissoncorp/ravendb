@@ -9,6 +9,9 @@ import generalUtils = require("common/generalUtils");
 import compoundField = require("models/database/index/compoundField");
 import indexingDatabaseSettingsTypes = require("models/database/index/types")
 import vectorOptions = require("models/database/index/vectorOptions");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("indexModels");
 
 class mapItem {
     map = ko.observable<string>();
@@ -198,7 +201,7 @@ class indexDefinition {
                 {
                     validator: (reduceContent: string) => (this.hasReduce() && reduceContent && reduceContent.trim()) ||
                                                            !this.hasReduce(),
-                    message: `Reduce function is empty`
+                    message: t("definition.reduceEmpty")
                 }
             ]
         });
@@ -219,7 +222,7 @@ class indexDefinition {
             validation: [
                 {
                     validator: (value: string) => !value || value !== this.reduceOutputCollectionName(),
-                    message: 'Name for Referencing Collection cannot be the same as the Reduce Output Collection.'
+                    message: t("definition.referenceCollectionSameAsOutput")
                 }
             ]
         });

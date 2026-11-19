@@ -1,11 +1,18 @@
 import dialogViewModelBase = require("viewmodels/dialogViewModelBase");
 import copyToClipboard = require("common/copyToClipboard");
 import prismjs = require("prismjs");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("editIndex");
 
 class additionalSourceSyntax extends dialogViewModelBase {
 
     view = require("views/database/indexes/additionalSourceSyntax.html");
     additionalTextView = require("views/database/indexes/additionalTabsCommonText.html");
+
+    whereToAddHtml = t("additionalSyntax.whereToAdd");
+    csharpExampleHtml = t("syntaxSamples.exampleHeading", { language: "C#" });
+    javascriptExampleHtml = t("syntaxSamples.exampleHeading", { language: "JavaScript" });
     
     dialogContainer: Element;
 
@@ -19,7 +26,7 @@ class additionalSourceSyntax extends dialogViewModelBase {
         const sampleText = [...additionalSourceSyntax.csharpSamples, ...additionalSourceSyntax.javascriptSamples]
             .find(x => x.title === sampleTitle).text;
 
-        copyToClipboard.copy(sampleText, "Sample has been copied to clipboard", this.dialogContainer);
+        copyToClipboard.copy(sampleText, t("syntaxSamples.copied"), this.dialogContainer);
     }
 
     static readonly additionalSourceCsharpText =
