@@ -1,12 +1,12 @@
 <div class="gc-info-widget">
     <div class="cluster-dashboard-item-header">
-        <h3> <i class="icon-memory"></i> <span>GC</span></h3>
-        <button class="btn btn-warning btn-sm" data-bind="click: remove" title="Remove widget from board">
+        <h3> <i class="icon-memory"></i> <span data-bind="i18n: 'clusterDashboard:gc.title'"></span></h3>
+        <button class="btn btn-warning btn-sm" data-bind="click: remove, i18nAttr: { title: 'clusterDashboard:widget.remove' }">
             <i class="icon-trash"></i>
         </button>
         <button class="btn btn-default btn-sm" data-bind="click: toggleFullscreen">
             <i data-bind="css: { 'icon-fullscreen': !fullscreen(), 'icon-exit-fullscreen': fullscreen },
-                          attr: { title: fullscreen() ? 'Minimize widget' : 'Maximize widget' }"></i>
+                          i18nAttr: { title: fullscreen() ? 'clusterDashboard:widget.minimize' : 'clusterDashboard:widget.maximize' }"></i>
         </button>
     </div>
     <div class="property-container" data-bind="css: { 'property-collapse': !showGenerationsDetails() }">
@@ -22,35 +22,35 @@
                             <div class="node-label" data-bind="text: tag"></div>
                             <div class="node-value">
                                 <span data-bind="text: memoryFormatted"></span>
-                                <span class="supplementary-info">Total heap size after GC</span>
+                                <span class="supplementary-info" data-bind="i18n: 'clusterDashboard:gc.totalHeapSizeAfterGc'"></span>
                             </div>
-                            <div title="Data has been pinned. Click on any chart to unpin" class="pin-container" data-bind="css: { active:  $root.pinned() && currentItem() }">
+                            <div class="pin-container" data-bind="css: { active:  $root.pinned() && currentItem() }, i18nAttr: { title: 'clusterDashboard:gc.pinnedTitle' }">
                                 <i class="icon-pinned text-warning"></i>
                             </div>
                         </div>
 
                         <div class="details-list">
                             <div class="details-item flex-row align-items-center">
-                                <div class="details-item-name">GC Kind</div>
+                                <div class="details-item-name" data-bind="i18n: 'clusterDashboard:gc.gcKind'"></div>
                                 <div class="details-item-value" data-bind="text: type"></div>
                             </div>
                             <div class="details-item flex-row align-items-center">
-                                <div class="details-item-name">Concurrent</div>
+                                <div class="details-item-name" data-bind="i18n: 'clusterDashboard:gc.concurrent'"></div>
                                 <div class="details-item-value" data-bind="text: concurrent"></div>
                             </div>
                             <div class="details-item flex-row align-items-center">
-                                <div class="details-item-name">Compacted</div>
+                                <div class="details-item-name" data-bind="i18n: 'clusterDashboard:gc.compacted'"></div>
                                 <div class="details-item-value" data-bind="text: compacted"></div>
                             </div>
                             <div class="details-item flex-row align-items-center">
-                                <div class="details-item-name">Generation</div>
+                                <div class="details-item-name" data-bind="i18n: 'clusterDashboard:gc.generation'"></div>
                                 <div class="details-item-value" data-bind="text: generation"></div>
                             </div>
                         </div>
                         <div class="details-list">
                             <h4 class="no-padding-left">
                                 &nbsp;
-                                <span data-bind="text: $index() === 0 ? 'Generations (before GC → after GC)' : ' '"></span>
+                                <span data-bind="i18n: $index() === 0 ? 'clusterDashboard:gc.generationsHeading' : null"></span>
                             </h4>
                             <div data-toggle="tooltip" data-html="true" data-animation="true" data-placement="bottom" data-bind="tooltipText: fragmentationInfo">
                                 <div class="details-item flex-row align-items-center gen-0">
@@ -76,27 +76,27 @@
             <div class="gc-legend">
                 <div class="details-item flex-row align-items-center gen-0">
                     <div class="details-item-name">
-                        Gen0 <span class="rect"></span>
+                        <span data-bind="i18n: 'clusterDashboard:gc.legend.gen0'"></span> <span class="rect"></span>
                     </div>
                 </div>
                 <div class="details-item flex-row align-items-center gen-1">
                     <div class="details-item-name">
-                        Gen1 <span class="rect"></span>
+                        <span data-bind="i18n: 'clusterDashboard:gc.legend.gen1'"></span> <span class="rect"></span>
                     </div>
                 </div>
                 <div class="details-item flex-row align-items-center gen-2">
                     <div class="details-item-name">
-                        Gen2 <span class="rect"></span>
+                        <span data-bind="i18n: 'clusterDashboard:gc.legend.gen2'"></span> <span class="rect"></span>
                     </div>
                 </div>
                 <div class="details-item flex-row align-items-center loh">
-                    <div class="details-item-name" title="Large object heap">
-                        LOH <span class="rect"></span>
+                    <div class="details-item-name" data-bind="i18nAttr: { title: 'clusterDashboard:gc.legend.lohTitle' }">
+                        <span data-bind="i18n: 'clusterDashboard:gc.legend.loh'"></span> <span class="rect"></span>
                     </div>
                 </div>
                 <div class="details-item flex-row align-items-center pinned">
-                    <div class="details-item-name" title="Pinned object heap">
-                        POH <span class="rect"></span>
+                    <div class="details-item-name" data-bind="i18nAttr: { title: 'clusterDashboard:gc.legend.pohTitle' }">
+                        <span data-bind="i18n: 'clusterDashboard:gc.legend.poh'"></span> <span class="rect"></span>
                     </div>
                 </div>
             </div>
@@ -106,7 +106,7 @@
         </div>
     </div>
     <div class="property-container" data-bind="css: { 'property-fixed': !showGenerationsDetails() }">
-        <h4>GC Pauses</h4>
+        <h4 data-bind="i18n: 'clusterDashboard:gc.pauses'"></h4>
         <div class="property">
             <div class="flex-horizontal">
                 <div class="nodes-container" data-bind="foreach: nodeStats">
@@ -115,15 +115,15 @@
                             <div class="node-label" data-bind="text: tag, tooltipText: $root.createGcPauseWarning(pauseLevel())" data-placement="right" data-toggle="tooltip"></div>
                             <div class="node-value">
                                 <span data-bind="text: pauseFormatted"></span>
-                                <span class="supplementary-info">Pause Time %</span>
+                                <span class="supplementary-info" data-bind="i18n: 'clusterDashboard:gc.pauseTimePercent'"></span>
                             </div>
-                            <div title="Data has been pinned. Click on any chart to unpin" class="pin-container" data-bind="css: { active:  $root.pinned() && currentItem() }">
+                            <div class="pin-container" data-bind="css: { active:  $root.pinned() && currentItem() }, i18nAttr: { title: 'clusterDashboard:gc.pinnedTitle' }">
                                 <i class="icon-pinned text-warning"></i>
                             </div>
                         </div>
                         <div class="details-list">
-                            <div class="details-item" title="Background GC has two pauses">
-                                <div class="details-item-name">Pause</div>
+                            <div class="details-item" data-bind="i18nAttr: { title: 'clusterDashboard:gc.backgroundPausesTitle' }">
+                                <div class="details-item-name" data-bind="i18n: 'clusterDashboard:gc.pause'"></div>
                                 <div class="details-item-value" data-bind="text: pauseTotal"></div>
                             </div>
                         </div>

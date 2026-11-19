@@ -1,12 +1,12 @@
 <div>
     <div class="cluster-dashboard-item-header">
-        <h3><i class="icon-tasks"></i><span>Ongoing Tasks</span></h3>
-        <button class="btn btn-warning btn-sm" data-bind="click: remove" title="Remove widget from board">
+        <h3><i class="icon-tasks"></i><span data-bind="i18n: 'clusterDashboard:ongoingTasks.title'"></span></h3>
+        <button class="btn btn-warning btn-sm" data-bind="click: remove, i18nAttr: { title: 'clusterDashboard:widget.remove' }">
             <i class="icon-trash"></i>
         </button>
         <button class="btn btn-default btn-sm" data-bind="click: toggleFullscreen">
             <i data-bind="css: { 'icon-fullscreen': !fullscreen(), 'icon-exit-fullscreen': fullscreen },
-                          attr: { title: fullscreen() ? 'Minimize widget' : 'Maximize widget' }"></i>
+                          i18nAttr: { title: fullscreen() ? 'clusterDashboard:widget.minimize' : 'clusterDashboard:widget.maximize' }"></i>
         </button>
     </div>
     <div class="databases-list" style="position: relative;">

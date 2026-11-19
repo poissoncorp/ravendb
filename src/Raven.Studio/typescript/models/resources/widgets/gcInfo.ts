@@ -1,6 +1,9 @@
 import historyAwareNodeStats = require("models/resources/widgets/historyAwareNodeStats");
 import genUtils = require("common/generalUtils");
 import GcMemoryInfo = Raven.Server.Dashboard.Cluster.Notifications.GcInfoPayload.GcMemoryInfo;
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("widgetsModels");
 
 class gcInfo extends historyAwareNodeStats<GcInfoNormalizedData> {
     pauseFormatted = this.conditionalDataExtractor(x => x.memoryInfo.PauseTimePercentage.toFixed(2) + "%");
@@ -19,7 +22,7 @@ class gcInfo extends historyAwareNodeStats<GcInfoNormalizedData> {
     compacted = this.conditionalDataExtractor(x => x.memoryInfo.Compacted);
     generation = this.conditionalDataExtractor(x => x.memoryInfo.Generation.toString()); 
     memoryFormatted = this.conditionalDataExtractor(
-        x => genUtils.formatBytesToSize(x.memoryInfo.TotalHeapSizeAfterBytes), { customNoData: "No data" });
+        x => genUtils.formatBytesToSize(x.memoryInfo.TotalHeapSizeAfterBytes), { customNoData: t("noData") });
     
     fragmentationInfo = ko.pureComputed(() => {
         const noData = this.noDataText();
@@ -34,7 +37,7 @@ class gcInfo extends historyAwareNodeStats<GcInfoNormalizedData> {
         const fragmentationPoh = this.pinnedFragmentationFormatted();
         
         return `<div class="padding-xs">
-                    <h3 class="text-center">Heap Fragmentation</h3>
+                    <h3 class="text-center">${genUtils.escapeHtml(t("gcInfo.heapFragmentation"))}</h3>
                     <div class="details-item gen-0">
                         <div class="details-item-name">Gen0 <span class="rect"></span></div>
                         <div class="details-item-value">${fragmentationGen0}</div>
@@ -48,11 +51,11 @@ class gcInfo extends historyAwareNodeStats<GcInfoNormalizedData> {
                         <div class="details-item-value">${fragmentationGen2}</div>
                     </div>
                     <div class="details-item loh">
-                        <div class="details-item-name" title="Large object heap">LOH <span class="rect"></span></div>
+                        <div class="details-item-name" title="${genUtils.escapeHtml(t("gcInfo.largeObjectHeap"))}">LOH <span class="rect"></span></div>
                         <div class="details-item-value">${fragmentationLoh}</div>
                     </div>
                     <div class="details-item pinned">
-                        <div class="details-item-name" title="Pinned object heap">POH <span class="rect"></span></div>
+                        <div class="details-item-name" title="${genUtils.escapeHtml(t("gcInfo.pinnedObjectHeap"))}">POH <span class="rect"></span></div>
                         <div class="details-item-value">${fragmentationPoh}</div>
                     </div>
                 </div>`
@@ -100,9 +103,9 @@ class gcInfo extends historyAwareNodeStats<GcInfoNormalizedData> {
     static formatGcPauseTime(millis: number) {
         if (millis > 1000 * 60) {
             const minutes = millis / 60_000;
-            return genUtils.formatNumberToStringFixed(minutes, 2) + " minutes";
+            return t("gcInfo.pauseMinutes", { duration: genUtils.formatNumberToStringFixed(minutes, 2) });
         }
-        return Math.round(millis) + " ms";
+        return t("gcInfo.pauseMs", { duration: Math.round(millis) });
     }
     
     constructor(tag: string) {
@@ -111,7 +114,7 @@ class gcInfo extends historyAwareNodeStats<GcInfoNormalizedData> {
 
     protected noDataText(): string|null {
         const currentItem = this.currentItem();
-        return currentItem ? null : "n/a";
+        return currentItem ? null : t("notAvailable");
     }
 }
 

@@ -1,19 +1,19 @@
 <div>
     <div class="cluster-dashboard-item-header">
-        <h3> <i class="icon-database"></i> <span>Indexing per database</span></h3>
-        <button class="btn btn-warning btn-sm" data-bind="click: remove" title="Remove widget from board">
+        <h3> <i class="icon-database"></i> <span data-bind="i18n: 'clusterDashboard:databaseIndexing.title'"></span></h3>
+        <button class="btn btn-warning btn-sm" data-bind="click: remove, i18nAttr: { title: 'clusterDashboard:widget.remove' }">
             <i class="icon-trash"></i>
         </button>
         <button class="btn btn-default btn-sm" data-bind="click: toggleFullscreen">
             <i data-bind="css: { 'icon-fullscreen': !fullscreen(), 'icon-exit-fullscreen': fullscreen },
-                          attr: { title: fullscreen() ? 'Minimize widget' : 'Maximize widget' }"></i>
+                          i18nAttr: { title: fullscreen() ? 'clusterDashboard:widget.minimize' : 'clusterDashboard:widget.maximize' }"></i>
         </button>
     </div>
     <div class="databases-list" style="position: relative;">
         <div class="list-container">
             <div class="no-data-area" data-bind="visible: $root.noDatabases() && !$root.spinners.loading()">
-                <div><i class="icon-empty-set"></i><span>No data</span></div>
-                <button data-bind="click: () => isCreateDatabaseViewOpen(true)" class="btn btn-primary btn-xs text-uppercase">Create Database</button>
+                <div><i class="icon-empty-set"></i><span data-bind="i18n: 'clusterDashboard:widget.noData'"></span></div>
+                <button data-bind="click: () => isCreateDatabaseViewOpen(true), i18n: 'clusterDashboard:widget.createDatabase'" class="btn btn-primary btn-xs text-uppercase"></button>
                 <div data-bind="if: isCreateDatabaseViewOpen()">
                     <div data-bind="react: $root.createDatabaseView"></div>
                 </div>

@@ -23,6 +23,8 @@ import { clusterSelectors } from "components/common/shell/clusterSlice";
 import databasesManager from "common/shell/databasesManager";
 import notificationCenter from "common/notifications/notificationCenter";
 import { useAppUrls } from "components/hooks/useAppUrls";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 import "./DatabaseNotificationsWidgetBody.scss";
 
@@ -37,6 +39,7 @@ export default function DatabaseNotificationsWidgetBody({
     columnFilters,
     setColumnFilters,
 }: DatabaseNotificationsWidgetBodyProps) {
+    const t = useStudioTranslation("clusterDashboard");
     const ref = useRef<HTMLDivElement>(null);
     const { width } = useResizeObserver({ ref });
 
@@ -113,7 +116,7 @@ export default function DatabaseNotificationsWidgetBody({
             <VirtualTable table={table} heightInPx={300} isCompact isRoundingDisabled isPaddingDisabled />
             <div className="pt-1 font-size-11 text-center">
                 <Icon icon="info" />
-                This list only displays databases that are currently online. Offline databases will not appear.
+                {t("databaseNotifications.onlineOnlyInfo")}
             </div>
         </div>
     );
@@ -134,16 +137,31 @@ function Summary(props: { summary: Summary }) {
             style={{ height: "37.27px" }}
         >
             <div className="small-label">
-                Total <span>{totalNotificationsCount.toLocaleString()}</span>{" "}
+                <StudioTrans
+                    ns="clusterDashboard"
+                    i18nKey="databaseNotifications.summary.total"
+                    options={{ total: totalNotificationsCount.toLocaleString() }}
+                    components={{ span: <span /> }}
+                />{" "}
                 <Icon icon="notifications" margin="ms-1" />
             </div>
             <div className="hstack gap-3">
                 <div className="small-label">
-                    Alerts <span>{totalAlertsCount.toLocaleString()}</span>
+                    <StudioTrans
+                        ns="clusterDashboard"
+                        i18nKey="databaseNotifications.summary.alerts"
+                        options={{ alerts: totalAlertsCount.toLocaleString() }}
+                        components={{ span: <span /> }}
+                    />
                     <Icon icon="warning" margin="ms-1" color="warning" />
                 </div>
                 <div className="small-label">
-                    Performance hints <span>{totalPerfHintsCount.toLocaleString()}</span>
+                    <StudioTrans
+                        ns="clusterDashboard"
+                        i18nKey="databaseNotifications.summary.performanceHints"
+                        options={{ hints: totalPerfHintsCount.toLocaleString() }}
+                        components={{ span: <span /> }}
+                    />
                     <Icon icon="performance" margin="ms-1" color="info" />
                 </div>
             </div>
@@ -234,6 +252,7 @@ function createSubRowsWithReason(item: databaseNotificationsItem): RowItem[] {
 }
 
 function useColumns(availableWidthInPx: number): ColumnDef<RowItem>[] {
+    const t = useStudioTranslation("clusterDashboard");
     const bodyWidth = virtualTableUtils.getTableBodyWidth(availableWidthInPx);
     const getSize = useCallback(virtualTableUtils.getCellSizeProvider(bodyWidth), [bodyWidth]);
     const localNodeTag = useAppSelector(clusterSelectors.localNodeTag);
@@ -264,7 +283,8 @@ function useColumns(availableWidthInPx: number): ColumnDef<RowItem>[] {
     return useMemo(
         (): ColumnDef<RowItem>[] => [
             {
-                header: "Database",
+                id: "Database",
+                header: t("widget.databaseColumn"),
                 accessorFn: (x) => DatabaseUtils.formatName(x.dbName),
                 cell: ({ getValue }) => <span>{getValue<string>()}</span>,
                 size: getSize(25),
@@ -274,13 +294,13 @@ function useColumns(availableWidthInPx: number): ColumnDef<RowItem>[] {
                 header: ({ table }) => {
                     return (
                         <div className="hstack justify-content-between">
-                            <div>Node</div>
+                            <div>{t("databaseNotifications.columns.node")}</div>
                             <Button
                                 variant="link"
                                 onClick={table.getToggleAllRowsExpandedHandler()}
                                 size="xs"
                                 className="p-0 link-muted font-size-11 line-height-25"
-                                title="Expand all nodes"
+                                title={t("databaseNotifications.columns.expandAllNodes")}
                             >
                                 <Icon
                                     icon={table.getIsAllRowsExpanded() ? "collapse-vertical" : "expand-vertical"}
@@ -315,7 +335,7 @@ function useColumns(availableWidthInPx: number): ColumnDef<RowItem>[] {
                                     onClick={row.getToggleExpandedHandler()}
                                     size="xs"
                                     className="p-0 link-muted"
-                                    title="Expand node"
+                                    title={t("databaseNotifications.columns.expandNode")}
                                 >
                                     <Icon
                                         icon={row.getIsExpanded() ? "collapse-vertical" : "expand-vertical"}
@@ -332,7 +352,8 @@ function useColumns(availableWidthInPx: number): ColumnDef<RowItem>[] {
                 enableColumnFilter: false,
             },
             {
-                header: "Alerts",
+                id: "Alerts",
+                header: t("databaseNotifications.columns.alerts"),
                 accessorFn: ({ alertsCount, alertPrettifiedReason }) => ({ alertsCount, alertPrettifiedReason }),
                 cell: ({ getValue }) => {
                     const value = getValue<Pick<RowItem, "alertsCount" | "alertPrettifiedReason">>();
@@ -361,7 +382,8 @@ function useColumns(availableWidthInPx: number): ColumnDef<RowItem>[] {
                 },
             },
             {
-                header: "Performance hints",
+                id: "Performance hints",
+                header: t("databaseNotifications.columns.performanceHints"),
                 accessorFn: ({ perfHintsCount, perfHintPrettifiedReason }) => ({
                     perfHintsCount,
                     perfHintPrettifiedReason,
@@ -393,7 +415,7 @@ function useColumns(availableWidthInPx: number): ColumnDef<RowItem>[] {
                 },
             },
         ],
-        [getSize]
+        [getSize, t]
     );
 }
 

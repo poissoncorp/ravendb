@@ -1,4 +1,7 @@
 import dialogViewModelBase = require("viewmodels/dialogViewModelBase");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("clusterDashboard");
 
 interface widgetToAdd {
     name: string;
@@ -15,67 +18,67 @@ class addWidgetModal extends dialogViewModelBase {
     
     widgets: widgetToAdd[] = [
         {
-            name: "Welcome Screen",
+            name: t("addWidget.widgets.welcome"),
             icon: require("../../../wwwroot/Content/img/widgets/welcome-icon.svg"),
             type: "Welcome"
         }, {
-            name: "License info",
+            name: t("addWidget.widgets.license"),
             icon: require("../../../wwwroot/Content/img/widgets/text-icon.svg"),
             type: "License"
         }, {
-            name: "Cluster Overview",
+            name: t("addWidget.widgets.clusterOverview"),
             icon: require("../../../wwwroot/Content/img/widgets/chart-icon.svg"),
             type: "ClusterOverview"            
         }, {
-            name: "Storage",
+            name: t("addWidget.widgets.storage"),
             icon: require("../../../wwwroot/Content/img/widgets/chart-icon.svg"),
             type: "StorageUsage"
         }, {
-            name: "CPU",
+            name: t("addWidget.widgets.cpu"),
             icon: require("../../../wwwroot/Content/img/widgets/graph-icon.svg"),
             type: "CpuUsage"
         }, {
-            name: "Memory",
+            name: t("addWidget.widgets.memory"),
             icon: require("../../../wwwroot/Content/img/widgets/graph-icon.svg"),
             type: "MemoryUsage"
         }, {
-            name: "Indexing",
+            name: t("addWidget.widgets.indexing"),
             icon: require("../../../wwwroot/Content/img/widgets/graph-icon.svg"),
             type: "Indexing"
         }, {
-            name: "IO Stats",
+            name: t("addWidget.widgets.ioStats"),
             icon: require("../../../wwwroot/Content/img/widgets/graph-icon.svg"),
             type: "IoStats"
         }, {
-            name: "Traffic",
+            name: t("addWidget.widgets.traffic"),
             icon: require("../../../wwwroot/Content/img/widgets/list-icon.svg"),
             type: "Traffic"
         }, {
-            name: "Indexing per Database",
+            name: t("addWidget.widgets.databaseIndexing"),
             icon: require("../../../wwwroot/Content/img/widgets/list-icon.svg"),
             type: "DatabaseIndexing"
         }, {
-            name: "Traffic per Database",
+            name: t("addWidget.widgets.databaseTraffic"),
             icon: require("../../../wwwroot/Content/img/widgets/list-icon.svg"),
             type: "DatabaseTraffic"
         }, {
-            name: "Storage per Database",
+            name: t("addWidget.widgets.databaseStorage"),
             icon: require("../../../wwwroot/Content/img/widgets/list-icon.svg"),
             type: "DatabaseStorageUsage"
         }, {
-            name: "Database Overview",
+            name: t("addWidget.widgets.databaseOverview"),
             icon: require("../../../wwwroot/Content/img/widgets/list-icon.svg"),
             type: "DatabaseOverview"
         }, {
-            name: "Ongoing Tasks",
+            name: t("addWidget.widgets.ongoingTasks"),
             icon: require("../../../wwwroot/Content/img/widgets/list-icon.svg"),
             type: "OngoingTasks"
         }, {
-            name: "GC",
+            name: t("addWidget.widgets.gc"),
             icon: require("../../../wwwroot/Content/img/widgets/graph-icon.svg"),
             type: "GcInfo"
         }, {
-            name: "Databases Notifications",
+            name: t("addWidget.widgets.databaseNotifications"),
             icon: require("../../../wwwroot/Content/img/widgets/list-icon.svg"),
             type: "DatabasesNotifications"
         }
@@ -114,7 +117,7 @@ class addWidgetModal extends dialogViewModelBase {
         super.compositionComplete(view, parent);
         
         $(".widget-item.disabled").tooltip({
-            title: "Already added"
+            title: t("addWidget.alreadyAdded")
         });
     }
 

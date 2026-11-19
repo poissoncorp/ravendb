@@ -5,6 +5,9 @@ import clusterDashboardWebSocketClient = require("common/clusterDashboardWebSock
 import moment = require("moment");
 import lineChart = require("models/resources/clusterDashboard/lineChart");
 import clusterDashboardChart = require("models/resources/clusterDashboard/clusterDashboardChart");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("clusterDashboard");
 
 abstract class abstractTransformingChartsWebsocketWidget<
     TPayload extends Raven.Server.Dashboard.Cluster.AbstractClusterDashboardNotification,
@@ -41,7 +44,7 @@ abstract class abstractTransformingChartsWebsocketWidget<
     protected static tooltipContent(date: ClusterWidgetUnalignedDate | null) {
         if (date) {
             const dateFormatted = moment(date).format(lineChart.lineChart.timeFormat);
-            return `<div class="tooltip-inner"><div class="tooltip-li">Time: <div class="value">${dateFormatted}</div></div></div>`;
+            return `<div class="tooltip-inner"><div class="tooltip-li">${t("widget.chartTime")} <div class="value">${dateFormatted}</div></div></div>`;
         } else {
             return null;
         }

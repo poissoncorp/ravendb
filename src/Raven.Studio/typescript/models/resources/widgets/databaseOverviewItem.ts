@@ -1,6 +1,9 @@
 
 import moment = require("moment");
 import generalUtils = require("common/generalUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("widgetsModels");
 
 class databaseOverviewItem implements databaseAndNodeAwareStats {
     database: string;
@@ -73,7 +76,7 @@ class databaseOverviewItem implements databaseAndNodeAwareStats {
         const textValue = this.erroredIndexes.toLocaleString();
 
         return [{
-            title: `${textValue} errored ${this.erroredIndexes > 1 ? "indexes" : "index"}`,
+            title: t("databaseOverview.erroredIndexes", { value: textValue, count: this.erroredIndexes }),
             text: textValue,
             iconClass: "icon-danger",
             textClass: "text-danger"
@@ -88,7 +91,7 @@ class databaseOverviewItem implements databaseAndNodeAwareStats {
         const textValue = this.indexingErrors.toLocaleString();
         
         return [{
-            title: `${textValue} indexing ${this.indexingErrors > 1 ? "errors" : "error"}`,
+            title: t("databaseOverview.indexingErrors", { value: textValue, count: this.indexingErrors }),
             text: textValue,
             iconClass: "icon-danger",
             textClass: "text-danger"
@@ -105,7 +108,7 @@ class databaseOverviewItem implements databaseAndNodeAwareStats {
         if (this.alerts) {
             const textValue = this.alerts.toLocaleString();
             alertsData.push({
-                title: `${textValue} ${this.alerts > 1 ? "alerts" : "alert"}`,
+                title: t("databaseOverview.alerts", { value: textValue, count: this.alerts }),
                 text: textValue,
                 iconClass: "icon-warning",
                 textClass: "text-warning"
@@ -115,7 +118,7 @@ class databaseOverviewItem implements databaseAndNodeAwareStats {
         if (this.performanceHints) {
             const textValue = this.performanceHints.toLocaleString();
             alertsData.push({
-                title: `${textValue} performance ${this.performanceHints > 1 ? "hints" : "hint" }`,
+                title: t("databaseOverview.performanceHints", { value: textValue, count: this.performanceHints }),
                 text: textValue,
                 iconClass: "icon-info",
                 textClass: "text-info"
@@ -128,7 +131,7 @@ class databaseOverviewItem implements databaseAndNodeAwareStats {
     backupDataForHtml(): iconPlusText[] {
         if (!this.backupInfo) {
             return [{
-               title: "No backup task defined",
+               title: t("databaseOverview.noBackupTask"),
                text: "",
                iconClass: "icon-cancel",
                textClass: "text-danger" 
@@ -137,7 +140,7 @@ class databaseOverviewItem implements databaseAndNodeAwareStats {
         
         if (!this.backupInfo.LastBackup) {
             return [{
-                title: "Never backed up",
+                title: t("databaseOverview.neverBackedUp"),
                 text: "",
                 iconClass: "icon-warning",
                 textClass: "text-warning"
@@ -145,7 +148,7 @@ class databaseOverviewItem implements databaseAndNodeAwareStats {
         }
         
         return [{
-            title: "Backup was created",
+            title: t("databaseOverview.backupCreated"),
             text: generalUtils.formatDurationByDate(moment.utc(this.backupInfo.LastBackup), true),
             iconClass: "icon-check",
             textClass: "text-success"
@@ -156,7 +159,7 @@ class databaseOverviewItem implements databaseAndNodeAwareStats {
         if (this.disabled) {
             if (!nodeTag) {
                 return [{
-                    text: "Disabled",
+                    text: t("databaseOverview.disabled"),
                     iconClass: "icon-database-cutout icon-addon-cancel",
                     textClass: "text-danger"
                 }];
@@ -164,13 +167,13 @@ class databaseOverviewItem implements databaseAndNodeAwareStats {
         } else if (nodeTag) {
             if (!this.online) {
                 return [{
-                    text: "Offline",
+                    text: t("databaseOverview.offline"),
                     iconClass: "icon-database-cutout icon-addon-clock",
                     textClass: null
                 }];
            } else {
                 return [{
-                    text: "Online",
+                    text: t("databaseOverview.online"),
                     iconClass: "icon-database-cutout icon-addon-check",
                     textClass: "text-success"
                 }];

@@ -10,6 +10,9 @@ import taskItem = require("models/resources/widgets/taskItem");
 import appUrl = require("common/appUrl");
 import clusterTopologyManager = require("common/shell/clusterTopologyManager");
 import hyperlinkColumn = require("widgets/virtualGrid/columns/hyperlinkColumn");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("clusterDashboard");
 
 class ongoingTasksWidget extends websocketBasedWidget<Raven.Server.Dashboard.Cluster.Notifications.OngoingTasksPayload> {
 
@@ -17,17 +20,23 @@ class ongoingTasksWidget extends websocketBasedWidget<Raven.Server.Dashboard.Clu
     
     static readonly taskInfoRecord: Record<StudioTaskType, taskInfo> = {
         "Replication": {
-            nameForUI: "External Replication",
+            get nameForUI() {
+                return t("ongoingTasks.taskTypes.replication");
+            },
             icon: "icon-external-replication",
             colorClass: "external-replication"
         },
         "PullReplicationAsHub": {
-            nameForUI: "Replication Hub",
+            get nameForUI() {
+                return t("ongoingTasks.taskTypes.replicationHub");
+            },
             icon: "icon-pull-replication-hub",
             colorClass: "replication-hub"
         },
         "PullReplicationAsSink": {
-            nameForUI: "Replication Sink",
+            get nameForUI() {
+                return t("ongoingTasks.taskTypes.replicationSink");
+            },
             icon: "icon-pull-replication-agent",
             colorClass: "replication-sink"
         },
@@ -67,52 +76,72 @@ class ongoingTasksWidget extends websocketBasedWidget<Raven.Server.Dashboard.Clu
             colorClass: "rabbitmq-etl"
         },
         "AzureQueueStorageQueueEtl": {
-            nameForUI: "Azure Queue Storage ETL",
+            get nameForUI() {
+                return t("ongoingTasks.taskTypes.azureQueueStorageEtl");
+            },
             icon: "icon-azure-queue-storage-etl",
             colorClass: "azure-queue-storage-etl",
         },
         "AmazonSqsQueueEtl": {
-            nameForUI: "Amazon SQS ETL",
+            get nameForUI() {
+                return t("ongoingTasks.taskTypes.amazonSqsEtl");
+            },
             icon: "icon-amazon-sqs-etl",
             colorClass: "amazon-sqs-etl",
         },
         "EmbeddingsGeneration": {
-            nameForUI: "Embeddings Generation",
+            get nameForUI() {
+                return t("ongoingTasks.taskTypes.embeddingsGeneration");
+            },
             icon: "icon-ai-etl",
             colorClass: "ai-etl"
         },
         "GenAi": {
-            nameForUI: "GenAI",
+            get nameForUI() {
+                return t("ongoingTasks.taskTypes.genAi");
+            },
             icon: "icon-genai",
             colorClass: "genai"
         },
         "KafkaQueueSink": {
-            nameForUI: "Kafka Sink",
+            get nameForUI() {
+                return t("ongoingTasks.taskTypes.kafkaSink");
+            },
             icon: "icon-kafka-sink",
             colorClass: "kafka-sink",
         },
         "RabbitQueueSink": {
-            nameForUI: "RabbitMQ Sink",
+            get nameForUI() {
+                return t("ongoingTasks.taskTypes.rabbitMqSink");
+            },
             icon: "icon-rabbitmq-sink",
             colorClass: "rabbitmq-sink",
         },
         "AzureServiceBusQueueSink": {
-            nameForUI: "Azure Service Bus Sink",
+            get nameForUI() {
+                return t("ongoingTasks.taskTypes.azureServiceBusSink");
+            },
             icon: "icon-azure-service-bus-sink",
             colorClass: "azure-service-bus-sink",
         },
         "Backup": {
-            nameForUI: "Backup",
+            get nameForUI() {
+                return t("ongoingTasks.taskTypes.backup");
+            },
             icon: "icon-backups",
             colorClass: "periodic-backup"
         },
         "Subscription": {
-            nameForUI: "Subscription",
+            get nameForUI() {
+                return t("ongoingTasks.taskTypes.subscription");
+            },
             icon: "icon-subscription",
             colorClass: "subscription"
         },
         "CdcSink": {
-            nameForUI: "CDC Sink",
+            get nameForUI() {
+                return t("ongoingTasks.taskTypes.cdcSink");
+            },
             icon: "icon-cdc-sink",
             colorClass: "cdc-sink"
         },
@@ -184,7 +213,7 @@ class ongoingTasksWidget extends websocketBasedWidget<Raven.Server.Dashboard.Clu
         const name = ongoingTasksWidget.taskInfoRecord[item.taskType()].nameForUI;
         
         return [{
-            title: name + " task",
+            title: t("ongoingTasks.taskTitle", { name }),
             text: name,
             iconClass: ongoingTasksWidget.taskInfoRecord[item.taskType()].icon,
             textClass: ongoingTasksWidget.taskInfoRecord[item.taskType()].colorClass
@@ -203,9 +232,8 @@ class ongoingTasksWidget extends websocketBasedWidget<Raven.Server.Dashboard.Clu
     private getTaskCountTitle(item: taskItem): string {
         if (item.isTitleItem()) {
             const count = item.taskCount();
-            const taskPart = count > 1 ? "tasks" : "task";
 
-            return count > 0 ? `Total of ${count} ${item.taskType()} ${taskPart}` : "";
+            return count > 0 ? t("ongoingTasks.countTitle", { count, taskType: item.taskType() }) : "";
 }
 
         return "";
@@ -256,28 +284,28 @@ class ongoingTasksWidget extends websocketBasedWidget<Raven.Server.Dashboard.Clu
         return [
             new iconsPlusTextColumn<taskItem>(
                 grid, x => x.isTitleItem() ? this.getTaskTypeHtml(x) : "",
-                "Task",
+                t("ongoingTasks.columns.task"),
                 "30%",
                 {
-                    headerTitle: "Tasks type"
+                    headerTitle: t("ongoingTasks.columns.taskTitle")
                 }
             ),
             new iconsPlusTextColumn<taskItem>(
                 grid,
                 x => this.getTaskCountHtml(x),
-                "Count",
+                t("ongoingTasks.columns.count"),
                 "15%",
                 {
-                    headerTitle: "Tasks count"
+                    headerTitle: t("ongoingTasks.columns.countTitle")
                 }
             ),
             new hyperlinkColumn<taskItem>(
                 grid, x => x.isTitleItem() ? "" : x.databaseName(),
                 x => appUrl.forOngoingTasks(x.databaseName()),
-                "Database",
+                t("widget.databaseColumn"),
                 "30%",
                 {
-                    title: x => `Ongoing tasks for database ${x.databaseName()}`
+                    title: x => t("ongoingTasks.columns.databaseLinkTitle", { database: x.databaseName() })
                 }
             ),
             new multiNodeTagsColumn<taskItem>(
@@ -285,9 +313,9 @@ class ongoingTasksWidget extends websocketBasedWidget<Raven.Server.Dashboard.Clu
                 taskItem.createNodeTagsProvider(),
                 "20%",
                 {
-                    headerTitle: "Nodes running the tasks",
+                    headerTitle: t("ongoingTasks.columns.nodesTitle"),
                     nodeHrefAccessor: (item, nodeTag) => this.getOngoingTasksUrlForNode(item.databaseName(), nodeTag),
-                    nodeLinkTitleAccessor: (item, nodeTag) => `Ongoing tasks for database ${item.databaseName()} on node ${nodeTag}`
+                    nodeLinkTitleAccessor: (item, nodeTag) => t("ongoingTasks.columns.nodeLinkTitle", { database: item.databaseName(), nodeTag })
                 }
             )
         ];

@@ -3,7 +3,7 @@
         <div class="modal-header">
             <div class="flex-horizontal">
                 <div class="flex-grow">
-                    <h3>Storage Widget Settings</h3>
+                    <h3 data-bind="i18n: 'clusterDashboard:storage.settings.title'"></h3>
                 </div>
                 <div>
                     <button type="button" class="close" data-bind="click: close" aria-hidden="true">
@@ -16,9 +16,9 @@
             <div class="flex-form">
                 <div class="form-group">
                     <div class="toggle">
-                        <div data-placement="right" data-toggle="tooltip" title="Toggle on to show scaled size" data-animation="true">
+                        <div data-placement="right" data-toggle="tooltip" data-animation="true" data-bind="i18nAttr: { title: 'clusterDashboard:storage.settings.scaleDriveSizeTitle' }">
                             <input id="scaleToggle" type="checkbox" data-bind="checked: scaleDriveSize">
-                            <label for="scaleToggle">Scale drive size</label>
+                            <label for="scaleToggle" data-bind="i18n: 'clusterDashboard:storage.settings.scaleDriveSize'"></label>
                         </div>
                     </div>
                 </div>
@@ -26,9 +26,9 @@
         </div>
         <div class="modal-footer">
             <div class="text-right">
-                <button type="button" class=" btn btn-default" data-bind="click: close"><i class="icon-cancel"></i><span>Cancel</span></button>
+                <button type="button" class=" btn btn-default" data-bind="click: close"><i class="icon-cancel"></i><span data-bind="i18n: 'common:cancel'"></span></button>
                 <button data-bind="click: saveSettings" type="button" class="btn btn-primary">
-                    <i class="icon-save"></i><span>Save</span>
+                    <i class="icon-save"></i><span data-bind="i18n: 'common:save'"></span>
                 </button>
             </div>
         </div>

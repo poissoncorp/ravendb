@@ -2,6 +2,9 @@ import generalUtils = require("common/generalUtils");
 import accessManager = require("common/shell/accessManager");
 
 import historyAwareNodeStats = require("models/resources/widgets/historyAwareNodeStats");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("widgetsModels");
 
 class memoryUsage extends historyAwareNodeStats<Raven.Server.Dashboard.Cluster.Notifications.MemoryUsagePayload> {
 
@@ -60,7 +63,7 @@ class memoryUsage extends historyAwareNodeStats<Raven.Server.Dashboard.Cluster.N
             const available = x.AvailableMemory;
 
             if (!physical) {
-                return "n/a";
+                return t("notAvailable");
             }
 
             return Math.round(100.0 * (physical - available) / physical) + '%';
@@ -69,9 +72,9 @@ class memoryUsage extends historyAwareNodeStats<Raven.Server.Dashboard.Cluster.N
         this.lowMemoryTitle = ko.pureComputed(() => {
             const lowMem = this.lowMemorySeverity();
             if (lowMem === "ExtremelyLow") {
-                return "Extremely Low Memory Mode";
+                return t("memoryUsage.extremelyLowMemoryMode");
             } else if (lowMem === "Low") {
-                return "Low Memory Mode";
+                return t("memoryUsage.lowMemoryMode");
             }
 
             return null;

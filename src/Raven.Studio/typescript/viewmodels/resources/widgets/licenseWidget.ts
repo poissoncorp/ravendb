@@ -7,6 +7,9 @@ import accessManager = require("common/shell/accessManager");
 import clusterDashboard = require("viewmodels/resources/clusterDashboard");
 import moment = require("moment");
 import serverSettings = require("common/settings/serverSettings");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("clusterDashboard");
 
 interface serverCertificateInfo {
     dateFormatted: string;
@@ -103,13 +106,13 @@ class licenseWidget extends widget {
             return null;
         }
 
-        return licenseStatus.IsIsv ? "Updates Expiration" : "License Expiration";
+        return licenseStatus.IsIsv ? t("license.updatesExpiration") : t("license.licenseExpiration");
     });
 
     supportLabel = license.supportLabel;
 
     automaticRenewText = ko.pureComputed(() => {
-        return this.isCloud() ? "Cloud licenses are automatically renewed" : "";
+        return this.isCloud() ? t("license.cloudAutoRenew") : "";
     });
 
     getType(): widgetType {

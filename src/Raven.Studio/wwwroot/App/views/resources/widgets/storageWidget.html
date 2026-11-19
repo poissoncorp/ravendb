@@ -1,15 +1,15 @@
 <div>
     <div class="cluster-dashboard-item-header">
-        <h3> <i class="icon-storage"></i> <span>Storage</span></h3>
-        <button class="btn btn-default btn-sm" data-bind="click: openWidgetSettings" title="Open widget settings">
+        <h3> <i class="icon-storage"></i> <span data-bind="i18n: 'clusterDashboard:storage.title'"></span></h3>
+        <button class="btn btn-default btn-sm" data-bind="click: openWidgetSettings, i18nAttr: { title: 'clusterDashboard:widget.openSettings' }">
             <i class="icon-settings"></i>
         </button>
-        <button class="btn btn-warning btn-sm" data-bind="click: remove" title="Remove widget from board">
+        <button class="btn btn-warning btn-sm" data-bind="click: remove, i18nAttr: { title: 'clusterDashboard:widget.remove' }">
             <i class="icon-trash"></i>
         </button>
         <button class="btn btn-default btn-sm" data-bind="click: toggleFullscreen">
             <i data-bind="css: { 'icon-fullscreen': !fullscreen(), 'icon-exit-fullscreen': fullscreen },
-                          attr: { title: fullscreen() ? 'Minimize widget' : 'Maximize widget' }"></i>
+                          i18nAttr: { title: fullscreen() ? 'clusterDashboard:widget.minimize' : 'clusterDashboard:widget.maximize' }"></i>
         </button>
     </div>
     <div class="property-container">
@@ -24,24 +24,24 @@
                         <div class="details-list" data-bind="foreach: mountPoints">
                             <div class="mount" data-bind="text: mountPointLabel, visible: $parent.mountPoints().length > 1"></div>
                             <div class="storage-legend d-flex">
-                                <div class="storage-ravendb" data-toggle="tooltip" data-placement="top" title="Used by RavenDB Data" >
+                                <div class="storage-ravendb" data-toggle="tooltip" data-placement="top" data-bind="i18nAttr: { title: 'clusterDashboard:storage.ravenDataTitle' }" >
                                     <i class="icon-ravendb-data"></i>
                                     <span class="m-0" data-bind="text: $root.sizeFormatter(ravenSize())"></span>
                                 </div>
-                                <div class="storage-ravendb-temp-buffers" data-toggle="tooltip" data-placement="top" title="Used by RavenDB Temporary Buffers">
+                                <div class="storage-ravendb-temp-buffers" data-toggle="tooltip" data-placement="top" data-bind="i18nAttr: { title: 'clusterDashboard:storage.tempBuffersTitle' }">
                                     <i class="icon-waiting"></i>
                                     <span class="m-0" data-bind="text: $root.sizeFormatter(ravenTempBuffersSize())"></span> 
                                 </div>
                                 <div class="flex-grow"></div>
-                                <div class="storage-used" data-toggle="tooltip" data-placement="top" title="Storage used">
+                                <div class="storage-used" data-toggle="tooltip" data-placement="top" data-bind="i18nAttr: { title: 'clusterDashboard:storage.usedTitle' }">
                                     <i class="icon-storage-used"></i>
                                     <span class="m-0" data-bind="text: $root.sizeFormatter(usedSpace())"></span>
                                 </div>
-                                <div class="storage-free" data-toggle="tooltip" data-placement="top" title="Storage free">
+                                <div class="storage-free" data-toggle="tooltip" data-placement="top" data-bind="i18nAttr: { title: 'clusterDashboard:storage.freeTitle' }">
                                     <i class="icon-storage-free"></i>
                                     <span class="m-0" data-bind="text: $root.sizeFormatter(freeSpace())"></span>
                                 </div>
-                                <div class="storage-total" data-toggle="tooltip" data-placement="top" title="Total storage available" data-bind="text: $root.sizeFormatter(totalCapacity())"></div>
+                                <div class="storage-total" data-toggle="tooltip" data-placement="top" data-bind="text: $root.sizeFormatter(totalCapacity()), i18nAttr: { title: 'clusterDashboard:storage.totalTitle' }"></div>
                             </div>
                             <div class="storage-chart" data-bind="style: { width: scaleFactor() + '%' }">
                                 <div class="storage-used d-flex align-items-center" data-bind="style: { width: usedSpacePercentage() + '%' }">

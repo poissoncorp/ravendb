@@ -8,6 +8,9 @@ import appUrl = require("common/appUrl");
 import perNodeStatItems = require("models/resources/widgets/perNodeStatItems");
 import DatabaseUtils = require("components/utils/DatabaseUtils");
 import generalUtils = require("common/generalUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("clusterDashboard");
 
 class databaseStorageWidget extends abstractDatabaseAndNodeAwareTableWidget<Raven.Server.Dashboard.Cluster.Notifications.DatabaseStorageUsagePayload, perNodeStatItems<databaseDiskUsage>, databaseDiskUsage> {
 
@@ -37,18 +40,18 @@ class databaseStorageWidget extends abstractDatabaseAndNodeAwareTableWidget<Rave
     protected prepareColumns(): virtualColumn[] {
         const grid = this.gridController();
         return [
-            new textColumn<databaseDiskUsage>(grid, x => x.hideDatabaseName && !grid.sortEnabled() ? "" : DatabaseUtils.default.formatName(x.database), "Database", "35%"),
-            new nodeTagColumn<databaseDiskUsage>(grid, item => this.prepareUrl(item, "Storage Report View")),
-            new textColumn<databaseDiskUsage>(grid, x => x.noData ? "-" : generalUtils.formatBytesToSize(x.size), "Data", "15%", {
-                headerTitle: "Data files storage usage",
+            new textColumn<databaseDiskUsage>(grid, x => x.hideDatabaseName && !grid.sortEnabled() ? "" : DatabaseUtils.default.formatName(x.database), t("widget.databaseColumn"), "35%"),
+            new nodeTagColumn<databaseDiskUsage>(grid, item => this.prepareUrl(item, t("databaseStorage.targetDescription"))),
+            new textColumn<databaseDiskUsage>(grid, x => x.noData ? "-" : generalUtils.formatBytesToSize(x.size), t("databaseStorage.columns.data"), "15%", {
+                headerTitle: t("databaseStorage.columns.dataTitle"),
                 sortable: x => x.noData ? -1 : x.size,
             }),
-            new textColumn<databaseDiskUsage>(grid, x => x.noData ? "-" : generalUtils.formatBytesToSize(x.tempBuffersSize), "Temp", "15%", {
-                headerTitle: "Temp file storage usage",
+            new textColumn<databaseDiskUsage>(grid, x => x.noData ? "-" : generalUtils.formatBytesToSize(x.tempBuffersSize), t("databaseStorage.columns.temp"), "15%", {
+                headerTitle: t("databaseStorage.columns.tempTitle"),
                 sortable: x => x.noData ? -1 : x.tempBuffersSize,
             }),
-            new textColumn<databaseDiskUsage>(grid, x => x.noData ? "-" : generalUtils.formatBytesToSize(x.total), "Total", "15%", {
-                headerTitle: "Total files storage usage (Data + Temp)",
+            new textColumn<databaseDiskUsage>(grid, x => x.noData ? "-" : generalUtils.formatBytesToSize(x.total), t("databaseStorage.columns.total"), "15%", {
+                headerTitle: t("databaseStorage.columns.totalTitle"),
                 sortable: x => x.noData ? -1 : x.total,
             }),
         ];

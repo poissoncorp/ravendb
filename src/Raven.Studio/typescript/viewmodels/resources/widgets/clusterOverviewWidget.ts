@@ -9,6 +9,9 @@ import assertUnreachable = require("components/utils/assertUnreachable");
 import IconName = require("../../../../typings/server/icons");
 import clusterNode = require("models/database/cluster/clusterNode");
 import OSType = Raven.Client.ServerWide.Operations.OSType;
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("clusterDashboard");
 
 class nodeStatsItem {
     
@@ -16,7 +19,9 @@ class nodeStatsItem {
     nodeUrl = ko.observable<string>();
     
     nodeType = ko.observable<clusterNodeType>();
+    nodeTypeText: KnockoutComputed<string>;
     nodeState = ko.observable<Raven.Client.ServerWide.RachisState>();
+    nodeStateText: KnockoutComputed<string>;
 
     startTime = ko.observable<string>();
     formattedUpTime = ko.observable<string>();
@@ -38,6 +43,16 @@ class nodeStatsItem {
     }
 
     initObservables() {
+        this.nodeStateText = ko.pureComputed(() => {
+            const state = this.nodeState();
+            return state == null ? t("clusterOverview.connecting") : nodeStatsItem.nodeStateLabel(state);
+        });
+
+        this.nodeTypeText = ko.pureComputed(() => {
+            const type = this.nodeType();
+            return type == null ? "-" : nodeStatsItem.nodeTypeLabel(type);
+        });
+
         this.formattedStartTime = ko.pureComputed(() => {
             const start = this.startTime();
             return start ? generalUtils.formatUtcDateAsLocal(start) : "";
@@ -77,10 +92,40 @@ class nodeStatsItem {
 
     private getUpTime(startTime: string) {
         if (!startTime) {
-            this.formattedUpTime("a few seconds");
+            this.formattedUpTime(t("clusterOverview.fewSeconds"));
         }
         
         return generalUtils.formatDurationByDate(moment.utc(startTime));
+    }
+
+    private static nodeStateLabel(state: Raven.Client.ServerWide.RachisState): string {
+        switch (state) {
+            case "Leader":
+                return t("clusterOverview.nodeStates.leader");
+            case "LeaderElect":
+                return t("clusterOverview.nodeStates.leaderElect");
+            case "Follower":
+                return t("clusterOverview.nodeStates.follower");
+            case "Candidate":
+                return t("clusterOverview.nodeStates.candidate");
+            case "Passive":
+                return t("clusterOverview.nodeStates.passive");
+            default:
+                return state;
+        }
+    }
+
+    private static nodeTypeLabel(type: clusterNodeType): string {
+        switch (type) {
+            case "Member":
+                return t("clusterOverview.nodeTypes.member");
+            case "Promotable":
+                return t("clusterOverview.nodeTypes.promotable");
+            case "Watcher":
+                return t("clusterOverview.nodeTypes.watcher");
+            default:
+                return type;
+        }
     }
 
     iconClass(type: clusterNodeType): IconName {

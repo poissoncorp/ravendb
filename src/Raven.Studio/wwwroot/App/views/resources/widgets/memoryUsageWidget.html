@@ -1,16 +1,16 @@
 <div>
     <div class="cluster-dashboard-item-header">
-        <h3> <i class="icon-memory"></i> <span>Memory</span></h3>
-        <button class="btn btn-warning btn-sm" data-bind="click: remove" title="Remove widget from board">
+        <h3> <i class="icon-memory"></i> <span data-bind="i18n: 'clusterDashboard:memory.title'"></span></h3>
+        <button class="btn btn-warning btn-sm" data-bind="click: remove, i18nAttr: { title: 'clusterDashboard:widget.remove' }">
             <i class="icon-trash"></i>
         </button>
         <button class="btn btn-default btn-sm" data-bind="click: toggleFullscreen">
             <i data-bind="css: { 'icon-fullscreen': !fullscreen(), 'icon-exit-fullscreen': fullscreen },
-                          attr: { title: fullscreen() ? 'Minimize widget' : 'Maximize widget' }"></i>
+                          i18nAttr: { title: fullscreen() ? 'clusterDashboard:widget.minimize' : 'clusterDashboard:widget.maximize' }"></i>
         </button>
     </div>
     <div class="property-container" data-bind="css: { 'property-collapse': !showProcessDetails() }">
-        <h4>RavenDB Memory usage</h4>
+        <h4 data-bind="i18n: 'clusterDashboard:memory.ravendbUsage'"></h4>
         <div class="property">
             <div class="flex-horizontal">
                 <button class="collapse-arrow property-control" data-bind="click: toggleProcessDetails">
@@ -29,40 +29,40 @@
                         </div>
                         <div class="details-list">
                             <div class="details-item">
-                                <div class="details-item-name">Managed Allocations</div>
+                                <div class="details-item-name" data-bind="i18n: 'clusterDashboard:memory.managedAllocations'"></div>
                                 <div class="details-item-value" data-bind="text: sizeFormatter(managedAllocations())"></div>
                             </div>
                             <div class="details-item">
-                                <div class="details-item-name">Unmanaged Allocations</div>
+                                <div class="details-item-name" data-bind="i18n: 'clusterDashboard:memory.unmanagedAllocations'"></div>
                                 <div class="details-item-value" data-bind="text: sizeFormatter(unmanagedAllocations())"></div>
                             </div>
                             <div class="details-item">
-                                <div class="details-item-name">Lucene Managed Allocations for Term Cache</div>
+                                <div class="details-item-name" data-bind="i18n: 'clusterDashboard:memory.luceneManagedTermCache'"></div>
                                 <div class="details-item-value" data-bind="text: sizeFormatter(luceneManagedTermCacheAllocations())"></div>
                             </div>
                             <div class="details-item">
-                                <div class="details-item-name">Lucene Unmanaged Allocations for Term Cache</div>
+                                <div class="details-item-name" data-bind="i18n: 'clusterDashboard:memory.luceneUnmanagedTermCache'"></div>
                                 <div class="details-item-value" data-bind="text: sizeFormatter(luceneUnmanagedTermCacheAllocations())"></div>
                             </div>
                             <div class="details-item">
-                                <div class="details-item-name">Lucene Unmanaged Allocations for Sorting</div>
+                                <div class="details-item-name" data-bind="i18n: 'clusterDashboard:memory.luceneUnmanagedSorting'"></div>
                                 <div class="details-item-value" data-bind="text: sizeFormatter(luceneUnmanagedAllocations())"></div>
                             </div>
 
                             <div class="details-item" data-bind="visible: showEncryptionBuffers">
-                                <div class="details-item-name">Encryption Buffers in Use</div>
+                                <div class="details-item-name" data-bind="i18n: 'clusterDashboard:memory.encryptionBuffersInUse'"></div>
                                 <div class="details-item-value" data-bind="text: sizeFormatter(encryptionBuffersInUse())"></div>
                             </div>
                             <div class="details-item" data-bind="visible: showEncryptionBuffers">
-                                <div class="details-item-name">Encryption Buffers Pool</div>
+                                <div class="details-item-name" data-bind="i18n: 'clusterDashboard:memory.encryptionBuffersPool'"></div>
                                 <div class="details-item-value" data-bind="text: sizeFormatter(encryptionBuffersPool())"></div>
                             </div>
                             <div class="details-item">
-                                <div class="details-item-name">Dirty Memory</div>
+                                <div class="details-item-name" data-bind="i18n: 'clusterDashboard:memory.dirtyMemory'"></div>
                                 <div class="details-item-value" data-bind="text: sizeFormatter(dirtyMemory())"></div>
                             </div>
                             <div class="details-item">
-                                <div class="details-item-name">Memory Mapped</div>
+                                <div class="details-item-name" data-bind="i18n: 'clusterDashboard:memory.memoryMapped'"></div>
                                 <div class="details-item-value" data-bind="text: sizeFormatter(memoryMapped())"></div>
                             </div>
                         </div>
@@ -75,7 +75,7 @@
         </div>
     </div>
     <div class="property-container" data-bind="css: { 'property-collapse': !showMachineDetails() }">
-        <h4>Machine Memory usage</h4>
+        <h4 data-bind="i18n: 'clusterDashboard:memory.machineUsage'"></h4>
         <div class="property">
             <div class="flex-horizontal">
                 <button class="collapse-arrow property-control" data-bind="click: toggleMachineDetails">
@@ -93,19 +93,19 @@
                         </div>
                         <div class="details-list">
                             <div class="details-item">
-                                <div class="details-item-name">Swap</div>
+                                <div class="details-item-name" data-bind="i18n: 'clusterDashboard:memory.swap'"></div>
                                 <div class="details-item-value">
-                                    <span data-bind="text: sizeFormatter(totalSwapUsage())" title="Swap in use"></span>
+                                    <span data-bind="text: sizeFormatter(totalSwapUsage()), i18nAttr: { title: 'clusterDashboard:memory.swapInUseTitle' }"></span>
                                     /
-                                    <span data-bind="text: sizeFormatter(totalSwap())" title="Total Swap"></span>
+                                    <span data-bind="text: sizeFormatter(totalSwap()), i18nAttr: { title: 'clusterDashboard:memory.totalSwapTitle' }"></span>
                                 </div>
                             </div>
                             <div class="details-item">
-                                <div class="details-item-name">Available</div>
+                                <div class="details-item-name" data-bind="i18n: 'clusterDashboard:memory.available'"></div>
                                 <div class="details-item-value" data-bind="text: sizeFormatter(availableMemory())"></div>
                             </div>
                             <div class="details-item">
-                                <div class="details-item-name">Available for processing</div>
+                                <div class="details-item-name" data-bind="i18n: 'clusterDashboard:memory.availableForProcessing'"></div>
                                 <div class="details-item-value" data-bind="text: sizeFormatter(availableMemoryForProcessing())"></div>
                             </div>
                         </div>

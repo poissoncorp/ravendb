@@ -9,6 +9,9 @@ import generalUtils = require("common/generalUtils");
 import perNodeStatItems = require("models/resources/widgets/perNodeStatItems");
 import widget = require("viewmodels/resources/widgets/widget");
 import DatabaseUtils = require("components/utils/DatabaseUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("clusterDashboard");
 
 class databaseTrafficWidget extends abstractDatabaseAndNodeAwareTableWidget<Raven.Server.Dashboard.Cluster.Notifications.DatabaseTrafficWatchPayload, 
     perNodeStatItems<trafficWatchItem>, trafficWatchItem> {
@@ -39,26 +42,26 @@ class databaseTrafficWidget extends abstractDatabaseAndNodeAwareTableWidget<Rave
     protected prepareColumns(): virtualColumn[] {
         const grid = this.gridController();
         return [
-            new textColumn<trafficWatchItem>(grid, x => x.hideDatabaseName && !grid.sortEnabled() ? "" : DatabaseUtils.default.formatName(x.database), "Database", "30%"),
-            new nodeTagColumn<trafficWatchItem>(grid, item => this.prepareUrl(item, "Traffic Watch View")),
-            new textColumn<trafficWatchItem>(grid, x => x.requestsPerSecond, "Requests/s", "12%", {
-                headerTitle: "Requests made to node per second",
+            new textColumn<trafficWatchItem>(grid, x => x.hideDatabaseName && !grid.sortEnabled() ? "" : DatabaseUtils.default.formatName(x.database), t("widget.databaseColumn"), "30%"),
+            new nodeTagColumn<trafficWatchItem>(grid, item => this.prepareUrl(item, t("databaseTraffic.targetDescription"))),
+            new textColumn<trafficWatchItem>(grid, x => x.requestsPerSecond, t("databaseTraffic.columns.requestsPerSecond"), "12%", {
+                headerTitle: t("databaseTraffic.columns.requestsPerSecondTitle"),
                 sortable: "number",
                 transformValue: (x: number) => widget.formatNumber(x)
             }),
-            new textColumn<trafficWatchItem>(grid, x => x.writesPerSecond, "Writes/s", "12%", {
-                headerTitle: "Items written by node per second",
+            new textColumn<trafficWatchItem>(grid, x => x.writesPerSecond, t("databaseTraffic.columns.writesPerSecond"), "12%", {
+                headerTitle: t("databaseTraffic.columns.writesPerSecondTitle"),
                 sortable: "number",
                 transformValue: (x: number) => widget.formatNumber(x)
             }),
-            new textColumn<trafficWatchItem>(grid, x => x.noData ? -1 : x.dataWritesPerSecond, "Data written/s", "12%", {
-                headerTitle: "Bytes written by node per second",
+            new textColumn<trafficWatchItem>(grid, x => x.noData ? -1 : x.dataWritesPerSecond, t("databaseTraffic.columns.dataWrittenPerSecond"), "12%", {
+                headerTitle: t("databaseTraffic.columns.dataWrittenPerSecondTitle"),
                 sortable: "number",
                 transformValue: (x: number) => x === -1 ? "-" : generalUtils.formatBytesToSize(x)
 
             }),
-            new textColumn<trafficWatchItem>(grid, x => x.noData ? -1 : Math.round(x.averageDuration) + " ms", "Avg Req Time", "12%", {
-                headerTitle: "Average request time",
+            new textColumn<trafficWatchItem>(grid, x => x.noData ? -1 : t("databaseTraffic.columns.avgRequestTimeValue", { duration: Math.round(x.averageDuration) }), t("databaseTraffic.columns.avgRequestTime"), "12%", {
+                headerTitle: t("databaseTraffic.columns.avgRequestTimeTitle"),
                 sortable: "number",
                 transformValue: (x: number) => x === -1 ? "-" : x.toLocaleString()
             }),

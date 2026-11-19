@@ -1,18 +1,21 @@
 import generalUtils = require("common/generalUtils");
 import historyAwareNodeStats = require("models/resources/widgets/historyAwareNodeStats");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("widgetsModels");
 
 class serverTraffic extends historyAwareNodeStats<Raven.Server.Dashboard.Cluster.Notifications.TrafficWatchPayload> {
 
-    attachmentsWriteBytesPerSecond = this.conditionalDataExtractor(x => generalUtils.formatBytesToSize(x.AttachmentsWriteBytesPerSecond) + "/s", { customNoData: "n/a" });
-    attachmentWritesPerSecond = this.conditionalDataExtractor(x => x.AttachmentWritesPerSecond.toLocaleString() + "/s", { customNoData: "n/a" });
-    countersWriteBytesPerSecond = this.conditionalDataExtractor(x => generalUtils.formatBytesToSize(x.CountersWriteBytesPerSecond) + "/s", { customNoData: "n/a" });
-    counterWritesPerSecond = this.conditionalDataExtractor(x => x.CounterWritesPerSecond.toLocaleString() + "/s", { customNoData: "n/a" });
-    documentsWriteBytesPerSecond = this.conditionalDataExtractor(x => generalUtils.formatBytesToSize(x.DocumentsWriteBytesPerSecond) + "/s", { customNoData: "n/a" });
-    documentWritesPerSecond = this.conditionalDataExtractor(x => x.DocumentWritesPerSecond.toLocaleString() + "/s", { customNoData: "n/a" });
+    attachmentsWriteBytesPerSecond = this.conditionalDataExtractor(x => generalUtils.formatBytesToSize(x.AttachmentsWriteBytesPerSecond) + "/s", { customNoData: t("notAvailable") });
+    attachmentWritesPerSecond = this.conditionalDataExtractor(x => x.AttachmentWritesPerSecond.toLocaleString() + "/s", { customNoData: t("notAvailable") });
+    countersWriteBytesPerSecond = this.conditionalDataExtractor(x => generalUtils.formatBytesToSize(x.CountersWriteBytesPerSecond) + "/s", { customNoData: t("notAvailable") });
+    counterWritesPerSecond = this.conditionalDataExtractor(x => x.CounterWritesPerSecond.toLocaleString() + "/s", { customNoData: t("notAvailable") });
+    documentsWriteBytesPerSecond = this.conditionalDataExtractor(x => generalUtils.formatBytesToSize(x.DocumentsWriteBytesPerSecond) + "/s", { customNoData: t("notAvailable") });
+    documentWritesPerSecond = this.conditionalDataExtractor(x => x.DocumentWritesPerSecond.toLocaleString() + "/s", { customNoData: t("notAvailable") });
     requestsPerSecond = this.dataExtractor(x => x.RequestsPerSecond);
     avgRequestTime = this.dataExtractor(x => x.AverageRequestDuration);
-    timeSeriesWriteBytesPerSecond = this.conditionalDataExtractor(x => generalUtils.formatBytesToSize(x.TimeSeriesWriteBytesPerSecond) + "/s", { customNoData: "n/a" });
-    timeSeriesWritesPerSecond = this.conditionalDataExtractor(x => x.TimeSeriesWritesPerSecond.toLocaleString() + "/s", { customNoData: "n/a" });
+    timeSeriesWriteBytesPerSecond = this.conditionalDataExtractor(x => generalUtils.formatBytesToSize(x.TimeSeriesWriteBytesPerSecond) + "/s", { customNoData: t("notAvailable") });
+    timeSeriesWritesPerSecond = this.conditionalDataExtractor(x => x.TimeSeriesWritesPerSecond.toLocaleString() + "/s", { customNoData: t("notAvailable") });
     
     totalWritesPerSecond = this.dataExtractor(x => x.DocumentWritesPerSecond
         + x.AttachmentWritesPerSecond

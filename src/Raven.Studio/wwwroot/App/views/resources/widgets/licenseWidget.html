@@ -1,7 +1,7 @@
 <div>
     <div class="cluster-dashboard-item-header">
-        <h3> <i class="icon-license-information"></i> <span>License</span></h3>
-        <button class="btn btn-warning btn-sm" data-bind="click: remove" title="Remove widget from board">
+        <h3> <i class="icon-license-information"></i> <span data-bind="i18n: 'clusterDashboard:license.title'"></span></h3>
+        <button class="btn btn-warning btn-sm" data-bind="click: remove, i18nAttr: { title: 'clusterDashboard:widget.remove' }">
             <i class="icon-trash"></i>
         </button>
     </div>
@@ -9,7 +9,7 @@
         <div class="license-item">
             <i class="icon-license"></i>
             <div>
-                <h4>License type</h4>
+                <h4 data-bind="i18n: 'clusterDashboard:license.licenseType'"></h4>
                 <div data-bind="text: licenseTypeText, attr: { class: licenseTypeClass }"></div>
             </div>
         </div>
@@ -26,14 +26,14 @@
         <div class="license-item">
             <i class="icon-support"></i>
             <div>
-                <h4>Support type</h4>
+                <h4 data-bind="i18n: 'clusterDashboard:license.supportType'"></h4>
                 <div class="license-item-value" data-bind="text: supportLabel"></div>
             </div>
         </div>
         <div class="license-item" data-bind="visible: canLoadCertificateInfo()">
             <i class="icon-certificate"></i>
             <div>
-                <h4>Server Certificate Expiration</h4>
+                <h4 data-bind="i18n: 'clusterDashboard:license.serverCertificateExpiration'"></h4>
                 <div class="global-spinner spinner-sm" data-bind="visible: spinners.serverCertificate"></div>
                 <div data-bind="with: serverCertificateInfo">
                     <div class="license-item-value">
@@ -44,6 +44,6 @@
                 </div>
             </div>
         </div>
-        <a data-bind="attr: { href: aboutPageUrl }" class="btn btn-sm license-link">License details</a>
+        <a data-bind="attr: { href: aboutPageUrl }, i18n: 'clusterDashboard:license.details'" class="btn btn-sm license-link"></a>
     </div>
 </div>

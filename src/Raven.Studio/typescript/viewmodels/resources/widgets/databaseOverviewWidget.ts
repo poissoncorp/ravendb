@@ -8,6 +8,9 @@ import appUrl = require("common/appUrl");
 import perNodeStatItems = require("models/resources/widgets/perNodeStatItems");
 import databaseOverviewItem = require("models/resources/widgets/databaseOverviewItem");
 import DatabaseUtils = require("components/utils/DatabaseUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("clusterDashboard");
 
 interface StatusSummary {
     total: number;
@@ -112,23 +115,23 @@ class databaseOverviewWidget extends abstractDatabaseAndNodeAwareTableWidget<Rav
     protected prepareColumns(): virtualColumn[] {
         const grid = this.gridController();
         return [
-            new textColumn<databaseOverviewItem>(grid, x => x.hideDatabaseName ? "" : DatabaseUtils.default.formatName(x.database), "Database", "20%"),
+            new textColumn<databaseOverviewItem>(grid, x => x.hideDatabaseName ? "" : DatabaseUtils.default.formatName(x.database), t("widget.databaseColumn"), "20%"),
 
-            new nodeTagColumn<databaseOverviewItem>(grid, item => this.prepareUrl(item, "Documents View")),
+            new nodeTagColumn<databaseOverviewItem>(grid, item => this.prepareUrl(item, t("databaseOverview.targetDescription"))),
 
-            new textColumn<databaseOverviewItem>(grid, x => x.nodeTag ? "" : x.documents, "Documents", "10%"),
+            new textColumn<databaseOverviewItem>(grid, x => x.nodeTag ? "" : x.documents, t("databaseOverview.columns.documents"), "10%"),
 
-            new iconsPlusTextColumn<databaseOverviewItem>(grid, x => x.nodeTag ? x.alertsDataForHtml() : "", "Alerts", "10%"),
+            new iconsPlusTextColumn<databaseOverviewItem>(grid, x => x.nodeTag ? x.alertsDataForHtml() : "", t("databaseOverview.columns.alerts"), "10%"),
 
-            new iconsPlusTextColumn<databaseOverviewItem>(grid, x => x.nodeTag ? x.erroredIndexesDataForHtml() : x.indexes.toLocaleString(), "Indexes", "10%"),
+            new iconsPlusTextColumn<databaseOverviewItem>(grid, x => x.nodeTag ? x.erroredIndexesDataForHtml() : x.indexes.toLocaleString(), t("databaseOverview.columns.indexes"), "10%"),
 
-            new iconsPlusTextColumn<databaseOverviewItem>(grid, x => x.nodeTag ? x.indexingErrorsDataForHtml() : "", "Indexing Errors", "10%"),
+            new iconsPlusTextColumn<databaseOverviewItem>(grid, x => x.nodeTag ? x.indexingErrorsDataForHtml() : "", t("databaseOverview.columns.indexingErrors"), "10%"),
 
-            new textColumn<databaseOverviewItem>(grid, x => x.nodeTag ? "" : x.ongoingTasks.toLocaleString(), "Ongoing Tasks", "10%"),
+            new textColumn<databaseOverviewItem>(grid, x => x.nodeTag ? "" : x.ongoingTasks.toLocaleString(), t("databaseOverview.columns.ongoingTasks"), "10%"),
 
-            new iconsPlusTextColumn<databaseOverviewItem>(grid, x => x.nodeTag ? "" : x.backupDataForHtml(), "Backups", "10%"),
+            new iconsPlusTextColumn<databaseOverviewItem>(grid, x => x.nodeTag ? "" : x.backupDataForHtml(), t("databaseOverview.columns.backups"), "10%"),
 
-            new iconsPlusTextColumn<databaseOverviewItem>(grid, x => x.stateDataForHtml(x.nodeTag), "State", "10%")
+            new iconsPlusTextColumn<databaseOverviewItem>(grid, x => x.stateDataForHtml(x.nodeTag), t("databaseOverview.columns.state"), "10%")
         ];
     }
 

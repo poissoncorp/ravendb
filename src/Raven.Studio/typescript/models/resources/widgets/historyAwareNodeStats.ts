@@ -1,6 +1,9 @@
 /// <reference path="../../../../typings/tsd.d.ts"/>
 
 import moment = require("moment");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("widgetsModels");
 
 type matchMode = "closestPrevious" | "exact";
 
@@ -141,7 +144,7 @@ class historyAwareNodeStats<T extends { Date: string }> {
         if (currentItem) {
             return null;
         } else {
-            return mouseOver ? "No data" : "Connecting...";
+            return mouseOver ? t("noData") : t("connecting");
         }
     }
     

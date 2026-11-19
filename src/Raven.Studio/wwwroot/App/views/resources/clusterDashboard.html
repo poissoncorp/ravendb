@@ -7,10 +7,10 @@
         </div>
         <div class="text-center text-muted margin-top margin-top-md" data-bind="visible: !widgets().length">
             <i class="icon-xl icon-empty-set"></i>
-            <h2 class="margin-top margin-top-sm">No widgets added</h2> 
-            <h2>Go ahead and click <a href="#" data-bind="click: addWidgetModal">here</a> to add</h2>
+            <h2 class="margin-top margin-top-sm" data-bind="i18n: 'clusterDashboard:emptyState.noWidgets'"></h2> 
+            <h2><span data-bind="i18n: 'clusterDashboard:emptyState.goAheadAndClick'"></span> <a href="#" data-bind="click: addWidgetModal, i18n: 'clusterDashboard:emptyState.here'"></a> <span data-bind="i18n: 'clusterDashboard:emptyState.toAdd'"></span></h2>
         </div>
-        <button class="add-widget" data-bind="click: addWidgetModal, visible: initialized() && bootstrapped()" title="Add widget to board">
+        <button class="add-widget" data-bind="click: addWidgetModal, visible: initialized() && bootstrapped(), i18nAttr: { title: 'clusterDashboard:addWidgetTitle' }">
             <i class="icon-plus"></i>
         </button>
     </div>

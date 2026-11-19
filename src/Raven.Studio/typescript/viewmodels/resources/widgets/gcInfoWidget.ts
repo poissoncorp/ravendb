@@ -7,6 +7,9 @@ import clusterDashboardChart = require("models/resources/clusterDashboard/cluste
 import bubbleChart = require("models/resources/clusterDashboard/bubbleChart");
 import generationsLineChart = require("models/resources/clusterDashboard/generationsLineChart");
 import typeUtils = require("common/typeUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("clusterDashboard");
 
 interface gcInfoState {
     showGenerationsDetails: boolean;
@@ -187,9 +190,9 @@ class gcInfoWidget extends abstractTransformingChartsWebsocketWidget<
     createGcPauseWarning(level: "danger" | "warning" | null) {
         switch (level) {
             case "warning":
-                return "GC pauses exceeding 5% might introduce some latency but could still be manageable and provide acceptable performance.";
+                return t("gc.pauseWarning");
             case "danger":
-                return "GC pauses above 10% typically indicates performance problems. Users might experience noticeable delays, especially if GC pauses are lengthy or frequent.";
+                return t("gc.pauseDanger");
             default:
                 return null;
         }
