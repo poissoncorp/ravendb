@@ -1,12 +1,12 @@
 <div class="text-info bg-info padding small flex-horizontal">
     <div class="flex-start"><i class="icon-info"></i></div>
     <div>
-        <div>Please apply the following so that the Destination server will trust receiving data from this Source server where the task is defined:</div>
+        <div data-bind="i18n: 'certificateUploadInfoForOngoingTasks:instructions'"></div>
         <ul class="margin-top margin-top-sm">
-            <li>Download the Server Certificate from this <strong>Source</strong> server (in the
-                <a target="_blank" data-bind="attr: { href: certificatesUrl }" >Certificates View</a>).
+            <li><span data-bind="i18n: 'certificateUploadInfoForOngoingTasks:download.start'"></span> <strong data-bind="i18n: 'certificateUploadInfoForOngoingTasks:download.source'"></strong> <span data-bind="i18n: 'certificateUploadInfoForOngoingTasks:download.beforeLink'"></span>
+                <a target="_blank" data-bind="attr: { href: certificatesUrl }, i18n: 'certificateUploadInfoForOngoingTasks:download.certificatesView'"></a><span data-bind="i18n: 'certificateUploadInfoForOngoingTasks:download.end'"></span>
             </li>
-            <li>Go to the Certificates View in the <strong>Destination</strong> server and upload that certificate.
+            <li><span data-bind="i18n: 'certificateUploadInfoForOngoingTasks:upload.start'"></span> <strong data-bind="i18n: 'certificateUploadInfoForOngoingTasks:upload.destination'"></strong> <span data-bind="i18n: 'certificateUploadInfoForOngoingTasks:upload.end'"></span>
             </li>
         </ul>
     </div>

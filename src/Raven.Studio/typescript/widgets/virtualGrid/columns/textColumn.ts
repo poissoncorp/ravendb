@@ -4,6 +4,9 @@ import virtualColumn = require("widgets/virtualGrid/columns/virtualColumn");
 import virtualGridController = require("widgets/virtualGrid/virtualGridController");
 import generalUtils = require("common/generalUtils");
 import typeUtils = require("common/typeUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("virtualGrid");
 
 type preparedValue = {
     rawText: string;
@@ -101,7 +104,7 @@ class textColumn<T extends object, THeader extends string = string> implements v
             return `<div  ${titleHtml} class="cell text-cell ${preparedValue.typeCssClass} ${extraCssClasses}" style="width: ${this.width}">${preparedValue.rawText}</div>`;
         } catch (error) {
             //TODO: work on L&F of errors!
-            return `<div class="cell text-cell eval-error ${extraCssClasses}" style="width: ${this.width}">Error!</div>`;
+            return `<div class="cell text-cell eval-error ${extraCssClasses}" style="width: ${this.width}">${generalUtils.escapeHtml(t("cell.error"))}</div>`;
         }
     }
 

@@ -4,6 +4,7 @@ import moment from "moment";
 import genUtils from "common/generalUtils";
 import CellValue from "components/common/virtualTable/cells/CellValue";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 interface CellDateWithRelativeTimeProps {
     value: unknown;
@@ -21,6 +22,7 @@ function parseDate(value: unknown): Date | null {
 }
 
 export default function CellDateWithRelativeTime({ value }: CellDateWithRelativeTimeProps) {
+    const t = useStudioTranslation("virtualTable");
     const dateValue = useMemo(() => parseDate(value), [value]);
 
     if (!dateValue) {
@@ -31,7 +33,7 @@ export default function CellDateWithRelativeTime({ value }: CellDateWithRelative
         <PopoverWithHoverWrapper
             message={
                 <>
-                    <b>UTC:</b> {moment(dateValue).utc().format(genUtils.dateFormat)}
+                    <b>{t("cells.utcLabel")}</b> {moment(dateValue).utc().format(genUtils.dateFormat)}
                 </>
             }
         >

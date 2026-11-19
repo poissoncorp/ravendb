@@ -11,6 +11,7 @@ import genUtils from "common/generalUtils";
 import useBoolean from "components/hooks/useBoolean";
 import useFilePreviews, { getFilePreviewKey } from "components/hooks/useFilePreviews";
 import { getFileBadgeLabel, getFileTypeColor } from "components/common/fileTypeBadge";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 const rowDurationSeconds = 0.18;
 
@@ -38,6 +39,7 @@ export default function FileUploadList({
     isUploading,
     collapsedCount = 3,
 }: FileUploadListProps) {
+    const t = useStudioTranslation("commonComponents");
     const { value: isExpanded, toggle } = useBoolean(false);
     const previews = useFilePreviews(items.map((x) => x.file));
     const prefersReducedMotion = useReducedMotion();
@@ -110,7 +112,7 @@ export default function FileUploadList({
                                 onClick={toggle}
                             >
                                 <Icon icon="chevron-down" />
-                                Show all {items.length} files
+                                {t("fileUpload.showAll", { count: items.length })}
                             </Button>
                         </div>
                     )}
@@ -119,7 +121,7 @@ export default function FileUploadList({
             {isCollapsible && isExpanded && (
                 <div className="file-upload-list__collapse">
                     <Button variant="link" size="xs" className="p-0" onClick={toggle}>
-                        Show less
+                        {t("showLess")}
                     </Button>
                 </div>
             )}
@@ -136,6 +138,7 @@ interface FileUploadRowProps {
 }
 
 function FileUploadRow({ item, preview, onRemove, onCancel, isUploading }: FileUploadRowProps) {
+    const t = useStudioTranslation("commonComponents");
     const { file, status, loaded, total } = item;
     const percentage = status === "uploading" && total ? Math.floor((loaded * 100) / total) : null;
 
@@ -153,7 +156,7 @@ function FileUploadRow({ item, preview, onRemove, onCancel, isUploading }: FileU
                     variant="link"
                     size="sm"
                     className="file-upload-item__action"
-                    aria-label={`Remove ${file.name}`}
+                    aria-label={t("fileUpload.remove", { name: file.name })}
                     onClick={() => onRemove(file)}
                 >
                     <Icon icon="cancel" margin="m-0" />
@@ -164,7 +167,7 @@ function FileUploadRow({ item, preview, onRemove, onCancel, isUploading }: FileU
                     variant="link"
                     size="sm"
                     className="file-upload-item__action"
-                    aria-label={`Cancel upload of ${file.name}`}
+                    aria-label={t("fileUpload.cancelUpload", { name: file.name })}
                     onClick={() => onCancel(file)}
                 >
                     <Icon icon="cancel" margin="m-0" />
@@ -175,7 +178,7 @@ function FileUploadRow({ item, preview, onRemove, onCancel, isUploading }: FileU
                     className="file-upload-item__progress"
                     style={{ width: `${percentage}%` }}
                     role="progressbar"
-                    aria-label={`Upload progress of ${file.name}`}
+                    aria-label={t("fileUpload.uploadProgress", { name: file.name })}
                     aria-valuenow={percentage}
                     aria-valuemin={0}
                     aria-valuemax={100}
@@ -214,6 +217,7 @@ function FileTypeBadge({ file, status, preview }: FileTypeBadgeProps) {
 }
 
 function FileUploadStatus({ item }: { item: FileUploadItem }) {
+    const t = useStudioTranslation("commonComponents");
     const { file, status, loaded, total } = item;
     const size = genUtils.formatBytesToSize(file.size);
 
@@ -222,17 +226,20 @@ function FileUploadStatus({ item }: { item: FileUploadItem }) {
             return (
                 <small className="text-muted d-flex align-items-center gap-1">
                     <Spinner size="sm" />
-                    {genUtils.formatBytesToSize(loaded)} of {genUtils.formatBytesToSize(total)}
+                    {t("fileUpload.bytesProgress", {
+                        loaded: genUtils.formatBytesToSize(loaded),
+                        total: genUtils.formatBytesToSize(total),
+                    })}
                 </small>
             );
         case "uploaded":
-            return <StatusLine text="Uploaded" size={size} />;
+            return <StatusLine text={t("fileUpload.status.uploaded")} size={size} />;
         case "failed":
-            return <StatusLine icon="danger" color="danger" text="Failed" size={size} />;
+            return <StatusLine icon="danger" color="danger" text={t("fileUpload.status.failed")} size={size} />;
         case "cancelled":
-            return <StatusLine icon="cancel" color="warning" text="Cancelled" size={size} />;
+            return <StatusLine icon="cancel" color="warning" text={t("fileUpload.status.cancelled")} size={size} />;
         case "skipped":
-            return <StatusLine icon="warning" color="warning" text="Skipped, attachment already exists" size={size} />;
+            return <StatusLine icon="warning" color="warning" text={t("fileUpload.status.skipped")} size={size} />;
         default:
             return <small className="text-muted">{size}</small>;
     }

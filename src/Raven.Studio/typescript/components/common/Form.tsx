@@ -38,6 +38,7 @@ import { RavenFormControlProps } from "react-bootstrap/FormControl";
 import { FormRangeProps } from "react-bootstrap/FormRange";
 import { InputType } from "../../../typings/_studio/react-bootstrap";
 import useUniqueId from "hooks/useUniqueId";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 import { FormGroupProps as ReactBootstrapFormGroupsProps } from "react-bootstrap/FormGroup";
 import useBoolean from "components/hooks/useBoolean";
 import { MultiRadioToggle } from "./toggles/MultiRadioToggle";
@@ -623,6 +624,7 @@ function FormInputGeneral<
         }
     };
 
+    const t = useStudioTranslation("commonComponents");
     const [showPassword, setShowPassword] = useState(false);
 
     const actualInputType = showPassword ? "text" : type;
@@ -657,9 +659,9 @@ function FormInputGeneral<
                                 className={classNames("input-btn", invalid && "me-3")}
                             >
                                 {showPassword ? (
-                                    <Icon icon="preview-off" title="Hide password" margin="m-0" />
+                                    <Icon icon="preview-off" title={t("form.hidePassword")} margin="m-0" />
                                 ) : (
-                                    <Icon icon="preview" title="Show password" margin="m-0" />
+                                    <Icon icon="preview" title={t("form.showPassword")} margin="m-0" />
                                 )}
                             </Button>
                         )}
@@ -776,6 +778,7 @@ export function FormPathSelector<
         shouldUnregister,
     });
 
+    const t = useStudioTranslation("commonComponents");
     const pathSelectorStateRef = useRef<PathSelectorStateRef>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -798,7 +801,7 @@ export function FormPathSelector<
                         value={formValuePath == null ? "" : formValuePath}
                         isInvalid={invalid}
                         className="position-relative d-flex flex-grow-1"
-                        placeholder={placeholder || "Enter path"}
+                        placeholder={placeholder || t("form.enterPath")}
                         disabled={disabled || formState.isSubmitting}
                         onFocus={handleInputFocus}
                     />
@@ -846,7 +849,9 @@ export function FormGroup({ marginClass = "mb-3", ...props }: FormGroupProps) {
 export const FormLabel = Form.Label;
 
 export function OptionalLabel() {
-    return <small className="text-muted fw-light">(optional)</small>;
+    const t = useStudioTranslation("commonComponents");
+
+    return <small className="text-muted fw-light">{t("optional")}</small>;
 }
 
 interface VerificationCodeInputProps {

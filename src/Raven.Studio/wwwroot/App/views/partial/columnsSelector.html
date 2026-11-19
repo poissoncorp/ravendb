@@ -2,9 +2,7 @@
     <div class="flex-header">
         <div class="checkbox">
             <input type="checkbox" id="select_all" class="styled" data-bind="checkboxTriple: selectionState, event: { change: toggleSelectAll }">
-            <label for="select_all">
-                Select All
-            </label>
+            <label for="select_all" data-bind="i18n: 'columnsSelector:selectAll'"></label>
         </div>
     </div>
     <div class="flex-grow">
@@ -28,23 +26,22 @@
         </ul>
     </div>
     <div class="flex-footer">
-        <div class="error-message bg-danger padding padding-sm margin margin-bottom margin-bottom-sm" data-bind="visible: allVisibleColumns().length && !hasAtLeastOneColumn()">
-            Please select at least one column
+        <div class="error-message bg-danger padding padding-sm margin margin-bottom margin-bottom-sm" data-bind="visible: allVisibleColumns().length && !hasAtLeastOneColumn(), i18n: 'columnsSelector:atLeastOneColumn'">
         </div>
         
         <div class="column-add-new active" data-bind="visible: customColumnForm.formVisible, validationOptions: { insertMessages: false }">
             <div class="error-message bg-danger padding padding-sm" data-bind="visible: customColumnForm.parseError">
-                Binding parse error:<br />
+                <span data-bind="i18n: 'columnsSelector:customColumn.parseError'"></span><br />
                 <strong data-bind="text: customColumnForm.parseError"></strong>
             </div>
 
             <div class="form">
                 <div class="binding" data-bind="validationOptions: { errorsAsTitle: false, insertMessages: false }">
-                    <input class="form-control input-sm" id="custom_column_binding" data-toggle="tooltip" title="Enter binding expression. Ex. this.ShipTo.City" 
-                           data-bind="textInput: customColumnForm.expression, hasFocus: customColumnForm.expressionHasFocus"  placeholder="Binding" />
+                    <input class="form-control input-sm" id="custom_column_binding" data-toggle="tooltip"
+                           data-bind="textInput: customColumnForm.expression, hasFocus: customColumnForm.expressionHasFocus, i18nAttr: { title: 'columnsSelector:customColumn.bindingTitle', placeholder: 'columnsSelector:customColumn.bindingPlaceholder' }" />
                 </div>
                 <div class="alias">
-                    <input class="form-control input-sm" data-bind="textInput: customColumnForm.header" placeholder="Alias" />
+                    <input class="form-control input-sm" data-bind="textInput: customColumnForm.header, i18nAttr: { placeholder: 'columnsSelector:customColumn.aliasPlaceholder' }" />
                 </div>
                 <div>
                     <button class="btn btn-success btn-sm" data-bind="click: addCustomColumn">
@@ -61,15 +58,15 @@
 
         <div class="clearfix">
             <div class="pull-left">
-                <button class="btn btn-primary btn-sm" data-bind="click: showAddCustomColumnForm"><i class="icon-plus"></i> <span>Add a custom column</span></button>
-                <button class="btn btn-sm close-panel" title="Reset visible columns and its order to default" data-bind="click: useDefaults">
+                <button class="btn btn-primary btn-sm" data-bind="click: showAddCustomColumnForm"><i class="icon-plus"></i> <span data-bind="i18n: 'columnsSelector:addCustomColumn'"></span></button>
+                <button class="btn btn-sm close-panel" data-bind="click: useDefaults, i18nAttr: { title: 'columnsSelector:resetTitle' }">
                     <i class="icon-reset"></i>
-                    <span>Reset to default</span>
+                    <span data-bind="i18n: 'columnsSelector:reset'"></span>
                 </button>
             </div>
             <div class="pull-right">
-                <button class="btn btn-sm close-panel">Close</button>
-                <button class="btn btn-success btn-sm close-panel" data-bind="click: applyColumns, enable: hasAtLeastOneColumn"><i class="icon-save"></i> <span>Apply</span></button>
+                <button class="btn btn-sm close-panel" data-bind="i18n: 'columnsSelector:close'"></button>
+                <button class="btn btn-success btn-sm close-panel" data-bind="click: applyColumns, enable: hasAtLeastOneColumn"><i class="icon-save"></i> <span data-bind="i18n: 'columnsSelector:apply'"></span></button>
             </div>
         </div>
     </div>

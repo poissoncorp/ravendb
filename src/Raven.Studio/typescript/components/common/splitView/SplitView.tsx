@@ -20,6 +20,7 @@ import { useAppDispatch, useAppSelector } from "components/store";
 import { splitViewActions, splitViewSelectors } from "components/common/splitView/store/splitViewSlice";
 import useConfirm from "components/common/ConfirmDialog";
 import { useDirtyFlagRegistry } from "components/hooks/useDirtyFlag";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 const SplitViewContext = createContext<{
     sheetComponent: ReactNode;
@@ -40,6 +41,7 @@ export function SplitViewProvider(props: Required<PropsWithChildren>) {
 }
 
 function SplitViewWithSize(props: Required<PropsWithChildren> & { viewWidthInPx: number }) {
+    const t = useStudioTranslation("splitView");
     const dispatch = useAppDispatch();
     const [sheetComponent, setSheetComponentState] = useState<ReactNode>(null);
     const [activeSheetOwnerId, setActiveSheetOwnerId] = useState<string | null>(null);
@@ -64,14 +66,14 @@ function SplitViewWithSize(props: Required<PropsWithChildren> & { viewWidthInPx:
             }
 
             confirm({
-                title: "Unsaved changes",
+                title: t("unsavedChanges.title"),
                 icon: "warning",
-                message: "You have unsaved changes. Do you want to discard them?",
-                confirmText: "Discard",
+                message: t("unsavedChanges.message"),
+                confirmText: t("unsavedChanges.confirm"),
                 confirmIcon: "trash",
             }).then((isConfirmed) => isConfirmed && action());
         },
-        [confirm, isDirty]
+        [confirm, isDirty, t]
     );
 
     const setSheetComponent = useCallback((component: ReactNode) => {

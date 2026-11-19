@@ -3,9 +3,10 @@ import classNames from "classnames";
 import { Icon } from "components/common/Icon";
 import React, { useState, useRef, useEffect, DragEvent, ChangeEvent } from "react";
 import genUtils from "common/generalUtils";
-import pluralizeHelpers from "common/helpers/text/pluralizeHelpers";
 import Button from "react-bootstrap/Button";
 import Badge from "react-bootstrap/Badge";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 const dropPulseMs = 320;
 
@@ -30,6 +31,7 @@ export default function FileDropzone({
     disabled = false,
     displayedExtensions,
 }: FileDropzoneProps) {
+    const t = useStudioTranslation("commonComponents");
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [isDragging, setIsDragging] = useState(false);
@@ -81,7 +83,7 @@ export default function FileDropzone({
 
     const handleFilesChange = (files: File[]) => {
         if (files.length > maxFiles) {
-            setError(`Maximum ${maxFiles} files can be uploaded`);
+            setError(t("fileDropzone.tooManyFiles", { count: maxFiles }));
             handleSetFiles([]);
             return;
         }
@@ -91,7 +93,7 @@ export default function FileDropzone({
             files.some((file) => !validExtensions.includes(genUtils.getFileExtension(file.name)));
 
         if (hasUnsupportedFile) {
-            setError(`Only ${formatExtensions(validExtensions)} files are supported`);
+            setError(t("fileDropzone.unsupportedFiles", { extensions: formatExtensions(validExtensions) }));
             handleSetFiles([]);
             return;
         }
@@ -155,13 +157,14 @@ interface DropzoneBodyProps {
 }
 
 function DropzoneBody({ files, error, maxFiles, isDragging }: DropzoneBodyProps) {
+    const t = useStudioTranslation("commonComponents");
+    const filesContext = maxFiles === 1 ? "single" : "multiple";
+
     if (isDragging) {
         return (
             <div className="d-flex gap-3 flex-vertical">
                 <Icon icon="file-import" className="fs-2" margin="m-0" />
-                <span className="text-emphasis">
-                    Drop {pluralizeHelpers.pluralize(maxFiles, "a file", "files", true)} here
-                </span>
+                <span className="text-emphasis">{t("fileDropzone.dropHere", { context: filesContext })}</span>
             </div>
         );
     }
@@ -172,7 +175,7 @@ function DropzoneBody({ files, error, maxFiles, isDragging }: DropzoneBodyProps)
                 <Icon icon="warning" color="danger" className="fs-2" margin="m-0" />
                 <div>
                     <p className="m-0 text-danger">{error}</p>
-                    <Button variant="link">Try again</Button>
+                    <Button variant="link">{t("fileDropzone.tryAgain")}</Button>
                 </div>
             </div>
         );
@@ -184,8 +187,12 @@ function DropzoneBody({ files, error, maxFiles, isDragging }: DropzoneBodyProps)
                 <Icon icon="file-import" className="fs-2" margin="m-0" />
                 <div>
                     <span className="text-muted">
-                        Drop {pluralizeHelpers.pluralize(maxFiles, "a file", "files", true)} here or{" "}
-                        <span className="link">click to browse</span>
+                        <StudioTrans
+                            ns="commonComponents"
+                            i18nKey="fileDropzone.dropOrBrowse"
+                            components={{ link: <span className="link" /> }}
+                            options={{ context: filesContext }}
+                        />
                     </span>
                 </div>
             </div>
@@ -206,12 +213,14 @@ function DropzoneBody({ files, error, maxFiles, isDragging }: DropzoneBodyProps)
                     ))}
                     {files.length > maxVisibleFiles && (
                         <p className="m-0">
-                            <span className="text-muted">and {files.length - maxVisibleFiles} more</span>
+                            <span className="text-muted">
+                                {t("fileDropzone.andMore", { count: files.length - maxVisibleFiles })}
+                            </span>
                         </p>
                     )}
                 </div>
 
-                <Button variant="link">Change file</Button>
+                <Button variant="link">{t("fileDropzone.changeFile")}</Button>
             </div>
         </div>
     );

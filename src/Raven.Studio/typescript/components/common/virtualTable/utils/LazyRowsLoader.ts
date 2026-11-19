@@ -1,4 +1,7 @@
 import { findMissingRange, isSameRange, RowRange } from "./lazyTableUtils";
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("virtualTable");
 
 export type LazyFetchMode = "skipTake" | "continuationToken";
 
@@ -156,7 +159,7 @@ export class LazyRowsLoader<T, TResult extends pagedResultWithToken<T> = pagedRe
             result = await this.options.fetchData(request.skip, request.take, request.continuationToken);
         } catch (error) {
             if (generation === this.generation) {
-                this.update({ isFetching: false, error: error ?? "Failed to fetch the rows" });
+                this.update({ isFetching: false, error: error ?? t("table.fetchRowsError") });
             }
             return;
         }

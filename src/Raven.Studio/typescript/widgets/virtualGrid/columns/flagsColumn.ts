@@ -3,6 +3,10 @@
 import virtualColumn = require("widgets/virtualGrid/columns/virtualColumn");
 import document = require("models/database/documents/document");
 import virtualGridController = require("widgets/virtualGrid/virtualGridController");
+import generalUtils = require("common/generalUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("virtualGrid");
 
 class flagsColumn implements virtualColumn {
     constructor(protected gridController: virtualGridController<any>) {
@@ -21,7 +25,7 @@ class flagsColumn implements virtualColumn {
     header = `<div style="padding-left: 8px;"><i class="icon-flag"></i></div>`;
 
     get headerAsText() {
-        return "Document Flags";
+        return t("columns.documentFlags");
     }
 
     renderCell(item: document): string {
@@ -49,10 +53,16 @@ class flagsColumn implements virtualColumn {
                 extraClasses.push("archived");
             }
             
-            shardText = metadata.shardNumber != null ? '<span class="label label-default" title="Shard #">#' + metadata.shardNumber + '</span>' : "";
+            shardText = metadata.shardNumber != null ? '<span class="label label-default" title="' + generalUtils.escapeHtml(t("flags.shard")) + '">#' + metadata.shardNumber + '</span>' : "";
         }
         
-        return `<div class="cell text-cell flags-cell ${extraClasses.join(" ")}" style="width: ${this.width}"><i title="Attachments" class="icon-attachment"></i><i title="Revisions" class="icon-revisions"></i><i title="Counters" class="icon-new-counter"></i><i title="Time Series" class="icon-new-time-series"></i><i title="Archived" class="icon-data-archival"></i>${shardText}</div>`;
+        const attachmentsTitle = generalUtils.escapeHtml(t("flags.attachments"));
+        const revisionsTitle = generalUtils.escapeHtml(t("flags.revisions"));
+        const countersTitle = generalUtils.escapeHtml(t("flags.counters"));
+        const timeSeriesTitle = generalUtils.escapeHtml(t("flags.timeSeries"));
+        const archivedTitle = generalUtils.escapeHtml(t("flags.archived"));
+
+        return `<div class="cell text-cell flags-cell ${extraClasses.join(" ")}" style="width: ${this.width}"><i title="${attachmentsTitle}" class="icon-attachment"></i><i title="${revisionsTitle}" class="icon-revisions"></i><i title="${countersTitle}" class="icon-new-counter"></i><i title="${timeSeriesTitle}" class="icon-new-time-series"></i><i title="${archivedTitle}" class="icon-data-archival"></i>${shardText}</div>`;
     }
 
     toDto(): virtualColumnDto {

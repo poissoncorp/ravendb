@@ -1,6 +1,9 @@
 /// <reference path="../../../../typings/tsd.d.ts"/>
 import generalUtils = require("common/generalUtils");
 import moment = require("moment");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("commonHelpers");
 
 class genericProgress {
     processed = ko.observable<number>();
@@ -62,16 +65,16 @@ class genericProgress {
             return this.getDefaultTimeLeftMessage();
         }
 
-        let message = `Estimated time left: ${formattedDuration}`;
-        if (leftToProcess !== 0 && processedPerSecond !== 0) {
-            message += ` (${this.numberFormatter(processedPerSecond | 0)} / sec)`;
-        }
-
-        return message;
+        const withRate = leftToProcess !== 0 && processedPerSecond !== 0;
+        return t("progress.timeLeft", {
+            context: withRate ? "withRate" : undefined,
+            duration: formattedDuration,
+            rate: this.numberFormatter(processedPerSecond | 0),
+        });
     }
 
     protected getDefaultTimeLeftMessage() {
-        return "Overall progress";
+        return t("progress.overall");
     }
     
     protected defaultTextualProgress() {
@@ -80,14 +83,14 @@ class genericProgress {
         
         const toProcess = total - processed;
         if (toProcess === 0) {
-            return `Processed all items (${this.numberFormatter(total)})`;
+            return t("progress.processedAll", { total: this.numberFormatter(total) });
         }
 
         const processedFormatted = this.numberFormatter(processed);
         const totalFormatted = this.numberFormatter(total);
         const toProcessFormatted = this.numberFormatter(toProcess);
 
-        return `${processedFormatted} out of ${totalFormatted} (${toProcessFormatted} left) `;
+        return t("progress.processed", { processed: processedFormatted, total: totalFormatted, left: toProcessFormatted });
     }
     
     // .toFixed() of 99.9924 => 100.0

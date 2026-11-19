@@ -11,6 +11,7 @@ import { Icon } from "./Icon";
 import { SelectOption } from "./select/Select";
 import { FieldPath, FieldValues, Control } from "react-hook-form";
 import { GroupBase } from "react-select";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface FormCollectionsSelectProps<TFieldValues extends FieldValues, TName extends FieldPath<TFieldValues>> {
     control: Control<TFieldValues>;
@@ -40,6 +41,7 @@ export default function FormCollectionsSelect<TFieldValues extends FieldValues, 
         isReadOnly,
     } = props;
 
+    const t = useStudioTranslation("commonComponents");
     const isCreatable = props.isCreatable ?? true;
 
     const removeCollection = (name: string) => {
@@ -70,8 +72,20 @@ export default function FormCollectionsSelect<TFieldValues extends FieldValues, 
         isMulti: true,
         controlShouldRenderValue: false,
         isClearable: false,
-        placeholder: "Select collection" + (isCreatable ? " (or enter new collection)" : ""),
+        placeholder: t("formCollectionsSelect.placeholder", { context: isCreatable ? "creatable" : "existing" }),
         maxMenuHeight: 300,
+    };
+
+    const leftRadioToggleItem: RadioToggleWithIconInputItem<boolean> = {
+        label: t("formCollectionsSelect.selectedCollections"),
+        value: false,
+        iconName: "document",
+    };
+
+    const rightRadioToggleItem: RadioToggleWithIconInputItem<boolean> = {
+        label: t("formCollectionsSelect.allCollections"),
+        value: true,
+        iconName: "documents",
     };
 
     // TODO Fix 'Add all' button height, when validation error occurs.
@@ -106,17 +120,17 @@ export default function FormCollectionsSelect<TFieldValues extends FieldValues, 
                                     onClick={addAllCollections}
                                     disabled={isAddAllCollectionsDisabled}
                                 >
-                                    <Icon icon="documents" addon="plus" /> Add all
+                                    <Icon icon="documents" addon="plus" /> {t("formCollectionsSelect.addAll")}
                                 </Button>
                             </Col>
                         </Row>
                     )}
                     <div className="d-flex flex-wrap mb-1 align-items-center">
-                        <h4 className="m-0">Selected collections</h4>
+                        <h4 className="m-0">{t("formCollectionsSelect.selectedCollections")}</h4>
                         <FlexGrow />
                         {collections.length > 0 && !isReadOnly && (
                             <Button variant="link" size="xs" onClick={removeAllCollections} className="p-0">
-                                Remove all
+                                {t("formCollectionsSelect.removeAll")}
                             </Button>
                         )}
                     </div>
@@ -140,7 +154,7 @@ export default function FormCollectionsSelect<TFieldValues extends FieldValues, 
                         </div>
                         <Collapse in={collections.length === 0}>
                             <div>
-                                <EmptySet>No collections have been selected</EmptySet>
+                                <EmptySet>{t("formCollectionsSelect.empty")}</EmptySet>
                             </div>
                         </Collapse>
                     </div>
@@ -149,15 +163,3 @@ export default function FormCollectionsSelect<TFieldValues extends FieldValues, 
         </div>
     );
 }
-
-const leftRadioToggleItem: RadioToggleWithIconInputItem<boolean> = {
-    label: "Selected collections",
-    value: false,
-    iconName: "document",
-};
-
-const rightRadioToggleItem: RadioToggleWithIconInputItem<boolean> = {
-    label: "All collections",
-    value: true,
-    iconName: "documents",
-};

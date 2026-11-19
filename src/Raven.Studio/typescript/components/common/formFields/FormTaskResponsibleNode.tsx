@@ -5,6 +5,8 @@ import { SelectOption } from "components/common/select/Select";
 import { clusterSelectors } from "components/common/shell/clusterSlice";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
 import { useAppSelector } from "components/store";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 import { FieldValues, FieldPath, useWatch, UseControllerProps } from "react-hook-form";
 
 interface FormTaskResponsibleNodeProps<TFieldValues extends FieldValues, TName extends FieldPath<TFieldValues>> {
@@ -20,6 +22,7 @@ export function FormTaskResponsibleNode<TFieldValues extends FieldValues, TName 
     nodeName,
     isPinName,
 }: FormTaskResponsibleNodeProps<TFieldValues, TName>) {
+    const t = useStudioTranslation("formFields");
     const isSet = useWatch({ control, name: isSetName });
     const responsibleNode = useWatch({ control, name: nodeName });
     const isPin = useWatch({ control, name: isPinName });
@@ -29,7 +32,7 @@ export function FormTaskResponsibleNode<TFieldValues extends FieldValues, TName 
 
     const possibleMentorOptions: SelectOption[] = allNodes
         .filter((x) => x.type === "Member")
-        .map((x) => ({ value: x.nodeTag, label: `Node ${x.nodeTag}` }));
+        .map((x) => ({ value: x.nodeTag, label: t("taskResponsibleNode.nodeOption", { nodeTag: x.nodeTag }) }));
 
     const hasNoNodes = possibleMentorOptions.length === 0;
 
@@ -40,17 +43,16 @@ export function FormTaskResponsibleNode<TFieldValues extends FieldValues, TName 
                     conditions={[
                         {
                             isActive: isDatabaseSharded,
-                            message: "This option is not respected in case of sharded databases.",
+                            message: t("taskResponsibleNode.shardedNotRespected"),
                         },
                         {
                             isActive: hasNoNodes,
-                            message:
-                                "Currently, the responsible node cannot be selected because there are no nodes available.",
+                            message: t("taskResponsibleNode.noNodesAvailable"),
                         },
                     ]}
                 >
                     <FormSwitch control={control} name={isSetName} disabled={isDatabaseSharded || hasNoNodes}>
-                        Set Responsible Node
+                        {t("taskResponsibleNode.setResponsibleNode")}
                     </FormSwitch>
                 </ConditionalPopover>
             </FormGroup>
@@ -61,28 +63,20 @@ export function FormTaskResponsibleNode<TFieldValues extends FieldValues, TName 
                     </FormGroup>
                     {responsibleNode && (
                         <FormGroup>
-                            <FormSwitch control={control} name={isPinName} title="Toggle on to pin selected node">
-                                Pin node
+                            <FormSwitch
+                                control={control}
+                                name={isPinName}
+                                title={t("taskResponsibleNode.pinNodeTitle")}
+                            >
+                                {t("taskResponsibleNode.pinNode")}
                             </FormSwitch>
                             <RichAlert variant="info" className="mt-2">
-                                {isPin ? (
-                                    <>
-                                        The selected node is now Pinned to handle this task.
-                                        <br />
-                                        When this node is down, the task will Not execute as no other node will be
-                                        selected to handle the task.
-                                        <br />
-                                        In case the node is removed from the Database Group, a failover will occur as
-                                        the cluster will select another node to handle the task.
-                                    </>
-                                ) : (
-                                    <>
-                                        The selected node will be the Preferred Node to handle the task.
-                                        <br />
-                                        When this node is down, the cluster selects another node from the Database Group
-                                        to handle the task.
-                                    </>
-                                )}
+                                <StudioTrans
+                                    ns="formFields"
+                                    i18nKey="taskResponsibleNode.info"
+                                    components={{ br: <br /> }}
+                                    options={{ context: isPin ? "pinned" : "preferred" }}
+                                />
                             </RichAlert>
                         </FormGroup>
                     )}

@@ -34,6 +34,8 @@ import { CSSProperties, useState } from "react";
 import genUtils from "common/generalUtils";
 import Card from "react-bootstrap/Card";
 import { isEqual, xor } from "lodash";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import type { StudioTranslate } from "common/i18n/resources";
 
 export interface AppliedColumnLayout {
     visibleColumnIds: string[];
@@ -102,13 +104,14 @@ export function useTableDisplaySettingsSheet<T>(table: TanstackTable<T>, options
 }
 
 export default function TableDisplaySettings<T>({ table, className, ...options }: TableDisplaySettingsProps<T>) {
+    const t = useStudioTranslation("virtualTable");
     const { openSheet } = useTableDisplaySettingsSheet(table, options);
 
     return (
         <div className={classNames("table-display-settings", className)}>
             <Button variant="secondary" onClick={openSheet}>
                 <Icon icon="table" />
-                Column layout settings
+                {t("displaySettings.title")}
             </Button>
         </div>
     );
@@ -133,6 +136,7 @@ function TableDisplaySettingsSheet({
     onApply,
     restoreDefaults,
 }: TableDisplaySettingsSheetProps) {
+    const t = useStudioTranslation("virtualTable");
     const { forceClose } = useViewSheet();
 
     const initialCustomColumns = customColumns ?? [];
@@ -306,7 +310,7 @@ function TableDisplaySettingsSheet({
             <ViewSheet.Header>
                 <h3 className="mb-0">
                     <Icon icon="table" color="primary" />
-                    Column layout settings
+                    {t("displaySettings.title")}
                 </h3>
             </ViewSheet.Header>
             <ViewSheet.Body className="m-2">
@@ -333,7 +337,7 @@ function TableDisplaySettingsSheet({
                                     }
                                 >
                                     <Icon icon="plus" />
-                                    Add a custom column
+                                    {t("displaySettings.addCustomColumn")}
                                 </Button>
                             </div>
                         )}
@@ -347,9 +351,9 @@ function TableDisplaySettingsSheet({
                                 toggleSelection={handleToggleAll}
                                 indeterminate={selectionState === "SomeSelected"}
                                 color="primary"
-                                title="Select all"
+                                title={t("displaySettings.selectAll")}
                             >
-                                Select all
+                                {t("displaySettings.selectAll")}
                             </Checkbox>
                         </div>
                     )}
@@ -358,7 +362,7 @@ function TableDisplaySettingsSheet({
                             <>
                                 <div className="label d-flex p-2 align-items-center">
                                     <Icon icon="pinned" />
-                                    Pinned
+                                    {t("displaySettings.pinned")}
                                 </div>
                                 <DndContext
                                     id="pinned-dnd"
@@ -412,13 +416,13 @@ function TableDisplaySettingsSheet({
             </ViewSheet.Body>
             <ViewSheet.Footer>
                 <div className="d-flex justify-content-between w-100">
-                    <Button variant="outline" title="Reset to default" onClick={handleReset}>
+                    <Button variant="outline" title={t("displaySettings.resetToDefault")} onClick={handleReset}>
                         <Icon icon="reset" />
-                        Reset to default
+                        {t("displaySettings.resetToDefault")}
                     </Button>
-                    <Button title="Apply changes" onClick={handleApply} className="rounded-pill">
+                    <Button title={t("displaySettings.applyTitle")} onClick={handleApply} className="rounded-pill">
                         <Icon icon="save" />
-                        Apply
+                        {t("displaySettings.apply")}
                     </Button>
                 </div>
             </ViewSheet.Footer>
@@ -433,9 +437,11 @@ interface CustomColumnFormProps {
 }
 
 function CustomColumnForm({ column, onSave, onCancel }: CustomColumnFormProps) {
+    const t = useStudioTranslation("virtualTable");
+    const tCommon = useStudioTranslation("common");
     const { control, handleSubmit } = useForm<CustomColumnFormData>({
         defaultValues: { expression: column.expression, header: column.header },
-        resolver: yupResolver(customColumnSchema),
+        resolver: yupResolver(getCustomColumnSchema(t)),
     });
 
     const handleSave: SubmitHandler<CustomColumnFormData> = (formData) => {
@@ -446,28 +452,34 @@ function CustomColumnForm({ column, onSave, onCancel }: CustomColumnFormProps) {
         <form onSubmit={handleSubmit(handleSave)}>
             <Card className="well p-2 vstack gap-2 mb-2" data-testid="custom-column-form">
                 <FormGroup marginClass="m-0">
-                    <FormLabel className="mb-1">Binding expression</FormLabel>
+                    <FormLabel className="mb-1">{t("displaySettings.customColumnForm.expressionLabel")}</FormLabel>
                     <FormInput
                         type="text"
                         control={control}
                         name="expression"
                         size="sm"
-                        placeholder="e.g. this.ShipTo.City"
+                        placeholder={t("displaySettings.customColumnForm.expressionPlaceholder")}
                         autoFocus
                     />
                 </FormGroup>
                 <FormGroup marginClass="m-0">
-                    <FormLabel className="mb-1">Alias</FormLabel>
-                    <FormInput type="text" control={control} name="header" size="sm" placeholder="Column name" />
+                    <FormLabel className="mb-1">{t("displaySettings.customColumnForm.aliasLabel")}</FormLabel>
+                    <FormInput
+                        type="text"
+                        control={control}
+                        name="header"
+                        size="sm"
+                        placeholder={t("displaySettings.customColumnForm.aliasPlaceholder")}
+                    />
                 </FormGroup>
                 <div className="d-flex gap-2 justify-content-end">
                     <Button variant="secondary" size="sm" onClick={onCancel}>
                         <Icon icon="cancel" />
-                        Cancel
+                        {tCommon("cancel")}
                     </Button>
                     <Button type="submit" variant="success" size="sm">
                         <Icon icon="check" />
-                        Save column
+                        {t("displaySettings.customColumnForm.save")}
                     </Button>
                 </div>
             </Card>
@@ -475,19 +487,21 @@ function CustomColumnForm({ column, onSave, onCancel }: CustomColumnFormProps) {
     );
 }
 
-const customColumnSchema = yup.object({
-    expression: yup
-        .string()
-        .trim()
-        .required("The binding expression is required")
-        .test("custom-column-expression", function (value) {
-            const error = value ? getCustomColumnExpressionError(value) : null;
-            return error ? this.createError({ message: error }) : true;
-        }),
-    header: yup.string().trim().required("The alias is required"),
-});
+function getCustomColumnSchema(t: StudioTranslate<"virtualTable">) {
+    return yup.object({
+        expression: yup
+            .string()
+            .trim()
+            .required(t("displaySettings.customColumnForm.expressionRequired"))
+            .test("custom-column-expression", function (value) {
+                const error = value ? getCustomColumnExpressionError(value) : null;
+                return error ? this.createError({ message: error }) : true;
+            }),
+        header: yup.string().trim().required(t("displaySettings.customColumnForm.aliasRequired")),
+    });
+}
 
-type CustomColumnFormData = yup.InferType<typeof customColumnSchema>;
+type CustomColumnFormData = yup.InferType<ReturnType<typeof getCustomColumnSchema>>;
 
 interface ColumnRowProps {
     id: string;
@@ -515,6 +529,7 @@ function SortableColumnRow({
     onEdit,
     onRemove,
 }: SortableColumnRowProps) {
+    const t = useStudioTranslation("virtualTable");
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
 
     const style: CSSProperties = {
@@ -528,7 +543,7 @@ function SortableColumnRow({
         <div ref={setNodeRef} style={style} className="column-list-item d-flex align-items-center">
             <span
                 className="column-drag-handle"
-                title="Drag to reorder"
+                title={t("displaySettings.column.dragToReorder")}
                 {...attributes}
                 {...listeners}
                 style={{ cursor: isDragging || isDraggingActive ? (isDragging ? "grabbing" : "grab") : "grab" }}
@@ -539,7 +554,7 @@ function SortableColumnRow({
                 selected={isSelected}
                 toggleSelection={meta.canHide ? onToggle : undefined}
                 disabled={!meta.canHide}
-                title={meta.canHide ? meta.headerTitle : "This column is always visible and cannot be hidden"}
+                title={meta.canHide ? meta.headerTitle : t("displaySettings.column.alwaysVisible")}
                 className="flex-grow-1 overflow-hidden"
             >
                 <span className="column-list-item-name">{meta.headerTitle}</span>
@@ -550,7 +565,7 @@ function SortableColumnRow({
                         variant="link"
                         size="sm"
                         className="p-0 flex-shrink-0 text-reset"
-                        title="Edit custom column"
+                        title={t("displaySettings.column.edit")}
                         onClick={onEdit}
                     >
                         <Icon icon="edit" margin="m-0" />
@@ -559,7 +574,7 @@ function SortableColumnRow({
                         variant="link"
                         size="sm"
                         className="p-0 flex-shrink-0 text-reset"
-                        title="Remove custom column"
+                        title={t("displaySettings.column.remove")}
                         onClick={onRemove}
                     >
                         <Icon icon="trash" margin="m-0" />
@@ -570,7 +585,13 @@ function SortableColumnRow({
                 variant="link"
                 size="sm"
                 className={classNames("p-0 flex-shrink-0", isPinned ? "text-primary" : "text-reset")}
-                title={!meta.canPin ? "This column cannot be pinned" : isPinned ? "Unpin column" : "Pin column to left"}
+                title={
+                    !meta.canPin
+                        ? t("displaySettings.column.cannotPin")
+                        : isPinned
+                          ? t("displaySettings.column.unpin")
+                          : t("displaySettings.column.pinToLeft")
+                }
                 onClick={meta.canPin ? onTogglePin : undefined}
                 disabled={!meta.canPin}
             >
@@ -581,6 +602,7 @@ function SortableColumnRow({
 }
 
 function ColumnRowPreview({ meta, isSelected, isPinned }: ColumnRowProps) {
+    const t = useStudioTranslation("virtualTable");
     return (
         <div className="column-list-item column-list-item-preview d-flex align-items-center">
             <span className="column-drag-handle" style={{ cursor: "grabbing" }}>
@@ -590,7 +612,7 @@ function ColumnRowPreview({ meta, isSelected, isPinned }: ColumnRowProps) {
                 selected={isSelected}
                 toggleSelection={() => {}}
                 disabled={!meta.canHide}
-                title={meta.canHide ? meta.headerTitle : "This column is always visible and cannot be hidden"}
+                title={meta.canHide ? meta.headerTitle : t("displaySettings.column.alwaysVisible")}
                 className="flex-grow-1 overflow-hidden"
             >
                 <span className="column-list-item-name">{meta.headerTitle}</span>
@@ -599,7 +621,13 @@ function ColumnRowPreview({ meta, isSelected, isPinned }: ColumnRowProps) {
                 variant="link"
                 size="sm"
                 className={classNames("p-0 flex-shrink-0", isPinned ? "text-primary" : "text-reset")}
-                title={!meta.canPin ? "This column cannot be pinned" : isPinned ? "Unpin column" : "Pin column to left"}
+                title={
+                    !meta.canPin
+                        ? t("displaySettings.column.cannotPin")
+                        : isPinned
+                          ? t("displaySettings.column.unpin")
+                          : t("displaySettings.column.pinToLeft")
+                }
                 disabled={!meta.canPin}
             >
                 <Icon icon={isPinned ? "pinned" : "pin"} margin="m-0" />

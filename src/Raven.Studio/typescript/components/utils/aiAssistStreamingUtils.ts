@@ -1,4 +1,7 @@
 import { Path } from "react-hook-form";
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("infra");
 
 interface ProcessStreamingResponseOptions<T extends object> {
     promiseFn: () => Promise<Response>;
@@ -25,7 +28,7 @@ export async function processStreamingResponse<T extends object>({
         if (response.status === 500) {
             return {
                 status: "Error",
-                error: "Server is not responding. Please try again later.",
+                error: t("aiAssist.serverNotResponding"),
             };
         }
 
@@ -59,7 +62,7 @@ export async function processStreamingResponse<T extends object>({
 
                     return { status: "Error", error: data.Message };
                 } catch (error) {
-                    return { status: "Error", error: error instanceof Error ? error.message : "Unknown error" };
+                    return { status: "Error", error: error instanceof Error ? error.message : t("unknownError") };
                 }
             }
 
@@ -74,7 +77,7 @@ export async function processStreamingResponse<T extends object>({
         while (true) {
             if (abortSignal?.aborted) {
                 await reader.cancel();
-                return { status: "Aborted", error: "Request was aborted" };
+                return { status: "Aborted", error: t("aiAssist.requestAborted") };
             }
 
             const { done, value } = await reader.read();
@@ -94,7 +97,7 @@ export async function processStreamingResponse<T extends object>({
                 const data: { text: string | T; type: "Ongoing" | "Done" | "Error" } = JSON.parse(dataString);
 
                 if (data.type === "Error") {
-                    return { status: "Error", error: "Unknown error" };
+                    return { status: "Error", error: t("unknownError") };
                 }
 
                 if (data.type === "Ongoing" && typeof data.text === "string") {
@@ -111,12 +114,12 @@ export async function processStreamingResponse<T extends object>({
             }
         }
 
-        return { status: "Error", error: "Failed to get the final response" };
+        return { status: "Error", error: t("aiAssist.noFinalResponse") };
     } catch (error) {
         if (error instanceof Error && error.name === "AbortError") {
-            return { status: "Aborted", error: "Request was aborted" };
+            return { status: "Aborted", error: t("aiAssist.requestAborted") };
         }
-        return { status: "Error", error: error instanceof Error ? error.message : "Unknown error" };
+        return { status: "Error", error: error instanceof Error ? error.message : t("unknownError") };
     }
 }
 

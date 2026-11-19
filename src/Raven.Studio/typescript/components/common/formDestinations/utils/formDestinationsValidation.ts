@@ -13,6 +13,9 @@ import {
     S3Destination,
 } from "./formDestinationsTypes";
 import * as yup from "yup";
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("formDestinations");
 
 const configSchema = yupObjectSchema<BackupConfigurationScript>({
     isOverrideConfig: yup.boolean(),
@@ -73,13 +76,11 @@ const amazonSchema = yupObjectSchema<AmazonDestination>({
             is: (isEnabled: boolean, isUseCustomHost: boolean, config: BackupConfigurationScript) =>
                 isEnabled && !isUseCustomHost && !config.isOverrideConfig,
             then: (schema) =>
-                schema
-                    .required()
-                    .test(
-                        "include-dash",
-                        "AWS Region must include a '-' and cannot start or end with it",
-                        (value) => value.includes("-") && !value.startsWith("-") && !value.endsWith("-")
-                    ),
+                schema.required().test(
+                    "include-dash",
+                    () => t("validation.awsRegionDash"),
+                    (value) => value.includes("-") && !value.startsWith("-") && !value.endsWith("-")
+                ),
         }),
     awsAccessKey: yupRequiredStringForEnabled,
     awsSecretKey: yupRequiredStringForEnabled,
@@ -97,25 +98,22 @@ export const s3Schema = yupObjectSchema<WithoutAmazonAndBase<S3Destination>>({
                     .required()
                     .min(3)
                     .max(63)
-                    .matches(/^[a-z\d]/, "Bucket name should start with a number or letter")
-                    .matches(/[a-z\d]$/, "Bucket name should end with a number or letter")
-                    .matches(
-                        /^[a-z0-9.-]+$/,
-                        "Allowed characters are lowercase characters, numbers, periods, and dashes"
-                    )
+                    .matches(/^[a-z\d]/, () => t("validation.bucketNameStart"))
+                    .matches(/[a-z\d]$/, () => t("validation.bucketNameEnd"))
+                    .matches(/^[a-z0-9.-]+$/, () => t("validation.bucketNameAllowedCharacters"))
                     .test(
                         "dashes-next-to-period",
-                        'Bucket names cannot contain dashes next to periods (e.g. " -." and/or ".-")',
+                        () => t("validation.bucketNameDashesNextToPeriods"),
                         (value) => !value.includes(".-") && !value.includes("-.")
                     )
                     .test(
                         "consecutive-periods",
-                        "Bucket name cannot contain consecutive periods",
+                        () => t("validation.bucketNameConsecutivePeriods"),
                         (value) => !value.includes("..")
                     )
                     .test(
                         "ip",
-                        "Bucket name must not be formatted as an IP address (e.g., 192.168.5.4)",
+                        () => t("validation.bucketNameIpAddress"),
                         (value) => !/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/.test(value)
                     ),
         }),
@@ -156,12 +154,12 @@ export const azureSchema = yupObjectSchema<WithoutBase<AzureDestination>>({
                     .required()
                     .min(3)
                     .max(63)
-                    .matches(/^[a-z0-9-]+$/, "Allowed characters lowercase characters, numbers and dashes")
-                    .matches(/^[a-z0-9]/, "Container name must start with a letter or a number")
-                    .matches(/[a-z0-9]$/, "Container name must end with a letter or a number")
+                    .matches(/^[a-z0-9-]+$/, () => t("validation.containerAllowedCharacters"))
+                    .matches(/^[a-z0-9]/, () => t("validation.containerStart"))
+                    .matches(/[a-z0-9]$/, () => t("validation.containerEnd"))
                     .test(
                         "consecutive-dashes",
-                        "Consecutive dashes are not permitted in container names",
+                        () => t("validation.containerConsecutiveDashes"),
                         (value) => !/--/.test(value)
                     ),
         }),
@@ -182,19 +180,13 @@ const googleCloudSchema = yupObjectSchema<WithoutBase<GoogleCloudDestination>>({
                 schema
                     .required()
                     .min(3)
-                    .max(
-                        222,
-                        "Bucket name must contain 3 to 63 characters. Names containing dots can contain up to 222 characters, but each dot-separated component can be no longer than 63 characters"
-                    )
-                    .matches(
-                        /^[a-z0-9._-]+$/,
-                        "Bucket name must contain only lowercase letters, numbers, dashes (-), underscores (_), and dots (.)"
-                    )
-                    .matches(/^[a-z0-9]/, "Bucket name must start with a letter or a number")
-                    .matches(/[a-z0-9]$/, "Bucket name must end with a letter or a number")
+                    .max(222, () => t("validation.googleBucketLength"))
+                    .matches(/^[a-z0-9._-]+$/, () => t("validation.googleBucketAllowedCharacters"))
+                    .matches(/^[a-z0-9]/, () => t("validation.googleBucketStart"))
+                    .matches(/[a-z0-9]$/, () => t("validation.googleBucketEnd"))
                     .test(
                         "dash-period-underscore",
-                        "Dashes, periods and underscores are not permitted to be adjacent to another",
+                        () => t("validation.googleBucketAdjacentSeparators"),
                         (value) => {
                             return (
                                 !/\.-/.test(value) &&
@@ -216,9 +208,13 @@ const googleCloudSchema = yupObjectSchema<WithoutBase<GoogleCloudDestination>>({
             then: (schema) =>
                 schema
                     .required()
-                    .matches(/"type"/, "Google credentials json is missing 'type' field")
-                    .matches(/"private_key"/, "Google credentials json is missing 'private_key' field")
-                    .matches(/"client_email"/, "Google credentials json is missing 'client_email' field"),
+                    .matches(/"type"/, () => t("validation.googleCredentialsMissingField", { field: "type" }))
+                    .matches(/"private_key"/, () =>
+                        t("validation.googleCredentialsMissingField", { field: "private_key" })
+                    )
+                    .matches(/"client_email"/, () =>
+                        t("validation.googleCredentialsMissingField", { field: "client_email" })
+                    ),
         }),
 }).concat(destinationBaseSchema);
 
@@ -233,10 +229,7 @@ const glacierSchema = yupObjectSchema<WithoutAmazonAndBase<GlacierDestination>>(
                     .required()
                     .min(1)
                     .max(255)
-                    .matches(
-                        /^[A-Za-z0-9_.-]+$/,
-                        "Allowed characters are a-z, A-Z, 0-9, '_' (underscore), '-' (hyphen), and '.' (period)"
-                    ),
+                    .matches(/^[A-Za-z0-9_.-]+$/, () => t("validation.vaultNameAllowedCharacters")),
         }),
 })
     .concat(destinationBaseSchema)
@@ -249,10 +242,14 @@ const ftpSchema = yupObjectSchema<WithoutBase<FtpDestination>>({
         .when(["isEnabled", "config"], {
             is: (isEnabled: boolean, config: BackupConfigurationScript) => isEnabled && !config.isOverrideConfig,
             then: (schema) =>
-                schema.required().test("ftp-url", "Url must start with ftp:// or ftps://", (value) => {
-                    const lowerCaseValue = value.toLowerCase();
-                    return lowerCaseValue.startsWith("ftp://") || lowerCaseValue.startsWith("ftps://");
-                }),
+                schema.required().test(
+                    "ftp-url",
+                    () => t("validation.ftpUrlProtocol"),
+                    (value) => {
+                        const lowerCaseValue = value.toLowerCase();
+                        return lowerCaseValue.startsWith("ftp://") || lowerCaseValue.startsWith("ftps://");
+                    }
+                ),
         }),
     userName: yupRequiredStringForEnabled,
     password: yupRequiredStringForEnabled,
@@ -274,14 +271,18 @@ export const destinationsSchema = yup.object({
         googleCloud: googleCloudSchema,
         glacier: glacierSchema,
         ftp: ftpSchema,
-    }).test("at-least-one-destination", "Please select at least one destination", (value) => {
-        return (
-            value.local.isEnabled ||
-            value.s3.isEnabled ||
-            value.azure.isEnabled ||
-            value.googleCloud.isEnabled ||
-            value.glacier.isEnabled ||
-            value.ftp.isEnabled
-        );
-    }),
+    }).test(
+        "at-least-one-destination",
+        () => t("validation.atLeastOneDestination"),
+        (value) => {
+            return (
+                value.local.isEnabled ||
+                value.s3.isEnabled ||
+                value.azure.isEnabled ||
+                value.googleCloud.isEnabled ||
+                value.glacier.isEnabled ||
+                value.ftp.isEnabled
+            );
+        }
+    ),
 });

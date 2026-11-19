@@ -8,6 +8,7 @@ import Dropdown from "react-bootstrap/Dropdown";
 import { DropdownMenuProps } from "react-bootstrap/DropdownMenu";
 import { CustomDropdownToggle } from "components/common/Dropdown";
 import { FormLabel } from "components/common/Form";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 declare module "@tanstack/react-table" {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -47,6 +48,7 @@ const filterMenuPopperConfig: DropdownMenuProps["popperConfig"] = {
 };
 
 export default function VirtualTableColumnSettings<T>({ column, isCompact }: VirtualTableColumnSettingsProps<T>) {
+    const t = useStudioTranslation("virtualTable");
     const [localFilter, setLocalFilter] = useState((column.getFilterValue() as string) ?? "");
 
     const debouncedSetFilter = useMemo(
@@ -94,7 +96,9 @@ export default function VirtualTableColumnSettings<T>({ column, isCompact }: Vir
     }
 
     const isNumberColumn = column.getAutoFilterFn() === filterFns.inNumberRange;
-    const defaultPlaceholder = isNumberColumn ? "e.g. > 100 or 10..20" : "Search...";
+    const defaultPlaceholder = t("columnSettings.filterPlaceholder", {
+        context: isNumberColumn ? "number" : undefined,
+    });
 
     return (
         <div className="hstack flex-shrink-0">
@@ -103,7 +107,7 @@ export default function VirtualTableColumnSettings<T>({ column, isCompact }: Vir
                     <Button
                         variant="link"
                         onClick={() => handleSort("asc")}
-                        title="Sort A to Z"
+                        title={t("columnSettings.sortAscending")}
                         className={classNames(column.getIsSorted() === "asc" && "active-sorting")}
                     >
                         <Icon
@@ -115,7 +119,7 @@ export default function VirtualTableColumnSettings<T>({ column, isCompact }: Vir
                     <Button
                         variant="link"
                         onClick={() => handleSort("desc")}
-                        title="Sort Z to A"
+                        title={t("columnSettings.sortDescending")}
                         className={classNames(column.getIsSorted() === "desc" && "active-sorting")}
                     >
                         <Icon
@@ -129,7 +133,7 @@ export default function VirtualTableColumnSettings<T>({ column, isCompact }: Vir
             {column.getCanFilter() && (
                 <Dropdown onToggle={handleFilterDropdownToggle}>
                     <Dropdown.Toggle
-                        title="Column settings"
+                        title={t("columnSettings.title")}
                         as={CustomDropdownToggle}
                         isCaretHidden
                         variant="link"
@@ -144,7 +148,7 @@ export default function VirtualTableColumnSettings<T>({ column, isCompact }: Vir
                     </Dropdown.Toggle>
                     <Dropdown.Menu renderOnMount popperConfig={filterMenuPopperConfig}>
                         <div className="px-2 pb-1">
-                            <FormLabel className="small-label">Filter column</FormLabel>
+                            <FormLabel className="small-label">{t("columnSettings.filterLabel")}</FormLabel>
                             <div className="clearable-input">
                                 <Form.Control
                                     ref={filterInputRef}
@@ -160,7 +164,7 @@ export default function VirtualTableColumnSettings<T>({ column, isCompact }: Vir
                                             variant="secondary"
                                             size="sm"
                                             onClick={() => handleFilterChange("")}
-                                            title="Clear filter"
+                                            title={t("columnSettings.clearFilter")}
                                         >
                                             <Icon icon="clear" margin="m-0" />
                                         </Button>

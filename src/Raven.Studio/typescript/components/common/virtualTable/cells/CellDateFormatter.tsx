@@ -7,6 +7,7 @@ import genUtils from "common/generalUtils";
 import copyToClipboard from "common/copyToClipboard";
 import { Icon } from "components/common/Icon";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 type CellContextSubset<TData, TValue> = Pick<CellContext<TData, TValue>, "cell" | "getValue">;
 
@@ -60,26 +61,27 @@ export function DateFormatterCell<TData, TValue>({
 }
 
 function DateTooltip({ date, copyValue }: { date: Date; copyValue: string | null }) {
+    const t = useStudioTranslation("virtualTable");
     const utcDate = moment.utc(date).toISOString();
 
     const handleCopyToClipboard = () => {
-        copyToClipboard.copy(copyValue ?? utcDate, "Date has been copied to clipboard");
+        copyToClipboard.copy(copyValue ?? utcDate, t("cells.dateCopied"));
     };
 
     return (
         <>
             <div className="index-errors-details-tooltip__container">
-                <b>UTC: </b>
+                <b>{t("cells.utcLabel")} </b>
                 <time className="index-errors-details-tooltip__date">{utcDate}</time>
             </div>
             <div className="index-errors-details-tooltip__container">
-                <b>Relative: </b>
+                <b>{t("cells.relativeLabel")} </b>
                 <time>{genUtils.formatDurationByDate(moment.utc(date), true)}</time>
             </div>
             <div className="mt-3">
-                <span className="small-label">Actions</span>
+                <span className="small-label">{t("cells.actions")}</span>
                 <div className="d-flex gap-2">
-                    <Button onClick={handleCopyToClipboard} size="sm" title="Copy to clipboard">
+                    <Button onClick={handleCopyToClipboard} size="sm" title={t("cells.copyToClipboard")}>
                         <Icon icon="copy-to-clipboard" margin="m-0" />
                     </Button>
                 </div>

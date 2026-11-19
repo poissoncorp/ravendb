@@ -12,8 +12,11 @@ import { databaseSelectors } from "components/common/shell/databaseSliceSelector
 import { useAppSelector } from "components/store";
 import RichAlert from "components/common/RichAlert";
 import OverrideConfigurationViaExternalScriptToggle from "components/common/formDestinations/OverrideConfigurationViaExternalScriptToggle";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function Local() {
+    const t = useStudioTranslation("formDestinations");
     const { control } = useFormContext<FormDestinations>();
     const {
         destinations: { local: formValues },
@@ -40,7 +43,7 @@ export default function Local() {
         <Card className="well">
             <Card.Body>
                 <FormSwitch name={getName("isEnabled")} control={control}>
-                    Local
+                    {t("local.title")}
                 </FormSwitch>
                 <Collapse in={formValues?.isEnabled} className="mt-2">
                     <div>
@@ -49,12 +52,12 @@ export default function Local() {
                             <OverrideConfiguration fieldBase={fieldBase} />
                         ) : (
                             <div className="mt-2">
-                                <FormLabel>Folder path</FormLabel>
+                                <FormLabel>{t("local.folderPathLabel")}</FormLabel>
                                 <FormPathSelector
                                     control={control}
                                     name={getName("folderPath")}
-                                    selectorTitle="Select database directory"
-                                    placeholder="Enter directory path"
+                                    selectorTitle={t("local.folderPathSelectorTitle")}
+                                    placeholder={t("local.folderPathPlaceholder")}
                                     getPathsProvider={(path: string) => getLocalFolderPathsProvider(path)}
                                     getPathDependencies={(path: string) => [path, databaseName]}
                                 />
@@ -78,6 +81,7 @@ function PathInfo({
     asyncGetBackupLocation: UseAsyncReturn<Raven.Server.Web.Studio.DataDirectoryResult, string[]>;
     hasValue: boolean;
 }) {
+    const t = useStudioTranslation("formDestinations");
     if (!hasValue || asyncGetBackupLocation.status === "not-requested" || asyncGetBackupLocation.status === "error") {
         return null;
     }
@@ -97,11 +101,21 @@ function PathInfo({
                     <div key={location.FullPath}>
                         <small>
                             <span>
-                                Node tag: <strong>{location.NodeTag}</strong>
+                                <StudioTrans
+                                    ns="formDestinations"
+                                    i18nKey="local.nodeTag"
+                                    components={{ strong: <strong /> }}
+                                    options={{ nodeTag: location.NodeTag }}
+                                />
                             </span>
                             <br />
                             <span>
-                                Path: <strong>{location.FullPath}</strong>
+                                <StudioTrans
+                                    ns="formDestinations"
+                                    i18nKey="local.path"
+                                    components={{ strong: <strong /> }}
+                                    options={{ path: location.FullPath }}
+                                />
                             </span>
                             <br />
                             {location.Error ? (
@@ -110,15 +124,19 @@ function PathInfo({
                                 <>
                                     {location.FreeSpaceHumane ? (
                                         <span>
-                                            Free space: <strong>{location.FreeSpaceHumane}</strong>{" "}
-                                            {location.TotalSpaceHumane && (
-                                                <span>
-                                                    (Total:<strong>{location.TotalSpaceHumane}</strong>)
-                                                </span>
-                                            )}
+                                            <StudioTrans
+                                                ns="formDestinations"
+                                                i18nKey="local.freeSpace"
+                                                components={{ strong: <strong /> }}
+                                                options={{
+                                                    context: location.TotalSpaceHumane ? "withTotal" : undefined,
+                                                    freeSpace: location.FreeSpaceHumane,
+                                                    totalSpace: location.TotalSpaceHumane,
+                                                }}
+                                            />
                                         </span>
                                     ) : (
-                                        <strong>(Path is unreachable)</strong>
+                                        <strong>{t("local.pathUnreachable")}</strong>
                                     )}
                                 </>
                             )}

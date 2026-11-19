@@ -1,11 +1,11 @@
 <div>
-    <h3 class="margin-bottom margin-bottom-xs">Destination</h3>
+    <h3 class="margin-bottom margin-bottom-xs" data-bind="i18n: 'backupDestinations:title'"></h3>
     <div class="panel" data-bind="with: localSettings">
         <div class="padding">
             <div class="flex-horizontal">
                 <div class="toggle">
                     <input id="toggle-local" type="checkbox" data-bind="checked: enabled, enable: $root.isBackupOptionAvailable('Local')">
-                    <label for="toggle-local">Local</label>
+                    <label for="toggle-local" data-bind="i18n: 'backupDestinations:local'"></label>
                 </div>
                 <div class="text-warning js-option-disabled" data-bind="visible: !$root.isBackupOptionAvailable('Local')">
                     <small><i class="icon-info"></i></small>
@@ -17,9 +17,7 @@
                         <div class="col-xs-offset-12 col-sm-offset-6 col-lg-offset-4">
                             <div class="toggle margin-left">
                                 <input id="localSettingsViaScript" type="checkbox" data-bind="checked: hasConfigurationScript, disable: !!$root.overrideViaExternalScriptDisableReason()">
-                                <label for="localSettingsViaScript" data-bind="attr: { 'title': $root.overrideViaExternalScriptDisableReason() }">
-                                    Override configuration via external script
-                                </label>
+                                <label for="localSettingsViaScript" data-bind="attr: { 'title': $root.overrideViaExternalScriptDisableReason() }, i18n: 'backupDestinations:overrideViaScript'"></label>
                             </div>
                         </div>
                     </div>
@@ -28,13 +26,13 @@
                     </div>
                     <div data-bind="if: !hasConfigurationScript()">
                         <div class="row margin-bottom" data-bind="validationElement: folderPath">
-                            <label class="control-label col-xs-12 col-sm-6 col-lg-4">Backup directory <i class="required"></i></label>
+                            <label class="control-label col-xs-12 col-sm-6 col-lg-4"><span data-bind="i18n: 'backupDestinations:backupDirectory'"></span> <i class="required"></i></label>
                             <div class="col-xs-12 col-sm-6 col-lg-8" data-bind="validationElement: folderPath, validationOptions: { insertMessages: false }">
                                 <div data-bind="text: $root.serverConfiguration().LocalRootPath"></div>
                                 <div class="dropdown btn-block">
                                     <input type="text" class="form-control dropdown-toggle" data-toggle="dropdown"
                                            id="localFolderPath"
-                                           data-bind="textInput: folderPath, attr: { 'placeholder': $root.serverConfiguration().LocalRootPath ? 'Relative backup path' : 'Full directory backup path' }, hasFocus: folderPathHasFocus">
+                                           data-bind="textInput: folderPath, i18nAttr: { placeholder: { key: 'backupDestinations:folderPathPlaceholder', options: { context: $root.serverConfiguration().LocalRootPath ? 'relative' : 'full' } } }, hasFocus: folderPathHasFocus">
                                     <span class="caret dropdown-toggle" data-toggle="dropdown"></span>
                                     <ul class="dropdown-menu" data-bind="foreach: $parent.folderPathOptions, autoComplete: '#localFolderPath'">
                                         <li data-bind="click: $parent.localPathChanged">
@@ -49,7 +47,7 @@
                             <label class="control-label col-xs-12 col-sm-6 col-lg-4"></label>
                             <div class="col-xs-12 col-sm-6 col-lg-8" data-bind="visible: $parent.locationInfo().length">
                                 <div class="text-info bg-info padding padding-sm">
-                                    <span>The backup files will be created in:</span><br />
+                                    <span data-bind="i18n: 'backupDestinations:location.heading'"></span><br />
                                     <div data-bind="if: $parent.spinners.locationInfoLoading">
                                         <span class="global-spinner"></span>
                                     </div>
@@ -57,22 +55,22 @@
                                         <ul data-bind="foreach: $parent.locationInfo" class="text-info bg-info">
                                             <li>
                                                 <small>
-                                                    Node Tag: <strong data-bind="text: NodeTag"></strong>
+                                                    <span data-bind="i18n: 'backupDestinations:location.nodeTag'"></span> <strong data-bind="text: NodeTag"></strong>
                                                     <br />
-                                                    Path: <strong data-bind="text: $parents[1].getPathForCreatedBackups($data)"></strong><br />
+                                                    <span data-bind="i18n: 'backupDestinations:location.path'"></span> <strong data-bind="text: $parents[1].getPathForCreatedBackups($data)"></strong><br />
                                                     <!-- ko if: Error -->
-                                                    Error: <strong data-bind="text: Error"></strong>
+                                                    <span data-bind="i18n: 'backupDestinations:location.error'"></span> <strong data-bind="text: Error"></strong>
                                                     <!-- /ko -->
                                                     <!-- ko ifnot: Error -->
-                                                    Free Disk Space:
+                                                    <span data-bind="i18n: 'backupDestinations:location.freeDiskSpace'"></span>
                                                     <span data-bind="if: FreeSpaceHumane">
                                                         <strong data-bind="text: FreeSpaceHumane"></strong>
                                                     </span>
                                                     <span data-bind="if: TotalSpaceHumane">
-                                                        (Total: <strong data-bind="text: TotalSpaceHumane"></strong>)
+                                                        (<span data-bind="i18n: 'backupDestinations:location.total'"></span> <strong data-bind="text: TotalSpaceHumane"></strong>)
                                                     </span>
                                                     <span data-bind="if: !FreeSpaceHumane">
-                                                        <strong>(Path is unreachable)</strong>
+                                                        <strong data-bind="i18n: 'backupDestinations:location.pathUnreachable'"></strong>
                                                     </span>
                                                     <!-- /ko -->
                                                 </small>
@@ -105,9 +103,7 @@
                         <div class="col-xs-offset-12 col-sm-offset-6 col-lg-offset-4">
                             <div class="toggle margin-left">
                                 <input id="s3SettingsViaScript" type="checkbox" data-bind="checked: hasConfigurationScript, disable: !!$root.overrideViaExternalScriptDisableReason()">
-                                <label for="s3SettingsViaScript" data-bind="attr: { 'title': $root.overrideViaExternalScriptDisableReason() }">
-                                    Override configuration via external script
-                                </label>
+                                <label for="s3SettingsViaScript" data-bind="attr: { 'title': $root.overrideViaExternalScriptDisableReason() }, i18n: 'backupDestinations:overrideViaScript'"></label>
                             </div>
                         </div>
                     </div>
@@ -115,7 +111,7 @@
                         <div class="col-xs-offset-12 col-sm-offset-6 col-lg-offset-4">
                             <div class="toggle margin-left">
                                 <input id="s3CustomHost" type="checkbox" data-bind="checked: useCustomS3Host">
-                                <label for="s3CustomHost">Use a custom S3 host</label>
+                                <label for="s3CustomHost" data-bind="i18n: 'backupDestinations:useCustomS3Host'"></label>
                             </div>
                         </div>
                     </div>
@@ -132,7 +128,7 @@
                         <div class="text-right">
                             <button data-bind="click: _.partial($root.testCredentials, $data), disable: isTestingCredentials, css: { 'btn-spinner': isTestingCredentials }" class="btn btn-info">
                                 <i class="icon-rocket"></i>
-                                &nbsp;&nbsp;<span>Test credentials</span>
+                                &nbsp;&nbsp;<span data-bind="i18n: 'backupDestinations:testCredentials'"></span>
                             </button>
                         </div>
                     </div>
@@ -160,9 +156,7 @@
                         <div class="col-xs-offset-12 col-sm-offset-6 col-lg-offset-4">
                             <div class="toggle margin-left">
                                 <input id="azureSettingsViaScript" type="checkbox" data-bind="checked: hasConfigurationScript, disable: !!$root.overrideViaExternalScriptDisableReason()">
-                                <label for="azureSettingsViaScript" data-bind="attr: { 'title': $root.overrideViaExternalScriptDisableReason() }">
-                                    Override configuration via external script
-                                </label>
+                                <label for="azureSettingsViaScript" data-bind="attr: { 'title': $root.overrideViaExternalScriptDisableReason() }, i18n: 'backupDestinations:overrideViaScript'"></label>
                             </div>
                         </div>
                     </div>
@@ -177,7 +171,7 @@
                         <div class="text-right">
                             <button data-bind="click: _.partial($root.testCredentials, $data), disable: isTestingCredentials, css: { 'btn-spinner': isTestingCredentials }" class="btn btn-info">
                                 <i class="icon-rocket"></i>
-                                &nbsp;&nbsp;<span>Test credentials</span>
+                                &nbsp;&nbsp;<span data-bind="i18n: 'backupDestinations:testCredentials'"></span>
                             </button>
                         </div>
                     </div>
@@ -205,9 +199,7 @@
                         <div class="col-xs-offset-12 col-sm-offset-6 col-lg-offset-4">
                             <div class="toggle margin-left">
                                 <input id="googleCloudSettingsViaScript" type="checkbox" data-bind="checked: hasConfigurationScript, disable: !!$root.overrideViaExternalScriptDisableReason()">
-                                <label for="googleCloudSettingsViaScript" data-bind="attr: { 'title': $root.overrideViaExternalScriptDisableReason() }">
-                                    Override configuration via external script
-                                </label>
+                                <label for="googleCloudSettingsViaScript" data-bind="attr: { 'title': $root.overrideViaExternalScriptDisableReason() }, i18n: 'backupDestinations:overrideViaScript'"></label>
                             </div>
                         </div>
                     </div>
@@ -222,7 +214,7 @@
                         <div class="text-right">
                             <button data-bind="click: _.partial($root.testCredentials, $data), disable: isTestingCredentials, css: { 'btn-spinner': isTestingCredentials }" class="btn btn-info">
                                 <i class="icon-rocket"></i>
-                                <span>Test credentials</span>
+                                <span data-bind="i18n: 'backupDestinations:testCredentials'"></span>
                             </button>
                         </div>
                     </div>
@@ -250,9 +242,7 @@
                         <div class="col-xs-offset-12 col-sm-offset-6 col-lg-offset-4">
                             <div class="toggle margin-left">
                                 <input id="glacierSettingsViaScript" type="checkbox" data-bind="checked: hasConfigurationScript, disable: !!$root.overrideViaExternalScriptDisableReason()">
-                                <label for="glacierSettingsViaScript" data-bind="attr: { 'title': $root.overrideViaExternalScriptDisableReason() }">
-                                    Override configuration via external script
-                                </label>
+                                <label for="glacierSettingsViaScript" data-bind="attr: { 'title': $root.overrideViaExternalScriptDisableReason() }, i18n: 'backupDestinations:overrideViaScript'"></label>
                             </div>
                         </div>
                     </div>
@@ -267,7 +257,7 @@
                         <div class="text-right">
                             <button data-bind="click: _.partial($root.testCredentials, $data), disable: isTestingCredentials, css: { 'btn-spinner': isTestingCredentials }" class="btn btn-info">
                                 <i class="icon-rocket"></i>
-                                &nbsp;&nbsp;<span>Test credentials</span>
+                                &nbsp;&nbsp;<span data-bind="i18n: 'backupDestinations:testCredentials'"></span>
                             </button>
                         </div>
                     </div>
@@ -295,9 +285,7 @@
                         <div class="col-xs-offset-12 col-sm-offset-6 col-lg-offset-4">
                             <div class="toggle margin-left">
                                 <input id="ftpSettingsViaScript" type="checkbox" data-bind="checked: hasConfigurationScript, disable: !!$root.overrideViaExternalScriptDisableReason()">
-                                <label for="ftpSettingsViaScript" data-bind="attr: { 'title': $root.overrideViaExternalScriptDisableReason() }">
-                                    Override configuration via external script
-                                </label>
+                                <label for="ftpSettingsViaScript" data-bind="attr: { 'title': $root.overrideViaExternalScriptDisableReason() }, i18n: 'backupDestinations:overrideViaScript'"></label>
                             </div>
                         </div>
                     </div>
@@ -310,7 +298,7 @@
                             <label class="control-label col-xs-12 col-sm-6 col-lg-4"></label>
                             <div class="col-xs-12 col-sm-6 col-lg-8">
                                 <div class="text-info bg-info padding padding-sm">
-                                    <small>The backup files will be created in path:</small>
+                                    <small data-bind="i18n: 'backupDestinations:createdInPath'"></small>
                                     <div class="text-info bg-info">
                                         <small><strong data-bind="text: url() + '/{DATABASE-NAME}/'"></strong></small>
                                     </div>
@@ -320,7 +308,7 @@
                         <div class="text-right">
                             <button data-bind="click: _.partial($root.testCredentials, $data), disable: isTestingCredentials, css: { 'btn-spinner': isTestingCredentials }" class="btn btn-info">
                                 <i class="icon-rocket"></i>
-                                &nbsp;&nbsp;<span>Test credentials</span>
+                                &nbsp;&nbsp;<span data-bind="i18n: 'backupDestinations:testCredentials'"></span>
                             </button>
                         </div>
                     </div>
@@ -341,7 +329,7 @@
         <label class="control-label col-xs-12 col-sm-6 col-lg-4"></label>
         <div class="col-xs-12 col-sm-6 col-lg-8">
             <div class="text-info bg-info padding padding-sm">
-                <small>The backup files will be created in path:</small>
+                <small data-bind="i18n: 'backupDestinations:createdInPath'"></small>
                 <div class="text-info bg-info">
                     <small><strong data-bind="text: remoteFolderName() + '/{DATABASE-NAME}/'"></strong></small>
                 </div>

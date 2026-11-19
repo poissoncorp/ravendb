@@ -2,13 +2,13 @@
     <div class="modal-dialog" role="document">
     <div class="modal-content neo-modal">
         <div class="modal-body text-center overflow-y-inherit">
-            <button type="button" class="close" data-bind="click: closeClicked, visible: canClose" data-dismiss="modal" aria-label="Close"><i class="icon-cancel"></i></button>
+            <button type="button" class="close" data-bind="click: closeClicked, visible: canClose, i18nAttr: { 'aria-label': 'shardingContext:selector.close' }" data-dismiss="modal"><i class="icon-cancel"></i></button>
             
-            <img src="../../../../Content/img/sharding/shard.png" alt="Shard" class="img-responsive margin-center" style="width: 70px" />
-            <h2 class="text-capitalize margin-top">Select Shard</h2>
+            <img src="../../../../Content/img/sharding/shard.png" data-bind="i18nAttr: { alt: 'shardingContext:selector.imageAlt' }" class="img-responsive margin-center" style="width: 70px" />
+            <h2 class="text-capitalize margin-top" data-bind="i18n: 'shardingContext:selector.title'"></h2>
             <p>
-                This view can display data only for a single shard.<br>
-                Select a shard to view:
+                <span data-bind="i18n: 'shardingContext:selector.singleShardOnly'"></span><br>
+                <span data-bind="i18n: 'shardingContext:selector.selectShard'"></span>
             </p>
             <div class="flex-horizontal flex-content-center margin-top">
                 <div data-bind="with: $root.selector">
@@ -16,7 +16,7 @@
                 </div>
                 <div>
                     <button class="btn btn-info" data-bind="click: shardSelected">
-                        View <i class="icon-arrow-thin-right margin-left-sm"></i>
+                        <span data-bind="i18n: 'shardingContext:selector.view'"></span> <i class="icon-arrow-thin-right margin-left-sm"></i>
                     </button>
                 </div>
             </div>

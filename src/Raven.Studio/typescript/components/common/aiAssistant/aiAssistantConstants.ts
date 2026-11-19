@@ -1,7 +1,18 @@
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("aiAssistant");
+
 export const aiAssistantConstants = {
-    failedToCheckConsent: "Failed to check consent. Please try again.",
-    invalidCredentials: "Invalid license. Please use a different license.",
-    invalidData: "Invalid data. Please check your data and try again.",
-    outOfTokens:
-        "You have used all your AI Assistant tokens for this month. Your token allowance will be reset at the beginning of the next month.",
+    get failedToCheckConsent() {
+        return t("errors.failedToCheckConsent");
+    },
+    get invalidCredentials() {
+        return t("errors.invalidCredentials");
+    },
+    get invalidData() {
+        return t("errors.invalidData");
+    },
+    get outOfTokens() {
+        return t("errors.outOfTokens");
+    },
 };

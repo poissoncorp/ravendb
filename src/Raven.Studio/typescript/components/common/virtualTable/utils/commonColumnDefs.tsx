@@ -1,9 +1,15 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "components/common/Checkbox";
 import { CellDocumentPreviewWrapper } from "components/common/virtualTable/cells/CellDocumentPreview";
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("virtualTable");
 
 export const columnPreview: ColumnDef<unknown> = {
-    header: "Preview",
+    id: "Preview",
+    get header() {
+        return t("columns.preview");
+    },
     accessorFn: (x) => x,
     cell: CellDocumentPreviewWrapper,
     size: 64,

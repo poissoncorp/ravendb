@@ -3,6 +3,9 @@
 import app = require("durandal/app");
 import confirmationDialog = require("viewmodels/common/confirmationDialog");
 import generalUtils = require("common/generalUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("commonHelpers");
 
 class viewHelpers {
 
@@ -12,7 +15,7 @@ class viewHelpers {
             defaultOption: null,
             forceRejectWithResolve: false,
             html: false,
-            buttons: ["No", "Yes"],
+            buttons: [t("confirm.no"), t("confirm.yes")],
             wideDialog: false
         } as confirmationDialogOptions, options);
         

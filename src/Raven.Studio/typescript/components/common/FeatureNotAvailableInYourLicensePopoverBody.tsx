@@ -1,16 +1,16 @@
 import { useRavenLink } from "hooks/useRavenLink";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function FeatureNotAvailableInYourLicensePopoverBody() {
     const upgradeLicenseLink = useRavenLink({ hash: "FLDLO4", isDocs: false });
 
     return (
         <div className="text-center">
-            Your current license does not support this feature.
-            <br />
-            <a href={upgradeLicenseLink} target="_blank">
-                Upgrade your plan
-            </a>{" "}
-            to access.
+            <StudioTrans
+                ns="commonComponents"
+                i18nKey="featureNotAvailable.inYourLicense"
+                components={{ br: <br />, a: <a href={upgradeLicenseLink} target="_blank" /> }}
+            />
         </div>
     );
 }

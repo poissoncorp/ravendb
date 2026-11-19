@@ -2,6 +2,9 @@
 
 import d3 = require("d3");
 import typeUtils = require("common/typeUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("studioCommon");
 
 interface graphNode extends d3.layout.partition.Node {
     name: string;
@@ -63,7 +66,7 @@ class timingsChart {
             .innerRadius(d => Math.sqrt(d.y))
             .outerRadius(d => Math.sqrt(d.y + d.dy));
         
-        const json = this.convertHierarchy("Total", data);
+        const json = this.convertHierarchy(t("timings.total"), data);
         this.rootNode(json);
 
         this.totalSize = data.DurationInMs;
@@ -82,7 +85,7 @@ class timingsChart {
         this.levelName = this.vis
             .append("svg:text")
             .attr("class", "levelName")
-            .text("Total")
+            .text(t("timings.total"))
             .attr("y", 30);
 
         this.levelDuration = this.vis.append("svg:text")
@@ -107,7 +110,7 @@ class timingsChart {
             .on("mouseleave", () => this.mouseleave());
         
         this.levelDuration
-            .text(this.totalSize.toLocaleString() + " ms");
+            .text(t("timings.duration", { duration: this.totalSize.toLocaleString() }));
     }
     
     getColorClass(item: string) {
@@ -124,7 +127,7 @@ class timingsChart {
             .text(d.name);
         
         this.levelDuration
-            .text(d.duration.toLocaleString() + " ms");
+            .text(t("timings.duration", { duration: d.duration.toLocaleString() }));
         
         const sequenceArray = this.getAncestors(d);
         
@@ -145,10 +148,10 @@ class timingsChart {
         // Restore everything to full opacity when moving off the visualization.
         
         this.levelName
-            .text("Total");
+            .text(t("timings.total"));
         
         this.levelDuration
-            .text(this.totalSize.toLocaleString() + " ms");
+            .text(t("timings.duration", { duration: this.totalSize.toLocaleString() }));
         
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const self = this;

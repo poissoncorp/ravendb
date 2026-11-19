@@ -2,6 +2,7 @@ import { EmptySet } from "components/common/EmptySet";
 import { FormErrorIcon, FormGroup, FormInput } from "components/common/Form";
 import { Icon } from "components/common/Icon";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 import { ArrayPath, FieldArray, FieldPath, FieldValues, useFieldArray, UseFieldArrayProps } from "react-hook-form";
 
 type FormStringValueListProps<
@@ -26,6 +27,7 @@ export default function FormStringValueList<TFieldValues extends FieldValues, TN
     className,
     emptyMessage,
 }: FormStringValueListProps<TFieldValues, TName>) {
+    const t = useStudioTranslation("formFields");
     const fieldArray = useFieldArray({
         control,
         name,
@@ -45,7 +47,7 @@ export default function FormStringValueList<TFieldValues extends FieldValues, TN
             </div>
             {fieldArray.fields.length === 0 ? (
                 <div className="panel-bg-2 p-1 rounded border border-secondary hstack justify-content-center">
-                    <EmptySet compact>{emptyMessage ?? "No values defined."}</EmptySet>
+                    <EmptySet compact>{emptyMessage ?? t("stringValueList.empty")}</EmptySet>
                 </div>
             ) : (
                 <div className="vstack gap-1">

@@ -7,6 +7,7 @@ import { useAppSelector } from "components/store";
 import tasksCommonContent from "models/database/tasks/tasksCommonContent";
 import { useMemo } from "react";
 import { useFormContext } from "react-hook-form";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 type FieldBase = `destinations.${keyof FormDestinations["destinations"]}`;
 
@@ -17,6 +18,7 @@ interface OverrideConfigurationViaExternalScriptToggleProps {
 export default function OverrideConfigurationViaExternalScriptToggle({
     fieldBase,
 }: OverrideConfigurationViaExternalScriptToggleProps) {
+    const t = useStudioTranslation("formDestinations");
     const { control } = useFormContext<FormDestinations>();
 
     const isClusterAdminOrClusterNode = useAppSelector(accessManagerSelectors.isClusterAdminOrClusterNode);
@@ -48,7 +50,7 @@ export default function OverrideConfigurationViaExternalScriptToggle({
                 color="secondary"
                 disabled={isDisabled}
             >
-                Override configuration via external script
+                {t("overrideViaExternalScript")}
             </FormSwitch>
         </ConditionalPopover>
     );

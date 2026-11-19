@@ -4,14 +4,22 @@ import { useAceEditorContext } from "../AceEditorContext";
 import "ace-builds/src-noconflict/ext-beautify";
 import { RefObject } from "react";
 import ReactAce from "react-ace";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 const beautify = ace.require("ace/ext/beautify").beautify;
 
 export default function AceEditorFormatAction() {
     const { aceRef } = useAceEditorContext();
+    const t = useStudioTranslation("aceEditor");
 
     return (
-        <Button variant="link" onClick={() => handleFormat(aceRef)} className="p-0 text-reset" size="sm" title="Format">
+        <Button
+            variant="link"
+            onClick={() => handleFormat(aceRef)}
+            className="p-0 text-reset"
+            size="sm"
+            title={t("actions.format")}
+        >
             <Icon icon="indent" margin="m-0" />
         </Button>
     );

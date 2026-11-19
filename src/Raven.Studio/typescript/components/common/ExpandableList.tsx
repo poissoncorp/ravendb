@@ -1,6 +1,7 @@
 import { Icon } from "components/common/Icon";
 import { ReactNode } from "react";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface ExpandableListRenderProps {
     isExpanded: boolean;
@@ -26,11 +27,13 @@ export default function ExpandableList({
     isExpanded,
     setIsExpanded,
     children,
-    expandLabel = (hiddenCount) => `Show ${hiddenCount} more`,
-    collapseLabel = "Show less",
+    expandLabel,
+    collapseLabel,
     className,
     contentClassName,
 }: ExpandableListProps) {
+    const t = useStudioTranslation("commonComponents");
+
     const toggle = () => {
         setIsExpanded(!isExpanded);
     };
@@ -46,7 +49,11 @@ export default function ExpandableList({
                 <div className="hstack justify-content-center mt-1">
                     <Button variant="link" size="sm" className="p-0" onClick={toggle}>
                         <Icon icon={isExpanded ? "collapse-vertical" : "expand-vertical"} />
-                        {isExpanded ? collapseLabel : expandLabel(hiddenCount)}
+                        {isExpanded
+                            ? (collapseLabel ?? t("showLess"))
+                            : expandLabel
+                              ? expandLabel(hiddenCount)
+                              : t("expandableList.showMore", { count: hiddenCount })}
                     </Button>
                 </div>
             )}

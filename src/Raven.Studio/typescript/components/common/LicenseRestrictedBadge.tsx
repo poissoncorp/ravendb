@@ -6,6 +6,8 @@ import { licenseSelectors } from "./shell/licenseSlice";
 import { Icon } from "components/common/Icon";
 import IconName from "typings/server/icons";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import type { StudioTranslate } from "common/i18n/resources";
 
 export type LicenseBadgeText = "Professional +" | "Enterprise" | "Enterprise AI";
 
@@ -15,10 +17,11 @@ interface LicenseRestrictedBadgeProps {
 }
 
 export default function LicenseRestrictedBadge({ className, licenseRequired }: LicenseRestrictedBadgeProps) {
+    const t = useStudioTranslation("commonComponents");
     const isCloud = useAppSelector(licenseSelectors.statusValue("IsCloud"));
 
     const iconName = getIconName(licenseRequired, isCloud);
-    const popoverMessage = getPopoverMessage(licenseRequired, isCloud);
+    const popoverMessage = getPopoverMessage(licenseRequired, isCloud, t);
 
     const isAiGradient = !isCloud && licenseRequired === "Enterprise AI";
 
@@ -67,18 +70,22 @@ function getIconName(licenseBadgeText: LicenseBadgeText, isCloud: boolean): Icon
     return "building";
 }
 
-function getPopoverMessage(licenseBadgeText: LicenseBadgeText, isCloud: boolean): string {
+function getPopoverMessage(
+    licenseBadgeText: LicenseBadgeText,
+    isCloud: boolean,
+    t: StudioTranslate<"commonComponents">
+): string {
     if (isCloud) {
-        return "Available in the Production plan";
+        return t("licenseRestrictedBadge.productionPlan");
     }
 
     switch (licenseBadgeText) {
         case "Professional +":
-            return "Available from Professional license and above";
+            return t("licenseRestrictedBadge.professionalOrAbove");
         case "Enterprise":
-            return "Available in Enterprise license";
+            return t("licenseRestrictedBadge.enterprise");
         case "Enterprise AI":
-            return "Available in RavenDB AI license";
+            return t("licenseRestrictedBadge.enterpriseAi");
         default:
             return "";
     }

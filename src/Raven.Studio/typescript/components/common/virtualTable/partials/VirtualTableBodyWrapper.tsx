@@ -8,6 +8,7 @@ import Table from "react-bootstrap/Table";
 import { Table as TanstackTable } from "@tanstack/react-table";
 import { Icon } from "components/common/Icon";
 import { ClassNameProps } from "../../../models/common";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 export interface VirtualTableBodyWrapperProps<T> {
     table: TanstackTable<T>;
@@ -38,6 +39,7 @@ export default function VirtualTableBodyWrapper<T>({
     overlay,
     children,
 }: PropsWithChildren<VirtualTableBodyWrapperProps<T>> & ClassNameProps) {
+    const t = useStudioTranslation("virtualTable");
     const [isScrolledFromTop, setIsScrolledFromTop] = useState(false);
 
     const tableHeightInPx = virtualTableUtils.getTableContainerHeightInPx(heightInPx, isPaddingDisabled);
@@ -78,8 +80,8 @@ export default function VirtualTableBodyWrapper<T>({
                     <Button
                         variant="secondary"
                         className="scroll-to-top rounded-pill"
-                        title="Scroll to top"
-                        aria-label="Scroll to top"
+                        title={t("table.scrollToTop")}
+                        aria-label={t("table.scrollToTop")}
                         onClick={() => tableContainerRef.current.scrollTo({ top: 0, behavior: "instant" })}
                     >
                         <Icon icon="arrow-thin-top" margin="m-0" />

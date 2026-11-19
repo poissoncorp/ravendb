@@ -3,6 +3,7 @@ import Button from "react-bootstrap/Button";
 import { Icon } from "components/common/Icon";
 import { AnimatePresence, motion } from "motion/react";
 import { ClassNameProps } from "components/models/common";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 export type SheetSlideDirection = 1 | -1;
 
@@ -60,14 +61,16 @@ interface SheetNavigationButtonsProps {
 }
 
 export function SheetNavigationButtons({ hasPrevious, hasNext, navigate }: SheetNavigationButtonsProps) {
+    const t = useStudioTranslation("splitView");
+
     return (
         <div className="d-flex gap-2">
             <Button className="rounded-pill" variant="secondary" disabled={!hasPrevious} onClick={() => navigate(-1)}>
                 <Icon icon="arrow-thin-left" />
-                Previous
+                {t("navigation.previous")}
             </Button>
             <Button className="rounded-pill" variant="secondary" disabled={!hasNext} onClick={() => navigate(1)}>
-                Next
+                {t("navigation.next")}
                 <Icon icon="arrow-thin-right" margin="ms-1" />
             </Button>
         </div>

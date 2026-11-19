@@ -1,5 +1,8 @@
 ﻿/// <reference path="../../typings/tsd.d.ts" />
 import forge = require("node-forge");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("studioCommon");
 
 class certificateUtils {
     public static readonly certificatePrefix = "-----BEGIN CERTIFICATE-----";
@@ -24,7 +27,7 @@ class certificateUtils {
             bagType: forge.pki.oids.pkcs8ShroudedKeyBag
         });
         if (!keyBags[forge.pki.oids.pkcs8ShroudedKeyBag]?.length) {
-            throw new Error("The provided certificate file does not contain a private key. Please provide a PFX file with a private key.");
+            throw new Error(t("certificate.noPrivateKey"));
         }
 
         const bags = p12.getBags({
@@ -38,7 +41,7 @@ class certificateUtils {
         const pems = certificateUtils.extractCertificatesFromPkcs12(base64EncodedCertificate, password);
         
         if (pems.length > 1) {
-            throw new Error("File contains multiple certificates. Please extract and upload a single certificate.");
+            throw new Error(t("certificate.multipleCertificates"));
         }
         
         return pems.length ? pems[0] : null;

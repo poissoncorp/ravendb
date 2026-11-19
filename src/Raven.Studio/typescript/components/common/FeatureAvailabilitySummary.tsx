@@ -18,6 +18,8 @@ import useBoolean from "components/hooks/useBoolean";
 import Modal from "components/common/Modal";
 import { useStudioTranslation } from "hooks/useStudioTranslation";
 import useUniqueId from "components/hooks/useUniqueId";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import type { StudioTranslate } from "common/i18n/resources";
 
 const ravendbLogo = require("Content/img/ravendb_logo.svg");
 
@@ -53,6 +55,7 @@ interface FeatureAvailabilitySummaryProps {
 
 export function FeatureAvailabilitySummary(props: FeatureAvailabilitySummaryProps) {
     const { data } = props;
+    const t = useStudioTranslation("featureAvailabilitySummary");
 
     const currentLicense = useAppSelector(licenseSelectors.licenseType);
     const isCloud = useAppSelector(licenseSelectors.statusValue("IsCloud"));
@@ -74,11 +77,11 @@ export function FeatureAvailabilitySummary(props: FeatureAvailabilitySummaryProp
         <>
             {currentLicense === "None" && (
                 <RichAlert variant="danger" className="mb-4">
-                    No license detected.
-                    <br />
-                    You are using RavenDB using <strong>AGPL v3 License</strong>.
-                    <br />
-                    Community license feature restrictions are applied.
+                    <StudioTrans
+                        ns="featureAvailabilitySummary"
+                        i18nKey="noLicense"
+                        components={{ br: <br />, strong: <strong /> }}
+                    />
                 </RichAlert>
             )}
             <div className="feature-availability-table">
@@ -107,9 +110,11 @@ export function FeatureAvailabilitySummary(props: FeatureAvailabilitySummaryProp
                                                 message={
                                                     <div className="text-center">
                                                         <div>
-                                                            Developer license enables{" "}
-                                                            <strong>Enterprise License features</strong> but is{" "}
-                                                            <strong>not applicable for commercial use</strong>.
+                                                            <StudioTrans
+                                                                ns="featureAvailabilitySummary"
+                                                                i18nKey="developerInfo"
+                                                                components={{ strong: <strong /> }}
+                                                            />
                                                         </div>
 
                                                         <Button
@@ -118,7 +123,7 @@ export function FeatureAvailabilitySummary(props: FeatureAvailabilitySummaryProp
                                                             href="https://ravendb.net/l/FLDLO4#developer"
                                                             target="_blank"
                                                         >
-                                                            See details <Icon icon="newtab" margin="ms-1" />
+                                                            {t("seeDetails")} <Icon icon="newtab" margin="ms-1" />
                                                         </Button>
                                                     </div>
                                                 }
@@ -166,7 +171,7 @@ export function FeatureAvailabilitySummary(props: FeatureAvailabilitySummaryProp
                                         >
                                             {valueData.footnote ? (
                                                 <div className="position-relative d-inline-block">
-                                                    {formatAvailabilityValue(valueData, column.canBeEnabledInCloud)}
+                                                    {formatAvailabilityValue(valueData, t, column.canBeEnabledInCloud)}
                                                     <FootnoteMark
                                                         footnote={valueData.footnote}
                                                         number={footnoteNumber}
@@ -174,7 +179,7 @@ export function FeatureAvailabilitySummary(props: FeatureAvailabilitySummaryProp
                                                     />
                                                 </div>
                                             ) : (
-                                                formatAvailabilityValue(valueData, column.canBeEnabledInCloud)
+                                                formatAvailabilityValue(valueData, t, column.canBeEnabledInCloud)
                                             )}
                                         </td>
                                     );
@@ -192,7 +197,7 @@ export function FeatureAvailabilitySummary(props: FeatureAvailabilitySummaryProp
                                                 "ai-gradient": licenseType === "EnterpriseAi",
                                             })}
                                         >
-                                            Current
+                                            {t("current")}
                                         </td>
                                     );
                                 }
@@ -224,7 +229,7 @@ export function FeatureAvailabilitySummary(props: FeatureAvailabilitySummaryProp
                         className="btn btn-primary btn-lg rounded-pill px-4"
                     >
                         <Icon icon="license" margin="me-3" />
-                        Get License
+                        {t("getLicense")}
                     </a>
                 </div>
             )}
@@ -422,6 +427,7 @@ function FeatureAvailabilitySummaryModal({
 }: FeatureAvailabilitySummaryProps & { toggleIsOpen: () => void }) {
     const licenseType = useAppSelector(licenseSelectors.licenseType);
     const isQuill = licenseType === "Quill";
+    const t = useStudioTranslation("featureAvailabilitySummary");
 
     return (
         <Modal size="lg" show onHide={toggleIsOpen} contentClassName="modal-border bulge-primary">
@@ -429,16 +435,25 @@ function FeatureAvailabilitySummaryModal({
                 <div>
                     <h3>
                         <Icon icon="license" color="primary" />
-                        {isQuill ? "License features" : "License comparison"}
+                        {t("modalTitle", { context: isQuill ? "quill" : "plans" })}
                     </h3>
                     {licenseType !== "Developer" && licenseType !== "Quill" && (
                         <>
                             <br />
                             <div>
-                                If you are developing, you can test this and many more features with a free{" "}
-                                <a href="https://ravendb.net/license/request/dev" className="text-developer">
-                                    Developer license <Icon icon="newtab" margin="m-0" />
-                                </a>
+                                <StudioTrans
+                                    ns="featureAvailabilitySummary"
+                                    i18nKey="developerLicenseInfo"
+                                    components={{
+                                        a: (
+                                            <a
+                                                href="https://ravendb.net/license/request/dev"
+                                                className="text-developer"
+                                            />
+                                        ),
+                                        icon: <Icon icon="newtab" margin="m-0" />,
+                                    }}
+                                />
                             </div>
                         </>
                     )}
@@ -449,7 +464,7 @@ function FeatureAvailabilitySummaryModal({
             </Modal.Body>
             <Modal.Footer className="hstack gap-2 justify-content-end">
                 <Button variant="link" onClick={toggleIsOpen} className="link-muted">
-                    Close
+                    {t("close")}
                 </Button>
                 {licenseType !== "EnterpriseAi" && licenseType !== "None" && <UpgradeLinkButton />}
             </Modal.Footer>
@@ -461,6 +476,7 @@ function UpgradeLinkButton() {
     const isCloud = useAppSelector(licenseSelectors.statusValue("IsCloud"));
     const cloudPricingLink = "https://cloud.ravendb.net/pricing";
     const isQuill = useAppSelector(licenseSelectors.licenseType) === "Quill";
+    const t = useStudioTranslation("featureAvailabilitySummary");
 
     if (isQuill) {
         return null;
@@ -470,7 +486,7 @@ function UpgradeLinkButton() {
         return (
             <a href={cloudPricingLink} target="_blank" className="btn btn-cloud rounded-pill">
                 <Icon icon="cloud" />
-                Cloud pricing
+                {t("cloudPricing")}
             </a>
         );
     }
@@ -478,12 +494,16 @@ function UpgradeLinkButton() {
     return (
         <a href={appUrl.forAbout()} className="btn btn-primary rounded-pill">
             <Icon icon="license" />
-            See full comparison
+            {t("seeFullComparison")}
         </a>
     );
 }
 
-function formatAvailabilityValue(data: FeatureAvailabilityValueData, canBeEnabledInCloud?: boolean): ReactNode {
+function formatAvailabilityValue(
+    data: FeatureAvailabilityValueData,
+    t: StudioTranslate<"featureAvailabilitySummary">,
+    canBeEnabledInCloud?: boolean
+): ReactNode {
     const value = data.overwrittenValue ?? data.value;
 
     let formattedValue: ReactNode = value;
@@ -495,14 +515,7 @@ function formatAvailabilityValue(data: FeatureAvailabilityValueData, canBeEnable
         if (canBeEnabledInCloud) {
             const cloudOnDemandId = "cloud-on-demand-" + uniqueId();
             return (
-                <OverlayTrigger
-                    placement="top"
-                    overlay={
-                        <Tooltip id={cloudOnDemandId}>
-                            You can enable this feature in RavenDB Cloud Portal or by contacting support.
-                        </Tooltip>
-                    }
-                >
+                <OverlayTrigger placement="top" overlay={<Tooltip id={cloudOnDemandId}>{t("cloudOnDemand")}</Tooltip>}>
                     <div className="d-inline-block">
                         <Icon id={cloudOnDemandId} icon="upgrade-arrow" margin="m-0" color="success" />
                     </div>
@@ -528,7 +541,7 @@ function formatAvailabilityValue(data: FeatureAvailabilityValueData, canBeEnable
                 {formattedValue}
                 <PopoverWithHoverWrapper
                     wrapperClassName="overwritten-mark"
-                    message={`Default value for your license is ${data.value.toString()}.`}
+                    message={t("defaultValue", { value: data.value.toString() })}
                 >
                     <Icon id={id} icon="info" color="info" margin="m-0" />
                 </PopoverWithHoverWrapper>

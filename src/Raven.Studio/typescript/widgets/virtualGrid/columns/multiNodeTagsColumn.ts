@@ -3,6 +3,9 @@
 import virtualGridController = require("widgets/virtualGrid/virtualGridController");
 import virtualColumn = require("widgets/virtualGrid/columns/virtualColumn");
 import generalUtils = require("common/generalUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("virtualGrid");
 
 class multiNodeTagsColumn<T extends object> implements virtualColumn {
     private readonly nodeHrefAccessor: (item: T, nodeTag: string) => string;
@@ -25,7 +28,7 @@ class multiNodeTagsColumn<T extends object> implements virtualColumn {
         return false;
     }
 
-    header = `<div>Nodes</div>`;
+    header = `<div>${generalUtils.escapeHtml(t("columns.nodes"))}</div>`;
 
     get headerAsText() {
         return this.header;

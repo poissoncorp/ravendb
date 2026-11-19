@@ -3,6 +3,9 @@ import BackupInfo = Raven.Client.ServerWide.Operations.BackupInfo;
 import moment from "moment";
 import genUtils from "common/generalUtils";
 import { locationAwareLoadableData } from "components/models/common";
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("infra");
 
 export default class DatabaseUtils {
     static formatName(name: string) {
@@ -10,7 +13,10 @@ export default class DatabaseUtils {
             return name;
         }
 
-        return DatabaseUtils.shardGroupKey(name) + " (shard #" + DatabaseUtils.shardNumber(name) + ")";
+        return t("database.nameWithShard", {
+            name: DatabaseUtils.shardGroupKey(name),
+            shardNumber: DatabaseUtils.shardNumber(name),
+        });
     }
 
     static formatNameForFile(databaseName: string, location?: databaseLocationSpecifier) {
@@ -130,7 +136,7 @@ export default class DatabaseUtils {
         if (!backupInfo || !backupInfo.LastBackup) {
             return {
                 color: "danger",
-                text: "Never backed up",
+                text: t("database.neverBackedUp"),
             };
         }
 
@@ -140,7 +146,7 @@ export default class DatabaseUtils {
 
         const backupDate = genUtils.formatDurationByDate(dateInUtc, true);
 
-        const text = `Backed up ${backupDate}`;
+        const text = t("database.backedUp", { backupDate });
 
         return {
             text,

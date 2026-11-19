@@ -3,6 +3,7 @@ import InputGroup from "react-bootstrap/InputGroup";
 import { FormInput, FormLabel } from "components/common/Form";
 import { useFormContext } from "react-hook-form";
 import { BackupConfigurationScript, FormDestinations } from "./utils/formDestinationsTypes";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 type FieldBase = `destinations.${keyof FormDestinations["destinations"]}`;
 
@@ -11,41 +12,42 @@ interface OverrideConfigurationProps {
 }
 
 const OverrideConfiguration = ({ fieldBase }: OverrideConfigurationProps) => {
+    const t = useStudioTranslation("formDestinations");
     const { control } = useFormContext<FormDestinations>();
 
     return (
         <div className="vstack gap-3 mt-2">
             <div className="mb-2">
-                <FormLabel>Exec</FormLabel>
+                <FormLabel>{t("overrideConfig.execLabel")}</FormLabel>
                 <FormInput
                     name={getName(fieldBase, "exec")}
                     control={control}
-                    placeholder="Path to executable"
+                    placeholder={t("overrideConfig.execPlaceholder")}
                     type="text"
                     autoComplete="off"
                 />
             </div>
             <div className="mb-2">
-                <FormLabel>Arguments</FormLabel>
+                <FormLabel>{t("overrideConfig.argumentsLabel")}</FormLabel>
                 <FormInput
                     type="text"
                     name={getName(fieldBase, "arguments")}
                     control={control}
-                    placeholder="Command line arguments passed to exec"
+                    placeholder={t("overrideConfig.argumentsPlaceholder")}
                     autoComplete="off"
                 />
             </div>
             <div>
-                <FormLabel>Timeout</FormLabel>
+                <FormLabel>{t("overrideConfig.timeoutLabel")}</FormLabel>
                 <InputGroup>
                     <FormInput
                         name={getName(fieldBase, "timeoutInMs")}
                         control={control}
-                        placeholder="10000 (default)"
+                        placeholder={t("overrideConfig.timeoutPlaceholder")}
                         type="number"
                         autoComplete="off"
                     />
-                    <InputGroup.Text>ms</InputGroup.Text>
+                    <InputGroup.Text>{t("overrideConfig.timeoutUnit")}</InputGroup.Text>
                 </InputGroup>
             </div>
         </div>

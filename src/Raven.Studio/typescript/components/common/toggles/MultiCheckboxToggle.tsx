@@ -6,6 +6,7 @@ import { InputItem } from "components/models/common";
 import { Icon } from "../Icon";
 import Button from "react-bootstrap/Button";
 import ToggleItemLabel from "components/common/toggles/partials/ToggleItemLabel";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 interface MultiCheckboxToggleProps<T extends string | number = string> {
     inputItems: InputItem<T>[];
@@ -28,6 +29,7 @@ export function MultiCheckboxToggle<T extends string | number = string>({
     className,
     label,
 }: MultiCheckboxToggleProps<T>) {
+    const t = useStudioTranslation("toggles");
     const uniqueId = useUniqueId("multi-checkbox-toggle");
 
     const {
@@ -71,7 +73,7 @@ export function MultiCheckboxToggle<T extends string | number = string>({
                             className={classNames("multi-toggle-button", { "clear-selected": !isSelectedAll })}
                             size="sm"
                             onClick={onChangeSelectAll}
-                            title="Toggle all"
+                            title={t("toggleAll")}
                         >
                             <div className="label-span">
                                 <div className="label-select-all">

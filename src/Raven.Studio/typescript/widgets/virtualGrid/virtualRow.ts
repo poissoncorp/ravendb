@@ -1,5 +1,8 @@
 ﻿/// <reference path="../../../typings/tsd.d.ts"/>
 import virtualColumn = require("widgets/virtualGrid/columns/virtualColumn");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("virtualGrid");
 
 /**
  * A virtual row. Contains an element displayed as a row in the grid. Gets recycled as the grid scrolls in order to create and manage fewer elements.
@@ -48,7 +51,7 @@ class virtualRow {
     }
 
     dataLoadError() {
-        this.element.text(`Unable to load data`);
+        this.element.text(t("row.loadError"));
     }
 
     populate(item: object | null, rowIndex: number, isSelected: boolean, columns: virtualColumn[], sortColumnIndex: number, customRowClasses: string[] = []) {

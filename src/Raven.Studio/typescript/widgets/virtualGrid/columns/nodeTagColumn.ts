@@ -2,6 +2,10 @@
 
 import virtualGridController = require("widgets/virtualGrid/virtualGridController");
 import hyperlinkColumn = require("widgets/virtualGrid/columns/hyperlinkColumn");
+import generalUtils = require("common/generalUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("virtualGrid");
 
 class nodeTagColumn<T extends { nodeTag: string, noData: boolean }> extends hyperlinkColumn<T> {
 
@@ -9,7 +13,7 @@ class nodeTagColumn<T extends { nodeTag: string, noData: boolean }> extends hype
     
     constructor(gridController: virtualGridController<any>, 
                 hrefProvider: (item: T) => { url: string; openInNewTab: boolean; noData: boolean; targetDescription?: string }) {
-        super(gridController, item => this.valueProvider(item), item => hrefProvider(item).url, "Node", "70px", {
+        super(gridController, item => this.valueProvider(item), item => hrefProvider(item).url, t("columns.node"), "70px", {
             useRawValue: () => true,
             openInNewTab: item => hrefProvider(item).openInNewTab
         });
@@ -25,7 +29,7 @@ class nodeTagColumn<T extends { nodeTag: string, noData: boolean }> extends hype
         }
 
         const description = this.hrefProvider(item).targetDescription;
-        const titleText = description ? `Go to ${description} on node ${nodeTag}` : "";
+        const titleText = description ? generalUtils.escapeHtml(t("cell.goToNode", { description, nodeTag })) : "";
         
         const nodeDataClass = item.noData ? "no-data" : `node-${nodeTag}`
 

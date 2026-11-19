@@ -3,6 +3,7 @@ import { NodeSet, NodeSetItem, NodeSetLabel, NodeSetList } from "./NodeSet";
 import { Icon } from "./Icon";
 import { Radio } from "./Checkbox";
 import { FormLabel } from "components/common/Form";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface SingleDatabaseLocationSelectorProps {
     locations: databaseLocationSpecifier[];
@@ -12,6 +13,7 @@ interface SingleDatabaseLocationSelectorProps {
 
 export function SingleDatabaseLocationSelector(props: SingleDatabaseLocationSelectorProps) {
     const { locations, selectedLocation, setSelectedLocation } = props;
+    const t = useStudioTranslation("commonComponents");
     const [uniqId] = useState(() => _.uniqueId("single-location-selector-"));
 
     const uniqueNodeTags = [...new Set(locations.map((x) => x.nodeTag))];
@@ -28,7 +30,11 @@ export function SingleDatabaseLocationSelector(props: SingleDatabaseLocationSele
                                 return (
                                     <NodeSetItem key={locationId}>
                                         <FormLabel htmlFor={locationId}>
-                                            <Icon icon="node" color="node" title={"Node " + location.nodeTag} />
+                                            <Icon
+                                                icon="node"
+                                                color="node"
+                                                title={t("location.node", { nodeTag: location.nodeTag })}
+                                            />
                                             {location.nodeTag}
                                             <div className="d-flex justify-content-center">
                                                 <Radio
@@ -52,7 +58,7 @@ export function SingleDatabaseLocationSelector(props: SingleDatabaseLocationSele
                         return (
                             <div key={nodeId}>
                                 <NodeSet className="my-1">
-                                    <NodeSetLabel color="node" icon="node" title={"Node " + nodeTag}>
+                                    <NodeSetLabel color="node" icon="node" title={t("location.node", { nodeTag })}>
                                         {nodeTag}
                                     </NodeSetLabel>
                                     <div className="node-set-separator" />
@@ -65,7 +71,9 @@ export function SingleDatabaseLocationSelector(props: SingleDatabaseLocationSele
                                                     <NodeSetItem key={shardId} color="shard">
                                                         <FormLabel
                                                             htmlFor={shardId}
-                                                            title={"Shard " + location.shardNumber}
+                                                            title={t("location.shard", {
+                                                                shardNumber: location.shardNumber,
+                                                            })}
                                                         >
                                                             <Icon icon="shard" color="shard" /> {location.shardNumber}
                                                             <div className="d-flex justify-content-center">

@@ -5,6 +5,9 @@ import generalUtils = require("common/generalUtils");
 import virtualGridController = require("widgets/virtualGrid/virtualGridController");
 import timeSeriesQueryResult = require("models/database/timeSeries/timeSeriesQueryResult");
 import document = require("models/database/documents/document");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("virtualGrid");
 
 /**
  * Virtual grid column that renders time series.
@@ -89,42 +92,43 @@ class timeSeriesColumn<T extends document> extends textColumn<T> {
             
             const resultType = model.detectResultType();
             
+            const notAvailable = generalUtils.escapeHtml(t("timeSeries.notAvailable"));
             const dateRange = startDate && endDate
                 ? generalUtils.formatUtcDateAsLocal(startDate, generalUtils.basicDateFormat) + " - " + generalUtils.formatUtcDateAsLocal(endDate, generalUtils.basicDateFormat)
-                : "N/A";
+                : notAvailable;
                 
             const dateRangeTooltip = startDate && endDate
                 ? generalUtils.formatUtcDateAsLocal(startDate, generalUtils.dateFormat) + " - " + generalUtils.formatUtcDateAsLocal(endDate, generalUtils.dateFormat)
-                : "N/A";
+                : notAvailable;
 
-            const tsInfo = `<i title="Time Series" class="icon-timeseries margin-right"></i>`
-                + `<div class="ts-group-property" data-label="Points">${model.getCount().toLocaleString()}</div>`
-                + (resultType === "grouped" ? `<div class="ts-group-property" data-label="Buckets">${model.getBucketCount().toLocaleString()}</div>` : "")
-                + `<div class="ts-group-property date-range" data-label="Date Range" title="${dateRangeTooltip}">${dateRange}</div>`
+            const tsInfo = `<i title="${generalUtils.escapeHtml(t("timeSeries.iconTitle"))}" class="icon-timeseries margin-right"></i>`
+                + `<div class="ts-group-property" data-label="${generalUtils.escapeHtml(t("timeSeries.points"))}">${model.getCount().toLocaleString()}</div>`
+                + (resultType === "grouped" ? `<div class="ts-group-property" data-label="${generalUtils.escapeHtml(t("timeSeries.buckets"))}">${model.getBucketCount().toLocaleString()}</div>` : "")
+                + `<div class="ts-group-property date-range" data-label="${generalUtils.escapeHtml(t("timeSeries.dateRange"))}" title="${dateRangeTooltip}">${dateRange}</div>`
             ;
             
-            let plotButtonTitle = "Plot time series graph";
+            let plotButtonTitle = t("timeSeries.plotTitle");
             if (!model.getCount()) {
-                plotButtonTitle = "No data to plot";
+                plotButtonTitle = t("timeSeries.plotTitle", { context: "noData" });
             } else if (model.queryHasGroupByTag) {
-                plotButtonTitle = "Graph is available only when time series data is not grouped by 'tag'";
+                plotButtonTitle = t("timeSeries.plotTitle", { context: "groupedByTag" });
             }
 
             const plotButtonExtra = model.getCount() > 0 && !model.queryHasGroupByTag ? `` : ` disabled="disabled" `;
             const plotButton = this.handler 
-                ? `<button title="${plotButtonTitle}" ${plotButtonExtra} class="btn btn-default btn-sm" ${customPlotAction}><i class="icon-graph"></i></button>`
+                ? `<button title="${generalUtils.escapeHtml(plotButtonTitle)}" ${plotButtonExtra} class="btn btn-default btn-sm" ${customPlotAction}><i class="icon-graph"></i></button>`
                 : "";
 
             const previewButtonExtra = model.getCount() > 0 ? `` : ` disabled="disabled" `;
             const previewButton = this.handler 
-                ? `<button title="Show time series values" ${previewButtonExtra} class="btn btn-default btn-sm" ${customPreviewAction}><i class="icon-table"></i></button>`
+                ? `<button title="${generalUtils.escapeHtml(t("timeSeries.showValues"))}" ${previewButtonExtra} class="btn btn-default btn-sm" ${customPreviewAction}><i class="icon-table"></i></button>`
                 : "";
             
             const separator = `<div class="flex-separator"></div>`;
             const valueContainer = `<div class="flex-horizontal">${tsInfo}${separator}${previewButton}&nbsp;${plotButton}</div>`;
             return `<div  ${titleHtml} class="cell text-cell flex-horizontal ${preparedValue.typeCssClass} ${extraCssClasses}" style="width: ${this.width}">${valueContainer}</div>`;
         } catch (error) {
-            return `<div class="cell text-cell eval-error ${extraCssClasses}" style="width: ${this.width}">Error!</div>`;
+            return `<div class="cell text-cell eval-error ${extraCssClasses}" style="width: ${this.width}">${generalUtils.escapeHtml(t("cell.error"))}</div>`;
         }
     }
 

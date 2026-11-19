@@ -4,21 +4,24 @@ import virtualGrid = require("widgets/virtualGrid/virtualGrid");
 import copyToClipboard = require("common/copyToClipboard");
 import generalUtils = require("common/generalUtils");
 import moment = require("moment");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("virtualGrid");
 
 
 class copyFeature implements columnPreviewFeature {
     install($tooltip: JQuery, valueProvider: () => any, elementProvider: () => any, containerSelector: string) {
         $tooltip.on("click", ".copy", () => {
-            copyToClipboard.copy(valueProvider(), "Item has been copied to clipboard", document.querySelector(containerSelector));
+            copyToClipboard.copy(valueProvider(), t("preview.copiedMessage"), document.querySelector(containerSelector));
 
             $(".copy", $tooltip).addClass("btn-success");
             $(".copy span", $tooltip)
-                .html("Copied!")
+                .text(t("preview.copied"))
         });
     }
     
     syntax() {
-        return '<button class="btn btn-default btn-sm copy"><i class="icon-copy"></i><span>Copy to clipboard</span></button>';
+        return '<button class="btn btn-default btn-sm copy"><i class="icon-copy"></i><span>' + generalUtils.escapeHtml(t("preview.copyToClipboard")) + '</span></button>';
     }
 }
 
@@ -57,11 +60,11 @@ class columnPreviewPlugin<T extends object> {
             
             return `<div class="data-container">
                         <div>
-                            <div class="data-label">${isUtc ? "UTC" : "Local"}: </div>
+                            <div class="data-label">${generalUtils.escapeHtml(t("preview.dateLabel", { context: isUtc ? "utc" : "local" }))} </div>
                             <div class="data-value">${dateFormatted}</div>
                         </div>
                         <div>
-                            <div class="data-label">Relative: </div>
+                            <div class="data-label">${generalUtils.escapeHtml(t("preview.relative"))} </div>
                             <div class="data-value">${fullDuration}</div>
                         </div>
                     </div>` + featuresSyntax;

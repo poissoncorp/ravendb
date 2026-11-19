@@ -1,6 +1,9 @@
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import ClientConfigurationUtils from "./ClientConfigurationUtils";
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("clientConfigurationCommon");
 
 const schema = yup
     .object({
@@ -10,7 +13,7 @@ const schema = yup
             .string()
             .nullable()
             .length(1)
-            .matches(/[^|]/, { message: "Identity parts separator cannot be set to '|'" })
+            .matches(/[^|]/, { message: () => t("validation.identityPartsSeparatorPipe") })
             .when("identityPartsSeparatorEnabled", {
                 is: true,
                 then: (schema) => schema.required(),

@@ -5,6 +5,9 @@ import generalUtils = require("common/generalUtils");
 import popoverUtils = require("common/popoverUtils");
 import moment = require("moment");
 import cronstrue = require("cronstrue");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("cronEditor");
 
 type cronPeriod = "minute" | "hour" | "day" | "week" | "month" | "year" | "custom";
 
@@ -45,10 +48,12 @@ class cronEditor {
     monthLabel = ko.pureComputed(() => cronEditor.months.find(x => x.value === this.month()).label);
     dayOfWeekLabel = ko.pureComputed(() => cronEditor.daysOfWeek.find(x => x.value === this.dayOfWeek()).label);
     hourLabel = ko.pureComputed(() => cronEditor.hours.find(x => x.value === this.hour()).label);
+    periodLabel = ko.pureComputed(() => this.getPeriodLabel(this.period()));
     
     humanReadable: KnockoutComputed<string>;
     parsingError = ko.observable<string>();
-    nextOccurrenceServerTime = ko.observable<string>("N/A");
+    notAvailable = t("notAvailable");
+    nextOccurrenceServerTime = ko.observable<string>(this.notAvailable);
     nextOccurrenceLocalTime = ko.observable<string>();
     nextInterval = ko.observable<string>();
     canDisplayNextOccurrenceLocalTime: KnockoutComputed<boolean>;
@@ -76,6 +81,10 @@ class cronEditor {
         this.initObservables();
     }
     
+    getPeriodLabel(period: cronPeriod) {
+        return t("period", { context: period });
+    }
+
     attached(view: HTMLElement) {
         this.initTooltip(view);
     }
@@ -185,16 +194,21 @@ class cronEditor {
             {
                 content:
                     "<div class='schedule-info-text'>" +
-                    "Backup schedule is defined by a cron expression that can represent fixed times, dates, or intervals.<br/>" +
-                    "We support cron expressions which consist of 5 <span style='color: #B9F4B7'>Fields</span>.<br/>" +
-                    "Each field can contain any of the following <span style='color: #f9d291'>Values</span> along with " +
-                    "various combinations of <span style='color: white'>Special Characters</span> for that field.<br/>" +
+                    t("scheduleInfo.definition") + "<br/>" +
+                    t("scheduleInfo.fields")
+                        .replace("<fields>", "<span style='color: #B9F4B7'>")
+                        .replace("</fields>", "</span>") + "<br/>" +
+                    t("scheduleInfo.values")
+                        .replace("<values>", "<span style='color: #f9d291'>")
+                        .replace("</values>", "</span>")
+                        .replace("<special>", "<span style='color: white'>")
+                        .replace("</special>", "</span>") + "<br/>" +
                     "<pre>" +
-                    "+----------------> minute (<span class='values'>0 - 59</span>) (<span class='special-characters'>, - * /</span>)<br/>" +
-                    "|  +-------------> hour (<span class='values'>0 - 23</span>) (<span class='special-characters'>, - * /</span>)<br/>" +
-                    "|  |  +----------> day of month (<span class='values'>1 - 31</span>) (<span class='special-characters'>, - * ? / L W</span>)<br/>" +
-                    "|  |  |  +-------> month (<span class='values'>1-12 or JAN-DEC</span>) (<span class='special-characters'>, - * /</span>)<br/>" +
-                    "|  |  |  |  +----> day of week (<span class='values'>0-6 or SUN-SAT</span>) (<span class='special-characters'>, - * ? / L #</span>)<br/>" +
+                    `+----------------> ${t("scheduleInfo.minute")} (<span class='values'>0 - 59</span>) (<span class='special-characters'>, - * /</span>)<br/>` +
+                    `|  +-------------> ${t("scheduleInfo.hour")} (<span class='values'>0 - 23</span>) (<span class='special-characters'>, - * /</span>)<br/>` +
+                    `|  |  +----------> ${t("scheduleInfo.dayOfMonth")} (<span class='values'>1 - 31</span>) (<span class='special-characters'>, - * ? / L W</span>)<br/>` +
+                    `|  |  |  +-------> ${t("scheduleInfo.month")} (<span class='values'>${t("scheduleInfo.monthValues")}</span>) (<span class='special-characters'>, - * /</span>)<br/>` +
+                    `|  |  |  |  +----> ${t("scheduleInfo.dayOfWeek")} (<span class='values'>${t("scheduleInfo.dayOfWeekValues")}</span>) (<span class='special-characters'>, - * ? / L #</span>)<br/>` +
                     "|  |  |  |  |<br/>" +
                     "<span style='color: #B9F4B7'>" +
                     "<small><i class='icon-star-filled'></i></small>&nbsp;" +
@@ -203,7 +217,8 @@ class cronEditor {
                     "<small><i class='icon-star-filled'></i></small>&nbsp;" +
                     "<small><i class='icon-star-filled'></i></small>" +
                     "</span></pre><br/>" +
-                    "For more information see: <a href='https://ravendb.net/l/X6IBEZ' target='_blank'>CronTrigger Tutorial</a></div>"
+                    t("scheduleInfo.moreInfo").replace("<a>", "<a href='https://ravendb.net/l/X6IBEZ' target='_blank'>") +
+                    "</div>"
             });
     }
     
@@ -211,7 +226,7 @@ class cronEditor {
         const cronExpression = this.targetField();
 
         if (this.parsingError() || !cronExpression) {
-            this.nextOccurrenceServerTime("N/A");
+            this.nextOccurrenceServerTime(this.notAvailable);
             this.nextOccurrenceLocalTime("");
             this.nextInterval("");
             return;
@@ -229,7 +244,7 @@ class cronEditor {
                     this.nextOccurrenceLocalTime(nextOccurrenceUtc.local().format(dateFormat));
 
                     if (nextOccurrenceUtc.isBefore(nowUtc)) {
-                        this.nextInterval("will run on save");
+                        this.nextInterval(t("willRunOnSave"));
                     } else {
                         const fromDuration = generalUtils.formatDurationByDate(nextOccurrenceUtc, true);
                         this.nextInterval(`${fromDuration}`);
@@ -237,7 +252,7 @@ class cronEditor {
 
                     this.parsingError(null);
                 } else {
-                    this.nextOccurrenceServerTime("N/A");
+                    this.nextOccurrenceServerTime(this.notAvailable);
                     this.nextOccurrenceLocalTime("");
                     this.nextInterval("");
                     this.parsingError(result.ErrorMessage);
@@ -249,33 +264,30 @@ class cronEditor {
                                     parsingError: KnockoutObservable<string>): string {
         if (!frequency) {
             parsingError(null);
-            return "N/A";
+            return t("notAvailable");
         }
 
         const frequencySplit = frequency.trim().replace(/ +(?= )/g, "").split(" ");
         if (frequencySplit.length < 5) {
-            parsingError(`Expression has only ${frequencySplit.length} part` +
-                `${frequencySplit.length === 1 ? "" : "s"}. ` +
-                "Exactly 5 parts are required!");
-            return "N/A";
+            parsingError(t("errors.tooFewParts", { count: frequencySplit.length }));
+            return t("notAvailable");
         } else if (frequencySplit.length > 5) {
-            parsingError(`Expression has ${frequencySplit.length} parts.` +
-                "Exactly 5 parts are required!");
-            return "N/A";
+            parsingError(t("errors.tooManyParts", { count: frequencySplit.length }));
+            return t("notAvailable");
         }
 
         try {
             const result = cronstrue.toString(frequency.toUpperCase());
             if (result.includes("undefined")) {
-                parsingError("Invalid cron expression!");
-                return "N/A";
+                parsingError(t("errors.invalidExpression"));
+                return t("notAvailable");
             }
 
             parsingError(null);
             return result;
         } catch (error) {
             parsingError(error);
-            return "N/A";
+            return t("notAvailable");
         }
     }
     
@@ -312,7 +324,9 @@ for (let i = 0; i < 24; i++) {
     const hour = i % 12;
     
     cronEditor.hours.push({
-        label: (hour || "12") + " " + (i < 12 ? "AM":"PM"),
+        get label() {
+            return t("hour", { hour: hour || "12", context: i < 12 ? "am" : "pm" });
+        },
         value: i.toString()
     });
 }
@@ -321,18 +335,27 @@ for (let i = 1; i <= 31; i++) {
     cronEditor.daysOfMonth.push(i);
 }
 
-["January", "February", "March", "April",
-    "May", "June", "July", "August",
-    "September", "October", "November", "December"].forEach((month, idx) => {
+([
+    "months.january", "months.february", "months.march", "months.april",
+    "months.may", "months.june", "months.july", "months.august",
+    "months.september", "months.october", "months.november", "months.december"
+] as const).forEach((monthKey, idx) => {
     cronEditor.months.push({
-        label: month,
+        get label() {
+            return t(monthKey);
+        },
         value: (idx + 1).toString()
     });  
 });
 
-["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].forEach((dayOfWeek, idx) => {
+([
+    "daysOfWeek.sunday", "daysOfWeek.monday", "daysOfWeek.tuesday", "daysOfWeek.wednesday",
+    "daysOfWeek.thursday", "daysOfWeek.friday", "daysOfWeek.saturday"
+] as const).forEach((dayOfWeekKey, idx) => {
     cronEditor.daysOfWeek.push({
-        label: dayOfWeek,
+        get label() {
+            return t(dayOfWeekKey);
+        },
         value: idx.toString()
     });
 })

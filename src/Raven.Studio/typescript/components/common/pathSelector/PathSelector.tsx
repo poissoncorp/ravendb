@@ -12,6 +12,7 @@ import Button from "react-bootstrap/Button";
 import { HrHeader } from "components/common/HrHeader";
 import Modal from "components/common/Modal";
 import FormGroup from "react-bootstrap/FormGroup";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 export interface PathSelectorStateRef {
     toggle: () => void;
@@ -42,6 +43,8 @@ export default function PathSelector<ParamsType extends unknown[] = unknown[]>(p
         disabled,
         stateRef,
     } = props;
+    const t = useStudioTranslation("pathSelector");
+    const tCommon = useStudioTranslation("common");
 
     const { value: isModalOpen, toggle: toggleIsModalOpen } = useBoolean(false);
     const [pathInput, setPathInput] = useState(defaultPath || "");
@@ -118,7 +121,7 @@ export default function PathSelector<ParamsType extends unknown[] = unknown[]>(p
                 variant="link"
                 onClick={toggleIsModalOpen}
                 disabled={disabled}
-                title={selectorTitle || "Select path"}
+                title={selectorTitle || t("title")}
                 className={buttonClassName}
             >
                 <Icon icon="folder" margin="m-0" />
@@ -126,7 +129,7 @@ export default function PathSelector<ParamsType extends unknown[] = unknown[]>(p
             {isModalOpen && (
                 <Modal show onHide={toggleIsModalOpen}>
                     <Modal.Header onCloseClick={toggleIsModalOpen} className="pb-0">
-                        <h3>{selectorTitle || "Select path"}</h3>
+                        <h3>{selectorTitle || t("title")}</h3>
                     </Modal.Header>
                     <Modal.Body className="pt-0 mt-0">
                         <HrHeader margin="mt-1 mb-2" />
@@ -137,7 +140,7 @@ export default function PathSelector<ParamsType extends unknown[] = unknown[]>(p
                                     className="btn-link text-info p-0 border-0"
                                     onClick={() => setPathInput("")}
                                 >
-                                    Computer
+                                    {t("computer")}
                                 </Button>
                                 <span className="mx-1">&gt;</span>
                                 {pathParts
@@ -159,7 +162,7 @@ export default function PathSelector<ParamsType extends unknown[] = unknown[]>(p
                                     variant="link"
                                     className="btn-link"
                                     onClick={() => setPathInput(parentDir)}
-                                    title="Go back"
+                                    title={t("goBack")}
                                 >
                                     <Icon icon="arrow-left" />
                                 </Button>
@@ -181,7 +184,7 @@ export default function PathSelector<ParamsType extends unknown[] = unknown[]>(p
                         </div>
 
                         <FormGroup controlId="path-selector-input" className="mt-2 mb-3">
-                            <Form.Label>Path</Form.Label>
+                            <Form.Label>{t("pathLabel")}</Form.Label>
                             <Form.Control
                                 type="text"
                                 value={pathInput}
@@ -191,10 +194,10 @@ export default function PathSelector<ParamsType extends unknown[] = unknown[]>(p
                     </Modal.Body>
                     <Modal.Footer className="hstack gap-2 justify-content-end">
                         <Button variant="secondary" onClick={toggleIsModalOpen}>
-                            Cancel
+                            {tCommon("cancel")}
                         </Button>
                         <Button variant="primary" onClick={handleSelectWithClose} disabled={disabled}>
-                            Select
+                            {t("select")}
                         </Button>
                     </Modal.Footer>
                 </Modal>
@@ -211,16 +214,18 @@ interface PathSelectorListProps {
 }
 
 function PathList({ fetchStatus, paths, pathInput, setPathInput }: PathSelectorListProps) {
+    const t = useStudioTranslation("pathSelector");
+
     if (fetchStatus === "loading") {
         return <PathsLoading />;
     }
 
     if (fetchStatus === "error") {
-        return <LoadError error="Failed to load paths" />;
+        return <LoadError error={t("loadError")} />;
     }
 
     if (paths.length === 0) {
-        return <EmptySet>No results found</EmptySet>;
+        return <EmptySet>{t("noResults")}</EmptySet>;
     }
 
     const handleItemClick = (path: string) => {

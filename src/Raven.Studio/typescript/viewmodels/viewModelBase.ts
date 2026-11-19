@@ -12,6 +12,9 @@ import viewHelpers = require("common/helpers/view/viewHelpers");
 import accessManager = require("common/shell/accessManager");
 import messagePublisher = require("common/messagePublisher");
 import jwerty = require("jwerty");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("viewModelBase");
 
 /*
  * Base view model class that provides basic view model services, such as tracking the active database and providing a means to add keyboard shortcuts.
@@ -87,7 +90,7 @@ abstract class viewModelBase {
           
         if (!canAccessView) {
             const task = $.Deferred<canActivateResultDto>();
-            messagePublisher.reportError("Access is forbidden. Redirecting to databases view.");
+            messagePublisher.reportError(t("accessForbidden"));
             task.resolve({ redirect: appUrl.forDatabases() });
             return task;
         }
@@ -166,10 +169,10 @@ abstract class viewModelBase {
     }
 
     discardStayResult() {
-        const discard = "Discard changes";
-        const stay = "Stay on this page";
+        const discard = t("unsavedChanges.discard");
+        const stay = t("unsavedChanges.stay");
         const discardStayResult = $.Deferred<confirmDialogResult>();
-        const confirmation = this.confirmationMessage("Unsaved changes", "You have unsaved changes. How do you want to proceed?", {
+        const confirmation = this.confirmationMessage(t("unsavedChanges.title"), t("unsavedChanges.message"), {
             buttons: [discard, stay],
             defaultOption: stay,
             forceRejectWithResolve: true
@@ -326,7 +329,7 @@ abstract class viewModelBase {
         const isDirty = this.dirtyFlag().isDirty();
         if (isDirty) {
             
-            const message = "You have unsaved data.";
+            const message = t("unsavedData");
             e = e || window.event;
             
             // For IE and Firefox

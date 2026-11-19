@@ -1,4 +1,7 @@
 ﻿import messagePublisher = require("common/messagePublisher");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("studioCommon");
 
 class copyToClipboard {
     static copy(toCopy: string, successMessage?: string, container: Element = document.body) {
@@ -17,10 +20,10 @@ class copyToClipboard {
                     messagePublisher.reportSuccess(successMessage);
                 }
             } else {
-                messagePublisher.reportWarning("Unable to copy to clipboard");
+                messagePublisher.reportWarning(t("copyToClipboardFailed"));
             }
         } catch (err) {
-            messagePublisher.reportWarning("Unable to copy to clipboard", err);
+            messagePublisher.reportWarning(t("copyToClipboardFailed"), err);
         } finally {
             // Remove it as its not needed anymore
             container.removeChild(dummy);

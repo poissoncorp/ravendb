@@ -1,28 +1,31 @@
 import assertUnreachable from "components/utils/assertUnreachable";
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("infra");
 
 export function getAccessRequiredMessage(requiredAccessLevel: accessLevel) {
     const accessLevelText = getAccessLevelDisplayName(requiredAccessLevel);
-    return `You don't have the required permissions (${accessLevelText} access required)`;
+    return t("access.requiredMessage", { accessLevel: accessLevelText });
 }
 
 export function getAccessLevelDisplayName(accessLevel: accessLevel) {
     switch (accessLevel) {
         case "DatabaseAdmin":
-            return "Database Admin";
+            return t("access.levels.databaseAdmin");
         case "DatabaseReadWrite":
-            return "Database Write";
+            return t("access.levels.databaseReadWrite");
         case "DatabaseRead":
-            return "Database Read";
+            return t("access.levels.databaseRead");
         case "ClusterAdmin":
-            return "Cluster Admin";
+            return t("access.levels.clusterAdmin");
         case "ClusterNode":
-            return "Cluster Node";
+            return t("access.levels.clusterNode");
         case "Operator":
-            return "Operator";
+            return t("access.levels.operator");
         case "ValidUser":
-            return "Valid User";
+            return t("access.levels.validUser");
         case "UnauthenticatedClients":
-            return "Unauthenticated Clients";
+            return t("access.levels.unauthenticatedClients");
         default:
             assertUnreachable(accessLevel);
     }

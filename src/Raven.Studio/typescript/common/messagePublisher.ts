@@ -3,6 +3,9 @@ import toastr = require("toastr");
 import recentError = require("common/notifications/models/recentError");
 import recentLicenseLimitError = require("common/notifications/models/recentLicenseLimitError");
 import generalUtils = require("common/generalUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("studioCommon");
 
 class messagePublisher {
 
@@ -58,7 +61,7 @@ class messagePublisher {
         );
         
         if (error && error.hasDetails()) {
-            const extraHtml = "<br /><small>show details</small>";
+            const extraHtml = "<br /><small>" + generalUtils.escapeHtml(t("showDetails")) + "</small>";
             message = message ? message + extraHtml : extraHtml;
         }
         

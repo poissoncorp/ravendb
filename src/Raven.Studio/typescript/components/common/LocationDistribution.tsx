@@ -3,6 +3,7 @@
 import classNames from "classnames";
 import { LazyLoad } from "./LazyLoad";
 import { Icon } from "./Icon";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 import "./LocationDistribution.scss";
 
@@ -41,6 +42,8 @@ interface ClickableProgressProps {
 }
 
 export function ClickableProgress({ onClick, children }: ClickableProgressProps) {
+    const t = useStudioTranslation("commonComponents");
+
     return (
         <div className="clickable-progress">
             {children}
@@ -51,7 +54,7 @@ export function ClickableProgress({ onClick, children }: ClickableProgressProps)
                 aria-hidden
             >
                 <Icon icon="preview" margin="me-1" />
-                See details
+                {t("locationDistribution.seeDetails")}
             </div>
         </div>
     );

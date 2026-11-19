@@ -1,4 +1,5 @@
 import Button from "react-bootstrap/Button";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface LazyVirtualTableDomLimitBannerProps {
     itemsName: string;
@@ -14,17 +15,14 @@ export default function LazyVirtualTableDomLimitBanner({
     return (
         <div className="floating-bar text-nowrap" data-testid="dom-limit-banner">
             <span>
-                It looks like you&apos;ve reached the end of the DOM.{" "}
-                {canPaginate ? (
-                    <>
-                        <Button variant="link" className="p-0 align-baseline" onClick={onTurnOnPagination}>
-                            Turn on pagination
-                        </Button>{" "}
-                        to fetch more {itemsName}
-                    </>
-                ) : (
-                    <>Use a query to find more {itemsName}</>
-                )}
+                <StudioTrans
+                    ns="virtualTable"
+                    i18nKey="table.domLimit"
+                    components={{
+                        button: <Button variant="link" className="p-0 align-baseline" onClick={onTurnOnPagination} />,
+                    }}
+                    options={{ context: canPaginate ? "canPaginate" : undefined, itemsName }}
+                />
             </span>
         </div>
     );

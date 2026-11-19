@@ -1,6 +1,7 @@
 ﻿import React from "react";
 import { ReactNode } from "react";
 import classNames from "classnames";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 import "./LocationSpecificDetails.scss";
 
@@ -12,18 +13,20 @@ export function LocationSpecificDetails(props: {
     location: databaseLocationSpecifier;
 }) {
     const { children, location } = props;
+    const t = useStudioTranslation("commonComponents");
+
     return (
         <div className="location-specific-details-tooltip">
             <div className="location-specific-details-location">
                 {location.shardNumber != null && (
                     <div className="shard-id">
-                        <div className="small-label">SHARD</div>
-                        <img src={shardImg} alt="Shard Number" /> {location.shardNumber}
+                        <div className="small-label">{t("locationSpecificDetails.shard")}</div>
+                        <img src={shardImg} alt={t("locationSpecificDetails.shardAlt")} /> {location.shardNumber}
                     </div>
                 )}
                 <div className="node-id">
-                    <div className="small-label">NODE</div>
-                    <img src={nodeImg} alt="Node Tag" /> {location.nodeTag}
+                    <div className="small-label">{t("locationSpecificDetails.node")}</div>
+                    <img src={nodeImg} alt={t("locationSpecificDetails.nodeAlt")} /> {location.nodeTag}
                 </div>
             </div>
             {children}

@@ -16,8 +16,11 @@ import { availableS3Regions } from "components/utils/common";
 import PopoverWithHoverWrapper from "../PopoverWithHoverWrapper";
 import { FormLabel } from "components/common/Form";
 import OverrideConfigurationViaExternalScriptToggle from "components/common/formDestinations/OverrideConfigurationViaExternalScriptToggle";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function AmazonS3() {
+    const t = useStudioTranslation("formDestinations");
     const { control, trigger } = useFormContext<FormDestinations>();
     const {
         destinations: { s3: formValues },
@@ -54,7 +57,7 @@ export default function AmazonS3() {
                                         className="w-100"
                                         color="secondary"
                                     >
-                                        Use a custom S3 host
+                                        {t("s3.useCustomHost")}
                                     </FormSwitch>
                                     {formValues.isUseCustomHost && (
                                         <FormSwitch
@@ -64,22 +67,19 @@ export default function AmazonS3() {
                                             color="secondary"
                                         >
                                             <span className="d-flex gap-1 align-items-center">
-                                                Force path style
+                                                {t("s3.forcePathStyle")}
                                                 <PopoverWithHoverWrapper
                                                     message={
-                                                        <>
-                                                            Whether to force path style URLs for S3 objects (e.g.,{" "}
-                                                            <code>
-                                                                https://{`{Server-URL}`}/{`{Bucket-Name}`}
-                                                            </code>{" "}
-                                                            instead of{" "}
-                                                            <code>
-                                                                {`{https://`}
-                                                                {`{Bucket-Name}`}.{`{Server-URL}`}
-                                                                {`}`}
-                                                            </code>
-                                                            )
-                                                        </>
+                                                        <StudioTrans
+                                                            ns="formDestinations"
+                                                            i18nKey="s3.forcePathStyleInfo"
+                                                            components={{ code: <code /> }}
+                                                            options={{
+                                                                pathStyleUrl: "https://{Server-URL}/{Bucket-Name}",
+                                                                virtualHostedUrl:
+                                                                    "{https://{Bucket-Name}.{Server-URL}}",
+                                                            }}
+                                                        />
                                                     }
                                                 >
                                                     <Icon icon="info" color="info" />
@@ -95,9 +95,9 @@ export default function AmazonS3() {
                                             color="secondary"
                                         >
                                             <span className="d-flex gap-1 align-items-center">
-                                                Disable Checksum Validation
+                                                {t("s3.disableChecksumValidation")}
                                                 <PopoverWithHoverWrapper
-                                                    message={<>Disables S3 checksum validation for uploads</>}
+                                                    message={t("s3.disableChecksumValidationInfo")}
                                                 >
                                                     <Icon icon="info" color="info" />
                                                 </PopoverWithHoverWrapper>
@@ -108,11 +108,11 @@ export default function AmazonS3() {
                                 <div className="vstack gap-3 mt-2">
                                     {formValues.isUseCustomHost && (
                                         <div className="mb-2">
-                                            <FormLabel>Custom server URL</FormLabel>
+                                            <FormLabel>{t("s3.customServerUrlLabel")}</FormLabel>
                                             <FormInput
                                                 control={control}
                                                 name={getName("customServerUrl")}
-                                                placeholder="Enter a custom server URL"
+                                                placeholder={t("s3.customServerUrlPlaceholder")}
                                                 type="text"
                                                 autoComplete="off"
                                             />
@@ -120,15 +120,14 @@ export default function AmazonS3() {
                                     )}
                                     <div className="mb-2">
                                         <FormLabel className="d-flex align-items-center gap-1">
-                                            Bucket name
+                                            {t("s3.bucketNameLabel")}
                                             <PopoverWithHoverWrapper
                                                 message={
-                                                    <>
-                                                        Bucket should be created manually in order for this OLAP to
-                                                        work. You can use the{" "}
-                                                        <span className="text-info">Test credentials</span> button to
-                                                        verify its existence.
-                                                    </>
+                                                    <StudioTrans
+                                                        ns="formDestinations"
+                                                        i18nKey="bucketInfo"
+                                                        components={{ span: <span className="text-info" /> }}
+                                                    />
                                                 }
                                             >
                                                 <Icon icon="info" color="info" margin="m-0" />
@@ -136,75 +135,83 @@ export default function AmazonS3() {
                                             {asyncTest.result?.Success ? (
                                                 <Badge bg="success" pill>
                                                     <Icon icon="check" />
-                                                    Successfully connected
+                                                    {t("connection.success")}
                                                 </Badge>
                                             ) : asyncTest.result?.Error ? (
                                                 <Badge bg="danger" pill>
                                                     <Icon icon="warning" />
-                                                    Failed connection
+                                                    {t("connection.failed")}
                                                 </Badge>
                                             ) : null}
                                         </FormLabel>
                                         <FormInput
                                             control={control}
                                             name={getName("bucketName")}
-                                            placeholder="Enter a bucket name"
+                                            placeholder={t("s3.bucketNamePlaceholder")}
                                             type="text"
                                             autoComplete="off"
                                         />
                                     </div>
                                     <div className="mb-2">
                                         <FormLabel>
-                                            Remote folder name <small className="text-muted fw-light">(optional)</small>
+                                            <StudioTrans
+                                                ns="formDestinations"
+                                                i18nKey="remoteFolderName.label"
+                                                components={{ small: <small className="text-muted fw-light" /> }}
+                                            />
                                         </FormLabel>
                                         <FormInput
                                             control={control}
                                             name={getName("remoteFolderName")}
-                                            placeholder="Enter a remote folder name"
+                                            placeholder={t("remoteFolderName.placeholder")}
                                             type="text"
                                             autoComplete="off"
                                         />
                                     </div>
                                     <div className="mb-2">
                                         <FormLabel>
-                                            Region{" "}
-                                            {formValues.isUseCustomHost && (
-                                                <small className="text-muted fw-light">(optional)</small>
-                                            )}
+                                            <StudioTrans
+                                                ns="formDestinations"
+                                                i18nKey="amazon.region"
+                                                components={{ small: <small className="text-muted fw-light" /> }}
+                                                options={{
+                                                    context: formValues.isUseCustomHost ? "optional" : undefined,
+                                                }}
+                                            />
                                         </FormLabel>
                                         {formValues.isUseCustomHost ? (
                                             <FormInput
                                                 type="text"
                                                 control={control}
                                                 name={getName("awsRegionName")}
-                                                placeholder="Enter an AWS region"
+                                                placeholder={t("s3.regionPlaceholder")}
                                                 autoComplete="off"
                                             />
                                         ) : (
                                             <FormSelectCreatable
                                                 name={getName("awsRegionName")}
                                                 control={control}
-                                                placeholder="Select an AWS region (or enter new one)"
+                                                placeholder={t("amazon.regionSelectPlaceholder")}
                                                 options={availableS3Regions}
                                             />
                                         )}
                                     </div>
                                     <div className="mb-2">
-                                        <FormLabel>Access key</FormLabel>
+                                        <FormLabel>{t("amazon.accessKeyLabel")}</FormLabel>
                                         <FormInput
                                             name={getName("awsAccessKey")}
                                             control={control}
-                                            placeholder="Enter an access key"
+                                            placeholder={t("amazon.accessKeyPlaceholder")}
                                             type="text"
                                             autoComplete="off"
                                         />
                                     </div>
                                     <div className="mb-2">
-                                        <FormLabel>Secret key</FormLabel>
+                                        <FormLabel>{t("amazon.secretKeyLabel")}</FormLabel>
                                         <FormInput
                                             name={getName("awsSecretKey")}
                                             control={control}
-                                            placeholder="Enter a secret key"
+                                            placeholder={t("amazon.secretKeyPlaceholder")}
                                             type="password"
                                             passwordPreview
                                             autoComplete="off"
@@ -219,7 +226,7 @@ export default function AmazonS3() {
                                             isSpinning={asyncTest.loading}
                                             icon="rocket"
                                         >
-                                            Test credentials
+                                            {t("connection.testCredentials")}
                                         </ButtonWithSpinner>
                                     </div>
                                 </div>

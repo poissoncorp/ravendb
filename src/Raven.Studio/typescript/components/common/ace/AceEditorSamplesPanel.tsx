@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { Icon } from "components/common/Icon";
 import SamplesTabs from "components/common/samples/SamplesTabs";
 import { SamplesTab } from "components/common/samples/partials/samplesTypes";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export interface AceEditorSamplesPanelConfig {
     tabs: SamplesTab[];
@@ -14,8 +15,16 @@ interface AceEditorSamplesToggleActionProps {
 }
 
 export function AceEditorSamplesToggleAction({ onClick }: AceEditorSamplesToggleActionProps) {
+    const t = useStudioTranslation("aceEditor");
+
     return (
-        <Button size="sm" title="Browse samples" onClick={onClick} className="p-0 text-reset" variant="link">
+        <Button
+            size="sm"
+            title={t("actions.browseSamples")}
+            onClick={onClick}
+            className="p-0 text-reset"
+            variant="link"
+        >
             <Icon icon="help" margin="m-0" />
         </Button>
     );

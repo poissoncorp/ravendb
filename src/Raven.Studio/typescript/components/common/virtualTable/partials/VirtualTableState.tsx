@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import Spinner from "react-bootstrap/Spinner";
 import { EmptySet } from "../../EmptySet";
 import { virtualTableConstants } from "../utils/virtualTableConstants";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 export interface VirtualTableStateProps {
     isLoading: boolean;
@@ -11,7 +12,8 @@ export interface VirtualTableStateProps {
 }
 
 export function VirtualTableState(props: VirtualTableStateProps) {
-    const { isLoading, isEmpty, emptyMessage = "No results", isCompact } = props;
+    const t = useStudioTranslation("virtualTable");
+    const { isLoading, isEmpty, emptyMessage = t("table.noResults"), isCompact } = props;
 
     const headerHeightInPx = isCompact
         ? virtualTableConstants.compactHeaderHeightInPx

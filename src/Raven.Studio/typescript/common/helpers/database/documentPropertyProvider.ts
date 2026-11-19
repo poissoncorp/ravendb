@@ -7,6 +7,9 @@ import getDocumentWithMetadataCommand = require("commands/database/documents/get
 import messagePublisher = require("common/messagePublisher");
 import textColumn = require("widgets/virtualGrid/columns/textColumn");
 import customColumn = require("widgets/virtualGrid/columns/customColumn");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("commonHelpers");
 
 class documentPropertyProvider {
     private fullDocumentsCache = new Map<string, document>();
@@ -67,7 +70,7 @@ class documentPropertyProvider {
                 }
             })
             .fail((response: JQueryXHR) => {
-                messagePublisher.reportError("Failed to fetch document: " + doc.getId(), response.responseText);
+                messagePublisher.reportError(t("documentFetchFailed", { id: doc.getId() }), response.responseText);
             });
     }
 

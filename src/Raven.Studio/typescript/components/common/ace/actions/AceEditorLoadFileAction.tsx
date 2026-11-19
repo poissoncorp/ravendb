@@ -1,6 +1,7 @@
 import { Icon } from "components/common/Icon";
 import useUniqueId from "components/hooks/useUniqueId";
 import fileImporter from "common/fileImporter";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface AceEditorLoadFileActionProps {
     onLoad: (content: string) => void;
@@ -8,13 +9,14 @@ interface AceEditorLoadFileActionProps {
 
 export default function AceEditorLoadFileAction({ onLoad }: AceEditorLoadFileActionProps) {
     const id = useUniqueId("ace-editor-load-file-action");
+    const t = useStudioTranslation("aceEditor");
 
     return (
         <div className="text-center">
             <label
                 className="btn btn-link btn-xs text-right m-0 p-0 text-reset text-center"
                 htmlFor={id}
-                title="Load from a file"
+                title={t("actions.loadFromFile")}
             >
                 <Icon icon="upload" margin="m-0" />
             </label>

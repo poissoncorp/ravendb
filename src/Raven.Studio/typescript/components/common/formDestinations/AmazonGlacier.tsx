@@ -15,8 +15,11 @@ import ConnectionTestResult from "../connectionTests/ConnectionTestResult";
 import { availableGlacierRegions } from "components/utils/common";
 import PopoverWithHoverWrapper from "../PopoverWithHoverWrapper";
 import OverrideConfigurationViaExternalScriptToggle from "components/common/formDestinations/OverrideConfigurationViaExternalScriptToggle";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function AmazonGlacier() {
+    const t = useStudioTranslation("formDestinations");
     const { control, trigger } = useFormContext<FormDestinations>();
     const {
         destinations: { glacier: formValues },
@@ -48,14 +51,14 @@ export default function AmazonGlacier() {
                             <div className="vstack gap-3 mt-2">
                                 <div className="mb-2">
                                     <FormLabel className="d-flex align-items-center gap-1">
-                                        Vault name
+                                        {t("glacier.vaultNameLabel")}
                                         <PopoverWithHoverWrapper
                                             message={
-                                                <>
-                                                    Vault should be created manually in order for this OLAP to work. You
-                                                    can use the <span className="text-info">Test credentials</span>{" "}
-                                                    button to verify its existence.
-                                                </>
+                                                <StudioTrans
+                                                    ns="formDestinations"
+                                                    i18nKey="glacier.vaultNameInfo"
+                                                    components={{ span: <span className="text-info" /> }}
+                                                />
                                             }
                                         >
                                             <Icon icon="info" color="info" margin="m-0" />
@@ -63,60 +66,64 @@ export default function AmazonGlacier() {
                                         {asyncTest.result?.Success ? (
                                             <Badge bg="success" pill>
                                                 <Icon icon="check" />
-                                                Successfully connected
+                                                {t("connection.success")}
                                             </Badge>
                                         ) : asyncTest.result?.Error ? (
                                             <Badge bg="danger" pill>
                                                 <Icon icon="warning" />
-                                                Failed connection
+                                                {t("connection.failed")}
                                             </Badge>
                                         ) : null}
                                     </FormLabel>
                                     <FormInput
                                         name={getName("vaultName")}
                                         control={control}
-                                        placeholder="Enter a vault name"
+                                        placeholder={t("glacier.vaultNamePlaceholder")}
                                         type="text"
                                         autoComplete="off"
                                     />
                                 </div>
                                 <div className="mb-2">
                                     <FormLabel>
-                                        Remote folder name <small className="text-muted fw-light">(optional)</small>
+                                        <StudioTrans
+                                            ns="formDestinations"
+                                            i18nKey="remoteFolderName.label"
+                                            components={{ small: <small className="text-muted fw-light" /> }}
+                                        />
                                     </FormLabel>
                                     <FormInput
                                         name={getName("remoteFolderName")}
                                         control={control}
-                                        placeholder="Enter a remote folder name"
+                                        placeholder={t("remoteFolderName.placeholder")}
                                         type="text"
                                         autoComplete="off"
                                     />
                                 </div>
                                 <div className="mb-2">
-                                    <FormLabel>Region</FormLabel>
+                                    <FormLabel>{t("amazon.region")}</FormLabel>
                                     <FormSelectCreatable
                                         name={getName("awsRegionName")}
                                         control={control}
-                                        placeholder="Select an AWS region (or enter new one)"
+                                        placeholder={t("amazon.regionSelectPlaceholder")}
                                         options={availableGlacierRegions}
                                     />
                                 </div>
                                 <div className="mb-2">
-                                    <FormLabel>Access key</FormLabel>
+                                    <FormLabel>{t("amazon.accessKeyLabel")}</FormLabel>
                                     <FormInput
                                         name={getName("awsAccessKey")}
                                         control={control}
-                                        placeholder="Enter an access key"
+                                        placeholder={t("amazon.accessKeyPlaceholder")}
                                         type="text"
                                         autoComplete="off"
                                     />
                                 </div>
                                 <div className="mb-2">
-                                    <FormLabel>Secret key</FormLabel>
+                                    <FormLabel>{t("amazon.secretKeyLabel")}</FormLabel>
                                     <FormInput
                                         name={getName("awsSecretKey")}
                                         control={control}
-                                        placeholder="Enter a secret key"
+                                        placeholder={t("amazon.secretKeyPlaceholder")}
                                         type="password"
                                         passwordPreview
                                         autoComplete="off"
@@ -131,7 +138,7 @@ export default function AmazonGlacier() {
                                         isSpinning={asyncTest.loading}
                                         icon="rocket"
                                     >
-                                        Test credentials
+                                        {t("connection.testCredentials")}
                                     </ButtonWithSpinner>
                                 </div>
                                 {asyncTest.result?.Error && (

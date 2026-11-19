@@ -1,4 +1,7 @@
 import genUtils from "common/generalUtils";
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("virtualTable");
 
 export interface CustomColumnDefinition {
     id: string;
@@ -31,14 +34,14 @@ export function createCustomColumnAccessor(expression: string): (item: unknown) 
     try {
         evaluate = compileExpression(expression);
     } catch (e) {
-        return () => `Unable to parse the expression: ${(e as Error).message}`;
+        return () => t("customColumns.parseError", { message: (e as Error).message });
     }
 
     return (item) => {
         try {
             return evaluate.call(item);
         } catch (e) {
-            return `Unable to evaluate the expression: ${(e as Error).message}`;
+            return t("customColumns.evaluateError", { message: (e as Error).message });
         }
     };
 }

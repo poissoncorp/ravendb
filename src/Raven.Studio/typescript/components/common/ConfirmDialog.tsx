@@ -5,6 +5,7 @@ import { Icon } from "./Icon";
 import Button from "react-bootstrap/Button";
 import Modal from "./Modal";
 import { ModalProps } from "react-bootstrap/Modal";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export interface ConfirmOptions {
     title: ReactNode;
@@ -21,12 +22,14 @@ type InnerOptions = Partial<ConfirmOptions> & { isOpen: boolean };
 const ConfirmDialog = createContext<(options: ConfirmOptions) => Promise<boolean>>(null);
 
 export function ConfirmDialogProvider({ children }: PropsWithChildren) {
+    const t = useStudioTranslation("commonComponents");
+    const tCommon = useStudioTranslation("common");
     const [options, setOptions] = useState<InnerOptions>({ isOpen: false });
     const promise = useRef<(choice: boolean) => void>(null);
 
     const { isOpen, title, icon, confirmIcon, message, size } = options;
 
-    const confirmText = options.confirmText ?? "Yes";
+    const confirmText = options.confirmText ?? t("confirmDialog.yes");
     const actionColor = options.actionColor ?? "warning";
 
     const exposedConfirm = (incomingOptions: ConfirmOptions) => {
@@ -59,7 +62,7 @@ export function ConfirmDialogProvider({ children }: PropsWithChildren) {
                     <Modal.Body className="vstack gap-3">{message}</Modal.Body>
                     <Modal.Footer>
                         <Button variant="link" onClick={onCancel} className="link-muted">
-                            Cancel
+                            {tCommon("cancel")}
                         </Button>
                         <Button variant={actionColor} onClick={onConfirm} className="rounded-pill">
                             {confirmIcon && <Icon icon={confirmIcon} />}

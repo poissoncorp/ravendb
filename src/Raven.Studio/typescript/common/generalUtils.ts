@@ -1,9 +1,11 @@
 ﻿/// <reference path="../../typings/tsd.d.ts" />
-import pluralizeHelpers = require("common/helpers/text/pluralizeHelpers");
 import moment = require("moment");
 import React = require("react");
 import typeUtils = require("common/typeUtils");
 import modelsCommon = require("components/models/common");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("studioCommon");
 
 type AtLeastOne<T> = [T, ...T[]];
 
@@ -40,7 +42,9 @@ class genUtils {
     static regexIPv4 = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
     
     static readonly urlRegex = /^(https?:\/\/)([^\s]+)$/; // allow any char, exclude white space
-    static readonly invalidUrlMessage = "Url format expected: 'http(s)://hostName'";
+    static get invalidUrlMessage() {
+        return t("validation.invalidUrl");
+    }
     
     static isValidUrl(url: string) {
         let valid = true;
@@ -124,34 +128,40 @@ class genUtils {
         const timeTokens: string[] = [];
 
         if (duration.years() >= 1) {
+            const years = Math.floor(duration.years());
             timeTokens.push(longFormat ?
-                pluralizeHelpers.pluralize(Math.floor(duration.years()), "year ", "years ") :
-                Math.floor(duration.years()) + " y ");
+                t("duration.years", { count: years, formattedCount: years.toLocaleString() }) + " " :
+                years + " y ");
         }
         if (duration.months() >= 1) {
+            const months = Math.floor(duration.months());
             timeTokens.push(longFormat ?
-                pluralizeHelpers.pluralize(Math.floor(duration.months()), "month ", "months ") :
-                Math.floor(duration.months()) + " m ");
+                t("duration.months", { count: months, formattedCount: months.toLocaleString() }) + " " :
+                months + " m ");
         }
         if (duration.days() >= 1) {
+            const days = Math.floor(duration.days());
             timeTokens.push(longFormat ?
-                pluralizeHelpers.pluralize(Math.floor(duration.days()), "day ", "days ") :
-                Math.floor(duration.days()) + " d ");
+                t("duration.days", { count: days, formattedCount: days.toLocaleString() }) + " " :
+                days + " d ");
         }
         if (duration.hours() > 0) {
+            const hours = duration.hours();
             timeTokens.push(longFormat ?
-                pluralizeHelpers.pluralize(duration.hours(), "hour ", "hours ") :
-                duration.hours() + " h ");
+                t("duration.hours", { count: hours, formattedCount: hours.toLocaleString() }) + " " :
+                hours + " h ");
         }
         if (duration.minutes() > 0) {
+            const minutes = duration.minutes();
             timeTokens.push(longFormat ?
-                pluralizeHelpers.pluralize(duration.minutes(), "minute ", "minutes ") :
-                duration.minutes() + " m ");
+                t("duration.minutes", { count: minutes, formattedCount: minutes.toLocaleString() }) + " " :
+                minutes + " m ");
         }
         if (duration.seconds() > 0 && !skipSecondsAndMilliseconds) {
+            const seconds = duration.seconds();
             timeTokens.push(longFormat ?
-                pluralizeHelpers.pluralize(duration.seconds(), "second ", "seconds ") :
-                duration.seconds() + " s ");
+                t("duration.seconds", { count: seconds, formattedCount: seconds.toLocaleString() }) + " " :
+                seconds + " s ");
         }
         if (duration.milliseconds() > 0 && !skipSecondsAndMilliseconds) {
             const millis = duration.milliseconds();
@@ -166,7 +176,7 @@ class genUtils {
 
         if (timeTokens.length === 0) {
             if (skipSecondsAndMilliseconds) {
-                timeTokens.push("less than a minute");
+                timeTokens.push(t("duration.lessThanMinute"));
             } else {
                 timeTokens.push("0 ms");
             }
@@ -192,7 +202,7 @@ class genUtils {
             return duration; 
         }
         
-        return `${futureTime ? "in " : ""}${duration}${!futureTime ? " ago" : ""}`;
+        return t("duration.relative", { context: futureTime ? "future" : "past", duration });
     }
 
     static formatMillis(input: number) {
@@ -738,10 +748,10 @@ class genUtils {
 
     static formatLocation(location: databaseLocationSpecifier) {
         if (location.shardNumber != null) {
-            return "Shard #" + location.shardNumber + " on Node " + location.nodeTag;
+            return t("location.shardOnNode", { shardNumber: location.shardNumber, nodeTag: location.nodeTag });
         }
    
-        return "Node " + location.nodeTag;
+        return t("location.node", { nodeTag: location.nodeTag });
     }
     
     static maxByShard<T>(list: T[], shardProvider: (item: T) => number, valueProvider: (item: T) => number): number[] {

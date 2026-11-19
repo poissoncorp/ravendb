@@ -2,6 +2,7 @@ import { EmptySet } from "components/common/EmptySet";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
 import { useAppSelector } from "components/store";
 import { PropsWithChildren, useRef } from "react";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface ActiveDatabaseGuardProps {
     databaseName: string;
@@ -21,7 +22,12 @@ export function ActiveDatabaseGuard({ databaseName, children }: PropsWithChildre
         return (
             <div className="content-padding">
                 <EmptySet icon="database">
-                    Database <strong>{databaseName}</strong> is no longer available
+                    <StudioTrans
+                        ns="commonComponents"
+                        i18nKey="activeDatabaseGuard.noLongerAvailable"
+                        components={{ strong: <strong /> }}
+                        options={{ databaseName }}
+                    />
                 </EmptySet>
             </div>
         );

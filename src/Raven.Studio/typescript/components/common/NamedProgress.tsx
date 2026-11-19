@@ -1,6 +1,7 @@
 ﻿import React from "react";
 import { ReactNode } from "react";
 import classNames from "classnames";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 import "./NamedProgress.scss";
 
@@ -24,18 +25,16 @@ export function NamedProgressItem(props: {
     incomplete?: boolean;
 }) {
     const { children, progress, incomplete } = props;
+    const t = useStudioTranslation("commonComponents");
     const progressFormatted = formatPercentage(progress, incomplete);
     const completed = !incomplete && progress.total === progress.processed;
     const remaining = progress.total - progress.processed;
-    const title = completed
-        ? "Processed all items (" + progress.processed.toLocaleString() + ")"
-        : "Processed " +
-          progress.processed.toLocaleString() +
-          " out of " +
-          progress.total.toLocaleString() +
-          " (" +
-          remaining.toLocaleString() +
-          " left)";
+    const title = t("namedProgress.title", {
+        context: completed ? "completed" : "inProgress",
+        processed: progress.processed.toLocaleString(),
+        total: progress.total.toLocaleString(),
+        remaining: remaining.toLocaleString(),
+    });
     return (
         <div className="progress-item" title={title}>
             <strong className="progress-percentage">{progressFormatted}%</strong>{" "}

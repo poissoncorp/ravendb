@@ -7,6 +7,7 @@ import Button from "react-bootstrap/Button";
 import AiAssistantDisabledInSettingsMessage from "components/common/aiAssistant/AiAssistantDisabledInSettingsMessage";
 import FeatureNotAvailableInYourLicensePopoverBody from "components/common/FeatureNotAvailableInYourLicensePopoverBody";
 import { licenseSelectors } from "components/common/shell/licenseSlice";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface AiAssistantButtonProps {
     handleClick: () => void;
@@ -17,6 +18,7 @@ interface AiAssistantButtonProps {
 export default function AiAssistantButton({ handleClick, right = "14px", bottom = "14px" }: AiAssistantButtonProps) {
     const isAiAssistantSettingsDisabled = useAppSelector(aiAssistantSelectors.settings).isDisabled;
     const hasAiAssistant = useAppSelector(licenseSelectors.statusValue("HasAiAssistant"));
+    const t = useStudioTranslation("aiAssistant");
 
     return (
         <ConditionalPopover
@@ -44,7 +46,7 @@ export default function AiAssistantButton({ handleClick, right = "14px", bottom 
                 disabled={isAiAssistantSettingsDisabled || !hasAiAssistant}
             >
                 <Icon icon="ai-assistant" />
-                AI Assistant
+                {t("button")}
             </Button>
         </ConditionalPopover>
     );

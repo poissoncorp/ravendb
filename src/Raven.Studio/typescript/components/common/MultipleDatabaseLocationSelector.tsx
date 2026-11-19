@@ -8,6 +8,7 @@ import ActionContextUtils from "components/utils/actionContextUtils";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 import { FormLabel } from "components/common/Form";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export type DatabaseActionContexts =
     | {
@@ -30,6 +31,7 @@ interface MultipleDatabaseLocationSelectorProps {
 
 export function MultipleDatabaseLocationSelector(props: MultipleDatabaseLocationSelectorProps) {
     const { allActionContexts, selectedActionContexts, setSelectedActionContexts, className } = props;
+    const t = useStudioTranslation("commonComponents");
 
     const isSharded: boolean = ActionContextUtils.isSharded(allActionContexts);
 
@@ -174,7 +176,7 @@ export function MultipleDatabaseLocationSelector(props: MultipleDatabaseLocation
                             toggleSelection={toggleAll}
                             indeterminate={isSomeSelected}
                             selected={isAllSelected}
-                            title="Select all or none"
+                            title={t("selection.title")}
                         />
                     </NodeSetLabel>
                     <NodeSetList>
@@ -182,7 +184,7 @@ export function MultipleDatabaseLocationSelector(props: MultipleDatabaseLocation
                             const uniqueKey = getUniqueKey(nodeTag);
                             return (
                                 <NodeSetItem key={nodeTag}>
-                                    <FormLabel htmlFor={uniqueKey} title={"Node " + nodeTag}>
+                                    <FormLabel htmlFor={uniqueKey} title={t("location.node", { nodeTag })}>
                                         <Icon icon="node" color="node" />
                                         {nodeTag}
                                         <div className="d-flex justify-content-center">
@@ -205,10 +207,14 @@ export function MultipleDatabaseLocationSelector(props: MultipleDatabaseLocation
                         toggleSelection={toggleAll}
                         indeterminate={isSomeSelected}
                         selected={isAllSelected}
-                        title="Select all or none"
+                        title={t("selection.title")}
                     >
                         <span className="small-label">
-                            {isAllSelected ? "Reset selection" : isSomeSelected ? "Deselect all" : "Select all"}
+                            {isAllSelected
+                                ? t("selection.resetSelection")
+                                : isSomeSelected
+                                  ? t("selection.deselectAll")
+                                  : t("selection.selectAll")}
                         </span>
                     </Checkbox>
 
@@ -218,7 +224,11 @@ export function MultipleDatabaseLocationSelector(props: MultipleDatabaseLocation
                             <div key={uniqueKey}>
                                 <NodeSet className={classNames(className, "mt-1")}>
                                     <NodeSetLabel>
-                                        <FormLabel htmlFor={uniqueKey} className="text-node" title={"Node " + nodeTag}>
+                                        <FormLabel
+                                            htmlFor={uniqueKey}
+                                            className="text-node"
+                                            title={t("location.node", { nodeTag })}
+                                        >
                                             <Icon icon="node" />
                                             {nodeTag}
                                             <div className="d-flex justify-content-center">
@@ -239,7 +249,7 @@ export function MultipleDatabaseLocationSelector(props: MultipleDatabaseLocation
                                                     placement="top"
                                                     overlay={
                                                         <Tooltip id={getUniqueKey(nodeTag, true) + "Tooltip"}>
-                                                            Orchestrator
+                                                            {t("location.orchestrator")}
                                                         </Tooltip>
                                                     }
                                                 >
@@ -247,7 +257,7 @@ export function MultipleDatabaseLocationSelector(props: MultipleDatabaseLocation
                                                         <FormLabel
                                                             htmlFor={getUniqueKey(nodeTag, true)}
                                                             id={getUniqueKey(nodeTag, true) + "Tooltip"}
-                                                            title="Orchestrator"
+                                                            title={t("location.orchestrator")}
                                                         >
                                                             <Icon
                                                                 icon="orchestrator"
@@ -278,7 +288,10 @@ export function MultipleDatabaseLocationSelector(props: MultipleDatabaseLocation
 
                                                 return (
                                                     <NodeSetItem key={uniqueKey}>
-                                                        <FormLabel htmlFor={uniqueKey} title={"Shard " + shardNumber}>
+                                                        <FormLabel
+                                                            htmlFor={uniqueKey}
+                                                            title={t("location.shard", { shardNumber })}
+                                                        >
                                                             <Icon icon="shard" color="shard" />
                                                             {shardNumber}
                                                             <div className="d-flex justify-content-center">

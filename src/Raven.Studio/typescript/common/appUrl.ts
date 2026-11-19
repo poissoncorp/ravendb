@@ -5,6 +5,9 @@ import router = require("plugins/router");
 import messagePublisher = require("common/messagePublisher");
 import databases = require("components/models/databases");
 import connectionStringsTypes = require("components/pages/database/settings/connectionStrings/connectionStringsTypes");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("studioCommon");
 
 class appUrl {
 
@@ -980,7 +983,7 @@ class appUrl {
             
             const queryString = instruction.queryString ? ("?" + instruction.queryString) : "";
 
-            messagePublisher.reportWarning("Unknown route", "The route " + instruction.fragment + queryString + " doesn't exist, redirecting...");
+            messagePublisher.reportWarning(t("unknownRoute.title"), t("unknownRoute.message", { route: instruction.fragment + queryString }));
 
             instruction.config.moduleId = appUrl.defaultModule;
         });

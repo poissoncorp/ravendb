@@ -7,6 +7,7 @@ import Form from "react-bootstrap/Form";
 import { motion } from "motion/react";
 import { Icon } from "components/common/Icon";
 import useUniqueId from "components/hooks/useUniqueId";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 import { SamplesTab } from "./partials/samplesTypes";
 import "./SamplesTabs.scss";
 
@@ -17,6 +18,7 @@ export interface SamplesTabsProps {
 }
 
 export default function SamplesTabs({ tabs, onSelect, onClose }: SamplesTabsProps) {
+    const t = useStudioTranslation("samples");
     const [activeTabKey, setActiveTabKey] = useState(tabs[0]?.key);
     const [searchByTab, setSearchByTab] = useState<Record<string, string>>({});
     const tabContentRef = useRef<HTMLDivElement>(null);
@@ -53,7 +55,7 @@ export default function SamplesTabs({ tabs, onSelect, onClose }: SamplesTabsProp
                             variant="link"
                             size="sm"
                             className="ms-auto p-0 text-reset samples-close"
-                            title="Close"
+                            title={t("tabs.close")}
                             onClick={onClose}
                         >
                             <motion.span
@@ -72,7 +74,7 @@ export default function SamplesTabs({ tabs, onSelect, onClose }: SamplesTabsProp
                         <Icon icon="search" margin="m-0" className="methods-search-icon position-absolute" />
                         <Form.Control
                             type="search"
-                            placeholder={activeTab.searchPlaceholder ?? "Search"}
+                            placeholder={activeTab.searchPlaceholder ?? t("tabs.searchPlaceholder")}
                             className="rounded-1 methods-search-input"
                             value={activeSearch}
                             onChange={(e: ChangeEvent<HTMLInputElement>) => handleSearchChange(e.target.value)}

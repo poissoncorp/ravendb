@@ -1,5 +1,8 @@
 /// <reference path="../../typings/tsd.d.ts" />
 import d3 = require('d3');
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("studioCommon");
 
 class svgDownloader {
 
@@ -89,7 +92,7 @@ class svgDownloader {
         const image = new Image();
         image.src = 'data:image/svg+xml;base64,' + window.btoa(textSvgData);
         image.onerror = function () {
-            alert("Unable to download image!");
+            alert(t("imageDownloadFailed"));
         }
         image.onload = function () {
             const canvas = document.createElement('canvas');

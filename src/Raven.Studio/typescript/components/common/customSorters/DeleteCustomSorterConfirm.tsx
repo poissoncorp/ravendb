@@ -1,4 +1,6 @@
 import React from "react";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 import Button from "react-bootstrap/Button";
 import { Icon } from "../Icon";
 import IconName from "typings/server/icons";
@@ -13,6 +15,7 @@ interface DeleteCustomSorterConfirmProps {
 
 export default function DeleteCustomSorterConfirm(props: DeleteCustomSorterConfirmProps) {
     const { name, onConfirm, toggle, isServerWide } = props;
+    const tCommon = useStudioTranslation("common");
 
     const onSubmit = () => {
         onConfirm(name);
@@ -28,8 +31,12 @@ export default function DeleteCustomSorterConfirm(props: DeleteCustomSorterConfi
             </Modal.Header>
             <Modal.Body className="vstack gap-4 position-relative">
                 <div className="text-center lead">
-                    You&apos;re about to <span className="text-danger">delete</span> following{" "}
-                    {isServerWide ? "server-wide" : ""} custom sorter:
+                    <StudioTrans
+                        ns="customSortersCommon"
+                        i18nKey="deleteConfirm"
+                        components={{ span: <span className="text-danger" /> }}
+                        options={{ context: isServerWide ? "serverWide" : undefined }}
+                    />
                 </div>
                 <span className="d-flex align-items-center word-break bg-faded-primary py-1 px-3 w-fit-content rounded-pill mx-auto">
                     <Icon icon={iconName} />
@@ -38,11 +45,11 @@ export default function DeleteCustomSorterConfirm(props: DeleteCustomSorterConfi
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="link" onClick={toggle} className="link-muted">
-                    Cancel
+                    {tCommon("cancel")}
                 </Button>
                 <Button variant="danger" onClick={onSubmit} className="rounded-pill">
                     <Icon icon="trash" />
-                    Delete
+                    {tCommon("delete")}
                 </Button>
             </Modal.Footer>
         </Modal>

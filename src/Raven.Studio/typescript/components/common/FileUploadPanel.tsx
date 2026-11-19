@@ -27,7 +27,7 @@ export default function FileUploadPanel({
     validExtensions,
     maxFiles,
     collapsedCount,
-    heading = "Attachments",
+    heading,
     className,
 }: FileUploadPanelProps) {
     const isUploading = items.some((x) => x.status === "uploading");

@@ -10,6 +10,7 @@ import { EmptySet } from "components/common/EmptySet";
 import { Icon } from "components/common/Icon";
 import { MethodEntry, MethodGroup } from "./samplesTypes";
 import LoadButton from "./LoadButton";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 interface MethodsTableProps {
     methodGroups: MethodGroup[];
@@ -19,6 +20,7 @@ interface MethodsTableProps {
 }
 
 export default function MethodsTable({ methodGroups, search, onSelect, language = "rql" }: MethodsTableProps) {
+    const t = useStudioTranslation("samples");
     const filteredGroups = methodGroups
         .map((group) => ({
             ...group,
@@ -29,9 +31,7 @@ export default function MethodsTable({ methodGroups, search, onSelect, language 
     return (
         <div className="methods-table vstack gap-3 px-3 py-2">
             {filteredGroups.length === 0 && (
-                <EmptySet compact>
-                    {search ? "No available methods match your search." : "No methods are available."}
-                </EmptySet>
+                <EmptySet compact>{search ? t("methods.noMatches") : t("methods.empty")}</EmptySet>
             )}
             {filteredGroups.map((group) => (
                 <MethodGroupCard key={group.category} group={group} onSelect={onSelect} language={language} />
@@ -47,19 +47,21 @@ interface MethodGroupCardProps {
 }
 
 function MethodGroupCard({ group, onSelect, language }: MethodGroupCardProps) {
+    const t = useStudioTranslation("samples");
+
     return (
         <div>
             <h4 className="mb-2 mt-0">{group.category}</h4>
             <Card className="border border-color-light rounded overflow-hidden mb-0">
                 <Row className="mx-0 panel-bg-2 fw-regular border-color-light">
                     <Col xs={5} className="py-2 px-3">
-                        Method signature
+                        {t("methods.signature")}
                     </Col>
                     <Col xs={5} className="py-2 px-3 border-start border-color-light">
-                        Description
+                        {t("methods.description")}
                     </Col>
                     <Col xs={2} className="py-2 px-3 border-start border-color-light">
-                        Return type
+                        {t("methods.returnType")}
                     </Col>
                 </Row>
                 {group.methods.map((method) => (
@@ -77,6 +79,7 @@ interface MethodRowProps {
 }
 
 function MethodRow({ method, onSelect, language }: MethodRowProps) {
+    const t = useStudioTranslation("samples");
     const [open, setOpen] = useState(false);
     const hasExample = !!method.sampleScript;
 
@@ -117,7 +120,7 @@ function MethodRow({ method, onSelect, language }: MethodRowProps) {
                 <Collapse in={open}>
                     <div>
                         <div className="method-example border-top border-color-light px-3 py-2">
-                            <div className="fw-semibold text-muted small mb-1">Example usage</div>
+                            <div className="fw-semibold text-muted small mb-1">{t("methods.exampleUsage")}</div>
                             <Code
                                 code={method.sampleScript}
                                 language={language}

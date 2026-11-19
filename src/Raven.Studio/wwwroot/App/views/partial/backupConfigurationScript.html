@@ -1,30 +1,22 @@
 <div>
     <div class="row margin-bottom" data-bind="validationElement: configurationScript.exec">
-        <label class="control-label col-xs-12 col-sm-6 col-lg-4">
-            Exec
-        </label>
+        <label class="control-label col-xs-12 col-sm-6 col-lg-4" data-bind="i18n: 'backupConfigurationScript:exec'"></label>
         <div class="col-xs-12 col-sm-6 col-lg-8">
-            <input data-bind="textInput: configurationScript.exec" type="text" class="form-control" placeholder="Path to executable" />
+            <input data-bind="textInput: configurationScript.exec, i18nAttr: { placeholder: 'backupConfigurationScript:execPlaceholder' }" type="text" class="form-control" />
         </div>
     </div>
     <div class="row margin-bottom" data-bind="validationElement: configurationScript.arguments">
-        <label class="control-label col-xs-12 col-sm-6 col-lg-4">
-            Arguments
-        </label>
+        <label class="control-label col-xs-12 col-sm-6 col-lg-4" data-bind="i18n: 'backupConfigurationScript:arguments'"></label>
         <div class="col-xs-12 col-sm-6 col-lg-8">
-            <input data-bind="textInput: configurationScript.arguments" type="text" class="form-control" placeholder="Command line arguments passed to exec" />
+            <input data-bind="textInput: configurationScript.arguments, i18nAttr: { placeholder: 'backupConfigurationScript:argumentsPlaceholder' }" type="text" class="form-control" />
         </div>
     </div>
     <div class="row margin-bottom" data-bind="validationElement: configurationScript.timeoutInMs">
-        <label class="control-label col-xs-12 col-sm-6 col-lg-4">
-            Timeout
-        </label>
+        <label class="control-label col-xs-12 col-sm-6 col-lg-4" data-bind="i18n: 'backupConfigurationScript:timeout'"></label>
         <div class="col-xs-12 col-sm-6 col-lg-8">
             <div class="input-group">
                 <input data-bind="numericInput: configurationScript.timeoutInMs" min="0" type="number" class="form-control" />
-                <div class="input-group-addon">
-                    ms
-                </div>
+                <div class="input-group-addon" data-bind="i18n: 'backupConfigurationScript:msAddon'"></div>
             </div>
         </div>
     </div>

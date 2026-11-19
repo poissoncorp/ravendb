@@ -2,17 +2,17 @@
     <span class="flex-start"><i class="icon-info"></i></span>
     <div class="margin-left margin-left-sm">
          <span data-bind="visible: !pinMentorNode()">
-            The selected node will be the Preferred Node to handle the task.<br />
-            When this node is down, the cluster selects another node from the Database Group to handle the task.
+            <span data-bind="i18n: 'pinResponsibleNodeTextScript:preferred.selected'"></span><br />
+            <span data-bind="i18n: 'pinResponsibleNodeTextScript:preferred.nodeDown'"></span>
         </span>
         <span data-bind="visible: pinMentorNode">
-            The selected node is now Pinned to handle this task.<br />
-            When this node is down, the task will Not execute as no other node will be selected to handle the task.<br />
-            In case the node is removed from the Database Group, a failover will occur as the cluster will select another node to handle the task.
+            <span data-bind="i18n: 'pinResponsibleNodeTextScript:pinned.selected'"></span><br />
+            <span data-bind="i18n: 'pinResponsibleNodeTextScript:pinned.nodeDown'"></span><br />
+            <span data-bind="i18n: 'pinResponsibleNodeTextScript:pinned.nodeRemoved'"></span>
         </span>
         <strong>
             <br />
-            This option won't be respected in case of sharded databases.
+            <span data-bind="i18n: 'pinResponsibleNodeTextScript:shardedNotRespected'"></span>
         </strong>
     </div>
 </div>

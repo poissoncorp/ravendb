@@ -36,54 +36,54 @@
         <div class="flex-horizontal margin-bottom margin-bottom-sm">
             <div class="form-inline">
                 <span data-bind="visible: supportsIndexes">
-                    <input type="text" accesskey="/" class="form-control" placeholder="Filter indexes" title="Filter Indexes (Alt+/)" data-bind="textInput: searchText, enable: hasIndexes" />
-                    <button class="btn btn-default" data-bind="click: expandIndexes, enable: indexesVisible, visible: !isIndexesExpanded()" title="Expand indexes IO stats details"><i class="icon-expand"></i> <span>Expand</span></button>
-                    <button class="btn btn-default" data-bind="click: collapseIndexes, enable: indexesVisible, visible: isIndexesExpanded" title="Collapse indexes IO stats details"><i class="icon-collapse"></i> <span>Collapse</span></button>
+                    <input type="text" accesskey="/" class="form-control" data-bind="textInput: searchText, enable: hasIndexes, i18nAttr: { placeholder: 'ioStatsGraph:filterPlaceholder', title: 'ioStatsGraph:filterTitle' }" />
+                    <button class="btn btn-default" data-bind="click: expandIndexes, enable: indexesVisible, visible: !isIndexesExpanded(), i18nAttr: { title: 'ioStatsGraph:expandTitle' }"><i class="icon-expand"></i> <span data-bind="i18n: 'ioStatsGraph:expand'"></span></button>
+                    <button class="btn btn-default" data-bind="click: collapseIndexes, enable: indexesVisible, visible: isIndexesExpanded, i18nAttr: { title: 'ioStatsGraph:collapseTitle' }"><i class="icon-collapse"></i> <span data-bind="i18n: 'ioStatsGraph:collapse'"></span></button>
                 </span>
-                <button class="btn btn-default" data-bind="click: exportAsJson, enable: hasAnyData, visible: !isImport()" title="Export current IO stats graph to a file">
-                    <i class="icon-export"></i><span>Export</span>
+                <button class="btn btn-default" data-bind="click: exportAsJson, enable: hasAnyData, visible: !isImport(), i18nAttr: { title: 'ioStatsGraph:exportTitle' }">
+                    <i class="icon-export"></i><span data-bind="i18n: 'ioStatsGraph:export'"></span>
                 </button>
                 <label for="importFilePicker" class="btn btn-default">
-                    <i class="icon-import"></i><span>Import</span>
+                    <i class="icon-import"></i><span data-bind="i18n: 'ioStatsGraph:import'"></span>
                 </label>
-                <span class="input-group file-input" title="Import IO stats graph file">
+                <span class="input-group file-input" data-bind="i18nAttr: { title: 'ioStatsGraph:importTitle' }">
                     <input type="file" id="importFilePicker" data-bind="event: { change: _.partial(fileSelected, $element) }" tabindex="-1" accept=".json" style="width: 10px">
                 </span>
             </div>
             <div class="flex-separator"></div>
             <div data-bind="visible: hasAnyData, if: hasAnyData">
                 <div id="IOMetricsLegend">
-                    <div class="legend-container" data-bind="template: { name: 'legend-template', data: { type: 'Compression', text: 'Compression' }}">
+                    <div class="legend-container" data-bind="template: { name: 'legend-template', data: { type: 'Compression', textKey: 'ioStatsGraph:legend.compression' }}">
                     </div>
-                    <div class="legend-container" data-bind="template: { name: 'legend-template', data: { type: 'JournalWrite', text: 'Journal Write' }}">
+                    <div class="legend-container" data-bind="template: { name: 'legend-template', data: { type: 'JournalWrite', textKey: 'ioStatsGraph:legend.journalWrite' }}">
                     </div>
-                    <div class="legend-container" data-bind="template: { name: 'legend-template', data: { type: 'DataFlush', text: 'Data Flush' }}">
+                    <div class="legend-container" data-bind="template: { name: 'legend-template', data: { type: 'DataFlush', textKey: 'ioStatsGraph:legend.dataFlush' }}">
                     </div>
-                    <div class="legend-container" data-bind="template: { name: 'legend-template', data: { type: 'DataSync', text: 'Data Sync' }}">
+                    <div class="legend-container" data-bind="template: { name: 'legend-template', data: { type: 'DataSync', textKey: 'ioStatsGraph:legend.dataSync' }}">
                     </div>
                 </div>
             </div>
         </div>
         <div class="flex-horizontal flex-shrink-0">
             <div data-bind="visible: liveViewClient() && !bufferIsFull()">
-                <small>Data buffer usage: <span data-bind="text: bufferUsage() + '%'"></span></small>
+                <small data-bind="i18n: { key: 'ioStatsGraph:bufferUsage', options: { usage: bufferUsage() } }"></small>
             </div>
             <div data-bind="visible: bufferIsFull">
-                <small>Data buffer is full, clear graph data to continue</small>
+                <small data-bind="i18n: 'ioStatsGraph:bufferFull'"></small>
             </div>
             <div class="flex-separator"></div>
             <button class="btn btn-default btn-sm margin-right margin-right-sm" data-bind="click: clearBrush, visible: clearSelectionVisible">
-                <span>Clear selection</span>
+                <span data-bind="i18n: 'ioStatsGraph:clearSelection'"></span>
             </button>
-            <button class="btn btn-sm btn-default" data-bind="click: closeImport, visible: isImport" title="Return to currently selected IO stats graph">
-                <i class="icon-cancel"></i><span data-bind="text: 'Close import (' + importFileName() + ')'">Close import</span>
+            <button class="btn btn-sm btn-default" data-bind="click: closeImport, visible: isImport, i18nAttr: { title: 'ioStatsGraph:closeImportTitle' }">
+                <i class="icon-cancel"></i><span data-bind="i18n: { key: 'ioStatsGraph:closeImport', options: { fileName: importFileName() } }"></span>
             </button>
             <div class="btn-group" data-bind="visible: !isImport()">
                 <button class="btn btn-sm btn-info btn-checkable" data-bind="click: toggleScroll, css: { active: autoScroll }">
-                    <i class="icon-logs"></i> <span>Monitoring (tail -f)</span>
+                    <i class="icon-logs"></i> <span data-bind="i18n: 'ioStatsGraph:monitoring'"></span>
                 </button>
                 <button class="btn btn-sm btn-danger" data-bind="click: clearGraphWithConfirm">
-                    <i class="icon-cancel"></i><span>Clear graph</span>
+                    <i class="icon-cancel"></i><span data-bind="i18n: 'ioStatsGraph:clearGraph'"></span>
                 </button>
             </div>
         </div>
@@ -92,11 +92,11 @@
                 <div class="col-sm-8 col-sm-offset-2 col-lg-6 col-lg-offset-3">
                     <div data-bind="visible: !loading()">
                         <i class="icon-xl icon-empty-set text-muted"></i>
-                        <h2 class="text-center text-muted">No data.</h2>
+                        <h2 class="text-center text-muted" data-bind="i18n: 'ioStatsGraph:noData'"></h2>
                     </div>
                     <div data-bind="visible: loading()">
                         <i class="icon-xl global-spinner text-muted"></i>
-                        <h2 class="text-center text-muted on-base-background">Loading ...</h2>
+                        <h2 class="text-center text-muted on-base-background" data-bind="i18n: 'ioStatsGraph:loading'"></h2>
                     </div>
                 </div>
             </div>
@@ -109,7 +109,7 @@
         </div>
         <div class="results-error" data-bind="visible: !isConnectedToWebSocket() && !isImport()">
             <div class="help-block bg-warning text-warning">
-                <span><i class="btn-spinner"></i><span class="margin-left">Trying to Connect</span></span>
+                <span><i class="btn-spinner"></i><span class="margin-left" data-bind="i18n: 'ioStatsGraph:connecting'"></span></span>
             </div>
         </div>
     </div>
@@ -120,5 +120,5 @@
     <div class="arrow-down" data-bind="style: { left: $parent.itemSizePositions.get(type)}, visible: $parent.itemHovered.get(type)"></div>
     <div class="legend-end-range" data-bind="text: $parent.computedItemValue($parent.legends.get(type))"></div>
     <img data-bind="attr: { src: $parent.legends.get(type)().imageStr }" />
-    <div class="legend-title" data-bind="text: text"></div>
+    <div class="legend-title" data-bind="i18n: textKey"></div>
 </script>

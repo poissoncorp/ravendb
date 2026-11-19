@@ -4,6 +4,7 @@ import { Icon } from "components/common/Icon";
 import "./VirtualTableHead.scss";
 import ColumnSettings from "components/common/virtualTable/partials/VirtualTableColumnSettings";
 import { virtualTableConstants } from "../utils/virtualTableConstants";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 interface VirtualTableHeadProps<T> {
     table: TanstackTable<T>;
@@ -11,6 +12,7 @@ interface VirtualTableHeadProps<T> {
 }
 
 export default function VirtualTableHead<T>({ table, isCompact }: VirtualTableHeadProps<T>) {
+    const t = useStudioTranslation("virtualTable");
     const height = isCompact ? virtualTableConstants.compactHeaderHeightInPx : virtualTableConstants.headerHeightInPx;
 
     return (
@@ -43,7 +45,7 @@ export default function VirtualTableHead<T>({ table, isCompact }: VirtualTableHe
                                 >
                                     <span className="text-truncate w-100">
                                         {isPinned && header.column.getCanPin() && (
-                                            <Icon icon="pinned" title="Pinned column" />
+                                            <Icon icon="pinned" title={t("head.pinnedColumn")} />
                                         )}
                                         {flexRender(header.column.columnDef.header, header.getContext())}
                                     </span>

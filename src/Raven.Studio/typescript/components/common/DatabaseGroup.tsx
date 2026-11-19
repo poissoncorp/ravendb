@@ -12,6 +12,7 @@ import "./DatabaseGroup.scss";
 import { Icon } from "./Icon";
 import IconName from "typings/server/icons";
 import { ThemeColor } from "components/models/common";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface DatabaseGroupProps extends HTMLAttributes<HTMLDivElement> {
     children?: ReactNode | ReactNode[];
@@ -62,6 +63,7 @@ interface DatabaseGroupTypeProps extends HTMLAttributes<HTMLDivElement> {
 
 export function DatabaseGroupType(props: DatabaseGroupTypeProps) {
     const { node, children } = props;
+    const t = useStudioTranslation("commonComponents");
 
     function nodeBadgeColor(node: NodeInfo) {
         switch (node.lastStatus) {
@@ -92,11 +94,11 @@ export function DatabaseGroupType(props: DatabaseGroupTypeProps) {
     function nodeBadgeText(node: NodeInfo) {
         switch (node.lastStatus) {
             case "Ok":
-                return "Active";
+                return t("databaseGroup.status.active");
             case "NotResponding":
-                return "Error";
+                return t("databaseGroup.status.error");
             default:
-                return "Catching up";
+                return t("databaseGroup.status.catchingUp");
         }
     }
 
@@ -109,10 +111,7 @@ export function DatabaseGroupType(props: DatabaseGroupTypeProps) {
                 <Badge bg={nodeBadgeColor(node)}>
                     {nodeBadgeText(node)}
                     {node.responsibleNode && (
-                        <span
-                            className="ms-1"
-                            title="Database group node that is responsible for caught up of this node"
-                        >
+                        <span className="ms-1" title={t("databaseGroup.responsibleNodeTitle")}>
                             <Icon icon="node" margin="m-0" />
                             <strong className="text-reset"> {node.responsibleNode}</strong>
                         </span>
@@ -135,22 +134,29 @@ interface DatabaseGroupErrorProps extends HTMLAttributes<HTMLDivElement> {
 
 export function DatabaseGroupError(props: DatabaseGroupErrorProps) {
     const { node } = props;
+    const t = useStudioTranslation("commonComponents");
     const lastErrorShort = node.lastError ? genUtils.trimMessage(node.lastError) : null;
 
     const showErrorsDetails = useCallback(() => {
-        app.showBootstrapDialog(new showDataDialog("Error details for Node " + node.tag, node.lastError, "plain"));
-    }, [node]);
+        app.showBootstrapDialog(
+            new showDataDialog(t("databaseGroup.errorDialogTitle", { nodeTag: node.tag }), node.lastError, "plain")
+        );
+    }, [node, t]);
 
     return lastErrorShort ? (
         <div className="dbgroup-error position-relative">
             <div className="text-danger">
-                <Icon icon="warning" /> Error
+                <Icon icon="warning" /> {t("databaseGroup.error")}
             </div>
 
             <small className="d-flex flex-column">
                 {lastErrorShort}
-                <a className="link stretched-link ms-2" title="Click to see error details" onClick={showErrorsDetails}>
-                    Error Details <Icon icon="info" margin="m-0" />
+                <a
+                    className="link stretched-link ms-2"
+                    title={t("databaseGroup.errorDetailsTitle")}
+                    onClick={showErrorsDetails}
+                >
+                    {t("databaseGroup.errorDetails")} <Icon icon="info" margin="m-0" />
                 </a>
             </small>
             <div></div>

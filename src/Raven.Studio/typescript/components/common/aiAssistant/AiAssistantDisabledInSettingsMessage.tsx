@@ -1,9 +1,9 @@
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+
 export default function AiAssistantDisabledInSettingsMessage() {
     return (
         <div>
-            AI Assistant is disabled (Ai.Assistant.Disable).
-            <br />
-            It can be edited from the settings.json file.
+            <StudioTrans ns="aiAssistant" i18nKey="disabledInSettings" components={{ br: <br /> }} />
         </div>
     );
 }

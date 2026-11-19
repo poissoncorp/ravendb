@@ -5,6 +5,9 @@ import OngoingTaskQueueEtl = Raven.Client.Documents.Operations.OngoingTasks.Ongo
 import assertUnreachable from "./assertUnreachable";
 import OngoingTaskQueueSink = Raven.Client.Documents.Operations.OngoingTasks.OngoingTaskQueueSink;
 import IconName from "typings/server/icons";
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("infra");
 
 export default class TaskUtils {
     static ongoingTaskToStudioTaskType(task: OngoingTask): StudioTaskType {
@@ -176,17 +179,17 @@ export default class TaskUtils {
             case "RabbitQueueEtl":
                 return { icon: "rabbitmq-etl", label: "RabbitMQ ETL" };
             case "AzureQueueStorageQueueEtl":
-                return { icon: "azure-queue-storage-etl", label: "Azure Queue Storage ETL" };
+                return { icon: "azure-queue-storage-etl", label: t("taskTypes.azureQueueStorageEtl") };
             case "AmazonSqsQueueEtl":
-                return { icon: "amazon-sqs-etl", label: "Amazon SQS ETL" };
+                return { icon: "amazon-sqs-etl", label: t("taskTypes.amazonSqsEtl") };
             case "EmbeddingsGeneration":
-                return { icon: "ai-etl", label: "Embeddings Generation" };
+                return { icon: "ai-etl", label: t("taskTypes.embeddingsGeneration") };
             case "GenAi":
-                return { icon: "genai", label: "GenAI" };
+                return { icon: "genai", label: t("taskTypes.genAi") };
             case "CdcSink":
-                return { icon: "cdc-sink", label: "CDC Sink" };
+                return { icon: "cdc-sink", label: t("taskTypes.cdcSink") };
             default:
-                return { icon: "help", label: "Other" };
+                return { icon: "help", label: t("taskTypes.other") };
         }
     }
 

@@ -11,6 +11,9 @@ import queryCriteria from "models/database/query/queryCriteria";
 import savedQueriesStorage from "common/storage/savedQueriesStorage";
 import { chatbotSelectors } from "components/shell/chatbot/store/chatbotSlice";
 import useConfirm from "components/common/ConfirmDialog";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import type { StudioTranslate } from "common/i18n/resources";
 
 require("prismjs/components/prism-javascript");
 require("prismjs/components/prism-csharp");
@@ -71,6 +74,7 @@ export default function Code(props: CodeProps) {
         isTitleHidden,
     } = props;
 
+    const t = useStudioTranslation("commonComponents");
     const [wrapped, setWrapped] = useState(true);
     const isWrapped = wrappable === true && wrapped;
 
@@ -80,7 +84,7 @@ export default function Code(props: CodeProps) {
     );
     const hasDatabase = !!activeDatabaseName || chatbotDatabaseContext?.state === "included";
 
-    const languageTitle = languageTitles[props.language];
+    const languageTitle = getLanguageTitles(t)[props.language];
     const languageToHighlight = getLanguageToHighlight(props.language);
 
     const html = useMemo(
@@ -109,17 +113,18 @@ export default function Code(props: CodeProps) {
             chatbotDatabaseContext.value !== activeDatabaseName
         ) {
             const isConfirmed = await confirm({
-                title: "Change active database",
+                title: t("code.changeDatabase.title"),
                 message: (
                     <div>
-                        This query is intended for the <strong>{chatbotDatabaseContext.value}</strong> database.
-                        <br />
-                        <br />
-                        Clicking &quot;Change and run&quot; will switch the active database to{" "}
-                        <strong>{chatbotDatabaseContext.value}</strong> and execute the query.
+                        <StudioTrans
+                            ns="commonComponents"
+                            i18nKey="code.changeDatabase.message"
+                            components={{ strong: <strong />, br: <br /> }}
+                            options={{ databaseName: chatbotDatabaseContext.value }}
+                        />
                     </div>
                 ),
-                confirmText: "Change and run",
+                confirmText: t("code.changeDatabase.confirm"),
                 confirmIcon: "rocket",
             });
 
@@ -145,27 +150,27 @@ export default function Code(props: CodeProps) {
                                 className="text-emphasis"
                                 active={wrapped}
                                 aria-pressed={wrapped}
-                                title={wrapped ? "Disable line wrapping" : "Enable line wrapping"}
+                                title={wrapped ? t("code.disableWrapping") : t("code.enableWrapping")}
                                 onClick={() => setWrapped((prev) => !prev)}
                             >
                                 <Icon icon="newline" />
-                                Wrap
+                                {t("code.wrap")}
                             </Button>
                         )}
                         {extraActions}
                         <Button
                             variant="link"
                             className="text-emphasis"
-                            title="Copy to clipboard"
-                            onClick={() => copyToClipboard.copy(`${code}`, `Copied to clipboard`)}
+                            title={t("copyToClipboard")}
+                            onClick={() => copyToClipboard.copy(`${code}`, t("code.copied"))}
                         >
                             <Icon icon="copy" />
-                            Copy
+                            {t("code.copy")}
                         </Button>
                         {!isRunQueryHidden && hasDatabase && props.language === "rql" && (
                             <Button variant="link" className="text-emphasis" onClick={handleRunQuery}>
                                 <Icon icon="rocket" />
-                                Run query
+                                {t("code.runQuery")}
                             </Button>
                         )}
                     </div>
@@ -194,9 +199,9 @@ function getLanguageToHighlight(language: CodeLanguage): CodeLanguage {
     }
 }
 
-const languageTitles: Record<CodeLanguage, string> = {
-    plaintext: "Plaintext",
-    markup: "Markup",
+const getLanguageTitles = (t: StudioTranslate<"commonComponents">): Record<CodeLanguage, string> => ({
+    plaintext: t("code.language.plaintext"),
+    markup: t("code.language.markup"),
     html: "HTML",
     mathml: "MathML",
     svg: "SVG",
@@ -205,7 +210,7 @@ const languageTitles: Record<CodeLanguage, string> = {
     atom: "Atom",
     rss: "RSS",
     css: "CSS",
-    clike: "C-like",
+    clike: t("code.language.clike"),
     javascript: "JavaScript",
     csharp: "C#",
     json: "JSON",
@@ -213,4 +218,4 @@ const languageTitles: Record<CodeLanguage, string> = {
     rql: "RQL",
     python: "Python",
     java: "Java",
-};
+});

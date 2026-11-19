@@ -6,6 +6,8 @@ import Button from "react-bootstrap/Button";
 import { aiAssistantActions } from "../shell/aiAssistantSlice";
 import { useAsyncCallback } from "react-async-hook";
 import ButtonWithSpinner from "../ButtonWithSpinner";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 const aiAssistantImg = require("Content/img/ai-assistant-terms-of-use.webp");
 
 interface AiAssistantEulaModalProps {
@@ -14,6 +16,8 @@ interface AiAssistantEulaModalProps {
 }
 
 export function AiAssistantEulaModal({ close, onConsentGiven }: AiAssistantEulaModalProps) {
+    const t = useStudioTranslation("aiAssistant");
+    const tCommon = useStudioTranslation("common");
     const dispatch = useAppDispatch();
 
     const { value: isAccepted, toggle: toggleAccepted } = useBoolean(false);
@@ -29,26 +33,26 @@ export function AiAssistantEulaModal({ close, onConsentGiven }: AiAssistantEulaM
     return (
         <Modal show onHide={close} contentClassName="modal-border bulge-primary">
             <Modal.Header closeButton onCloseClick={close} className="pb-0">
-                <h3>Get Started with AI Assistant</h3>
+                <h3>{t("eula.title")}</h3>
             </Modal.Header>
             <div className="px-4 rounded overflow-hidden">
                 <img src={aiAssistantImg} className="w-100 rounded-2" />
             </div>
             <Modal.Body className="py-1 vstack gap-2">
-                <div className="mt-2">
-                    The built-in AI Assistant is designed to supercharge your workflow. To enable this feature, please
-                    review and accept the Terms of Use.
-                </div>
+                <div className="mt-2">{t("eula.description")}</div>
                 <Checkbox selected={isAccepted} toggleSelection={toggleAccepted} color="primary">
-                    I accept the{" "}
-                    <a href="https://ravendb.net/legal/ravendb/ai-assistant-terms-of-use" target="_blank">
-                        RavenDB AI Assistant Terms of Use
-                    </a>
+                    <StudioTrans
+                        ns="aiAssistant"
+                        i18nKey="eula.accept"
+                        components={{
+                            a: <a href="https://ravendb.net/legal/ravendb/ai-assistant-terms-of-use" target="_blank" />,
+                        }}
+                    />
                 </Checkbox>
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="link" onClick={close} className="link-muted rounded-pill">
-                    Cancel
+                    {tCommon("cancel")}
                 </Button>
                 <ButtonWithSpinner
                     variant="primary"
@@ -57,7 +61,7 @@ export function AiAssistantEulaModal({ close, onConsentGiven }: AiAssistantEulaM
                     disabled={!isAccepted}
                     isSpinning={asyncHandleConsent.loading}
                 >
-                    Agree & Enable
+                    {t("eula.agree")}
                 </ButtonWithSpinner>
             </Modal.Footer>
         </Modal>

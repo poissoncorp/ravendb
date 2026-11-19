@@ -2,8 +2,10 @@
 import { SelectOption } from "components/common/select/Select";
 import { loadableData } from "components/models/common";
 import { StoryFn } from "@storybook/react-webpack5";
-import typeUtils = require("common/typeUtils");
 import recentError = require("common/notifications/models/recentError");
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("infra");
 
 export function withPreventDefault(action: (...args: any[]) => void): MouseEventHandler<HTMLElement> {
     return (e: MouseEvent<HTMLElement>) => {
@@ -64,7 +66,7 @@ export function getErrorHeadline(error: string): string {
 
 export function getRequestErrorMessage(response: JQueryXHR): string {
     if (response.statusText === "timeout") {
-        return "Request timed out";
+        return t("requestTimedOut");
     }
 
     const { message, error } = recentError.tryExtractMessageAndException(response.responseText);
@@ -114,7 +116,7 @@ export async function tryCatch<T>(promiseFn: () => Promise<T>): Promise<TryCatch
     } catch (error) {
         return {
             status: "error",
-            error: error instanceof Error ? error.message : "Unknown error",
+            error: error instanceof Error ? error.message : t("unknownError"),
         };
     }
 }
@@ -132,62 +134,94 @@ export const exhaustiveStringTuple =
 
 export const milliSecondsInWeek = 1000 * 3600 * 24 * 7;
 
+function translatedOption<T>(value: T, getLabel: () => string): SelectOption<T> {
+    return {
+        value,
+        get label() {
+            return getLabel();
+        },
+    };
+}
+
 export const availableGlacierRegions: SelectOption<string>[] = [
-    { label: "Africa (Cape Town) - af-south-1", value: "af-south-1" },
-    { label: "Asia Pacific (Hong Kong) - ap-east-1", value: "ap-east-1" },
-    { label: "Asia Pacific (Jakarta) - ap-southeast-3", value: "ap-southeast-3" },
-    { label: "Asia Pacific (Mumbai) - ap-south-1", value: "ap-south-1" },
-    { label: "Asia Pacific (Osaka) - ap-northeast-3", value: "ap-northeast-3" },
-    { label: "Asia Pacific (Seoul) - ap-northeast-2", value: "ap-northeast-2" },
-    { label: "Asia Pacific (Singapore) - ap-southeast-1", value: "ap-southeast-1" },
-    { label: "Asia Pacific (Sydney) - ap-southeast-2", value: "ap-southeast-2" },
-    { label: "Asia Pacific (Tokyo) - ap-northeast-1", value: "ap-northeast-1" },
-    { label: "AWS GovCloud (US-East) - us-gov-east-1", value: "us-gov-east-1" },
-    { label: "AWS GovCloud (US-West) - gov-west-1", value: "us-gov-west-1" },
-    { label: "Canada (Central) - ca-central-1", value: "ca-central-1" },
-    { label: "China (Beijing) - cn-north-1", value: "cn-north-1" },
-    { label: "China (Ningxia) - cn-northwest-1", value: "cn-northwest-1" },
-    { label: "Europe (Frankfurt) - eu-central-1", value: "eu-central-1" },
-    { label: "Europe (Ireland) - eu-west-1", value: "eu-west-1" },
-    { label: "Europe (London) - eu-west-2", value: "eu-west-2" },
-    { label: "Europe (Milan) - eu-south-1", value: "eu-south-1" },
-    { label: "Europe (Paris) - eu-west-3", value: "eu-west-3" },
-    { label: "Europe (Stockholm) - eu-north-1", value: "eu-north-1" },
-    { label: "Israel (Tel Aviv) - il-central-1", value: "il-central-1" },
-    { label: "Middle East (Bahrain) - me-south-1", value: "me-south-1" },
-    { label: "South America (São Paulo) - sa-east-1", value: "sa-east-1" },
-    { label: "US East (N. Virginia) - us-east-1", value: "us-east-1" },
-    { label: "US East (Ohio) - us-east-2", value: "us-east-2" },
-    { label: "US West (N. California) - us-west-1", value: "us-west-1" },
-    { label: "US West (Oregon) - us-west-2", value: "us-west-2" },
+    translatedOption("af-south-1", () => t("awsRegions.afSouth1")),
+    translatedOption("ap-east-1", () => t("awsRegions.apEast1")),
+    translatedOption("ap-southeast-3", () => t("awsRegions.apSoutheast3")),
+    translatedOption("ap-south-1", () => t("awsRegions.apSouth1")),
+    translatedOption("ap-northeast-3", () => t("awsRegions.apNortheast3")),
+    translatedOption("ap-northeast-2", () => t("awsRegions.apNortheast2")),
+    translatedOption("ap-southeast-1", () => t("awsRegions.apSoutheast1")),
+    translatedOption("ap-southeast-2", () => t("awsRegions.apSoutheast2")),
+    translatedOption("ap-northeast-1", () => t("awsRegions.apNortheast1")),
+    translatedOption("us-gov-east-1", () => t("awsRegions.usGovEast1")),
+    translatedOption("us-gov-west-1", () => t("awsRegions.usGovWest1")),
+    translatedOption("ca-central-1", () => t("awsRegions.caCentral1")),
+    translatedOption("cn-north-1", () => t("awsRegions.cnNorth1")),
+    translatedOption("cn-northwest-1", () => t("awsRegions.cnNorthwest1")),
+    translatedOption("eu-central-1", () => t("awsRegions.euCentral1")),
+    translatedOption("eu-west-1", () => t("awsRegions.euWest1")),
+    translatedOption("eu-west-2", () => t("awsRegions.euWest2")),
+    translatedOption("eu-south-1", () => t("awsRegions.euSouth1")),
+    translatedOption("eu-west-3", () => t("awsRegions.euWest3")),
+    translatedOption("eu-north-1", () => t("awsRegions.euNorth1")),
+    translatedOption("il-central-1", () => t("awsRegions.ilCentral1")),
+    translatedOption("me-south-1", () => t("awsRegions.meSouth1")),
+    translatedOption("sa-east-1", () => t("awsRegions.saEast1")),
+    translatedOption("us-east-1", () => t("awsRegions.usEast1")),
+    translatedOption("us-east-2", () => t("awsRegions.usEast2")),
+    translatedOption("us-west-1", () => t("awsRegions.usWest1")),
+    translatedOption("us-west-2", () => t("awsRegions.usWest2")),
 ];
 
-export const availableS3Regions: SelectOption<string>[] = typeUtils.sortBy(
-    [
-        ...availableGlacierRegions,
-        { label: "Asia Pacific (Hyderabad) - ap-south-2", value: "ap-south-2" },
-        { label: "Asia Pacific (Melbourne) - ap-southeast-4", value: "ap-southeast-4" },
-        { label: "Europe (Spain) - eu-south-2", value: "eu-south-2" },
-        { label: "Europe (Zurich) - eu-central-2", value: "eu-central-2" },
-        { label: "Middle East (UAE) - me-central-1", value: "me-central-1" },
-    ],
-    (region) => region.label.toLowerCase()
-);
+export const availableS3Regions: SelectOption<string>[] = [
+    translatedOption("af-south-1", () => t("awsRegions.afSouth1")),
+    translatedOption("ap-east-1", () => t("awsRegions.apEast1")),
+    translatedOption("ap-south-2", () => t("awsRegions.apSouth2")),
+    translatedOption("ap-southeast-3", () => t("awsRegions.apSoutheast3")),
+    translatedOption("ap-southeast-4", () => t("awsRegions.apSoutheast4")),
+    translatedOption("ap-south-1", () => t("awsRegions.apSouth1")),
+    translatedOption("ap-northeast-3", () => t("awsRegions.apNortheast3")),
+    translatedOption("ap-northeast-2", () => t("awsRegions.apNortheast2")),
+    translatedOption("ap-southeast-1", () => t("awsRegions.apSoutheast1")),
+    translatedOption("ap-southeast-2", () => t("awsRegions.apSoutheast2")),
+    translatedOption("ap-northeast-1", () => t("awsRegions.apNortheast1")),
+    translatedOption("us-gov-east-1", () => t("awsRegions.usGovEast1")),
+    translatedOption("us-gov-west-1", () => t("awsRegions.usGovWest1")),
+    translatedOption("ca-central-1", () => t("awsRegions.caCentral1")),
+    translatedOption("cn-north-1", () => t("awsRegions.cnNorth1")),
+    translatedOption("cn-northwest-1", () => t("awsRegions.cnNorthwest1")),
+    translatedOption("eu-central-1", () => t("awsRegions.euCentral1")),
+    translatedOption("eu-west-1", () => t("awsRegions.euWest1")),
+    translatedOption("eu-west-2", () => t("awsRegions.euWest2")),
+    translatedOption("eu-south-1", () => t("awsRegions.euSouth1")),
+    translatedOption("eu-west-3", () => t("awsRegions.euWest3")),
+    translatedOption("eu-south-2", () => t("awsRegions.euSouth2")),
+    translatedOption("eu-north-1", () => t("awsRegions.euNorth1")),
+    translatedOption("eu-central-2", () => t("awsRegions.euCentral2")),
+    translatedOption("il-central-1", () => t("awsRegions.ilCentral1")),
+    translatedOption("me-south-1", () => t("awsRegions.meSouth1")),
+    translatedOption("me-central-1", () => t("awsRegions.meCentral1")),
+    translatedOption("sa-east-1", () => t("awsRegions.saEast1")),
+    translatedOption("us-east-1", () => t("awsRegions.usEast1")),
+    translatedOption("us-east-2", () => t("awsRegions.usEast2")),
+    translatedOption("us-west-1", () => t("awsRegions.usWest1")),
+    translatedOption("us-west-2", () => t("awsRegions.usWest2")),
+];
 
 export type OmitIndexSignature<T> = {
     [K in keyof T as string extends K ? never : K]: T[K];
 };
 
 export const storageClassOptions: SelectOption<Raven.Client.Documents.Operations.Backups.S3StorageClass>[] = [
-    { value: "Standard", label: "Standard" },
-    { value: "IntelligentTiering", label: "Intelligent Tiering" },
-    { value: "StandardInfrequentAccess", label: "Standard Infrequent Access" },
-    { value: "OneZoneInfrequentAccess", label: "One Zone Infrequent Access" },
-    { value: "GlacierInstantRetrieval", label: "Glacier Instant Retrieval" },
-    { value: "Glacier", label: "Glacier Flexible Retrieval" },
-    { value: "ReducedRedundancy", label: "Reduced Redundancy" },
-    { value: "DeepArchive", label: "Deep Archive" },
-    { value: "ExpressOneZone", label: "Express One Zone" },
+    translatedOption("Standard", () => t("s3StorageClasses.standard")),
+    translatedOption("IntelligentTiering", () => t("s3StorageClasses.intelligentTiering")),
+    translatedOption("StandardInfrequentAccess", () => t("s3StorageClasses.standardInfrequentAccess")),
+    translatedOption("OneZoneInfrequentAccess", () => t("s3StorageClasses.oneZoneInfrequentAccess")),
+    translatedOption("GlacierInstantRetrieval", () => t("s3StorageClasses.glacierInstantRetrieval")),
+    translatedOption("Glacier", () => t("s3StorageClasses.glacierFlexibleRetrieval")),
+    translatedOption("ReducedRedundancy", () => t("s3StorageClasses.reducedRedundancy")),
+    translatedOption("DeepArchive", () => t("s3StorageClasses.deepArchive")),
+    translatedOption("ExpressOneZone", () => t("s3StorageClasses.expressOneZone")),
 ];
 
 export type StringWithAutocomplete<T> = T | (string & NonNullable<unknown>);

@@ -17,11 +17,14 @@ import useBoolean from "components/hooks/useBoolean";
 import classNames from "classnames";
 import PopoverWithHoverWrapper from "../PopoverWithHoverWrapper";
 import OverrideConfigurationViaExternalScriptToggle from "components/common/formDestinations/OverrideConfigurationViaExternalScriptToggle";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface GoogleCloudProps {
     isForNewConnection: boolean;
 }
 export default function GoogleCloud({ isForNewConnection }: GoogleCloudProps) {
+    const t = useStudioTranslation("formDestinations");
     const { control, trigger } = useFormContext<FormDestinations>();
     const {
         destinations: { googleCloud: formValues },
@@ -57,20 +60,22 @@ export default function GoogleCloud({ isForNewConnection }: GoogleCloudProps) {
                             <div className="vstack gap-3 mt-2">
                                 <div className="mb-2">
                                     <FormLabel className="d-flex align-items-center gap-1">
-                                        Bucket{" "}
+                                        {t("googleCloud.bucketLabel")}{" "}
                                         <PopoverWithHoverWrapper
                                             message={
                                                 <>
-                                                    Bucket should be created manually in order for this OLAP to work.
-                                                    You can use the <span className="text-info">Test credentials</span>{" "}
-                                                    button to verify its existence.
+                                                    <StudioTrans
+                                                        ns="formDestinations"
+                                                        i18nKey="bucketInfo"
+                                                        components={{ span: <span className="text-info" /> }}
+                                                    />
                                                     <hr className="my-2" />
                                                     <a
                                                         href="https://cloud.google.com/storage/docs/bucket-naming"
                                                         target="_blank"
                                                     >
                                                         <Icon icon="newtab" />
-                                                        Bucket naming guidelines
+                                                        {t("googleCloud.namingGuidelines")}
                                                     </a>
                                                 </>
                                             }
@@ -80,12 +85,12 @@ export default function GoogleCloud({ isForNewConnection }: GoogleCloudProps) {
                                         {asyncTest.result?.Success ? (
                                             <Badge bg="success" pill>
                                                 <Icon icon="check" />
-                                                Successfully connected
+                                                {t("connection.success")}
                                             </Badge>
                                         ) : asyncTest.result?.Error ? (
                                             <Badge bg="danger" pill>
                                                 <Icon icon="warning" />
-                                                Failed connection
+                                                {t("connection.failed")}
                                             </Badge>
                                         ) : null}
                                     </FormLabel>
@@ -93,29 +98,35 @@ export default function GoogleCloud({ isForNewConnection }: GoogleCloudProps) {
                                     <FormInput
                                         name={getName("bucketName")}
                                         control={control}
-                                        placeholder="Enter a bucket"
+                                        placeholder={t("googleCloud.bucketPlaceholder")}
                                         type="text"
                                         autoComplete="off"
                                     />
                                 </div>
                                 <div className="mb-2">
                                     <FormLabel>
-                                        Remote folder name <small className="text-muted fw-light">(optional)</small>
+                                        <StudioTrans
+                                            ns="formDestinations"
+                                            i18nKey="remoteFolderName.label"
+                                            components={{ small: <small className="text-muted fw-light" /> }}
+                                        />
                                     </FormLabel>
                                     <FormInput
                                         name={getName("remoteFolderName")}
                                         control={control}
-                                        placeholder="Enter a remote folder name"
+                                        placeholder={t("remoteFolderName.placeholder")}
                                         type="text"
                                         autoComplete="off"
                                     />
                                 </div>
                                 <div className="mb-2">
-                                    <FormLabel>Google Credentials Json</FormLabel>
+                                    <FormLabel>{t("googleCloud.credentialsJsonLabel")}</FormLabel>
                                     <FormInput
                                         name={getName("googleCredentialsJson")}
                                         control={control}
-                                        placeholder={googleCredentialsJsonPlaceholder}
+                                        placeholder={t("googleCloud.credentialsJsonPlaceholder", {
+                                            example: googleCredentialsJsonExample,
+                                        })}
                                         type="textarea"
                                         as="textarea"
                                         autoComplete="off"
@@ -132,15 +143,14 @@ export default function GoogleCloud({ isForNewConnection }: GoogleCloudProps) {
                                     {isCredentialsJsonVisible ? (
                                         <>
                                             <Icon icon="preview-off" />
-                                            Hide
+                                            {t("googleCloud.hideCredentials")}
                                         </>
                                     ) : (
                                         <>
                                             <Icon icon="preview" />
-                                            Show
+                                            {t("googleCloud.showCredentials")}
                                         </>
-                                    )}{" "}
-                                    credentials
+                                    )}
                                 </Button>
                                 <div className="d-flex justify-content-end">
                                     <FlexGrow />
@@ -151,7 +161,7 @@ export default function GoogleCloud({ isForNewConnection }: GoogleCloudProps) {
                                         isSpinning={asyncTest.loading}
                                         icon="rocket"
                                     >
-                                        Test credentials
+                                        {t("connection.testCredentials")}
                                     </ButtonWithSpinner>
                                 </div>
                                 {asyncTest.result?.Error && (
@@ -168,8 +178,7 @@ export default function GoogleCloud({ isForNewConnection }: GoogleCloudProps) {
     );
 }
 
-const googleCredentialsJsonPlaceholder = `e.g.
-{
+const googleCredentialsJsonExample = `{
     "type": "service_account",
     "project_id": "test-raven-237012",
     "private_key_id": "12345678123412341234123456789101",

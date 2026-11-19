@@ -13,13 +13,13 @@
     <div class="btn-group" data-bind="css: { dropup: dropup }">
         <button type="button" class="btn btn-default set-size dropdown-toggle" data-toggle="dropdown"
                 aria-expanded="false">
-            <i class="icon-node text-success"></i> <span>Node</span> <span data-bind="text: $root.form.node"></span>
+            <i class="icon-node text-success"></i> <span data-bind="i18n: { key: 'inlineShardSelector:node', options: { nodeTag: $root.form.node } }"></span>
             <span class="caret"></span>
         </button>
         <ul class="dropdown-menu" data-bind="foreach: shardNodes">
             <li>
                 <a href="#" data-bind="click: _.partial($root.changeNodeTag, $data)" style="text-decoration: none !important;">
-                    <i class="icon-node"></i> Node <span data-bind="text: $data"></span>
+                    <i class="icon-node"></i> <span data-bind="i18n: { key: 'inlineShardSelector:node', options: { nodeTag: $data } }"></span>
                     <i class="icon-link" data-bind="visible: $data !== $root.currentNode()"></i>
                 </a>
             </li>

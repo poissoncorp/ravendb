@@ -1,6 +1,9 @@
 import database = require("models/resources/database");
 import appUrl = require("common/appUrl");
 import messagePublisher = require("common/messagePublisher");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("studioCommon");
 
 class downloader {
     $downloadFrame = $("#downloadFrame");
@@ -29,10 +32,10 @@ class downloader {
                 return true;
             }
 
-            messagePublisher.reportError("Failed to download file", await response.text(), response.statusText);
+            messagePublisher.reportError(t("downloadFailed"), await response.text(), response.statusText);
             return false;
         } catch (e) {
-            messagePublisher.reportError("Failed to download file", e.message);
+            messagePublisher.reportError(t("downloadFailed"), e.message);
             return false;
         } finally {
             abortController.abort();

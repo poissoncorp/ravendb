@@ -4,6 +4,9 @@ import { IndexNodeInfo, IndexNodeInfoDetails, IndexSharedInfo, IndexStatus } fro
 import collection from "models/database/documents/collection";
 import IndexRunningStatus = Raven.Client.Documents.Indexes.IndexRunningStatus;
 import IconName from "typings/server/icons";
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("infra");
 
 type IndexType = Raven.Client.Documents.Indexes.IndexType;
 type IndexDefinition = Raven.Client.Documents.Indexes.IndexDefinition;
@@ -11,7 +14,10 @@ type IndexDefinition = Raven.Client.Documents.Indexes.IndexDefinition;
 //TODO: do we want that here?
 
 export default class IndexUtils {
-    static readonly DefaultIndexGroupName = "Other";
+    static get DefaultIndexGroupName() {
+        return t("indexes.defaultGroupName");
+    }
+
     static readonly AutoIndexPrefix = "Auto/";
     static readonly SideBySideIndexPrefix = "ReplacementOf/";
     static readonly ReferenceCollectionExtension = "/References";
@@ -63,11 +69,11 @@ export default class IndexUtils {
     static formatLockMode(lockMode: IndexLockMode) {
         switch (lockMode) {
             case "LockedIgnore":
-                return "Locked (ignore)";
+                return t("indexes.lockModes.lockedIgnore");
             case "LockedError":
-                return "Locked (error)";
+                return t("indexes.lockModes.lockedError");
             case "Unlock":
-                return "Unlock";
+                return t("indexes.lockModes.unlock");
             default:
                 assertUnreachable(lockMode);
         }
@@ -76,11 +82,11 @@ export default class IndexUtils {
     static formatActionLockMode(lockMode: IndexLockMode) {
         switch (lockMode) {
             case "LockedIgnore":
-                return "Lock (ignore)";
+                return t("indexes.lockActions.lockIgnore");
             case "LockedError":
-                return "Lock (error)";
+                return t("indexes.lockActions.lockError");
             case "Unlock":
-                return "Unlock";
+                return t("indexes.lockActions.unlock");
             default:
                 assertUnreachable(lockMode);
         }
@@ -102,9 +108,9 @@ export default class IndexUtils {
     static formatStatus(status: IndexStatus) {
         switch (status) {
             case "RollingDeployment":
-                return "Rolling deployment";
+                return t("indexes.statuses.rollingDeployment");
             case "ErrorOrFaulty":
-                return "Error, Faulty";
+                return t("indexes.statuses.errorOrFaulty");
             default:
                 return status;
         }
@@ -131,13 +137,13 @@ export default class IndexUtils {
     static formatType(indexType: IndexType) {
         switch (indexType) {
             case "Map":
-                return "Map";
+                return t("indexes.types.map");
             case "MapReduce":
-                return "Map-Reduce";
+                return t("indexes.types.mapReduce");
             case "AutoMap":
-                return "Auto Map";
+                return t("indexes.types.autoMap");
             case "AutoMapReduce":
-                return "Auto Map-Reduce";
+                return t("indexes.types.autoMapReduce");
             default:
                 return indexType;
         }

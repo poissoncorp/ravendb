@@ -10,6 +10,7 @@ import { Icon } from "components/common/Icon";
 import { Checkbox } from "components/common/Checkbox";
 import { CustomDropdownToggle } from "components/common/Dropdown";
 import IconName from "typings/server/icons";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 interface FilterOption<T> {
     value: T;
@@ -89,6 +90,7 @@ interface FilterMenuProps {
 }
 
 export function FilterMenu({ categories, title }: FilterMenuProps) {
+    const t = useStudioTranslation("filterMenu");
     const [isOpen, setIsOpen] = useState(false);
     const [openCategoryKey, setOpenCategoryKey] = useState<string>(null);
     const categoryItems = useRef(new Map<string, HTMLElement>());
@@ -123,7 +125,7 @@ export function FilterMenu({ categories, title }: FilterMenuProps) {
                 as={CustomDropdownToggle}
                 isCaretHidden
                 title={title}
-                aria-label={activeFiltersCount > 0 ? `${title} (${activeFiltersCount} active)` : title}
+                aria-label={activeFiltersCount > 0 ? t("toggleLabel", { title, count: activeFiltersCount }) : title}
                 className={classNames({ active: activeFiltersCount > 0 })}
             >
                 <Icon icon="filter" margin="m-0" />
@@ -144,8 +146,8 @@ export function FilterMenu({ categories, title }: FilterMenuProps) {
                 ) : (
                     <>
                         <MenuHeader
-                            title="Filters"
-                            actionLabel="Clear"
+                            title={t("title")}
+                            actionLabel={t("clear")}
                             isActionVisible={activeFiltersCount > 0}
                             onAction={() => activeCategories.forEach(clearFilterCategory)}
                         />
@@ -163,7 +165,7 @@ export function FilterMenu({ categories, title }: FilterMenuProps) {
                                 <span className="filter-menu-category-label">{category.label}</span>
                                 {activeCategories.includes(category) && (
                                     <span className="filter-menu-active-dot">
-                                        <span className="visually-hidden"> (active)</span>
+                                        <span className="visually-hidden"> {t("categoryActive")}</span>
                                     </span>
                                 )}
                             </Dropdown.Item>
@@ -214,6 +216,8 @@ interface FilterChipProps {
 }
 
 function FilterChip({ category, isOpen, setIsOpen }: FilterChipProps) {
+    const t = useStudioTranslation("filterMenu");
+
     const clear = () => {
         setIsOpen(false);
         clearFilterCategory(category);
@@ -226,7 +230,7 @@ function FilterChip({ category, isOpen, setIsOpen }: FilterChipProps) {
                     as="button"
                     type="button"
                     className="filter-chip-toggle"
-                    title={`Change "${category.label}" filter`}
+                    title={t("changeFilter", { category: category.label })}
                 >
                     <Icon icon={category.icon} />
                     <span className="filter-chip-label">{category.label}:</span>
@@ -235,7 +239,7 @@ function FilterChip({ category, isOpen, setIsOpen }: FilterChipProps) {
                 <button
                     type="button"
                     className="filter-chip-clear"
-                    title={`Clear "${category.label}" filter`}
+                    title={t("clearFilter", { category: category.label })}
                     onClick={clear}
                 >
                     <Icon icon="close" margin="m-0" />
@@ -256,6 +260,7 @@ interface FilterCategoryMenuProps {
 }
 
 function FilterCategoryMenu({ category, isShown, closeMenu, onBack }: FilterCategoryMenuProps) {
+    const t = useStudioTranslation("filterMenu");
     const optionsRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -282,7 +287,7 @@ function FilterCategoryMenu({ category, isShown, closeMenu, onBack }: FilterCate
         <>
             <div className="filter-menu-header justify-content-start">
                 {onBack && (
-                    <Button variant="link" className="p-0 me-1" onClick={onBack} title="Back to filters">
+                    <Button variant="link" className="p-0 me-1" onClick={onBack} title={t("backToFilters")}>
                         <Icon icon="arrow-thin-left" margin="m-0" />
                     </Button>
                 )}

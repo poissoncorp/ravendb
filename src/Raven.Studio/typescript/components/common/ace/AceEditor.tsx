@@ -21,6 +21,8 @@ import AceEditorSamplesPanel, {
     AceEditorSamplesToggleAction,
 } from "./AceEditorSamplesPanel";
 import useConfirm from "components/common/ConfirmDialog";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface ActionItem {
     component: ReactNode;
@@ -66,6 +68,7 @@ function AceEditor(props: AceEditorProps) {
         ...rest
     } = props;
 
+    const t = useStudioTranslation("aceEditor");
     const defaultAceRef = useRef<ReactAce>(null);
     const aceRef = props.aceRef || defaultAceRef;
 
@@ -143,7 +146,9 @@ function AceEditor(props: AceEditorProps) {
         const firstError = annotations.find((x) => x.type === "error");
 
         if (firstError) {
-            setAceErrorMessage(`${firstError.row},${firstError.column}: error: ${firstError.text}`);
+            setAceErrorMessage(
+                t("errorMessage", { row: firstError.row, column: firstError.column, text: firstError.text })
+            );
         } else {
             setAceErrorMessage(null);
         }
@@ -172,10 +177,10 @@ function AceEditor(props: AceEditorProps) {
 
         if (currentValue.trim() && confirm) {
             const isConfirmed = await confirm({
-                title: "Load sample into the editor?",
-                message: "The current editor content will be replaced.",
+                title: t("loadSampleConfirm.title"),
+                message: t("loadSampleConfirm.message"),
                 actionColor: "warning",
-                confirmText: "Load",
+                confirmText: t("loadSampleConfirm.confirm"),
             });
 
             if (!isConfirmed) {
@@ -267,20 +272,23 @@ function AceEditor(props: AceEditorProps) {
                             </div>
                         </div>
                     )}
-                    {!isFullScreenLabelHidden && (
-                        <span className="fullScreenModeLabel">Press Shift+F11 to enter full screen mode</span>
-                    )}
+                    {!isFullScreenLabelHidden && <span className="fullScreenModeLabel">{t("fullScreenHint")}</span>}
                     {showSamplesPlaceholder && (
                         <div className="ace-samples-placeholder">
                             <span className="ace-samples-placeholder__text">
-                                {"// Start writing, or "}
-                                <button
-                                    type="button"
-                                    className="ace-samples-placeholder__link"
-                                    onClick={handleBrowseSamplesClick}
-                                >
-                                    browse samples
-                                </button>
+                                <StudioTrans
+                                    ns="aceEditor"
+                                    i18nKey="samplesPlaceholder"
+                                    components={{
+                                        button: (
+                                            <button
+                                                type="button"
+                                                className="ace-samples-placeholder__link"
+                                                onClick={handleBrowseSamplesClick}
+                                            />
+                                        ),
+                                    }}
+                                />
                             </span>
                         </div>
                     )}

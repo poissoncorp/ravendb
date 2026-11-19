@@ -2,8 +2,11 @@
 
 import React from "react";
 import "./SplashScreen.scss";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export function SplashScreen() {
+    const t = useStudioTranslation("commonComponents");
+
     return (
         <div className="splash-screen">
             <div className="spinner-box">
@@ -18,7 +21,7 @@ export function SplashScreen() {
                     <i className="orbit-icon"></i>
                 </div>
             </div>
-            <p className="lead text-center">Loading...</p>
+            <p className="lead text-center">{t("splashScreen.loading")}</p>
         </div>
     );
 }

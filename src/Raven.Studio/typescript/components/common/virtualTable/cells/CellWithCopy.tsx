@@ -9,6 +9,7 @@ import { useAsync } from "react-async-hook";
 import Button from "react-bootstrap/Button";
 import Popover from "react-bootstrap/Popover";
 import Spinner from "react-bootstrap/Spinner";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 interface CellWithCopyProps extends PropsWithChildren {
     value: unknown;
@@ -72,10 +73,11 @@ function CellWithCopyPreview({
     previewLanguage,
     additionalButtons,
 }: Pick<CellWithCopyProps, "value" | "previewCode" | "previewLanguage" | "additionalButtons">) {
+    const t = useStudioTranslation("virtualTable");
     const previewBody = previewCode ?? JSON.stringify(value, null, 4);
 
     const handleCopyToClipboard = () => {
-        copyToClipboard.copy(previewBody, "Item has been copied to clipboard");
+        copyToClipboard.copy(previewBody, t("cells.itemCopied"));
     };
 
     return (
@@ -86,9 +88,9 @@ function CellWithCopyPreview({
             >
                 <Code language={previewLanguage} code={previewBody} isActionsHidden />
             </pre>
-            <span className="small-label">Actions</span>
+            <span className="small-label">{t("cells.actions")}</span>
             <div className="d-flex gap-2">
-                <Button onClick={handleCopyToClipboard} size="sm" title="Copy to clipboard">
+                <Button onClick={handleCopyToClipboard} size="sm" title={t("cells.copyToClipboard")}>
                     <Icon icon="copy-to-clipboard" margin="m-0" />
                 </Button>
                 {additionalButtons}
@@ -103,6 +105,7 @@ function CellWithCopyResolvedPreview({
     additionalButtons,
 }: Required<Pick<CellWithCopyProps, "resolvePreviewValue">> &
     Pick<CellWithCopyProps, "previewLanguage" | "additionalButtons">) {
+    const t = useStudioTranslation("virtualTable");
     const asyncValue = useAsync(resolvePreviewValue, []);
 
     if (asyncValue.loading) {
@@ -110,11 +113,11 @@ function CellWithCopyResolvedPreview({
     }
 
     if (asyncValue.error) {
-        return <span className="text-danger">Unable to load the value: {asyncValue.error.message}</span>;
+        return <span className="text-danger">{t("cells.valueLoadError", { message: asyncValue.error.message })}</span>;
     }
 
     if (asyncValue.result === undefined) {
-        return <span className="text-muted">The value no longer exists</span>;
+        return <span className="text-muted">{t("cells.valueMissing")}</span>;
     }
 
     return (

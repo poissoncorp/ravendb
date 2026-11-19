@@ -3,6 +3,7 @@ import classNames from "classnames";
 import Badge from "react-bootstrap/Badge";
 import { getLicenseLimitReachStatus } from "components/utils/licenseLimitsUtils";
 import PopoverWithHoverWrapper from "./PopoverWithHoverWrapper";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface CounterBadgeProps {
     count: number;
@@ -26,7 +27,12 @@ export function CounterBadge(props: CounterBadgeProps) {
                             limitMessage
                         ) : (
                             <span>
-                                License limit: <strong>{limit}</strong>
+                                <StudioTrans
+                                    ns="commonComponents"
+                                    i18nKey="counterBadge.licenseLimit"
+                                    components={{ strong: <strong /> }}
+                                    options={{ limit }}
+                                />
                             </span>
                         )
                     }

@@ -14,6 +14,7 @@ import fileDownloader from "common/fileDownloader";
 import { ConditionalPopover } from "components/common/ConditionalPopover";
 import RichAlert from "components/common/RichAlert";
 import PopoverWithHoverWrapper from "./PopoverWithHoverWrapper";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 const encryptionImg = require("Content/img/createDatabase/encryption.svg");
 const qrLogo = require("Content/img/qr_logo.png");
@@ -41,6 +42,7 @@ export default function FormEncryption<TFieldValues extends FieldValues, TName e
     triggerEncryptionKey,
     isReadOnly,
 }: FormEncryptionProps<TFieldValues, TName>) {
+    const t = useStudioTranslation("commonComponents");
     const { databasesService } = useServices();
 
     const asyncGenerateSecret = useAsyncCallback(async (isRegenerate) => {
@@ -98,12 +100,12 @@ export default function FormEncryption<TFieldValues extends FieldValues, TName e
     return (
         <div>
             <div className="d-flex justify-content-center">
-                <img src={encryptionImg} alt="Encryption" className="step-img" />
+                <img src={encryptionImg} alt={t("formEncryption.imageAlt")} className="step-img" />
             </div>
-            <h2 className="text-center">Encryption at Rest</h2>
+            <h2 className="text-center">{t("formEncryption.title")}</h2>
             <Row className="mt-4">
                 <Col xs="12" sm="8">
-                    <div className="small-label mb-1">Key (Base64 Encoding)</div>
+                    <div className="small-label mb-1">{t("formEncryption.keyLabel")}</div>
                     <div className="d-flex">
                         <InputGroup>
                             <FormInput
@@ -116,7 +118,7 @@ export default function FormEncryption<TFieldValues extends FieldValues, TName e
                                 <Button
                                     type="button"
                                     variant="secondary"
-                                    title="Regenerate key"
+                                    title={t("formEncryption.regenerateKey")}
                                     onClick={() => asyncGenerateSecret.execute(true)}
                                 >
                                     <Icon icon="reset" margin="m-0" />
@@ -127,10 +129,8 @@ export default function FormEncryption<TFieldValues extends FieldValues, TName e
                             <Button
                                 variant="secondary"
                                 type="button"
-                                title="Copy to clipboard"
-                                onClick={() =>
-                                    copyToClipboard.copy(keyText, "Encryption key data was copied to clipboard")
-                                }
+                                title={t("copyToClipboard")}
+                                onClick={() => copyToClipboard.copy(keyText, t("formEncryption.copied"))}
                                 disabled={!isEncryptionKeyValid}
                                 className="ms-1"
                             >
@@ -150,7 +150,7 @@ export default function FormEncryption<TFieldValues extends FieldValues, TName e
                                     disabled={!isEncryptionKeyValid}
                                     className="mb-2"
                                 >
-                                    <Icon icon="download" /> Download encryption key
+                                    <Icon icon="download" /> {t("formEncryption.download")}
                                 </Button>
                             </ActionButton>
                         </Col>
@@ -166,24 +166,21 @@ export default function FormEncryption<TFieldValues extends FieldValues, TName e
                                     disabled={!isEncryptionKeyValid}
                                     className="mb-2"
                                 >
-                                    <Icon icon="print" /> Print encryption key
+                                    <Icon icon="print" /> {t("formEncryption.print")}
                                 </Button>
                             </ActionButton>
                         </Col>
                     </Row>
                     <RichAlert variant="warning" className="mb-4">
-                        <div>
-                            Save the key in a safe place. It will not be available again. If you lose this key you could
-                            lose access to your data
-                        </div>
+                        <div>{t("formEncryption.saveWarning")}</div>
                     </RichAlert>
                 </Col>
                 <Col className="text-center">
                     <div ref={qrContainerRef} className="qrcode" />
                     <div className="text-center mt-1">
-                        <PopoverWithHoverWrapper message="This is the encryption key in QR Code format for easy copying to a mobile device.">
+                        <PopoverWithHoverWrapper message={t("formEncryption.qrCodeInfo")}>
                             <small className="text-info">
-                                <Icon icon="info" margin="m-0" /> what&apos;s this?
+                                <Icon icon="info" margin="m-0" /> {t("formEncryption.whatsThis")}
                             </small>
                         </PopoverWithHoverWrapper>
                     </div>
@@ -191,7 +188,7 @@ export default function FormEncryption<TFieldValues extends FieldValues, TName e
             </Row>
             <div className="d-flex justify-content-center mt-3">
                 <FormCheckbox control={control} name={isSavedFieldName} size="lg" color="primary">
-                    <span className="lead ms-2">I have saved the encryption key</span>
+                    <span className="lead ms-2">{t("formEncryption.savedConfirmation")}</span>
                 </FormCheckbox>
             </div>
         </div>
@@ -254,11 +251,13 @@ const printEncryptionKey = (keyText: string, fileName: string, qrCodeHtml: strin
 };
 
 function ActionButton({ children, isEncryptionKeyValid }: PropsWithChildren<{ isEncryptionKeyValid: boolean }>) {
+    const t = useStudioTranslation("commonComponents");
+
     return (
         <ConditionalPopover
             conditions={{
                 isActive: !isEncryptionKeyValid,
-                message: "Encryption key is not valid",
+                message: t("formEncryption.invalidKey"),
             }}
             popoverPlacement="top"
         >

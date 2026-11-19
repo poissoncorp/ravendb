@@ -3,9 +3,9 @@ import Button from "react-bootstrap/Button";
 import ProgressBar from "react-bootstrap/ProgressBar";
 import classNames from "classnames";
 import genUtils from "common/generalUtils";
-import pluralizeHelpers from "common/helpers/text/pluralizeHelpers";
 import { ThemeColor } from "components/models/common";
 import { FileUploadItem, FileUploadItemStatus } from "components/common/FileUploadList";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface FileUploadSummaryProps {
     items: FileUploadItem[];
@@ -15,14 +15,16 @@ interface FileUploadSummaryProps {
 
 const terminalStatuses: FileUploadItemStatus[] = ["uploaded", "failed", "skipped", "cancelled"];
 
-const rollupOrder: { status: FileUploadItemStatus; label: string; color: ThemeColor }[] = [
-    { status: "uploaded", label: "uploaded", color: "success" },
-    { status: "failed", label: "failed", color: "danger" },
-    { status: "skipped", label: "skipped", color: "warning" },
-    { status: "cancelled", label: "cancelled", color: "warning" },
-];
+const rollupOrder = [
+    { status: "uploaded", labelKey: "fileUpload.uploadedCount", color: "success" },
+    { status: "failed", labelKey: "fileUpload.failedCount", color: "danger" },
+    { status: "skipped", labelKey: "fileUpload.skippedCount", color: "warning" },
+    { status: "cancelled", labelKey: "fileUpload.cancelledCount", color: "warning" },
+] as const satisfies readonly { status: FileUploadItemStatus; labelKey: string; color: ThemeColor }[];
 
-export default function FileUploadSummary({ items, onClearAll, heading = "Attachments" }: FileUploadSummaryProps) {
+export default function FileUploadSummary({ items, onClearAll, heading }: FileUploadSummaryProps) {
+    const t = useStudioTranslation("commonComponents");
+
     if (items.length === 0) {
         return null;
     }
@@ -44,14 +46,17 @@ export default function FileUploadSummary({ items, onClearAll, heading = "Attach
     return (
         <div className="file-upload-summary">
             <div className="file-upload-summary__line">
-                <span className="file-upload-summary__heading">{heading}</span>
+                <span className="file-upload-summary__heading">{heading ?? t("fileUpload.heading")}</span>
                 {isUploading && (
                     <>
                         <span className="text-muted">
-                            Uploading {position} of {items.length}
+                            {t("fileUpload.uploading", { position, total: items.length })}
                         </span>
                         <span className="text-muted ms-auto">
-                            {genUtils.formatBytesToSize(loadedBytes)} of {genUtils.formatBytesToSize(totalBytes)}
+                            {t("fileUpload.bytesProgress", {
+                                loaded: genUtils.formatBytesToSize(loadedBytes),
+                                total: genUtils.formatBytesToSize(totalBytes),
+                            })}
                         </span>
                     </>
                 )}
@@ -59,11 +64,14 @@ export default function FileUploadSummary({ items, onClearAll, heading = "Attach
                 {!isUploading && !isFinished && (
                     <>
                         <span className="text-muted">
-                            {pluralizeHelpers.pluralize(items.length, "file", "files")} &bull;{" "}
-                            {genUtils.formatBytesToSize(totalBytes)}
+                            {t("fileUpload.filesSummary", {
+                                count: items.length,
+                                formattedCount: items.length.toLocaleString(),
+                                size: genUtils.formatBytesToSize(totalBytes),
+                            })}
                         </span>
                         <Button variant="link" size="xs" className="p-0 ms-auto" onClick={onClearAll}>
-                            Clear all
+                            {t("fileUpload.clearAll")}
                         </Button>
                     </>
                 )}
@@ -74,6 +82,7 @@ export default function FileUploadSummary({ items, onClearAll, heading = "Attach
 }
 
 function StatusRollup({ items }: { items: FileUploadItem[] }) {
+    const t = useStudioTranslation("commonComponents");
     const counts = rollupOrder
         .map((entry) => ({ ...entry, count: items.filter((x) => x.status === entry.status).length }))
         .filter((entry) => entry.count > 0);
@@ -83,7 +92,7 @@ function StatusRollup({ items }: { items: FileUploadItem[] }) {
             {counts.map((entry) => (
                 <span key={entry.status} className="d-flex align-items-center gap-1">
                     <span className={classNames("file-upload-summary__dot", `bg-${entry.color}`)} />
-                    {entry.count} {entry.label}
+                    {t(entry.labelKey, { count: entry.count })}
                 </span>
             ))}
         </span>

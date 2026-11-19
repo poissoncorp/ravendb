@@ -1,4 +1,5 @@
 import genUtils from "common/generalUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface AiTokensUsagePopoverBodyProps {
     prompt: number;
@@ -15,27 +16,29 @@ export default function AiTokensUsagePopoverBody({
     reasoning,
     total,
 }: AiTokensUsagePopoverBodyProps) {
+    const t = useStudioTranslation("commonComponents");
+
     return (
         <div>
             <div className="hstack justify-content-between gap-3">
-                <span>Prompt tokens</span>
+                <span>{t("aiTokensUsage.prompt")}</span>
                 <span>{genUtils.formatAiTokens(prompt)}</span>
             </div>
             <div className="hstack justify-content-between gap-3">
-                <span>Completion tokens</span>
+                <span>{t("aiTokensUsage.completion")}</span>
                 <span>{genUtils.formatAiTokens(completion)}</span>
             </div>
             <div className="hstack justify-content-between gap-3">
-                <span>Reasoning tokens</span>
+                <span>{t("aiTokensUsage.reasoning")}</span>
                 <span>{genUtils.formatAiTokens(reasoning)}</span>
             </div>
             <div className="hstack justify-content-between gap-3">
-                <span>Cached tokens</span>
+                <span>{t("aiTokensUsage.cached")}</span>
                 <span>{genUtils.formatAiTokens(cached)}</span>
             </div>
             <hr className="my-1" />
             <div className="hstack justify-content-between gap-3">
-                <span>Total tokens used</span>
+                <span>{t("aiTokensUsage.total")}</span>
                 <span>{genUtils.formatAiTokens(total)}</span>
             </div>
         </div>

@@ -2,6 +2,9 @@ import database = require("models/resources/database");
 import shardedDatabase = require("models/resources/shardedDatabase");
 import NodesTopology = Raven.Client.ServerWide.Operations.NodesTopology;
 import StudioDatabaseInfo = Raven.Server.Web.System.Processors.Studio.StudioDatabasesHandlerForGetDatabases.StudioDatabaseInfo;
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("resourcesModels");
 
 class shard extends database {
     private readonly shardTopology: NodesTopology;
@@ -30,7 +33,7 @@ class shard extends database {
     }
     
     get shardName() {
-        return "Shard #" + this.shardNumber;
+        return t("shard.name", { shardNumber: this.shardNumber });
     }
     
     updateUsing(incomingCopy: StudioDatabaseInfo) {

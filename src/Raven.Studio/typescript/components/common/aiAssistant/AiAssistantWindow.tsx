@@ -20,6 +20,7 @@ import { createFailureState, createIdleState, createLoadingState, createSuccessS
 import { processStreamingResponse } from "components/utils/aiAssistStreamingUtils";
 import ButtonWithSpinner from "../ButtonWithSpinner";
 import useTypewriter from "components/hooks/useTypewriter";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface AiAssistWindowProps {
     closeWindow: () => void;
@@ -38,6 +39,7 @@ export default function AiAssistantWindow({
     right = "14px",
     bottom = "14px",
 }: AiAssistWindowProps) {
+    const t = useStudioTranslation("aiAssistant");
     const dispatch = useAppDispatch();
     const { aiAssistantService } = useServices();
     const consentStatus = useAppSelector(aiAssistantSelectors.consentStatus);
@@ -118,7 +120,7 @@ export default function AiAssistantWindow({
                 <div className="hstack justify-content-between align-items-center mb-2">
                     <div>
                         <Icon icon="ask-ai" />
-                        AI Assistant
+                        {t("window.title")}
                     </div>
                     <Button variant="link" className="text-reset" onClick={handleClose} size="sm">
                         <Icon icon="close" margin="m-0" />
@@ -128,10 +130,10 @@ export default function AiAssistantWindow({
                 {isConsentSuccess && assistResult.status === "loading" && (
                     <div className="hstack align-items-center gap-1">
                         <Spinner size="sm" variant="progress" />
-                        Text refine in progress... Please wait.
+                        {t("window.refining")}
                     </div>
                 )}
-                {assistResult.error && <RichAlert variant="danger">Failed to assist. Please try again.</RichAlert>}
+                {assistResult.error && <RichAlert variant="danger">{t("window.failed")}</RichAlert>}
                 <AiAssistStatus status={assistResult.data?.Status} />
                 {assistResult.data?.Status === "Success" && (
                     <div>
@@ -145,7 +147,7 @@ export default function AiAssistantWindow({
                         <div className="hstack gap-2 justify-content-end">
                             <Button variant="secondary" className="rounded-pill" onClick={handleClose}>
                                 <Icon icon="cancel" />
-                                Discard
+                                {t("window.discard")}
                             </Button>
                             <ButtonWithSpinner
                                 variant="primary"
@@ -154,7 +156,7 @@ export default function AiAssistantWindow({
                                 isSpinning={asyncAssist.loading}
                                 icon="check"
                             >
-                                Accept
+                                {t("window.accept")}
                             </ButtonWithSpinner>
                         </div>
                     </div>

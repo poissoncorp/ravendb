@@ -11,6 +11,7 @@ import {
     connectionStringSelectors,
 } from "components/pages/database/settings/connectionStrings/store/connectionStringsSlice";
 import { useAppDispatch, useAppSelector } from "components/store";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 import { sortBy } from "lodash";
 import { useEffect } from "react";
 import InputGroup from "react-bootstrap/InputGroup";
@@ -34,6 +35,7 @@ export function FormTaskConnectionString<TFieldValues extends FieldValues, TName
     props: FormTaskConnectionStringProps<TFieldValues, TName>
 ) {
     const { control, name, type } = props;
+    const t = useStudioTranslation("formFields");
     const modelType = "modelType" in props ? props.modelType : undefined;
 
     const dispatch = useAppDispatch();
@@ -77,7 +79,7 @@ export function FormTaskConnectionString<TFieldValues extends FieldValues, TName
 
     return (
         <FormGroup>
-            <FormLabel>Connection String</FormLabel>
+            <FormLabel>{t("taskConnectionString.label")}</FormLabel>
             <InputGroup>
                 <FormSelect
                     control={control}
@@ -93,7 +95,7 @@ export function FormTaskConnectionString<TFieldValues extends FieldValues, TName
                         isSpinning={loadStatus === "loading"}
                         onClick={toggleIsNewOpen}
                     >
-                        Create a new {getTypeLabel(type)} connection string
+                        {t("taskConnectionString.createNew", { type: getTypeLabel(type) })}
                     </ButtonWithSpinner>
                 </InputGroup.Text>
             </InputGroup>

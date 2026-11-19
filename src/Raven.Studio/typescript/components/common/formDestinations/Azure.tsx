@@ -14,9 +14,12 @@ import ButtonWithSpinner from "../ButtonWithSpinner";
 import ConnectionTestResult from "../connectionTests/ConnectionTestResult";
 import PopoverWithHoverWrapper from "../PopoverWithHoverWrapper";
 import OverrideConfigurationViaExternalScriptToggle from "components/common/formDestinations/OverrideConfigurationViaExternalScriptToggle";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 import AzureAuthTypeToggle from "components/common/formDestinations/AzureAuthTypeToggle";
 
 export default function Azure() {
+    const t = useStudioTranslation("formDestinations");
     const { control, trigger } = useFormContext<FormDestinations>();
     const {
         destinations: { azure: formValues },
@@ -48,15 +51,14 @@ export default function Azure() {
                             <div className="vstack gap-3 mt-2">
                                 <div className="mb-2">
                                     <FormLabel className="d-flex gap-1 align-items-center">
-                                        Storage container{" "}
+                                        {t("azure.storageContainerLabel")}{" "}
                                         <PopoverWithHoverWrapper
                                             message={
-                                                <>
-                                                    Storage container should be created manually in order for this OLAP
-                                                    to work. You can use the{" "}
-                                                    <span className="text-info">Test credentials</span> button to verify
-                                                    its existence.
-                                                </>
+                                                <StudioTrans
+                                                    ns="formDestinations"
+                                                    i18nKey="azure.storageContainerInfo"
+                                                    components={{ span: <span className="text-info" /> }}
+                                                />
                                             }
                                         >
                                             <Icon icon="info" color="info" margin="m-0" />
@@ -64,41 +66,45 @@ export default function Azure() {
                                         {asyncTest.result?.Success ? (
                                             <Badge bg="success" pill>
                                                 <Icon icon="check" />
-                                                Successfully connected
+                                                {t("connection.success")}
                                             </Badge>
                                         ) : asyncTest.result?.Error ? (
                                             <Badge bg="danger" pill>
                                                 <Icon icon="warning" />
-                                                Failed connection
+                                                {t("connection.failed")}
                                             </Badge>
                                         ) : null}
                                     </FormLabel>
                                     <FormInput
                                         name={getName("storageContainer")}
                                         control={control}
-                                        placeholder="Enter a storage container"
+                                        placeholder={t("azure.storageContainerPlaceholder")}
                                         type="text"
                                         autoComplete="off"
                                     />
                                 </div>
                                 <div className="mb-2">
                                     <FormLabel>
-                                        Remote folder name <small className="text-muted fw-light">(optional)</small>
+                                        <StudioTrans
+                                            ns="formDestinations"
+                                            i18nKey="remoteFolderName.label"
+                                            components={{ small: <small className="text-muted fw-light" /> }}
+                                        />
                                     </FormLabel>
                                     <FormInput
                                         name={getName("remoteFolderName")}
                                         control={control}
-                                        placeholder="Enter a remote folder name"
+                                        placeholder={t("remoteFolderName.placeholder")}
                                         type="text"
                                         autoComplete="off"
                                     />
                                 </div>
                                 <div className="mb-2">
-                                    <FormLabel>Account name</FormLabel>
+                                    <FormLabel>{t("azure.accountNameLabel")}</FormLabel>
                                     <FormInput
                                         name={getName("accountName")}
                                         control={control}
-                                        placeholder="Enter an account name"
+                                        placeholder={t("azure.accountNamePlaceholder")}
                                         type="text"
                                         autoComplete="off"
                                     />
@@ -114,7 +120,7 @@ export default function Azure() {
                                             key="sasToken"
                                             name={getName("sasToken")}
                                             control={control}
-                                            placeholder="Enter a SAS token"
+                                            placeholder={t("azure.sasTokenPlaceholder")}
                                             type="password"
                                             passwordPreview
                                             autoComplete="off"
@@ -124,7 +130,7 @@ export default function Azure() {
                                             key="accountKey"
                                             name={getName("accountKey")}
                                             control={control}
-                                            placeholder="Enter an account key"
+                                            placeholder={t("azure.accountKeyPlaceholder")}
                                             type="password"
                                             passwordPreview
                                             autoComplete="off"
@@ -140,7 +146,7 @@ export default function Azure() {
                                         isSpinning={asyncTest.loading}
                                         icon="rocket"
                                     >
-                                        Test credentials
+                                        {t("connection.testCredentials")}
                                     </ButtonWithSpinner>
                                 </div>
                                 {asyncTest.result?.Error && (

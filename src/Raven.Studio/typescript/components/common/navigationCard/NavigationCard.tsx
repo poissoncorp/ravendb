@@ -10,6 +10,7 @@ import { useAppSelector } from "components/store";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
 import { accessManagerSelectors } from "components/common/shell/accessManagerSliceSelectors";
 import { AccessPopover } from "components/common/AccessPopover";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 interface NavigationCardBaseProps<TVariant extends string = string> {
     title: string;
@@ -47,6 +48,7 @@ export default function NavigationCard({
     customDisabledReason,
     compact,
 }: NavigationCardProps) {
+    const t = useStudioTranslation("navigationCard");
     const { reportEvent } = useEventsCollector();
     const isSharded = useAppSelector(databaseSelectors.activeDatabase)?.isSharded;
     const canHandleOperation = useAppSelector(accessManagerSelectors.getCanHandleOperation)(accessRequired);
@@ -61,7 +63,7 @@ export default function NavigationCard({
             conditions={[
                 {
                     isActive: isShardingNotSupported,
-                    message: "Sharding is not supported for this task",
+                    message: t("shardingNotSupported"),
                 },
                 {
                     isActive: !!customDisabledReason,

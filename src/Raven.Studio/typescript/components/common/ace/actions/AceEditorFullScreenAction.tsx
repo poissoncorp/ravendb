@@ -1,9 +1,11 @@
 import { Icon } from "components/common/Icon";
 import Button from "react-bootstrap/Button";
 import { useAceEditorContext } from "../AceEditorContext";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function AceEditorFullScreenAction() {
     const { aceRef } = useAceEditorContext();
+    const t = useStudioTranslation("aceEditor");
 
     return (
         <Button
@@ -13,7 +15,7 @@ export default function AceEditorFullScreenAction() {
             }}
             className="p-0 text-reset"
             size="sm"
-            title="Full screen"
+            title={t("actions.fullScreen")}
         >
             <Icon icon="fullscreen" margin="m-0" />
         </Button>

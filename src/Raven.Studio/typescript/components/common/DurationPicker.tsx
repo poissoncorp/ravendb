@@ -3,6 +3,7 @@ import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import Form from "react-bootstrap/Form";
 import FormGroup from "react-bootstrap/FormGroup";
 import InputGroup from "react-bootstrap/InputGroup";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface Duration {
     days: number;
@@ -28,6 +29,7 @@ export interface DurationPickerProps {
 
 export default function DurationPicker(props: DurationPickerProps) {
     const { totalSeconds, onChange, showDays, placeholder, showSeconds, disabled, isFlexGrow } = props;
+    const t = useStudioTranslation("commonComponents");
 
     const initialValues = getInitialValues(totalSeconds, showDays);
 
@@ -86,7 +88,7 @@ export default function DurationPicker(props: DurationPickerProps) {
                             onChange={(e: ChangeEvent<HTMLInputElement>) => setDays(getInputValue(e))}
                             disabled={disabled}
                         />
-                        <InputGroup.Text>Days</InputGroup.Text>
+                        <InputGroup.Text>{t("durationPicker.days")}</InputGroup.Text>
                     </InputGroup>
                 </FormGroup>
             )}
@@ -100,7 +102,7 @@ export default function DurationPicker(props: DurationPickerProps) {
                         onChange={(e: ChangeEvent<HTMLInputElement>) => setHours(getInputValue(e))}
                         disabled={disabled}
                     />
-                    <InputGroup.Text>Hours</InputGroup.Text>
+                    <InputGroup.Text>{t("durationPicker.hours")}</InputGroup.Text>
                 </InputGroup>
             </FormGroup>
             <FormGroup controlId="minutes" className={classNames({ "flex-grow-1": isFlexGrow })}>
@@ -113,7 +115,7 @@ export default function DurationPicker(props: DurationPickerProps) {
                         onChange={(e: ChangeEvent<HTMLInputElement>) => setMinutes(getInputValue(e))}
                         disabled={disabled}
                     />
-                    <InputGroup.Text>Minutes</InputGroup.Text>
+                    <InputGroup.Text>{t("durationPicker.minutes")}</InputGroup.Text>
                 </InputGroup>
             </FormGroup>
             {showSeconds && (
@@ -127,7 +129,7 @@ export default function DurationPicker(props: DurationPickerProps) {
                             onChange={(e: ChangeEvent<HTMLInputElement>) => setSeconds(getInputValue(e))}
                             disabled={disabled}
                         />
-                        <InputGroup.Text>Seconds</InputGroup.Text>
+                        <InputGroup.Text>{t("durationPicker.seconds")}</InputGroup.Text>
                     </InputGroup>
                 </FormGroup>
             )}

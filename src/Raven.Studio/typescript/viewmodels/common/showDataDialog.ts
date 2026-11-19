@@ -3,6 +3,9 @@ import dialogViewModelBase = require("viewmodels/dialogViewModelBase");
 import copyToClipboard = require("common/copyToClipboard");
 import generalUtils = require("common/generalUtils");
 import prismjs = require("prismjs");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("showDataDialog");
 
 type supportedLangs = "javascript" | "csharp" | "plain";
 
@@ -43,7 +46,7 @@ class showDataDialog extends dialogViewModelBase {
     }
 
     copyToClipboard() {
-      copyToClipboard.copy(this.inputData(), this.title + " was copied to clipboard", document.getElementById("showDataDialog"));
+      copyToClipboard.copy(this.inputData(), t("copied", { title: this.title }), document.getElementById("showDataDialog"));
       this.close();
     }
 }

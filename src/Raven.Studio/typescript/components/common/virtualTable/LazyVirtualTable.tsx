@@ -9,6 +9,7 @@ import { useSelectionPreview } from "./hooks/useSelectionPreview";
 import { ReactNode } from "react";
 import { Table as TanstackTable } from "@tanstack/react-table";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 interface LazyVirtualTableProps<T> {
     table: TanstackTable<T>;
@@ -28,9 +29,11 @@ export default function LazyVirtualTable<T>({
     onIsPaginatedChange,
     heightInPx,
     emptyMessage,
-    itemsName = "items",
+    itemsName: itemsNameProp,
     bottomOverlay,
 }: LazyVirtualTableProps<T>) {
+    const t = useStudioTranslation("virtualTable");
+    const itemsName = itemsNameProp ?? t("table.defaultItemsName");
     const viewport = useLazyTableViewport({
         lazyRows,
         isPaginated,
@@ -58,9 +61,9 @@ export default function LazyVirtualTable<T>({
                             <div className="floating-bars-container">
                                 {viewport.error && (
                                     <div className="floating-bar text-nowrap" data-testid="fetch-error-banner">
-                                        <span className="text-danger">Unable to load the {itemsName}.</span>
+                                        <span className="text-danger">{t("table.loadError", { itemsName })}</span>
                                         <Button variant="link" className="p-0" onClick={lazyRows.retry}>
-                                            Retry
+                                            {t("table.retry")}
                                         </Button>
                                     </div>
                                 )}

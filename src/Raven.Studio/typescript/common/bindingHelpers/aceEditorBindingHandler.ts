@@ -1,5 +1,8 @@
 /// <reference path="../../../typings/tsd.d.ts" />
 import composition = require("durandal/composition");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("bindingHelpers");
 
 /*
  * A custom Knockout binding handler transforms the target element (usually a <pre>) into a code editor, powered by Ace. http://ace.c9.io
@@ -21,8 +24,12 @@ class aceEditorBindingHandler {
     static dom = ace.require("ace/lib/dom");
     static commands = ace.require("ace/commands/default_commands").commands;
     static isInFullScreeenMode = ko.observable<boolean>(false);
-    static goToFullScreenText = "Press Shift + F11 to enter full screen mode";
-    static leaveFullScreenText = "Press Shift + F11 or Esc to leave full screen mode";
+    static get goToFullScreenText() {
+        return t("aceEditor.enterFullScreen");
+    }
+    static get leaveFullScreenText() {
+        return t("aceEditor.leaveFullScreen");
+    }
     static completitionCache = new Map<AceAjax.Editor, autoCompleteCompleter>();
 
     // used in tests
@@ -233,7 +240,7 @@ class aceEditorBindingHandler {
         $('.ui-resizable-se').css('cursor', 's-resize');
         
         if (!fullScreenNotAllowed) {
-            $(element).append('<span class="fullScreenModeLabel" style="font-size:90%; z-index: 1000; position: absolute; bottom: 22px; right: 22px; opacity: 0.4">Press Shift+F11 to enter full screen mode</span>');
+            $(element).append($('<span class="fullScreenModeLabel" style="font-size:90%; z-index: 1000; position: absolute; bottom: 22px; right: 22px; opacity: 0.4"></span>').text(t("aceEditor.fullScreenHint")));
         }
 
         // When the element is removed from the DOM, unhook our keyup and focus event handlers and remove the  resizable functionality completely. lest we leak memory.

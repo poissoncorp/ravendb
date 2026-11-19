@@ -6,19 +6,21 @@ import Button from "react-bootstrap/Button";
 import Modal from "components/common/Modal";
 import CloseButton from "react-bootstrap/CloseButton";
 import document from "models/database/documents/document";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 interface CellJsonPreviewProps {
     json: object;
 }
 
 export default function CellJsonPreview({ json }: CellJsonPreviewProps) {
+    const t = useStudioTranslation("virtualTable");
     const { value: isOpen, toggle: toggleIsOpen } = useBoolean(false);
 
     const jsonText = JSON.stringify(json, null, 4);
 
     return (
         <>
-            <Button type="button" title="Show preview" variant="link" onClick={toggleIsOpen}>
+            <Button type="button" title={t("cells.showPreview")} variant="link" onClick={toggleIsOpen}>
                 <Icon icon="preview" margin="m-0" />
             </Button>
             <Modal onHide={toggleIsOpen} show={isOpen} size="lg">
@@ -26,7 +28,7 @@ export default function CellJsonPreview({ json }: CellJsonPreviewProps) {
                     <div className="d-flex justify-content-between">
                         <div>
                             <Icon icon="json" />
-                            <span>Preview</span>
+                            <span>{t("cells.jsonPreview")}</span>
                         </div>
                         <CloseButton onClick={toggleIsOpen} />
                     </div>
@@ -37,7 +39,7 @@ export default function CellJsonPreview({ json }: CellJsonPreviewProps) {
                 <Modal.Footer>
                     <Button variant="secondary" type="button" onClick={toggleIsOpen}>
                         <Icon icon="close" />
-                        Close
+                        {t("cells.close")}
                     </Button>
                 </Modal.Footer>
             </Modal>

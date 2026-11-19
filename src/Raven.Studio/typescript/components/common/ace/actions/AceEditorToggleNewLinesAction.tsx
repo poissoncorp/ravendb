@@ -6,11 +6,13 @@ import messagePublisher from "common/messagePublisher";
 import documentHelpers from "common/helpers/database/documentHelpers";
 import { handleFormat } from "./AceEditorFormatAction";
 import classNames from "classnames";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 (ace as any).config.loadModule("ace/mode/raven_document_newline_friendly");
 
 export default function AceEditorToggleNewLinesAction() {
     const { aceRef } = useAceEditorContext();
+    const t = useStudioTranslation("aceEditor");
     const { value: isNewLinesEnabled, toggle: toggleNewLinesEnabled } = useBoolean(false);
 
     const handleToggleNewLines = () => {
@@ -36,7 +38,7 @@ export default function AceEditorToggleNewLinesAction() {
             toggleNewLinesEnabled();
         } catch (e) {
             console.error(e);
-            messagePublisher.reportError("The document data isn't a legal JSON expression!");
+            messagePublisher.reportError(t("actions.invalidJson"));
         }
     };
 
@@ -46,7 +48,7 @@ export default function AceEditorToggleNewLinesAction() {
             onClick={handleToggleNewLines}
             className={classNames("p-0 text-reset", { border: isNewLinesEnabled })}
             size="sm"
-            title="Toggle new lines"
+            title={t("actions.toggleNewLines")}
         >
             <Icon icon="newline" margin="m-0" />
         </Button>

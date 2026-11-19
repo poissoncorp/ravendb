@@ -17,6 +17,8 @@ import ReactI18next = require("react-i18next");
 import i18nModule = require("common/i18n/i18n");
 import i18nBindingHandler = require("common/bindingHelpers/i18nBindingHandler");
 
+const t = i18nModule.createTranslator("studioCommon");
+
 class extensions {
     static install() {
         extensions.installObservableExtensions();
@@ -57,22 +59,22 @@ class extensions {
             return null;
         }
         
-        let typesText = "address";
+        let context: "ipv4" | "ipv6" | "ip";
         if (allowedTypes.length === 1 && allowedTypes[0] === "ipv4") {
-            typesText = "IPv4 address";
+            context = "ipv4";
         } else if (allowedTypes.length === 1 && allowedTypes[0] === "ipv6") {
-            typesText = "IPv6 address";
+            context = "ipv6";
         } else if (allowedTypes.length === 2 && _.includes(allowedTypes, "ipv4") && _.includes(allowedTypes, "ipv6")) {
-            typesText = "IP address";
+            context = "ip";
         }
         
         const addressInfo = genUtils.getAddressInfo(address);
         if (addressInfo.Type === "invalid" || !_.includes(allowedTypes, addressInfo.Type)) {
-            return "Please enter a valid " + typesText;
+            return t("validation.invalidAddress", { context });
         }
         
         if (addressInfo.HasPort && !allowPort) {
-            return "Please enter an " + typesText + " without a port number";
+            return t("validation.addressWithPort", { context });
         }
         
         return null;
@@ -93,7 +95,7 @@ class extensions {
                 if (!validate) { return true; }
                 return ko.validation.utils.isEmptyVal(value) || (validate && /^-?(?:\d+|\d{1,3}(?:,\d{3})+)?(?:\.\d+)?$/.test(value)) || (validate && value === "NaN");
             },
-            message: 'Please enter a number or NaN'
+            message: () => t("validation.numberOrNaN")
         };
 
         (ko.validation.rules as any)['validIpWithoutPort'] = {
@@ -115,7 +117,7 @@ class extensions {
                 const base64regex = /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
                 return !val || base64regex.test(val);
             },
-            message: 'Invalid base64 string.'
+            message: () => t("validation.base64")
         };
         
         (ko.validation.rules as any)['validLicense'] = {
@@ -132,7 +134,7 @@ class extensions {
                     return false;
                 }
             },
-            message: "Invalid license format"
+            message: () => t("validation.license")
         };
 
         (ko.validation.rules as any)['aceValidation'] = {

@@ -5,6 +5,7 @@ import IconName from "typings/server/icons";
 import { Icon } from "./Icon";
 import Button from "react-bootstrap/Button";
 import classNames from "classnames";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export interface DialogOptions {
     title?: ReactNode;
@@ -23,12 +24,13 @@ type InnerOptions = Partial<DialogOptions> & { isOpen: boolean };
 const Dialog = createContext<(options: DialogOptions) => Promise<boolean>>(null);
 
 export function DialogProvider({ children }: PropsWithChildren) {
+    const t = useStudioTranslation("commonComponents");
     const [options, setOptions] = useState<InnerOptions>({ isOpen: false });
     const promise = useRef<() => void>(null);
 
     const { isOpen, title, icon, closeIcon, message, modalSize, hasNoBottomClose, hasNoHeaderPadding } = options;
 
-    const closeText = options.closeText ?? "Close";
+    const closeText = options.closeText ?? t("dialog.close");
     const actionColor = options.actionColor ?? "primary";
 
     const exposedPromise = (incomingOptions: DialogOptions) => {

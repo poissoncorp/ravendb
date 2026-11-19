@@ -64,6 +64,7 @@ const aboutViewId = "about-view";
 
 const AboutViewFloating = (props: AboutViewProps) => {
     const { children, className, defaultOpen } = props;
+    const t = useStudioTranslation("aboutView");
 
     return (
         <div className={classNames(className)}>
@@ -101,7 +102,7 @@ const AboutViewFloating = (props: AboutViewProps) => {
                 }
             >
                 <Button id={aboutViewId} variant="secondary" className="hub-btn" type="button">
-                    Info Hub
+                    {t("infoHub")}
                 </Button>
             </OverlayTrigger>
         </div>

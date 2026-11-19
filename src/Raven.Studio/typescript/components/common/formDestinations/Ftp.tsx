@@ -17,8 +17,11 @@ import ConnectionTestResult from "../connectionTests/ConnectionTestResult";
 import fileImporter from "common/fileImporter";
 import PopoverWithHoverWrapper from "../PopoverWithHoverWrapper";
 import OverrideConfigurationViaExternalScriptToggle from "components/common/formDestinations/OverrideConfigurationViaExternalScriptToggle";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function Ftp() {
+    const t = useStudioTranslation("formDestinations");
     const { control, trigger, setValue, formState } = useFormContext<FormDestinations>();
     const {
         destinations: { ftp: formValues },
@@ -64,16 +67,19 @@ export default function Ftp() {
                             <div className="vstack gap-3 mt-2">
                                 <div className="mb-2">
                                     <FormLabel className="d-flex align-items-center gap-1">
-                                        Host
+                                        {t("ftp.hostLabel")}
                                         <PopoverWithHoverWrapper
                                             message={
-                                                <>
-                                                    To specify the server protocol, prepend the host with protocol
-                                                    identifier (ftp and ftps are supported). If no protocol is specified
-                                                    the default one (<code>ftp://</code>) will be used. You can also
-                                                    enter a complete URL e.g.{" "}
-                                                    <code>ftp://host.name:port/backup-folder/nested-backup-folder</code>
-                                                </>
+                                                <StudioTrans
+                                                    ns="formDestinations"
+                                                    i18nKey="ftp.hostInfo"
+                                                    components={{ code: <code /> }}
+                                                    options={{
+                                                        defaultProtocol: "ftp://",
+                                                        urlExample:
+                                                            "ftp://host.name:port/backup-folder/nested-backup-folder",
+                                                    }}
+                                                />
                                             }
                                         >
                                             <Icon icon="info" color="info" margin="m-0" />
@@ -81,39 +87,39 @@ export default function Ftp() {
                                         {asyncTest.result?.Success ? (
                                             <Badge bg="success" pill>
                                                 <Icon icon="check" />
-                                                Successfully connected
+                                                {t("connection.success")}
                                             </Badge>
                                         ) : asyncTest.result?.Error ? (
                                             <Badge bg="danger" pill>
                                                 <Icon icon="warning" />
-                                                Failed connection
+                                                {t("connection.failed")}
                                             </Badge>
                                         ) : null}
                                     </FormLabel>
                                     <FormInput
                                         name={getName("url")}
                                         control={control}
-                                        placeholder="Enter a host"
+                                        placeholder={t("ftp.hostPlaceholder")}
                                         type="text"
                                         autoComplete="off"
                                     />
                                 </div>
                                 <div className="mb-2">
-                                    <FormLabel>Username</FormLabel>
+                                    <FormLabel>{t("ftp.usernameLabel")}</FormLabel>
                                     <FormInput
                                         name={getName("userName")}
                                         control={control}
-                                        placeholder="Enter a username"
+                                        placeholder={t("ftp.usernamePlaceholder")}
                                         type="text"
                                         autoComplete="off"
                                     />
                                 </div>
                                 <div className="mb-2">
-                                    <FormLabel>Password</FormLabel>
+                                    <FormLabel>{t("ftp.passwordLabel")}</FormLabel>
                                     <FormInput
                                         name={getName("password")}
                                         control={control}
-                                        placeholder="Enter a password"
+                                        placeholder={t("ftp.passwordPlaceholder")}
                                         type="password"
                                         autoComplete="off"
                                         passwordPreview
@@ -121,16 +127,18 @@ export default function Ftp() {
                                 </div>
                                 {isCertificateFieldVisible && (
                                     <div className="mb-2">
-                                        <FormLabel>Certificate</FormLabel>
+                                        <FormLabel>{t("ftp.certificateLabel")}</FormLabel>
                                         <input id="filePicker" type="file" onChange={selectFile} className="d-none" />
                                         <InputGroup>
                                             <span className="static-name form-control d-flex align-items-center">
-                                                {formValues.certificateAsBase64 ? "<certificate>" : "Select file..."}
+                                                {formValues.certificateAsBase64
+                                                    ? t("ftp.certificateSelected")
+                                                    : t("ftp.certificatePlaceholder")}
                                             </span>
                                             <InputGroup.Text>
                                                 <label htmlFor="filePicker" className="cursor-pointer">
                                                     <Icon icon="document" />
-                                                    <span>Browse</span>
+                                                    <span>{t("ftp.browse")}</span>
                                                 </label>
                                             </InputGroup.Text>
                                         </InputGroup>
@@ -150,7 +158,7 @@ export default function Ftp() {
                                         isSpinning={asyncTest.loading}
                                         icon="rocket"
                                     >
-                                        Test credentials
+                                        {t("connection.testCredentials")}
                                     </ButtonWithSpinner>
                                 </div>
                                 {asyncTest.result?.Error && (

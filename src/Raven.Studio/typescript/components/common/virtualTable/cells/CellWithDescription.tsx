@@ -5,6 +5,7 @@ import Button from "react-bootstrap/Button";
 import { Icon } from "components/common/Icon";
 import React from "react";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 type CellContextSubset<TData, TValue> = Pick<CellContext<TData, TValue>, "cell" | "getValue">;
 
@@ -21,8 +22,9 @@ export function CellWithDescription<TData, TValue>({
     isActionsMenuVisible = true,
     cellClassName,
 }: CellWithDescriptionProps<TData, TValue>) {
+    const t = useStudioTranslation("virtualTable");
     const handleCopyToClipboard = () => {
-        copyToClipboard.copy(String(getValue()), "Item has been copied to clipboard");
+        copyToClipboard.copy(String(getValue()), t("cells.itemCopied"));
     };
 
     return (
@@ -32,9 +34,13 @@ export function CellWithDescription<TData, TValue>({
                     <div>{description}</div>
                     {isActionsMenuVisible && (
                         <>
-                            <span className="small-label">Actions</span>
+                            <span className="small-label">{t("cells.actions")}</span>
                             <div>
-                                <Button onClick={handleCopyToClipboard} variant="primary" title="Copy to clipboard">
+                                <Button
+                                    onClick={handleCopyToClipboard}
+                                    variant="primary"
+                                    title={t("cells.copyToClipboard")}
+                                >
                                     <Icon icon="copy-to-clipboard" margin="m-0" />
                                 </Button>
                             </div>

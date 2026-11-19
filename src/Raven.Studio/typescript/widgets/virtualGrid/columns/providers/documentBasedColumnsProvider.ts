@@ -19,6 +19,9 @@ import app = require("durandal/app");
 import showDataDialog = require("viewmodels/common/showDataDialog");
 import generalUtils = require("common/generalUtils");
 import typeUtils = require("common/typeUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("virtualGrid");
 
 type columnOptionsDto = {
     extraClass?: (item: document) => string;
@@ -110,9 +113,9 @@ class documentBasedColumnsProvider {
 
         if (this.enableInlinePreview) {
             const previewColumn = new actionColumn<document>(this.gridController,
-                    doc => this.customInlinePreview(doc), "Preview", `<i class="icon-preview"></i>`, "75px",
+                    doc => this.customInlinePreview(doc), t("columns.preview"), `<i class="icon-preview"></i>`, "75px",
             {
-                title: () => 'Show item preview'
+                title: () => t("columns.previewTitle")
             });
             initialColumns.push(previewColumn);
         }
@@ -194,8 +197,16 @@ class documentBasedColumnsProvider {
         const docDto = doc.toDto(true);
         
         const text = JSON.stringify(docDto, null, 4);
-        const shardPart = doc.__metadata?.shardNumber != null ? " (shard #" + doc.__metadata.shardNumber + ")" : "";
-        const titleToUse = title ?? (doc.getId() ? "Document: " + doc.getId() + shardPart : "Document Preview");
+        const shardNumber = doc.__metadata?.shardNumber;
+        const titleToUse =
+            title ??
+            (doc.getId()
+                ? t("preview.documentIdTitle", {
+                      id: doc.getId(),
+                      shardNumber,
+                      context: shardNumber != null ? "sharded" : undefined,
+                  })
+                : t("preview.documentTitle"));
         app.showBootstrapDialog(new showDataDialog(titleToUse, text, "javascript"));
     }
 

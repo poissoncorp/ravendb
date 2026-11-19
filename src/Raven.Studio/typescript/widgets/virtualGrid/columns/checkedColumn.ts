@@ -1,6 +1,9 @@
 ﻿/// <reference path="../../../../typings/tsd.d.ts"/>
 
 import virtualColumn = require("widgets/virtualGrid/columns/virtualColumn");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("virtualGrid");
 
 /**
  * Checked cell template used for toggling selection of a row in the virtual grid.
@@ -34,7 +37,7 @@ class checkedColumn implements virtualColumn {
     }
     
     get headerTitle() {
-        return this.withSelectAll ? "Toggle selection" : "";
+        return this.withSelectAll ? t("columns.toggleSelection") : "";
     }
 
     renderCell(item: object, isSelected: boolean, isSorted: boolean): string {

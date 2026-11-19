@@ -5,22 +5,24 @@ import useBoolean from "components/hooks/useBoolean";
 import document from "models/database/documents/document";
 import Button from "react-bootstrap/Button";
 import Modal from "components/common/Modal";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface CellDocumentPreviewProps {
     document: document;
 }
 
 export default function CellDocumentPreview({ document }: CellDocumentPreviewProps) {
+    const t = useStudioTranslation("virtualTable");
     const { value: isOpen, toggle: toggleIsOpen } = useBoolean(false);
 
     const jsonBody = JSON.stringify(document.toDto(true), null, 4);
 
     const shardNumber = document.__metadata?.shardNumber;
-    const shardText = shardNumber != null ? " (shard #" + shardNumber + ")" : "";
 
     return (
         <>
-            <Button type="button" title="Show preview" variant="link" onClick={toggleIsOpen}>
+            <Button type="button" title={t("cells.showPreview")} variant="link" onClick={toggleIsOpen}>
                 <Icon icon="preview" margin="m-0" />
             </Button>
             <Modal onHide={toggleIsOpen} show={isOpen} size="lg">
@@ -30,13 +32,19 @@ export default function CellDocumentPreview({ document }: CellDocumentPreviewPro
                             <Icon icon="document" />
                             {document.getId() ? (
                                 <span>
-                                    Document:{" "}
-                                    <strong>
-                                        {document.getId()} {shardText}
-                                    </strong>
+                                    <StudioTrans
+                                        ns="virtualTable"
+                                        i18nKey="cells.documentTitle"
+                                        components={{ strong: <strong /> }}
+                                        options={{
+                                            context: shardNumber != null ? "sharded" : undefined,
+                                            id: document.getId(),
+                                            shardNumber: shardNumber ?? "",
+                                        }}
+                                    />
                                 </span>
                             ) : (
-                                <span>Document Preview</span>
+                                <span>{t("cells.documentPreview")}</span>
                             )}
                         </div>
                     </div>
@@ -49,7 +57,7 @@ export default function CellDocumentPreview({ document }: CellDocumentPreviewPro
                 <Modal.Footer>
                     <Button type="button" variant="secondary" onClick={toggleIsOpen}>
                         <Icon icon="close" />
-                        Close
+                        {t("cells.close")}
                     </Button>
                 </Modal.Footer>
             </Modal>

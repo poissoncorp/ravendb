@@ -1,15 +1,15 @@
 <div class="card legend">
     <div class="row">
         <div class="col-sm-4">
-            <h5>TASK TYPE</h5>
+            <h5 data-bind="i18n: 'databaseGroupLegend:taskType.title'"></h5>
             <div data-bind="visible: !backupsOnly">
-                <i class="task-rect task-external-replication"></i><span>External Replication</span>
+                <i class="task-rect task-external-replication"></i><span data-bind="i18n: 'databaseGroupLegend:taskType.externalReplication'"></span>
             </div>
             <div data-bind="visible: !backupsOnly">
-                <i class="task-rect task-pull-replication-hub"></i><span>Replication Hub</span>
+                <i class="task-rect task-pull-replication-hub"></i><span data-bind="i18n: 'databaseGroupLegend:taskType.replicationHub'"></span>
             </div>
             <div data-bind="visible: !backupsOnly">
-                <i class="task-rect task-pull-replication-sink"></i><span>Replication Sink</span>
+                <i class="task-rect task-pull-replication-sink"></i><span data-bind="i18n: 'databaseGroupLegend:taskType.replicationSink'"></span>
             </div>
             <div data-bind="visible: !backupsOnly">
                 <i class="task-rect task-ravendb-etl"></i><span>RavenDB ETL</span>
@@ -33,37 +33,37 @@
                 <i class="task-rect task-rabbitmq-etl"></i><span>RabbitMQ ETL</span>
             </div>
             <div data-bind="visible: !backupsOnly">
-                <i class="task-rect task-azure-queue-storage-etl"></i><span>Azure Queue Storage ETL</span>
+                <i class="task-rect task-azure-queue-storage-etl"></i><span data-bind="i18n: 'databaseGroupLegend:taskType.azureQueueStorageEtl'"></span>
             </div>
             <div data-bind="visible: !backupsOnly">
-                <i class="task-rect task-amazon-sqs-etl"></i><span>Amazon SQS ETL</span>
+                <i class="task-rect task-amazon-sqs-etl"></i><span data-bind="i18n: 'databaseGroupLegend:taskType.amazonSqsEtl'"></span>
             </div>
             <div data-bind="visible: !backupsOnly">
-                <i class="task-rect task-ai-etl"></i><span>AI</span>
+                <i class="task-rect task-ai-etl"></i><span data-bind="i18n: 'databaseGroupLegend:taskType.ai'"></span>
             </div>
             <div>
-                <i class="task-rect task-periodic-backup"></i><span>Periodic Backup</span>
+                <i class="task-rect task-periodic-backup"></i><span data-bind="i18n: 'databaseGroupLegend:taskType.periodicBackup'"></span>
             </div>
             <div data-bind="visible: !backupsOnly">
-                <i class="task-rect task-subscriptions"></i><span>Subscription</span>
+                <i class="task-rect task-subscriptions"></i><span data-bind="i18n: 'databaseGroupLegend:taskType.subscription'"></span>
             </div>
             <div class="margin-top margin-top-sm" data-bind="visible: backupsOnly">
-                <a class="btn btn-sm" title="Navigate to Ongoing Tasks View to see all the database tasks" target="_blank" data-bind="attr: { href: $root.ongoingTasksUrl }">View all Ongoing Tasks</a>
+                <a class="btn btn-sm" target="_blank" data-bind="attr: { href: $root.ongoingTasksUrl }, i18nAttr: { title: 'databaseGroupLegend:taskType.viewAllTitle' }, i18n: 'databaseGroupLegend:taskType.viewAll'"></a>
             </div>
             
         </div>
         <div class="col-sm-4">
-            <h5>NODE TYPE</h5>
-            <div><i class="icon-dbgroup-member"></i><span>Member</span></div>
-            <div><i class="icon-dbgroup-promotable"></i><span>Promotable</span></div>
-            <div><i class="icon-dbgroup-rehab"></i><span>Rehab</span></div>
+            <h5 data-bind="i18n: 'databaseGroupLegend:nodeType.title'"></h5>
+            <div><i class="icon-dbgroup-member"></i><span data-bind="i18n: 'databaseGroupLegend:nodeType.member'"></span></div>
+            <div><i class="icon-dbgroup-promotable"></i><span data-bind="i18n: 'databaseGroupLegend:nodeType.promotable'"></span></div>
+            <div><i class="icon-dbgroup-rehab"></i><span data-bind="i18n: 'databaseGroupLegend:nodeType.rehab'"></span></div>
         </div>
         <div class="col-sm-4">
-            <h5>CONNECTION STATUS</h5>
-            <div><i class="icon-arrow"></i><span>Connection</span></div>
-            <div><i class="icon-arrow-dashed"></i><span>Partial Connection (ETL)</span></div>
-            <div><i class="icon-arrow-dashed text-warning"></i><span>Disabled Connection</span></div>
-            <div><i class="icon-arrow-dashed text-danger"></i><span>Broken Connection</span></div>
+            <h5 data-bind="i18n: 'databaseGroupLegend:connectionStatus.title'"></h5>
+            <div><i class="icon-arrow"></i><span data-bind="i18n: 'databaseGroupLegend:connectionStatus.connection'"></span></div>
+            <div><i class="icon-arrow-dashed"></i><span data-bind="i18n: 'databaseGroupLegend:connectionStatus.partial'"></span></div>
+            <div><i class="icon-arrow-dashed text-warning"></i><span data-bind="i18n: 'databaseGroupLegend:connectionStatus.disabled'"></span></div>
+            <div><i class="icon-arrow-dashed text-danger"></i><span data-bind="i18n: 'databaseGroupLegend:connectionStatus.broken'"></span></div>
         </div>
     </div>
 </div>

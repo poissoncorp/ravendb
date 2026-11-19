@@ -2,13 +2,18 @@
 import timeSeriesColumn = require("widgets/virtualGrid/columns/timeSeriesColumn");
 import virtualGridController = require("widgets/virtualGrid/virtualGridController");
 import document = require("models/database/documents/document");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("virtualGrid");
 
 /**
  * Virtual grid column that renders inline time series - see RavenDB-14431
  */
 class inlineTimeSeriesColumn extends timeSeriesColumn<document> {
     
-    static readonly inlineColumnName = "Time Series";
+    static get inlineColumnName() {
+        return t("columns.timeSeries");
+    }
     
     constructor(gridController: virtualGridController<any>, width: string, opts: timeSeriesColumnOpts<any> = {}) {
         super(gridController, null, inlineTimeSeriesColumn.inlineColumnName, width, opts);

@@ -5,6 +5,9 @@ import LoadBalanceBehavior = Raven.Client.Http.LoadBalanceBehavior;
 import assertUnreachable from "components/utils/assertUnreachable";
 import { exhaustiveStringTuple } from "components/utils/common";
 import { SelectOption } from "../select/Select";
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("clientConfigurationCommon");
 
 export default class ClientConfigurationUtils {
     static allReadBalanceBehaviors = exhaustiveStringTuple<ReadBalanceBehavior>()("None", "RoundRobin", "FastestNode");
@@ -12,11 +15,11 @@ export default class ClientConfigurationUtils {
     static formatReadBalanceBehavior(readBalanceBehavior: ReadBalanceBehavior) {
         switch (readBalanceBehavior) {
             case "None":
-                return "None";
+                return t("readBalanceBehavior.none");
             case "RoundRobin":
-                return "Round Robin";
+                return t("readBalanceBehavior.roundRobin");
             case "FastestNode":
-                return "Fastest node";
+                return t("readBalanceBehavior.fastestNode");
             default:
                 assertUnreachable(readBalanceBehavior);
         }
@@ -34,9 +37,9 @@ export default class ClientConfigurationUtils {
     static formatLoadBalanceBehavior(loadBalanceBehavior: LoadBalanceBehavior) {
         switch (loadBalanceBehavior) {
             case "None":
-                return "None";
+                return t("loadBalanceBehavior.none");
             case "UseSessionContext":
-                return "Use Session Context";
+                return t("loadBalanceBehavior.useSessionContext");
             default:
                 assertUnreachable(loadBalanceBehavior);
         }

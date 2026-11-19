@@ -5,9 +5,11 @@ import { RefObject } from "react";
 import Button from "react-bootstrap/Button";
 import ReactAce from "react-ace";
 import { useAceEditorContext } from "../AceEditorContext";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function AceEditorAutoResizeHeightAction() {
     const { aceRef, setHeight } = useAceEditorContext();
+    const t = useStudioTranslation("aceEditor");
 
     return (
         <Button
@@ -15,7 +17,7 @@ export default function AceEditorAutoResizeHeightAction() {
             onClick={() => handleAutoResizeHeight(aceRef, setHeight)}
             className="p-0 text-reset"
             size="sm"
-            title="Resize to content"
+            title={t("actions.resizeToContent")}
         >
             <Icon icon="expand-vertical" margin="m-0" />
         </Button>
