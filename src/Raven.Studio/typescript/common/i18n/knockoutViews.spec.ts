@@ -20,6 +20,7 @@ const keyRegex = /'([A-Za-z][\w]*:[\w.]+)'/g;
 const contextRegex = /\bcontext\s*:([^,}]*)/g;
 const stringLiteralRegex = /'([^']*)'/g;
 const placeholderRegex = /\{\{(\w+)\}\}/g;
+const countRegex = /\bcount\s*:/;
 
 function contextsOf(binding: string): string[] {
     return [...binding.matchAll(contextRegex)].flatMap(([, expression]) =>
@@ -27,17 +28,26 @@ function contextsOf(binding: string): string[] {
     );
 }
 
-function keyResolves(key: string, contexts: string[]): boolean {
+// The English entries a binding can show: one per context, and the _one and _other forms when it passes a count.
+function variantsOf(path: string, contexts: string[], isPlural: boolean): string[] {
+    const bases = contexts.length === 0 ? [path] : contexts.map((context) => `${path}_${context}`);
+    return isPlural ? bases.flatMap((base) => [`${base}_one`, `${base}_other`]) : bases;
+}
+
+function keyResolves(key: string, contexts: string[], isPlural: boolean): boolean {
+    if (isPlural) {
+        const [ns, path] = key.split(":");
+        return variantsOf(path, contexts, true).every((variant) => i18n.getResource("en", ns, variant) != null);
+    }
     if (contexts.length === 0) {
         return i18n.exists(key);
     }
     return contexts.every((context) => i18n.exists(key, { context }));
 }
 
-function placeholdersOf(key: string, contexts: string[]): string[] {
+function placeholdersOf(key: string, contexts: string[], isPlural: boolean): string[] {
     const [ns, path] = key.split(":");
-    const paths = contexts.length === 0 ? [path] : contexts.map((context) => `${path}_${context}`);
-    return paths.flatMap((variant) =>
+    return variantsOf(path, contexts, isPlural).flatMap((variant) =>
         [...String(i18n.getResource("en", ns, variant)).matchAll(placeholderRegex)].map(([, name]) => name)
     );
 }
@@ -45,11 +55,12 @@ function placeholdersOf(key: string, contexts: string[]): string[] {
 function keyProblems(html: string): string[] {
     return [...html.matchAll(i18nBindingRegex)].flatMap(([, binding]) => {
         const contexts = contextsOf(binding);
+        const isPlural = countRegex.test(binding);
         return [...binding.matchAll(keyRegex)].flatMap(([, key]) => {
-            if (!keyResolves(key, contexts)) {
+            if (!keyResolves(key, contexts, isPlural)) {
                 return [key];
             }
-            return placeholdersOf(key, contexts)
+            return placeholdersOf(key, contexts, isPlural)
                 .filter((name) => !new RegExp(`\\b${name}\\s*:`).test(binding))
                 .map((name) => `${key} needs option ${name}`);
         });
@@ -84,6 +95,14 @@ describe("Knockout views i18n keys", () => {
 
         expect(keyProblems(withOptions)).toEqual([]);
         expect(keyProblems(withoutOptions)).toEqual(["conflicts:resolvingConflictFor needs option documentId"]);
+    });
+
+    it("accepts plural forms when the binding passes a count", () => {
+        const withCount = `<span data-bind="i18n: { key: 'deleteDatabaseConfirm:title', options: { count: databases.length } }"></span>`;
+        const withoutCount = `<span data-bind="i18n: 'deleteDatabaseConfirm:title'"></span>`;
+
+        expect(keyProblems(withCount)).toEqual([]);
+        expect(keyProblems(withoutCount)).toEqual(["deleteDatabaseConfirm:title"]);
     });
 
     it("every key used in a view exists in en resources and gets its options", () => {
