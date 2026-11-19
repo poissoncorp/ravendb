@@ -11,6 +11,7 @@ import {
 } from "components/pages/database/documents/allRevisions/common/allRevisionsTypes";
 import { useAllRevisionsColumns } from "components/pages/database/documents/allRevisions/hooks/useAllRevisionsColumns";
 import { useAppSelector } from "components/store";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 import { useImperativeHandle } from "react";
 
 export default function AllRevisionsTable({
@@ -27,6 +28,7 @@ export default function AllRevisionsTable({
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const isSharded = useAppSelector(databaseSelectors.activeDatabase)?.isSharded;
     const { databasesService } = useServices();
+    const t = useStudioTranslation("allRevisions");
 
     const lazyRows = useLazyRows<RevisionsPreviewResultItem>({
         fetchMode: isSharded ? "continuationToken" : "skipTake",
@@ -62,7 +64,7 @@ export default function AllRevisionsTable({
                 lazyRows={lazyRows}
                 isPaginated={isPaginated}
                 onIsPaginatedChange={onIsPaginatedChange}
-                itemsName="revisions"
+                itemsName={t("revisionsItemsName")}
             />
         </div>
     );

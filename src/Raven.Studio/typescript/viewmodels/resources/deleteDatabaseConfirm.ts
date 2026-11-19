@@ -2,6 +2,10 @@ import confirmViewModelBase = require("viewmodels/confirmViewModelBase");
 import router = require("plugins/router");
 import appUrl = require("common/appUrl");
 import databases = require("components/models/databases");
+import generalUtils = require("common/generalUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("deleteDatabaseConfirm");
 
 class deleteDatabaseConfirm extends confirmViewModelBase<deleteDatabaseConfirmResult> {
 
@@ -11,6 +15,17 @@ class deleteDatabaseConfirm extends confirmViewModelBase<deleteDatabaseConfirmRe
     private encryptedCount: number;
 
     private readonly databasesToDelete: databases.DatabaseSharedInfo[];
+
+    readonly dataNotRecoveredHtml = ko.pureComputed(() =>
+        t("keepFiles.dataNotRecovered", { exportAdvice: generalUtils.escapeHtml(t("keepFiles.exportAdvice")) })
+    );
+
+    readonly secretKeyDeletedHtml = ko.pureComputed(() =>
+        t("keepFiles.secretKeyDeleted", {
+            count: this.encryptedCount,
+            exportKey: generalUtils.escapeHtml(t("keepFiles.exportKeyWithRvn")),
+        })
+    );
 
     constructor(databasesToDelete: databases.DatabaseSharedInfo[]) {
         super();

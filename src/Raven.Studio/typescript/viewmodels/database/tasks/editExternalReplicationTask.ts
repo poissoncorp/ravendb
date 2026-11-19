@@ -14,6 +14,8 @@ import database = require("models/resources/database");
 import licenseModel = require("models/auth/licenseModel");
 import EditExternalReplicationInfoHub = require("viewmodels/database/tasks/EditExternalReplicationInfoHub");
 import typeUtils = require("common/typeUtils");
+import i18nModule = require("common/i18n/i18n");
+const t = i18nModule.createTranslator("editExternalReplicationTask");
 class editExternalReplicationTask extends shardViewModelBase {
 
     view = require("views/database/tasks/editExternalReplicationTask.html");
@@ -48,6 +50,7 @@ class editExternalReplicationTask extends shardViewModelBase {
     newConnectionString = ko.observable<connectionStringRavenEtlModel>();
     
     hasExternalReplication = licenseModel.getStatusValue("HasExternalReplication");
+    readonly licenseRestrictedTooltip = `<div class='padding'>${t("licenseRestricted", { upgradeUrl: "https://ravendb.net/l/FLDLO4" })}</div>`;
     infoHubView: ReactInKnockout<typeof EditExternalReplicationInfoHub.EditExternalReplicationInfoHub>
 
     constructor(db: database) {

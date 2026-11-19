@@ -5,6 +5,9 @@ import notificationCenter = require("common/notifications/notificationCenter");
 import operation = require("common/notifications/models/operation");
 import stopRecordingTransactionsCommand = require("commands/database/debug/stopRecordingTransactionsCommand");
 import getFolderPathOptionsCommand = require("commands/resources/getFolderPathOptionsCommand");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("debugAdvancedRecordTransactionCommands");
 
 class runningRecording {
     databaseName: string;
@@ -28,7 +31,9 @@ class runningRecording {
 class debugAdvancedRecordTransactionCommands extends viewModelBase {
 
     view = require("views/manage/debugAdvancedRecordTransactionCommands.html");
-    
+
+    readonly warningHtml = t("warning");
+
     private highlightDatabase: string;
     
     databaseNames = ko.observableArray<string>([]);

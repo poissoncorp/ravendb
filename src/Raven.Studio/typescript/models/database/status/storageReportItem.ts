@@ -1,6 +1,9 @@
 /// <reference path="../../../../typings/tsd.d.ts"/>
 
 import generalUtils = require("common/generalUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("statusModels");
 
 class storageReportItem {
 
@@ -46,11 +49,11 @@ class storageReportItem {
     }
 
     formatDataSize() {
-        return this.dataSize == null ? "n/a" : generalUtils.formatBytesToSize(this.dataSize);
+        return this.dataSize == null ? t("notAvailable") : generalUtils.formatBytesToSize(this.dataSize);
     }
 
     formatTempBuffersSize() {
-        return this.tempBuffersSize == null ? "n/a" : generalUtils.formatBytesToSize(this.tempBuffersSize);
+        return this.tempBuffersSize == null ? t("notAvailable") : generalUtils.formatBytesToSize(this.tempBuffersSize);
     }
 
     hasChildren(): boolean {

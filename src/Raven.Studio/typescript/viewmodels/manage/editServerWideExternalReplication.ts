@@ -12,6 +12,8 @@ import discoveryUrl = require("models/database/settings/discoveryUrl");
 import licenseModel = require("models/auth/licenseModel");
 import EditServerWideExternalReplicationInfoHub = require("./EditServerWideExternalReplicationInfoHub");
 
+import i18nModule = require("common/i18n/i18n");
+const t = i18nModule.createTranslator("editServerWideExternalReplication");
 class editServerWideExternalReplication extends viewModelBase {
     
     view = require("views/manage/editServerWideExternalReplication.html");
@@ -25,6 +27,7 @@ class editServerWideExternalReplication extends viewModelBase {
     isAddingNewExternalReplicationTask = ko.observable<boolean>(true);
 
     hasServerWideExternalReplications = licenseModel.getStatusValue("HasServerWideExternalReplications");
+    readonly licenseRestrictedTooltip = `<div class='padding'>${t("licenseRestricted", { upgradeUrl: "https://ravendb.net/l/FLDLO4" })}</div>`;
 
     connectionStringForTest = ko.observable<connectionStringRavenEtlModel>();
     testConnectionResult = ko.observable<Raven.Server.Web.System.NodeConnectionTestResult>();
