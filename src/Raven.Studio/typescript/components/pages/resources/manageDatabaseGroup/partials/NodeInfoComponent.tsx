@@ -21,6 +21,7 @@ import Tooltip from "react-bootstrap/Tooltip";
 import Dropdown from "react-bootstrap/Dropdown";
 import { useSortable } from "@dnd-kit/sortable";
 import { useSortableStyles } from "hooks/useSortableStyles";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface OrchestratorInfoComponentProps {
     node: NodeInfo;
@@ -34,6 +35,7 @@ interface PromoteButtonProps {
 }
 
 function PromoteButton({ databaseName, nodeTag }: PromoteButtonProps) {
+    const t = useStudioTranslation("manageDatabaseGroup");
     const { databasesService } = useServices();
     const asyncPromoteImmediately = useAsyncCallback(() => databasesService.promoteDatabaseNode(databaseName, nodeTag));
 
@@ -41,10 +43,10 @@ function PromoteButton({ databaseName, nodeTag }: PromoteButtonProps) {
 
     const promote = async () => {
         const isConfirmed = await confirm({
-            title: `Do you want to promote node ${nodeTag} to become a member?`,
+            title: t("node.promoteConfirmTitle", { nodeTag }),
             icon: "promote",
             actionColor: "primary",
-            confirmText: "Promote",
+            confirmText: t("node.promote"),
         });
 
         if (isConfirmed) {
@@ -56,18 +58,19 @@ function PromoteButton({ databaseName, nodeTag }: PromoteButtonProps) {
         <ButtonWithSpinner
             variant="secondary"
             className="rounded-pill justify-content-center"
-            title="Promote to become a member"
+            title={t("node.promoteTitle")}
             icon="promote"
             size="sm"
             onClick={promote}
             isSpinning={asyncPromoteImmediately.status === "loading"}
         >
-            Promote
+            {t("node.promote")}
         </ButtonWithSpinner>
     );
 }
 
 export function OrchestratorInfoComponent(props: OrchestratorInfoComponentProps) {
+    const t = useStudioTranslation("manageDatabaseGroup");
     const { node, deleteFromGroup, canDelete } = props;
 
     return (
@@ -82,7 +85,7 @@ export function OrchestratorInfoComponent(props: OrchestratorInfoComponentProps)
                     className="rounded-pill"
                     onClick={() => deleteFromGroup(node.tag)}
                 >
-                    <Icon icon="cancel" /> Remove
+                    <Icon icon="cancel" /> {t("orchestrators.remove")}
                 </Button>
             </DatabaseGroupActions>
             <DatabaseGroupError node={node} />
@@ -99,6 +102,7 @@ interface NodeInfoComponentProps {
 export function NodeInfoComponent(props: NodeInfoComponentProps) {
     const { node, db, deleteFromGroup } = props;
 
+    const t = useStudioTranslation("manageDatabaseGroup");
     const deleteLockId = useUniqueId("delete-lock");
     const isOperatorOrAbove = useAppSelector(accessManagerSelectors.isOperatorOrAbove);
 
@@ -116,7 +120,7 @@ export function NodeInfoComponent(props: NodeInfoComponentProps) {
                     <Dropdown key="can-delete">
                         <Dropdown.Toggle variant="outline-danger" size="xs" className="rounded-pill">
                             <Icon icon="disconnected" />
-                            Delete from group
+                            {t("node.deleteFromGroup")}
                         </Dropdown.Toggle>
                         <Dropdown.Menu>
                             <Dropdown.Item
@@ -125,10 +129,8 @@ export function NodeInfoComponent(props: NodeInfoComponentProps) {
                             >
                                 <Icon icon="disconnected" />
                                 <div className="d-flex flex-column">
-                                    <span className="lh-1">Soft Delete</span>
-                                    <small className="text-muted">
-                                        Stop replication and keep database files on the node
-                                    </small>
+                                    <span className="lh-1">{t("node.softDelete")}</span>
+                                    <small className="text-muted">{t("node.softDeleteDescription")}</small>
                                 </div>
                             </Dropdown.Item>
                             <Dropdown.Item
@@ -137,10 +139,8 @@ export function NodeInfoComponent(props: NodeInfoComponentProps) {
                             >
                                 <Icon icon="trash" color="danger" />
                                 <div className="d-flex flex-column">
-                                    <span className="text-danger lh-1">Hard Delete</span>
-                                    <small className="text-muted">
-                                        Stop replication and remove database files on the node
-                                    </small>
+                                    <span className="text-danger lh-1">{t("node.hardDelete")}</span>
+                                    <small className="text-muted">{t("node.hardDeleteDescription")}</small>
                                 </div>
                             </Dropdown.Item>
                         </Dropdown.Menu>
@@ -148,17 +148,13 @@ export function NodeInfoComponent(props: NodeInfoComponentProps) {
                 ) : (
                     <OverlayTrigger
                         key="cannot-delete"
-                        overlay={
-                            <Tooltip id={deleteLockId}>
-                                Database cannot be deleted from node because of the set lock mode
-                            </Tooltip>
-                        }
+                        overlay={<Tooltip id={deleteLockId}>{t("node.deleteLocked")}</Tooltip>}
                     >
                         <Dropdown id={deleteLockId}>
                             <Dropdown.Toggle variant="danger" disabled size="xs" className="rounded-pill">
                                 {db.lockMode === "PreventDeletesError" && <Icon icon="trash" addon="exclamation" />}
                                 {db.lockMode === "PreventDeletesIgnore" && <Icon icon="trash" addon="cancel" />}
-                                Delete from group
+                                {t("node.deleteFromGroup")}
                             </Dropdown.Toggle>
                         </Dropdown>
                     </OverlayTrigger>
@@ -178,6 +174,7 @@ interface ShardInfoComponentProps {
 export function ShardInfoComponent(props: ShardInfoComponentProps) {
     const { node, deleteFromGroup, db } = props;
 
+    const t = useStudioTranslation("manageDatabaseGroup");
     const deleteLockId = useUniqueId("delete-lock");
     const isOperatorOrAbove = useAppSelector(accessManagerSelectors.isOperatorOrAbove);
 
@@ -197,11 +194,11 @@ export function ShardInfoComponent(props: ShardInfoComponentProps) {
                 <Dropdown key="advanced">
                     <Dropdown.Toggle size="xs" variant="outline-secondary" className="rounded-pill">
                         <Icon icon="debug-advanced" />
-                        Advanced
+                        {t("node.advanced")}
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
                         <Dropdown.Item href={debugUrl} target="_blank">
-                            Debug this shard
+                            {t("node.debugShard")}
                         </Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
@@ -209,7 +206,7 @@ export function ShardInfoComponent(props: ShardInfoComponentProps) {
                     <Dropdown key="can-delete">
                         <Dropdown.Toggle variant="outline-danger" size="xs" className="rounded-pill">
                             <Icon icon="disconnected" />
-                            Delete from group
+                            {t("node.deleteFromGroup")}
                         </Dropdown.Toggle>
                         <Dropdown.Menu>
                             <Dropdown.Item
@@ -218,10 +215,8 @@ export function ShardInfoComponent(props: ShardInfoComponentProps) {
                             >
                                 <Icon icon="trash" />
                                 <div className="d-flex flex-column">
-                                    <span className="lh-1">Soft Delete</span>
-                                    <small className="text-muted">
-                                        Stop replication and keep database files on the node
-                                    </small>
+                                    <span className="lh-1">{t("node.softDelete")}</span>
+                                    <small className="text-muted">{t("node.softDeleteDescription")}</small>
                                 </div>
                             </Dropdown.Item>
                             <Dropdown.Item
@@ -230,10 +225,8 @@ export function ShardInfoComponent(props: ShardInfoComponentProps) {
                             >
                                 <Icon icon="alerts" color="danger" />
                                 <div className="d-flex flex-column">
-                                    <span className="text-danger lh-1">Hard Delete</span>
-                                    <small className="text-muted">
-                                        Stop replication and remove database files on the node
-                                    </small>
+                                    <span className="text-danger lh-1">{t("node.hardDelete")}</span>
+                                    <small className="text-muted">{t("node.hardDeleteDescription")}</small>
                                 </div>
                             </Dropdown.Item>
                         </Dropdown.Menu>
@@ -241,17 +234,13 @@ export function ShardInfoComponent(props: ShardInfoComponentProps) {
                 ) : (
                     <OverlayTrigger
                         key="cannot-delete"
-                        overlay={
-                            <Tooltip id={deleteLockId}>
-                                Database cannot be deleted from node because of the set lock mode
-                            </Tooltip>
-                        }
+                        overlay={<Tooltip id={deleteLockId}>{t("node.deleteLocked")}</Tooltip>}
                     >
                         <Dropdown id={deleteLockId}>
                             <Dropdown.Toggle variant="outline-danger" disabled size="xs" className="rounded-pill">
                                 {db.lockMode === "PreventDeletesError" && <Icon icon="trash" addon="exclamation" />}
                                 {db.lockMode === "PreventDeletesIgnore" && <Icon icon="trash" addon="cancel" />}
-                                Delete from group
+                                {t("node.deleteFromGroup")}
                             </Dropdown.Toggle>
                         </Dropdown>
                     </OverlayTrigger>

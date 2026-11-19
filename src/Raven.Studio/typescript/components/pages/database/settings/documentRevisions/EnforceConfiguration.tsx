@@ -12,6 +12,8 @@ import RichAlert from "components/common/RichAlert";
 import Button from "react-bootstrap/Button";
 import Modal from "components/common/Modal";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface EnforceConfigurationProps {
     toggle: () => void;
@@ -20,6 +22,8 @@ interface EnforceConfigurationProps {
 
 export default function EnforceConfiguration(props: EnforceConfigurationProps) {
     const { toggle, onConfirm } = props;
+    const t = useStudioTranslation("documentRevisions");
+    const commonT = useStudioTranslation("common");
 
     const allCollectionNames = useAppSelector(collectionsTrackerSelectors.collectionNames);
 
@@ -62,38 +66,47 @@ export default function EnforceConfiguration(props: EnforceConfigurationProps) {
                         className="mt-2"
                         disabled={formState.isSubmitting}
                     >
-                        Include Force Created Revisions
+                        {t("enforceModal.includeForceCreated")}
                     </FormSwitch>
                     <FormGroup marginClass="m-0">
                         <FormLabel>
-                            Max operations per second
-                            <PopoverWithHoverWrapper message="Limits the number of documents processed per second. Leave empty for no limit.">
+                            {t("enforceModal.maxOpsLabel")}
+                            <PopoverWithHoverWrapper message={t("enforceModal.maxOpsInfo")}>
                                 <Icon icon="info-new" margin="ms-1" />
                             </PopoverWithHoverWrapper>
                         </FormLabel>
-                        <FormInput type="number" placeholder="No limit" control={control} name="maxOpsPerSecond" />
+                        <FormInput
+                            type="number"
+                            placeholder={t("enforceModal.maxOpsPlaceholder")}
+                            control={control}
+                            name="maxOpsPerSecond"
+                        />
                     </FormGroup>
                     <hr className="my-1" />
                     <p>
-                        Clicking <strong>Enforce</strong> will enforce the current revision configuration definitions{" "}
-                        <strong>on all existing revisions</strong> in the database per collection.
+                        <StudioTrans
+                            ns="documentRevisions"
+                            i18nKey="enforceModal.description"
+                            components={{ strong: <strong /> }}
+                        />
                     </p>
-                    <p>Revisions might be removed depending on the current configuration rules.</p>
+                    <p>{t("enforceModal.removalNote")}</p>
                     <RichAlert variant="warning">
-                        <p>For collections without a specific revision configuration:</p>
+                        <p>{t("enforceModal.noSpecificConfigIntro")}</p>
                         <ul>
                             <li>
-                                <strong>Non-conflicting documents</strong>
-                                <br />
-                                If Document Defaults are defined & enabled, it will be applied. If not defined, or if
-                                disabled, <strong>all non-conflicting document revisions will be deleted.</strong>
+                                <StudioTrans
+                                    ns="documentRevisions"
+                                    i18nKey="enforceModal.nonConflictingItem"
+                                    components={{ strong: <strong />, br: <br /> }}
+                                />
                             </li>
                             <li className="mt-3">
-                                <strong>Conflicting documents</strong>
-                                <br />
-                                If Conflicting Document Defaults are enabled, it will be applied to conflicting document
-                                revisions. If disabled,{" "}
-                                <strong>all conflicting document revisions will be deleted.</strong>
+                                <StudioTrans
+                                    ns="documentRevisions"
+                                    i18nKey="enforceModal.conflictingItem"
+                                    components={{ strong: <strong />, br: <br /> }}
+                                />
                             </li>
                         </ul>
                     </RichAlert>
@@ -101,11 +114,11 @@ export default function EnforceConfiguration(props: EnforceConfigurationProps) {
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="link" className="link-muted" onClick={toggle}>
-                    Cancel
+                    {commonT("cancel")}
                 </Button>
                 <Button form="enforce-configuration" type="submit" variant="warning">
                     <Icon icon="rocket" />
-                    Enforce Configuration
+                    {t("enforceModal.submit")}
                 </Button>
             </Modal.Footer>
         </Modal>

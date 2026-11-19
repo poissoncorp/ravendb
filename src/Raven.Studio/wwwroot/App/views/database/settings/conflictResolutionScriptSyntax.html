@@ -1,8 +1,8 @@
 <div class="modal-dialog modal-lg" role="document" id="conflictResolutionSyntaxDialog">
     <div class="modal-content">
         <div class="modal-body">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><i class="icon-cancel"></i></button>
-            <div class="margin-top">Conflicted documents:</div>
+            <button type="button" class="close" data-dismiss="modal" data-bind="i18nAttr: { 'aria-label': 'conflictResolutionScriptSyntax:close' }"><i class="icon-cancel"></i></button>
+            <div class="margin-top" data-bind="i18n: 'conflictResolutionScriptSyntax:conflictedDocuments'"></div>
             <div class="row">
                 <div class="col-md-6">
 <pre>
@@ -22,9 +22,9 @@
                 </div>
             </div>
 
-            <div class="margin-top">Script:</div>
-            <pre class="copy-area"><a href="#" class="copy-button-hidden" title="Copy code sample" data-bind="click: $root.copySample"><i class="icon-copy"></i></a><span data-bind="html: scriptHtml"></span></pre>
-            <div class="margin-top">Conflict resolution result:</div>
+            <div class="margin-top" data-bind="i18n: 'conflictResolutionScriptSyntax:script'"></div>
+            <pre class="copy-area"><a href="#" class="copy-button-hidden" data-bind="click: $root.copySample, i18nAttr: { title: 'conflictResolutionScriptSyntax:copySampleTitle' }"><i class="icon-copy"></i></a><span data-bind="html: scriptHtml"></span></pre>
+            <div class="margin-top" data-bind="i18n: 'conflictResolutionScriptSyntax:result'"></div>
 <pre>
 <span class="token punctuation">{</span>
     <span class="token string">"Name"</span>: <span class="token string">"John"</span>,

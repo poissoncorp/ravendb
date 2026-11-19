@@ -19,6 +19,7 @@ import { databaseSelectors } from "components/common/shell/databaseSliceSelector
 import { useAppSelector } from "components/store";
 import { connectionStringSelectors } from "../store/connectionStringsSlice";
 import { ConnectionStringsNameContext, connectionStringsUtils } from "../connectionStringsUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type FormData = ConnectionFormData<SnowflakeConnection>;
 
@@ -31,6 +32,7 @@ export default function SnowflakeConnectionString({
     isForNewConnection,
     onSave,
 }: SnowflakeConnectionStringProps) {
+    const t = useStudioTranslation("connectionStrings");
     const usedNames = useAppSelector(connectionStringSelectors.connections)["Snowflake"].map((x) => x.name);
     const isServerWide = useAppSelector(connectionStringSelectors.isServerWide);
 
@@ -69,28 +71,28 @@ export default function SnowflakeConnectionString({
     return (
         <Form id="connection-string-form" onSubmit={handleSubmit(handleSave)} className="vstack gap-3">
             <div className="mb-2">
-                <FormLabel>Name</FormLabel>
+                <FormLabel>{t("form.nameLabel")}</FormLabel>
                 <FormInput
                     control={control}
                     name="name"
                     type="text"
-                    placeholder="Enter a name for the connection string"
+                    placeholder={t("form.namePlaceholder")}
                     disabled={!isForNewConnection}
                     autoComplete="off"
                 />
             </div>
             <div className="mb-2">
                 <FormLabel className="d-flex align-items-center gap-1">
-                    Connection string{" "}
+                    {t("form.connectionStringLabel")}{" "}
                     {asyncTest.result?.Success ? (
                         <Badge bg="success" pill>
                             <Icon icon="check" />
-                            Successfully connected
+                            {t("form.successfullyConnected")}
                         </Badge>
                     ) : asyncTest.result?.Error ? (
                         <Badge bg="danger" pill>
                             <Icon icon="warning" />
-                            Failed connection
+                            {t("form.failedConnection")}
                         </Badge>
                     ) : null}
                 </FormLabel>
@@ -98,7 +100,7 @@ export default function SnowflakeConnectionString({
                     control={control}
                     name="connectionString"
                     type="textarea"
-                    placeholder="Enter connection string"
+                    placeholder={t("snowflake.connectionStringPlaceholder")}
                     rows={3}
                     autoComplete="off"
                 />
@@ -110,7 +112,7 @@ export default function SnowflakeConnectionString({
                         onClick={asyncTest.execute}
                         isSpinning={asyncTest.loading}
                     >
-                        Test connection
+                        {t("form.testConnection")}
                     </ButtonWithSpinner>
                 </div>
             </div>

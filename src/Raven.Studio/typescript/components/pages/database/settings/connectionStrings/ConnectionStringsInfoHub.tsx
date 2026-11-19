@@ -4,8 +4,12 @@ import useConnectionStringsLicense from "./useConnectionStringsLicense";
 import appUrl from "common/appUrl";
 import { Icon } from "components/common/Icon";
 import { useRavenLink } from "hooks/useRavenLink";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export function ConnectionStringsInfoHub() {
+    const t = useStudioTranslation("connectionStrings");
+    const commonT = useStudioTranslation("common");
     const { hasAll, featureAvailability } = useConnectionStringsLicense();
 
     const connectionStringsOverviewDocsLink = useRavenLink({ hash: "P5XJOV" });
@@ -16,39 +20,26 @@ export function ConnectionStringsInfoHub() {
             <AccordionItemWrapper targetId="about" icon="about" color="info">
                 <div>
                     <ul>
-                        <li>
-                            RavenDB is designed to interact with diverse data storage solutions via replication, ETL, or
-                            incoming data processing.
-                        </li>
+                        <li>{t("about.dataStorage")}</li>
+                        <li className="margin-top-xxs">{t("about.manage")}</li>
+                        <li className="margin-top-xxs">{t("about.createdInTask")}</li>
+                        <li className="margin-top-xxs">{t("about.inUse")}</li>
                         <li className="margin-top-xxs">
-                            From this view, you can manage all the connection strings that may be used when defining an
-                            ongoing-task per data storage.
-                        </li>
-                        <li className="margin-top-xxs">
-                            New connection strings that have been created within an ongoing-task view will also be
-                            listed here.
-                        </li>
-                        <li className="margin-top-xxs">
-                            Connection strings that are in use by ongoing-tasks cannot be deleted, as they are essential
-                            for task functionality and data access.
-                        </li>
-                        <li className="margin-top-xxs">
-                            Connection strings can also be defined at the cluster level in the{" "}
-                            <a href={appUrl.forServerWideConnectionStrings()} target="_blank">
-                                Server-Wide Connection Strings view
-                            </a>
-                            . Those connection strings are propagated to all databases in the cluster, unless specific
-                            databases are excluded.
+                            <StudioTrans
+                                ns="connectionStrings"
+                                i18nKey="about.serverWide"
+                                components={{ a: <a href={appUrl.forServerWideConnectionStrings()} target="_blank" /> }}
+                            />
                         </li>
                     </ul>
                     <hr />
-                    <div className="small-label mb-2">useful links</div>
+                    <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                     <a href={connectionStringsOverviewDocsLink} target="_blank">
-                        <Icon icon="newtab" /> Docs - Connection Strings Overview
+                        <Icon icon="newtab" /> {t("about.docsOverview")}
                     </a>
                     <br />
                     <a href={connectionStringsPerDatabaseDocsLink} target="_blank">
-                        <Icon icon="newtab" /> Docs - Connection Strings Per Database
+                        <Icon icon="newtab" /> {t("about.docsPerDatabase")}
                     </a>
                 </div>
             </AccordionItemWrapper>

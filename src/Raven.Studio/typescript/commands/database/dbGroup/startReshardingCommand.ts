@@ -1,6 +1,9 @@
 ﻿import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
 import database = require("models/resources/database");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("dbGroupCommands");
 
 interface Range {
     from: number;
@@ -29,7 +32,7 @@ class startReshardingCommand extends commandBase {
      
         const url = endpoints.global.resharding.adminReshardingStart + this.urlEncodeArgs(args);
         return this.post<operationIdDto>(url, null, undefined)
-            .fail((response: JQueryXHR) => this.reportError("Failed to start resharding operation", response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("startReshardingFailed"), response.responseText, response.statusText));
     }
 }
 

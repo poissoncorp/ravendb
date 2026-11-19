@@ -35,6 +35,8 @@ import CellDocumentId from "components/common/virtualTable/cells/CellDocumentId"
 import Code from "components/common/Code";
 import { virtualTableConstants } from "components/common/virtualTable/utils/virtualTableConstants";
 import { Checkbox } from "components/common/Checkbox";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface ValidationSchemaViewSheetPanelProps {
     validators: Pick<DocumentSchemaValidatorConfig, "Name" | "Schema">[];
@@ -47,6 +49,7 @@ interface ValidationOperationProgress extends ValidateSchemaResult {
 }
 
 export function ValidationSchemaViewSheetPanel({ validators, isPlayground }: ValidationSchemaViewSheetPanelProps) {
+    const t = useStudioTranslation("documentSchema");
     // TODO: At the moment, when i close viewSheet, the entire state is deleted. I need to add the ability to persist this state if, for example, someone runs a test.
     // In Phase 2 i will rewrite monitorOperationProgress logic into redux.
     const [monitorOperationProgress, setMonitorOperationProgress] = React.useState<
@@ -192,7 +195,7 @@ export function ValidationSchemaViewSheetPanel({ validators, isPlayground }: Val
                         <div className="d-flex gap-2 align-items-center">
                             <h3 className="mb-0">
                                 <Icon icon="rocket" className="text-primary" />
-                                Validation schema test
+                                {t("validationTest.title")}
                             </h3>
                         </div>
                     </ViewSheet.Header>
@@ -234,33 +237,33 @@ export function ValidationSchemaViewSheetPanel({ validators, isPlayground }: Val
                             })}
                         >
                             <FormSwitch color="primary" control={control} name="isTestSettingsEnabled">
-                                <h4 className="mb-0">Test settings</h4>
+                                <h4 className="mb-0">{t("validationTest.testSettings")}</h4>
                             </FormSwitch>
-                            <div>Specify maximum documents and run time - leave unset for unlimited.</div>
+                            <div>{t("validationTest.testSettingsInfo")}</div>
                             <div
                                 className={classNames("mt-2", {
                                     "item-disabled": isTestSettingsDisabled,
                                 })}
                             >
                                 <FormGroup>
-                                    <FormLabel>Maximum documents to scan (per collection)</FormLabel>
+                                    <FormLabel>{t("validationTest.maxDocumentsLabel")}</FormLabel>
                                     <FormInput
                                         name="maxDocumentsToValidate"
                                         control={control}
                                         disabled={isTestSettingsDisabled}
-                                        addon="documents"
-                                        placeholder="e.g. 1000 (default: unlimited)"
+                                        addon={t("validationTest.maxDocumentsAddon")}
+                                        placeholder={t("validationTest.unlimitedPlaceholder")}
                                         type="text"
                                     />
                                 </FormGroup>
                                 <FormGroup>
-                                    <FormLabel>Maximum error messages to return (per collection)</FormLabel>
+                                    <FormLabel>{t("validationTest.maxErrorsLabel")}</FormLabel>
                                     <FormInput
                                         name="maxErrorMessages"
                                         control={control}
                                         disabled={isTestSettingsDisabled}
-                                        placeholder="e.g. 1000 (default: unlimited)"
-                                        addon="errors"
+                                        placeholder={t("validationTest.unlimitedPlaceholder")}
+                                        addon={t("validationTest.maxErrorsAddon")}
                                         type="text"
                                     />
                                 </FormGroup>
@@ -276,7 +279,7 @@ export function ValidationSchemaViewSheetPanel({ validators, isPlayground }: Val
                                 className="rounded-pill"
                                 onClick={killOperation.execute}
                             >
-                                Abort operation
+                                {t("validationTest.abort")}
                             </ButtonWithSpinner>
                         ) : (
                             <ButtonWithSpinner
@@ -287,7 +290,7 @@ export function ValidationSchemaViewSheetPanel({ validators, isPlayground }: Val
                                 disabled={isDisabledRunTest}
                                 className="rounded-pill"
                             >
-                                Run test
+                                {t("validationTest.runTest")}
                             </ButtonWithSpinner>
                         )}
                     </ViewSheet.Footer>
@@ -344,6 +347,7 @@ function useValidationInvalidDocumentsColumns(
     availableWidth: number,
     collectionName: string
 ): { columns: ColumnDef<TableProps>[] } {
+    const t = useStudioTranslation("documentSchema");
     const bodyWidth = virtualTableUtils.getTableBodyWidth(availableWidth);
     const getSize = React.useCallback(
         (percentage: number) => virtualTableUtils.getCellSizeProvider(bodyWidth)(percentage),
@@ -366,13 +370,13 @@ function useValidationInvalidDocumentsColumns(
                 size: getSize(25),
             },
             {
-                header: "Error message",
+                header: t("validationTest.errorMessageColumn"),
                 accessorKey: "error",
                 cell: CellWithCopyWrapper,
                 size: getSize(75),
             },
         ],
-        [getSize, collectionName, databaseName]
+        [getSize, collectionName, databaseName, t]
     );
 
     return { columns };
@@ -448,6 +452,7 @@ function ValidationProgressSummary({
     isTestSettingsEnabled,
     maxDocumentsToValidate,
 }: ValidationProgressSummaryProps) {
+    const t = useStudioTranslation("documentSchema");
     const { totalValidated, totalTarget } = calculateValidationTotals(
         validators,
         monitorOperationProgress,
@@ -459,9 +464,9 @@ function ValidationProgressSummary({
     return (
         <div>
             <div className="hstack justify-content-between mb-1">
-                <h4 className="mb-0">Running validation schema test...</h4>
+                <h4 className="mb-0">{t("validationTest.running")}</h4>
                 <small className="text-muted text-nowrap">
-                    {totalValidated} / {totalTarget} documents tested
+                    {t("validationTest.documentsTested", { validated: totalValidated, count: totalTarget })}
                 </small>
             </div>
             <ProgressBar max={totalTarget} min={0} now={totalValidated} />
@@ -475,19 +480,19 @@ interface ValidationStatusMessageProps {
 }
 
 function ValidationStatusMessage({ validators, monitorOperationProgress }: ValidationStatusMessageProps) {
+    const t = useStudioTranslation("documentSchema");
+
     if (validators.some((v) => monitorOperationProgress[v.Name]?.status === "error")) {
         return (
             <div>
                 <Icon icon="danger" color="danger" />
-                An unexpected error occurred during validation.
+                {t("validationTest.unexpectedError")}
             </div>
         );
     }
 
     if (isEmpty(monitorOperationProgress)) {
-        return (
-            <div>You&#39;re about to test your documents against the sample schema for the following collections:</div>
-        );
+        return <div>{t("validationTest.aboutToTest")}</div>;
     }
 
     const totalErrors = validators.reduce((sum, v) => {
@@ -498,22 +503,23 @@ function ValidationStatusMessage({ validators, monitorOperationProgress }: Valid
         return (
             <div>
                 <Icon icon="warning" className="text-warning" />
-                <b className="text-warning">
-                    {totalErrors} invalid document
-                    {totalErrors !== 1 ? "s " : " "}
-                </b>
-                <span>has been found based on the sample schemas.</span>
+                <StudioTrans
+                    ns="documentSchema"
+                    i18nKey="validationTest.invalidFound"
+                    components={{ b: <b className="text-warning" /> }}
+                    options={{ count: totalErrors }}
+                />
             </div>
         );
     }
 
     return (
         <div>
-            <span className="text-success">
-                <Icon icon="check" />
-                <b>All documents validated successfully </b>
-            </span>
-            <span>against the sample schemas. No errors found.</span>
+            <StudioTrans
+                ns="documentSchema"
+                i18nKey="validationTest.allValid"
+                components={{ success: <span className="text-success" />, icon: <Icon icon="check" />, b: <b /> }}
+            />
         </div>
     );
 }
@@ -533,6 +539,8 @@ function ValidationDocumentCountDisplay({
     isTestSettingsEnabled,
     maxDocumentsToValidate,
 }: ValidationDocumentCountDisplayProps) {
+    const t = useStudioTranslation("documentSchema");
+
     if (errorCount > 0) {
         const targetCount = calculateTargetDocumentCount(
             collectionName,
@@ -540,16 +548,11 @@ function ValidationDocumentCountDisplay({
             isTestSettingsEnabled,
             maxDocumentsToValidate
         );
-        return <span> (out of {targetCount} documents)</span>;
+        return <span> {t("validationTest.outOfDocuments", { count: targetCount })}</span>;
     }
 
     const docCount = getCollectionDocumentCount(collectionName, collections);
-    return (
-        <span>
-            {" "}
-            ({docCount}) document{docCount === 1 ? "" : "s"}
-        </span>
-    );
+    return <span> {t("validationTest.documentCount", { count: docCount })}</span>;
 }
 
 interface ValidationCollectionAccordionItemProps {
@@ -573,6 +576,7 @@ function ValidationCollectionAccordionItem({
     toggleSelection,
     showSelection,
 }: ValidationCollectionAccordionItemProps) {
+    const t = useStudioTranslation("documentSchema");
     const errorCount = monitorOperationProgress?.ErrorCount ?? 0;
     const isCompleted = monitorOperationProgress?.status === "complete";
     const isLoading = monitorOperationProgress?.status === "loading";
@@ -620,14 +624,14 @@ function ValidationCollectionAccordionItem({
                     {isCompleted && errorCount === 0 && (
                         <b className="text-success">
                             <Icon icon="check" />
-                            <span>All valid</span>
+                            <span>{t("validationTest.collectionAllValid")}</span>
                         </b>
                     )}
 
                     {isCompleted && errorCount > 0 && (
                         <b className="text-warning">
                             <Icon icon="warning" />
-                            <span>{errorCount} invalid</span>
+                            <span>{t("validationTest.collectionInvalid", { count: errorCount })}</span>
                         </b>
                     )}
 

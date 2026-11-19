@@ -38,8 +38,11 @@ import { ConditionalPopover } from "components/common/ConditionalPopover";
 import FeatureNotAvailableInYourLicensePopoverBody from "components/common/FeatureNotAvailableInYourLicensePopoverBody";
 import { getAccessRequiredMessage } from "components/utils/accessUtils";
 import classNames from "classnames";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function RemoteAttachments() {
+    const t = useStudioTranslation("remoteAttachments");
+    const commonT = useStudioTranslation("common");
     const { reportEvent } = useEventsCollector();
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
@@ -90,7 +93,7 @@ export default function RemoteAttachments() {
     if (loadStatus === "failure") {
         return (
             <LoadError
-                error="Unable to load remote attachments"
+                error={t("loadError")}
                 refresh={async () => {
                     const dto = await dispatch(remoteAttachmentsActions.fetchRemoteAttachments(databaseName)).unwrap();
                     form.reset(remoteAttachmentsUtils.mapFromDto(dto));
@@ -106,7 +109,7 @@ export default function RemoteAttachments() {
                     <Row className="gy-sm">
                         <Col>
                             <AboutViewHeading
-                                title="Remote Attachments"
+                                title={t("title")}
                                 icon="remote-attachment"
                                 licenseBadgeText={hasRemoteAttachments ? null : "Enterprise"}
                             />
@@ -134,7 +137,7 @@ export default function RemoteAttachments() {
                                     icon="save"
                                     isSpinning={formState.isSubmitting}
                                 >
-                                    Save
+                                    {commonT("save")}
                                 </ButtonWithSpinner>
                             </ConditionalPopover>
                             <div className={hasRemoteAttachments ? "" : "item-disabled pe-none"}>
@@ -153,6 +156,8 @@ export default function RemoteAttachments() {
 }
 
 function DestinationsList() {
+    const t = useStudioTranslation("remoteAttachments");
+    const commonT = useStudioTranslation("common");
     const confirm = useConfirm();
     const dispatch = useAppDispatch();
     const destinations = useAppSelector(remoteAttachmentsSelectors.destinations);
@@ -164,9 +169,9 @@ function DestinationsList() {
         const confirmed = await confirm({
             icon: "remote-attachment",
             actionColor: "danger",
-            title: `You are about to delete the remote destination: '${id}'`,
-            message: "This action cannot be undone.",
-            confirmText: "Delete",
+            title: t("destinations.deleteConfirmTitle", { identifier: id }),
+            message: t("destinations.deleteConfirmMessage"),
+            confirmText: commonT("delete"),
         });
 
         if (confirmed) {
@@ -209,20 +214,20 @@ function DestinationsList() {
                             onClick={() => handleOpenSheet()}
                             variant="info"
                             className="rounded-pill"
-                            title="Click to define a new destination"
+                            title={t("destinations.addButtonTitle")}
                             disabled={!hasDatabaseAdminAccess}
                         >
                             <Icon icon="plus" size="sm" />
-                            Add new
+                            {t("destinations.addButton")}
                         </Button>
                     </ConditionalPopover>
                 }
                 count={destinationsTotal}
             >
                 <Icon icon="global" />
-                Destinations
+                {t("destinations.heading")}
             </HrHeader>
-            {destinations.length === 0 && <EmptySet>No destinations have been defined.</EmptySet>}
+            {destinations.length === 0 && <EmptySet>{t("destinations.empty")}</EmptySet>}
             <div className={classNames(!hasRemoteAttachments && "item-disabled pe-none")}>
                 {destinations.map((field, index) => (
                     <DestinationPanel
@@ -239,6 +244,7 @@ function DestinationsList() {
 }
 
 function RemoteAttachmentsSettingsCard() {
+    const t = useStudioTranslation("remoteAttachments");
     const { control, formState } = useFormContext<RemoteAttachmentsFormData>();
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
     const formValues = useWatch({ control });
@@ -252,7 +258,7 @@ function RemoteAttachmentsSettingsCard() {
                     className="mb-2"
                     disabled={!hasDatabaseAdminAccess || formState.isSubmitting}
                 >
-                    Enable Remote Attachments
+                    {t("settings.enable")}
                 </FormSwitch>
                 <FormGroup data-testid="retireFrequency">
                     <FormSwitch
@@ -263,14 +269,14 @@ function RemoteAttachmentsSettingsCard() {
                             !hasDatabaseAdminAccess || formState.isSubmitting || !formValues.isRemoteAttachmentsEnabled
                         }
                     >
-                        Set interval between remote attachments task runs
+                        {t("settings.checkFrequency")}
                     </FormSwitch>
                     <FormInput
                         name="checkFrequencyInSec"
                         type="number"
                         control={control}
-                        addon="seconds"
-                        placeholder="Default (60)"
+                        addon={t("settings.checkFrequencyUnit")}
+                        placeholder={t("settings.checkFrequencyPlaceholder")}
                         disabled={
                             !hasDatabaseAdminAccess ||
                             formState.isSubmitting ||
@@ -288,20 +294,20 @@ function RemoteAttachmentsSettingsCard() {
                             !hasDatabaseAdminAccess || formState.isSubmitting || !formValues.isRemoteAttachmentsEnabled
                         }
                     >
-                        Set max number of attachments to process in a single run
+                        {t("settings.maxItemsToProcess")}
                     </FormSwitch>
                     <FormInput
                         name="maxItemsToProcess"
                         control={control}
                         type="number"
-                        placeholder="Default (unlimited)"
+                        placeholder={t("settings.maxItemsToProcessPlaceholder")}
                         disabled={
                             !hasDatabaseAdminAccess ||
                             formState.isSubmitting ||
                             !formValues.isRemoteAttachmentsEnabled ||
                             !formValues.isMaxItemsToProcessEnabled
                         }
-                        addon="attachments"
+                        addon={t("settings.attachmentsUnit")}
                     />
                 </FormGroup>
                 <FormGroup marginClass="mb-0">
@@ -313,7 +319,7 @@ function RemoteAttachmentsSettingsCard() {
                             !hasDatabaseAdminAccess || formState.isSubmitting || !formValues.isRemoteAttachmentsEnabled
                         }
                     >
-                        Set max number of concurrent uploads
+                        {t("settings.concurrentUploads")}
                     </FormSwitch>
                     <FormInput
                         name="concurrentUploads"
@@ -325,8 +331,8 @@ function RemoteAttachmentsSettingsCard() {
                             !formValues.isRemoteAttachmentsEnabled ||
                             !formValues.isConcurrentUploadsEnabled
                         }
-                        placeholder="Default (8)"
-                        addon="attachments"
+                        placeholder={t("settings.concurrentUploadsPlaceholder")}
+                        addon={t("settings.attachmentsUnit")}
                     />
                 </FormGroup>
             </Card.Body>

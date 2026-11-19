@@ -22,8 +22,11 @@ import { databaseSelectors } from "components/common/shell/databaseSliceSelector
 import RichAlert from "components/common/RichAlert";
 import Button from "react-bootstrap/Button";
 import { ConditionalPopover } from "components/common/ConditionalPopover";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function DatabaseCustomSorters() {
+    const t = useStudioTranslation("customSorters");
     const db = useAppSelector(databaseSelectors.activeDatabase);
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
 
@@ -65,8 +68,11 @@ export default function DatabaseCustomSorters() {
         return (
             <FeatureNotAvailable>
                 <span>
-                    Custom sorters are not available for <Icon icon="sharding" color="shard" margin="m-0" /> sharded
-                    databases
+                    <StudioTrans
+                        ns="customSorters"
+                        i18nKey="shardedNotAvailable"
+                        components={{ icon: <Icon icon="sharding" color="shard" margin="m-0" /> }}
+                    />
                 </span>
             </FeatureNotAvailable>
         );
@@ -87,7 +93,7 @@ export default function DatabaseCustomSorters() {
                 upgradeLicenseLink={upgradeLicenseLink}
             />
             <Col sm={12} lg={8}>
-                <AboutViewHeading title="Custom sorters" icon="custom-sorters" />
+                <AboutViewHeading title={t("title")} icon="custom-sorters" />
                 {hasDatabaseAdminAccess && (
                     <ConditionalPopover
                         conditions={{
@@ -102,13 +108,13 @@ export default function DatabaseCustomSorters() {
                     >
                         <Button variant="primary" className="mb-3" onClick={addNewSorter} disabled={isLimitReached}>
                             <Icon icon="plus" />
-                            Add a custom sorter
+                            {t("addButton")}
                         </Button>
                     </ConditionalPopover>
                 )}
 
                 <HrHeader count={databaseLimitReachStatus === "notReached" ? databaseResultsCount : null}>
-                    Database custom sorters
+                    {t("databaseHeading")}
                     {databaseLimitReachStatus !== "notReached" && (
                         <CounterBadge className="ms-2" count={databaseResultsCount} limit={licenseDatabaseLimit} />
                     )}
@@ -129,16 +135,16 @@ export default function DatabaseCustomSorters() {
                             <a
                                 href={appUrl.forServerWideCustomSorters()}
                                 target="_blank"
-                                title="Go to the server-wide custom sorters view"
+                                title={t("serverWideLinkTitle")}
                             >
                                 <Icon icon="link" />
-                                Server-wide custom sorters
+                                {t("serverWideHeading")}
                             </a>
                         ) : null
                     }
                     count={serverWideResultsCount}
                 >
-                    Server-wide custom sorters
+                    {t("serverWideHeading")}
                     {!hasServerWideCustomSorters && <LicenseRestrictedBadge licenseRequired="Professional +" />}
                 </HrHeader>
                 {hasServerWideCustomSorters && (
@@ -173,17 +179,12 @@ function DatabaseLimitAlert(props: DatabaseLimitAlertProps) {
             iconAddon="warning"
             className="mb-3"
         >
-            Database {databaseLimitReachStatus === "limitReached" ? "has reached" : "is reaching"} the{" "}
-            <strong>maximum number of Custom Sorters</strong> allowed per database by your license{" "}
-            <strong>
-                ({databaseResultsCount}/{licenseDatabaseLimit})
-            </strong>
-            <br /> Delete unused sorters or{" "}
-            <strong>
-                <a href={upgradeLicenseLink} target="_blank">
-                    upgrade your license
-                </a>
-            </strong>
+            <StudioTrans
+                ns="customSorters"
+                i18nKey="databaseLimitAlert"
+                options={{ context: databaseLimitReachStatus, used: databaseResultsCount, limit: licenseDatabaseLimit }}
+                components={{ strong: <strong />, br: <br />, a: <a href={upgradeLicenseLink} target="_blank" /> }}
+            />
         </RichAlert>
     );
 }
@@ -209,17 +210,16 @@ function ClusterLimitAlert(props: ClusterLimitAlertProps) {
             iconAddon="warning"
             className="mb-3"
         >
-            Cluster {clusterLimitReachStatus === "limitReached" ? "has reached" : "is reaching"} the{" "}
-            <strong>maximum number of Custom Sorters</strong> allowed per cluster by your license{" "}
-            <strong>
-                ({numberOfCustomSortersInCluster}/{licenseClusterLimit})
-            </strong>
-            <br /> Delete unused sorters or{" "}
-            <strong>
-                <a href={upgradeLicenseLink} target="_blank">
-                    upgrade your license
-                </a>
-            </strong>
+            <StudioTrans
+                ns="customSorters"
+                i18nKey="clusterLimitAlert"
+                options={{
+                    context: clusterLimitReachStatus,
+                    used: numberOfCustomSortersInCluster,
+                    limit: licenseClusterLimit,
+                }}
+                components={{ strong: <strong />, br: <br />, a: <a href={upgradeLicenseLink} target="_blank" /> }}
+            />
         </RichAlert>
     );
 }
@@ -233,12 +233,12 @@ function AddButtonLicensePopoverBody({ databaseLimitReachStatus, upgradeLicenseL
     return (
         <div className="text-center">
             <Icon icon={databaseLimitReachStatus === "limitReached" ? "database" : "cluster"} />
-            {databaseLimitReachStatus === "limitReached" ? "Database" : "Cluster"} has reached the maximum number of
-            Custom Sorters allowed per {databaseLimitReachStatus === "limitReached" ? "database" : "cluster"}.
-            <br /> Delete unused sorters or{" "}
-            <a href={upgradeLicenseLink} target="_blank">
-                upgrade your license
-            </a>
+            <StudioTrans
+                ns="customSorters"
+                i18nKey="addButtonLimitPopover"
+                options={{ context: databaseLimitReachStatus === "limitReached" ? "database" : "cluster" }}
+                components={{ br: <br />, a: <a href={upgradeLicenseLink} target="_blank" /> }}
+            />
         </div>
     );
 }

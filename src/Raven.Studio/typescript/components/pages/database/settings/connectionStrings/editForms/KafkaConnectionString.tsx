@@ -22,6 +22,9 @@ import Button from "react-bootstrap/Button";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import { connectionStringSelectors } from "../store/connectionStringsSlice";
 import { ConnectionStringsNameContext, connectionStringsUtils } from "../connectionStringsUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import { StudioTranslate } from "common/i18n/resources";
 
 type FormData = ConnectionFormData<KafkaConnection>;
 
@@ -34,13 +37,15 @@ export default function KafkaConnectionString({
     isForNewConnection,
     onSave,
 }: KafkaConnectionStringProps) {
+    const t = useStudioTranslation("connectionStrings");
+    const commonT = useStudioTranslation("common");
     const usedNames = useAppSelector(connectionStringSelectors.connections)["Kafka"].map((x) => x.name);
     const isServerWide = useAppSelector(connectionStringSelectors.isServerWide);
 
     const { control, handleSubmit, trigger, setValue } = useForm<FormData>({
         mode: "all",
         defaultValues: getDefaultValues(initialConnection, isForNewConnection),
-        resolver: yupSchemaResolver,
+        resolver: yupResolver(getSchema(t)),
         context: {
             isForNewConnection,
             usedNames,
@@ -98,28 +103,28 @@ export default function KafkaConnectionString({
     return (
         <Form id="connection-string-form" onSubmit={handleSubmit(handleSave)} className="vstack gap-3">
             <div className="mb-2">
-                <FormLabel>Name</FormLabel>
+                <FormLabel>{t("form.nameLabel")}</FormLabel>
                 <FormInput
                     control={control}
                     name="name"
                     type="text"
-                    placeholder="Enter a name for the connection string"
+                    placeholder={t("form.namePlaceholder")}
                     disabled={!isForNewConnection}
                     autoComplete="off"
                 />
             </div>
             <div className="mb-2">
                 <FormLabel className="d-flex align-items-center gap-1">
-                    Bootstrap Servers
+                    {t("kafka.bootstrapServersLabel")}
                     {asyncTest.result?.Success ? (
                         <Badge bg="success" pill>
                             <Icon icon="check" />
-                            Successfully connected
+                            {t("form.successfullyConnected")}
                         </Badge>
                     ) : asyncTest.result?.Error ? (
                         <Badge bg="danger" pill>
                             <Icon icon="warning" />
-                            Failed connection
+                            {t("form.failedConnection")}
                         </Badge>
                     ) : null}
                 </FormLabel>
@@ -128,18 +133,18 @@ export default function KafkaConnectionString({
                         control={control}
                         name="bootstrapServers"
                         type="text"
-                        placeholder="Enter comma-separated Bootstrap Servers"
+                        placeholder={t("kafka.bootstrapServersPlaceholder")}
                         autoComplete="off"
                     />
                     <ButtonWithSpinner
                         variant="secondary"
                         icon="rocket"
-                        title="Test connection"
+                        title={t("form.testConnection")}
                         onClick={asyncTest.execute}
                         isSpinning={asyncTest.loading}
                         disabled={asyncTest.loading}
                     >
-                        Test connection
+                        {t("form.testConnection")}
                     </ButtonWithSpinner>
                 </div>
             </div>
@@ -152,7 +157,7 @@ export default function KafkaConnectionString({
                 <div className="mb-2">
                     <FormSwitch control={control} name="isUseRavenCertificate">
                         <span className="d-flex align-items-center gap-1">
-                            Use RavenDB Certificate{" "}
+                            {t("kafka.useRavenCertificate")}{" "}
                             <PopoverWithHoverWrapper message={<UseCertificateInfoPopoverBody />}>
                                 <Icon icon="info" color="info" id="useCertInfo" />
                             </PopoverWithHoverWrapper>
@@ -162,28 +167,34 @@ export default function KafkaConnectionString({
             )}
             <div className="mb-2">
                 <FormLabel>
-                    Connection Options <small className="text-muted fw-light">(optional)</small>
+                    <StudioTrans
+                        ns="connectionStrings"
+                        i18nKey="kafka.connectionOptionsLabel"
+                        components={{ small: <small className="text-muted fw-light" /> }}
+                    />
                 </FormLabel>
                 <div className="vstack gap-3">
                     {connectionOptionsFieldArray.fields.map((option, idx) => (
                         <div key={option.id}>
                             <div className="vstack mb-2 gap-1">
                                 <FormLabel className="mb-0 d-flex align-items-center gap-1">
-                                    <span className="small-label mb-0">Connection Option #{idx + 1}</span>
+                                    <span className="small-label mb-0">
+                                        {t("kafka.connectionOptionNumber", { number: idx + 1 })}
+                                    </span>
                                 </FormLabel>
                                 <div className="d-flex gap-1 mb-2">
                                     <FormInput
                                         type="text"
                                         control={control}
                                         name={`connectionOptions.${idx}.key`}
-                                        placeholder="Enter an option key"
+                                        placeholder={t("kafka.optionKeyPlaceholder")}
                                         autoComplete="off"
                                     />
                                     <FormInput
                                         type={isMultiLineKey(option.key) ? "textarea" : "text"}
                                         control={control}
                                         name={`connectionOptions.${idx}.value`}
-                                        placeholder="Enter an option value"
+                                        placeholder={t("kafka.optionValuePlaceholder")}
                                         autoComplete="off"
                                     />
                                     {isDeleteUrlVisible(option.key) && (
@@ -191,7 +202,7 @@ export default function KafkaConnectionString({
                                             variant="danger"
                                             onClick={() => connectionOptionsFieldArray.remove(idx)}
                                         >
-                                            <Icon icon="trash" margin="m-0" title="Delete" />
+                                            <Icon icon="trash" margin="m-0" title={commonT("delete")} />
                                         </Button>
                                     )}
                                 </div>
@@ -205,7 +216,7 @@ export default function KafkaConnectionString({
                     onClick={() => connectionOptionsFieldArray.append({ key: null, value: null })}
                 >
                     <Icon icon="plus" />
-                    Add new connection option
+                    {t("kafka.addConnectionOption")}
                 </Button>
             </div>
             <ConnectionStringUsedByTasks tasks={initialConnection.usedBy} connectionType={initialConnection.type} />
@@ -229,34 +240,34 @@ const connectionOptionSchema = yup.object({
     value: yup.string().nullable().required(),
 });
 
-const schema = yupObjectSchema<FormData>({
-    name: connectionStringsUtils.nameSchema,
-    bootstrapServers: yup
-        .string()
-        .nullable()
-        .required()
-        .test("bootstrap-connections", "Format should be: 'hostA:portNumber,hostB:portNumber,...'", (value) => {
-            if (!value) {
-                return true;
-            }
+function getSchema(t: StudioTranslate<"connectionStrings">) {
+    return yupObjectSchema<FormData>({
+        name: connectionStringsUtils.nameSchema,
+        bootstrapServers: yup
+            .string()
+            .nullable()
+            .required()
+            .test("bootstrap-connections", t("kafka.bootstrapServersFormat"), (value) => {
+                if (!value) {
+                    return true;
+                }
 
-            const values = value.split(",");
-            return values.every((x) => x.match(/^[a-zA-Z0-9\-_.]+:\d+$/));
-        })
-        .test("no-protocol", "A bootstrap server cannot start with http/https", (value) => {
-            if (!value) {
-                return true;
-            }
+                const values = value.split(",");
+                return values.every((x) => x.match(/^[a-zA-Z0-9\-_.]+:\d+$/));
+            })
+            .test("no-protocol", t("kafka.bootstrapServersNoProtocol"), (value) => {
+                if (!value) {
+                    return true;
+                }
 
-            const values = value.split(",");
-            return values.every((x) => !x.startsWith("http"));
-        }),
-    connectionOptions: yup.array().of(connectionOptionSchema),
-    isUseRavenCertificate: yup.boolean(),
-    excludedDatabases: yup.array().of(yup.string()).optional(),
-});
-
-const yupSchemaResolver = yupResolver(schema);
+                const values = value.split(",");
+                return values.every((x) => !x.startsWith("http"));
+            }),
+        connectionOptions: yup.array().of(connectionOptionSchema),
+        isUseRavenCertificate: yup.boolean(),
+        excludedDatabases: yup.array().of(yup.string()).optional(),
+    });
+}
 
 function getDefaultValues(initialConnection: KafkaConnection, isForNewConnection: boolean): FormData {
     if (isForNewConnection) {
@@ -288,8 +299,11 @@ function UseCertificateInfoPopoverBody() {
     return (
         <>
             <div>
-                The following <strong>configuration options</strong> will be set for you when using RavenDB server
-                certificate:
+                <StudioTrans
+                    ns="connectionStrings"
+                    i18nKey="kafka.certificateInfo"
+                    components={{ strong: <strong /> }}
+                />
             </div>
             <ul>
                 <li>

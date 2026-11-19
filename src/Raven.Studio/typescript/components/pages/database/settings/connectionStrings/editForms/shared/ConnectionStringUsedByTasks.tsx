@@ -7,6 +7,7 @@ import { useAppUrls } from "components/hooks/useAppUrls";
 import { useAppSelector } from "components/store";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
 import assertUnreachable from "components/utils/assertUnreachable";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface ConnectionStringUsedByTasksProps {
     tasks: ConnectionStringUsage[];
@@ -14,6 +15,7 @@ interface ConnectionStringUsedByTasksProps {
 }
 
 export default function ConnectionStringUsedByTasks({ tasks, connectionType }: ConnectionStringUsedByTasksProps) {
+    const t = useStudioTranslation("connectionStrings");
     const { appUrl } = useAppUrls();
     const activeDatabaseName = useAppSelector(databaseSelectors.activeDatabaseName);
 
@@ -91,7 +93,7 @@ export default function ConnectionStringUsedByTasks({ tasks, connectionType }: C
     return (
         <div className="mb-2">
             <FormLabel className="d-flex align-items-center gap-1">
-                Used in tasks <CounterBadge count={tasks.length} />
+                {t("form.usedInTasks")} <CounterBadge count={tasks.length} />
             </FormLabel>
             <div className="d-flex flex-wrap gap-2">
                 {tasks.map((task, index) => {

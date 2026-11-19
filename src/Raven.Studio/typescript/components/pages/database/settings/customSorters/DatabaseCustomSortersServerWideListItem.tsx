@@ -13,6 +13,7 @@ import { useAppSelector } from "components/store";
 import React from "react";
 import Collapse from "react-bootstrap/Collapse";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface DatabaseCustomSortersServerWideListItemProps {
     sorter: Raven.Client.Documents.Queries.Sorting.SorterDefinition;
@@ -21,6 +22,7 @@ interface DatabaseCustomSortersServerWideListItemProps {
 export default function DatabaseCustomSortersServerWideListItem({
     sorter,
 }: DatabaseCustomSortersServerWideListItemProps) {
+    const t = useStudioTranslation("customSorters");
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
 
     const { value: isTestMode, toggle: toggleIsTestMode } = useBoolean(false);
@@ -36,7 +38,7 @@ export default function DatabaseCustomSortersServerWideListItem({
                             <Button
                                 variant="secondary"
                                 onClick={toggleIsTestMode}
-                                title={isTestMode ? "Exit test mode" : "Test custom sorter"}
+                                title={isTestMode ? t("item.exitTestTitle") : t("item.testTitle")}
                             >
                                 <Icon icon="rocket" addon={isTestMode ? "cancel" : null} margin="m-0" />
                             </Button>

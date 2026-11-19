@@ -5,6 +5,9 @@ import saveConnectionStringCommand_OLD = require("commands/database/settings/sav
 import testClusterNodeConnectionCommand = require("commands/database/cluster/testClusterNodeConnectionCommand");
 import jsonUtil = require("common/jsonUtil");
 import discoveryUrl = require("models/database/settings/discoveryUrl");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("settingsModels");
 
 class connectionStringRavenEtlModel extends connectionStringModel { 
 
@@ -71,7 +74,7 @@ class connectionStringRavenEtlModel extends connectionStringModel {
             validation: [
                 {
                     validator: () => this.topologyDiscoveryUrls().length > 0,
-                    message: "At least one discovery url is required"
+                    message: t("raven.discoveryUrlRequired")
                 }
             ]
         });

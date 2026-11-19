@@ -5,6 +5,9 @@ import saveConnectionStringCommand_OLD = require("commands/database/settings/sav
 import jsonUtil = require("common/jsonUtil");
 import assertUnreachable = require("components/utils/assertUnreachable");
 import testAmazonSqsServerConnectionCommand = require("commands/database/cluster/testAmazonSqsServerConnectionCommand");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("settingsModels");
 
 class AmazonSqsBasicModel {
     accessKey = ko.observable<string>();
@@ -81,9 +84,9 @@ class connectionStringAmazonSqsModel extends connectionStringModel {
     formatAuthenticationType(authenticationType: AmazonSqsAuthenticationType) {
         switch (authenticationType) {
             case "basic":
-                return "Basic";
+                return t("authenticationType.basic");
             case "passwordless":
-                return "Passwordless";
+                return t("authenticationType.passwordless");
             default:
                 assertUnreachable.default(authenticationType);
         }

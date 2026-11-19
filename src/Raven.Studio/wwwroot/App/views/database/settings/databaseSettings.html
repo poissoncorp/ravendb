@@ -1,32 +1,32 @@
 <div id="database-settings-view" class="flex-vertical absolute-fill">
     <!-- ko if: isForbidden-->
     <div class="text-center">
-        <h4 class="page-header text-info">You are not authorized to view this page!</h4>
+        <h4 class="page-header text-info" data-bind="i18n: 'databaseSettings:notAuthorized'"></h4>
     </div>
     <!-- /ko -->
     <!-- ko if: !isForbidden() -->
     <div class="flex-horizontal flex-wrap margin-top margin-left margin-bottom"">
         <div class="filter-entries">
-            <input class="form-control" placeholder="Filter Keys" data-bind="textInput: filterKeys" />
+            <input class="form-control" data-bind="textInput: filterKeys, i18nAttr: { placeholder: 'databaseSettings:filterPlaceholder' }" />
         </div>
         <div class="btn-group">
             <button class="btn btn-primary" data-bind="visible: viewMode() === 'editMode', click: save, enable: isSaveEnabled, css: { 'btn-spinner': spinners.save }">
-                <i class="icon-save"></i><span>Save</span>
+                <i class="icon-save"></i><span data-bind="i18n: 'common:save'"></span>
             </button>
             <button class="btn btn-default" data-bind="visible: viewMode() === 'editMode', click: cancelEdit">
-                <i class="icon-cancel"></i><span>Cancel</span>
+                <i class="icon-cancel"></i><span data-bind="i18n: 'common:cancel'"></span>
             </button>
-            <button class="btn btn-default" data-bind="visible: viewMode() === 'summaryMode', click: refresh, css: { 'btn-spinner': spinners.refresh }, disable: spinners.refresh()" title="Reload settings">
-                <i class="icon-refresh"></i><span>Refresh</span>
+            <button class="btn btn-default" data-bind="visible: viewMode() === 'summaryMode', click: refresh, css: { 'btn-spinner': spinners.refresh }, disable: spinners.refresh(), i18nAttr: { title: 'databaseSettings:refreshTitle' }">
+                <i class="icon-refresh"></i><span data-bind="i18n: 'common:refresh'"></span>
             </button>
             <button class="btn btn-default" data-bind="visible: viewMode() === 'summaryMode', click: switchToEditMode, disable: spinners.refresh()">
-                <i class="icon-edit"></i><span>Edit</span>
+                <i class="icon-edit"></i><span data-bind="i18n: 'databaseSettings:edit'"></span>
             </button>
         </div>
         <div class="flex-separator"></div>
         <div data-bind="visible: hasPendingValues() && viewMode() === 'summaryMode'" class="margin-right margin-right-lg" id="pendingValuesWarning">
             <span class="text-warning bg-warning padding padding-sm">
-                <i class="icon-warning margin-right margin-right-sm"></i>Note: Pending values will only be in effect once the database is reloaded
+                <i class="icon-warning margin-right margin-right-sm"></i><span data-bind="i18n: 'databaseSettings:pendingValuesNote'"></span>
             </span>
         </div>
     </div>
@@ -40,8 +40,8 @@
             <div data-bind="template: { name: 'db-settings-no-matching-entries-template' }, visible: !isAnyMatchingEntries()"></div>
             <div class="panel" data-bind="visible: isAnyMatchingEntries">
                 <div class="row">
-                    <div class="col-md-5 text-center"><h4><strong>Configuration Key</strong></h4></div>
-                    <div class="col-md-7 text-center add-vertical-split"><h4><strong>Value</strong></h4></div>
+                    <div class="col-md-5 text-center"><h4><strong data-bind="i18n: 'databaseSettings:columns.configurationKey'"></strong></h4></div>
+                    <div class="col-md-7 text-center add-vertical-split"><h4><strong data-bind="i18n: 'databaseSettings:columns.value'"></strong></h4></div>
                 </div>
             </div>
             <div class="scroll-stretch all-entries">
@@ -67,7 +67,7 @@
 
 <script type="text/html" id="db-settings-no-matching-entries-template">
     <div class="panel">
-        <div class="panel-body">No matching entries.</div>
+        <div class="panel-body" data-bind="i18n: 'databaseSettings:noMatchingEntries'"></div>
     </div>
 </script>
 
@@ -86,18 +86,16 @@
                 <div class="col-md-7 add-vertical-split">
                     <div class="form-group no-margin">
                         <div class="margin-top margin-top-sm" data-placement="right" data-toggle="tooltip" data-animation="true" 
-                             data-bind="attr: { title: !hasAccess() ? 'Unauthorized to access value!' : '' }">
+                             data-bind="i18nAttr: { title: !hasAccess() ? 'databaseSettings:entry.unauthorized' : null }">
                             <small class="source-icon" data-placement="left" data-toggle="tooltip" data-animation="true"
-                                   data-bind="attr: { title: !hasAccess() ? '' :
-                                                             hasServerValue() ? 'This is a server-wide configuration' : 'This is the default configuration' }">
+                                   data-bind="i18nAttr: { title: !hasAccess() ? null :
+                                                             { key: 'databaseSettings:entry.sourceTitle', options: { context: hasServerValue() ? 'server' : 'default' } } }">
                                 <i class="fix-icon-top" data-bind="css: { 'icon-default': !hasServerValue() }"></i>
                                 <i class="fix-icon-top" data-bind="css: { 'icon-server': hasServerValue() }"></i>
                             </small>
                             <span data-bind="html: hasAccess() ? serverOrDefaultValue() || 'null' : effectiveValue()"></span>
                             <small data-placement="right" data-toggle="tooltip" data-animation="true" data-html="true"
-                                   data-bind="visible: isServerWideOnlyEntry, attr: { title: hasAccess() ?
-                                   'This is a server-wide entry.<br>It can be edited from the <strong>settings.json</strong> file located in your RavenDB executable folder.' :
-                                   '' }">
+                                   data-bind="visible: isServerWideOnlyEntry, i18nAttr: { title: hasAccess() ? 'databaseSettings:entry.serverWideOnlyTitle' : null }">
                                 <small class="margin-left margin-left-sm"><i class="icon-lock fix-icon-top"></i></small>
                             </small>
                         </div>
@@ -116,14 +114,14 @@
 <script type="text/html" id="db-settings-override-template">
     <div class="form-group no-margin margin-bottom margin-bottom-sm no-padding-right flex-vertical">
         <div class="toggle">
-            <div title="Customize the database value">
+            <div data-bind="i18nAttr: { title: 'databaseSettings:entry.overrideTitle' }">
                 <input type="checkbox" data-bind="checked: override, attr: {'id': 'overrideToggle_' + keyName() }" />
                 <label data-bind="attr: { 'for': 'overrideToggle_' + keyName() }">
-                    <span>Override</span>
+                    <span data-bind="i18n: 'databaseSettings:entry.override'"></span>
                 </label>
             </div>
-            <small class="text-warning bg-warning padding padding-xs margin-left" data-bind="visible: hasPendingContent" title="This configuration will be in effect only after reloading the database">
-                <i class="icon-warning"></i><span>This configuration is pending</span>
+            <small class="text-warning bg-warning padding padding-xs margin-left" data-bind="visible: hasPendingContent, i18nAttr: { title: 'databaseSettings:entry.pendingTitle' }">
+                <i class="icon-warning"></i><span data-bind="i18n: 'databaseSettings:entry.pending'"></span>
             </small>
         </div>
         <div data-bind="collapse: override" class="override-options flex-horizontal">
@@ -137,8 +135,8 @@
 <script type="text/html" id="db-settings-String-template">
     <div class="flex-horizontal">
         <div class="flex-grow" data-bind="attr: { 'title': customizedDatabaseValue }">
-            <input type="text" class="form-control" placeholder="Enter a new value (or leave empty for null)"
-                   data-bind="textInput: customizedDatabaseValue" />
+            <input type="text" class="form-control"
+                   data-bind="textInput: customizedDatabaseValue, i18nAttr: { placeholder: 'databaseSettings:entry.valuePlaceholder' }" />
         </div>
         <div data-bind="template: { name: 'db-settings-default-button-template' }"></div>
     </div>
@@ -162,7 +160,7 @@
 <script type="text/html" id="db-settings-Integer-template">
     <div class="flex-horizontal" data-bind="validationOptions: { insertMessages: false }">
         <input type="number" min="0" class="form-control" data-bind="numericInput: customizedDatabaseValue,
-               attr: { placeholder: isNullable() ? 'Enter a new number (or leave empty for null)' : 'Enter a new number'}" />
+               i18nAttr: { placeholder: { key: 'databaseSettings:entry.numberPlaceholder', options: { context: isNullable() ? 'nullable' : 'notNullable' } } }" />
         <div data-bind="template: { name: 'db-settings-default-button-template' }"></div>
     </div>
     <span class="help-block" data-bind="validationMessage: customizedDatabaseValue"></span>
@@ -171,7 +169,7 @@
 <script type="text/html" id="db-settings-Double-template">
     <div class="flex-horizontal" data-bind="validationOptions: { insertMessages: false }">
         <input type="number" min="0" class="form-control" data-bind="numericInput: customizedDatabaseValue,
-               attr: { placeholder: isNullable() ? 'Enter a new number (or leave empty for null)' : 'Enter a new number'}" />
+               i18nAttr: { placeholder: { key: 'databaseSettings:entry.numberPlaceholder', options: { context: isNullable() ? 'nullable' : 'notNullable' } } }" />
         <div data-bind="template: { name: 'db-settings-default-button-template' }"></div>
     </div>
     <span class="help-block" data-bind="validationMessage: customizedDatabaseValue"></span>
@@ -180,8 +178,8 @@
 <script type="text/html" id="db-settings-Path-template">
     <div class="flex-horizontal">
         <div class="dropdown btn-block" data-bind="validationOptions: { insertMessages: false }, validationElement: customizedDatabaseValue">
-            <input type="text" class="form-control dropdown-toggle" data-toggle="dropdown" placeholder="Enter a new path"
-                   data-bind="textInput: customizedDatabaseValue, attr: {'id': 'localFolderPath_' + keyName(), 'title': customizedDatabaseValue }" />
+            <input type="text" class="form-control dropdown-toggle" data-toggle="dropdown"
+                   data-bind="textInput: customizedDatabaseValue, attr: {'id': 'localFolderPath_' + keyName(), 'title': customizedDatabaseValue }, i18nAttr: { placeholder: 'databaseSettings:entry.pathPlaceholder' }" />
             <span class="caret dropdown-toggle" data-toggle="dropdown"></span>
             <ul class="dropdown-menu" data-bind="foreach: folderPathOptions, autoComplete: '#localFolderPath_' + keyName()">
                 <li data-bind="click: $parent.pathHasChanged">
@@ -198,7 +196,8 @@
     <div class="flex-horizontal" data-bind="validationOptions: { insertMessages: false }">
         <div class="input-group flex-grow">
             <input type="number" class="form-control" data-bind="numericInput: customizedDatabaseValue,
-                   attr: { placeholder: isNullable() ? 'Enter a new time (or leave empty for null)' : 'Enter a new time', min: minValue }" />
+                   attr: { min: minValue },
+                   i18nAttr: { placeholder: { key: 'databaseSettings:entry.timePlaceholder', options: { context: isNullable() ? 'nullable' : 'notNullable' } } }" />
             <div class="input-group-addon"><span data-bind="text: timeUnit"></span></div>
         </div>
         <div data-bind="template: { name: 'db-settings-default-button-template' }"></div>
@@ -210,7 +209,7 @@
     <div class="flex-horizontal" data-bind="validationOptions: { insertMessages: false }">
         <div class="input-group flex-grow">
             <input type="number" min="0" class="form-control" data-bind="numericInput: customizedDatabaseValue,
-                   attr: { placeholder: isNullable() ? 'Enter a new size (or leave empty for null)' : 'Enter a new size' }" />
+                   i18nAttr: { placeholder: { key: 'databaseSettings:entry.sizePlaceholder', options: { context: isNullable() ? 'nullable' : 'notNullable' } } }" />
             <div class="input-group-addon"><span data-bind="text: sizeUnit"></span></div>
         </div>
         <div data-bind="template: { name: 'db-settings-default-button-template' }"></div>
@@ -219,8 +218,8 @@
 </script>
 
 <script type="text/html" id="db-settings-default-button-template">
-    <div class="set-default margin-left margin-left-sm" title="Use the default value">
-        <a href="#" data-bind="click: useDefaultValue"><small>Set default</small></a>
+    <div class="set-default margin-left margin-left-sm" data-bind="i18nAttr: { title: 'databaseSettings:entry.setDefaultTitle' }">
+        <a href="#" data-bind="click: useDefaultValue"><small data-bind="i18n: 'databaseSettings:entry.setDefault'"></small></a>
     </div>
 </script>
 
@@ -228,5 +227,5 @@
 </div>
 
 <script type="text/html" id="empty-categories-template">
-    No matching category
+    <span data-bind="i18n: 'databaseSettings:noMatchingCategory'"></span>
 </script>

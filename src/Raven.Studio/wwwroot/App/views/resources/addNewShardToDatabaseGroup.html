@@ -2,18 +2,18 @@
     <div class="modal-content neo-modal" tabindex="-1">
         <div class="modal-header">
             <div class="d-flex align-items-center">
-                <img src="../../../Content/img/sharding/shard.svg" alt="Shard" class="img-responsive margin-center" style="width:24px;"/>
-                <h3 class="flex-grow margin-none margin-left-xxs">Add a new shard</h3>
+                <img src="../../../Content/img/sharding/shard.svg" data-bind="i18nAttr: { alt: 'manageDatabaseGroup:addShardDialog.imageAlt' }" class="img-responsive margin-center" style="width:24px;"/>
+                <h3 class="flex-grow margin-none margin-left-xxs" data-bind="i18n: 'manageDatabaseGroup:addShardDialog.title'"></h3>
             </div>
         </div>
         <div class="modal-body">
-            <h4>Replication Configuration <i class="icon-info" title="Set the number of nodes that will contain the database"></i></h4>
+            <h4><span data-bind="i18n: 'manageDatabaseGroup:addShardDialog.replicationConfiguration'"></span> <i class="icon-info" data-bind="i18nAttr: { title: 'manageDatabaseGroup:addShardDialog.replicationFactorTooltip' }"></i></h4>
             <!-- TODO: Add context -->
             <div class="form-group">
-                <div class="input-group" title="Set the number of nodes that will contain the database" data-bind="validationElement: replicationFactor">
-                    <span class="input-group-addon">Replication factor</span>
-                    <input class="form-control" type="number" min="1" title="Set the number of nodes that will contain the database" 
-                           placeholder="Enter number of nodes" data-bind="numericInput: replicationFactor, disable: manualMode">
+                <div class="input-group" data-bind="validationElement: replicationFactor, i18nAttr: { title: 'manageDatabaseGroup:addShardDialog.replicationFactorTooltip' }">
+                    <span class="input-group-addon" data-bind="i18n: 'manageDatabaseGroup:addShardDialog.replicationFactor'"></span>
+                    <input class="form-control" type="number" min="1"
+                           data-bind="numericInput: replicationFactor, disable: manualMode, i18nAttr: { title: 'manageDatabaseGroup:addShardDialog.replicationFactorTooltip', placeholder: 'manageDatabaseGroup:addShardDialog.replicationFactorPlaceholder' }">
                 </div>
             </div>
 
@@ -21,16 +21,16 @@
                 <div>
                     <div class="toggle">
                         <input class="styled" type="checkbox" id="manual_mode" data-bind="checked: manualMode">
-                        <label for="manual_mode">Set nodes layout manually</label>
+                        <label for="manual_mode" data-bind="i18n: 'manageDatabaseGroup:addShardDialog.manualMode'"></label>
                     </div>
-                    <small class="toggle-caption">Select replication nodes from the list below.</small>
+                    <small class="toggle-caption" data-bind="i18n: 'manageDatabaseGroup:addShardDialog.manualModeDescription'"></small>
                 </div>
                 <div>
                     <div class="bg-info padding no-margin" data-bind="visible: manualMode()">
-                        <h3>Available nodes</h3>
+                        <h3 data-bind="i18n: 'manageDatabaseGroup:addShardDialog.availableNodes'"></h3>
                         <div class="checkbox checkbox-info margin-bottom-xxs">
                             <input type="checkbox" id="toggle_all_in_cluster" class="styled" data-bind="checkboxTriple: selectionState, event: { change: toggleSelectAll }">
-                            <label for="toggle_all_in_cluster"><i class="icon-cluster"></i><span>All cluster nodes</span></label>
+                            <label for="toggle_all_in_cluster"><i class="icon-cluster"></i><span data-bind="i18n: 'manageDatabaseGroup:addShardDialog.allClusterNodes'"></span></label>
                         </div>
                         <div data-bind="foreach: clusterNodes">
                             <div class="checkbox checkbox-success padding-left-md" data-bind="validationOptions: { errorsAsTitle: false, insertMessages: false }">
@@ -50,9 +50,9 @@
         </div>
         <div class="modal-footer">
             <div class="text-right">
-                <button type="button" class="btn btn-default" data-bind="click: close"><i class="icon-cancel"></i><span>Cancel</span></button>
+                <button type="button" class="btn btn-default" data-bind="click: close"><i class="icon-cancel"></i><span data-bind="i18n: 'common:cancel'"></span></button>
                 <button data-bind="click: addShard, disable: spinners.addShard, css: { 'btn-spinner': spinners.addShard }" type="button" class="btn btn-primary">
-                    <i class="icon-plus"></i><span>Add shard</span>
+                    <i class="icon-plus"></i><span data-bind="i18n: 'manageDatabaseGroup:addShardDialog.addButton'"></span>
                 </button>
             </div>
         </div>

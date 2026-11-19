@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("settingsCommands");
 
 class getCustomAnalyzersCommand extends commandBase {
 
@@ -26,7 +29,7 @@ class getCustomAnalyzersCommand extends commandBase {
 
         return this.query<Array<Raven.Client.Documents.Indexes.Analysis.AnalyzerDefinition>>(url, null, this.db, x => x.Analyzers)
             .fail((response: JQueryXHR) => {
-                this.reportError("Failed to get custom analyzers", response.responseText, response.statusText);
+                this.reportError(t("getCustomAnalyzersFailed"), response.responseText, response.statusText);
             });
     }
 }

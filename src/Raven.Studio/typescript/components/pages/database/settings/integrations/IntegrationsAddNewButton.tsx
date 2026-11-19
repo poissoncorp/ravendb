@@ -5,6 +5,7 @@ import { Icon } from "components/common/Icon";
 import React from "react";
 import Button from "react-bootstrap/Button";
 import { LicenseRestrictedMessage } from "components/common/LicenseRestrictedMessage";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface IntegrationsAddNewButtonProps {
     isLicenseUpgradeRequired: boolean;
@@ -12,6 +13,7 @@ interface IntegrationsAddNewButtonProps {
 }
 
 export default function IntegrationsAddNewButton(props: IntegrationsAddNewButtonProps) {
+    const t = useStudioTranslation("integrations");
     const { isLicenseUpgradeRequired, addNewUser } = props;
 
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
@@ -21,25 +23,21 @@ export default function IntegrationsAddNewButton(props: IntegrationsAddNewButton
             conditions={[
                 {
                     isActive: isLicenseUpgradeRequired,
-                    message: (
-                        <LicenseRestrictedMessage>
-                            Your license doesn&apos;t allow adding new credentials.
-                        </LicenseRestrictedMessage>
-                    ),
+                    message: <LicenseRestrictedMessage>{t("addNew.licenseRestricted")}</LicenseRestrictedMessage>,
                 },
-                { isActive: !hasDatabaseAdminAccess, message: "You don't have permissions to add new credentials." },
+                { isActive: !hasDatabaseAdminAccess, message: t("addNew.noPermissions") },
             ]}
         >
             <Button
                 variant="info"
                 size="sm"
                 className="rounded-pill"
-                title="Add new credentials"
+                title={t("addNew.title")}
                 onClick={addNewUser}
                 disabled={isLicenseUpgradeRequired || !hasDatabaseAdminAccess}
             >
                 <Icon icon="plus" />
-                Add new
+                {t("addNew.button")}
             </Button>
         </ConditionalPopover>
     );

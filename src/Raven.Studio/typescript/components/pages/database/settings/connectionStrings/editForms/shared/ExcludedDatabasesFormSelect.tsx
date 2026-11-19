@@ -4,6 +4,7 @@ import { databaseSelectors } from "components/common/shell/databaseSliceSelector
 import { Control, FieldValues, Path } from "react-hook-form";
 import { useMemo } from "react";
 import { ConnectionStringUsage } from "../../connectionStringsTypes";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface ExcludedDatabasesFormSelectProps<TFieldValues extends FieldValues> {
     control: Control<TFieldValues>;
@@ -16,6 +17,7 @@ export default function ExcludedDatabasesFormSelect<TFieldValues extends FieldVa
     name,
     usedBy,
 }: ExcludedDatabasesFormSelectProps<TFieldValues>) {
+    const t = useStudioTranslation("connectionStrings");
     const allDatabaseNames = useAppSelector(databaseSelectors.allDatabaseNames);
     const usedByDatabaseNames = useMemo(() => new Set(usedBy?.map((x) => x.databaseName).filter(Boolean)), [usedBy]);
     const databaseOptions = useMemo(
@@ -30,13 +32,13 @@ export default function ExcludedDatabasesFormSelect<TFieldValues extends FieldVa
 
     return (
         <div className="mb-2">
-            <FormLabel>Excluded Databases</FormLabel>
+            <FormLabel>{t("form.excludedDatabasesLabel")}</FormLabel>
             <FormSelect
                 control={control}
                 name={name}
                 isMulti
                 options={databaseOptions}
-                placeholder="Select databases to exclude (optional)"
+                placeholder={t("form.excludedDatabasesPlaceholder")}
                 isClearable
             />
         </div>

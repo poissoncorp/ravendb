@@ -30,8 +30,12 @@ import { Icon } from "components/common/Icon";
 import useConfirm from "components/common/ConfirmDialog";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
 import { useAppSelector } from "components/store";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export function OrchestratorsGroup() {
+    const t = useStudioTranslation("manageDatabaseGroup");
+    const commonT = useStudioTranslation("common");
     const db = useAppSelector(databaseSelectors.activeDatabase);
 
     const {
@@ -70,10 +74,15 @@ export function OrchestratorsGroup() {
                 icon: "trash",
                 title: (
                     <span>
-                        Do you want to delete orchestrator from node <strong>{nodeTag}</strong>?
+                        <StudioTrans
+                            ns="manageDatabaseGroup"
+                            i18nKey="orchestrators.deleteConfirmTitle"
+                            components={{ strong: <strong /> }}
+                            options={{ nodeTag }}
+                        />
                     </span>
                 ),
-                confirmText: "Delete",
+                confirmText: commonT("delete"),
                 actionColor: "danger",
             });
 
@@ -81,7 +90,7 @@ export function OrchestratorsGroup() {
                 await databasesService.deleteOrchestratorFromNode(db.name, nodeTag);
             }
         },
-        [confirm, databasesService, db.name]
+        [confirm, databasesService, db.name, commonT]
     );
 
     const onSave = async () => {
@@ -96,7 +105,7 @@ export function OrchestratorsGroup() {
             <RichPanelHeader className="bg-faded-orchestrator">
                 <RichPanelInfo>
                     <RichPanelName className="text-orchestrator">
-                        <Icon icon="orchestrator" /> Orchestrators
+                        <Icon icon="orchestrator" /> {t("orchestrators.title")}
                     </RichPanelName>
                 </RichPanelInfo>
                 <RichPanelActions>
@@ -136,7 +145,7 @@ export function OrchestratorsGroup() {
                                         onClick={addNode}
                                     >
                                         <Icon icon="plus" />
-                                        Add node
+                                        {t("addNode")}
                                     </Button>
                                 </DatabaseGroupActions>
                             </DatabaseGroupItem>

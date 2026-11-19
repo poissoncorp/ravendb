@@ -37,8 +37,12 @@ import { databaseSelectors } from "components/common/shell/databaseSliceSelector
 import { accessManagerSelectors } from "components/common/shell/accessManagerSliceSelectors";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import { ConditionalPopover } from "components/common/ConditionalPopover";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function ClientDatabaseConfiguration() {
+    const t = useStudioTranslation("clientConfiguration");
+    const commonT = useStudioTranslation("common");
     const { manageServerService } = useServices();
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
 
@@ -78,6 +82,18 @@ export default function ClientDatabaseConfiguration() {
     const clientConfigurationLink = useRavenLink({ hash: "XYJ3B3" });
 
     const hasClientConfiguration = useAppSelector(licenseSelectors.statusValue("HasClientConfiguration"));
+
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("featureAvailability.clientConfiguration"),
+            featureIcon: "client-configuration",
+            community: { value: false },
+            professional: { value: true },
+            enterprise: { value: true },
+            quill: { value: true },
+        },
+    ];
+
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
         overwrites: [
@@ -118,10 +134,22 @@ export default function ClientDatabaseConfiguration() {
     }
 
     if (asyncGetDefaultValues.error) {
-        return <LoadError error="Unable to load client configuration" refresh={onRefresh} />;
+        return <LoadError error={t("loadError")} refresh={onRefresh} />;
     }
 
     const canEditDatabaseConfig = formValues.overrideConfig || !globalConfig;
+
+    const leftRadioToggleItem: RadioToggleWithIconInputItem<boolean> = {
+        label: t("useServerConfig"),
+        value: false,
+        iconName: "server",
+    };
+
+    const rightRadioToggleItem: RadioToggleWithIconInputItem<boolean> = {
+        label: t("useDatabaseConfig"),
+        value: true,
+        iconName: "database",
+    };
 
     return (
         <Form onSubmit={handleSubmit(onSave)} autoComplete="off">
@@ -130,7 +158,7 @@ export default function ClientDatabaseConfiguration() {
                     <Col>
                         <AboutViewHeading
                             icon="database-client-configuration"
-                            title="Client Configuration"
+                            title={t("title")}
                             licenseBadgeText={hasClientConfiguration ? null : "Professional +"}
                         />
                         <div className="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3">
@@ -150,15 +178,15 @@ export default function ClientDatabaseConfiguration() {
                                     ) : (
                                         <i className="icon-save me-1" />
                                     )}
-                                    Save
+                                    {commonT("save")}
                                 </Button>
                             </ConditionalPopover>
 
                             {isClusterAdminOrClusterNode && (
-                                <small title="Navigate to the server-wide Client Configuration View">
+                                <small title={t("serverWideLinkTitle")}>
                                     <a target="_blank" href={appUrl.forGlobalClientConfiguration()}>
                                         <Icon icon="link" />
-                                        Go to Server-Wide Client Configuration View
+                                        {t("serverWideLink")}
                                     </a>
                                 </small>
                             )}
@@ -182,13 +210,13 @@ export default function ClientDatabaseConfiguration() {
                                     <Col>
                                         <h4 className="mb-3">
                                             <Icon icon="server" />
-                                            Server Configuration
+                                            {t("serverConfigHeading")}
                                             {isClusterAdminOrClusterNode && (
                                                 <a
                                                     target="_blank"
                                                     href={appUrl.forGlobalClientConfiguration()}
                                                     className="ms-1 no-decor"
-                                                    title="Server settings"
+                                                    title={t("serverSettingsTitle")}
                                                 >
                                                     <Icon icon="link" />
                                                 </a>
@@ -197,18 +225,15 @@ export default function ClientDatabaseConfiguration() {
                                         <Card className={canEditDatabaseConfig && "item-disabled"}>
                                             <div className="p-4">
                                                 <div className="md-label">
-                                                    Identity parts separator{" "}
+                                                    {t("identityPartsSeparator.label")}{" "}
                                                     <PopoverWithHoverWrapper
                                                         placement="right"
                                                         message={
-                                                            <>
-                                                                Set the default separator for automatically generated
-                                                                document IDs (<i>Identity</i>, <i>HiLo</i>, and{" "}
-                                                                <i>Server-side</i>).
-                                                                <br />
-                                                                Use any character except <code>&apos;|&apos;</code>{" "}
-                                                                (pipe).
-                                                            </>
+                                                            <StudioTrans
+                                                                ns="clientConfiguration"
+                                                                i18nKey="identityPartsSeparator.info"
+                                                                components={{ i: <i />, br: <br />, code: <code /> }}
+                                                            />
                                                         }
                                                     >
                                                         <Icon icon="info" color="info" />
@@ -218,19 +243,20 @@ export default function ClientDatabaseConfiguration() {
                                                     defaultValue={globalConfig.identityPartsSeparatorValue}
                                                     disabled
                                                     placeholder={
-                                                        globalConfig.identityPartsSeparatorValue || "'/' (default)"
+                                                        globalConfig.identityPartsSeparatorValue ||
+                                                        t("identityPartsSeparator.placeholder")
                                                     }
                                                 />
                                                 <div className="md-label mt-4">
-                                                    Maximum number of requests per session{" "}
+                                                    {t("maxRequests.label")}{" "}
                                                     <PopoverWithHoverWrapper
                                                         placement="right"
                                                         message={
-                                                            <>
-                                                                Set this number to restrict the number of requests (
-                                                                <code>Reads</code> & <code>Writes</code>) per session in
-                                                                the client API.
-                                                            </>
+                                                            <StudioTrans
+                                                                ns="clientConfiguration"
+                                                                i18nKey="maxRequests.serverInfo"
+                                                                components={{ code: <code /> }}
+                                                            />
                                                         }
                                                     >
                                                         <Icon icon="info" color="info" />
@@ -242,7 +268,7 @@ export default function ClientDatabaseConfiguration() {
                                                     placeholder={
                                                         globalConfig.maximumNumberOfRequestsValue
                                                             ? globalConfig.maximumNumberOfRequestsValue.toLocaleString()
-                                                            : "30 (default)"
+                                                            : t("maxRequests.placeholder")
                                                     }
                                                 />
                                             </div>
@@ -252,22 +278,20 @@ export default function ClientDatabaseConfiguration() {
                                 <Col>
                                     <h4 className="mb-3">
                                         <Icon icon="database" />
-                                        Database Configuration
+                                        {t("databaseConfigHeading")}
                                     </h4>
                                     <Card className={classNames({ "item-disabled": !canEditDatabaseConfig })}>
                                         <div className="p-4">
                                             <div className="md-label">
-                                                Identity parts separator{" "}
+                                                {t("identityPartsSeparator.label")}{" "}
                                                 <PopoverWithHoverWrapper
                                                     placement="right"
                                                     message={
-                                                        <>
-                                                            Set the default separator for automatically generated
-                                                            document IDs (<i>Identity</i>, <i>HiLo</i>, and{" "}
-                                                            <i>Server-side</i>).
-                                                            <br />
-                                                            Use any character except <code>&apos;|&apos;</code> (pipe).
-                                                        </>
+                                                        <StudioTrans
+                                                            ns="clientConfiguration"
+                                                            i18nKey="identityPartsSeparator.info"
+                                                            components={{ i: <i />, br: <br />, code: <code /> }}
+                                                        />
                                                     }
                                                 >
                                                     <Icon icon="info" color="info" />
@@ -286,7 +310,7 @@ export default function ClientDatabaseConfiguration() {
                                                     type="text"
                                                     control={control}
                                                     name="identityPartsSeparatorValue"
-                                                    placeholder="'/' (default)"
+                                                    placeholder={t("identityPartsSeparator.placeholder")}
                                                     disabled={
                                                         !formValues.identityPartsSeparatorEnabled ||
                                                         !canEditDatabaseConfig
@@ -295,16 +319,15 @@ export default function ClientDatabaseConfiguration() {
                                                 />
                                             </InputGroup>
                                             <div className="md-label mt-4">
-                                                Maximum number of requests per session{" "}
+                                                {t("maxRequests.label")}{" "}
                                                 <PopoverWithHoverWrapper
                                                     placement="right"
                                                     message={
-                                                        <>
-                                                            {" "}
-                                                            Set this number to restrict the number of requests
-                                                            <br />(<code>Reads</code> & <code>Writes</code>) per session
-                                                            in the client API.
-                                                        </>
+                                                        <StudioTrans
+                                                            ns="clientConfiguration"
+                                                            i18nKey="maxRequests.databaseInfo"
+                                                            components={{ br: <br />, code: <code /> }}
+                                                        />
                                                     }
                                                 >
                                                     <Icon icon="info" color="info" />
@@ -323,7 +346,7 @@ export default function ClientDatabaseConfiguration() {
                                                     type="number"
                                                     control={control}
                                                     name="maximumNumberOfRequestsValue"
-                                                    placeholder="30 (default)"
+                                                    placeholder={t("maxRequests.placeholder")}
                                                     disabled={
                                                         !formValues.maximumNumberOfRequestsEnabled ||
                                                         !canEditDatabaseConfig
@@ -342,10 +365,10 @@ export default function ClientDatabaseConfiguration() {
                                     { "justify-content-between": !globalConfig }
                                 )}
                             >
-                                <h5 className={globalConfig && "text-center"}>Load Balancing Client Requests</h5>
-                                <small title="Navigate to the documentation" className="position-absolute end-0">
+                                <h5 className={globalConfig && "text-center"}>{t("loadBalancing.heading")}</h5>
+                                <small title={t("loadBalancing.tutorialLinkTitle")} className="position-absolute end-0">
                                     <a href={loadBalancingLink} target="_blank">
-                                        <Icon icon="link" /> Load balancing tutorial
+                                        <Icon icon="link" /> {t("loadBalancing.tutorialLink")}
                                     </a>
                                 </small>
                             </div>
@@ -355,34 +378,39 @@ export default function ClientDatabaseConfiguration() {
                                     <Col>
                                         <Card className={classNames("p-4", { "item-disabled": canEditDatabaseConfig })}>
                                             <div className="md-label">
-                                                Load Balance Behavior{" "}
+                                                {t("loadBalancing.behaviorLabel")}{" "}
                                                 <PopoverWithHoverWrapper
                                                     message={
                                                         <>
                                                             <span className="d-inline-block mb-1">
-                                                                Set the Load balance method for <strong>Read</strong> &{" "}
-                                                                <strong>Write</strong> requests.
+                                                                <StudioTrans
+                                                                    ns="clientConfiguration"
+                                                                    i18nKey="loadBalancing.behaviorInfo"
+                                                                    components={{ strong: <strong /> }}
+                                                                />
                                                             </span>
                                                             <ul>
                                                                 <li className="mb-1">
-                                                                    <code>None</code>
-                                                                    <br />
-                                                                    <strong>Read</strong> requests - the node the client
-                                                                    will target will be based on Read balance behavior
-                                                                    configuration.
-                                                                    <br />
-                                                                    <strong>Write</strong> requests - will be sent to
-                                                                    the preferred node.
+                                                                    <StudioTrans
+                                                                        ns="clientConfiguration"
+                                                                        i18nKey="loadBalancing.behaviorInfoNone"
+                                                                        components={{
+                                                                            code: <code />,
+                                                                            br: <br />,
+                                                                            strong: <strong />,
+                                                                        }}
+                                                                    />
                                                                 </li>
                                                                 <li className="mb-1">
-                                                                    <code>Use session context</code>
-                                                                    <br />
-                                                                    Sessions that are assigned the same context will
-                                                                    have all their <strong>Read & Write</strong>{" "}
-                                                                    requests routed to the same node.
-                                                                    <br />
-                                                                    The session context is hashed from a context string
-                                                                    (given by the client) and an optional seed.
+                                                                    <StudioTrans
+                                                                        ns="clientConfiguration"
+                                                                        i18nKey="loadBalancing.behaviorInfoSessionContext"
+                                                                        components={{
+                                                                            code: <code />,
+                                                                            br: <br />,
+                                                                            strong: <strong />,
+                                                                        }}
+                                                                    />
                                                                 </li>
                                                             </ul>
                                                         </>
@@ -394,22 +422,22 @@ export default function ClientDatabaseConfiguration() {
                                             <Form.Control
                                                 defaultValue={globalConfig.loadBalancerValue}
                                                 disabled
-                                                placeholder="None"
+                                                placeholder={t("loadBalancing.nonePlaceholder")}
                                             />
                                             {(globalConfig?.loadBalancerSeedValue ||
                                                 formValues.loadBalancerValue === "UseSessionContext") && (
                                                 <>
                                                     <div className="md-label mt-4">
                                                         {" "}
-                                                        Seed
+                                                        {t("loadBalancing.seedLabel")}
                                                         <PopoverWithHoverWrapper
                                                             placement="right"
                                                             message={
-                                                                <>
-                                                                    An optional seed number.
-                                                                    <br />
-                                                                    Used when hashing the session context.
-                                                                </>
+                                                                <StudioTrans
+                                                                    ns="clientConfiguration"
+                                                                    i18nKey="loadBalancing.seedInfo"
+                                                                    components={{ br: <br /> }}
+                                                                />
                                                             }
                                                         >
                                                             <Icon icon="info" color="info" />
@@ -418,21 +446,20 @@ export default function ClientDatabaseConfiguration() {
                                                     <Form.Control
                                                         defaultValue={globalConfig.loadBalancerSeedValue}
                                                         disabled
-                                                        placeholder="0 (default)"
+                                                        placeholder={t("loadBalancing.seedPlaceholder")}
                                                     />
                                                 </>
                                             )}
                                             <div className="md-label mt-4">
-                                                Read Balance Behavior{" "}
+                                                {t("loadBalancing.readBehaviorLabel")}{" "}
                                                 <PopoverWithHoverWrapper
                                                     placement="right"
                                                     message={
-                                                        <>
-                                                            Set the Read balance method the client will use when
-                                                            accessing a node with <code>Read</code> requests.
-                                                            <br />
-                                                            <code>Write</code> requests are sent to the preferred node.
-                                                        </>
+                                                        <StudioTrans
+                                                            ns="clientConfiguration"
+                                                            i18nKey="loadBalancing.readBehaviorInfo"
+                                                            components={{ code: <code />, br: <br /> }}
+                                                        />
                                                     }
                                                 >
                                                     <Icon icon="info" color="info" />
@@ -440,7 +467,7 @@ export default function ClientDatabaseConfiguration() {
                                             </div>
                                             <Form.Control
                                                 defaultValue={globalConfig.readBalanceBehaviorValue}
-                                                placeholder="None"
+                                                placeholder={t("loadBalancing.nonePlaceholder")}
                                                 disabled
                                             />
                                         </Card>
@@ -449,35 +476,40 @@ export default function ClientDatabaseConfiguration() {
                                 <Col>
                                     <Card className={classNames("p-4", { "item-disabled": !canEditDatabaseConfig })}>
                                         <div className="md-label">
-                                            Load Balance Behavior{" "}
+                                            {t("loadBalancing.behaviorLabel")}{" "}
                                             <PopoverWithHoverWrapper
                                                 placement="right"
                                                 message={
                                                     <>
                                                         <span className="d-inline-block mb-1">
-                                                            Set the Load balance method for <strong>Read</strong> &{" "}
-                                                            <strong>Write</strong> requests.
+                                                            <StudioTrans
+                                                                ns="clientConfiguration"
+                                                                i18nKey="loadBalancing.behaviorInfo"
+                                                                components={{ strong: <strong /> }}
+                                                            />
                                                         </span>
                                                         <ul>
                                                             <li className="mb-1">
-                                                                <code>None</code>
-                                                                <br />
-                                                                <strong>Read</strong> requests - the node the client
-                                                                will target will be based on Read balance behavior
-                                                                configuration.
-                                                                <br />
-                                                                <strong>Write</strong> requests - will be sent to the
-                                                                preferred node.
+                                                                <StudioTrans
+                                                                    ns="clientConfiguration"
+                                                                    i18nKey="loadBalancing.behaviorInfoNone"
+                                                                    components={{
+                                                                        code: <code />,
+                                                                        br: <br />,
+                                                                        strong: <strong />,
+                                                                    }}
+                                                                />
                                                             </li>
                                                             <li className="mb-1">
-                                                                <code>Use session context</code>
-                                                                <br />
-                                                                Sessions that are assigned the same context will have
-                                                                all their <strong>Read & Write</strong> requests routed
-                                                                to the same node.
-                                                                <br />
-                                                                The session context is hashed from a context string
-                                                                (given by the client) and an optional seed.
+                                                                <StudioTrans
+                                                                    ns="clientConfiguration"
+                                                                    i18nKey="loadBalancing.behaviorInfoSessionContext"
+                                                                    components={{
+                                                                        code: <code />,
+                                                                        br: <br />,
+                                                                        strong: <strong />,
+                                                                    }}
+                                                                />
                                                             </li>
                                                         </ul>
                                                     </>
@@ -508,15 +540,15 @@ export default function ClientDatabaseConfiguration() {
                                             <>
                                                 <div className="md-label mt-4">
                                                     {" "}
-                                                    Seed
+                                                    {t("loadBalancing.seedLabel")}
                                                     <PopoverWithHoverWrapper
                                                         placement="right"
                                                         message={
-                                                            <>
-                                                                An optional seed number.
-                                                                <br />
-                                                                Used when hashing the session context.
-                                                            </>
+                                                            <StudioTrans
+                                                                ns="clientConfiguration"
+                                                                i18nKey="loadBalancing.seedInfo"
+                                                                components={{ br: <br /> }}
+                                                            />
                                                         }
                                                     >
                                                         <Icon icon="info" color="info" />
@@ -539,7 +571,7 @@ export default function ClientDatabaseConfiguration() {
                                                             type="number"
                                                             control={control}
                                                             name="loadBalancerSeedValue"
-                                                            placeholder="0 (default)"
+                                                            placeholder={t("loadBalancing.seedPlaceholder")}
                                                             disabled={
                                                                 !formValues.loadBalancerSeedEnabled ||
                                                                 !canEditDatabaseConfig
@@ -550,16 +582,15 @@ export default function ClientDatabaseConfiguration() {
                                             </>
                                         )}
                                         <div className="md-label mt-4">
-                                            Read Balance Behavior{" "}
+                                            {t("loadBalancing.readBehaviorLabel")}{" "}
                                             <PopoverWithHoverWrapper
                                                 placement="right"
                                                 message={
-                                                    <>
-                                                        Set the Read balance method the client will use when accessing a
-                                                        node with <code> Read</code> requests.
-                                                        <br />
-                                                        <code>Write</code> requests are sent to the preferred node.
-                                                    </>
+                                                    <StudioTrans
+                                                        ns="clientConfiguration"
+                                                        i18nKey="loadBalancing.readBehaviorInfo"
+                                                        components={{ code: <code />, br: <br /> }}
+                                                    />
                                                 }
                                             >
                                                 <Icon icon="info" color="info" />
@@ -594,41 +625,42 @@ export default function ClientDatabaseConfiguration() {
                             <AccordionItemWrapper icon="about" color="info" targetId="1">
                                 <ul>
                                     <li className="margin-bottom-xs">
-                                        This is the <strong>Database Client-Configuration</strong> view.
-                                        <br />
-                                        The values set in this view will apply to any client communicating with this
-                                        database.
+                                        <StudioTrans
+                                            ns="clientConfiguration"
+                                            i18nKey="about.viewItem"
+                                            components={{ strong: <strong />, br: <br /> }}
+                                        />
                                     </li>
                                     <li>
-                                        If the <strong>Server-wide Client-Configuration</strong> view has any values
-                                        set,
-                                        <br /> then this view provides the option to override the Server-wide
-                                        Client-Configuration
-                                        <br /> and customize specific values for this database.
+                                        <StudioTrans
+                                            ns="clientConfiguration"
+                                            i18nKey="about.overrideServerWideItem"
+                                            components={{ strong: <strong />, br: <br /> }}
+                                        />
                                     </li>
                                 </ul>
                                 <hr />
                                 <ul>
                                     <li className="margin-bottom-xs">
-                                        Setting the Client-Configuration on the server from this view will{" "}
-                                        <strong>override</strong> the client&apos;s existing settings, which were
-                                        initially set by your client code.
+                                        <StudioTrans
+                                            ns="clientConfiguration"
+                                            i18nKey="about.overrideClientItem"
+                                            components={{ strong: <strong /> }}
+                                        />
                                     </li>
-                                    <li className="margin-bottom-xs">
-                                        When the server&apos;s Client-Configuration is modified, the running client will
-                                        receive the updated settings the next time it makes a request to the server.
-                                    </li>
+                                    <li className="margin-bottom-xs">{t("about.updateItem")}</li>
                                     <li>
-                                        This enables administrators to{" "}
-                                        <strong>dynamically control the client behavior</strong> even after it has
-                                        started running. E.g. manage load balancing of client requests on the fly in
-                                        response to changing system demands.
+                                        <StudioTrans
+                                            ns="clientConfiguration"
+                                            i18nKey="about.dynamicControlItem"
+                                            components={{ strong: <strong /> }}
+                                        />
                                     </li>
                                 </ul>
                                 <hr />
-                                <div className="small-label mb-2">useful links</div>
+                                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                                 <a href={clientConfigurationLink} target="_blank">
-                                    <Icon icon="newtab" /> Docs - Client Configuration
+                                    <Icon icon="newtab" /> {t("about.docsLink")}
                                 </a>
                             </AccordionItemWrapper>
 
@@ -644,26 +676,3 @@ export default function ClientDatabaseConfiguration() {
         </Form>
     );
 }
-
-const leftRadioToggleItem: RadioToggleWithIconInputItem<boolean> = {
-    label: "Use server config",
-    value: false,
-    iconName: "server",
-};
-
-const rightRadioToggleItem: RadioToggleWithIconInputItem<boolean> = {
-    label: "Use database config",
-    value: true,
-    iconName: "database",
-};
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "Client Configuration",
-        featureIcon: "client-configuration",
-        community: { value: false },
-        professional: { value: true },
-        enterprise: { value: true },
-        quill: { value: true },
-    },
-];

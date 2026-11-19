@@ -5,6 +5,7 @@ import DatabaseCustomSortersListItem from "components/pages/database/settings/cu
 import React from "react";
 import { AsyncStateStatus } from "react-async-hook";
 import { CustomSorter } from "components/common/customSorters/useCustomSorters";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface DatabaseCustomSortersListProps {
     sorters: CustomSorter[];
@@ -18,17 +19,18 @@ interface DatabaseCustomSortersListProps {
 
 export default function DatabaseCustomSortersList(props: DatabaseCustomSortersListProps) {
     const { sorters, fetchStatus, reload, remove, serverWideSorterNames, takenNames, markAsSaved } = props;
+    const t = useStudioTranslation("customSorters");
 
     if (fetchStatus === "loading") {
         return <LoadingView />;
     }
 
     if (fetchStatus === "error") {
-        return <LoadError error="Unable to load custom sorters" refresh={reload} />;
+        return <LoadError error={t("loadError")} refresh={reload} />;
     }
 
     if (sorters.length === 0) {
-        return <EmptySet>No custom sorters have been defined</EmptySet>;
+        return <EmptySet>{t("empty")}</EmptySet>;
     }
     return sorters.map((sorter, idx) => (
         <DatabaseCustomSortersListItem

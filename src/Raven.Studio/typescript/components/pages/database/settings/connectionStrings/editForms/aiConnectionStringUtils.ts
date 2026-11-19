@@ -4,6 +4,9 @@ import { AiConnection, ConnectionFormData } from "../connectionStringsTypes";
 import { connectionStringsUtils } from "../connectionStringsUtils";
 import * as yup from "yup";
 import _ from "lodash";
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("connectionStrings");
 
 type AiConnectionString = Raven.Client.Documents.Operations.AI.AiConnectionString;
 type AiConnectorType = Raven.Client.Documents.Operations.AI.AiConnectorType;
@@ -73,7 +76,13 @@ const allConnectorOptions: SelectOptionWithIcon<FormData["connectorType"]>[] = [
     { label: "Ollama", value: "ollamaSettings", icon: "ollama" },
     { label: "OpenAI", value: "openAiSettings", icon: "openai" },
     { label: "Vertex AI", value: "vertexSettings", icon: "vertex-ai" },
-    { label: "Embedded (bge-micro-v2)", value: "embeddedSettings", icon: "onnx" },
+    {
+        get label() {
+            return t("ai.embeddedConnector");
+        },
+        value: "embeddedSettings",
+        icon: "onnx",
+    },
 ];
 
 function getConnectorOptions(modelType: FormData["modelType"]): SelectOptionWithIcon<FormData["connectorType"]>[] {
@@ -126,13 +135,17 @@ const schema = yupObjectSchema<FormData>({
     identifier: yup
         .string()
         .nullable()
-        .test("is-identifier", "Only lowercase letters (a-z), numbers (0-9) and hyphens (-) are allowed.", (value) => {
-            if (!value) {
-                return true;
-            }
+        .test(
+            "is-identifier",
+            () => t("ai.identifierFormat"),
+            (value) => {
+                if (!value) {
+                    return true;
+                }
 
-            return /^[a-z0-9-]+$/.test(value);
-        }),
+                return /^[a-z0-9-]+$/.test(value);
+            }
+        ),
     connectorType: yup.string<FormData["connectorType"]>().nullable().required(),
     modelType: yup.string<Raven.Client.Documents.Operations.AI.AiModelType>().nullable().required(),
     azureOpenAiSettings: yupObjectSchema<FormData["azureOpenAiSettings"]>({

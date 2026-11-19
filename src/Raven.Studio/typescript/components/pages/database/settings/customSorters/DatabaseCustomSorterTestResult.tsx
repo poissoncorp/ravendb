@@ -15,6 +15,8 @@ import { useState } from "react";
 import Badge from "react-bootstrap/Badge";
 import document from "models/database/documents/document";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import type { StudioTranslate } from "common/i18n/resources";
 
 type TestResultTab = "results" | "diagnostics";
 
@@ -42,6 +44,7 @@ function DatabaseCustomSorterTestResultWithSize({
     result,
     availableWidth,
 }: DatabaseCustomSorterTestResultWithSizeProps) {
+    const t = useStudioTranslation("customSorters");
     const [currentTab, setCurrentTab] = useState<TestResultTab>("results");
 
     const tableBodyWidth = virtualTableUtils.getTableBodyWidth(availableWidth);
@@ -68,7 +71,7 @@ function DatabaseCustomSorterTestResultWithSize({
     });
 
     const diagnosticsTable = useReactTable({
-        columns: getDiagnosticsColumns(tableBodyWidth),
+        columns: getDiagnosticsColumns(t, tableBodyWidth),
         data: result?.additionalResultInfo?.Diagnostics || [],
         columnResizeMode: "onChange",
         getCoreRowModel: getCoreRowModel(),
@@ -78,10 +81,10 @@ function DatabaseCustomSorterTestResultWithSize({
 
     return (
         <div>
-            <h3>Test Results</h3>
+            <h3>{t("test.resultsHeading")}</h3>
             {currentTab === "results" && (
                 <>
-                    <span className="text-muted small">Displaying up to 128 results</span>
+                    <span className="text-muted small">{t("test.resultsLimit")}</span>
                     <div className="d-flex justify-content-end mb-2">
                         <TableDisplaySettings table={resultsTable} />
                     </div>
@@ -98,7 +101,7 @@ function DatabaseCustomSorterTestResultWithSize({
                     onClick={() => setCurrentTab("results")}
                     active={currentTab === "results"}
                 >
-                    Results
+                    {t("test.resultsTab")}
                     <Badge bg="primary" className="ms-1">
                         {result.items.length}
                     </Badge>
@@ -110,7 +113,7 @@ function DatabaseCustomSorterTestResultWithSize({
                     onClick={() => setCurrentTab("diagnostics")}
                     active={currentTab === "diagnostics"}
                 >
-                    Diagnostics
+                    {t("test.diagnosticsTab")}
                     <Badge bg="primary" className="ms-1">
                         {result.additionalResultInfo?.Diagnostics?.length}
                     </Badge>
@@ -120,10 +123,10 @@ function DatabaseCustomSorterTestResultWithSize({
     );
 }
 
-const getDiagnosticsColumns = (tableWidth = 0): ColumnDef<DiagnosticsItem>[] => {
+const getDiagnosticsColumns = (t: StudioTranslate<"customSorters">, tableWidth = 0): ColumnDef<DiagnosticsItem>[] => {
     return [
         {
-            header: "Message",
+            header: t("test.messageColumn"),
             accessorFn: (x) => x,
             cell: CellWithCopyWrapper,
             size: tableWidth,

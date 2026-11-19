@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("settingsCommands");
 
 class saveUnusedDatabaseIDsCommand extends commandBase {
 
@@ -20,8 +23,8 @@ class saveUnusedDatabaseIDsCommand extends commandBase {
         };
 
         return this.post(url, JSON.stringify(payload))
-            .done(() => this.reportSuccess("Unused database IDs saved successfully"))
-            .fail((response: JQueryXHR) => this.reportError("Failed to save the unused database IDs", response.responseText));
+            .done(() => this.reportSuccess(t("saveUnusedDatabaseIdsSucceeded")))
+            .fail((response: JQueryXHR) => this.reportError(t("saveUnusedDatabaseIdsFailed"), response.responseText));
     }
 }
 

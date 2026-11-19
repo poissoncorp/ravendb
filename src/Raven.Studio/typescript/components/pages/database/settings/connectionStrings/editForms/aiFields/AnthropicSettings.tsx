@@ -18,10 +18,13 @@ import { useFormContext, useWatch } from "react-hook-form";
 import { SelectOption } from "components/common/select/Select";
 import { useAsyncDebounce } from "components/hooks/useAsyncDebounce";
 import PromptCacheField from "./PromptCacheField";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 type FormData = ConnectionFormData<AiConnection>;
 
 export default function AnthropicSettings({ isUsedByAnyTask }: { isUsedByAnyTask: boolean }) {
+    const t = useStudioTranslation("connectionStrings");
     const { control, trigger } = useFormContext<FormData>();
     const { tasksService } = useServices();
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
@@ -86,8 +89,8 @@ export default function AnthropicSettings({ isUsedByAnyTask }: { isUsedByAnyTask
         <>
             <div className="mb-2">
                 <FormLabel>
-                    API Key
-                    <PopoverWithHoverWrapper message="The API key used to authenticate requests to Anthropic's Claude API.">
+                    {t("ai.apiKeyLabel")}
+                    <PopoverWithHoverWrapper message={t("ai.anthropic.apiKeyInfo")}>
                         <Icon icon="info" color="info" id="apiKey" margin="ms-1" />
                     </PopoverWithHoverWrapper>
                 </FormLabel>
@@ -95,22 +98,24 @@ export default function AnthropicSettings({ isUsedByAnyTask }: { isUsedByAnyTask
             </div>
             <div className="mb-2">
                 <FormLabel>
-                    Endpoint <OptionalLabel />
-                    <PopoverWithHoverWrapper message="The Claude API endpoint. If not set, https://api.anthropic.com/v1/ is used.">
+                    {t("ai.endpointLabel")} <OptionalLabel />
+                    <PopoverWithHoverWrapper
+                        message={t("ai.anthropic.endpointInfo", { url: "https://api.anthropic.com/v1/" })}
+                    >
                         <Icon icon="info" color="info" id="endpoint" margin="ms-1" />
                     </PopoverWithHoverWrapper>
                 </FormLabel>
                 <FormSelectAutocomplete
                     control={control}
                     name="anthropicSettings.endpoint"
-                    placeholder="Select an endpoint (or enter new one)"
+                    placeholder={t("ai.endpointPlaceholder")}
                     options={endpointOptions}
                 />
             </div>
             <div className="mb-2">
                 <FormLabel>
-                    Model
-                    <PopoverWithHoverWrapper message="The Claude model to use.">
+                    {t("ai.modelLabel")}
+                    <PopoverWithHoverWrapper message={t("ai.anthropic.modelInfo")}>
                         <Icon icon="info" color="info" id="model" margin="ms-1" />
                     </PopoverWithHoverWrapper>
                 </FormLabel>
@@ -118,21 +123,22 @@ export default function AnthropicSettings({ isUsedByAnyTask }: { isUsedByAnyTask
                     control={control}
                     name="anthropicSettings.model"
                     isDisabled={isUsedByAnyTask}
-                    placeholder="Select a model or enter a new one (provide API key to see available models)"
+                    placeholder={t("ai.modelPlaceholder")}
                     options={asyncGetModelOptions.result ?? []}
                     isLoading={asyncGetModelOptions.loading}
                 />
             </div>
             <div className="mb-2">
                 <FormLabel>
-                    Max output tokens <OptionalLabel />
+                    {t("ai.anthropic.maxOutputTokensLabel")} <OptionalLabel />
                     <PopoverWithHoverWrapper
                         message={
-                            <>
-                                The maximum number of tokens Claude can generate in a single response, sent as{" "}
-                                <code>max_tokens</code>. Thinking tokens count toward this limit. If not set,{" "}
-                                <code>{defaultMaxOutputTokens}</code> is used.
-                            </>
+                            <StudioTrans
+                                ns="connectionStrings"
+                                i18nKey="ai.anthropic.maxOutputTokensInfo"
+                                options={{ value: defaultMaxOutputTokens }}
+                                components={{ code: <code /> }}
+                            />
                         }
                     >
                         <Icon icon="info" color="info" id="maxOutputTokens" margin="ms-1" />
@@ -142,28 +148,24 @@ export default function AnthropicSettings({ isUsedByAnyTask }: { isUsedByAnyTask
                     control={control}
                     name="anthropicSettings.maxOutputTokens"
                     type="number"
-                    placeholder={`Default: ${defaultMaxOutputTokens}`}
+                    placeholder={t("ai.defaultPlaceholder", { value: defaultMaxOutputTokens })}
                 />
             </div>
             <div className="mb-2">
                 <FormLabel>
-                    Reasoning effort <OptionalLabel />
+                    {t("ai.reasoningEffortLabel")} <OptionalLabel />
                     <PopoverWithHoverWrapper
                         message={
                             <>
+                                <p>{t("ai.anthropic.reasoningEffortInfo")}</p>
                                 <p>
-                                    Turns on adaptive thinking and sets how much reasoning Claude does before answering.
-                                    Lower values reduce latency and cost.
+                                    <StudioTrans
+                                        ns="connectionStrings"
+                                        i18nKey="ai.anthropic.reasoningEffortValues"
+                                        components={{ code: <code /> }}
+                                    />
                                 </p>
-                                <p>
-                                    Typical values are <code>low</code>, <code>medium</code>, <code>high</code>,{" "}
-                                    <code>xhigh</code> and <code>max</code>. Effort requires Claude 4.6 or later, and
-                                    not every model accepts every level.
-                                </p>
-                                <p className="mb-0">
-                                    The value is sent in lowercase and is not validated by RavenDB. If not set, no
-                                    reasoning configuration is sent and the model applies its own default.
-                                </p>
+                                <p className="mb-0">{t("ai.anthropic.reasoningEffortNotValidated")}</p>
                             </>
                         }
                     >
@@ -173,7 +175,7 @@ export default function AnthropicSettings({ isUsedByAnyTask }: { isUsedByAnyTask
                 <FormSelectAutocomplete
                     control={control}
                     name="anthropicSettings.reasoningEffort"
-                    placeholder="Select a reasoning effort or enter a new one (leave empty for model default)"
+                    placeholder={t("ai.reasoningEffortPlaceholder")}
                     options={reasoningEffortOptions}
                     isClearable
                 />
@@ -181,25 +183,33 @@ export default function AnthropicSettings({ isUsedByAnyTask }: { isUsedByAnyTask
             <PromptCacheField
                 baseName="anthropicSettings"
                 serverDefaultValue={true}
-                label="Prompt caching"
+                label={t("ai.anthropic.promptCacheLabel")}
                 description={
                     <>
-                        Caches the prompt sent to Anthropic, for AI agents and GenAI tasks. Anthropic bills a cache
-                        write above the normal input price and a cache read well below it, so caching pays off only when
-                        the same prompt is sent again within the cache lifetime: the turns of an AI agent conversation,
-                        or a GenAI task whose query tools the model calls. A GenAI task without query tools sends each
-                        document once, so caching would only add the write cost.
+                        {t("ai.anthropic.promptCacheInfo")}
                         <br />
                         <br />
                         <ul className="mb-0">
                             <li>
-                                <strong>Default:</strong> Cache AI agents and GenAI tasks with query tools.
+                                <StudioTrans
+                                    ns="connectionStrings"
+                                    i18nKey="ai.anthropic.promptCacheDefault"
+                                    components={{ strong: <strong /> }}
+                                />
                             </li>
                             <li className="mt-1">
-                                <strong>True:</strong> Cache prompts.
+                                <StudioTrans
+                                    ns="connectionStrings"
+                                    i18nKey="ai.anthropic.promptCacheTrue"
+                                    components={{ strong: <strong /> }}
+                                />
                             </li>
                             <li className="mt-1">
-                                <strong>False:</strong> Never cache.
+                                <StudioTrans
+                                    ns="connectionStrings"
+                                    i18nKey="ai.anthropic.promptCacheFalse"
+                                    components={{ strong: <strong /> }}
+                                />
                             </li>
                         </ul>
                     </>
@@ -207,13 +217,15 @@ export default function AnthropicSettings({ isUsedByAnyTask }: { isUsedByAnyTask
             />
             <div className="mb-2">
                 <FormLabel>
-                    API version <OptionalLabel />
+                    {t("ai.anthropic.apiVersionLabel")} <OptionalLabel />
                     <PopoverWithHoverWrapper
                         message={
-                            <>
-                                The Anthropic API version, sent as the <code>anthropic-version</code> header. If not
-                                set, <code>{defaultApiVersion}</code> is used.
-                            </>
+                            <StudioTrans
+                                ns="connectionStrings"
+                                i18nKey="ai.anthropic.apiVersionInfo"
+                                options={{ value: defaultApiVersion }}
+                                components={{ code: <code /> }}
+                            />
                         }
                     >
                         <Icon icon="info" color="info" id="apiVersion" margin="ms-1" />
@@ -223,7 +235,7 @@ export default function AnthropicSettings({ isUsedByAnyTask }: { isUsedByAnyTask
                     control={control}
                     name="anthropicSettings.apiVersion"
                     type="text"
-                    placeholder={`Default: ${defaultApiVersion}`}
+                    placeholder={t("ai.defaultPlaceholder", { value: defaultApiVersion })}
                 />
             </div>
             <div className="d-flex mb-2">
@@ -234,7 +246,7 @@ export default function AnthropicSettings({ isUsedByAnyTask }: { isUsedByAnyTask
                     onClick={asyncTest.execute}
                     isSpinning={asyncTest.loading}
                 >
-                    Test connection
+                    {t("form.testConnection")}
                 </ButtonWithSpinner>
             </div>
             {asyncTest.result && <ConnectionTestResult testResult={asyncTest.result} />}

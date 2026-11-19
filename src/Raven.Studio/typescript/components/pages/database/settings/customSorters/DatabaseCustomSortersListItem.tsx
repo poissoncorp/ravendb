@@ -36,6 +36,7 @@ import { databaseSelectors } from "components/common/shell/databaseSliceSelector
 import Button from "react-bootstrap/Button";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface DatabaseCustomSortersListItemProps {
     initialSorter: CustomSorterFormData;
@@ -47,6 +48,7 @@ interface DatabaseCustomSortersListItemProps {
 
 export default function DatabaseCustomSortersListItem(props: DatabaseCustomSortersListItemProps) {
     const { initialSorter, takenNames, serverWideSorterNames, remove, markAsSaved } = props;
+    const t = useStudioTranslation("customSorters");
 
     const form = useForm<CustomSorterFormData>({
         resolver: createCustomSorterYupResolver(takenNames),
@@ -105,18 +107,12 @@ export default function DatabaseCustomSortersListItem(props: DatabaseCustomSorte
                 <RichPanelHeader>
                     <RichPanelInfo>
                         <RichPanelName>
-                            {formValues.name || "New sorter name"}
+                            {formValues.name || t("item.newNameFallback")}
                             {(formState.isDirty || isNew) && <span className="text-warning ms-1">*</span>}
                         </RichPanelName>
                     </RichPanelInfo>
                     {serverWideSorterNames.includes(formValues.name) && (
-                        <OverlayTrigger
-                            overlay={
-                                <Tooltip id={tooltipId}>
-                                    This database sorter overrides the server-wide sorter with the same name.
-                                </Tooltip>
-                            }
-                        >
+                        <OverlayTrigger overlay={<Tooltip id={tooltipId}>{t("item.overridesServerWide")}</Tooltip>}>
                             <div className="d-inline-block">
                                 <Icon id={tooltipId} icon="info" color="info" />
                             </div>
@@ -149,12 +145,12 @@ export default function DatabaseCustomSortersListItem(props: DatabaseCustomSorte
                         <RichPanelDetails className="vstack gap-3 p-4">
                             {isNew && (
                                 <InputGroup className="vstack mb-1">
-                                    <FormLabel>Name</FormLabel>
+                                    <FormLabel>{t("item.nameLabel")}</FormLabel>
                                     <FormInput
                                         type="text"
                                         control={control}
                                         name="name"
-                                        placeholder="Enter a sorter name"
+                                        placeholder={t("item.namePlaceholder")}
                                     />
                                 </InputGroup>
                             )}
@@ -163,7 +159,7 @@ export default function DatabaseCustomSortersListItem(props: DatabaseCustomSorte
                                     <div className="d-flex justify-content-end">
                                         <FormLabel className="btn btn-link btn-xs text-right">
                                             <Icon icon="upload" />
-                                            Load from a file
+                                            {t("item.loadFromFile")}
                                             <input
                                                 type="file"
                                                 className="d-none"
@@ -218,6 +214,7 @@ function CustomSortersActions({
     isSubmitting,
     asyncDeleteSorter,
 }: CustomSortersActionsProps) {
+    const t = useStudioTranslation("customSorters");
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
 
     if (!hasDatabaseAdminAccess) {
@@ -237,7 +234,7 @@ function CustomSortersActions({
             <ConditionalPopover
                 conditions={{
                     isActive: isEditMode,
-                    message: "To test, first exit edit mode",
+                    message: t("item.testDisabledPopover"),
                 }}
             >
                 <Button
@@ -245,7 +242,7 @@ function CustomSortersActions({
                     key="test"
                     onClick={toggleIsTestMode}
                     disabled={isEditMode}
-                    title={isTestMode ? "Exit test mode" : "Test custom sorter"}
+                    title={isTestMode ? t("item.exitTestTitle") : t("item.testTitle")}
                 >
                     <Icon icon="rocket" addon={isTestMode ? "cancel" : null} margin="m-0" />
                 </Button>
@@ -254,11 +251,11 @@ function CustomSortersActions({
             {isEditMode ? (
                 <>
                     <Button key="save" type="submit" variant="success" disabled={isSubmitting}>
-                        <Icon icon="save" /> Save changes
+                        <Icon icon="save" /> {t("item.saveButton")}
                     </Button>
                     <Button key="cancel" type="button" variant="secondary" onClick={onDiscard}>
                         <Icon icon="cancel" />
-                        Discard
+                        {t("item.discardButton")}
                     </Button>
                 </>
             ) : (
@@ -266,7 +263,7 @@ function CustomSortersActions({
                     <ConditionalPopover
                         conditions={{
                             isActive: isTestMode,
-                            message: "To edit, first exit test mode",
+                            message: t("item.editDisabledPopover"),
                         }}
                     >
                         <Button
@@ -274,7 +271,7 @@ function CustomSortersActions({
                             key="edit"
                             onClick={toggleIsEditMode}
                             disabled={isTestMode}
-                            title="Edit custom sorter"
+                            title={t("item.editTitle")}
                         >
                             <Icon icon={hasDatabaseAdminAccess ? "edit" : "preview"} margin="m-0" />
                         </Button>
@@ -294,7 +291,7 @@ function CustomSortersActions({
                                 onClick={() => setNameToConfirmDelete(name)}
                                 icon="trash"
                                 isSpinning={asyncDeleteSorter.status === "loading"}
-                                title="Delete custom sorter"
+                                title={t("item.deleteTitle")}
                             />
                         </>
                     )}

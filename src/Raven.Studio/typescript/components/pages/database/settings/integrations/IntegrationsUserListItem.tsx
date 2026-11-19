@@ -28,6 +28,7 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import copyToClipboard from "common/copyToClipboard";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface IntegrationsUserListProps {
     initialUsername: string;
@@ -37,6 +38,8 @@ interface IntegrationsUserListProps {
 // TODO Implement Test Connection button when server-side is ready. https://issues.hibernatingrhinos.com/issue/RavenDB-22189/PostgreSQL-test-credentials
 
 export default function IntegrationsUserList(props: IntegrationsUserListProps) {
+    const t = useStudioTranslation("integrations");
+    const commonT = useStudioTranslation("common");
     const { initialUsername, removeUser } = props;
 
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
@@ -74,11 +77,11 @@ export default function IntegrationsUserList(props: IntegrationsUserListProps) {
 
     const onDeleteUser = async () => {
         const isConfirmed = await confirm({
-            title: "Delete credentials?",
-            message: <span>You&apos;re deleting PostgreSQL credentials for user: {initialUsername}</span>,
+            title: t("item.deleteConfirmTitle"),
+            message: <span>{t("item.deleteConfirmMessage", { username: initialUsername })}</span>,
             actionColor: "danger",
             icon: "trash",
-            confirmText: "Delete",
+            confirmText: commonT("delete"),
         });
 
         if (isConfirmed) {
@@ -99,7 +102,7 @@ export default function IntegrationsUserList(props: IntegrationsUserListProps) {
                 <RichPanelHeader>
                     <RichPanelInfo>
                         <RichPanelName>
-                            {formValues.username || "New credentials"}
+                            {formValues.username || t("item.newName")}
                             {(formState.isDirty || isNew) && <span className="text-warning ms-1">*</span>}
                         </RichPanelName>
                     </RichPanelInfo>
@@ -110,27 +113,27 @@ export default function IntegrationsUserList(props: IntegrationsUserListProps) {
                                     <ButtonWithSpinner
                                         type="submit"
                                         variant="success"
-                                        title="Save credentials"
+                                        title={t("item.save")}
                                         isSpinning={formState.isSubmitting}
                                         icon="save"
                                     >
-                                        Save credentials
+                                        {t("item.save")}
                                     </ButtonWithSpinner>
                                     <Button
                                         type="button"
                                         variant="secondary"
-                                        title="Discard changes"
+                                        title={t("item.discardTitle")}
                                         onClick={removeUser}
                                     >
                                         <Icon icon="cancel" />
-                                        Discard
+                                        {t("item.discard")}
                                     </Button>
                                 </>
                             ) : (
                                 <ButtonWithSpinner
                                     type="button"
                                     variant="danger"
-                                    title="Delete credentials"
+                                    title={t("item.deleteTitle")}
                                     onClick={onDeleteUser}
                                     isSpinning={asyncDeleteUser.loading}
                                     icon="trash"
@@ -143,46 +146,43 @@ export default function IntegrationsUserList(props: IntegrationsUserListProps) {
                     <div>
                         <RichPanelDetails className="vstack gap-3 p-4">
                             <InputGroup className="vstack mb-1">
-                                <FormLabel>Username</FormLabel>
+                                <FormLabel>{t("item.usernameLabel")}</FormLabel>
                                 <FormInput
                                     control={control}
                                     name="username"
                                     type="text"
-                                    placeholder="Enter your username"
+                                    placeholder={t("item.usernamePlaceholder")}
                                     autoComplete="off"
                                 />
                             </InputGroup>
                             <InputGroup className="vstack">
-                                <FormLabel>Password</FormLabel>
+                                <FormLabel>{t("item.passwordLabel")}</FormLabel>
                                 <HStack className="gap-1">
                                     <div className="position-relative flex-grow">
                                         <FormInput
                                             control={control}
                                             name="password"
                                             type="password"
-                                            placeholder="Enter your password"
+                                            placeholder={t("item.passwordPlaceholder")}
                                             passwordPreview
                                         />
                                     </div>
                                     <ButtonWithSpinner
                                         variant="secondary"
                                         type="button"
-                                        title="Generate a random password"
+                                        title={t("item.generatePasswordTitle")}
                                         onClick={asyncGeneratePassword.execute}
                                         icon="random"
                                         isSpinning={asyncGeneratePassword.loading}
                                     >
-                                        Generate password
+                                        {t("item.generatePassword")}
                                     </ButtonWithSpinner>
                                     <Button
                                         variant="secondary"
                                         type="button"
-                                        title="Copy to clipboard"
+                                        title={t("item.copyTitle")}
                                         onClick={() =>
-                                            copyToClipboard.copy(
-                                                formValues.password,
-                                                "Password was copied to clipboard."
-                                            )
+                                            copyToClipboard.copy(formValues.password, t("item.passwordCopied"))
                                         }
                                     >
                                         <Icon icon="copy-to-clipboard" margin="m-0" />

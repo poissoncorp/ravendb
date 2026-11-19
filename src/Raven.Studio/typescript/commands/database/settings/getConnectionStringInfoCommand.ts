@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("settingsCommands");
 
 class getConnectionStringInfoCommand extends commandBase {
     private constructor(private db: database | string, private type: Raven.Client.Documents.Operations.ConnectionStrings.ConnectionStringType, private connectionStringName: string) {
@@ -10,7 +13,7 @@ class getConnectionStringInfoCommand extends commandBase {
     execute(): JQueryPromise<Raven.Client.Documents.Operations.ConnectionStrings.GetConnectionStringsResult> {
         return this.getConnectionStringInfo()
             .fail((response: JQueryXHR) => {
-                this.reportError(`Failed to get info for connection string: ${this.connectionStringName}`, response.responseText, response.statusText);
+                this.reportError(t("getConnectionStringInfoFailed", { name: this.connectionStringName }), response.responseText, response.statusText);
             });
     }
 

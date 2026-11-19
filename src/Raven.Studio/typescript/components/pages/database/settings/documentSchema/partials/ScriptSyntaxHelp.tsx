@@ -1,5 +1,6 @@
 import Code from "components/common/Code";
 import React from "react";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export function ScriptSyntaxHelp() {
     const employeeSchema = `
@@ -57,7 +58,7 @@ export function ScriptSyntaxHelp() {
     return (
         <div>
             <div>
-                Sample schema for a document in the <code>Employees</code> collection:
+                <StudioTrans ns="documentSchema" i18nKey="syntaxHelp" components={{ code: <code /> }} />
             </div>
             <Code code={employeeSchema} language="json" />
         </div>

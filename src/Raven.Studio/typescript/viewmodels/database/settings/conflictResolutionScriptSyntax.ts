@@ -1,6 +1,9 @@
 import dialogViewModelBase = require("viewmodels/dialogViewModelBase");
 import copyToClipboard = require("common/copyToClipboard");
 import prismjs = require("prismjs");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("conflictResolutionScriptSyntax");
 
 class conflictResolutionScriptSyntax extends dialogViewModelBase {
 
@@ -29,7 +32,7 @@ return docs[0];
     }
 
     copySample() {
-        copyToClipboard.copy(conflictResolutionScriptSyntax.sampleScript, "Sample has been copied to clipboard", this.dialogContainer);
+        copyToClipboard.copy(conflictResolutionScriptSyntax.sampleScript, t("sampleCopied"), this.dialogContainer);
     }
     
     scriptHtml = ko.pureComputed(() => {

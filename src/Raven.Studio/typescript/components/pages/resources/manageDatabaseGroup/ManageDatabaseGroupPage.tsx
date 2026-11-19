@@ -18,28 +18,32 @@ import Button from "react-bootstrap/Button";
 import Dropdown from "react-bootstrap/Dropdown";
 import { CustomDropdownToggle } from "components/common/Dropdown";
 import { Switch } from "components/common/Checkbox";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import type { StudioTranslate } from "common/i18n/resources";
 
 function getDynamicDatabaseDistributionWarning(
     hasDynamicNodesDistribution: boolean,
     encryptedDatabase: boolean,
-    nodesCount: number
+    nodesCount: number,
+    t: StudioTranslate<"manageDatabaseGroup">
 ) {
     if (!hasDynamicNodesDistribution) {
-        return "Your current license doesn't include the dynamic nodes distribution feature.";
+        return t("settings.noLicenseWarning");
     }
 
     if (encryptedDatabase) {
-        return "Dynamic database distribution is not available when database is encrypted.";
+        return t("settings.encryptedWarning");
     }
 
     if (nodesCount === 1) {
-        return "There is only one node in the group.";
+        return t("settings.singleNodeWarning");
     }
 
     return null;
 }
 
 export function ManageDatabaseGroupPage() {
+    const t = useStudioTranslation("manageDatabaseGroup");
     const db = useAppSelector(databaseSelectors.activeDatabase);
     const isOperatorOrAbove = useAppSelector(accessManagerSelectors.isOperatorOrAbove);
     const hasDynamicNodesDistribution = useAppSelector(licenseSelectors.statusValue("HasDynamicNodesDistribution"));
@@ -64,7 +68,8 @@ export function ManageDatabaseGroupPage() {
     const dynamicDatabaseDistributionWarning = getDynamicDatabaseDistributionWarning(
         hasDynamicNodesDistribution,
         db.isEncrypted,
-        db.nodes.length
+        db.nodes.length,
+        t
     );
     const enableDynamicDatabaseDistribution = isOperatorOrAbove && !dynamicDatabaseDistributionWarning;
 
@@ -74,7 +79,7 @@ export function ManageDatabaseGroupPage() {
                 <div className="flex-horizontal">
                     {!db.isSharded && (
                         <Dropdown>
-                            <Dropdown.Toggle as={CustomDropdownToggle}>Settings</Dropdown.Toggle>
+                            <Dropdown.Toggle as={CustomDropdownToggle}>{t("settings.toggle")}</Dropdown.Toggle>
                             <Dropdown.Menu className="p-0">
                                 <Switch
                                     selected={dynamicDatabaseDistribution}
@@ -82,7 +87,7 @@ export function ManageDatabaseGroupPage() {
                                     disabled={!enableDynamicDatabaseDistribution}
                                     className="p-2 text-nowrap"
                                 >
-                                    Dynamic database distribution
+                                    {t("settings.dynamicDistribution")}
                                 </Switch>
                                 {dynamicDatabaseDistributionWarning && (
                                     <div className="bg-faded-warning px-4 py-2">
@@ -96,7 +101,7 @@ export function ManageDatabaseGroupPage() {
                     {db.isSharded && (
                         <Button variant="shard" onClick={addNewShard}>
                             <Icon icon="shard" addon="plus" />
-                            Add Shard
+                            {t("addShard")}
                         </Button>
                     )}
                 </div>

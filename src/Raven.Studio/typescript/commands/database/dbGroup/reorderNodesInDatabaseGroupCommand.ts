@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("dbGroupCommands");
 
 class reorderNodesInDatabaseGroupCommand extends commandBase {
 
@@ -26,8 +29,8 @@ class reorderNodesInDatabaseGroupCommand extends commandBase {
         };
         
         return this.post<void>(url, JSON.stringify(payload), null,  { dataType: undefined })
-            .done(() => this.reportSuccess("Nodes order was successfully saved"))
-            .fail((response: JQueryXHR) => this.reportError("Failed to change nodes order", response.responseText, response.statusText));
+            .done(() => this.reportSuccess(t("reorderNodesSucceeded")))
+            .fail((response: JQueryXHR) => this.reportError(t("reorderNodesFailed"), response.responseText, response.statusText));
     }
 }
 

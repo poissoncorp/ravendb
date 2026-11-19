@@ -26,6 +26,9 @@ import { Icon } from "components/common/Icon";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import { connectionStringSelectors } from "../store/connectionStringsSlice";
 import { ConnectionStringsNameContext, connectionStringsUtils } from "../connectionStringsUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import { StudioTranslate } from "common/i18n/resources";
 
 type FormData = ConnectionFormData<AzureServiceBusConnection>;
 
@@ -38,6 +41,7 @@ export default function AzureServiceBusConnectionString({
     isForNewConnection,
     onSave,
 }: AzureServiceBusConnectionStringProps) {
+    const t = useStudioTranslation("connectionStrings");
     const usedNames = useAppSelector(connectionStringSelectors.connections)["AzureServiceBus"].map((x) => x.name);
     const isServerWide = useAppSelector(connectionStringSelectors.isServerWide);
 
@@ -86,36 +90,36 @@ export default function AzureServiceBusConnectionString({
     return (
         <Form id="connection-string-form" onSubmit={handleSubmit(handleSave)} className="vstack gap-3">
             <div className="mb-2">
-                <FormLabel>Name</FormLabel>
+                <FormLabel>{t("form.nameLabel")}</FormLabel>
                 <FormInput
                     control={control}
                     name="name"
                     type="text"
-                    placeholder="Enter a name for the connection string"
+                    placeholder={t("form.namePlaceholder")}
                     disabled={!isForNewConnection}
                     autoComplete="off"
                 />
             </div>
             <div className="mb-2">
                 <FormLabel className="d-flex align-items-center gap-1">
-                    Authentication{" "}
+                    {t("form.authenticationLabel")}{" "}
                     {asyncTest.result?.Success ? (
                         <Badge bg="success" pill>
                             <Icon icon="check" />
-                            Successfully connected
+                            {t("form.successfullyConnected")}
                         </Badge>
                     ) : asyncTest.result?.Error ? (
                         <Badge bg="danger" pill>
                             <Icon icon="warning" />
-                            Failed connection
+                            {t("form.failedConnection")}
                         </Badge>
                     ) : null}
                 </FormLabel>
                 <FormSelect
                     name="authType"
                     control={control}
-                    placeholder="Select an authentication option"
-                    options={authenticationOptions}
+                    placeholder={t("form.authenticationPlaceholder")}
+                    options={getAuthenticationOptions(t)}
                     isSearchable={false}
                 />
             </div>
@@ -125,13 +129,13 @@ export default function AzureServiceBusConnectionString({
                 <ButtonWithSpinner
                     variant="secondary"
                     icon="rocket"
-                    title="Test connection"
+                    title={t("form.testConnection")}
                     className="mb-2"
                     onClick={asyncTest.execute}
                     isSpinning={asyncTest.loading}
                     disabled={asyncTest.loading}
                 >
-                    Test connection
+                    {t("form.testConnection")}
                 </ButtonWithSpinner>
             </div>
             {asyncTest.result?.Error && (
@@ -158,20 +162,25 @@ interface SelectedAuthFieldsProps {
 }
 
 function SelectedAuthFields({ control, authMethod }: SelectedAuthFieldsProps) {
+    const t = useStudioTranslation("connectionStrings");
+
     if (authMethod === "connectionString") {
         return (
             <div className="mb-2">
                 <div className="d-flex flex-grow align-items-baseline justify-content-between">
-                    <FormLabel>Connection string</FormLabel>
+                    <FormLabel>{t("form.connectionStringLabel")}</FormLabel>
                     <PopoverWithHoverWrapper
                         message={
-                            <>
-                                Example: <code>{exampleConnectionString}</code>
-                            </>
+                            <StudioTrans
+                                ns="connectionStrings"
+                                i18nKey="form.example"
+                                options={{ example: exampleConnectionString }}
+                                components={{ code: <code /> }}
+                            />
                         }
                     >
                         <small className="text-primary">
-                            Syntax <Icon icon="help" margin="m-0" />
+                            {t("form.syntax")} <Icon icon="help" margin="m-0" />
                         </small>
                     </PopoverWithHoverWrapper>
                 </div>
@@ -180,7 +189,7 @@ function SelectedAuthFields({ control, authMethod }: SelectedAuthFieldsProps) {
                     name="settings.connectionString.connectionStringValue"
                     type="textarea"
                     as="textarea"
-                    placeholder="Enter a connection string"
+                    placeholder={t("form.connectionStringPlaceholder")}
                     rows={5}
                 />
             </div>
@@ -192,16 +201,19 @@ function SelectedAuthFields({ control, authMethod }: SelectedAuthFieldsProps) {
             <div className="vstack gap-3">
                 <div className="mb-2">
                     <div className="d-flex flex-grow align-items-baseline justify-content-between">
-                        <FormLabel>Service Bus Namespace</FormLabel>
+                        <FormLabel>{t("azureServiceBus.namespaceLabel")}</FormLabel>
                         <PopoverWithHoverWrapper
                             message={
-                                <>
-                                    Example: <code>mynamespace.servicebus.windows.net</code>
-                                </>
+                                <StudioTrans
+                                    ns="connectionStrings"
+                                    i18nKey="form.example"
+                                    options={{ example: "mynamespace.servicebus.windows.net" }}
+                                    components={{ code: <code /> }}
+                                />
                             }
                         >
                             <small className="text-primary">
-                                Format <Icon icon="help" margin="m-0" />
+                                {t("azureServiceBus.namespaceFormat")} <Icon icon="help" margin="m-0" />
                             </small>
                         </PopoverWithHoverWrapper>
                     </div>
@@ -209,34 +221,34 @@ function SelectedAuthFields({ control, authMethod }: SelectedAuthFieldsProps) {
                         control={control}
                         name="settings.entraId.namespace"
                         type="text"
-                        placeholder="Enter Service Bus Namespace (e.g. mynamespace.servicebus.windows.net)"
+                        placeholder={t("azureServiceBus.namespacePlaceholder")}
                     />
                 </div>
                 <div className="mb-2">
-                    <FormLabel>Tenant ID</FormLabel>
+                    <FormLabel>{t("azure.tenantIdLabel")}</FormLabel>
                     <FormInput
                         control={control}
                         name="settings.entraId.tenantId"
                         type="text"
-                        placeholder="Enter a Tenant ID"
+                        placeholder={t("azure.tenantIdPlaceholder")}
                     />
                 </div>
                 <div className="mb-2">
-                    <FormLabel>Client ID</FormLabel>
+                    <FormLabel>{t("azure.clientIdLabel")}</FormLabel>
                     <FormInput
                         control={control}
                         name="settings.entraId.clientId"
                         type="text"
-                        placeholder="Enter a Client ID"
+                        placeholder={t("azure.clientIdPlaceholder")}
                     />
                 </div>
                 <div className="mb-2">
-                    <FormLabel>Client Secret</FormLabel>
+                    <FormLabel>{t("azure.clientSecretLabel")}</FormLabel>
                     <FormInput
                         control={control}
                         name="settings.entraId.clientSecret"
                         type="password"
-                        placeholder="Enter a Client Secret"
+                        placeholder={t("azure.clientSecretPlaceholder")}
                         passwordPreview
                     />
                 </div>
@@ -248,16 +260,19 @@ function SelectedAuthFields({ control, authMethod }: SelectedAuthFieldsProps) {
         return (
             <div className="mb-2">
                 <div className="d-flex flex-grow align-items-baseline justify-content-between">
-                    <FormLabel>Service Bus Namespace</FormLabel>
+                    <FormLabel>{t("azureServiceBus.namespaceLabel")}</FormLabel>
                     <PopoverWithHoverWrapper
                         message={
-                            <>
-                                Example: <code>mynamespace.servicebus.windows.net</code>
-                            </>
+                            <StudioTrans
+                                ns="connectionStrings"
+                                i18nKey="form.example"
+                                options={{ example: "mynamespace.servicebus.windows.net" }}
+                                components={{ code: <code /> }}
+                            />
                         }
                     >
                         <small className="text-primary">
-                            Format <Icon icon="help" margin="m-0" />
+                            {t("azureServiceBus.namespaceFormat")} <Icon icon="help" margin="m-0" />
                         </small>
                     </PopoverWithHoverWrapper>
                 </div>
@@ -265,7 +280,7 @@ function SelectedAuthFields({ control, authMethod }: SelectedAuthFieldsProps) {
                     control={control}
                     name="settings.passwordless.namespace"
                     type="text"
-                    placeholder="Enter Service Bus Namespace (e.g. mynamespace.servicebus.windows.net)"
+                    placeholder={t("azureServiceBus.namespacePlaceholder")}
                 />
             </div>
         );
@@ -274,20 +289,24 @@ function SelectedAuthFields({ control, authMethod }: SelectedAuthFieldsProps) {
     assertUnreachable(authMethod);
 }
 
-const authenticationOptions: SelectOption<AzureServiceBusAuthenticationType>[] = [
-    {
-        value: "connectionString",
-        label: "Connection String",
-    },
-    {
-        value: "entraId",
-        label: "Entra ID",
-    },
-    {
-        value: "passwordless",
-        label: "Passwordless",
-    },
-];
+function getAuthenticationOptions(
+    t: StudioTranslate<"connectionStrings">
+): SelectOption<AzureServiceBusAuthenticationType>[] {
+    return [
+        {
+            value: "connectionString",
+            label: t("azure.authConnectionString"),
+        },
+        {
+            value: "entraId",
+            label: "Entra ID",
+        },
+        {
+            value: "passwordless",
+            label: t("azure.authPasswordless"),
+        },
+    ];
+}
 
 function getStringRequiredSchema(authType: AzureServiceBusAuthenticationType) {
     return yup

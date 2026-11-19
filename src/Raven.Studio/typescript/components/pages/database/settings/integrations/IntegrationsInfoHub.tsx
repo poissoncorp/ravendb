@@ -8,12 +8,35 @@ import { useLimitedFeatureAvailability } from "components/utils/licenseLimitsUti
 import React from "react";
 import { Icon } from "components/common/Icon";
 import { useRavenLink } from "hooks/useRavenLink";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export function IntegrationsInfoHub() {
+    const t = useStudioTranslation("integrations");
+    const commonT = useStudioTranslation("common");
     const hasPostgreSql = useAppSelector(licenseSelectors.statusValue("HasPostgreSqlIntegration"));
     const hasPowerBi = useAppSelector(licenseSelectors.statusValue("HasPowerBI"));
 
     const integrationsDocsLink = useRavenLink({ hash: "ZE1BYH" });
+
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("featureAvailability.postgreSql"),
+            featureIcon: "postgresql",
+            community: { value: true },
+            professional: { value: true },
+            enterprise: { value: true },
+            quill: { value: true },
+        },
+        {
+            featureName: t("featureAvailability.powerBi"),
+            featureIcon: "powerbi",
+            community: { value: false },
+            professional: { value: false },
+            enterprise: { value: true },
+            quill: { value: true },
+        },
+    ];
 
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
@@ -34,33 +57,22 @@ export function IntegrationsInfoHub() {
     return (
         <AboutViewAnchored defaultOpen={hasAllFeaturesInLicense ? null : "licensing"}>
             <AccordionItemWrapper targetId="about" icon="about" color="info">
-                <p>
-                    In this view, you can define credentials that third-party clients are required to provide when
-                    connecting to RavenDB.
-                </p>
-                <p>
-                    Providing the credentials is only required of clients when RavenDB is installed as a Secure Server.
-                </p>
+                <p>{t("about.credentials")}</p>
+                <p>{t("about.secureServer")}</p>
                 <hr />
                 <div>
-                    PostgreSQL support:
+                    {t("about.postgreSqlSupport")}
                     <ul>
+                        <li className="margin-top-xxs">{t("about.postgreSqlProtocol")}</li>
                         <li className="margin-top-xxs">
-                            RavenDB implements the PostgreSQL protocol, allowing clients that use PostgreSQL (e.g. Power
-                            BI) to retrieve data from a RavenDB database.
-                        </li>
-                        <li className="margin-top-xxs">
-                            Verify your license supports the PostgreSQL Protocol.
-                            <br />
-                            The PostgreSQL protocol support must also be explicitly enabled in your RavendB&apos;s
-                            settings.
+                            <StudioTrans ns="integrations" i18nKey="about.verifyLicense" components={{ br: <br /> }} />
                         </li>
                     </ul>
                 </div>
                 <hr />
-                <div className="small-label mb-2">useful links</div>
+                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                 <a href={integrationsDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - Integrations
+                    <Icon icon="newtab" /> {t("about.docsLink")}
                 </a>
             </AccordionItemWrapper>
             <FeatureAvailabilitySummaryWrapper
@@ -71,22 +83,3 @@ export function IntegrationsInfoHub() {
         </AboutViewAnchored>
     );
 }
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "PostgreSQL",
-        featureIcon: "postgresql",
-        community: { value: true },
-        professional: { value: true },
-        enterprise: { value: true },
-        quill: { value: true },
-    },
-    {
-        featureName: "Power BI",
-        featureIcon: "powerbi",
-        community: { value: false },
-        professional: { value: false },
-        enterprise: { value: true },
-        quill: { value: true },
-    },
-];

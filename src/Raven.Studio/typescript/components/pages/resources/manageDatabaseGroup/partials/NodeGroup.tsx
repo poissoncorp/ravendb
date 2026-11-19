@@ -32,12 +32,14 @@ import {
     DeleteFromGroupModal,
     NodeDeletion,
 } from "components/pages/resources/manageDatabaseGroup/partials/DeleteFromGroupModal";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export interface NodeGroupProps {
     db: DatabaseSharedInfo;
 }
 
 export function NodeGroup(props: NodeGroupProps) {
+    const t = useStudioTranslation("manageDatabaseGroup");
     const { db } = props;
 
     const {
@@ -86,7 +88,7 @@ export function NodeGroup(props: NodeGroupProps) {
             <RichPanelHeader>
                 <RichPanelInfo>
                     <RichPanelName>
-                        <Icon icon="dbgroup" /> Database Group
+                        <Icon icon="dbgroup" /> {t("nodeGroup.title")}
                     </RichPanelName>
                 </RichPanelInfo>
                 <RichPanelActions>
@@ -126,7 +128,7 @@ export function NodeGroup(props: NodeGroupProps) {
                                         onClick={addNode}
                                     >
                                         <Icon icon="plus" />
-                                        Add node
+                                        {t("addNode")}
                                     </Button>
                                 </DatabaseGroupActions>
                             </DatabaseGroupItem>

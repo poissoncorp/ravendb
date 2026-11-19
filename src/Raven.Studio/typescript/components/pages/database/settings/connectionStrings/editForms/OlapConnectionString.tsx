@@ -20,6 +20,7 @@ import { useAppSelector } from "components/store";
 import { connectionStringSelectors } from "../store/connectionStringsSlice";
 import { ConnectionStringsNameContext, connectionStringsUtils } from "../connectionStringsUtils";
 import * as yup from "yup";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type FormData = ConnectionFormData<OlapConnection>;
 
@@ -32,6 +33,7 @@ export default function OlapConnectionString({
     isForNewConnection,
     onSave,
 }: OlapConnectionStringProps) {
+    const t = useStudioTranslation("connectionStrings");
     const usedNames = useAppSelector(connectionStringSelectors.connections)["Olap"].map((x) => x.name);
     const isServerWide = useAppSelector(connectionStringSelectors.isServerWide);
 
@@ -59,12 +61,12 @@ export default function OlapConnectionString({
         <FormProvider {...form}>
             <Form id="connection-string-form" onSubmit={handleSubmit(handleSave)}>
                 <div className="mb-4">
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>{t("form.nameLabel")}</FormLabel>
                     <FormInput
                         control={control}
                         name="name"
                         type="text"
-                        placeholder="Enter a name for the connection string"
+                        placeholder={t("form.namePlaceholder")}
                         disabled={!isForNewConnection}
                         autoComplete="off"
                     />

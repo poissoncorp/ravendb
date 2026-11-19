@@ -2,6 +2,9 @@ import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
 import RevisionsBinConfiguration = Raven.Client.Documents.Operations.Revisions.RevisionsBinConfiguration;
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("settingsCommands");
 
 class getRevisionsBinCleanerConfigurationCommand extends commandBase {
   
@@ -20,7 +23,7 @@ class getRevisionsBinCleanerConfigurationCommand extends commandBase {
           deferred.resolve(null);
         } else {
           deferred.reject(response);
-          this.reportError("Failed to get Revisions bin cleaner configuration", response.responseText, response.statusText);
+          this.reportError(t("getRevisionsBinCleanerConfigurationFailed"), response.responseText, response.statusText);
         }
       });
     

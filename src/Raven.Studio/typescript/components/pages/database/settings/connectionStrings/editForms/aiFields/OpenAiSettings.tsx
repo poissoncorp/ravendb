@@ -20,10 +20,13 @@ import { SelectOption } from "components/common/select/Select";
 import { useAsyncDebounce } from "components/hooks/useAsyncDebounce";
 import TemperatureField from "./TemperatureField";
 import PromptCacheField from "./PromptCacheField";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 type FormData = ConnectionFormData<AiConnection>;
 
 export default function OpenAiSettings({ isUsedByAnyTask }: { isUsedByAnyTask: boolean }) {
+    const t = useStudioTranslation("connectionStrings");
     const { control, trigger } = useFormContext<FormData>();
     const { tasksService } = useServices();
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
@@ -93,8 +96,8 @@ export default function OpenAiSettings({ isUsedByAnyTask }: { isUsedByAnyTask: b
         <>
             <div className="mb-2">
                 <FormLabel>
-                    API Key
-                    <PopoverWithHoverWrapper message="The API key used to authenticate requests to OpenAI or any OpenAI-compatible provider.">
+                    {t("ai.apiKeyLabel")}
+                    <PopoverWithHoverWrapper message={t("ai.openAi.apiKeyInfo")}>
                         <Icon icon="info" color="info" id="apiKey" margin="ms-1" />
                     </PopoverWithHoverWrapper>
                 </FormLabel>
@@ -102,22 +105,22 @@ export default function OpenAiSettings({ isUsedByAnyTask }: { isUsedByAnyTask: b
             </div>
             <div className="mb-2">
                 <FormLabel>
-                    Endpoint <OptionalLabel />
-                    <PopoverWithHoverWrapper message="The endpoint for generating responses using OpenAI or any OpenAI-compatible provider.">
+                    {t("ai.endpointLabel")} <OptionalLabel />
+                    <PopoverWithHoverWrapper message={t("ai.openAi.endpointInfo")}>
                         <Icon icon="info" color="info" id="endpoint" margin="ms-1" />
                     </PopoverWithHoverWrapper>
                 </FormLabel>
                 <FormSelectAutocomplete
                     control={control}
                     name="openAiSettings.endpoint"
-                    placeholder="Select an endpoint (or enter new one)"
+                    placeholder={t("ai.endpointPlaceholder")}
                     options={endpointOptions}
                 />
             </div>
             <div className="mb-2">
                 <FormLabel>
-                    Model
-                    <PopoverWithHoverWrapper message="The model to use with OpenAI or any OpenAI-compatible provider.">
+                    {t("ai.modelLabel")}
+                    <PopoverWithHoverWrapper message={t("ai.openAi.modelInfo")}>
                         <Icon icon="info" color="info" id="model" margin="ms-1" />
                     </PopoverWithHoverWrapper>
                 </FormLabel>
@@ -125,32 +128,36 @@ export default function OpenAiSettings({ isUsedByAnyTask }: { isUsedByAnyTask: b
                     control={control}
                     name="openAiSettings.model"
                     isDisabled={isUsedByAnyTask}
-                    placeholder="Select a model or enter a new one (provide API key to see available models)"
+                    placeholder={t("ai.modelPlaceholder")}
                     options={asyncGetModelOptions.result ?? []}
                     isLoading={asyncGetModelOptions.loading}
                 />
             </div>
             <div className="mb-2">
                 <FormLabel>
-                    Organization ID <OptionalLabel />
+                    {t("ai.openAi.organizationIdLabel")} <OptionalLabel />
                     <PopoverWithHoverWrapper
                         message={
                             <>
                                 <p>
-                                    The organization ID to use for the <code>OpenAI-Organization</code> request header.
+                                    <StudioTrans
+                                        ns="connectionStrings"
+                                        i18nKey="ai.openAi.organizationIdHeader"
+                                        components={{ code: <code /> }}
+                                    />
                                 </p>
+                                <p>{t("ai.openAi.organizationIdUsage")}</p>
                                 <p>
-                                    Users belonging to multiple organizations can set this value to specify which
-                                    organization is used for an API request. Usage from these API requests will count
-                                    against the specified organization&apos;s quota.
-                                </p>
-                                <p>
-                                    If not set, the header will be omitted, and the default organization will be billed.
-                                    You can change your default organization in your user settings.
-                                    <br />
-                                    <a href="https://platform.openai.com/docs/guides/production-best-practices/setting-up-your-organization">
-                                        Learn more
-                                    </a>
+                                    <StudioTrans
+                                        ns="connectionStrings"
+                                        i18nKey="ai.openAi.organizationIdNotSet"
+                                        components={{
+                                            br: <br />,
+                                            a: (
+                                                <a href="https://platform.openai.com/docs/guides/production-best-practices/setting-up-your-organization" />
+                                            ),
+                                        }}
+                                    />
                                 </p>
                             </>
                         }
@@ -162,19 +169,19 @@ export default function OpenAiSettings({ isUsedByAnyTask }: { isUsedByAnyTask: b
             </div>
             <div className="mb-2">
                 <FormLabel>
-                    Project ID <OptionalLabel />
+                    {t("ai.openAi.projectIdLabel")} <OptionalLabel />
                     <PopoverWithHoverWrapper
                         message={
                             <>
                                 <p>
-                                    The project ID to use for the <code>OpenAI-Project</code> request header.
+                                    <StudioTrans
+                                        ns="connectionStrings"
+                                        i18nKey="ai.openAi.projectIdHeader"
+                                        components={{ code: <code /> }}
+                                    />
                                 </p>
-                                <p>
-                                    Users who are accessing their projects through their legacy user API key can set
-                                    this value to specify which project is used for an API request. Usage from these API
-                                    requests will count as usage for the specified project.
-                                </p>
-                                <p>If not set, the header will be omitted, and the default project will be accessed.</p>
+                                <p>{t("ai.openAi.projectIdUsage")}</p>
+                                <p>{t("ai.openAi.projectIdNotSet")}</p>
                             </>
                         }
                     >
@@ -186,28 +193,25 @@ export default function OpenAiSettings({ isUsedByAnyTask }: { isUsedByAnyTask: b
             {formValues.modelType === "Chat" && (
                 <div className="mb-2">
                     <FormLabel>
-                        Reasoning effort <OptionalLabel />
+                        {t("ai.reasoningEffortLabel")} <OptionalLabel />
                         <PopoverWithHoverWrapper
                             message={
                                 <>
                                     <p>
-                                        The <code>reasoning_effort</code> to send to the provider, controlling the
-                                        reasoning depth of supported models (such as the GPT-5 family). Lower values
-                                        reduce internal reasoning, which may improve latency and reduce variability in
-                                        responses.
+                                        <StudioTrans
+                                            ns="connectionStrings"
+                                            i18nKey="ai.openAi.reasoningEffortInfo"
+                                            components={{ code: <code /> }}
+                                        />
                                     </p>
                                     <p>
-                                        Typical values are <code>none</code>, <code>minimal</code>, <code>low</code>,{" "}
-                                        <code>medium</code>, <code>high</code>, <code>xhigh</code> and <code>max</code>.
-                                        Model families accept different subsets, for example <code>minimal</code> is
-                                        rejected by <code>gpt-5.1</code> and later, which take <code>none</code>{" "}
-                                        instead.
+                                        <StudioTrans
+                                            ns="connectionStrings"
+                                            i18nKey="ai.openAi.reasoningEffortValues"
+                                            components={{ code: <code /> }}
+                                        />
                                     </p>
-                                    <p>
-                                        The value is sent as supplied and is not validated by RavenDB. Providers match
-                                        it exactly, e.g. OpenAI accepts lowercase values only. If not set, the field is
-                                        omitted and the model applies its own default.
-                                    </p>
+                                    <p>{t("ai.openAi.reasoningEffortNotValidated")}</p>
                                 </>
                             }
                         >
@@ -217,7 +221,7 @@ export default function OpenAiSettings({ isUsedByAnyTask }: { isUsedByAnyTask: b
                     <FormSelectAutocomplete
                         control={control}
                         name="openAiSettings.reasoningEffort"
-                        placeholder="Select a reasoning effort or enter a new one (leave empty for model default)"
+                        placeholder={t("ai.reasoningEffortPlaceholder")}
                         options={reasoningEffortOptions}
                         isClearable
                     />
@@ -226,8 +230,8 @@ export default function OpenAiSettings({ isUsedByAnyTask }: { isUsedByAnyTask: b
             {formValues.modelType === "TextEmbeddings" && (
                 <div className="mb-2">
                     <FormLabel>
-                        Dimensions <OptionalLabel />
-                        <PopoverWithHoverWrapper message="The number of dimensions for the output embeddings.">
+                        {t("ai.dimensionsLabel")} <OptionalLabel />
+                        <PopoverWithHoverWrapper message={t("ai.dimensionsInfo")}>
                             <Icon icon="info" color="info" id="dimensions" margin="ms-1" />
                         </PopoverWithHoverWrapper>
                     </FormLabel>
@@ -250,7 +254,7 @@ export default function OpenAiSettings({ isUsedByAnyTask }: { isUsedByAnyTask: b
                     onClick={asyncTest.execute}
                     isSpinning={asyncTest.loading}
                 >
-                    Test connection
+                    {t("form.testConnection")}
                 </ButtonWithSpinner>
             </div>
             {asyncTest.result && <ConnectionTestResult testResult={asyncTest.result} />}

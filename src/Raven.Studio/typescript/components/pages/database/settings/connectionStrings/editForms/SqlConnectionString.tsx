@@ -24,6 +24,9 @@ import RichAlert from "components/common/RichAlert";
 import { connectionStringSelectors } from "../store/connectionStringsSlice";
 import { ConnectionStringsNameContext, connectionStringsUtils } from "../connectionStringsUtils";
 import { withNestedSubmit } from "components/utils/common";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import { StudioTranslate } from "common/i18n/resources";
 
 type FormData = ConnectionFormData<SqlConnection>;
 
@@ -36,6 +39,7 @@ export default function SqlConnectionString({
     isForNewConnection,
     onSave,
 }: SqlConnectionStringProps) {
+    const t = useStudioTranslation("connectionStrings");
     const usedNames = useAppSelector(connectionStringSelectors.connections)["Sql"].map((x) => x.name);
     const isServerWide = useAppSelector(connectionStringSelectors.isServerWide);
 
@@ -79,23 +83,23 @@ export default function SqlConnectionString({
             className="vstack gap-3"
         >
             <div className="mb-2">
-                <FormLabel>Name</FormLabel>
+                <FormLabel>{t("form.nameLabel")}</FormLabel>
                 <FormInput
                     control={control}
                     name="name"
                     type="text"
-                    placeholder="Enter a name for the connection string"
+                    placeholder={t("form.namePlaceholder")}
                     disabled={!isForNewConnection}
                     autoComplete="off"
                 />
             </div>
             <div className="mb-2">
                 <div className="d-flex flex-grow align-items-baseline justify-content-between">
-                    <FormLabel>Factory</FormLabel>
+                    <FormLabel>{t("sql.factoryLabel")}</FormLabel>
                     {formValues.factoryName && (
                         <>
                             <small ref={setSyntaxHelpElement} className="text-primary">
-                                Syntax <Icon icon="help" margin="m-0" />
+                                {t("form.syntax")} <Icon icon="help" margin="m-0" />
                             </small>
                             <PopoverWithHover target={syntaxHelpElement}>
                                 <div className="p-2">{getSyntaxHelp(formValues.factoryName)}</div>
@@ -106,36 +110,34 @@ export default function SqlConnectionString({
                 <FormSelect
                     control={control}
                     name="factoryName"
-                    options={sqlFactoryOptions}
-                    placeholder="Select factory name"
+                    options={getSqlFactoryOptions(t)}
+                    placeholder={t("sql.factoryPlaceholder")}
                     isSearchable={false}
                     components={{ Option: OptionWithWarning }}
                 />
                 {formValues.factoryName === "MySql.Data.MySqlClient" && (
                     <RichAlert variant="warning" className="mt-1">
-                        This connector is deprecated. MySqlConnector will be used instead. Please update Factory to:
-                        MySqlConnector.MySqlConnectorFactory.
+                        {t("sql.mySqlDeprecated")}
                     </RichAlert>
                 )}
                 {formValues.factoryName === "System.Data.SqlClient" && (
                     <RichAlert variant="warning" className="mt-1">
-                        This connector is deprecated. Microsoft SqlClient will be used instead. Please update Factory
-                        to: Microsoft.Data.SqlClient.
+                        {t("sql.sqlClientDeprecated")}
                     </RichAlert>
                 )}
             </div>
             <div className="mb-2">
                 <FormLabel className="d-flex align-items-center gap-1">
-                    Connection string{" "}
+                    {t("form.connectionStringLabel")}{" "}
                     {asyncTest.result?.Success ? (
                         <Badge bg="success" pill>
                             <Icon icon="check" />
-                            Successfully connected
+                            {t("form.successfullyConnected")}
                         </Badge>
                     ) : asyncTest.result?.Error ? (
                         <Badge bg="danger" pill>
                             <Icon icon="warning" />
-                            Failed connection
+                            {t("form.failedConnection")}
                         </Badge>
                     ) : null}
                 </FormLabel>
@@ -144,7 +146,7 @@ export default function SqlConnectionString({
                     name="connectionString"
                     type="textarea"
                     as="textarea"
-                    placeholder={getConnectionStringPlaceholder(formValues.factoryName)}
+                    placeholder={getConnectionStringPlaceholder(formValues.factoryName, t)}
                     rows={3}
                     autoComplete="off"
                 />
@@ -156,7 +158,7 @@ export default function SqlConnectionString({
                         onClick={asyncTest.execute}
                         isSpinning={asyncTest.loading}
                     >
-                        Test connection
+                        {t("form.testConnection")}
                     </ButtonWithSpinner>
                 </div>
             </div>
@@ -173,93 +175,97 @@ export default function SqlConnectionString({
     );
 }
 
-const sqlFactoryOptions: SelectOptionWithWarning<SqlConnectionStringFactoryName>[] = [
-    { value: "Microsoft.Data.SqlClient", label: "Microsoft SQL Server (System.Data.Microsoft)" },
-    { value: "MySqlConnector.MySqlConnectorFactory", label: "MySQL Server (MySqlConnector.MySqlConnectorFactory)" },
-    { value: "Npgsql", label: "PostgreSQL (Npgsql)" },
-    { value: "Oracle.ManagedDataAccess.Client", label: "Oracle Database (Oracle.ManagedDataAccess.Client)" },
-    { value: "MySql.Data.MySqlClient", label: "DEPRECATED: MySQL Server (MySql.Data.MySqlClient)", isWarning: true },
-    {
-        value: "System.Data.SqlClient",
-        label: "DEPRECATED: Microsoft SQL Server (System.Data.SqlClient)",
-        isWarning: true,
-    },
-];
+function getSqlFactoryOptions(
+    t: StudioTranslate<"connectionStrings">
+): SelectOptionWithWarning<SqlConnectionStringFactoryName>[] {
+    return [
+        { value: "Microsoft.Data.SqlClient", label: "Microsoft SQL Server (System.Data.Microsoft)" },
+        { value: "MySqlConnector.MySqlConnectorFactory", label: "MySQL Server (MySqlConnector.MySqlConnectorFactory)" },
+        { value: "Npgsql", label: "PostgreSQL (Npgsql)" },
+        { value: "Oracle.ManagedDataAccess.Client", label: "Oracle Database (Oracle.ManagedDataAccess.Client)" },
+        {
+            value: "MySql.Data.MySqlClient",
+            label: t("sql.deprecatedFactory", { factory: "MySQL Server (MySql.Data.MySqlClient)" }),
+            isWarning: true,
+        },
+        {
+            value: "System.Data.SqlClient",
+            label: t("sql.deprecatedFactory", { factory: "Microsoft SQL Server (System.Data.SqlClient)" }),
+            isWarning: true,
+        },
+    ];
+}
 
 function getSyntaxHelp(factory: SqlConnectionStringFactoryName) {
     switch (factory) {
         case "Microsoft.Data.SqlClient":
         case "System.Data.SqlClient":
             return (
-                <span>
-                    Example: <code>Data Source=10.0.0.107;Database=SourceDB;User ID=sa;Password=secret;</code>
-                    <br />
-                    <span>
-                        More examples can be found in{" "}
-                        <a href="https://ravendb.net/l/38S9OQ" target="_blank">
-                            full syntax reference
-                            <Icon icon="link" margin="ms-1" />
-                        </a>
-                    </span>
-                </span>
+                <SyntaxHelp
+                    example="Data Source=10.0.0.107;Database=SourceDB;User ID=sa;Password=secret;"
+                    link="https://ravendb.net/l/38S9OQ"
+                />
             );
         case "MySql.Data.MySqlClient":
         case "MySqlConnector.MySqlConnectorFactory":
             return (
-                <span>
-                    Example: <code>server=10.0.0.103;port=3306;userid=root;password=secret;</code>
-                    <br />
-                    <span>
-                        More examples can be found in{" "}
-                        <a href="https://ravendb.net/l/BSS8YH" target="_blank">
-                            full syntax reference
-                            <Icon icon="link" margin="ms-1" />
-                        </a>
-                    </span>
-                </span>
+                <SyntaxHelp
+                    example="server=10.0.0.103;port=3306;userid=root;password=secret;"
+                    link="https://ravendb.net/l/BSS8YH"
+                />
             );
         case "Npgsql":
             return (
-                <span>
-                    Example: <code>Host=10.0.0.105;Port=5432;Username=postgres;Password=secret</code>
-                    <br />
-                    <span>
-                        More examples can be found in{" "}
-                        <a href="https://ravendb.net/l/FWEBWD" target="_blank">
-                            full syntax reference
-                            <Icon icon="link" margin="ms-1" />
-                        </a>
-                    </span>
-                </span>
+                <SyntaxHelp
+                    example="Host=10.0.0.105;Port=5432;Username=postgres;Password=secret"
+                    link="https://ravendb.net/l/FWEBWD"
+                />
             );
         case "Oracle.ManagedDataAccess.Client":
             return (
-                <span>
-                    Example:{" "}
-                    <code>
-                        Data
-                        Source=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=10.0.0.101)(PORT=1521)))(CONNECT_DATA=(SID=ORCLCDB)));User
-                        Id=SYS;DBA Privilege=SYSDBA;password=secret;
-                    </code>
-                    <br />
-                    <span>
-                        More examples can be found in{" "}
-                        <a href="https://ravendb.net/l/TG851N" target="_blank">
-                            full syntax reference
-                            <Icon icon="link" margin="ms-1" />
-                        </a>
-                    </span>
-                </span>
+                <SyntaxHelp
+                    example="Data Source=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=10.0.0.101)(PORT=1521)))(CONNECT_DATA=(SID=ORCLCDB)));User Id=SYS;DBA Privilege=SYSDBA;password=secret;"
+                    link="https://ravendb.net/l/TG851N"
+                />
             );
         default:
             return null;
     }
 }
 
-function getConnectionStringPlaceholder(factoryName: SqlConnectionStringFactoryName) {
-    const optionLabel = sqlFactoryOptions.find((x) => x.value === factoryName)?.label;
+function SyntaxHelp({ example, link }: { example: string; link: string }) {
+    return (
+        <span>
+            <StudioTrans
+                ns="connectionStrings"
+                i18nKey="form.example"
+                options={{ example }}
+                components={{ code: <code /> }}
+            />
+            <br />
+            <span>
+                <StudioTrans
+                    ns="connectionStrings"
+                    i18nKey="sql.moreExamples"
+                    components={{
+                        a: <a href={link} target="_blank" />,
+                        icon: <Icon icon="link" margin="ms-1" />,
+                    }}
+                />
+            </span>
+        </span>
+    );
+}
 
-    return optionLabel ? `Enter the complete connection string for the ${optionLabel}` : "Enter connection string";
+function getConnectionStringPlaceholder(
+    factoryName: SqlConnectionStringFactoryName,
+    t: StudioTranslate<"connectionStrings">
+) {
+    const optionLabel = getSqlFactoryOptions(t).find((x) => x.value === factoryName)?.label;
+
+    return optionLabel
+        ? t("sql.connectionStringForFactoryPlaceholder", { factory: optionLabel })
+        : t("sql.connectionStringPlaceholder");
 }
 
 const schema = yupObjectSchema<FormData>({

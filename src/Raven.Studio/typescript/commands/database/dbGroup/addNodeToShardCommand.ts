@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("dbGroupCommands");
 
 class addNodeToShardCommand extends commandBase {
 
@@ -16,8 +19,8 @@ class addNodeToShardCommand extends commandBase {
         const url = endpoints.global.adminDatabases.adminDatabasesNode + this.urlEncodeArgs(args);
 
         return this.put<Raven.Client.ServerWide.Sharding.AddDatabaseShardResult>(url, null)
-            .done(() => this.reportSuccess("Node " + this.nodeTagToAdd + " was added to shard " + this.databaseName))
-            .fail((response: JQueryXHR) => this.reportError("Failed to add node to shard", response.responseText, response.statusText));
+            .done(() => this.reportSuccess(t("addNodeToShardSucceeded", { nodeTag: this.nodeTagToAdd, databaseName: this.databaseName })))
+            .fail((response: JQueryXHR) => this.reportError(t("addNodeToShardFailed"), response.responseText, response.statusText));
     }
 }
 

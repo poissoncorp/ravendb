@@ -5,17 +5,22 @@ import testSqlConnectionStringCommand = require("commands/database/cluster/testS
 import saveConnectionStringCommand_OLD = require("commands/database/settings/saveConnectionStringCommand_OLD");
 import jsonUtil = require("common/jsonUtil");
 import sqlConnectionStringSyntax = require("common/helpers/database/sqlConnectionStringSyntax");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("settingsModels");
 
 class connectionStringSqlEtlModel extends connectionStringModel {
 
-    static sqlProviders: Array<valueAndLabelItem<string, string> & { tooltip: string }> = [
-        { value: "Microsoft.Data.SqlClient", label: "Microsoft SQL Server", tooltip: sqlConnectionStringSyntax.mssqlSyntax },
-        { value: "MySqlConnector.MySqlConnectorFactory", label: "MySQL Server", tooltip: sqlConnectionStringSyntax.mysqlSyntax },
-        { value: "Npgsql", label: "PostgreSQL", tooltip: sqlConnectionStringSyntax.npgsqlSyntax },
-        { value: "Oracle.ManagedDataAccess.Client", label: "Oracle Database", tooltip: sqlConnectionStringSyntax.oracleSyntax },
-        { value: "MySql.Data.MySqlClient", label: "DEPRECATED: MySQL Server", tooltip: sqlConnectionStringSyntax.mysqlSyntax },
-        { value: "System.Data.SqlClient", label: "DEPRECATED: Microsoft SQL Server", tooltip: sqlConnectionStringSyntax.mssqlSyntax },
-    ];
+    static get sqlProviders(): Array<valueAndLabelItem<string, string> & { tooltip: string }> {
+        return [
+            { value: "Microsoft.Data.SqlClient", label: "Microsoft SQL Server", tooltip: sqlConnectionStringSyntax.mssqlSyntax },
+            { value: "MySqlConnector.MySqlConnectorFactory", label: "MySQL Server", tooltip: sqlConnectionStringSyntax.mysqlSyntax },
+            { value: "Npgsql", label: "PostgreSQL", tooltip: sqlConnectionStringSyntax.npgsqlSyntax },
+            { value: "Oracle.ManagedDataAccess.Client", label: "Oracle Database", tooltip: sqlConnectionStringSyntax.oracleSyntax },
+            { value: "MySql.Data.MySqlClient", label: t("sql.deprecatedProvider", { provider: "MySQL Server" }), tooltip: sqlConnectionStringSyntax.mysqlSyntax },
+            { value: "System.Data.SqlClient", label: t("sql.deprecatedProvider", { provider: "Microsoft SQL Server" }), tooltip: sqlConnectionStringSyntax.mssqlSyntax },
+        ];
+    }
     
     connectionString = ko.observable<string>();
     factoryName = ko.observable<string>();
@@ -123,10 +128,10 @@ class connectionStringSqlEtlModel extends connectionStringModel {
             const simpleName = this.simpleNameFor(factoryName());
             
             if (!factoryName()) {
-                return "Enter connection string";
+                return t("sql.connectionStringPlaceholder");
             }
             
-            return  `Enter the complete connection string for the ${simpleName}`;
+            return t("sql.connectionStringForProviderPlaceholder", { provider: simpleName });
         });
     }
 }

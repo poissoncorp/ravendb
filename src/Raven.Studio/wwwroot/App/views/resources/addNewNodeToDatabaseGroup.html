@@ -3,7 +3,7 @@
         <div class="modal-header">
             <div class="flex-horizontal">
                 <div class="flex-grow">
-                    <h3>Add a new node to the database group</h3>
+                    <h3 data-bind="i18n: 'manageDatabaseGroup:addNodeDialog.title'"></h3>
                 </div>
                 <div>
                     <button type="button" class="close" data-bind="click: $root.close" aria-hidden="true">
@@ -16,15 +16,15 @@
             <div class="flex-form">
                 <div class="form-group" data-bind="validationElement: nodeTag">
                     <div>
-                        <label class="control-label">Node tag</label>
+                        <label class="control-label" data-bind="i18n: 'manageDatabaseGroup:nodeSelect.nodeTag'"></label>
                     </div>
                     <div class="flex-grow">
                         <button class="btn btn-block dropdown-toggle text-left" data-toggle="dropdown">
-                            <span data-bind="text: nodeTag() ? 'Node ' + nodeTag() : 'Select cluster node'"></span>
+                            <span data-bind="i18n: nodeTag() ? { key: 'manageDatabaseGroup:nodeSelect.node', options: { nodeTag: nodeTag() } } : 'manageDatabaseGroup:nodeSelect.selectClusterNode'"></span>
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" data-bind="foreach: nodesCanBeAdded">
-                            <li><a href="#" data-bind="text: 'Node ' + $data, click: $root.selectedClusterNode"></a></li>
+                            <li><a href="#" data-bind="i18n: { key: 'manageDatabaseGroup:nodeSelect.node', options: { nodeTag: $data } }, click: $root.selectedClusterNode"></a></li>
                         </ul>
                         <span class="help-block" data-bind="validationMessage: nodeTag"></span>
                     </div>
@@ -32,24 +32,24 @@
                 <div class="form-group">
                     <label class="control-label">&nbsp;</label>
                     <div class="toggle">
-                        <div data-placement="right" data-toggle="tooltip" title="Mentor node is responsible for replicating data to the newly added node" data-animation="true">
+                        <div data-placement="right" data-toggle="tooltip" data-bind="i18nAttr: { title: 'manageDatabaseGroup:addNodeDialog.mentorTooltip' }" data-animation="true">
                             <input id="manualMentorNode" type="checkbox" data-bind="checked: manualChooseMentor, disable: $root.possibleMentors().length === 0">
-                            <label for="manualMentorNode">Set preferred mentor node</label>
+                            <label for="manualMentorNode" data-bind="i18n: 'manageDatabaseGroup:addNodeDialog.setPreferredMentor'"></label>
                         </div>
                     </div>
                 </div>
                 <div data-bind="validationElement: mentorNode, collapse: manualChooseMentor">
                     <div class="form-group">
                         <div>
-                            <label class="control-label">Preferred Mentor</label>
+                            <label class="control-label" data-bind="i18n: 'manageDatabaseGroup:addNodeDialog.preferredMentor'"></label>
                         </div>
                         <div class="flex-grow">
                             <button class="btn btn-block dropdown-toggle text-left" data-toggle="dropdown">
-                                <span data-bind="text: mentorNode() ? 'Node ' + mentorNode() : 'Select preferred mentor'"></span>
+                                <span data-bind="i18n: mentorNode() ? { key: 'manageDatabaseGroup:nodeSelect.node', options: { nodeTag: mentorNode() } } : 'manageDatabaseGroup:addNodeDialog.selectPreferredMentor'"></span>
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" data-bind="foreach: $root.possibleMentors">
-                                <li><a href="#" data-bind="text: 'Node ' + $data, click: $parent.mentorNode.bind($parent.mentorNode, $data)"></a></li>
+                                <li><a href="#" data-bind="i18n: { key: 'manageDatabaseGroup:nodeSelect.node', options: { nodeTag: $data } }, click: $parent.mentorNode.bind($parent.mentorNode, $data)"></a></li>
                             </ul>
                             <span class="help-block" data-bind="validationMessage: mentorNode"></span>
                         </div>
@@ -57,15 +57,15 @@
                 </div>
             </div>
             <div data-bind="with: encryptionSection">
-                <h3>Encryption configuration</h3>
+                <h3 data-bind="i18n: 'manageDatabaseGroup:addNodeDialog.encryptionConfiguration'"></h3>
                 <div data-bind="compose: $root.setupEncryptionKeyView"></div>
             </div>
         </div>
         <div class="modal-footer">
             <div class="text-right">
-                <button type="button" class=" btn btn-default" data-bind="click: close"><i class="icon-cancel"></i><span>Cancel</span></button>
+                <button type="button" class=" btn btn-default" data-bind="click: close"><i class="icon-cancel"></i><span data-bind="i18n: 'common:cancel'"></span></button>
                 <button data-bind="click: addNode, disable: spinners.addNode, css: { 'btn-spinner': spinners.addNode }" type="button" class="btn btn-primary">
-                    <i class="icon-plus"></i><span>Add node</span>
+                    <i class="icon-plus"></i><span data-bind="i18n: 'manageDatabaseGroup:addNode'"></span>
                 </button>
             </div>
         </div>

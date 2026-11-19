@@ -16,10 +16,12 @@ import { useAsyncCallback } from "react-async-hook";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import EmbeddingsMaxConcurrentBatches from "./EmbeddingsMaxConcurrentBatchesField";
 import { SelectOption } from "components/common/select/Select";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type FormData = ConnectionFormData<AiConnection>;
 
 export default function MistralAiSettings({ isUsedByAnyTask }: { isUsedByAnyTask: boolean }) {
+    const t = useStudioTranslation("connectionStrings");
     const { control, trigger } = useFormContext<FormData>();
     const { tasksService } = useServices();
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
@@ -47,8 +49,8 @@ export default function MistralAiSettings({ isUsedByAnyTask }: { isUsedByAnyTask
         <>
             <div className="mb-2">
                 <FormLabel>
-                    API Key
-                    <PopoverWithHoverWrapper message="The API key used to authenticate requests to Mistral AI's API.">
+                    {t("ai.apiKeyLabel")}
+                    <PopoverWithHoverWrapper message={t("ai.mistralAi.apiKeyInfo")}>
                         <Icon icon="info" color="info" id="apiKey" margin="ms-1" />
                     </PopoverWithHoverWrapper>
                 </FormLabel>
@@ -56,22 +58,22 @@ export default function MistralAiSettings({ isUsedByAnyTask }: { isUsedByAnyTask
             </div>
             <div className="mb-2">
                 <FormLabel>
-                    Endpoint
-                    <PopoverWithHoverWrapper message="The Mistral AI endpoint for generating embeddings from text.">
+                    {t("ai.endpointLabel")}
+                    <PopoverWithHoverWrapper message={t("ai.mistralAi.endpointInfo")}>
                         <Icon icon="info" color="info" id="endpoint" margin="ms-1" />
                     </PopoverWithHoverWrapper>
                 </FormLabel>
                 <FormSelectAutocomplete
                     control={control}
                     name="mistralAiSettings.endpoint"
-                    placeholder="Select an endpoint (or enter new one)"
+                    placeholder={t("ai.endpointPlaceholder")}
                     options={endpointOptions}
                 />
             </div>
             <div className="mb-2">
                 <FormLabel>
-                    Model
-                    <PopoverWithHoverWrapper message="The Mistral AI text embedding model ID to use.">
+                    {t("ai.modelLabel")}
+                    <PopoverWithHoverWrapper message={t("ai.mistralAi.modelInfo")}>
                         <Icon icon="info" color="info" id="model" margin="ms-1" />
                     </PopoverWithHoverWrapper>
                 </FormLabel>
@@ -79,7 +81,7 @@ export default function MistralAiSettings({ isUsedByAnyTask }: { isUsedByAnyTask
                     control={control}
                     name="mistralAiSettings.model"
                     isDisabled={isUsedByAnyTask}
-                    placeholder="Select a model (or enter new one)"
+                    placeholder={t("ai.modelSelectPlaceholder")}
                     options={modelOptions}
                 />
             </div>
@@ -92,7 +94,7 @@ export default function MistralAiSettings({ isUsedByAnyTask }: { isUsedByAnyTask
                     onClick={asyncTest.execute}
                     isSpinning={asyncTest.loading}
                 >
-                    Test connection
+                    {t("form.testConnection")}
                 </ButtonWithSpinner>
             </div>
             {asyncTest.result && <ConnectionTestResult testResult={asyncTest.result} />}

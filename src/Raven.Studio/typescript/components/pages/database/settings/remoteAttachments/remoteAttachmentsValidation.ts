@@ -3,16 +3,22 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { azureSchema, s3Schema } from "components/common/formDestinations/utils/formDestinationsValidation";
 import { remoteAttachmentsConstants } from "components/pages/database/settings/remoteAttachments/remoteAttachmentsConstants";
 import { storageClassOptions } from "components/utils/common";
+import type { StudioTranslate } from "common/i18n/resources";
 
 interface RemoteAttachmentsDestinationContext {
     destinations: { identifier: string }[];
     currentIdentifier?: string;
 }
 
-const destinationBaseSchema = yup.object({
-    identifier: yup.string().test("unique-identifier", "Identifier must be unique", getIsUniqueIdentifier).required(),
-    disabled: yup.boolean(),
-});
+function getDestinationBaseSchema(t: StudioTranslate<"remoteAttachments">) {
+    return yup.object({
+        identifier: yup
+            .string()
+            .test("unique-identifier", t("validation.identifierUnique"), getIsUniqueIdentifier)
+            .required(),
+        disabled: yup.boolean(),
+    });
+}
 
 function getIsUniqueIdentifier(value: string, ctx: yup.TestContext<RemoteAttachmentsDestinationContext>) {
     const { context } = ctx.options;
@@ -41,24 +47,26 @@ const s3StorageClassSchema = yup.object({
         .default("Standard"),
 });
 
-const destinationSchema = yup
-    .object({
-        provider: yup.string().oneOf(remoteAttachmentsConstants.destinationProviderList).required(),
-        s3: s3Schema
-            .concat(s3StorageClassSchema)
-            .nullable()
-            .when("provider", {
-                is: "s3",
+function getDestinationSchema(t: StudioTranslate<"remoteAttachments">) {
+    return yup
+        .object({
+            provider: yup.string().oneOf(remoteAttachmentsConstants.destinationProviderList).required(),
+            s3: s3Schema
+                .concat(s3StorageClassSchema)
+                .nullable()
+                .when("provider", {
+                    is: "s3",
+                    then: (schema) => schema.required(),
+                    otherwise: (schema) => schema.nullable(),
+                }),
+            azure: azureSchema.nullable().when("provider", {
+                is: "azure",
                 then: (schema) => schema.required(),
                 otherwise: (schema) => schema.nullable(),
             }),
-        azure: azureSchema.nullable().when("provider", {
-            is: "azure",
-            then: (schema) => schema.required(),
-            otherwise: (schema) => schema.nullable(),
-        }),
-    })
-    .concat(destinationBaseSchema);
+        })
+        .concat(getDestinationBaseSchema(t));
+}
 
 const schema = yup.object({
     isRemoteAttachmentsEnabled: yup.boolean(),
@@ -94,8 +102,10 @@ const schema = yup.object({
         }),
 });
 
-export const remoteAttachmentsDestinationYupResolver = yupResolver(destinationSchema);
-export type RemoteAttachmentsDestinationFormData = yup.InferType<typeof destinationSchema>;
+export function getRemoteAttachmentsDestinationYupResolver(t: StudioTranslate<"remoteAttachments">) {
+    return yupResolver(getDestinationSchema(t));
+}
+export type RemoteAttachmentsDestinationFormData = yup.InferType<ReturnType<typeof getDestinationSchema>>;
 
 export const remoteAttachmentsYupResolver = yupResolver(schema);
 export type RemoteAttachmentsFormData = yup.InferType<typeof schema>;

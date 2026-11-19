@@ -8,6 +8,9 @@ import {
 } from "components/pages/database/settings/connectionStrings/connectionStringsTypes";
 import { ReactNode } from "react";
 import { FieldPath, useFormContext, useWatch } from "react-hook-form";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import type { StudioTranslate } from "common/i18n/resources";
 
 type FormData = ConnectionFormData<AiConnection>;
 
@@ -21,12 +24,8 @@ interface PromptCacheFieldProps {
     description?: ReactNode;
 }
 
-export default function PromptCacheField({
-    baseName,
-    serverDefaultValue,
-    label = "Prompt Cache Key",
-    description,
-}: PromptCacheFieldProps) {
+export default function PromptCacheField({ baseName, serverDefaultValue, label, description }: PromptCacheFieldProps) {
+    const t = useStudioTranslation("connectionStrings");
     const { control } = useFormContext<FormData>();
 
     const modelType = useWatch({ control, name: "modelType" });
@@ -40,38 +39,43 @@ export default function PromptCacheField({
     return (
         <div className="mb-2">
             <FormLabel>
-                {label}
+                {label ?? t("ai.promptCacheKey.label")}
                 <PopoverWithHoverWrapper
                     message={
                         description ?? (
                             <>
-                                Controls whether RavenDB includes the <code>prompt_cache_key</code> field in chat
-                                completion requests sent to the AI provider.
+                                <StudioTrans
+                                    ns="connectionStrings"
+                                    i18nKey="ai.promptCacheKey.info"
+                                    components={{ code: <code /> }}
+                                />
                                 <br />
                                 <br />
-                                This allows the provider to reuse cached prompt prefixes instead of reprocessing the
-                                entire conversation history across turns in the same conversation, reducing latency and
-                                cost.
+                                {t("ai.promptCacheKey.reuse")}
                                 <br />
                                 <br />
                                 <ul className="mb-0">
                                     <li>
-                                        <strong>Default:</strong>{" "}
-                                        {serverDefaultValue ? (
-                                            "sent for AI agents, and for GenAI tasks only when they have query tools. A GenAI task without query tools sends each document once, so the key wouldn't help there."
-                                        ) : (
-                                            <>
-                                                <code>False</code>
-                                                <br />
-                                                The server does not send the cache key by default.
-                                            </>
-                                        )}
+                                        <StudioTrans
+                                            ns="connectionStrings"
+                                            i18nKey="ai.promptCacheKey.defaultItem"
+                                            options={{ context: serverDefaultValue ? "sent" : "notSent" }}
+                                            components={{ strong: <strong />, code: <code />, br: <br /> }}
+                                        />
                                     </li>
                                     <li className="mt-1">
-                                        <strong>True:</strong> Always send the cache key.
+                                        <StudioTrans
+                                            ns="connectionStrings"
+                                            i18nKey="ai.promptCacheKey.alwaysSend"
+                                            components={{ strong: <strong /> }}
+                                        />
                                     </li>
                                     <li className="mt-1">
-                                        <strong>False:</strong> Never send the cache key.
+                                        <StudioTrans
+                                            ns="connectionStrings"
+                                            i18nKey="ai.promptCacheKey.neverSend"
+                                            components={{ strong: <strong /> }}
+                                        />
                                     </li>
                                 </ul>
                             </>
@@ -81,13 +85,15 @@ export default function PromptCacheField({
                     <Icon icon="info" color="info" margin="ms-1" />
                 </PopoverWithHoverWrapper>
             </FormLabel>
-            <FormSelect control={control} name={fieldName} options={promptCacheOptions} />
+            <FormSelect control={control} name={fieldName} options={getPromptCacheOptions(t)} />
         </div>
     );
 }
 
-const promptCacheOptions: SelectOption<boolean | null>[] = [
-    { label: "Default", value: null },
-    { label: "True", value: true },
-    { label: "False", value: false },
-];
+function getPromptCacheOptions(t: StudioTranslate<"connectionStrings">): SelectOption<boolean | null>[] {
+    return [
+        { label: t("ai.promptCacheKey.optionDefault"), value: null },
+        { label: t("ai.promptCacheKey.optionTrue"), value: true },
+        { label: t("ai.promptCacheKey.optionFalse"), value: false },
+    ];
+}

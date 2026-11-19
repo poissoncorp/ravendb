@@ -16,6 +16,8 @@ import DatabaseUtils from "components/utils/DatabaseUtils";
 import useDeleteConfirmation from "hooks/useDeleteConfirmation";
 import { useServices } from "hooks/useServices";
 import IconName from "typings/server/icons";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export interface NodeDeletion {
     nodeTag: string;
@@ -30,6 +32,8 @@ interface DeleteFromGroupModalProps {
 }
 
 export function DeleteFromGroupModal({ db, deletion, onHardDeleteInstead, onClose }: DeleteFromGroupModalProps) {
+    const t = useStudioTranslation("manageDatabaseGroup");
+    const commonT = useStudioTranslation("common");
     const { nodeTag, isHardDelete } = deletion;
     const { databasesService } = useServices();
 
@@ -46,7 +50,7 @@ export function DeleteFromGroupModal({ db, deletion, onHardDeleteInstead, onClos
 
     const toggleIsRequireTypedConfirm = async () => {
         if (!asyncGlobalSettings.result) {
-            messagePublisher.reportError("Failed to load studio global settings");
+            messagePublisher.reportError(t("deleteModal.loadSettingsError"));
             return;
         }
 
@@ -89,7 +93,7 @@ export function DeleteFromGroupModal({ db, deletion, onHardDeleteInstead, onClos
                 </div>
                 {isRequireTypedConfirm && (
                     <FormGroup marginClass="mb-0">
-                        <FormLabel className="fw-bold">Type DELETE to confirm</FormLabel>
+                        <FormLabel className="fw-bold">{t("deleteModal.typedConfirmLabel")}</FormLabel>
                         <Form.Control placeholder="DELETE" value={confirmText} onChange={handleTextChange} />
                     </FormGroup>
                 )}
@@ -102,12 +106,12 @@ export function DeleteFromGroupModal({ db, deletion, onHardDeleteInstead, onClos
                         disabled={!asyncGlobalSettings.result}
                         color="primary"
                     >
-                        Require typed confirmation
+                        {t("deleteModal.requireTypedConfirm")}
                     </Switch>
                 )}
                 <div className="hstack gap-2 flex-grow-1 justify-content-end">
                     <Button variant="link" onClick={onClose} className="link-muted">
-                        Cancel
+                        {commonT("cancel")}
                     </Button>
                     <ButtonWithSpinner
                         variant="danger"
@@ -116,7 +120,7 @@ export function DeleteFromGroupModal({ db, deletion, onHardDeleteInstead, onClos
                         isSpinning={asyncDelete.loading}
                         disabled={!isConfirmed}
                     >
-                        {isHardDelete ? "Hard delete" : "Soft delete"}
+                        {t("deleteModal.deleteButton", { context: isHardDelete ? "hard" : "soft" })}
                     </ButtonWithSpinner>
                 </div>
             </Modal.Footer>
@@ -133,26 +137,35 @@ interface DeleteFromGroupTitleProps {
 function DeleteFromGroupTitle({ db, deletion, isLastNode }: DeleteFromGroupTitleProps) {
     if (isLastNode) {
         return (
-            <>
-                Delete database <strong>{db.name}</strong>?
-            </>
+            <StudioTrans
+                ns="manageDatabaseGroup"
+                i18nKey="deleteModal.lastNodeTitle"
+                components={{ strong: <strong /> }}
+                options={{ databaseName: db.name }}
+            />
+        );
+    }
+
+    const context = deletion.isHardDelete ? "hard" : "soft";
+
+    if (DatabaseUtils.isSharded(db.name)) {
+        return (
+            <StudioTrans
+                ns="manageDatabaseGroup"
+                i18nKey="deleteModal.shardTitle"
+                components={{ strong: <strong /> }}
+                options={{ shardNumber: DatabaseUtils.shardNumber(db.name), nodeTag: deletion.nodeTag, context }}
+            />
         );
     }
 
     return (
-        <>
-            {deletion.isHardDelete ? "Hard delete" : "Soft delete"}{" "}
-            {DatabaseUtils.isSharded(db.name) ? (
-                <>
-                    shard <strong>#{DatabaseUtils.shardNumber(db.name)}</strong>
-                </>
-            ) : (
-                <>
-                    database <strong>{db.name}</strong>
-                </>
-            )}{" "}
-            from node <strong>{deletion.nodeTag}</strong>?
-        </>
+        <StudioTrans
+            ns="manageDatabaseGroup"
+            i18nKey="deleteModal.databaseTitle"
+            components={{ strong: <strong /> }}
+            options={{ databaseName: db.name, nodeTag: deletion.nodeTag, context }}
+        />
     );
 }
 
@@ -169,6 +182,7 @@ function DeleteFromGroupConsequences({
     isLastNode,
     onHardDeleteInstead,
 }: DeleteFromGroupConsequencesProps) {
+    const t = useStudioTranslation("manageDatabaseGroup");
     const { nodeTag, isHardDelete } = deletion;
 
     if (isLastNode) {
@@ -176,17 +190,21 @@ function DeleteFromGroupConsequences({
             <>
                 <Consequence icon="warning" iconColor="danger">
                     <span>
-                        Node <strong>{nodeTag}</strong> is the only node in the group, so{" "}
-                        <strong>database {db.name} is deleted from the cluster.</strong>
+                        <StudioTrans
+                            ns="manageDatabaseGroup"
+                            i18nKey="deleteModal.lastNodeDeletesDatabase"
+                            components={{ strong: <strong /> }}
+                            options={{ nodeTag, databaseName: db.name }}
+                        />
                     </span>
                 </Consequence>
                 {isHardDelete ? (
                     <Consequence icon="trash" iconColor="danger">
-                        <strong>The database files are deleted from node {nodeTag}. This can&apos;t be undone.</strong>
+                        <strong>{t("deleteModal.lastNodeFilesDeleted", { nodeTag })}</strong>
                     </Consequence>
                 ) : (
                     <Consequence icon="storage">
-                        <span>The database files stay on node {nodeTag}.</span>
+                        <span>{t("deleteModal.lastNodeFilesKept", { nodeTag })}</span>
                     </Consequence>
                 )}
             </>
@@ -197,25 +215,32 @@ function DeleteFromGroupConsequences({
         <>
             <Consequence icon="disconnected">
                 <span>
-                    Node <strong>{nodeTag}</strong> leaves the group and stops replicating.
+                    <StudioTrans
+                        ns="manageDatabaseGroup"
+                        i18nKey="deleteModal.leavesGroup"
+                        components={{ strong: <strong /> }}
+                        options={{ nodeTag }}
+                    />
                 </span>
             </Consequence>
             {isHardDelete ? (
                 <Consequence icon="trash">
-                    <span>Its database files are deleted from node {nodeTag}.</span>
+                    <span>{t("deleteModal.filesDeleted", { nodeTag })}</span>
                 </Consequence>
             ) : (
                 <>
                     <Consequence icon="storage">
-                        <span>Its database files stay on node {nodeTag}.</span>
+                        <span>{t("deleteModal.filesKept", { nodeTag })}</span>
                     </Consequence>
                     <Consequence icon="warning" iconColor="danger">
                         <div className="vstack gap-2 align-items-start">
                             <span>
-                                Other nodes stop keeping tombstones for node {nodeTag}.{" "}
-                                <strong>
-                                    If it rejoins with these files, documents deleted in the meantime stay on it.
-                                </strong>
+                                <StudioTrans
+                                    ns="manageDatabaseGroup"
+                                    i18nKey="deleteModal.tombstonesWarning"
+                                    components={{ strong: <strong /> }}
+                                    options={{ nodeTag }}
+                                />
                             </span>
                             <Button
                                 variant="secondary"
@@ -223,7 +248,7 @@ function DeleteFromGroupConsequences({
                                 className="rounded-pill"
                                 onClick={onHardDeleteInstead}
                             >
-                                Use Hard Delete instead
+                                {t("deleteModal.useHardDeleteInstead")}
                                 <Icon icon="arrow-thin-right" margin="ms-1" />
                             </Button>
                         </div>
@@ -259,15 +284,14 @@ interface CopyDataHintProps {
 function CopyDataHint({ databaseName, onNavigate }: CopyDataHintProps) {
     return (
         <p className="small text-muted mb-0">
-            Need a copy of the data?{" "}
-            <a href={appUrl.forBackups(databaseName)} onClick={onNavigate}>
-                Back up
-            </a>{" "}
-            or{" "}
-            <a href={appUrl.forExportDatabase(databaseName)} onClick={onNavigate}>
-                export
-            </a>{" "}
-            first.
+            <StudioTrans
+                ns="manageDatabaseGroup"
+                i18nKey="deleteModal.copyDataHint"
+                components={{
+                    backup: <a href={appUrl.forBackups(databaseName)} onClick={onNavigate} />,
+                    export: <a href={appUrl.forExportDatabase(databaseName)} onClick={onNavigate} />,
+                }}
+            />
         </p>
     );
 }

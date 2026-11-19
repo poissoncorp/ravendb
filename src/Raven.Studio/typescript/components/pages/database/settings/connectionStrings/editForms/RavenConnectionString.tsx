@@ -20,6 +20,7 @@ import Button from "react-bootstrap/Button";
 import { useAppSelector } from "components/store";
 import { connectionStringSelectors } from "../store/connectionStringsSlice";
 import { ConnectionStringsNameContext, connectionStringsUtils } from "../connectionStringsUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type FormData = ConnectionFormData<RavenConnection>;
 
@@ -32,6 +33,7 @@ export default function RavenConnectionString({
     isForNewConnection,
     onSave,
 }: RavenConnectionStringProps) {
+    const t = useStudioTranslation("connectionStrings");
     const usedNames = useAppSelector(connectionStringSelectors.connections)["Raven"].map((x) => x.name);
     const isServerWide = useAppSelector(connectionStringSelectors.isServerWide);
 
@@ -60,28 +62,28 @@ export default function RavenConnectionString({
     return (
         <Form id="connection-string-form" onSubmit={handleSubmit(handleSave)} className="vstack gap-3">
             <div className="mb-2">
-                <FormLabel>Name</FormLabel>
+                <FormLabel>{t("form.nameLabel")}</FormLabel>
                 <FormInput
                     control={control}
                     name="name"
                     type="text"
-                    placeholder="Enter a name for the connection string"
+                    placeholder={t("form.namePlaceholder")}
                     disabled={!isForNewConnection}
                     autoComplete="off"
                 />
             </div>
             <div className="mb-2">
-                <FormLabel>Database</FormLabel>
+                <FormLabel>{t("raven.databaseLabel")}</FormLabel>
                 <FormInput
                     control={control}
                     name="database"
                     type="text"
-                    placeholder="Enter the destination database name"
+                    placeholder={t("raven.databasePlaceholder")}
                     autoComplete="off"
                 />
             </div>
             <div className="mb-2">
-                <FormLabel>Discovery URLs</FormLabel>
+                <FormLabel>{t("raven.discoveryUrlsLabel")}</FormLabel>
                 <div className="vstack gap-3">
                     {formState.errors?.topologyDiscoveryUrls?.message && (
                         <div className="text-danger small">{formState.errors.topologyDiscoveryUrls.message}</div>
@@ -100,7 +102,7 @@ export default function RavenConnectionString({
                 </div>
                 <Button variant="info" className="mt-3" onClick={() => urlFieldArray.append({ url: null })}>
                     <Icon icon="plus" />
-                    Add next discovery URL
+                    {t("raven.addDiscoveryUrl")}
                 </Button>
             </div>
             <ConnectionStringUsedByTasks tasks={initialConnection.usedBy} connectionType={initialConnection.type} />
@@ -125,6 +127,7 @@ interface DiscoveryUrlsProps {
 }
 
 function DiscoveryUrl({ idx, control, isDeleteButtonVisible, trigger, watch, onDelete }: DiscoveryUrlsProps) {
+    const t = useStudioTranslation("connectionStrings");
     const { tasksService } = useServices();
 
     const asyncTest = useAsyncCallback(async () => {
@@ -141,16 +144,16 @@ function DiscoveryUrl({ idx, control, isDeleteButtonVisible, trigger, watch, onD
     return (
         <div className="vstack mb-2 gap-1">
             <FormLabel className="mb-0 d-flex align-items-center gap-1">
-                <span className="small-label mb-0">URL #{idx + 1}</span>
+                <span className="small-label mb-0">{t("form.urlNumber", { number: idx + 1 })}</span>
                 {asyncTest.result?.Success ? (
                     <Badge bg="success" pill>
                         <Icon icon="check" />
-                        Successfully connected
+                        {t("form.successfullyConnected")}
                     </Badge>
                 ) : asyncTest.result?.Error ? (
                     <Badge bg="danger" pill>
                         <Icon icon="warning" />
-                        Failed connection
+                        {t("form.failedConnection")}
                     </Badge>
                 ) : null}
             </FormLabel>
@@ -163,7 +166,12 @@ function DiscoveryUrl({ idx, control, isDeleteButtonVisible, trigger, watch, onD
                     autoComplete="off"
                 />
                 {isDeleteButtonVisible && (
-                    <Button variant="danger" title="Delete URL" onClick={onDelete} disabled={asyncTest.loading}>
+                    <Button
+                        variant="danger"
+                        title={t("form.deleteUrl")}
+                        onClick={onDelete}
+                        disabled={asyncTest.loading}
+                    >
                         <Icon icon="trash" margin="m-0" />
                     </Button>
                 )}
@@ -171,10 +179,10 @@ function DiscoveryUrl({ idx, control, isDeleteButtonVisible, trigger, watch, onD
                     variant="secondary"
                     onClick={asyncTest.execute}
                     isSpinning={asyncTest.loading}
-                    title="Test connection"
+                    title={t("form.testConnection")}
                     icon="rocket"
                 >
-                    Test connection
+                    {t("form.testConnection")}
                 </ButtonWithSpinner>
             </div>
             {asyncTest.result?.Error && (
@@ -188,31 +196,22 @@ function DiscoveryUrl({ idx, control, isDeleteButtonVisible, trigger, watch, onD
 }
 
 function AboutError({ isHTTPSuccess }: { isHTTPSuccess: boolean }) {
-    return (
-        <RichAlert variant="info" title="About this error">
-            <p>
-                Each RavenDB server has both HTTP and TCP endpoints. While the first one is used for system management
-                and client-server rest request, the second is used for inter-server and advanced client-server
-                communications.
-            </p>
-            <p>The connection tests the TCP endpoint only after a successful HTTP connection.</p>
+    const t = useStudioTranslation("connectionStrings");
 
-            {isHTTPSuccess ? (
-                <p>
-                    It appears that the current server was able to connect to the desired server through HTTP, but
-                    failed connecting to it using TCP.
-                </p>
-            ) : (
-                <p>It appears that the current server could not connect to the desired node through HTTP.</p>
-            )}
+    return (
+        <RichAlert variant="info" title={t("raven.aboutError.title")}>
+            <p>{t("raven.aboutError.endpoints")}</p>
+            <p>{t("raven.aboutError.tcpAfterHttp")}</p>
+
+            {isHTTPSuccess ? <p>{t("raven.aboutError.tcpFailed")}</p> : <p>{t("raven.aboutError.httpFailed")}</p>}
 
             <div>
-                Please verify that:
+                {t("raven.aboutError.verify")}
                 <ul>
-                    <li>The URL is correct</li>
-                    <li>Both RavenDB and the target machine are up and running</li>
-                    <li>There are no firewall settings on either machine blocking usage of that URL</li>
-                    <li>There are no network configurations that prevent communication</li>
+                    <li>{t("raven.aboutError.verifyUrl")}</li>
+                    <li>{t("raven.aboutError.verifyMachines")}</li>
+                    <li>{t("raven.aboutError.verifyFirewall")}</li>
+                    <li>{t("raven.aboutError.verifyNetwork")}</li>
                 </ul>
             </div>
         </RichAlert>

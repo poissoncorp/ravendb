@@ -1,6 +1,10 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("settingsCommands");
+
 type SorterDefinition = Raven.Client.Documents.Queries.Sorting.SorterDefinition;
 
 class saveCustomSorterCommand extends commandBase {
@@ -21,10 +25,10 @@ class saveCustomSorterCommand extends commandBase {
 
         return this.put<void>(url, JSON.stringify(payload), this.db, { dataType: undefined })
             .fail((response: JQueryXHR) => {
-                this.reportError("Failed to save custom sorter", response.responseText, response.statusText); 
+                this.reportError(t("saveCustomSorterFailed"), response.responseText, response.statusText); 
             })
             .done(() => {
-                this.reportSuccess(`Saved custom sorter ${this.sorterDto.Name}`);
+                this.reportSuccess(t("saveCustomSorterSucceeded", { name: this.sorterDto.Name }));
             });
     }
 }

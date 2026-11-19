@@ -1,6 +1,9 @@
 ﻿/// <reference path="../../../../typings/tsd.d.ts"/>
 import jsonUtil = require("common/jsonUtil");
 import accessManager = require("common/shell/accessManager");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("settingsModels");
 
 class discoveryUrl {
     discoveryUrlName = ko.observable<string>();
@@ -32,7 +35,7 @@ class discoveryUrl {
                 validation: [
                     {
                         validator: (val: string) => !val || val.startsWith("http://"),
-                        message: "Connecting from unsecured server (http) to secured (https) is not supported."
+                        message: t("discoveryUrl.httpsNotSupported")
                     }]
             });
         }

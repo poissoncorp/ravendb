@@ -19,6 +19,8 @@ import {
     useSensors,
 } from "@dnd-kit/core";
 import { horizontalListSortingStrategy, SortableContext, arrayMove } from "@dnd-kit/sortable";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface ReorderNodesControlsProps {
     sortableMode: boolean;
@@ -29,6 +31,8 @@ interface ReorderNodesControlsProps {
 }
 
 export function ReorderNodesControls(props: ReorderNodesControlsProps) {
+    const t = useStudioTranslation("manageDatabaseGroup");
+    const commonT = useStudioTranslation("common");
     const { canSort, sortableMode, enableReorder, cancelReorder, onSave } = props;
     const [saving, setSaving] = useState(false);
 
@@ -44,16 +48,16 @@ export function ReorderNodesControls(props: ReorderNodesControlsProps) {
     return !sortableMode ? (
         <Button variant="secondary" disabled={canSort} onClick={enableReorder}>
             <Icon icon="reorder" />
-            Reorder nodes
+            {t("reorder.reorderNodes")}
         </Button>
     ) : (
         <>
             <ButtonWithSpinner variant="success" onClick={onSaveClicked} isSpinning={saving} icon="save">
-                Save reorder
+                {t("reorder.save")}
             </ButtonWithSpinner>
             <Button variant="secondary" onClick={cancelReorder}>
                 <Icon icon="cancel" />
-                <span>Cancel</span>
+                <span>{commonT("cancel")}</span>
             </Button>
         </>
     );
@@ -67,6 +71,7 @@ interface ReorderNodesProps {
 }
 
 export function ReorderNodes(props: ReorderNodesProps) {
+    const t = useStudioTranslation("manageDatabaseGroup");
     const { fixOrder, setFixOrder, newOrder, setNewOrder } = props;
 
     const { activeNode, sensors, handleDragStart, handleDragEnd, handleDragCancel } = useReorderNodes({
@@ -75,19 +80,13 @@ export function ReorderNodes(props: ReorderNodesProps) {
     });
 
     const leftRadioToggleItem: RadioToggleWithIconInputItem = {
-        label: (
-            <>
-                Shuffle nodes order
-                <br />
-                after failure recovery
-            </>
-        ),
+        label: <StudioTrans ns="manageDatabaseGroup" i18nKey="reorder.shuffleOrder" components={{ br: <br /> }} />,
         value: "shuffle",
         iconName: "shuffle",
     };
 
     const rightRadioToggleItem: RadioToggleWithIconInputItem = {
-        label: "Try to maintain nodes order",
+        label: t("reorder.maintainOrder"),
         value: "order",
         iconName: "order",
     };

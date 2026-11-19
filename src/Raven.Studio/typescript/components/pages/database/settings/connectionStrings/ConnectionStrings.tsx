@@ -18,6 +18,7 @@ import { StudioConnectionType } from "./connectionStringsTypes";
 import { useAppUrls } from "components/hooks/useAppUrls";
 import { AccessPopover } from "components/common/AccessPopover";
 import { accessManagerSelectors } from "components/common/shell/accessManagerSliceSelectors";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export interface ConnectionStringsUrlParameters {
     name?: string;
@@ -25,6 +26,7 @@ export interface ConnectionStringsUrlParameters {
 }
 
 export default function ConnectionStrings({ queryParams }: ReactQueryParamsProps<ConnectionStringsUrlParameters>) {
+    const t = useStudioTranslation("connectionStrings");
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
     const hasOperatorAccess = useAppSelector(accessManagerSelectors.isOperatorOrAbove);
@@ -56,7 +58,7 @@ export default function ConnectionStrings({ queryParams }: ReactQueryParamsProps
     if (loadStatus === "failure") {
         return (
             <LoadError
-                error="Unable to load connection strings"
+                error={t("loadError")}
                 refresh={() => dispatch(connectionStringsActions.fetchData(databaseName))}
             />
         );
@@ -67,17 +69,17 @@ export default function ConnectionStrings({ queryParams }: ReactQueryParamsProps
             {initialEditConnection && <EditConnectionStrings initialConnection={initialEditConnection} />}
             <Row className="gy-sm">
                 <Col>
-                    <AboutViewHeading title="Connection Strings" icon="manage-connection-strings" />
+                    <AboutViewHeading title={t("title")} icon="manage-connection-strings" />
                     <div className="d-flex align-items-center justify-content-between gap-2 flex-wrap mb-1">
                         <AccessPopover accessRequired="DatabaseAdmin">
                             <Button
                                 variant="primary"
                                 onClick={() => dispatch(connectionStringsActions.newConnectionModalOpened())}
-                                title="Add new connection string"
+                                title={t("addNewTitle")}
                                 disabled={!hasDatabaseAdminAccess}
                             >
                                 <Icon icon="plus" />
-                                Add new
+                                {t("addNew")}
                             </Button>
                         </AccessPopover>
                         <AccessPopover accessRequired="Operator">
@@ -85,17 +87,17 @@ export default function ConnectionStrings({ queryParams }: ReactQueryParamsProps
                                 size="xs"
                                 variant="link"
                                 href={appUrl.forServerWideConnectionStrings()}
-                                title="Navigate to the Server-Wide Connection Strings View"
+                                title={t("serverWideLinkTitle")}
                                 disabled={!hasOperatorAccess}
                             >
                                 <Icon icon="link" />
-                                Go to Server-Wide Connection Strings View
+                                {t("serverWideLink")}
                             </Button>
                         </AccessPopover>
                     </div>
                     <LazyLoad active={loadStatus === "idle" || loadStatus === "loading"} className="mt-2">
                         {isEmpty ? (
-                            <EmptySet className="mw-100">No connection strings</EmptySet>
+                            <EmptySet className="mw-100">{t("empty")}</EmptySet>
                         ) : (
                             allStudioEtlTypes.map((type) => (
                                 <ConnectionStringsPanels

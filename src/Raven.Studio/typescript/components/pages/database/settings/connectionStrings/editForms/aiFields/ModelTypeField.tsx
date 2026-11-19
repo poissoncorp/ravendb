@@ -9,6 +9,7 @@ import { FormLabel } from "components/common/Form";
 import ClickableCard from "components/common/ClickableCard";
 import { useAppSelector } from "components/store";
 import { connectionStringSelectors } from "../../store/connectionStringsSlice";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type FormData = ConnectionFormData<AiConnection>;
 
@@ -17,6 +18,7 @@ interface ModelTypeFieldProps {
 }
 
 export default function ModelTypeField({ initialModelType }: ModelTypeFieldProps) {
+    const t = useStudioTranslation("connectionStrings");
     const { control, setValue } = useFormContext<FormData>();
 
     const formValues = useWatch({ control });
@@ -30,8 +32,8 @@ export default function ModelTypeField({ initialModelType }: ModelTypeFieldProps
     return (
         <div className="mb-2">
             <FormLabel>
-                Model type
-                <PopoverWithHoverWrapper message="Select the type of model this connection will target">
+                {t("ai.modelType.label")}
+                <PopoverWithHoverWrapper message={t("ai.modelType.info")}>
                     <Icon icon="info" color="info" margin="ms-1" />
                 </PopoverWithHoverWrapper>
             </FormLabel>
@@ -39,8 +41,8 @@ export default function ModelTypeField({ initialModelType }: ModelTypeFieldProps
                 {isChatVisible && (
                     <ClickableCard
                         icon="llm"
-                        title="Chat"
-                        description="Conversational AI and content generation model"
+                        title={t("ai.modelType.chat")}
+                        description={t("ai.modelType.chatDescription")}
                         className={isAllVisible ? "w-50" : "w-100"}
                         isSelected={formValues.modelType === "Chat"}
                         onClick={() => setValue("modelType", "Chat")}
@@ -49,8 +51,8 @@ export default function ModelTypeField({ initialModelType }: ModelTypeFieldProps
                 {isTextEmbeddingsVisible && (
                     <ClickableCard
                         icon="document2"
-                        title="Text embeddings"
-                        description="Embedding generation model for vector search and similarity comparison"
+                        title={t("ai.modelType.textEmbeddings")}
+                        description={t("ai.modelType.textEmbeddingsDescription")}
                         className={isAllVisible ? "w-50" : "w-100"}
                         isSelected={formValues.modelType === "TextEmbeddings"}
                         onClick={() => setValue("modelType", "TextEmbeddings")}

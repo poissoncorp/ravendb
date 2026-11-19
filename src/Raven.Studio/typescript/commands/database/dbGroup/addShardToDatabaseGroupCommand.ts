@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("dbGroupCommands");
 
 class addShardToDatabaseGroupCommand extends commandBase {
 
@@ -25,8 +28,8 @@ class addShardToDatabaseGroupCommand extends commandBase {
         const url = endpoints.global.shardedAdminDatabase.adminDatabasesShard + this.urlEncodeArgs(args);
 
         return this.put<Raven.Client.ServerWide.Sharding.AddDatabaseShardResult>(url, null)
-            .done(() => this.reportSuccess("New shard was created"))
-            .fail((response: JQueryXHR) => this.reportError("Failed to create new shard", response.responseText, response.statusText));
+            .done(() => this.reportSuccess(t("addShardSucceeded")))
+            .fail((response: JQueryXHR) => this.reportError(t("addShardFailed"), response.responseText, response.statusText));
     }
 }
 

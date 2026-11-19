@@ -1,4 +1,7 @@
 import * as yup from "yup";
+import { createTranslator } from "common/i18n/i18n";
+
+const t = createTranslator("connectionStrings");
 
 export interface ConnectionStringsNameContext {
     isForNewConnection: boolean;
@@ -20,7 +23,7 @@ export const connectionStringsUtils = {
         .required()
         .test(
             "no-server-wide-prefix",
-            `Name cannot start with the prefix "${serverWideConnectionStringPrefix}"`,
+            () => t("form.nameNoServerWidePrefix", { prefix: serverWideConnectionStringPrefix }),
             (value) => {
                 if (!value) {
                     return true;
@@ -29,13 +32,17 @@ export const connectionStringsUtils = {
                 return !value.trim().toLowerCase().startsWith(serverWideConnectionStringPrefix.toLowerCase());
             }
         )
-        .test("is-name-unique", "Name must be unique", (value, ctx) => {
-            const { isForNewConnection, usedNames } = ctx.options.context as ConnectionStringsNameContext;
+        .test(
+            "is-name-unique",
+            () => t("form.nameNotUnique"),
+            (value, ctx) => {
+                const { isForNewConnection, usedNames } = ctx.options.context as ConnectionStringsNameContext;
 
-            if (isForNewConnection) {
-                return !usedNames.includes(value);
+                if (isForNewConnection) {
+                    return !usedNames.includes(value);
+                }
+
+                return true;
             }
-
-            return true;
-        }),
+        ),
 };

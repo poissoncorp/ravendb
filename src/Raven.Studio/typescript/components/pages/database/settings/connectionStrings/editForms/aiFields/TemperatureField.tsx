@@ -8,6 +8,8 @@ import {
 } from "components/pages/database/settings/connectionStrings/connectionStringsTypes";
 import { useEffect } from "react";
 import InputGroup from "react-bootstrap/InputGroup";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 type FormData = ConnectionFormData<AiConnection>;
 
@@ -16,6 +18,7 @@ interface TemperatureFieldProps {
 }
 
 export default function TemperatureField({ baseName }: TemperatureFieldProps) {
+    const t = useStudioTranslation("connectionStrings");
     const { control, setValue, watch } = useFormContext<FormData>();
 
     const formValues = useWatch({ control });
@@ -41,24 +44,36 @@ export default function TemperatureField({ baseName }: TemperatureFieldProps) {
     return (
         <div className="mb-2">
             <FormLabel>
-                Temperature
+                {t("ai.temperature.label")}
                 <PopoverWithHoverWrapper
                     message={
                         <>
-                            Controls the randomness and creativity of the model&apos;s output. Valid values typically
-                            range from <code>0.0</code> to <code>2.0</code>:
+                            <StudioTrans
+                                ns="connectionStrings"
+                                i18nKey="ai.temperature.info"
+                                components={{ code: <code /> }}
+                            />
                             <ul className="mb-0">
                                 <li className="mt-1">
-                                    Higher values (e.g., <code>1.0</code> or above) produce more diverse and creative
-                                    responses.
+                                    <StudioTrans
+                                        ns="connectionStrings"
+                                        i18nKey="ai.temperature.higher"
+                                        components={{ code: <code /> }}
+                                    />
                                 </li>
                                 <li className="mt-1">
-                                    Lower values (e.g., <code>0.2</code>) result in more focused, consistent, and
-                                    deterministic output.
+                                    <StudioTrans
+                                        ns="connectionStrings"
+                                        i18nKey="ai.temperature.lower"
+                                        components={{ code: <code /> }}
+                                    />
                                 </li>
                                 <li className="mt-1">
-                                    If not explicitly set, <br />
-                                    Ollama defaults to a temperature of <code>0.8</code>.
+                                    <StudioTrans
+                                        ns="connectionStrings"
+                                        i18nKey="ai.temperature.ollamaDefault"
+                                        components={{ br: <br />, code: <code /> }}
+                                    />
                                 </li>
                             </ul>
                         </>
@@ -75,7 +90,7 @@ export default function TemperatureField({ baseName }: TemperatureFieldProps) {
                     type="number"
                     control={control}
                     name={fieldNameTemperature}
-                    placeholder="e.g. 0.4"
+                    placeholder={t("ai.temperature.placeholder")}
                     disabled={!formValues[baseName].isSetTemperature}
                 />
             </InputGroup>

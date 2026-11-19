@@ -8,12 +8,27 @@ import { useLimitedFeatureAvailability } from "components/utils/licenseLimitsUti
 import React from "react";
 import { useRavenLink } from "hooks/useRavenLink";
 import { Icon } from "components/common/Icon";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export function TimeSeriesInfoHub() {
+    const t = useStudioTranslation("timeSeriesSettings");
+    const commonT = useStudioTranslation("common");
     const hasTimeSeriesRollupsAndRetention = useAppSelector(
         licenseSelectors.statusValue("HasTimeSeriesRollupsAndRetention")
     );
     const timeSeriesDocsLink = useRavenLink({ hash: "LNOMKT" });
+
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("featureAvailability.rollupsAndRetention"),
+            featureIcon: "timeseries-settings",
+            community: { value: false },
+            professional: { value: true },
+            enterprise: { value: true },
+            quill: { value: true },
+        },
+    ];
 
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
@@ -29,59 +44,53 @@ export function TimeSeriesInfoHub() {
         <AboutViewFloating>
             <AccordionItemWrapper targetId="about" icon="about" color="info">
                 <p>
-                    In this view, you can add a <strong>Time Series Configuration per collection</strong> to help manage
-                    the large volume of time series data that accumulates.
+                    <StudioTrans ns="timeSeriesSettings" i18nKey="about.intro" components={{ strong: <strong /> }} />
                 </p>
                 <div>
-                    The following can be configured per collection:
+                    {t("about.configurablePerCollection")}
                     <ul>
                         <li className="margin-top-xxs">
-                            <strong>Rollup Policies</strong>:
-                            <br />
-                            =&gt; Define a Rollup Policy to aggregate time series data into smaller, summarized datasets
-                            called <strong>Rollups</strong>. Each entry in the Rollup time series is a summary of data
-                            from a defined interval of the original time series.
-                            <br />
-                            =&gt; Multiple Rollup Policies can be defined, each aggregating the previous Rollup time
-                            series. This reduces the granularity of the raw data and may simplify analysis.
-                            <br />
-                            =&gt; Rollup entries are not created for time series with entries that have more than 5
-                            values (even if a policy is defined).
+                            <StudioTrans
+                                ns="timeSeriesSettings"
+                                i18nKey="about.rollupPolicies"
+                                components={{ strong: <strong />, br: <br /> }}
+                            />
                         </li>
                         <li className="margin-top-xxs">
-                            <strong>Retention Periods</strong>:
-                            <br />A retention period can be defined for both the raw data entries and each Rollup
-                            Policy. Time series entries that exceed this time frame will be removed.
+                            <StudioTrans
+                                ns="timeSeriesSettings"
+                                i18nKey="about.retentionPeriods"
+                                components={{ strong: <strong />, br: <br /> }}
+                            />
                         </li>
                         <li className="margin-top-xxs">
-                            <strong>Named Values</strong>:
-                            <br />
-                            Each time series entry has a specific timestamp and a set of up to 32 data values. A
-                            meaningful name can be given to each value in the time series entry.
+                            <StudioTrans
+                                ns="timeSeriesSettings"
+                                i18nKey="about.namedValues"
+                                components={{ strong: <strong />, br: <br /> }}
+                            />
                         </li>
                     </ul>
                 </div>
                 <hr />
                 <div>
-                    Applying the configurations:
+                    {t("about.applying")}
                     <ul>
                         <li className="margin-top-xxs">
-                            Ensure to set the <strong>Policy Check Frequency</strong> since the server will execute the
-                            defined rollup and retention policies only at that scheduled time.
+                            <StudioTrans
+                                ns="timeSeriesSettings"
+                                i18nKey="about.policyCheckFrequency"
+                                components={{ strong: <strong /> }}
+                            />
                         </li>
-                        <li className="margin-top-xxs">
-                            Each configuration per collection can be enabled or disabled.
-                        </li>
-                        <li className="margin-top-xxs">
-                            A configuration applies to all time series data of all documents within the given
-                            collection. The Rollups content can be viewed on the Document View.
-                        </li>
+                        <li className="margin-top-xxs">{t("about.enableOrDisable")}</li>
+                        <li className="margin-top-xxs">{t("about.appliesToCollection")}</li>
                     </ul>
                 </div>
                 <hr />
-                <div className="small-label mb-2">useful links</div>
+                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                 <a href={timeSeriesDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - Time Series
+                    <Icon icon="newtab" /> {t("about.docsLink")}
                 </a>
             </AccordionItemWrapper>
             <FeatureAvailabilitySummaryWrapper
@@ -91,14 +100,3 @@ export function TimeSeriesInfoHub() {
         </AboutViewFloating>
     );
 }
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "Rollups & Retention",
-        featureIcon: "timeseries-settings",
-        community: { value: false },
-        professional: { value: true },
-        enterprise: { value: true },
-        quill: { value: true },
-    },
-];

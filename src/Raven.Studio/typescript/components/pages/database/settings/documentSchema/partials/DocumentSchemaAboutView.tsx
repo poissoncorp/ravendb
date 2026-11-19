@@ -6,10 +6,24 @@ import FeatureAvailabilitySummaryWrapper, {
 import { licenseSelectors } from "components/common/shell/licenseSlice";
 import { useAppSelector } from "components/store";
 import { useLimitedFeatureAvailability } from "components/utils/licenseLimitsUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function DocumentSchemaAboutView() {
     const jsonSchemaLink = "https://json-schema.org";
+    const t = useStudioTranslation("documentSchema");
     const hasSchemaValidation = useAppSelector(licenseSelectors.statusValue("HasSchemaValidation"));
+
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("featureAvailability.schemaValidation"),
+            featureIcon: "document-schema",
+            community: { value: false },
+            professional: { value: true },
+            enterprise: { value: true },
+            quill: { value: true },
+        },
+    ];
 
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
@@ -27,59 +41,74 @@ export default function DocumentSchemaAboutView() {
                 <div>
                     <ul>
                         <li>
-                            Use this view to define a <strong>JSON Schema per collection</strong> using the standard{" "}
-                            <a href={jsonSchemaLink} target="_blank">
-                                JSON Schema format
-                            </a>
-                            .
+                            <StudioTrans
+                                ns="documentSchema"
+                                i18nKey="about.defineSchema"
+                                components={{ strong: <strong />, a: <a href={jsonSchemaLink} target="_blank" /> }}
+                            />
                         </li>
                         <li className="mt-2">
-                            Document validation according to the defined schema is <strong>enforced</strong> in the
-                            following scenarios:
+                            <StudioTrans
+                                ns="documentSchema"
+                                i18nKey="about.enforced"
+                                components={{ strong: <strong /> }}
+                            />
                             <ul>
                                 <li>
-                                    Inserting documents via <i>session</i> & via <i>bulk insert</i> - invalid documents
-                                    are rejected.
+                                    <StudioTrans
+                                        ns="documentSchema"
+                                        i18nKey="about.enforcedSession"
+                                        components={{ i: <i /> }}
+                                    />
                                 </li>
                                 <li>
-                                    Inserting documents via <i>patch by query</i> - the operation stops when an invalid
-                                    document is encountered.
+                                    <StudioTrans
+                                        ns="documentSchema"
+                                        i18nKey="about.enforcedPatch"
+                                        components={{ i: <i /> }}
+                                    />
                                 </li>
-                                <li>Importing a database - invalid documents are skipped.</li>
-                                <li>
-                                    RavenDB ETL task - if the task generates documents that are invalid for the
-                                    destination database, the entire batch is rejected, and the task enters a retry loop
-                                    until the issue is resolved.
-                                </li>
+                                <li>{t("about.enforcedImport")}</li>
+                                <li>{t("about.enforcedEtl")}</li>
                             </ul>
                         </li>
                         <li className="mt-2">
-                            Validation is <strong>bypassed</strong> (skipped) for the following scenarios:
+                            <StudioTrans
+                                ns="documentSchema"
+                                i18nKey="about.bypassed"
+                                components={{ strong: <strong /> }}
+                            />
                             <ul>
-                                <li>Internal replication</li>
-                                <li>External replication</li>
-                                <li>Restoring a database from backup</li>
+                                <li>{t("about.bypassedInternalReplication")}</li>
+                                <li>{t("about.bypassedExternalReplication")}</li>
+                                <li>{t("about.bypassedRestore")}</li>
                             </ul>
                         </li>
                         <li className="mt-2">
-                            RavenDB validates most standard JSON Schema keywords, <strong>except</strong>:
+                            <StudioTrans
+                                ns="documentSchema"
+                                i18nKey="about.keywords"
+                                components={{ strong: <strong /> }}
+                            />
                             <ul>
                                 <li>
-                                    The <code>unevaluatedProperties</code> keyword is not validated.
+                                    <StudioTrans
+                                        ns="documentSchema"
+                                        i18nKey="about.keywordsUnevaluated"
+                                        components={{ code: <code /> }}
+                                    />
                                 </li>
-                                <li>Recursive references are not supported.</li>
+                                <li>{t("about.keywordsRecursive")}</li>
                             </ul>
                         </li>
+                        <li className="mt-2">{t("about.enableDisable")}</li>
+                        <li className="mt-2">{t("about.revisionsNote")}</li>
                         <li className="mt-2">
-                            Once schemas are defined, you can enable or disable schema validation per collection or
-                            globally for all collections from this view.
-                        </li>
-                        <li className="mt-2">
-                            Note: You cannot revert documents to previous revisions if a validation schema is defined
-                            and enabled for their collection.
-                        </li>
-                        <li className="mt-2">
-                            To test a JSON Schema without saving it, use the <strong>Schema Playground</strong>.
+                            <StudioTrans
+                                ns="documentSchema"
+                                i18nKey="about.playground"
+                                components={{ strong: <strong /> }}
+                            />
                         </li>
                     </ul>
                 </div>
@@ -88,14 +117,3 @@ export default function DocumentSchemaAboutView() {
         </AboutViewAnchored>
     );
 }
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "Schema Validation",
-        featureIcon: "document-schema",
-        community: { value: false },
-        professional: { value: true },
-        enterprise: { value: true },
-        quill: { value: true },
-    },
-];

@@ -1,24 +1,23 @@
 <div class="form-group" data-bind="validationElement: connectionStringName">
-    <label class="control-label">Name<i class="required"></i></label>
+    <label class="control-label"><span data-bind="i18n: 'connectionStringRaven:nameLabel'"></span><i class="required"></i></label>
     <div class="flex-grow">
-        <input class="form-control" data-bind="textInput: connectionStringName, enable: isNew, attr: { 'title': isNew() ? 'Enter any name of your choice for this connection string' : '' }"
-               placeholder="Enter a name for the connection string" />
+        <input class="form-control" data-bind="textInput: connectionStringName, enable: isNew, i18nAttr: { title: isNew() ? 'connectionStringRaven:nameTitle' : null, placeholder: 'connectionStringRaven:namePlaceholder' }" />
     </div>
 </div>
 <div class="form-group" data-bind="validationElement: database">
-    <label class="control-label">Database<i class="required"></i></label>
+    <label class="control-label"><span data-bind="i18n: 'connectionStringRaven:databaseLabel'"></span><i class="required"></i></label>
     <div class="flex-grow">
-        <input class="form-control" data-bind="textInput: database, enable: !isServerWide()" placeholder="Enter database for the connection string" title="Destination database" />
+        <input class="form-control" data-bind="textInput: database, enable: !isServerWide(), i18nAttr: { placeholder: 'connectionStringRaven:databasePlaceholder', title: 'connectionStringRaven:databaseTitle' }" />
     </div>
 </div>
-<div class="form-group" data-bind="validationElement: inputUrl().discoveryUrlName, visible: !isServerWide()"> 
-    <label class="control-label">Discovery URLs<i class="required"></i></label>
-    <div class="flex-grow"> 
-        <input class="form-control" placeholder="Enter discovery url to add" data-bind="textInput: inputUrl().discoveryUrlName" />
+<div class="form-group" data-bind="validationElement: inputUrl().discoveryUrlName, visible: !isServerWide()">
+    <label class="control-label"><span data-bind="i18n: 'connectionStringRaven:discoveryUrls.label'"></span><i class="required"></i></label>
+    <div class="flex-grow">
+        <input class="form-control" data-bind="textInput: inputUrl().discoveryUrlName, i18nAttr: { placeholder: 'connectionStringRaven:discoveryUrls.placeholder' }" />
     </div>
-    <button class="btn btn-info" 
+    <button class="btn btn-info"
             data-bind="click: addDiscoveryUrlWithBlink, enable: inputUrl().discoveryUrlName() && inputUrl().validationGroup.isValid()">
-        <i class="icon-plus"></i><span>Add URL</span>
+        <i class="icon-plus"></i><span data-bind="i18n: 'connectionStringRaven:discoveryUrls.addButton'"></span>
     </button> 
 </div>
 <div class="form-group" data-bind="visible: topologyDiscoveryUrls().length && !isServerWide()">
@@ -27,16 +26,17 @@
         <ul class="well collection-list" data-bind="foreach: topologyDiscoveryUrls">
             <li>
                 <div class="name" data-bind="text: $data.discoveryUrlName"></div>
-                <div class="text-warning margin-top margin-top-xs" data-bind="if: hasTestError" title="Connection test failed!">
+                <div class="text-warning margin-top margin-top-xs" data-bind="if: hasTestError, i18nAttr: { title: 'connectionStringRaven:discoveryUrls.testFailedTitle' }">
                     <i class="icon-warning"></i>
                 </div>
-                <a title="Remove url" href="#"
-                   data-bind="click: $parent.removeDiscoveryUrl.bind($parent, $data)">
+                <a href="#"
+                   data-bind="click: $parent.removeDiscoveryUrl.bind($parent, $data), i18nAttr: { title: 'connectionStringRaven:discoveryUrls.removeTitle' }">
                     <i class="icon-trash"></i>
                 </a>
-                <a class="btn btn-default" title="Test url connection" href="#"
+                <a class="btn btn-default" href="#"
                    data-bind="click: _.partial($root.onTestConnectionRaven, $data), disable: $root.spinners.test,
-                              css: { 'btn-spinner': $root.spinners.test() && $parent.selectedUrlToTest() === $data.discoveryUrlName() }">
+                              css: { 'btn-spinner': $root.spinners.test() && $parent.selectedUrlToTest() === $data.discoveryUrlName() },
+                              i18nAttr: { title: 'connectionStringRaven:discoveryUrls.testTitle' }">
                     <i class="icon-rocket"></i>
                 </a>
             </li>
@@ -44,7 +44,7 @@
     </div>
 </div>
 <div class="form-group" data-bind="visible: topologyDiscoveryUrls().length && isServerWide()">
-    <label class="control-label">Discovery URLs</label>
+    <label class="control-label" data-bind="i18n: 'connectionStringRaven:discoveryUrls.label'"></label>
     <div class="flex-grow">
         <ul class="well collection-list" data-bind="foreach: topologyDiscoveryUrls">
             <li>

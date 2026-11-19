@@ -13,6 +13,8 @@ import { useAsyncCallback } from "react-async-hook";
 import { documentSchemaUtils } from "components/pages/database/settings/documentSchema/documentSchemaUtils";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
 import { useServices } from "hooks/useServices";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface DocumentSchemaDeleteModalProps {
     collectionName?: string;
@@ -37,6 +39,7 @@ export default function DocumentSchemaDeleteModal({
     selectedCollectionNames,
     onHide,
 }: DocumentSchemaDeleteModalProps) {
+    const t = useStudioTranslation("documentSchema");
     const { databasesService } = useServices();
     const dispatch = useAppDispatch();
     const validatorsAll = useAppSelector(documentSchemaSelectors.allValidators);
@@ -73,13 +76,19 @@ export default function DocumentSchemaDeleteModal({
                 </div>
                 <div className="text-center lead">
                     {isBulk ? (
-                        <>
-                            Delete schemas for <b>{namesToDelete.length}</b> collections?
-                        </>
+                        <StudioTrans
+                            ns="documentSchema"
+                            i18nKey="deleteModal.titleBulk"
+                            components={{ b: <b /> }}
+                            options={{ count: namesToDelete.length }}
+                        />
                     ) : (
-                        <>
-                            Delete schema for <b>{namesToDelete[0]}</b>?
-                        </>
+                        <StudioTrans
+                            ns="documentSchema"
+                            i18nKey="deleteModal.title"
+                            components={{ b: <b /> }}
+                            options={{ name: namesToDelete[0] }}
+                        />
                     )}
                 </div>
             </Modal.Header>
@@ -87,21 +96,20 @@ export default function DocumentSchemaDeleteModal({
                 <div className="text-center">
                     {isBulk ? (
                         <>
-                            This action will permanently delete the JSON schemas for the selected collections. This
-                            cannot be undone.
-                            <br /> <p className="mt-3 mb-0">Are you sure you want to proceed?</p>
+                            {t("deleteModal.messageBulk")}
+                            <br /> <p className="mt-3 mb-0">{t("deleteModal.confirmQuestion")}</p>
                         </>
                     ) : (
                         <>
-                            This action will permanently delete the JSON schema for the {namesToDelete[0]} collection.
-                            This cannot be undone. <br /> <p className="mt-3 mb-0">Are you sure you want to proceed?</p>
+                            {t("deleteModal.message", { name: namesToDelete[0] })} <br />{" "}
+                            <p className="mt-3 mb-0">{t("deleteModal.confirmQuestion")}</p>
                         </>
                     )}
                 </div>
             </Modal.Body>
             <Modal.Footer className="mt-4">
                 <Button className="link-muted" variant="link" onClick={onHide} type="button">
-                    Close
+                    {t("deleteModal.close")}
                 </Button>
                 <ButtonWithSpinner
                     className="rounded-pill"
@@ -109,9 +117,9 @@ export default function DocumentSchemaDeleteModal({
                     icon="trash"
                     isSpinning={asyncSaveValidators.loading}
                     onClick={onDelete}
-                    title={isBulk ? "Delete schemas" : "Delete schema"}
+                    title={isBulk ? t("deleteModal.deleteSchemas") : t("deleteModal.deleteSchema")}
                 >
-                    {isBulk ? "Delete schemas" : "Delete schema"}
+                    {isBulk ? t("deleteModal.deleteSchemas") : t("deleteModal.deleteSchema")}
                 </ButtonWithSpinner>
             </Modal.Footer>
         </Modal>

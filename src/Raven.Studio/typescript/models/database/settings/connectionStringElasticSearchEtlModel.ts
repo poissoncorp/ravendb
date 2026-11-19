@@ -10,18 +10,23 @@ import forge = require("node-forge");
 import certificateUtils = require("common/certificateUtils");
 import messagePublisher = require("common/messagePublisher");
 import testElasticSearchNodeConnectionCommand = require("commands/database/cluster/testElasticSearchNodeConnectionCommand");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("settingsModels");
 
 type authenticationMethod = "none" | "basic" | "apiKey" | "encodedApiKey" | "certificate";
 
 class authenticationInfo {
 
-    static authProviders: Array<valueAndLabelItem<authenticationMethod, string>> = [
-        { value: "none", label: "No authentication" },
-        { value: "basic", label: "Basic" },
-        { value: "apiKey",label: "API Key" },
-        { value: "encodedApiKey",label: "Encoded API Key" },
-        { value: "certificate", label: "Certificate" }
-    ];
+    static get authProviders(): Array<valueAndLabelItem<authenticationMethod, string>> {
+        return [
+            { value: "none", label: t("elasticSearch.auth.none") },
+            { value: "basic", label: t("elasticSearch.auth.basic") },
+            { value: "apiKey", label: t("elasticSearch.auth.apiKey") },
+            { value: "encodedApiKey", label: t("elasticSearch.auth.encodedApiKey") },
+            { value: "certificate", label: t("elasticSearch.auth.certificate") }
+        ];
+    }
     
     authMethodUsed = ko.observable<authenticationMethod>();
     
@@ -133,7 +138,7 @@ class authenticationInfo {
             validation: [
                 {
                     validator: () => this.authMethodUsed() !== "certificate" || this.certificates().length > 0,
-                    message: `Certificate not uploaded`
+                    message: t("elasticSearch.certificateNotUploaded")
                 }
             ]
         });
@@ -201,7 +206,7 @@ class authenticationInfo {
                     this.certificates.push(certificateModel);
                 });
             } catch ($ex1) {
-                messagePublisher.reportError("Unable to upload certificate", $ex1);
+                messagePublisher.reportError(t("elasticSearch.uploadCertificateFailed"), $ex1);
             }
             
         } catch {
@@ -211,7 +216,7 @@ class authenticationInfo {
                 const certificateModel = new replicationCertificateModel(data);
                 this.certificates.push(certificateModel);
             } catch ($ex2) {
-                messagePublisher.reportError("Unable to upload certificate", $ex2);
+                messagePublisher.reportError(t("elasticSearch.uploadCertificateFailed"), $ex2);
             }
         }
     }
@@ -258,7 +263,7 @@ class connectionStringElasticSearchEtlModel extends connectionStringModel {
             validation: [
                 {
                     validator: () => this.nodesUrls().length > 0,
-                    message: "At least one Elasticsearch node URL is required. Enter URL and click Add."
+                    message: t("elasticSearch.nodeUrlRequired")
                 }
             ]
         });

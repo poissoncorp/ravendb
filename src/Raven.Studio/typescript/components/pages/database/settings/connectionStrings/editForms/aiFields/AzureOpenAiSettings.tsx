@@ -20,8 +20,11 @@ import { useAsyncDebounce } from "components/hooks/useAsyncDebounce";
 import { SelectOption } from "components/common/select/Select";
 import TemperatureField from "./TemperatureField";
 import PromptCacheField from "./PromptCacheField";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function AzureOpenAiSettings({ isUsedByAnyTask }: { isUsedByAnyTask: boolean }) {
+    const t = useStudioTranslation("connectionStrings");
     const { control, trigger } = useFormContext<ConnectionFormData<AiConnection>>();
     const { tasksService } = useServices();
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
@@ -83,8 +86,8 @@ export default function AzureOpenAiSettings({ isUsedByAnyTask }: { isUsedByAnyTa
         <>
             <div className="mb-2">
                 <FormLabel>
-                    API Key
-                    <PopoverWithHoverWrapper message="The API key used to authenticate requests to the Azure OpenAI service.">
+                    {t("ai.apiKeyLabel")}
+                    <PopoverWithHoverWrapper message={t("ai.azureOpenAi.apiKeyInfo")}>
                         <Icon icon="info" color="info" id="apiKey" margin="ms-1" />
                     </PopoverWithHoverWrapper>
                 </FormLabel>
@@ -93,8 +96,8 @@ export default function AzureOpenAiSettings({ isUsedByAnyTask }: { isUsedByAnyTa
             </div>
             <div className="mb-2">
                 <FormLabel>
-                    Endpoint
-                    <PopoverWithHoverWrapper message="The Azure OpenAI endpoint for generating responses.">
+                    {t("ai.endpointLabel")}
+                    <PopoverWithHoverWrapper message={t("ai.azureOpenAi.endpointInfo")}>
                         <Icon icon="info" color="info" id="endpoint" margin="ms-1" />
                     </PopoverWithHoverWrapper>
                 </FormLabel>
@@ -103,8 +106,8 @@ export default function AzureOpenAiSettings({ isUsedByAnyTask }: { isUsedByAnyTa
             </div>
             <div className="mb-2">
                 <FormLabel>
-                    Model
-                    <PopoverWithHoverWrapper message="The Azure OpenAI model to use.">
+                    {t("ai.modelLabel")}
+                    <PopoverWithHoverWrapper message={t("ai.azureOpenAi.modelInfo")}>
                         <Icon icon="info" color="info" id="model" margin="ms-1" />
                     </PopoverWithHoverWrapper>
                 </FormLabel>
@@ -112,23 +115,26 @@ export default function AzureOpenAiSettings({ isUsedByAnyTask }: { isUsedByAnyTa
                     control={control}
                     name="azureOpenAiSettings.model"
                     isDisabled={isUsedByAnyTask}
-                    placeholder="Select a model or enter a new one (provide API key and Endpoint to see available models)"
+                    placeholder={t("ai.azureOpenAi.modelPlaceholder")}
                     options={asyncGetModelOptions.result ?? []}
                     isLoading={asyncGetModelOptions.loading}
                 />
             </div>
             <div className="mb-2">
                 <FormLabel>
-                    Deployment Name
+                    {t("ai.azureOpenAi.deploymentNameLabel")}
                     <PopoverWithHoverWrapper
                         message={
-                            <>
-                                The name of the deployed Azure OpenAI model to use.
-                                <br />
-                                <a href="https://learn.microsoft.com/azure/cognitive-services/openai/how-to/create-resource">
-                                    Learn more
-                                </a>
-                            </>
+                            <StudioTrans
+                                ns="connectionStrings"
+                                i18nKey="ai.azureOpenAi.deploymentNameInfo"
+                                components={{
+                                    br: <br />,
+                                    a: (
+                                        <a href="https://learn.microsoft.com/azure/cognitive-services/openai/how-to/create-resource" />
+                                    ),
+                                }}
+                            />
                         }
                     >
                         <Icon icon="info" color="info" id="deploymentName" margin="ms-1" />
@@ -139,14 +145,14 @@ export default function AzureOpenAiSettings({ isUsedByAnyTask }: { isUsedByAnyTa
             {formValues.modelType === "TextEmbeddings" && (
                 <div className="mb-2">
                     <FormLabel>
-                        Dimensions <OptionalLabel />
+                        {t("ai.dimensionsLabel")} <OptionalLabel />
                         <PopoverWithHoverWrapper
                             message={
-                                <>
-                                    The number of dimensions for the output embeddings.
-                                    <br />
-                                    Supported only in &quot;text-embedding-3&quot; and later models.
-                                </>
+                                <StudioTrans
+                                    ns="connectionStrings"
+                                    i18nKey="ai.azureOpenAi.dimensionsInfo"
+                                    components={{ br: <br /> }}
+                                />
                             }
                         >
                             <Icon icon="info" color="info" id="dimensions" margin="ms-1" />
@@ -173,7 +179,7 @@ export default function AzureOpenAiSettings({ isUsedByAnyTask }: { isUsedByAnyTa
                     onClick={asyncTest.execute}
                     isSpinning={asyncTest.loading}
                 >
-                    Test connection
+                    {t("form.testConnection")}
                 </ButtonWithSpinner>
             </div>
             {asyncTest.result && <ConnectionTestResult testResult={asyncTest.result} />}

@@ -11,12 +11,14 @@ import { useAppSelector } from "components/store";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
 import DatabaseCustomSorterTestResult from "components/pages/database/settings/customSorters/DatabaseCustomSorterTestResult";
 import { FormLabel } from "components/common/Form";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface DatabaseCustomSorterTestProps {
     name: string;
 }
 
 export default function DatabaseCustomSorterTest({ name }: DatabaseCustomSorterTestProps) {
+    const t = useStudioTranslation("customSorters");
     const db = useAppSelector(databaseSelectors.activeDatabase);
 
     const { databasesService } = useServices();
@@ -56,10 +58,10 @@ export default function DatabaseCustomSorterTest({ name }: DatabaseCustomSorterT
                 icon="play"
                 isSpinning={asyncTest.loading}
             >
-                Run test
+                {t("test.runButton")}
             </ButtonWithSpinner>
             <InputGroup className="vstack">
-                <FormLabel>Enter test RQL:</FormLabel>
+                <FormLabel>{t("test.rqlLabel")}</FormLabel>
                 <AceEditor
                     value={testRql}
                     onChange={setTestRql}

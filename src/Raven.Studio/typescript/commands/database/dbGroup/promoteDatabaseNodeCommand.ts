@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("dbGroupCommands");
 
 type PromoteImmediatelyResultDto = Pick<
     Raven.Client.ServerWide.Operations.DatabasePutResult,
@@ -20,7 +23,7 @@ class promoteDatabaseNodeCommand extends commandBase {
         const url = endpoints.global.adminDatabases.adminDatabasesPromote + this.urlEncodeArgs(args);
 
         return this.post<PromoteImmediatelyResultDto>(url, null, null).fail((response: JQueryXHR) =>
-            this.reportError("Failed to promote node " + this.nodeTag, response.responseText, response.statusText)
+            this.reportError(t("promoteNodeFailed", { nodeTag: this.nodeTag }), response.responseText, response.statusText)
         );
     }
 }

@@ -33,6 +33,8 @@ import Button from "react-bootstrap/Button";
 import forge = require("node-forge");
 import { connectionStringSelectors } from "../store/connectionStringsSlice";
 import { ConnectionStringsNameContext, connectionStringsUtils } from "../connectionStringsUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTranslate } from "common/i18n/resources";
 
 type FormData = ConnectionFormData<ElasticSearchConnection>;
 
@@ -45,6 +47,7 @@ export default function ElasticSearchConnectionString({
     isForNewConnection,
     onSave,
 }: ElasticSearchStringProps) {
+    const t = useStudioTranslation("connectionStrings");
     const usedNames = useAppSelector(connectionStringSelectors.connections)["ElasticSearch"].map((x) => x.name);
     const isServerWide = useAppSelector(connectionStringSelectors.isServerWide);
 
@@ -82,14 +85,14 @@ export default function ElasticSearchConnectionString({
 
                 setValue("certificatesBase64", [...currentCertificates, ...extractBase64s]);
             } catch ($ex1) {
-                messagePublisher.reportError("Unable to upload certificate", $ex1);
+                messagePublisher.reportError(t("elasticSearch.uploadCertificateError"), $ex1);
             }
         } catch {
             // *** Handle crt/cer ***
             try {
                 setValue("certificatesBase64", [...currentCertificates, certificateUtils.extractBase64(data)]);
             } catch ($ex2) {
-                messagePublisher.reportError("Unable to upload certificate", $ex2);
+                messagePublisher.reportError(t("elasticSearch.uploadCertificateError"), $ex2);
             }
         }
     };
@@ -113,18 +116,18 @@ export default function ElasticSearchConnectionString({
     return (
         <Form id="connection-string-form" onSubmit={handleSubmit(handleSave)} className="vstack gap-3">
             <div className="mb-2">
-                <FormLabel>Name</FormLabel>
+                <FormLabel>{t("form.nameLabel")}</FormLabel>
                 <FormInput
                     control={control}
                     name="name"
                     type="text"
-                    placeholder="Enter a name for the connection string"
+                    placeholder={t("form.namePlaceholder")}
                     disabled={!isForNewConnection}
                     autoComplete="off"
                 />
             </div>
             <div className="mb-2">
-                <FormLabel>Nodes URLs</FormLabel>
+                <FormLabel>{t("elasticSearch.nodesUrlsLabel")}</FormLabel>
                 <div className="vstack gap-3">
                     {formState.errors?.nodes?.message && (
                         <div className="text-danger small">{formState.errors.nodes.message}</div>
@@ -143,38 +146,38 @@ export default function ElasticSearchConnectionString({
                 </div>
                 <Button variant="info" className="mt-4" onClick={() => urlFieldArray.append({ url: null })}>
                     <Icon icon="plus" />
-                    Add URL
+                    {t("elasticSearch.addUrl")}
                 </Button>
             </div>
             <div className="mb-2">
-                <FormLabel>Authentication</FormLabel>
+                <FormLabel>{t("form.authenticationLabel")}</FormLabel>
                 <FormSelect
                     name="authMethodUsed"
                     control={control}
-                    placeholder="Select an authentication option"
-                    options={authenticationOptions}
+                    placeholder={t("form.authenticationPlaceholder")}
+                    options={getAuthenticationOptions(t)}
                     isSearchable={false}
                 />
             </div>
             {formValues.authMethodUsed === "Basic" && (
                 <div className="vstack gap-3">
                     <div className="mb-2">
-                        <FormLabel>Username</FormLabel>
+                        <FormLabel>{t("elasticSearch.usernameLabel")}</FormLabel>
                         <FormInput
                             control={control}
                             name="username"
                             type="text"
-                            placeholder="Enter a username"
+                            placeholder={t("elasticSearch.usernamePlaceholder")}
                             autoComplete="off"
                         />
                     </div>
                     <div className="mb-2">
-                        <FormLabel>Password</FormLabel>
+                        <FormLabel>{t("elasticSearch.passwordLabel")}</FormLabel>
                         <FormInput
                             control={control}
                             name="password"
                             type="password"
-                            placeholder="Enter a password"
+                            placeholder={t("elasticSearch.passwordPlaceholder")}
                             autoComplete="off"
                         />
                     </div>
@@ -183,22 +186,22 @@ export default function ElasticSearchConnectionString({
             {formValues.authMethodUsed === "API Key" && (
                 <div className="vstack gap-3">
                     <div className="mb-2">
-                        <FormLabel>API Key ID</FormLabel>
+                        <FormLabel>{t("elasticSearch.apiKeyIdLabel")}</FormLabel>
                         <FormInput
                             control={control}
                             name="apiKeyId"
                             type="text"
-                            placeholder="Enter an API Key ID"
+                            placeholder={t("elasticSearch.apiKeyIdPlaceholder")}
                             autoComplete="off"
                         />
                     </div>
                     <div className="mb-2">
-                        <FormLabel>API Key</FormLabel>
+                        <FormLabel>{t("elasticSearch.apiKeyLabel")}</FormLabel>
                         <FormInput
                             control={control}
                             name="apiKey"
                             type="text"
-                            placeholder="Enter an API Key"
+                            placeholder={t("elasticSearch.apiKeyPlaceholder")}
                             autoComplete="off"
                         />
                     </div>
@@ -206,24 +209,24 @@ export default function ElasticSearchConnectionString({
             )}
             {formValues.authMethodUsed === "Encoded API Key" && (
                 <div className="mb-2">
-                    <FormLabel>Encoded API Key</FormLabel>
+                    <FormLabel>{t("elasticSearch.encodedApiKeyLabel")}</FormLabel>
                     <FormInput
                         control={control}
                         name="encodedApiKey"
                         type="text"
-                        placeholder="Enter an encoded API Key"
+                        placeholder={t("elasticSearch.encodedApiKeyPlaceholder")}
                         autoComplete="off"
                     />
                 </div>
             )}
             {formValues.authMethodUsed === "Certificate" && (
                 <div className="mb-2">
-                    <FormLabel>Certificate file</FormLabel>
+                    <FormLabel>{t("elasticSearch.certificateFileLabel")}</FormLabel>
                     {isUploadCertificateVisible && (
                         <div>
                             <FormLabel className="btn btn-primary">
                                 <Icon icon="upload" />
-                                Upload existing certificate
+                                {t("elasticSearch.uploadCertificate")}
                                 <input
                                     type="file"
                                     className="d-none"
@@ -271,6 +274,7 @@ interface NodeUrlProps {
 }
 
 function NodeUrl({ idx, control, formValues, isDeleteButtonVisible, onDelete, trigger }: NodeUrlProps) {
+    const t = useStudioTranslation("connectionStrings");
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const isServerWide = useAppSelector(connectionStringSelectors.isServerWide);
     const { tasksService } = useServices();
@@ -291,16 +295,16 @@ function NodeUrl({ idx, control, formValues, isDeleteButtonVisible, onDelete, tr
     return (
         <div className="vstack mb-2 gap-1">
             <FormLabel className="mb-0 d-flex align-items-center gap-1">
-                <span className="small-label mb-0">URL #{idx + 1}</span>
+                <span className="small-label mb-0">{t("form.urlNumber", { number: idx + 1 })}</span>
                 {asyncTest.result?.Success ? (
                     <Badge bg="success" pill>
                         <Icon icon="check" />
-                        Successfully connected
+                        {t("form.successfullyConnected")}
                     </Badge>
                 ) : asyncTest.result?.Error ? (
                     <Badge bg="danger" pill>
                         <Icon icon="warning" />
-                        Failed connection
+                        {t("form.failedConnection")}
                     </Badge>
                 ) : null}
             </FormLabel>
@@ -314,7 +318,7 @@ function NodeUrl({ idx, control, formValues, isDeleteButtonVisible, onDelete, tr
                 />
                 {isDeleteButtonVisible && (
                     <Button variant="danger" onClick={onDelete} disabled={asyncTest.loading}>
-                        <Icon icon="trash" margin="m-0" title="Delete URL" />
+                        <Icon icon="trash" margin="m-0" title={t("form.deleteUrl")} />
                     </Button>
                 )}
                 <ButtonWithSpinner
@@ -323,10 +327,10 @@ function NodeUrl({ idx, control, formValues, isDeleteButtonVisible, onDelete, tr
                     isSpinning={asyncTest.loading}
                     icon={{
                         icon: "rocket",
-                        title: "Test connection",
+                        title: t("form.testConnection"),
                     }}
                 >
-                    Test connection
+                    {t("form.testConnection")}
                 </ButtonWithSpinner>
             </div>
             {asyncTest.result?.Error && (
@@ -338,16 +342,26 @@ function NodeUrl({ idx, control, formValues, isDeleteButtonVisible, onDelete, tr
     );
 }
 
-const authenticationOptions: SelectOption[] = exhaustiveStringTuple<ElasticSearchAuthenticationMethod>()(
-    "No authentication",
-    "Basic",
-    "API Key",
-    "Encoded API Key",
-    "Certificate"
-).map((type: any) => ({
-    value: type,
-    label: type,
-}));
+function getAuthenticationOptions(t: StudioTranslate<"connectionStrings">): SelectOption[] {
+    const labels: Record<ElasticSearchAuthenticationMethod, string> = {
+        "No authentication": t("elasticSearch.auth.none"),
+        Basic: t("elasticSearch.auth.basic"),
+        "API Key": t("elasticSearch.auth.apiKey"),
+        "Encoded API Key": t("elasticSearch.auth.encodedApiKey"),
+        Certificate: t("elasticSearch.auth.certificate"),
+    };
+
+    return exhaustiveStringTuple<ElasticSearchAuthenticationMethod>()(
+        "No authentication",
+        "Basic",
+        "API Key",
+        "Encoded API Key",
+        "Certificate"
+    ).map((type: ElasticSearchAuthenticationMethod) => ({
+        value: type,
+        label: labels[type],
+    }));
+}
 
 const schema = yupObjectSchema<FormData>({
     name: connectionStringsUtils.nameSchema,

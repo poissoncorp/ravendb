@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("settingsCommands");
 
 class saveDatabaseSettingsCommand extends commandBase {
    
@@ -13,8 +16,8 @@ class saveDatabaseSettingsCommand extends commandBase {
         const url = endpoints.global.adminConfiguration.adminConfigurationSettings;
         
         return this.put<void>(url, JSON.stringify(this.settingsToSave), this.db, { dataType: undefined })
-            .done(() => this.reportSuccess("Database Settings were saved successfully"))
-            .fail((response: JQueryXHR) => this.reportError("Failed to save Database Settings", response.responseText, response.statusText));
+            .done(() => this.reportSuccess(t("saveDatabaseSettingsSucceeded")))
+            .fail((response: JQueryXHR) => this.reportError(t("saveDatabaseSettingsFailed"), response.responseText, response.statusText));
     }
 }
 

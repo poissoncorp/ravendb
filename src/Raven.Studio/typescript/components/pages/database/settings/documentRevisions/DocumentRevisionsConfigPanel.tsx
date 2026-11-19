@@ -25,6 +25,9 @@ import { useEventsCollector } from "components/hooks/useEventsCollector";
 import generalUtils from "common/generalUtils";
 import { accessManagerSelectors } from "components/common/shell/accessManagerSliceSelectors";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import type { StudioTranslate } from "common/i18n/resources";
 
 interface DocumentRevisionsConfigPanelProps {
     config: DocumentRevisionsConfig;
@@ -35,6 +38,7 @@ interface DocumentRevisionsConfigPanelProps {
 
 export default function DocumentRevisionsConfigPanel(props: DocumentRevisionsConfigPanelProps) {
     const { config, onDelete, onToggle, onEdit } = props;
+    const t = useStudioTranslation("documentRevisions");
 
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
     const dispatch = useAppDispatch();
@@ -59,7 +63,7 @@ export default function DocumentRevisionsConfigPanel(props: DocumentRevisionsCon
         <RichPanel className="flex-row with-status">
             <RichPanelStatus color={config.Disabled ? "warning" : "success"}>
                 <div className={classNames({ "my-1": !isDetailsVisible })}>
-                    {config.Disabled ? "Disabled" : "Enabled"}
+                    {config.Disabled ? t("panel.statusDisabled") : t("panel.statusEnabled")}
                 </div>
             </RichPanelStatus>
             <div className="flex-grow-1">
@@ -76,7 +80,7 @@ export default function DocumentRevisionsConfigPanel(props: DocumentRevisionsCon
                             </RichPanelSelect>
                         )}
                         <RichPanelName>
-                            {config.Name}
+                            {getConfigNameLabel(config.Name, t)}
                             {isModified && <span className="text-warning ms-1">*</span>}
                         </RichPanelName>
                     </RichPanelInfo>
@@ -87,15 +91,13 @@ export default function DocumentRevisionsConfigPanel(props: DocumentRevisionsCon
                                 <Button
                                     variant={config.Disabled ? "success" : "secondary"}
                                     onClick={onToggle}
-                                    title={`Click to ${
-                                        config.Disabled ? "enable" : "disable"
-                                    } this revision configuration`}
+                                    title={t("panel.toggleTitle", { context: config.Disabled ? "enable" : "disable" })}
                                 >
                                     <Icon icon={config.Disabled ? "start" : "disable"} />
-                                    {config.Disabled ? "Enable" : "Disable"}
+                                    {config.Disabled ? t("panel.enable") : t("panel.disable")}
                                 </Button>
 
-                                <Button variant="secondary" onClick={onEdit} title="Edit this revision configuration">
+                                <Button variant="secondary" onClick={onEdit} title={t("panel.editTitle")}>
                                     <Icon icon="edit" margin="m-0" />
                                 </Button>
                                 {onDelete && (
@@ -105,7 +107,7 @@ export default function DocumentRevisionsConfigPanel(props: DocumentRevisionsCon
                                             reportEvent("revisions", "remove");
                                             onDelete();
                                         }}
-                                        title="Delete this revision configuration"
+                                        title={t("panel.deleteTitle")}
                                     >
                                         <Icon icon="trash" margin="m-0" />
                                     </Button>
@@ -119,7 +121,7 @@ export default function DocumentRevisionsConfigPanel(props: DocumentRevisionsCon
                         {config.PurgeOnDelete && (
                             <RichPanelDetailItem>
                                 <Icon icon="empty-set" />
-                                Purge revisions on document delete
+                                {t("panel.purgeOnDelete")}
                             </RichPanelDetailItem>
                         )}
                         {config.MinimumRevisionsToKeep && (
@@ -127,11 +129,11 @@ export default function DocumentRevisionsConfigPanel(props: DocumentRevisionsCon
                                 label={
                                     <>
                                         <Icon icon="documents" />
-                                        Keep
+                                        {t("panel.keepLabel")}
                                     </>
                                 }
                             >
-                                {config.MinimumRevisionsToKeep} revisions
+                                {t("panel.revisionsCount", { count: config.MinimumRevisionsToKeep })}
                             </RichPanelDetailItem>
                         )}
                         {formattedMinimumRevisionAgeToKeep && (
@@ -139,7 +141,7 @@ export default function DocumentRevisionsConfigPanel(props: DocumentRevisionsCon
                                 label={
                                     <>
                                         <Icon icon="clock" />
-                                        Retention time
+                                        {t("panel.retentionTimeLabel")}
                                     </>
                                 }
                             >
@@ -151,11 +153,13 @@ export default function DocumentRevisionsConfigPanel(props: DocumentRevisionsCon
                                 label={
                                     <>
                                         <Icon icon="trash" />
-                                        Delete on update
+                                        {t("panel.deleteOnUpdateLabel")}
                                     </>
                                 }
                             >
-                                {config.MaximumRevisionsToDeleteUponDocumentUpdate} revisions
+                                {t("panel.revisionsCount", {
+                                    count: config.MaximumRevisionsToDeleteUponDocumentUpdate,
+                                })}
                             </RichPanelDetailItem>
                         )}
                     </RichPanelDetails>
@@ -165,7 +169,19 @@ export default function DocumentRevisionsConfigPanel(props: DocumentRevisionsCon
     );
 }
 
+function getConfigNameLabel(name: DocumentRevisionsConfigName, t: StudioTranslate<"documentRevisions">): string {
+    switch (name) {
+        case documentRevisionsConfigNames.defaultDocument:
+            return t("configNames.defaultDocument");
+        case documentRevisionsConfigNames.defaultConflicts:
+            return t("configNames.defaultConflicts");
+        default:
+            return name;
+    }
+}
+
 function DefaultConfigInfoIcon({ name }: { name: DocumentRevisionsConfigName }) {
+    const t = useStudioTranslation("documentRevisions");
     const isDefault =
         name === documentRevisionsConfigNames.defaultDocument || name === documentRevisionsConfigNames.defaultConflicts;
 
@@ -181,26 +197,38 @@ function DefaultConfigInfoIcon({ name }: { name: DocumentRevisionsConfigName }) 
                     {name === documentRevisionsConfigNames.defaultConflicts ? (
                         <>
                             <li>
-                                This is the default revision configuration for
-                                <strong> conflicting documents only</strong>.
+                                <StudioTrans
+                                    ns="documentRevisions"
+                                    i18nKey="panel.conflictsInfo.intro"
+                                    components={{ strong: <strong /> }}
+                                />
                             </li>
-                            <li>When enabled, a revision is created for each conflicting item.</li>
-                            <li>A revision is also created for the conflict resolution document.</li>
+                            <li>{t("panel.conflictsInfo.createdItem")}</li>
+                            <li>{t("panel.conflictsInfo.resolutionItem")}</li>
                             <li>
-                                When Document Defaults or a collection-specific configuration is defined, they{" "}
-                                <strong>override</strong> the Conflicting Document Defaults.
+                                <StudioTrans
+                                    ns="documentRevisions"
+                                    i18nKey="panel.conflictsInfo.overrideItem"
+                                    components={{ strong: <strong /> }}
+                                />
                             </li>
                         </>
                     ) : (
                         <>
                             <li>
-                                This is the default revision configuration for all
-                                <strong> non-conflicting documents</strong>.
+                                <StudioTrans
+                                    ns="documentRevisions"
+                                    i18nKey="panel.documentInfo.intro"
+                                    components={{ strong: <strong /> }}
+                                />
                             </li>
-                            <li>When enabled, a revision is created for all non-conflicting documents.</li>
+                            <li>{t("panel.documentInfo.createdItem")}</li>
                             <li>
-                                When a collection specific configuration is defined, it <strong>overrides</strong> these
-                                defaults.
+                                <StudioTrans
+                                    ns="documentRevisions"
+                                    i18nKey="panel.documentInfo.overrideItem"
+                                    components={{ strong: <strong /> }}
+                                />
                             </li>
                         </>
                     )}

@@ -40,6 +40,8 @@ import activeDatabaseTracker from "common/shell/activeDatabaseTracker";
 import Button from "react-bootstrap/Button";
 import { ConditionalPopover } from "components/common/ConditionalPopover";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface EditRevisionData {
     onConfirm: (config: DocumentRevisionsConfig) => void;
@@ -50,6 +52,8 @@ interface EditRevisionData {
 }
 
 export default function DocumentRevisions() {
+    const t = useStudioTranslation("documentRevisions");
+    const commonT = useStudioTranslation("common");
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
 
@@ -72,6 +76,33 @@ export default function DocumentRevisions() {
 
     const { appUrl } = useAppUrls();
     const activeDatabaseName = useAppSelector(databaseSelectors.activeDatabaseName);
+
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("featureAvailability.defaultPolicy"),
+            featureIcon: "default",
+            community: { value: false },
+            professional: { value: true },
+            enterprise: { value: true },
+            quill: { value: true },
+        },
+        {
+            featureName: t("featureAvailability.maxRevisionsToKeep"),
+            featureIcon: "revisions",
+            community: { value: 2 },
+            professional: { value: Infinity },
+            enterprise: { value: Infinity },
+            quill: { value: Infinity },
+        },
+        {
+            featureName: t("featureAvailability.maxRetentionTime"),
+            featureIcon: "clock",
+            community: { value: 45 },
+            professional: { value: Infinity },
+            enterprise: { value: Infinity },
+            quill: { value: Infinity },
+        },
+    ];
 
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
@@ -120,7 +151,7 @@ export default function DocumentRevisions() {
         ];
 
         await Promise.all(promises);
-        messagePublisher.reportSuccess("Revisions configuration has been saved");
+        messagePublisher.reportSuccess(t("saveSuccess"));
 
         dispatch(documentRevisionsActions.configsSaved());
     });
@@ -159,12 +190,7 @@ export default function DocumentRevisions() {
     }
 
     if (loadStatus === "failure") {
-        return (
-            <LoadError
-                error="Unable to load document revisions"
-                refresh={() => documentRevisionsActions.fetchConfigs(databaseName)}
-            />
-        );
+        return <LoadError error={t("loadError")} refresh={() => documentRevisionsActions.fetchConfigs(databaseName)} />;
     }
 
     return (
@@ -180,7 +206,7 @@ export default function DocumentRevisions() {
             <Col xxl={12}>
                 <Row className="gy-sm">
                     <Col>
-                        <AboutViewHeading title="Document Revisions" icon="revisions" marginBottom={2} />
+                        <AboutViewHeading title={t("title")} icon="revisions" marginBottom={2} />
 
                         {hasDatabaseAdminAccess && (
                             <StickyHeader>
@@ -193,20 +219,18 @@ export default function DocumentRevisions() {
                                             onClick={asyncSaveConfigs.execute}
                                             isSpinning={asyncSaveConfigs.status === "loading"}
                                         >
-                                            Save
+                                            {commonT("save")}
                                         </ButtonWithSpinner>
                                         <FlexGrow />
-                                        <PopoverWithHoverWrapper message="Revert documents to their revisions at a specific point in time">
+                                        <PopoverWithHoverWrapper message={t("revertRevisionsPopover")}>
                                             <a className="btn btn-secondary" href={urls.revertRevisions()}>
                                                 <Icon icon="revert-revisions" />
-                                                Revert revisions
+                                                {t("revertRevisions")}
                                             </a>
                                         </PopoverWithHoverWrapper>
                                         <PopoverWithHoverWrapper
                                             message={
-                                                isSaveDisabled
-                                                    ? "Enforce the defined revisions configuration on all documents per collection"
-                                                    : "Save current configuration before enforcing"
+                                                isSaveDisabled ? t("enforcePopover") : t("enforceSaveFirstPopover")
                                             }
                                         >
                                             <ButtonWithSpinner
@@ -216,7 +240,7 @@ export default function DocumentRevisions() {
                                                 isSpinning={asyncEnforceRevisionsConfiguration.status === "loading"}
                                             >
                                                 <Icon icon="rocket" />
-                                                Enforce configuration
+                                                {t("enforceButton")}
                                             </ButtonWithSpinner>
                                         </PopoverWithHoverWrapper>
                                     </div>
@@ -234,7 +258,7 @@ export default function DocumentRevisions() {
                                         <ConditionalPopover
                                             conditions={{
                                                 isActive: !canSetupDefaultRevisionsConfiguration,
-                                                message: "Your license does not allow you to set up default policy.",
+                                                message: t("defaultPolicyLicensePopover"),
                                             }}
                                         >
                                             <div id="add-default-config-button">
@@ -242,7 +266,7 @@ export default function DocumentRevisions() {
                                                     variant="info"
                                                     size="sm"
                                                     className="rounded-pill"
-                                                    title="Create a default revision configuration for all (non-conflicting) documents"
+                                                    title={t("addDefaultTitle")}
                                                     onClick={() =>
                                                         onEditRevision({
                                                             taskType: "new",
@@ -254,7 +278,7 @@ export default function DocumentRevisions() {
                                                     disabled={!canSetupDefaultRevisionsConfiguration}
                                                 >
                                                     <Icon icon="plus" />
-                                                    Add new
+                                                    {t("addNew")}
                                                 </Button>
                                             </div>
                                         </ConditionalPopover>
@@ -262,7 +286,7 @@ export default function DocumentRevisions() {
                                 }
                             >
                                 <Icon icon="default" />
-                                Defaults
+                                {t("defaultsHeading")}
                             </HrHeader>
                             {defaultDocumentsConfig && (
                                 <DocumentRevisionsConfigPanel
@@ -309,7 +333,7 @@ export default function DocumentRevisions() {
                                             variant="info"
                                             size="sm"
                                             className="rounded-pill"
-                                            title="Create a revision configuration for a specific collection"
+                                            title={t("addCollectionTitle")}
                                             onClick={() =>
                                                 onEditRevision({
                                                     taskType: "new",
@@ -320,13 +344,13 @@ export default function DocumentRevisions() {
                                             }
                                         >
                                             <Icon icon="plus" />
-                                            Add new
+                                            {t("addNew")}
                                         </Button>
                                     ) : null
                                 }
                             >
                                 <Icon icon="documents" />
-                                Collections
+                                {t("collectionsHeading")}
                             </HrHeader>
                             {collectionConfigs.length > 0 ? (
                                 collectionConfigs.map((config) => (
@@ -349,7 +373,7 @@ export default function DocumentRevisions() {
                                     />
                                 ))
                             ) : (
-                                <EmptySet>No collection specific configuration has been defined</EmptySet>
+                                <EmptySet>{t("collectionsEmpty")}</EmptySet>
                             )}
                         </div>
                     </Col>
@@ -357,62 +381,70 @@ export default function DocumentRevisions() {
                         <AboutViewAnchored>
                             <AccordionItemWrapper targetId="1" icon="about" color="info">
                                 <p>
-                                    Creating <strong>Document Revisions</strong> allows keeping track of changes made to
-                                    a document over time.
+                                    <StudioTrans
+                                        ns="documentRevisions"
+                                        i18nKey="about.intro"
+                                        components={{ strong: <strong /> }}
+                                    />
                                 </p>
                                 <div>
-                                    A document revision will be created when:
+                                    {t("about.createdWhen")}
                                     <ul>
-                                        <li>
-                                            Revisions configuration is defined and enabled for the document&apos;s
-                                            collection.
-                                        </li>
-                                        <li>The document has been modified.</li>
+                                        <li>{t("about.configDefinedItem")}</li>
+                                        <li>{t("about.modifiedItem")}</li>
                                     </ul>
                                 </div>
                                 <div>
-                                    Define the revisions configuration in this view:
+                                    {t("about.defineInView")}
                                     <ul>
                                         <li>
-                                            Under section <strong>DEFAULTS</strong>:
-                                            <br />
-                                            Set default revisions configuration for all non-conflicting and conflicting
-                                            documents.
+                                            <StudioTrans
+                                                ns="documentRevisions"
+                                                i18nKey="about.defaultsItem"
+                                                components={{ strong: <strong />, br: <br /> }}
+                                            />
                                         </li>
                                         <li>
-                                            Under section <strong>COLLECTIONS</strong>:
-                                            <br />
-                                            Set revisions configuration for specific collections, overriding the
-                                            defaults.
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div>
-                                    This view also provides these options:
-                                    <ul>
-                                        <li>
-                                            <strong>Revert revisions</strong>:<br />
-                                            Revert documents to their revisions at a specific point in time.
-                                        </li>
-                                        <li>
-                                            <strong>Enforce configuration</strong>:<br />
-                                            Enforce the current configuration on all existing revisions in the database
-                                            per collection.
+                                            <StudioTrans
+                                                ns="documentRevisions"
+                                                i18nKey="about.collectionsItem"
+                                                components={{ strong: <strong />, br: <br /> }}
+                                            />
                                         </li>
                                     </ul>
                                 </div>
                                 <div>
-                                    All document revisions that are created are listed in the{" "}
-                                    <a href={appUrl.forAllRevisions(activeDatabaseName)} target="_blank">
-                                        {" "}
-                                        All Revisions{" "}
-                                    </a>{" "}
-                                    view.
+                                    {t("about.optionsIntro")}
+                                    <ul>
+                                        <li>
+                                            <StudioTrans
+                                                ns="documentRevisions"
+                                                i18nKey="about.revertItem"
+                                                components={{ strong: <strong />, br: <br /> }}
+                                            />
+                                        </li>
+                                        <li>
+                                            <StudioTrans
+                                                ns="documentRevisions"
+                                                i18nKey="about.enforceItem"
+                                                components={{ strong: <strong />, br: <br /> }}
+                                            />
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <StudioTrans
+                                        ns="documentRevisions"
+                                        i18nKey="about.allRevisions"
+                                        components={{
+                                            a: <a href={appUrl.forAllRevisions(activeDatabaseName)} target="_blank" />,
+                                        }}
+                                    />
                                 </div>
                                 <hr />
-                                <div className="small-label mb-2">useful links</div>
+                                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                                 <a href={documentRevisionsDocsLink} target="_blank">
-                                    <Icon icon="newtab" /> Docs - Document Revisions
+                                    <Icon icon="newtab" /> {t("about.docsLink")}
                                 </a>
                             </AccordionItemWrapper>
                             <FeatureAvailabilitySummaryWrapper
@@ -437,30 +469,3 @@ function mapToDto(
 ): Raven.Client.Documents.Operations.Revisions.RevisionsCollectionConfiguration {
     return config ? _.omit(config, "Name") : null;
 }
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "Default Policy",
-        featureIcon: "default",
-        community: { value: false },
-        professional: { value: true },
-        enterprise: { value: true },
-        quill: { value: true },
-    },
-    {
-        featureName: "Max revisions to keep",
-        featureIcon: "revisions",
-        community: { value: 2 },
-        professional: { value: Infinity },
-        enterprise: { value: Infinity },
-        quill: { value: Infinity },
-    },
-    {
-        featureName: "Max retention time (days)",
-        featureIcon: "clock",
-        community: { value: 45 },
-        professional: { value: Infinity },
-        enterprise: { value: Infinity },
-        quill: { value: Infinity },
-    },
-];

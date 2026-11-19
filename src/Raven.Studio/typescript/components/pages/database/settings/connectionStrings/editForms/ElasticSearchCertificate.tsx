@@ -5,6 +5,7 @@ import React from "react";
 import Card from "react-bootstrap/Card";
 import IconName from "typings/server/icons";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface ElasticSearchCertificateProps {
     certBase64: string;
@@ -12,12 +13,15 @@ interface ElasticSearchCertificateProps {
 }
 
 export default function ElasticSearchCertificate({ certBase64, onDelete }: ElasticSearchCertificateProps) {
+    const t = useStudioTranslation("connectionStrings");
     const certInfo = certificateUtils.extractCertificateInfo(certBase64);
 
     const expirationMoment = moment.utc(certInfo.expiration);
     const dateFormatted = expirationMoment.format("YYYY-MM-DD");
 
-    const expirationText = (expirationMoment.isBefore() ? "Expired " : "") + dateFormatted;
+    const expirationText = expirationMoment.isBefore()
+        ? t("elasticSearch.certificateExpired", { date: dateFormatted })
+        : dateFormatted;
     const expirationIcon: IconName = expirationMoment.isBefore() ? "danger" : "expiration";
     const expirationClass = expirationMoment.isBefore() ? "text-danger" : "";
 
@@ -39,14 +43,14 @@ export default function ElasticSearchCertificate({ certBase64, onDelete }: Elast
                 <div className="d-flex gap-1">
                     <div>
                         <Icon icon="clock" />
-                        Valid From
+                        {t("elasticSearch.certificateValidFrom")}
                     </div>
                     <strong>{validFromText}</strong>
                 </div>
                 <div className="d-flex gap-1">
                     <div>
                         <Icon icon={expirationIcon} />
-                        Expiration
+                        {t("elasticSearch.certificateExpiration")}
                     </div>
                     <strong className={expirationClass}>{expirationText}</strong>
                 </div>

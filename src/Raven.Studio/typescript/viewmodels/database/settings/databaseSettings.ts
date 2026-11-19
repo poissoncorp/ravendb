@@ -17,6 +17,10 @@ import genUtils = require("common/generalUtils");
 import messagePublisher = require("common/messagePublisher");
 import shardViewModelBase = require("viewmodels/shardViewModelBase");
 import typeUtils = require("common/typeUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("databaseSettings");
+const commonT = i18nModule.createTranslator("common");
 
 type viewModeType = "summaryMode" | "editMode";
 
@@ -160,7 +164,7 @@ class databaseSettings extends shardViewModelBase {
 
         categoriesGrid.init(() => this.fetchCategoriesData(), () =>
             [
-                new hyperlinkColumn<categoryInfo>(categoriesGrid, x => this.getCategoryHtml(x), () => appUrl.forDatabaseSettings(this.db), "Category", "90%",
+                new hyperlinkColumn<categoryInfo>(categoriesGrid, x => this.getCategoryHtml(x), () => appUrl.forDatabaseSettings(this.db), t("columns.category"), "90%",
                     {
                         useRawValue: () => true,
                         sortable: "string",
@@ -213,7 +217,7 @@ class databaseSettings extends shardViewModelBase {
         
         const namePart = `<div class="use-parent-action ${statePart}">${genUtils.escapeHtml(category.name())}</div>`;
         
-        const countPart = `<div class="use-parent-action label label-default customized-entries-label" title="Number of customized entries in category">
+        const countPart = `<div class="use-parent-action label label-default customized-entries-label" title="${genUtils.escapeHtml(t("customizedEntriesCountTitle"))}">
                                ${category.customizedEntriesCount()}
                            </div>`;
         
@@ -260,11 +264,11 @@ class databaseSettings extends shardViewModelBase {
         summaryGrid.init(() => this.fetchSummaryData(), () => {
             if (this.hasPendingValues()) {
                 return [
-                    new textColumn<models.settingsEntry>(summaryGrid, x => x.keyName(), "Configuration Key", "30%", {
+                    new textColumn<models.settingsEntry>(summaryGrid, x => x.keyName(), t("columns.configurationKey"), "30%", {
                         sortable: "string",
                         extraClass: x => x.entryClassForSummaryMode()
                     }),
-                    new textColumn<models.settingsEntry>(summaryGrid, x => x.effectiveValueInUseText(), "Effective Value in Use", "30%", {
+                    new textColumn<models.settingsEntry>(summaryGrid, x => x.effectiveValueInUseText(), t("columns.effectiveValueInUse"), "30%", {
                         sortable: "string",
                         useRawValue: (x) => !x.hasAccess() || x.isSecured(),
                         extraClass: (x) => {
@@ -274,18 +278,18 @@ class databaseSettings extends shardViewModelBase {
                             return "no-color";
                         }
                     }),
-                    new textColumn<models.settingsEntry>(summaryGrid, x => x.pendingValueText() , "Pending Value", "30%", {
+                    new textColumn<models.settingsEntry>(summaryGrid, x => x.pendingValueText() , t("columns.pendingValue"), "30%", {
                         sortable: "string",
                         extraClass: (x) => x.pendingValueText() ? "value-has-content" : ""
                     })
                 ]
             } else {
                 return [
-                    new textColumn<models.settingsEntry>(summaryGrid, x => x.keyName(), "Configuration Key", "30%", {
+                    new textColumn<models.settingsEntry>(summaryGrid, x => x.keyName(), t("columns.configurationKey"), "30%", {
                         sortable: "string",
                         extraClass: x => x.entryClassForSummaryMode()
                     }),
-                    new textColumn<models.settingsEntry>(summaryGrid, x => x.effectiveValue(), "Effective Value", "40%", {
+                    new textColumn<models.settingsEntry>(summaryGrid, x => x.effectiveValue(), t("columns.effectiveValue"), "40%", {
                         sortable: "string",
                         useRawValue: (x) => !x.hasAccess() || x.isSecured(),
                         extraClass: (x) => {
@@ -295,16 +299,16 @@ class databaseSettings extends shardViewModelBase {
                             return "no-color";
                         }
                     }),
-                    new textColumn<models.settingsEntry>(summaryGrid, x => x.effectiveValueOrigin(), "Origin", "20%", {
+                    new textColumn<models.settingsEntry>(summaryGrid, x => databaseSettings.getOriginText(x.effectiveValueOrigin()), t("columns.origin"), "20%", {
                         sortable: "string",
                         title: (x) => {
                             switch (x.effectiveValueOrigin()) {
                                 case "Database":
-                                    return "Value has been customized for the database, overriding the server & default settings";
+                                    return t("originTitle.database");
                                 case "Server":
-                                    return "Value has been customized for the server, overriding the default settings";
+                                    return t("originTitle.server");
                                 case "Default":
-                                    return "No customized value has been set";
+                                    return t("originTitle.default");
                             }
                         },
                         extraClass: (x) => {
@@ -332,12 +336,12 @@ class databaseSettings extends shardViewModelBase {
              column: textColumn<models.settingsEntry>,
              e: JQuery.TriggeredEvent,
              onValue: (context: any, valueToCopy?: string) => void) => {
-                if (column.header !== "Origin") {
+                if (column.header !== t("columns.origin")) {
                     const value = column.getCellValue(details);
                     if (value) {
-                        if (column.header.includes("Effective Value")) {
+                        if ([t("columns.effectiveValueInUse"), t("columns.effectiveValue")].includes(column.header)) {
                             if (!details.hasAccess()) {
-                                onValue("Unauthorized to access value!", "");
+                                onValue(genUtils.escapeHtml(t("entry.unauthorized")), "");
                                 return;
                             } else if (details.isSecured()) {
                                 onValue(models.settingsEntry.passwordBullets, "");
@@ -350,6 +354,17 @@ class databaseSettings extends shardViewModelBase {
             });
     }
     
+    private static getOriginText(origin: models.configurationOrigin): string {
+        switch (origin) {
+            case "Database":
+                return t("origin.database");
+            case "Server":
+                return t("origin.server");
+            case "Default":
+                return t("origin.default");
+        }
+    }
+
     private fetchSummaryData(): JQueryPromise<pagedResult<models.settingsEntry>> {
         const topEntries = this.allEntries().filter(entry => entry.showEntry() && entry.entryClassForSummaryMode() === "highlight-key").sort();
         const allOtherEntries = this.allEntries().filter(entry => entry.showEntry() && entry.entryClassForSummaryMode() !== "highlight-key");
@@ -424,7 +439,7 @@ class databaseSettings extends shardViewModelBase {
         this.spinners.refresh(true);
 
         this.fetchData()
-            .done(() =>  messagePublisher.reportSuccess("Database Settings was successfully refreshed"))
+            .done(() =>  messagePublisher.reportSuccess(t("refreshed")))
             .always(() => this.spinners.refresh(false));
     }
     
@@ -488,11 +503,11 @@ class databaseSettings extends shardViewModelBase {
     }
 
     confirmUnsavedchanges() {
-        const text = `<div class="margin-top">You have unsaved changes. How do you want to proceed?</div>`;
-        return this.confirmationMessage("Unsaved changes", text,
+        const text = `<div class="margin-top">${t("unsavedChanges.message")}</div>`;
+        return this.confirmationMessage(t("unsavedChanges.title"), text,
             {
                 html: true,
-                buttons: ["Stay in edit mode", "Discard changes"]
+                buttons: [t("unsavedChanges.stayButton"), t("unsavedChanges.discardButton")]
             });
     }
     
@@ -507,8 +522,8 @@ class databaseSettings extends shardViewModelBase {
             this.viewMode("editMode");
             this.setupEditMode(false);
         } else {
-            const text = `<div class="margin-top-xs">Modify the database settings only if you know what you are doing.</div>`;
-            this.confirmationMessage("Are you an expert?", text, { html: true, buttons: ["Cancel", "OK"] })
+            const text = `<div class="margin-top-xs">${t("editModeConfirm.message")}</div>`;
+            this.confirmationMessage(t("editModeConfirm.title"), text, { html: true, buttons: [commonT("cancel"), t("editModeConfirm.okButton")] })
                 .done(() => {
                     this.editModeHasBeenEntered = true;
                     this.viewMode("editMode");
@@ -573,26 +588,20 @@ class databaseSettings extends shardViewModelBase {
         ], false, jsonUtil.newLineNormalizingHashFunction);
     }
 
-    static readonly howToReloadDatabaseHtml = `<h4>There are a few ways to reload the database:</h4>
-                                               <ul>
-                                                   <li class="margin-top-sm">
-                                                       <small>
-                                                           Restart the database from the databases view in the Studio.
-                                                       </small>
-                                                   </li>
-                                                   <li class="margin-top-sm">
-                                                       <small>
-                                                           Disable and then enable the database from the databases view in the Studio.<br>
-                                                           This will reload the database on ALL cluster nodes immediately.
-                                                       </small>
-                                                   </li>
-                                                   <li class="margin-top-sm">
-                                                       <small>
-                                                           Restart RavenDB on all nodes.<br>
-                                                           The database settings configuration will become effective per node that is restarted.
-                                                       </small>
-                                                   </li>
-                                               </ul>`;
+    static get howToReloadDatabaseHtml() {
+        return `<h4>${t("reload.title")}</h4>
+                <ul>
+                    <li class="margin-top-sm">
+                        <small>${t("reload.restartDatabase")}</small>
+                    </li>
+                    <li class="margin-top-sm">
+                        <small>${t("reload.disableAndEnable")}</small>
+                    </li>
+                    <li class="margin-top-sm">
+                        <small>${t("reload.restartNodes")}</small>
+                    </li>
+                </ul>`;
+    }
 }
 
 export = databaseSettings;

@@ -59,6 +59,8 @@ import { licenseSelectors } from "components/common/shell/licenseSlice";
 import FeatureNotAvailableInYourLicensePopoverBody from "components/common/FeatureNotAvailableInYourLicensePopoverBody";
 import classNames from "classnames";
 import { StickyHeader } from "components/common/StickyHeader";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTranslate } from "common/i18n/resources";
 
 const ajv = new Ajv({
     allErrors: true,
@@ -66,6 +68,7 @@ const ajv = new Ajv({
 });
 
 export default function DocumentSchema() {
+    const t = useStudioTranslation("documentSchema");
     const dispatch = useAppDispatch();
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const { databasesService } = useServices();
@@ -95,7 +98,7 @@ export default function DocumentSchema() {
                 <Col>
                     <AboutViewHeading
                         marginBottom={4}
-                        title="Document Schema"
+                        title={t("title")}
                         icon="document-schema"
                         licenseBadgeText={hasSchemaValidation ? null : "Professional +"}
                     />
@@ -132,17 +135,17 @@ export default function DocumentSchema() {
                                         className="rounded-pill"
                                         onClick={handleAddNew}
                                         disabled={!hasSchemaValidation || !hasDatabaseAdminAccess}
-                                        title="Click to add a new schema for a collection"
+                                        title={t("list.addNewTitle")}
                                     >
                                         <Icon icon="plus" />
-                                        Add new
+                                        {t("list.addNew")}
                                     </Button>
                                 </ConditionalPopover>
                             }
                         >
                             <Icon icon="documents" />
-                            <span>Collection specific document schemas</span>
-                            <PopoverWithHoverWrapper message="Define and manage JSON Schemas for each collection">
+                            <span>{t("list.heading")}</span>
+                            <PopoverWithHoverWrapper message={t("list.headingInfo")}>
                                 <Icon icon="info-new" margin="ms-1" />
                             </PopoverWithHoverWrapper>
                         </HrHeader>
@@ -168,6 +171,7 @@ interface DocumentSchemaBodyProps {
 }
 
 const DocumentSchemaBody = ({ asyncLoadValidators, filteredValidators }: DocumentSchemaBodyProps) => {
+    const t = useStudioTranslation("documentSchema");
     const { handleCancelNew, handleNewSchemaSubmit, draftIds, allCollectionNames } = useDocumentSchema();
 
     if (asyncLoadValidators.loading) {
@@ -175,18 +179,13 @@ const DocumentSchemaBody = ({ asyncLoadValidators, filteredValidators }: Documen
     }
 
     if (asyncLoadValidators.error) {
-        return (
-            <LoadError
-                error="Failed to load document schemas. Please try again later."
-                refresh={asyncLoadValidators.execute}
-            />
-        );
+        return <LoadError error={t("list.loadError")} refresh={asyncLoadValidators.execute} />;
     }
 
     if (filteredValidators.length === 0 && draftIds.length === 0 && !asyncLoadValidators.loading) {
         return (
             <>
-                <EmptySet>There are no collection specific document schemas.</EmptySet>
+                <EmptySet>{t("list.empty")}</EmptySet>
                 {draftIds.map((id) => (
                     <NewCollectionSchemaRichPanel
                         key={id}
@@ -234,6 +233,8 @@ export function DocumentSchemaStatus({
     onStatusToggle,
     isTogglingState,
 }: DocumentSchemaStatusProps) {
+    const t = useStudioTranslation("documentSchema");
+
     if (isEditing) {
         return null;
     }
@@ -241,15 +242,16 @@ export function DocumentSchemaStatus({
     return (
         <Dropdown>
             <Dropdown.Toggle disabled={isTogglingState} variant={validator.Disabled ? "warning" : "success"}>
-                {isTogglingState && <Spinner size="sm" />} {validator.Disabled ? "Disabled" : "Enabled"}
+                {isTogglingState && <Spinner size="sm" />}{" "}
+                {validator.Disabled ? t("status.disabled") : t("status.enabled")}
             </Dropdown.Toggle>
             <Dropdown.Menu>
                 <Dropdown.Item onClick={() => onStatusToggle(false)}>
-                    <Icon icon="play" color="success" /> Enable
+                    <Icon icon="play" color="success" /> {t("actions.enable")}
                 </Dropdown.Item>
                 <Dropdown.Item onClick={() => onStatusToggle(true)}>
                     <Icon icon="stop" color="danger" />
-                    Disable
+                    {t("actions.disable")}
                 </Dropdown.Item>
             </Dropdown.Menu>
         </Dropdown>
@@ -267,6 +269,8 @@ const CollectionSchemaRichPanel = ({
     schema = "",
     schemaValidatorCollections,
 }: CollectionSchemaRichPanelProps) => {
+    const t = useStudioTranslation("documentSchema");
+    const commonT = useStudioTranslation("common");
     const hasSchemaValidation = useAppSelector(licenseSelectors.statusValue("HasSchemaValidation"));
     const { value: isEditingSchema, toggle: toggleEditingSchema } = useBoolean(false);
     const { value: isTogglingStatus, setTrue: setTogglingStatus, setFalse: unsetTogglingStatus } = useBoolean(false);
@@ -295,7 +299,7 @@ const CollectionSchemaRichPanel = ({
     };
 
     const form = useForm<DocumentSchemaFormData>({
-        resolver: yupResolver(formSchema),
+        resolver: yupResolver(getFormSchema(t)),
         defaultValues: {
             collection: validator.Name,
             schema,
@@ -373,15 +377,14 @@ const CollectionSchemaRichPanel = ({
                                 <ConditionalPopover
                                     conditions={{
                                         isActive: isEditingSchema,
-                                        message:
-                                            "The schema must be saved in order to test it against existing documents.",
+                                        message: t("item.testUnsavedPopover"),
                                     }}
                                 >
                                     <Button
                                         disabled={isEditingSchema}
                                         onClick={handleOpenSheet}
                                         variant="secondary"
-                                        title="Click to test this schema against existing documents"
+                                        title={t("item.testTitle")}
                                     >
                                         <Icon icon="rocket" margin="m-0" />
                                     </Button>
@@ -398,9 +401,9 @@ const CollectionSchemaRichPanel = ({
                                         isSpinning={form.formState.isSubmitting}
                                         disabled={!hasSchemaValidation}
                                         icon={isEditingSchema ? "save" : "edit"}
-                                        title={isEditingSchema ? "Save changes to this schema" : "Edit this schema"}
+                                        title={isEditingSchema ? t("item.saveTitle") : t("item.editTitle")}
                                     >
-                                        {isEditingSchema ? <span className="ms-1">Save</span> : null}
+                                        {isEditingSchema ? <span className="ms-1">{commonT("save")}</span> : null}
                                     </ButtonWithSpinner>
                                 </ConditionalPopover>
                                 {isEditingSchema ? (
@@ -411,10 +414,10 @@ const CollectionSchemaRichPanel = ({
                                             reset({ collection: validator.Name, schema });
                                             toggleEditingSchema();
                                         }}
-                                        title="Discard changes to this schema"
+                                        title={t("item.discardTitle")}
                                     >
                                         <Icon icon="close" />
-                                        Discard
+                                        {t("item.discard")}
                                     </Button>
                                 ) : (
                                     <ConditionalPopover
@@ -429,7 +432,7 @@ const CollectionSchemaRichPanel = ({
                                             onClick={toggleDeleteModal}
                                             disabled={!hasSchemaValidation}
                                             icon="trash"
-                                            title="Delete this schema"
+                                            title={t("item.deleteTitle")}
                                         />
                                     </ConditionalPopover>
                                 )}
@@ -466,12 +469,13 @@ interface RichPanelDetailsProps {
 }
 
 const RichPanelDetailsViewSchema = ({ schema }: RichPanelDetailsProps) => {
+    const t = useStudioTranslation("documentSchema");
     const aceRef = useRef<ReactAce>(null);
 
     return (
         <RichPanelDetails>
             <FormGroup className="w-100 mt-2">
-                <FormLabel>Document schema (Read only)</FormLabel>
+                <FormLabel>{t("item.readOnlyLabel")}</FormLabel>
                 <AceEditor
                     readOnly
                     aceRef={aceRef}
@@ -500,6 +504,7 @@ const RichPanelDetailsEditSchema = ({
     collectionName,
     schemaValidatorCollections,
 }: RichPanelDetailsEditSchemaProps) => {
+    const t = useStudioTranslation("documentSchema");
     const { control, setValue } = useFormContext<DocumentSchemaFormData>();
     const aceRef = useRef<ReactAce>(null);
 
@@ -516,18 +521,18 @@ const RichPanelDetailsEditSchema = ({
         <RichPanelDetails>
             <FormGroup className="w-100 mt-2">
                 <FormGroup>
-                    <FormLabel>Collection</FormLabel>
+                    <FormLabel>{t("item.collectionLabel")}</FormLabel>
                     <FormSelectAutocomplete
                         control={control}
                         name="collection"
-                        placeholder="Select a collection (or enter a new one)"
+                        placeholder={t("item.collectionPlaceholder")}
                         options={collectionOptions}
                     />
                 </FormGroup>
 
                 <FormLabel>
-                    Document schema{" "}
-                    <PopoverWithHoverWrapper message="Edit the JSON schema for documents in the collection">
+                    {t("item.schemaLabel")}{" "}
+                    <PopoverWithHoverWrapper message={t("item.schemaInfo")}>
                         <Icon icon="info" color="info" margin="m-0" />
                     </PopoverWithHoverWrapper>
                 </FormLabel>
@@ -575,8 +580,10 @@ const NewCollectionSchemaRichPanel = ({
     onSubmit,
     onCancel,
 }: NewCollectionSchemaRichPanelProps) => {
+    const t = useStudioTranslation("documentSchema");
+    const commonT = useStudioTranslation("common");
     const form = useForm<DocumentSchemaFormData>({
-        resolver: yupResolver(formSchema),
+        resolver: yupResolver(getFormSchema(t)),
         context: { schemaValidatorCollections },
     });
 
@@ -589,16 +596,16 @@ const NewCollectionSchemaRichPanel = ({
             <RichPanel>
                 <RichPanelHeader>
                     <RichPanelInfo>
-                        <RichPanelName>New Collection Schema</RichPanelName>
+                        <RichPanelName>{t("item.newTitle")}</RichPanelName>
                     </RichPanelInfo>
                     <RichPanelActions>
                         <Button onClick={form.handleSubmit(handleSubmit)} variant="success">
                             <Icon margin="m-0" icon="save" />
-                            <span className="ms-1">Save</span>
+                            <span className="ms-1">{commonT("save")}</span>
                         </Button>
                         <Button variant="secondary" onClick={onCancel}>
                             <Icon icon="close" />
-                            Cancel
+                            {commonT("cancel")}
                         </Button>
                     </RichPanelActions>
                 </RichPanelHeader>
@@ -609,55 +616,58 @@ const NewCollectionSchemaRichPanel = ({
     );
 };
 
-const formSchema = yup.object({
-    collection: yup
-        .string()
-        .required()
-        .test(
-            "is-unique-collection",
-            "A schema for this collection already exists",
-            function (
-                value,
-                ctx: TestContext<{ schemaValidatorCollections: string[]; originalCollectionName?: string }>
-            ) {
-                if (!value) {
+const getFormSchema = (t: StudioTranslate<"documentSchema">) =>
+    yup.object({
+        collection: yup
+            .string()
+            .required()
+            .test(
+                "is-unique-collection",
+                t("validation.collectionExists"),
+                function (
+                    value,
+                    ctx: TestContext<{ schemaValidatorCollections: string[]; originalCollectionName?: string }>
+                ) {
+                    if (!value) {
+                        return true;
+                    }
+                    const { schemaValidatorCollections, originalCollectionName } = ctx.options.context;
+
+                    const collectionsToCheck = originalCollectionName
+                        ? schemaValidatorCollections.filter(
+                              (x) => x.toLowerCase() !== originalCollectionName.toLowerCase()
+                          )
+                        : schemaValidatorCollections;
+
+                    return !collectionsToCheck.map((x) => x.toLowerCase()).includes(value.toLowerCase());
+                }
+            ),
+        schema: yup
+            .string()
+            .required()
+            .test("is-json", t("validation.invalidJson"), (value) => !!value && jsonUtil.isValidJson(value))
+            .test("is-valid-schema", t("validation.notJsonSchema"), function (value) {
+                if (!value || !jsonUtil.isValidJson(value)) {
+                    return false;
+                }
+
+                try {
+                    const parsed = JSON.parse(value);
+
+                    const isValid = ajv.validateSchema(parsed);
+                    if (!isValid) {
+                        return this.createError({ message: ajv.errorsText() });
+                    }
+
+                    if (!parsed.properties && !parsed.type) {
+                        return this.createError({ message: t("validation.missingPropertiesOrType") });
+                    }
+
                     return true;
+                } catch (e) {
+                    return this.createError({ message: t("validation.invalidJsonSchema", { message: e.message }) });
                 }
-                const { schemaValidatorCollections, originalCollectionName } = ctx.options.context;
+            }),
+    });
 
-                const collectionsToCheck = originalCollectionName
-                    ? schemaValidatorCollections.filter((x) => x.toLowerCase() !== originalCollectionName.toLowerCase())
-                    : schemaValidatorCollections;
-
-                return !collectionsToCheck.map((x) => x.toLowerCase()).includes(value.toLowerCase());
-            }
-        ),
-    schema: yup
-        .string()
-        .required()
-        .test("is-json", "Invalid JSON", (value) => !!value && jsonUtil.isValidJson(value))
-        .test("is-valid-schema", "JSON does not match the JSON Schema specification", function (value) {
-            if (!value || !jsonUtil.isValidJson(value)) {
-                return false;
-            }
-
-            try {
-                const parsed = JSON.parse(value);
-
-                const isValid = ajv.validateSchema(parsed);
-                if (!isValid) {
-                    return this.createError({ message: ajv.errorsText() });
-                }
-
-                if (!parsed.properties && !parsed.type) {
-                    return this.createError({ message: "Schema must define 'properties' or 'type'" });
-                }
-
-                return true;
-            } catch (e) {
-                return this.createError({ message: `Invalid JSON Schema: ${e.message}` });
-            }
-        }),
-});
-
-export type DocumentSchemaFormData = yup.InferType<typeof formSchema>;
+export type DocumentSchemaFormData = yup.InferType<ReturnType<typeof getFormSchema>>;

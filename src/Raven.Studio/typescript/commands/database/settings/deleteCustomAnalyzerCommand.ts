@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("settingsCommands");
 
 class deleteCustomAnalyzerCommand extends commandBase {
     private readonly db: database | string;
@@ -21,10 +24,10 @@ class deleteCustomAnalyzerCommand extends commandBase {
         
         return this.del<void>(url, null, this.db)
             .done(() => {
-                this.reportSuccess(`Deleted custom analyzer: ${this.name}`);
+                this.reportSuccess(t("deleteCustomAnalyzerSucceeded", { name: this.name }));
             })
             .fail((response: JQueryXHR) => {
-                this.reportError("Failed to delete custom analyzer: " + this.name, response.responseText, response.statusText);
+                this.reportError(t("deleteCustomAnalyzerFailed", { name: this.name }), response.responseText, response.statusText);
             });
     }
 }

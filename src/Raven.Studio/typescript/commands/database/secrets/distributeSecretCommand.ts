@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("secretsCommands");
 
 class distributeSecretCommand extends commandBase {
 
@@ -24,7 +27,7 @@ class distributeSecretCommand extends commandBase {
         const url = endpoints.global.secretKey.adminSecretsDistribute + this.urlEncodeArgs(args);
         
         return this.post<void>(url, this.secret, null, { dataType: 'text' })
-            .fail((response: JQueryXHR) => this.reportError("Failed to distribute secret key", response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("distributeFailed"), response.responseText, response.statusText));
     }
 }
 

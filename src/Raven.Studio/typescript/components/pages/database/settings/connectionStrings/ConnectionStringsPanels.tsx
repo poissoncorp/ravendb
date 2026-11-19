@@ -10,6 +10,8 @@ import { connectionStringsActions, connectionStringSelectors } from "./store/con
 import { Icon } from "components/common/Icon";
 import IconName from "../../../../../../typings/server/icons";
 import { AccessPopover } from "components/common/AccessPopover";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { createTranslator } from "common/i18n/i18n";
 
 interface ConnectionStringsPanelsProps {
     connections: Connection[];
@@ -39,6 +41,7 @@ interface AddNewButtonProps {
 }
 
 function AddNewButton({ connectionsType }: AddNewButtonProps) {
+    const t = useStudioTranslation("connectionStrings");
     const dispatch = useDispatch();
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
     const hasOperatorAccess = useAppSelector(accessManagerSelectors.isOperatorOrAbove);
@@ -58,31 +61,33 @@ function AddNewButton({ connectionsType }: AddNewButtonProps) {
                 variant="info"
                 size="sm"
                 className="rounded-pill"
-                title="Add new connection string"
+                title={t("addNewTitle")}
                 disabled={isDisabled}
                 onClick={() => dispatch(connectionStringsActions.newConnectionOfTypeModalOpened(connectionsType))}
             >
                 <Icon icon="plus" />
-                Add new
+                {t("addNew")}
             </Button>
         </AccessPopover>
     );
 }
 
 export function getTypeLabel(type: StudioConnectionType): string {
+    const t = createTranslator("connectionStrings");
+
     switch (type) {
         case "Raven":
             return "RavenDB";
         case "Sql":
             return "SQL";
         case "AzureQueueStorage":
-            return "Azure Queue Storage";
+            return t("edit.typeAzureQueueStorage");
         case "AmazonSqs":
-            return "Amazon SQS";
+            return t("edit.typeAmazonSqs");
         case "AzureServiceBus":
-            return "Azure Service Bus";
+            return t("edit.typeAzureServiceBus");
         case "Ai":
-            return "AI";
+            return t("edit.typeAi");
         default:
             return type;
     }

@@ -2,6 +2,8 @@ import { Icon } from "components/common/Icon";
 import { useRavenLink } from "components/hooks/useRavenLink";
 import React from "react";
 import RichAlert from "components/common/RichAlert";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface IntegrationsAlertsProps {
     isLicenseUpgradeRequired: boolean;
@@ -9,6 +11,7 @@ interface IntegrationsAlertsProps {
 }
 
 export default function IntegrationsAlerts(props: IntegrationsAlertsProps) {
+    const t = useStudioTranslation("integrations");
     const { isLicenseUpgradeRequired, isPostgreSqlSupportEnabled } = props;
 
     const postgreSqlDocsLink = useRavenLink({ hash: "HDTCH7" });
@@ -17,14 +20,11 @@ export default function IntegrationsAlerts(props: IntegrationsAlertsProps) {
     if (isLicenseUpgradeRequired) {
         return (
             <RichAlert variant="warning">
-                <span>
-                    To use this feature, your license must include either of the following features: PostgreSQL
-                    integration or Power BI.
-                </span>
+                <span>{t("alerts.licenseUpgradeRequired")}</span>
 
                 <div className="mt-1">
                     <a href={buyLink} target="_blank" className="btn btn-primary rounded-pill">
-                        Licensing options <Icon icon="newtab" margin="ms-1" />
+                        {t("alerts.licensingOptions")} <Icon icon="newtab" margin="ms-1" />
                     </a>
                 </div>
             </RichAlert>
@@ -34,8 +34,11 @@ export default function IntegrationsAlerts(props: IntegrationsAlertsProps) {
     if (!isLicenseUpgradeRequired && !isPostgreSqlSupportEnabled) {
         return (
             <RichAlert variant="warning" className="mt-3">
-                PostgreSQL support must be explicitly enabled in your <code>settings.json</code> file. Learn more{" "}
-                <a href={postgreSqlDocsLink}>here</a>.
+                <StudioTrans
+                    ns="integrations"
+                    i18nKey="alerts.postgreSqlNotEnabled"
+                    components={{ code: <code />, a: <a href={postgreSqlDocsLink} /> }}
+                />
             </RichAlert>
         );
     }

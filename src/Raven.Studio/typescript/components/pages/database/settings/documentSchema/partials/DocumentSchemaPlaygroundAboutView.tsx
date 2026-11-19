@@ -6,9 +6,22 @@ import FeatureAvailabilitySummaryWrapper, {
 import { useAppSelector } from "components/store";
 import { licenseSelectors } from "components/common/shell/licenseSlice";
 import { useLimitedFeatureAvailability } from "components/utils/licenseLimitsUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function DocumentSchemaPlaygroundAboutView() {
+    const t = useStudioTranslation("documentSchema");
     const hasSchemaValidation = useAppSelector(licenseSelectors.statusValue("HasSchemaValidation"));
+
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("featureAvailability.schemaValidation"),
+            featureIcon: "document-schema",
+            community: { value: false },
+            professional: { value: true },
+            enterprise: { value: true },
+            quill: { value: true },
+        },
+    ];
 
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
@@ -25,17 +38,9 @@ export default function DocumentSchemaPlaygroundAboutView() {
             <AccordionItemWrapper icon="about" color="info">
                 <div>
                     <ul>
-                        <li>
-                            In this playground, you can test how your documents validate against sample JSON schemas.
-                        </li>
-                        <li className="mt-2">
-                            This is a safe, temporary workspace. No changes are made to your existing documents or to
-                            your saved schema definitions.
-                        </li>
-                        <li className="mt-2">
-                            Define one or more sample schemas per collection, run the test, and review any validation
-                            errors found.
-                        </li>
+                        <li>{t("playground.about.test")}</li>
+                        <li className="mt-2">{t("playground.about.safe")}</li>
+                        <li className="mt-2">{t("playground.about.steps")}</li>
                     </ul>
                 </div>
             </AccordionItemWrapper>
@@ -43,14 +48,3 @@ export default function DocumentSchemaPlaygroundAboutView() {
         </AboutViewAnchored>
     );
 }
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "Schema Validation",
-        featureIcon: "document-schema",
-        community: { value: false },
-        professional: { value: true },
-        enterprise: { value: true },
-        quill: { value: true },
-    },
-];

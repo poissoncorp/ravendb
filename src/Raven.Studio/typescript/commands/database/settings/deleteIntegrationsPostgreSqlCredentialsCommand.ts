@@ -2,6 +2,9 @@ import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
 import genUtils = require("common/generalUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("settingsCommands");
 
 class deleteIntegrationsPostgreSqlCredentialsCommand extends commandBase {
 
@@ -17,8 +20,8 @@ class deleteIntegrationsPostgreSqlCredentialsCommand extends commandBase {
         const url = endpoints.databases.postgreSqlIntegration.adminIntegrationsPostgresqlUser + this.urlEncodeArgs(args);
 
         return this.del<void>(url, null, this.db)
-            .done(() => this.reportSuccess(`Successfully deleted credentials for user: ${genUtils.escapeHtml(this.username)}`))
-            .fail((response: JQueryXHR) => this.reportError(`Failed to delete credentials for user: ${genUtils.escapeHtml(this.username)}`, response.responseText, response.statusText));
+            .done(() => this.reportSuccess(t("deletePostgreSqlCredentialsSucceeded", { username: genUtils.escapeHtml(this.username) })))
+            .fail((response: JQueryXHR) => this.reportError(t("deletePostgreSqlCredentialsFailed", { username: genUtils.escapeHtml(this.username) }), response.responseText, response.statusText));
     }
 }
 

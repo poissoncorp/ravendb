@@ -33,12 +33,14 @@ import {
     DeleteFromGroupModal,
     NodeDeletion,
 } from "components/pages/resources/manageDatabaseGroup/partials/DeleteFromGroupModal";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export interface ShardsGroupProps {
     db: DatabaseSharedInfo;
 }
 
 export function ShardsGroup(props: ShardsGroupProps) {
+    const t = useStudioTranslation("manageDatabaseGroup");
     const { db } = props;
 
     const {
@@ -89,7 +91,7 @@ export function ShardsGroup(props: ShardsGroupProps) {
             <RichPanelHeader>
                 <RichPanelInfo>
                     <RichPanelName>
-                        <Icon icon="shard" color="shard" /> Shard #{shardName}
+                        <Icon icon="shard" color="shard" /> {t("shardGroup.title", { shardNumber: shardName })}
                     </RichPanelName>
                 </RichPanelInfo>
                 <RichPanelActions>
@@ -129,7 +131,7 @@ export function ShardsGroup(props: ShardsGroupProps) {
                                         onClick={addNode}
                                     >
                                         <Icon icon="plus" />
-                                        Add node
+                                        {t("addNode")}
                                     </Button>
                                 </DatabaseGroupActions>
                             </DatabaseGroupItem>

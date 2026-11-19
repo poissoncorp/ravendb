@@ -3,7 +3,7 @@
         <div class="content-margin">
             <div class="toolbar margin-bottom flex-horizontal">
                 <button type="submit" class="btn btn-primary" data-bind="enable: isSaveEnabled, css: { 'btn-spinner': spinners.save }, requiredAccess: 'DatabaseAdmin'">
-                    <i class="icon-save"></i><span>Save</span>
+                    <i class="icon-save"></i><span data-bind="i18n: 'common:save'"></span>
                 </button>
             </div>
             <div>
@@ -11,9 +11,9 @@
                     <div data-bind="css: { 'col-sm-6': !hasGlobalConfiguration() }">
                         <div class="margin-bottom margin-bottom-xs flex-horizontal">
                             <div class="flex-separator"></div>
-                            <small title="Navigate to the server-wide Client Configuration View">
+                            <small data-bind="i18nAttr: { title: 'settingsClientConfiguration:serverWideLinkTitle' }">
                                 <a target="_blank" data-bind="attr: { href: serverWideClientConfigurationUrl }, visible: canNavigateToServerSettings">
-                                    <i class="icon-link"></i>Go to Server-Wide Client Configuration View
+                                    <i class="icon-link"></i><span data-bind="i18n: 'settingsClientConfiguration:serverWideLink'"></span>
                                 </a>
                             </small>
                         </div>
@@ -24,22 +24,20 @@
                         <div class="col-sm-3 margin-top margin-top-sm">
                             <div class="toggle margin-left" data-bind="visible: hasGlobalConfiguration">
                                 <input id="toggleOverride" type="checkbox" data-bind="checked: overrideServer">
-                                <label for="toggleOverride">
-                                    Override Server Configuration
-                                </label>
+                                <label for="toggleOverride" data-bind="i18n: 'settingsClientConfiguration:overrideServer'"></label>
                             </div>
                         </div>
                         <div class="col-sm-2 margin-top">
-                            <h3 class="margin-left margin-left-sm">Database Configuration</h3>
+                            <h3 class="margin-left margin-left-sm" data-bind="i18n: 'settingsClientConfiguration:columns.database'"></h3>
                         </div>
                         <div class="col-sm-2 flex-horizontal">
-                            <div class="margin-top margin-top-sm" title="Navigate to server-wide client configuration">
+                            <div class="margin-top margin-top-sm" data-bind="i18nAttr: { title: 'settingsClientConfiguration:columns.serverLinkTitle' }">
                                 <a href="#" data-bind="attr: { href: serverWideClientConfigurationUrl }, visible: canNavigateToServerSettings"><i class="icon-link"></i></a>
                             </div>
-                            <div class="margin-top"><h3>Server Configuration</h3></div>
+                            <div class="margin-top"><h3 data-bind="i18n: 'settingsClientConfiguration:columns.server'"></h3></div>
                         </div>
                         <div class="col-sm-2 margin-top">
-                            <h3><strong>Effective Configuration</strong></h3>
+                            <h3><strong data-bind="i18n: 'settingsClientConfiguration:columns.effective'"></strong></h3>
                         </div>
                     </div>
                 </div>
@@ -53,9 +51,7 @@
                                         <input id="checkboxSeparator" type="checkbox"
                                                data-bind="checked: model.isDefined, checkedValue: 'identityPartsSeparator', enable: canEditSettings, validationElement: model.identityPartsSeparator,
                                                           requiredAccess: 'DatabaseAdmin', requiredAccessOptions: { strategy: 'disable' }">
-                                        <label for="checkboxSeparator">
-                                            Identity parts separator
-                                        </label>
+                                        <label for="checkboxSeparator" data-bind="i18n: 'settingsClientConfiguration:identityPartsSeparator'"></label>
                                     </div>
                                 </div>
                                 <div data-bind="validationElement: model.identityPartsSeparator, css: { 'col-sm-2': hasGlobalConfiguration,'col-sm-5': !hasGlobalConfiguration() }">
@@ -82,14 +78,12 @@
                                         <input id="checkboxMaxRequests" type="checkbox" min="0"
                                                data-bind="checked: model.isDefined, checkedValue: 'maxNumberOfRequestsPerSession', enable: canEditSettings, validationElement: model.maxNumberOfRequestsPerSession,
                                                           requiredAccess: 'DatabaseAdmin', requiredAccessOptions: { strategy: 'disable' }">
-                                        <label for="checkboxMaxRequests">
-                                            Maximum number of requests per session
-                                        </label>
+                                        <label for="checkboxMaxRequests" data-bind="i18n: 'settingsClientConfiguration:maxRequestsPerSession'"></label>
                                     </div>
                                 </div>
                                 <div data-bind="validationElement: model.maxNumberOfRequestsPerSession, css: { 'col-sm-2': hasGlobalConfiguration,'col-sm-5': !hasGlobalConfiguration() }">
-                                    <input class="form-control" type="number" min="0" placeholder="Enter requests number"
-                                           data-bind="numericInput: model.maxNumberOfRequestsPerSession, enable: _.includes(model.isDefined(), 'maxNumberOfRequestsPerSession'),
+                                    <input class="form-control" type="number" min="0"
+                                           data-bind="i18nAttr: { placeholder: 'settingsClientConfiguration:maxRequestsPerSessionPlaceholder' }, numericInput: model.maxNumberOfRequestsPerSession, enable: _.includes(model.isDefined(), 'maxNumberOfRequestsPerSession'),
                                                       attr: { placeholder: requestsNumberPlaceHolderInSettings }" />
                                 </div>
                                 <div class="col-sm-2" data-bind="visible: hasGlobalConfiguration, if: hasGlobalConfiguration">
@@ -111,9 +105,7 @@
                                         <input id="useSessionContextToggle" type="checkbox"
                                                data-bind="checked: model.isDefined, checkedValue: 'useSessionContextForLoadBehavior', enable: canEditSettings(),
                                                           requiredAccess: 'DatabaseAdmin', requiredAccessOptions: { strategy: 'disable' }">
-                                        <label for="useSessionContextToggle">
-                                            Use Session Context for Load Balancing
-                                        </label>
+                                        <label for="useSessionContextToggle" data-bind="i18n: 'settingsClientConfiguration:useSessionContext'"></label>
                                     </div>
                                 </div>
                                 <div data-bind="validationElement: model.loadBalanceContextSeed, validationOptions: { insertMessages: false }, css: { 'col-sm-2': hasGlobalConfiguration,'col-sm-5': !hasGlobalConfiguration() }">
@@ -121,12 +113,10 @@
                                         <div class="toggle">
                                             <input id="toggleSeed" type="checkbox"
                                                    data-bind="checked: model.setLoadBalanceSeed, enable: _.includes(model.isDefined(), 'useSessionContextForLoadBehavior')">
-                                            <label for="toggleSeed">
-                                                Seed
-                                            </label>
+                                            <label for="toggleSeed" data-bind="i18n: 'settingsClientConfiguration:seed'"></label>
                                         </div>
-                                        <input class="form-control margin-left" type="number" min="0" placeholder="Enter number"
-                                               data-bind="numericInput: model.loadBalanceContextSeed, enable: model.setLoadBalanceSeed" />
+                                        <input class="form-control margin-left" type="number" min="0"
+                                               data-bind="i18nAttr: { placeholder: 'settingsClientConfiguration:seedPlaceholder' }, numericInput: model.loadBalanceContextSeed, enable: model.setLoadBalanceSeed" />
                                     </div>
                                     <div class="help-block" data-bind="validationMessage: model.loadBalanceContextSeed"></div>
                                 </div>
@@ -140,9 +130,7 @@
                                         <input id="checkboxReadBalance" type="checkbox"
                                                data-bind="checked: model.isDefined, checkedValue: 'readBalanceBehavior', enable: canEditSettings(),
                                                           requiredAccess: 'DatabaseAdmin', requiredAccessOptions: { strategy: 'disable' }">
-                                        <label for="checkboxReadBalance">
-                                            Read balance behavior
-                                        </label>
+                                        <label for="checkboxReadBalance" data-bind="i18n: 'settingsClientConfiguration:readBalanceBehavior'"></label>
                                     </div>
                                 </div>
                                 <div data-bind="css: { 'col-sm-2': hasGlobalConfiguration,'col-sm-5': !hasGlobalConfiguration() }">

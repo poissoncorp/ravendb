@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("settingsCommands");
 
 class saveIntegrationsPostgreSqlCredentialsCommand extends commandBase {
 
@@ -17,8 +20,8 @@ class saveIntegrationsPostgreSqlCredentialsCommand extends commandBase {
         }
         
         return this.put<void>(url, JSON.stringify(payload), this.db)
-            .done(() => this.reportSuccess("Credentials were saved successfully"))
-            .fail((response: JQueryXHR) => this.reportError("Failed to save credentials", response.responseText, response.statusText));
+            .done(() => this.reportSuccess(t("savePostgreSqlCredentialsSucceeded")))
+            .fail((response: JQueryXHR) => this.reportError(t("savePostgreSqlCredentialsFailed"), response.responseText, response.statusText));
     }
 }
 

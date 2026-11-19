@@ -5,6 +5,7 @@ import IntegrationsUserListItem from "components/pages/database/settings/integra
 import { IntegrationsUser } from "components/pages/database/settings/integrations/useIntegrations";
 import React from "react";
 import { AsyncStateStatus } from "react-async-hook";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface IntegrationsUserListProps {
     fetchState: AsyncStateStatus;
@@ -14,6 +15,7 @@ interface IntegrationsUserListProps {
 }
 
 export default function IntegrationsUserList(props: IntegrationsUserListProps) {
+    const t = useStudioTranslation("integrations");
     const { fetchState, reload, users, removeUser } = props;
 
     if (fetchState === "loading") {
@@ -21,11 +23,11 @@ export default function IntegrationsUserList(props: IntegrationsUserListProps) {
     }
 
     if (fetchState === "error") {
-        return <LoadError error="Unable to load credentials" refresh={reload} />;
+        return <LoadError error={t("list.loadError")} refresh={reload} />;
     }
 
     if (users.length === 0) {
-        return <EmptySet>No credentials have been defined</EmptySet>;
+        return <EmptySet>{t("list.empty")}</EmptySet>;
     }
 
     return users.map((user, idx) => (

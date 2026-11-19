@@ -24,12 +24,16 @@ import copyToClipboard from "common/copyToClipboard";
 import { useAppUrls } from "components/hooks/useAppUrls";
 import { serverWideConnectionStringPrefix, getServerWideShortName } from "./connectionStringsUtils";
 import { getAccessRequiredMessage } from "components/utils/accessUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface ConnectionStringsPanelProps {
     connection: Connection;
 }
 
 export default function ConnectionStringsPanel({ connection }: ConnectionStringsPanelProps) {
+    const t = useStudioTranslation("connectionStrings");
+    const commonT = useStudioTranslation("common");
     const { appUrl } = useAppUrls();
     const viewContext = useAppSelector(connectionStringSelectors.viewContext);
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
@@ -62,12 +66,17 @@ export default function ConnectionStringsPanel({ connection }: ConnectionStrings
         const isConfirmed = await confirm({
             title: (
                 <span>
-                    Delete <strong>{connection.name}</strong> connection string?
+                    <StudioTrans
+                        ns="connectionStrings"
+                        i18nKey="panel.deleteConfirm"
+                        options={{ name: connection.name }}
+                        components={{ strong: <strong /> }}
+                    />
                 </span>
             ),
             icon: "trash",
             actionColor: "danger",
-            confirmText: "Delete",
+            confirmText: commonT("delete"),
         });
 
         if (isConfirmed) {
@@ -92,25 +101,27 @@ export default function ConnectionStringsPanel({ connection }: ConnectionStrings
                                 {
                                     isActive: isInheritedFromServerWide,
                                     message: (
-                                        <>
-                                            This connection string is managed server-wide. To edit or delete it, go to{" "}
-                                            <a
-                                                href={appUrl.forServerWideConnectionStrings(
-                                                    connection.type,
-                                                    getServerWideShortName(connection.name)
-                                                )}
-                                            >
-                                                Server-Wide Connection Strings
-                                            </a>
-                                            .
-                                        </>
+                                        <StudioTrans
+                                            ns="connectionStrings"
+                                            i18nKey="panel.managedServerWide"
+                                            components={{
+                                                a: (
+                                                    <a
+                                                        href={appUrl.forServerWideConnectionStrings(
+                                                            connection.type,
+                                                            getServerWideShortName(connection.name)
+                                                        )}
+                                                    />
+                                                ),
+                                            }}
+                                        />
                                     ),
                                 },
                             ]}
                         >
                             <Button
                                 variant="secondary"
-                                title="Edit connection string"
+                                title={t("panel.editTitle")}
                                 onClick={() => dispatch(connectionStringsActions.editConnectionModalOpened(connection))}
                                 disabled={isEditDisabled}
                             >
@@ -126,24 +137,22 @@ export default function ConnectionStringsPanel({ connection }: ConnectionStrings
                                 {
                                     isActive: isInheritedFromServerWide,
                                     message: (
-                                        <>
-                                            This connection string is managed server-wide. To edit or delete it, go to{" "}
-                                            <a href={appUrl.forServerWideConnectionStrings()}>
-                                                Server-Wide Connection Strings
-                                            </a>
-                                            .
-                                        </>
+                                        <StudioTrans
+                                            ns="connectionStrings"
+                                            i18nKey="panel.managedServerWide"
+                                            components={{ a: <a href={appUrl.forServerWideConnectionStrings()} /> }}
+                                        />
                                     ),
                                 },
                                 {
                                     isActive: connection.usedBy?.length > 0,
-                                    message: "Connection string is being used by an ongoing task",
+                                    message: t("panel.usedByTask"),
                                 },
                             ]}
                         >
                             <ButtonWithSpinner
                                 variant="danger"
-                                title="Delete connection string"
+                                title={t("panel.deleteTitle")}
                                 disabled={isDeleteDisabled}
                                 onClick={onDelete}
                                 icon="trash"
@@ -155,13 +164,11 @@ export default function ConnectionStringsPanel({ connection }: ConnectionStrings
 
                 {"identifier" in connection && (
                     <RichPanelDetails className="p-0">
-                        <RichPanelDetailItem label="Identifier">
+                        <RichPanelDetailItem label={t("panel.identifierLabel")}>
                             {connection.identifier}
                             <Button
                                 variant="link"
-                                onClick={() =>
-                                    copyToClipboard.copy(connection.identifier, "Identifier copied to clipboard")
-                                }
+                                onClick={() => copyToClipboard.copy(connection.identifier, t("panel.identifierCopied"))}
                                 size="xs"
                             >
                                 <Icon icon="copy-to-clipboard" />

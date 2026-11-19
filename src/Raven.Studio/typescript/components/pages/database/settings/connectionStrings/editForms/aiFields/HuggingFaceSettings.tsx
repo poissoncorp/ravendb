@@ -16,10 +16,12 @@ import { useAsyncCallback } from "react-async-hook";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import OptionalLabel from "components/common/OptionalLabel";
 import EmbeddingsMaxConcurrentBatches from "./EmbeddingsMaxConcurrentBatchesField";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type FormData = ConnectionFormData<AiConnection>;
 
 export default function HuggingFaceSettings({ isUsedByAnyTask }: { isUsedByAnyTask: boolean }) {
+    const t = useStudioTranslation("connectionStrings");
     const { control, trigger } = useFormContext<FormData>();
     const { tasksService } = useServices();
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
@@ -47,8 +49,8 @@ export default function HuggingFaceSettings({ isUsedByAnyTask }: { isUsedByAnyTa
         <>
             <div className="mb-2">
                 <FormLabel>
-                    API Key
-                    <PopoverWithHoverWrapper message="The API key used to authenticate requests to Hugging Face's text embedding services.">
+                    {t("ai.apiKeyLabel")}
+                    <PopoverWithHoverWrapper message={t("ai.huggingFace.apiKeyInfo")}>
                         <Icon icon="info" color="info" id="apiKey" margin="ms-1" />
                     </PopoverWithHoverWrapper>
                 </FormLabel>
@@ -56,22 +58,22 @@ export default function HuggingFaceSettings({ isUsedByAnyTask }: { isUsedByAnyTa
             </div>
             <div className="mb-2">
                 <FormLabel>
-                    Endpoint <OptionalLabel />
-                    <PopoverWithHoverWrapper message="The Hugging Face endpoint for generating embeddings from text. If not specified, the default endpoint is used.">
+                    {t("ai.endpointLabel")} <OptionalLabel />
+                    <PopoverWithHoverWrapper message={t("ai.huggingFace.endpointInfo")}>
                         <Icon icon="info" color="info" id="endpoint" margin="ms-1" />
                     </PopoverWithHoverWrapper>
                 </FormLabel>
                 <FormSelectAutocomplete
                     control={control}
                     name="huggingFaceSettings.endpoint"
-                    placeholder="Select an endpoint (or enter new one)"
+                    placeholder={t("ai.endpointPlaceholder")}
                     options={["https://api-inference.huggingface.com/"].map((x) => ({ label: x, value: x }))}
                 />
             </div>
             <div className="mb-2">
                 <FormLabel>
-                    Model
-                    <PopoverWithHoverWrapper message="The Hugging Face text embedding model to use.">
+                    {t("ai.modelLabel")}
+                    <PopoverWithHoverWrapper message={t("ai.huggingFace.modelInfo")}>
                         <Icon icon="info" color="info" id="model" margin="ms-1" />
                     </PopoverWithHoverWrapper>
                 </FormLabel>
@@ -86,7 +88,7 @@ export default function HuggingFaceSettings({ isUsedByAnyTask }: { isUsedByAnyTa
                     onClick={asyncTest.execute}
                     isSpinning={asyncTest.loading}
                 >
-                    Test connection
+                    {t("form.testConnection")}
                 </ButtonWithSpinner>
             </div>
             {asyncTest.result && <ConnectionTestResult testResult={asyncTest.result} />}

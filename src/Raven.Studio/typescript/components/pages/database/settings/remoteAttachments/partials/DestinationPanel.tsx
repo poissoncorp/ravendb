@@ -1,6 +1,6 @@
 import {
     RemoteAttachmentsDestinationFormData,
-    remoteAttachmentsDestinationYupResolver,
+    getRemoteAttachmentsDestinationYupResolver,
 } from "components/pages/database/settings/remoteAttachments/remoteAttachmentsValidation";
 import {
     RichPanel,
@@ -39,6 +39,7 @@ import { remoteAttachmentsUtils } from "components/pages/database/settings/remot
 import { OptionWithIcon, SelectOptionWithIcon, SingleValueWithIcon } from "components/common/select/Select";
 import { storageClassOptions } from "components/utils/common";
 import { ConditionalPopover } from "components/common/ConditionalPopover";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface DestinationPanelProps extends RemoteAttachmentsDestinationFormData {
     onEdit: (id: string) => void;
@@ -54,13 +55,14 @@ export function DestinationPanel({
     onDelete,
     onToggle,
 }: DestinationPanelProps) {
+    const t = useStudioTranslation("remoteAttachments");
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
     const isModified = useAppSelector(remoteAttachmentsSelectors.isDestinationModified(identifier));
 
     return (
         <RichPanel className="with-status flex-row">
             <RichPanelStatus className={disabled ? "bg-danger" : "bg-success"}>
-                {disabled ? "Disabled" : "Enabled"}
+                {disabled ? t("destination.statusDisabled") : t("destination.statusEnabled")}
             </RichPanelStatus>
             <div className="flex-grow-1">
                 <RichPanelHeader>
@@ -74,8 +76,7 @@ export function DestinationPanel({
                         <ConditionalPopover
                             conditions={{
                                 isActive: !hasDatabaseAdminAccess,
-                                message:
-                                    "You don't have the required permissions to modify destinations (Database Admin access required)",
+                                message: t("destination.toggleNoAccess"),
                             }}
                         >
                             <Button
@@ -84,14 +85,13 @@ export function DestinationPanel({
                                 disabled={!hasDatabaseAdminAccess}
                             >
                                 <Icon icon={disabled ? "play" : "disable"} />
-                                {disabled ? "Enable" : "Disable"}
+                                {disabled ? t("destination.enable") : t("destination.disable")}
                             </Button>
                         </ConditionalPopover>
                         <ConditionalPopover
                             conditions={{
                                 isActive: !hasDatabaseAdminAccess,
-                                message:
-                                    "You don't have the required permissions to edit destinations (Database Admin access required)",
+                                message: t("destination.editNoAccess"),
                             }}
                         >
                             <Button
@@ -105,8 +105,7 @@ export function DestinationPanel({
                         <ConditionalPopover
                             conditions={{
                                 isActive: !hasDatabaseAdminAccess,
-                                message:
-                                    "You don't have the required permissions to delete destinations (Database Admin access required)",
+                                message: t("destination.deleteNoAccess"),
                             }}
                         >
                             <Button
@@ -120,7 +119,7 @@ export function DestinationPanel({
                     </RichPanelActions>
                 </RichPanelHeader>
                 <RichPanelDetails>
-                    <RichPanelDetailItem size="sm" label="Destination">
+                    <RichPanelDetailItem size="sm" label={t("destination.provider")}>
                         <Icon icon={remoteAttachmentsUtils.getProviderIcon(provider)} />
                         {remoteAttachmentsUtils.getProviderName(provider)}
                     </RichPanelDetailItem>
@@ -135,6 +134,8 @@ interface CreateNewDestinationPanelProps {
 }
 
 export function DestinationEditorPanel({ editingDestinationId }: CreateNewDestinationPanelProps) {
+    const t = useStudioTranslation("remoteAttachments");
+    const commonT = useStudioTranslation("common");
     const { manageServerService } = useServices();
     const dispatch = useAppDispatch();
     const destinations = useAppSelector(remoteAttachmentsSelectors.destinations);
@@ -146,7 +147,7 @@ export function DestinationEditorPanel({ editingDestinationId }: CreateNewDestin
     const { close, forceClose } = useViewSheet();
 
     const form = useForm<RemoteAttachmentsDestinationFormData>({
-        resolver: remoteAttachmentsDestinationYupResolver,
+        resolver: getRemoteAttachmentsDestinationYupResolver(t),
         context: {
             destinations,
             currentIdentifier: editingDestinationId ?? undefined,
@@ -232,12 +233,12 @@ export function DestinationEditorPanel({ editingDestinationId }: CreateNewDestin
                 <ViewSheet.Header className="panel-bg-2 align-items-center" isPinHidden>
                     <h3 className="m-0">
                         <Icon icon="global" addon="settings" color="primary" margin="me-1" />
-                        <span>{editingDestinationId ? "Edit Destination" : "Define New Destination"}</span>
+                        <span>{t("editor.heading", { context: editingDestinationId ? "edit" : "new" })}</span>
                     </h3>
                 </ViewSheet.Header>
                 <ViewSheet.Body className="w-100 flex-grow-1 vstack p-4 overflow-auto">
                     <FormGroup marginClass="mb-0">
-                        <FormLabel>Provider</FormLabel>
+                        <FormLabel>{t("editor.provider")}</FormLabel>
                         <FormSelect
                             name="provider"
                             components={{
@@ -253,7 +254,7 @@ export function DestinationEditorPanel({ editingDestinationId }: CreateNewDestin
                 </ViewSheet.Body>
                 <ViewSheet.Footer className="w-100 p-2 panel-bg-2 border-top d-flex justify-content-between border-secondary">
                     <Button onClick={close} variant="link" className="text-muted">
-                        Cancel
+                        {commonT("cancel")}
                     </Button>
                     <div className="d-flex gap-2">
                         <ButtonWithSpinner
@@ -264,11 +265,11 @@ export function DestinationEditorPanel({ editingDestinationId }: CreateNewDestin
                             isSpinning={asyncTest.loading}
                             icon="rocket"
                         >
-                            Test credentials
+                            {t("editor.testCredentials")}
                         </ButtonWithSpinner>
                         <Button className="rounded-pill" type="submit">
                             <Icon icon="save" />
-                            Apply configuration
+                            {t("editor.applyConfiguration")}
                         </Button>
                     </div>
                 </ViewSheet.Footer>

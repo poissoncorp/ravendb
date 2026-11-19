@@ -32,6 +32,8 @@ import ModelTypeField from "./aiFields/ModelTypeField";
 import { withNestedSubmit } from "components/utils/common";
 import { useEffect } from "react";
 import { aiConnectionStringUtils } from "./aiConnectionStringUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 type FormData = ConnectionFormData<AiConnection>;
 
@@ -45,6 +47,7 @@ export interface AiConnectionStringProps extends EditConnectionStringFormProps {
 }
 
 export default function AiConnectionString({ initialConnection, isForNewConnection, onSave }: AiConnectionStringProps) {
+    const t = useStudioTranslation("connectionStrings");
     const usedNames = useAppSelector(connectionStringSelectors.connections)["Ai"].map((x) => x.name);
     const isServerWide = useAppSelector(connectionStringSelectors.isServerWide);
 
@@ -107,12 +110,12 @@ export default function AiConnectionString({ initialConnection, isForNewConnecti
                 className="vstack gap-3"
             >
                 <div className="mb-2">
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>{t("form.nameLabel")}</FormLabel>
                     <FormInput
                         control={control}
                         name="name"
                         type="text"
-                        placeholder="Enter a name for the connection string"
+                        placeholder={t("form.namePlaceholder")}
                         disabled={!isForNewConnection}
                         autoComplete="off"
                         onBlur={() => {
@@ -124,11 +127,8 @@ export default function AiConnectionString({ initialConnection, isForNewConnecti
                 </div>
                 <div className="mb-2">
                     <FormLabel>
-                        Identifier <OptionalLabel />
-                        <PopoverWithHoverWrapper
-                            message="A unique identifier used in document paths. If not specified, it will be auto-generated
-                                from the connection string name."
-                        >
+                        {t("ai.identifierLabel")} <OptionalLabel />
+                        <PopoverWithHoverWrapper message={t("ai.identifierInfo")}>
                             <Icon icon="info" color="info" margin="ms-1" id="identifier" />
                         </PopoverWithHoverWrapper>
                     </FormLabel>
@@ -136,28 +136,30 @@ export default function AiConnectionString({ initialConnection, isForNewConnecti
                         control={control}
                         name="identifier"
                         type="text"
-                        placeholder="Enter an identifier for the connection string"
+                        placeholder={t("ai.identifierPlaceholder")}
                         disabled={isUsedByAnyTask}
                         addon={
                             <Button
                                 variant="link"
                                 className="text-reset px-0"
                                 onClick={handleGenerateIdentifier}
-                                title="Click to generate the identifier from the connection string name"
+                                title={t("ai.regenerateTitle")}
                             >
                                 <Icon icon="refresh" />
-                                Regenerate
+                                {t("ai.regenerate")}
                             </Button>
                         }
                     />
                 </div>
                 <ModelTypeField initialModelType={initialConnection.modelType} />
                 <div className="mb-2">
-                    <FormLabel>Connector</FormLabel>
+                    <FormLabel>{t("ai.connectorLabel")}</FormLabel>
                     <FormSelect
                         control={control}
                         name="connectorType"
-                        placeholder={`Select connector${modelType == null ? " (select model type first)" : ""}`}
+                        placeholder={t("ai.connectorPlaceholder", {
+                            context: modelType == null ? "noModelType" : undefined,
+                        })}
                         options={aiConnectionStringUtils.getConnectorOptions(modelType)}
                         isDisabled={isUsedByAnyTask || modelType == null}
                         components={{
@@ -180,9 +182,7 @@ export default function AiConnectionString({ initialConnection, isForNewConnecti
 
                 {isUsedByAnyTask && (
                     <RichAlert variant="info">
-                        Some options cannot be edited because this connection string is in use by a task.
-                        <br />
-                        To modify them, please create a new connection string.
+                        <StudioTrans ns="connectionStrings" i18nKey="ai.usedByTaskInfo" components={{ br: <br /> }} />
                     </RichAlert>
                 )}
 

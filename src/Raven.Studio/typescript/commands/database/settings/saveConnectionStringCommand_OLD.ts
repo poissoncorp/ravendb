@@ -11,6 +11,9 @@ import connectionStringRabbitMqModel = require("models/database/settings/connect
 import connectionStringAzureQueueStorageModel = require("models/database/settings/connectionStringAzureQueueStorageModel");
 import connectionStringAmazonSqsModel = require("models/database/settings/connectionStringAmazonSqsModel");
 import connectionStringAzureServiceBusModel = require("models/database/settings/connectionStringAzureServiceBusModel");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("settingsCommands");
 
 class saveConnectionStringCommand_OLD extends commandBase {
 
@@ -29,8 +32,8 @@ class saveConnectionStringCommand_OLD extends commandBase {
  
     execute(): JQueryPromise<void> { 
         return this.saveConnectionString()
-            .fail((response: JQueryXHR) => this.reportError("Failed to save connection string", response.responseText, response.statusText))
-            .done(() => this.reportSuccess(`Connection string was saved successfully`));
+            .fail((response: JQueryXHR) => this.reportError(t("saveConnectionStringFailed"), response.responseText, response.statusText))
+            .done(() => this.reportSuccess(t("saveConnectionStringSucceeded")));
     }
 
     private saveConnectionString(): JQueryPromise<void> { 

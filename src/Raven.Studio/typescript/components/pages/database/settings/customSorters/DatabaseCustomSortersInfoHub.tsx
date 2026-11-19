@@ -8,17 +8,45 @@ import { useRavenLink } from "hooks/useRavenLink";
 import { useAppSelector } from "components/store";
 import { licenseSelectors } from "components/common/shell/licenseSlice";
 import { getLicenseLimitReachStatus, useLimitedFeatureAvailability } from "components/utils/licenseLimitsUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface DatabaseCustomSortersInfoHubProps {
     databaseSortersCount: number;
 }
 
 export function DatabaseCustomSortersInfoHub({ databaseSortersCount }: DatabaseCustomSortersInfoHubProps) {
+    const t = useStudioTranslation("customSorters");
+    const commonT = useStudioTranslation("common");
     const customSortersDocsLink = useRavenLink({ hash: "XI6BMT" });
     const licenseClusterLimit = useAppSelector(licenseSelectors.statusValue("MaxNumberOfCustomSortersPerCluster"));
     const licenseDatabaseLimit = useAppSelector(licenseSelectors.statusValue("MaxNumberOfCustomSortersPerDatabase"));
     const numberOfCustomSortersInCluster = useAppSelector(licenseSelectors.limitsUsage).NumberOfCustomSortersInCluster;
     const hasServerWideCustomSorters = useAppSelector(licenseSelectors.statusValue("HasServerWideCustomSorters"));
+
+    const defaultFeatureAvailability: FeatureAvailabilityData[] = [
+        {
+            featureName: t("featureAvailability.limitPerDatabase"),
+            community: { value: 1 },
+            professional: { value: Infinity },
+            enterprise: { value: Infinity },
+            quill: { value: Infinity },
+        },
+        {
+            featureName: t("featureAvailability.limitPerCluster"),
+            community: { value: 5 },
+            professional: { value: Infinity },
+            enterprise: { value: Infinity },
+            quill: { value: Infinity },
+        },
+        {
+            featureName: t("featureAvailability.serverWide"),
+            community: { value: false },
+            professional: { value: true },
+            enterprise: { value: true },
+            quill: { value: true },
+        },
+    ];
 
     const featureAvailability = useLimitedFeatureAvailability({
         defaultFeatureAvailability,
@@ -45,35 +73,45 @@ export function DatabaseCustomSortersInfoHub({ databaseSortersCount }: DatabaseC
         <AboutViewAnchored>
             <AccordionItemWrapper targetId="1" icon="about" color="info">
                 <p>
-                    A <strong>Custom Sorter</strong> allows you to define how documents will be ordered in the query
-                    results
-                    <br /> according to your specific requirements.
+                    <StudioTrans
+                        ns="customSorters"
+                        i18nKey="about.intro"
+                        components={{ strong: <strong />, br: <br /> }}
+                    />
                 </p>
                 <div>
-                    <strong>In this view</strong>, you can add your own sorters:
+                    <StudioTrans ns="customSorters" i18nKey="about.inThisView" components={{ strong: <strong /> }} />
                     <ul className="margin-top-xxs">
-                        <li>The custom sorters added here can be used only with queries in this database.</li>
-                        <li>The server-wide custom sorters listed can also be applied within this database.</li>
-                        <li>The custom sorters can be tested in this view with a sample query.</li>
-                        <li>Note: custom sorters are not supported when querying Corax indexes.</li>
+                        <li>{t("about.databaseScopeItem")}</li>
+                        <li>{t("about.serverWideScopeItem")}</li>
+                        <li>{t("about.testItem")}</li>
+                        <li>{t("about.coraxItem")}</li>
                     </ul>
                 </div>
                 <div>
-                    Provide <code>C#</code> code in the editor view, or upload from file:
+                    <StudioTrans ns="customSorters" i18nKey="about.provideCode" components={{ code: <code /> }} />
                     <ul className="margin-top-xxs">
-                        <li>The sorter name must be the same as the sorter&apos;s class name in your code.</li>
+                        <li>{t("about.nameItem")}</li>
                         <li>
-                            Inherit from <code>Lucene.Net.Search.FieldComparator</code>
+                            <StudioTrans
+                                ns="customSorters"
+                                i18nKey="about.inheritItem"
+                                components={{ code: <code /> }}
+                            />
                         </li>
                         <li>
-                            Code must be compilable and include all necessary <code>using</code> statements.
+                            <StudioTrans
+                                ns="customSorters"
+                                i18nKey="about.compilableItem"
+                                components={{ code: <code /> }}
+                            />
                         </li>
                     </ul>
                 </div>
                 <hr />
-                <div className="small-label mb-2">useful links</div>
+                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                 <a href={customSortersDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - Custom Sorters
+                    <Icon icon="newtab" /> {t("about.docsLink")}
                 </a>
             </AccordionItemWrapper>
             <FeatureAvailabilitySummaryWrapper
@@ -88,27 +126,3 @@ export function DatabaseCustomSortersInfoHub({ databaseSortersCount }: DatabaseC
         </AboutViewAnchored>
     );
 }
-
-const defaultFeatureAvailability: FeatureAvailabilityData[] = [
-    {
-        featureName: "Limit per database",
-        community: { value: 1 },
-        professional: { value: Infinity },
-        enterprise: { value: Infinity },
-        quill: { value: Infinity },
-    },
-    {
-        featureName: "Limit per cluster",
-        community: { value: 5 },
-        professional: { value: Infinity },
-        enterprise: { value: Infinity },
-        quill: { value: Infinity },
-    },
-    {
-        featureName: "Server-wide custom sorters",
-        community: { value: false },
-        professional: { value: true },
-        enterprise: { value: true },
-        quill: { value: true },
-    },
-];

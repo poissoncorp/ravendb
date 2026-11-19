@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("settingsCommands");
 
 class getIntegrationsPostgreSqlCredentialsCommand extends commandBase {
 
@@ -12,7 +15,7 @@ class getIntegrationsPostgreSqlCredentialsCommand extends commandBase {
         const url = endpoints.databases.postgreSqlIntegration.adminIntegrationsPostgresqlUsers;
 
         return this.query<Raven.Server.Integrations.PostgreSQL.Handlers.PostgreSqlUsernames>(url, null, this.db)
-            .fail((response: JQueryXHR) => this.reportError("Failed to get credentials", response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("getPostgreSqlCredentialsFailed"), response.responseText, response.statusText));
     }
 }
 

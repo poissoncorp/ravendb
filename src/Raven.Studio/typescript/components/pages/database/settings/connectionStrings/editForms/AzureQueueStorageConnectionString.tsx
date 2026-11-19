@@ -26,6 +26,9 @@ import { Icon } from "components/common/Icon";
 import PopoverWithHoverWrapper from "components/common/PopoverWithHoverWrapper";
 import { connectionStringSelectors } from "../store/connectionStringsSlice";
 import { ConnectionStringsNameContext, connectionStringsUtils } from "../connectionStringsUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import { StudioTranslate } from "common/i18n/resources";
 
 type FormData = ConnectionFormData<AzureQueueStorageConnection>;
 
@@ -38,6 +41,7 @@ export default function AzureQueueStorageConnectionString({
     isForNewConnection,
     onSave,
 }: AzureQueueStorageConnectionStringProps) {
+    const t = useStudioTranslation("connectionStrings");
     const usedNames = useAppSelector(connectionStringSelectors.connections)["AzureQueueStorage"].map((x) => x.name);
     const isServerWide = useAppSelector(connectionStringSelectors.isServerWide);
 
@@ -45,7 +49,7 @@ export default function AzureQueueStorageConnectionString({
         mode: "all",
         defaultValues: getDefaultValues(initialConnection, isForNewConnection),
         resolver: (data, _, options) =>
-            yupResolver(schema)(
+            yupResolver(getSchema(t))(
                 data,
                 {
                     authType: data.authType,
@@ -87,36 +91,36 @@ export default function AzureQueueStorageConnectionString({
     return (
         <Form id="connection-string-form" onSubmit={handleSubmit(handleSave)} className="vstack gap-3">
             <div className="mb-2">
-                <FormLabel>Name</FormLabel>
+                <FormLabel>{t("form.nameLabel")}</FormLabel>
                 <FormInput
                     control={control}
                     name="name"
                     type="text"
-                    placeholder="Enter a name for the connection string"
+                    placeholder={t("form.namePlaceholder")}
                     disabled={!isForNewConnection}
                     autoComplete="off"
                 />
             </div>
             <div className="mb-2">
                 <FormLabel className="d-flex align-items-center gap-1">
-                    Authentication{" "}
+                    {t("form.authenticationLabel")}{" "}
                     {asyncTest.result?.Success ? (
                         <Badge bg="success" pill>
                             <Icon icon="check" />
-                            Successfully connected
+                            {t("form.successfullyConnected")}
                         </Badge>
                     ) : asyncTest.result?.Error ? (
                         <Badge bg="danger" pill>
                             <Icon icon="warning" />
-                            Failed connection
+                            {t("form.failedConnection")}
                         </Badge>
                     ) : null}
                 </FormLabel>
                 <FormSelect
                     name="authType"
                     control={control}
-                    placeholder="Select an authentication option"
-                    options={authenticationOptions}
+                    placeholder={t("form.authenticationPlaceholder")}
+                    options={getAuthenticationOptions(t)}
                     isSearchable={false}
                 />
             </div>
@@ -126,13 +130,13 @@ export default function AzureQueueStorageConnectionString({
                 <ButtonWithSpinner
                     variant="secondary"
                     icon="rocket"
-                    title="Test connection"
+                    title={t("form.testConnection")}
                     className="mb-2"
                     onClick={asyncTest.execute}
                     isSpinning={asyncTest.loading}
                     disabled={asyncTest.loading}
                 >
-                    Test connection
+                    {t("form.testConnection")}
                 </ButtonWithSpinner>
             </div>
             {asyncTest.result?.Error && (
@@ -159,20 +163,25 @@ interface SelectedAuthFieldsProps {
 }
 
 function SelectedAuthFields({ control, authMethod }: SelectedAuthFieldsProps) {
+    const t = useStudioTranslation("connectionStrings");
+
     if (authMethod === "connectionString") {
         return (
             <div className="mb-2">
                 <div className="d-flex flex-grow align-items-baseline justify-content-between">
-                    <FormLabel>Connection string</FormLabel>
+                    <FormLabel>{t("form.connectionStringLabel")}</FormLabel>
                     <PopoverWithHoverWrapper
                         message={
-                            <>
-                                Example: <code>{exampleConnectionString}</code>
-                            </>
+                            <StudioTrans
+                                ns="connectionStrings"
+                                i18nKey="form.example"
+                                options={{ example: exampleConnectionString }}
+                                components={{ code: <code /> }}
+                            />
                         }
                     >
                         <small className="text-primary">
-                            Syntax <Icon icon="help" margin="m-0" />
+                            {t("form.syntax")} <Icon icon="help" margin="m-0" />
                         </small>
                     </PopoverWithHoverWrapper>
                 </div>
@@ -181,7 +190,7 @@ function SelectedAuthFields({ control, authMethod }: SelectedAuthFieldsProps) {
                     name="settings.connectionString.connectionStringValue"
                     type="textarea"
                     as="textarea"
-                    placeholder="Enter a connection string"
+                    placeholder={t("form.connectionStringPlaceholder")}
                     rows={5}
                 />
             </div>
@@ -192,40 +201,40 @@ function SelectedAuthFields({ control, authMethod }: SelectedAuthFieldsProps) {
         return (
             <div className="vstack gap-3">
                 <div className="mb-2">
-                    <FormLabel>Client ID</FormLabel>
+                    <FormLabel>{t("azure.clientIdLabel")}</FormLabel>
                     <FormInput
                         control={control}
                         name="settings.entraId.clientId"
                         type="text"
-                        placeholder="Enter a Client ID"
+                        placeholder={t("azure.clientIdPlaceholder")}
                     />
                 </div>
                 <div className="mb-2">
-                    <FormLabel>Client Secret</FormLabel>
+                    <FormLabel>{t("azure.clientSecretLabel")}</FormLabel>
                     <FormInput
                         control={control}
                         name="settings.entraId.clientSecret"
                         type="password"
-                        placeholder="Enter a Client Secret"
+                        placeholder={t("azure.clientSecretPlaceholder")}
                         passwordPreview
                     />
                 </div>
                 <div className="mb-2">
-                    <FormLabel>Storage Account Name</FormLabel>
+                    <FormLabel>{t("azureQueueStorage.storageAccountNameLabel")}</FormLabel>
                     <FormInput
                         control={control}
                         name="settings.entraId.storageAccountName"
                         type="text"
-                        placeholder="Enter a Storage Account Name"
+                        placeholder={t("azureQueueStorage.storageAccountNamePlaceholder")}
                     />
                 </div>
                 <div className="mb-2">
-                    <FormLabel>Tenant ID</FormLabel>
+                    <FormLabel>{t("azure.tenantIdLabel")}</FormLabel>
                     <FormInput
                         control={control}
                         name="settings.entraId.tenantId"
                         type="text"
-                        placeholder="Enter a Tenant ID"
+                        placeholder={t("azure.tenantIdPlaceholder")}
                     />
                 </div>
             </div>
@@ -235,12 +244,12 @@ function SelectedAuthFields({ control, authMethod }: SelectedAuthFieldsProps) {
     if (authMethod === "passwordless") {
         return (
             <div className="mb-2">
-                <FormLabel>Storage Account Name</FormLabel>
+                <FormLabel>{t("azureQueueStorage.storageAccountNameLabel")}</FormLabel>
                 <FormInput
                     control={control}
                     name="settings.passwordless.storageAccountName"
                     type="text"
-                    placeholder="Enter a Storage Account Name"
+                    placeholder={t("azureQueueStorage.storageAccountNamePlaceholder")}
                 />
             </div>
         );
@@ -249,20 +258,24 @@ function SelectedAuthFields({ control, authMethod }: SelectedAuthFieldsProps) {
     assertUnreachable(authMethod);
 }
 
-const authenticationOptions: SelectOption<AzureQueueStorageAuthenticationType>[] = [
-    {
-        value: "connectionString",
-        label: "Connection String",
-    },
-    {
-        value: "entraId",
-        label: "Entra ID",
-    },
-    {
-        value: "passwordless",
-        label: "Passwordless",
-    },
-];
+function getAuthenticationOptions(
+    t: StudioTranslate<"connectionStrings">
+): SelectOption<AzureQueueStorageAuthenticationType>[] {
+    return [
+        {
+            value: "connectionString",
+            label: t("azure.authConnectionString"),
+        },
+        {
+            value: "entraId",
+            label: "Entra ID",
+        },
+        {
+            value: "passwordless",
+            label: t("azure.authPasswordless"),
+        },
+    ];
+}
 
 function getStringRequiredSchema(authType: AzureQueueStorageAuthenticationType) {
     return yup
@@ -274,44 +287,46 @@ function getStringRequiredSchema(authType: AzureQueueStorageAuthenticationType) 
         });
 }
 
-const schema = yupObjectSchema<FormData>({
-    name: connectionStringsUtils.nameSchema,
-    authType: yup.string<AzureQueueStorageAuthenticationType>(),
-    excludedDatabases: yup.array().of(yup.string()).optional(),
-    settings: yupObjectSchema<FormData["settings"]>({
-        connectionString: yupObjectSchema<FormData["settings"]["connectionString"]>({
-            connectionStringValue: yup
-                .string()
-                .nullable()
-                .when("$authType", {
-                    is: "connectionString",
-                    then: (schema) =>
-                        schema
-                            .required()
-                            .test(
-                                "connectionString",
-                                "Please define all required fields: DefaultEndpointsProtocol, AccountName and AccountKey",
-                                (value) => {
-                                    return (
-                                        value.includes("DefaultEndpointsProtocol") &&
-                                        value.includes("AccountName") &&
-                                        value.includes("AccountKey")
-                                    );
-                                }
-                            ),
-                }),
+function getSchema(t: StudioTranslate<"connectionStrings">) {
+    return yupObjectSchema<FormData>({
+        name: connectionStringsUtils.nameSchema,
+        authType: yup.string<AzureQueueStorageAuthenticationType>(),
+        excludedDatabases: yup.array().of(yup.string()).optional(),
+        settings: yupObjectSchema<FormData["settings"]>({
+            connectionString: yupObjectSchema<FormData["settings"]["connectionString"]>({
+                connectionStringValue: yup
+                    .string()
+                    .nullable()
+                    .when("$authType", {
+                        is: "connectionString",
+                        then: (schema) =>
+                            schema
+                                .required()
+                                .test(
+                                    "connectionString",
+                                    t("azureQueueStorage.connectionStringRequiredFields"),
+                                    (value) => {
+                                        return (
+                                            value.includes("DefaultEndpointsProtocol") &&
+                                            value.includes("AccountName") &&
+                                            value.includes("AccountKey")
+                                        );
+                                    }
+                                ),
+                    }),
+            }),
+            entraId: yupObjectSchema<FormData["settings"]["entraId"]>({
+                clientId: getStringRequiredSchema("entraId"),
+                clientSecret: getStringRequiredSchema("entraId"),
+                storageAccountName: getStringRequiredSchema("entraId"),
+                tenantId: getStringRequiredSchema("entraId"),
+            }),
+            passwordless: yupObjectSchema<FormData["settings"]["passwordless"]>({
+                storageAccountName: getStringRequiredSchema("passwordless"),
+            }),
         }),
-        entraId: yupObjectSchema<FormData["settings"]["entraId"]>({
-            clientId: getStringRequiredSchema("entraId"),
-            clientSecret: getStringRequiredSchema("entraId"),
-            storageAccountName: getStringRequiredSchema("entraId"),
-            tenantId: getStringRequiredSchema("entraId"),
-        }),
-        passwordless: yupObjectSchema<FormData["settings"]["passwordless"]>({
-            storageAccountName: getStringRequiredSchema("passwordless"),
-        }),
-    }),
-});
+    });
+}
 
 function getDefaultValues(initialConnection: AzureQueueStorageConnection, isForNewConnection: boolean): FormData {
     if (isForNewConnection) {

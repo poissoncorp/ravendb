@@ -7,6 +7,7 @@ import {
     AiConnection,
 } from "components/pages/database/settings/connectionStrings/connectionStringsTypes";
 import OptionalLabel from "components/common/OptionalLabel";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type FormData = ConnectionFormData<AiConnection>;
 
@@ -15,13 +16,14 @@ export default function EmbeddingsMaxConcurrentBatches({
 }: {
     baseName: Exclude<FormData["connectorType"], "anthropicSettings">;
 }) {
+    const t = useStudioTranslation("connectionStrings");
     const { control } = useFormContext<FormData>();
 
     return (
         <div className="mb-2">
             <FormLabel>
-                Max Concurrent Query Batches <OptionalLabel />
-                <PopoverWithHoverWrapper message="Maximum number of query embedding batches that can be processed concurrently.">
+                {t("ai.embeddingsMaxConcurrentBatchesLabel")} <OptionalLabel />
+                <PopoverWithHoverWrapper message={t("ai.embeddingsMaxConcurrentBatchesInfo")}>
                     <Icon icon="info" color="info" margin="ms-1" />
                 </PopoverWithHoverWrapper>
             </FormLabel>

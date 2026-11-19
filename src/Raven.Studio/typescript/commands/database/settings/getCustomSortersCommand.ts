@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("settingsCommands");
 
 class getCustomSortersCommand extends commandBase {
     private readonly db: database | string;
@@ -14,7 +17,7 @@ class getCustomSortersCommand extends commandBase {
         const url = endpoints.databases.sorters.sorters;
         return this.query<Array<Raven.Client.Documents.Queries.Sorting.SorterDefinition>>(url, null, this.db, x => x.Sorters)
             .fail((response: JQueryXHR) => {
-                this.reportError("Failed to get custom sorters", response.responseText, response.statusText); 
+                this.reportError(t("getCustomSortersFailed"), response.responseText, response.statusText); 
             });
     }
 }

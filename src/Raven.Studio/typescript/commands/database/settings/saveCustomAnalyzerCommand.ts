@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("settingsCommands");
 
 class saveCustomAnalyzerCommand extends commandBase {
 
@@ -16,10 +19,10 @@ class saveCustomAnalyzerCommand extends commandBase {
 
         return this.put<void>(url, JSON.stringify(payload), this.db, { dataType: undefined })
             .fail((response: JQueryXHR) => {
-                this.reportError("Failed to save custom analyzer", response.responseText, response.statusText);
+                this.reportError(t("saveCustomAnalyzerFailed"), response.responseText, response.statusText);
             })
             .done(() => {
-                this.reportSuccess(`Saved custom analyzer ${this.analyzerDto.Name}`);
+                this.reportSuccess(t("saveCustomAnalyzerSucceeded", { name: this.analyzerDto.Name }));
             });
     }
 }

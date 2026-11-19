@@ -8,10 +8,10 @@
                 <div class="bg-warning text-warning padding padding-sm margin-top flex-horizontal">
                     <i class="icon-warning flex-start padding padding-sm" id="warning-icon"></i>
                     <div class="padding padding-sm">
-                        <h4>Note:</h4>
+                        <h4 data-bind="i18n: 'databaseSettings:saveConfirm.note'"></h4>
                         <span>
-                            After saving, the database must be reloaded in order for these configuration changes to be in effect.<br>
-                            Without reloading the database, the changes will NOT apply (despite being written to the database record).
+                            <span data-bind="i18n: 'databaseSettings:saveConfirm.reloadRequired'"></span><br>
+                            <span data-bind="i18n: 'databaseSettings:saveConfirm.notAppliedWithoutReload'"></span>
                         </span>
                         <hr> 
                         <div class="margin-top" data-bind="html: howToReloadDatabaseHtml"></div>
@@ -21,7 +21,7 @@
         </div>
         <div class="modal-body">
             <div class="padding padding-sm">
-                <h4 class="modal-title">The following database settings will be saved:</h4>
+                <h4 class="modal-title" data-bind="i18n: 'databaseSettings:saveConfirm.settingsToSave'"></h4>
                 <div class="panel">
                     <pre><code class="white-space-pre" data-bind="html: settingsToSaveText"></code></pre>
                 </div>
@@ -30,10 +30,10 @@
         <div class="modal-footer">
             <div class="padding">
                 <button type="button" class="btn btn-default" data-bind="click: cancel">
-                    <i class="icon-cancel"></i><span>Cancel</span>
+                    <i class="icon-cancel"></i><span data-bind="i18n: 'common:cancel'"></span>
                 </button>
                 <button type="button" class="btn btn-danger" data-bind="click: save">
-                    <i class="icon-save"></i><span>Save</span>
+                    <i class="icon-save"></i><span data-bind="i18n: 'common:save'"></span>
                 </button>
             </div>
         </div>

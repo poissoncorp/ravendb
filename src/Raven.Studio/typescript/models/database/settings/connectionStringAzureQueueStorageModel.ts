@@ -5,6 +5,9 @@ import saveConnectionStringCommand_OLD = require("commands/database/settings/sav
 import jsonUtil = require("common/jsonUtil");
 import testAzureQueueStorageServerConnectionCommand = require("commands/database/cluster/testAzureQueueStorageServerConnectionCommand");
 import assertUnreachable = require("components/utils/assertUnreachable");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("settingsModels");
 
 class AzureQueueStorageConnectionStringModel {
     connectionString = ko.observable<string>();
@@ -28,7 +31,7 @@ class AzureQueueStorageConnectionStringModel {
                         value.includes("AccountName") &&
                         value.includes("AccountKey");
                 },
-                message: "Please define all required fields: DefaultEndpointsProtocol, AccountName and AccountKey"
+                message: t("azureQueueStorage.requiredFields")
             }
         });
     }
@@ -167,11 +170,11 @@ class connectionStringAzureQueueStorageModel extends connectionStringModel {
     formatAuthenticationType(authenticationType: AzureQueueStorageAuthenticationType) {
         switch (authenticationType) {
             case "connectionString":
-                return "Connection String";
+                return t("authenticationType.connectionString");
             case "entraId":
                 return "Entra ID";
             case "passwordless":
-                return "Passwordless";
+                return t("authenticationType.passwordless");
             default:
                 assertUnreachable.default(authenticationType);
         }

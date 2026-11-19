@@ -21,6 +21,7 @@ import EmbeddingsMaxConcurrentBatches from "./EmbeddingsMaxConcurrentBatchesFiel
 import Button from "react-bootstrap/Button";
 import useBoolean from "hooks/useBoolean";
 import classNames from "classnames";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type FormData = ConnectionFormData<AiConnection>;
 
@@ -30,6 +31,7 @@ interface VertexSettingsProps {
 }
 
 export default function VertexSettings({ isUsedByAnyTask, isForNewConnection }: VertexSettingsProps) {
+    const t = useStudioTranslation("connectionStrings");
     const { control, trigger } = useFormContext<FormData>();
     const { tasksService } = useServices();
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
@@ -56,14 +58,12 @@ export default function VertexSettings({ isUsedByAnyTask, isForNewConnection }: 
 
     return (
         <>
-            <RichAlert variant="info">
-                This configuration supports Vertex AI embeddings only. Not compatible with Google AI.
-            </RichAlert>
+            <RichAlert variant="info">{t("ai.vertex.compatibility")}</RichAlert>
 
             <div className="mb-2">
                 <FormLabel className="col-form-label">
-                    AI Version <OptionalLabel />
-                    <PopoverWithHoverWrapper message="The Vertex AI version to use.">
+                    {t("ai.aiVersionLabel")} <OptionalLabel />
+                    <PopoverWithHoverWrapper message={t("ai.vertex.aiVersionInfo")}>
                         <Icon icon="info" color="info" margin="ms-1" />
                     </PopoverWithHoverWrapper>
                 </FormLabel>
@@ -78,8 +78,8 @@ export default function VertexSettings({ isUsedByAnyTask, isForNewConnection }: 
 
             <div className="mb-2">
                 <FormLabel>
-                    Google Credentials Json
-                    <PopoverWithHoverWrapper message="Google credentials used to authenticate requests to Vertex AI services.">
+                    {t("ai.vertex.credentialsLabel")}
+                    <PopoverWithHoverWrapper message={t("ai.vertex.credentialsInfo")}>
                         <Icon icon="info" color="info" margin="ms-1" />
                     </PopoverWithHoverWrapper>
                 </FormLabel>
@@ -87,7 +87,7 @@ export default function VertexSettings({ isUsedByAnyTask, isForNewConnection }: 
                     control={control}
                     name="vertexSettings.googleCredentialsJson"
                     type="textarea"
-                    placeholder={googleCredentialsJsonPlaceholder}
+                    placeholder={t("ai.vertex.credentialsPlaceholder", { example: googleCredentialsJsonExample })}
                     autoComplete="off"
                     as="textarea"
                     rows={15}
@@ -100,14 +100,14 @@ export default function VertexSettings({ isUsedByAnyTask, isForNewConnection }: 
                     onClick={toggleCredentialsJsonVisible}
                 >
                     <Icon icon={isCredentialsJsonVisible ? "preview-off" : "preview"} />
-                    {isCredentialsJsonVisible ? "Hide" : "Show"} credentials
+                    {t("ai.vertex.credentialsToggle", { context: isCredentialsJsonVisible ? "hide" : "show" })}
                 </Button>
             </div>
 
             <div className="mb-2">
                 <FormLabel>
-                    Model
-                    <PopoverWithHoverWrapper message="The Vertex AI text embedding model to use.">
+                    {t("ai.modelLabel")}
+                    <PopoverWithHoverWrapper message={t("ai.vertex.modelInfo")}>
                         <Icon icon="info" color="info" margin="ms-1" />
                     </PopoverWithHoverWrapper>
                 </FormLabel>
@@ -115,15 +115,15 @@ export default function VertexSettings({ isUsedByAnyTask, isForNewConnection }: 
                     control={control}
                     name="vertexSettings.model"
                     isDisabled={isUsedByAnyTask}
-                    placeholder="Select a model (or enter new one)"
+                    placeholder={t("ai.modelSelectPlaceholder")}
                     options={modelOptions}
                 />
             </div>
 
             <div className="mb-2">
                 <FormLabel>
-                    Location
-                    <PopoverWithHoverWrapper message="The Google Cloud location/region where your Vertex AI resource is deployed (e.g., us-central1).">
+                    {t("ai.vertex.locationLabel")}
+                    <PopoverWithHoverWrapper message={t("ai.vertex.locationInfo")}>
                         <Icon icon="info" color="info" margin="ms-1" />
                     </PopoverWithHoverWrapper>
                 </FormLabel>
@@ -140,7 +140,7 @@ export default function VertexSettings({ isUsedByAnyTask, isForNewConnection }: 
                     onClick={asyncTest.execute}
                     isSpinning={asyncTest.loading}
                 >
-                    Test connection
+                    {t("form.testConnection")}
                 </ButtonWithSpinner>
             </div>
             {asyncTest.result && <ConnectionTestResult testResult={asyncTest.result} />}
@@ -148,8 +148,7 @@ export default function VertexSettings({ isUsedByAnyTask, isForNewConnection }: 
     );
 }
 
-const googleCredentialsJsonPlaceholder = `e.g.
-{
+const googleCredentialsJsonExample = `{
     "type": "service_account",
     "project_id": "test-raven-237012",
     "private_key_id": "12345678123412341234123456789101",

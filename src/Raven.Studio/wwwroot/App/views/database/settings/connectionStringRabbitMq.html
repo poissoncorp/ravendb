@@ -1,13 +1,12 @@
 <div class="form-group" data-bind="validationElement: connectionStringName">
-    <label class="control-label">Name<i class="required"></i></label>
+    <label class="control-label"><span data-bind="i18n: 'connectionStringRabbitMq:nameLabel'"></span><i class="required"></i></label>
     <div class="flex-grow">
-        <input class="form-control" data-bind="textInput: connectionStringName, enable: isNew, attr: { 'title': isNew() ? 'Enter any name of your choice for this connection string' : '' }"
-               placeholder="Enter a name for the connection string" />
+        <input class="form-control" data-bind="textInput: connectionStringName, enable: isNew, i18nAttr: { title: isNew() ? 'connectionStringRabbitMq:nameTitle' : null, placeholder: 'connectionStringRabbitMq:namePlaceholder' }" />
     </div>
 </div>
 <div class="form-group" data-bind="validationElement: rabbitMqConnectionString">
-    <label class="control-label">Connection string<i class="required"></i></label>
+    <label class="control-label"><span data-bind="i18n: 'connectionStringRabbitMq:connectionStringLabel'"></span><i class="required"></i></label>
     <div class="flex-grow">
-        <textarea class="form-control" rows="2" data-bind="textInput: rabbitMqConnectionString" placeholder="Enter connection string for RabbitMQ"></textarea>
+        <textarea class="form-control" rows="2" data-bind="textInput: rabbitMqConnectionString, i18nAttr: { placeholder: 'connectionStringRabbitMq:connectionStringPlaceholder' }"></textarea>
     </div>
 </div>

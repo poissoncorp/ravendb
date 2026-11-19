@@ -31,6 +31,9 @@ import { useAppUrls } from "hooks/useAppUrls";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
 import Button from "react-bootstrap/Button";
 import Modal from "components/common/Modal";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import type { StudioTranslate } from "common/i18n/resources";
 
 const revisionsDelta = 100;
 const revisionsByAgeDelta = 604800; // 7 days
@@ -49,6 +52,8 @@ interface EditRevisionProps {
 
 export default function EditRevision(props: EditRevisionProps) {
     const { toggle, configType, taskType, config, onConfirm } = props;
+    const t = useStudioTranslation("documentRevisions");
+    const commonT = useStudioTranslation("common");
 
     const isForNewCollection: boolean = configType === "collectionSpecific" && taskType === "new";
 
@@ -123,12 +128,12 @@ export default function EditRevision(props: EditRevisionProps) {
         <Modal size="lg" show onHide={toggle} contentClassName="modal-border bulge-info">
             <Form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
                 <Modal.Body className="vstack gap-3">
-                    <h4>{getTitle(taskType, configType)}</h4>
+                    <h4>{getTitle(taskType, configType, t)}</h4>
                     {configType === "collectionSpecific" && (
                         <InputGroup className="gap-1 flex-wrap flex-column">
-                            <FormLabel className="mb-0 md-label">Collection</FormLabel>
+                            <FormLabel className="mb-0 md-label">{t("editModal.collectionLabel")}</FormLabel>
                             <FormSelectCreatable
-                                placeholder="Select collection (or enter new collection)"
+                                placeholder={t("editModal.collectionPlaceholder")}
                                 control={control}
                                 name="collectionName"
                                 options={
@@ -142,18 +147,16 @@ export default function EditRevision(props: EditRevisionProps) {
                         </InputGroup>
                     )}
                     <FormSwitch control={control} name="isPurgeOnDeleteEnabled">
-                        Purge revisions on document delete
+                        {t("editModal.purgeOnDelete")}
                     </FormSwitch>
                     <FormSwitch control={control} name="isMinimumRevisionsToKeepEnabled">
                         <span>
-                            Set the number of revisions to keep
+                            {t("editModal.revisionsToKeepSwitch")}
                             <br />
                             <span className="text-muted">
-                                (
-                                {isAgeRetentionActive
-                                    ? "The minimum number of revisions to keep (age-based retention enabled)"
-                                    : "The maximum number of revisions to keep"}
-                                )
+                                {t("editModal.revisionsToKeepHint", {
+                                    context: isAgeRetentionActive ? "minimum" : "maximum",
+                                })}
                             </span>
                         </span>
                     </FormSwitch>
@@ -164,7 +167,7 @@ export default function EditRevision(props: EditRevisionProps) {
                                     type="number"
                                     control={control}
                                     name="minimumRevisionsToKeep"
-                                    placeholder="Enter number of revisions to keep"
+                                    placeholder={t("editModal.revisionsToKeepPlaceholder")}
                                 />
                                 {isRevisionsToKeepLimitTooLowWarning && <LimitTooLowWarning limit={revisionsDelta} />}
                             </InputGroup>
@@ -172,13 +175,13 @@ export default function EditRevision(props: EditRevisionProps) {
                             revisionsToKeepLimit > 0 &&
                             formValues.minimumRevisionsToKeep > revisionsToKeepLimit ? (
                                 <RichAlert variant="warning" className="mb-2">
-                                    Your license allows max {revisionsToKeepLimit} revisions to keep
+                                    {t("editModal.revisionsToKeepLicenseLimit", { count: revisionsToKeepLimit })}
                                 </RichAlert>
                             ) : null}
                         </div>
                     )}
                     <FormSwitch control={control} name="isMinimumRevisionAgeToKeepEnabled">
-                        Set the number of revisions to keep by age
+                        {t("editModal.revisionAgeSwitch")}
                     </FormSwitch>
                     {formValues.isMinimumRevisionAgeToKeepEnabled && (
                         <div className="mb-2">
@@ -192,7 +195,7 @@ export default function EditRevision(props: EditRevisionProps) {
                             revisionsAgeInDaysLimit > 0 &&
                             minimumRevisionAgeToKeepDays > revisionsAgeInDaysLimit ? (
                                 <RichAlert variant="warning" className="my-2">
-                                    Your license allows max {revisionsAgeInDaysLimit} days retention time
+                                    {t("editModal.retentionLicenseLimit", { count: revisionsAgeInDaysLimit })}
                                 </RichAlert>
                             ) : null}
                             {isRevisionsToKeepByAgeLimitWarning && (
@@ -205,7 +208,7 @@ export default function EditRevision(props: EditRevisionProps) {
                     {(formValues.isMinimumRevisionsToKeepEnabled || formValues.isMinimumRevisionAgeToKeepEnabled) && (
                         <>
                             <FormSwitch control={control} name="isMaximumRevisionsToDeleteUponDocumentUpdateEnabled">
-                                Set the number of revisions to delete upon document update
+                                {t("editModal.deleteUponUpdateSwitch")}
                             </FormSwitch>
                             {formValues.isMaximumRevisionsToDeleteUponDocumentUpdateEnabled && (
                                 <InputGroup className="mb-2">
@@ -213,72 +216,84 @@ export default function EditRevision(props: EditRevisionProps) {
                                         type="number"
                                         control={control}
                                         name="maximumRevisionsToDeleteUponDocumentUpdate"
-                                        placeholder="Enter max revisions to delete (suggested 100)"
+                                        placeholder={t("editModal.deleteUponUpdatePlaceholder")}
                                     />
                                 </InputGroup>
                             )}
                         </>
                     )}
                     {isRevisionsToKeepLimitNotSetWarning && <LimitNotSetWarning />}
-                    <RichAlert variant="primary" title="Summary" className="mt-2">
+                    <RichAlert variant="primary" title={t("editModal.summaryTitle")} className="mt-2">
                         <ul className="m-0 ps-2 vstack gap-1">
                             <li>
-                                A revision will be created anytime a document is created
-                                {formValues.isPurgeOnDeleteEnabled ? " or modified." : ", modified, or deleted."}
+                                {t("editModal.summary.createdItem", {
+                                    context: formValues.isPurgeOnDeleteEnabled ? "purge" : "noPurge",
+                                })}
                             </li>
                             {formValues.isPurgeOnDeleteEnabled ? (
-                                <li>When a document is deleted all its revisions will be removed.</li>
+                                <li>{t("editModal.summary.purgeItem")}</li>
                             ) : (
                                 <li>
-                                    Revisions of a deleted document can be accessed in the{" "}
-                                    <a href={appUrl.forRevisionsBin(activeDatabaseName)} target="_blank">
-                                        {" "}
-                                        Revisions Bin{" "}
-                                    </a>{" "}
-                                    view.
+                                    <StudioTrans
+                                        ns="documentRevisions"
+                                        i18nKey="editModal.summary.revisionsBinItem"
+                                        components={{
+                                            a: <a href={appUrl.forRevisionsBin(activeDatabaseName)} target="_blank" />,
+                                        }}
+                                    />
                                 </li>
                             )}
                             {formValues.minimumRevisionsToKeep > 0 && (
                                 <>
                                     <li>
                                         {isAgeRetentionActive ? (
-                                            <>
-                                                <span>At least</span>{" "}
-                                                <strong>{formValues.minimumRevisionsToKeep}</strong> of the latest
-                                            </>
+                                            <StudioTrans
+                                                ns="documentRevisions"
+                                                i18nKey="editModal.summary.keepAtLeast"
+                                                options={{ count: formValues.minimumRevisionsToKeep }}
+                                                components={{ strong: <strong /> }}
+                                            />
                                         ) : (
-                                            <span>
-                                                Only the latest <strong>{formValues.minimumRevisionsToKeep}</strong>
-                                            </span>
+                                            <StudioTrans
+                                                ns="documentRevisions"
+                                                i18nKey="editModal.summary.keepOnlyLatest"
+                                                options={{ count: formValues.minimumRevisionsToKeep }}
+                                                components={{ strong: <strong /> }}
+                                            />
                                         )}
-                                        <span>
-                                            {formValues.minimumRevisionsToKeep === 1 ? " revision " : " revisions "}
-                                        </span>
-                                        will be kept.
                                     </li>
                                     {isAgeRetentionActive ? (
                                         <li>
-                                            Older revisions will be removed if they exceed{" "}
-                                            <strong>{formattedMinimumRevisionAgeToKeep}</strong> on next revision
-                                            creation.
+                                            <StudioTrans
+                                                ns="documentRevisions"
+                                                i18nKey="editModal.summary.olderRemovedByAge"
+                                                options={{ duration: formattedMinimumRevisionAgeToKeep }}
+                                                components={{ strong: <strong /> }}
+                                            />
                                         </li>
                                     ) : (
-                                        <li>Older revisions will be removed on next revision creation.</li>
+                                        <li>{t("editModal.summary.olderRemoved")}</li>
                                     )}
                                 </>
                             )}
                             {!formValues.minimumRevisionsToKeep && formValues.minimumRevisionAgeToKeep > 0 && (
                                 <li>
-                                    Revisions that exceed <strong>{formattedMinimumRevisionAgeToKeep}</strong> will be
-                                    removed on next revision creation.
+                                    <StudioTrans
+                                        ns="documentRevisions"
+                                        i18nKey="editModal.summary.exceedingRemoved"
+                                        options={{ duration: formattedMinimumRevisionAgeToKeep }}
+                                        components={{ strong: <strong /> }}
+                                    />
                                 </li>
                             )}
                             {formValues.maximumRevisionsToDeleteUponDocumentUpdate > 0 && (
                                 <li>
-                                    A maximum of{" "}
-                                    <strong>{formValues.maximumRevisionsToDeleteUponDocumentUpdate}</strong> revisions
-                                    will be deleted each time a document is updated, until the defined &apos;# of
-                                    revisions to keep&apos; limit is reached.
+                                    <StudioTrans
+                                        ns="documentRevisions"
+                                        i18nKey="editModal.summary.deleteUponUpdate"
+                                        options={{ count: formValues.maximumRevisionsToDeleteUponDocumentUpdate }}
+                                        components={{ strong: <strong /> }}
+                                    />
                                 </li>
                             )}
                         </ul>
@@ -286,11 +301,16 @@ export default function EditRevision(props: EditRevisionProps) {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button type="button" variant="link" className="link-muted" onClick={toggle}>
-                        Cancel
+                        {commonT("cancel")}
                     </Button>
-                    <Button type="submit" variant="success" disabled={isLimitExceeded} title="Add this configuration">
+                    <Button
+                        type="submit"
+                        variant="success"
+                        disabled={isLimitExceeded}
+                        title={t("editModal.submitTitle")}
+                    >
                         <Icon icon={getSubmitIcon(taskType)} />
-                        {_.startCase(taskType)} config
+                        {t("editModal.submit", { context: taskType })}
                     </Button>
                 </Modal.Footer>
             </Form>
@@ -306,9 +326,12 @@ function LimitTooLowWarning({ limit }: LimitTooLowWarningProps) {
     return (
         <RichAlert variant="warning" className="mt-1">
             <div>
-                The new limit is much lower than the current value (delta &gt; {limit}).
-                <br />
-                It is advised to set the # of revisions to delete upon document update.
+                <StudioTrans
+                    ns="documentRevisions"
+                    i18nKey="editModal.limitTooLowWarning"
+                    options={{ limit }}
+                    components={{ br: <br /> }}
+                />
             </div>
         </RichAlert>
     );
@@ -318,9 +341,11 @@ function LimitNotSetWarning() {
     return (
         <RichAlert variant="warning" className="mt-1">
             <div>
-                No limit has been set on the number of revisions to keep.
-                <br />
-                An excessive number of revisions will lead to increased storage usage and may affect system performance.
+                <StudioTrans
+                    ns="documentRevisions"
+                    i18nKey="editModal.limitNotSetWarning"
+                    components={{ br: <br /> }}
+                />
             </div>
         </RichAlert>
     );
@@ -337,24 +362,21 @@ function getSubmitIcon(taskType: EditRevisionTaskType): IconName {
     }
 }
 
-function getTitle(taskType: EditRevisionTaskType, configType: EditRevisionConfigType): string {
-    let suffix = "";
-
+function getTitle(
+    taskType: EditRevisionTaskType,
+    configType: EditRevisionConfigType,
+    t: StudioTranslate<"documentRevisions">
+): string {
     switch (configType) {
         case "collectionSpecific":
-            suffix = "collection specific configuration";
-            break;
+            return t("editModal.titleCollectionSpecific", { context: taskType });
         case "defaultDocument":
-            suffix = "default document revisions configuration";
-            break;
+            return t("editModal.titleDefaultDocument", { context: taskType });
         case "defaultConflicts":
-            suffix = "default conflicts revisions configuration";
-            break;
+            return t("editModal.titleDefaultConflicts", { context: taskType });
         default:
             assertUnreachable(configType);
     }
-
-    return `${_.startCase(taskType)} ${suffix}`;
 }
 
 function getInitialValues(

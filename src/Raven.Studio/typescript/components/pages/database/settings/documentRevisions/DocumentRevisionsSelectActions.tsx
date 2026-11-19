@@ -12,8 +12,12 @@ import { useDispatch } from "react-redux";
 import { useEventsCollector } from "components/hooks/useEventsCollector";
 import Dropdown from "react-bootstrap/Dropdown";
 import { CustomDropdownToggle } from "components/common/Dropdown";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function DocumentRevisionsSelectActions() {
+    const t = useStudioTranslation("documentRevisions");
+    const commonT = useStudioTranslation("common");
     const dispatch = useDispatch();
     const { reportEvent } = useEventsCollector();
 
@@ -38,16 +42,21 @@ export default function DocumentRevisionsSelectActions() {
                 indeterminate={selectionState === "SomeSelected"}
                 toggleSelection={toggleAll}
                 color="primary"
-                title="Select all or none"
+                title={t("selectActions.selectAllTitle")}
                 size="lg"
             >
-                <span className="small-label">Select All</span>
+                <span className="small-label">{t("selectActions.selectAll")}</span>
             </Checkbox>
 
             <SelectionActions active={selectionState !== "Empty"}>
                 <div className="d-flex align-items-center justify-content-center flex-wrap gap-2">
                     <div className="lead text-nowrap">
-                        <strong className="text-emphasis me-1">{selectedConfigsNames.length}</strong> selected
+                        <StudioTrans
+                            ns="documentRevisions"
+                            i18nKey="selectActions.selectedCount"
+                            options={{ count: selectedConfigsNames.length }}
+                            components={{ strong: <strong className="text-emphasis me-1" /> }}
+                        />
                     </div>
                     <ButtonGroup className="gap-2 flex-wrap justify-content-center">
                         <Dropdown>
@@ -55,25 +64,25 @@ export default function DocumentRevisionsSelectActions() {
                                 as={CustomDropdownToggle}
                                 variant="secondary"
                                 isCaretHidden
-                                title="Set the status (enabled/disabled) of selected revisions"
+                                title={t("selectActions.setStateTitle")}
                                 className="rounded-pill"
                             >
-                                <Icon icon="play" /> Set state
+                                <Icon icon="play" /> {t("selectActions.setState")}
                             </Dropdown.Toggle>
                             <Dropdown.Menu>
                                 <Dropdown.Item
-                                    title="Enable"
+                                    title={t("selectActions.enable")}
                                     onClick={() => dispatch(documentRevisionsActions.selectedConfigsEnabled())}
                                 >
                                     <Icon icon="play" color="success" />
-                                    <span>Enable</span>
+                                    <span>{t("selectActions.enable")}</span>
                                 </Dropdown.Item>
                                 <Dropdown.Item
-                                    title="Disable"
+                                    title={t("selectActions.disable")}
                                     onClick={() => dispatch(documentRevisionsActions.selectedConfigsDisabled())}
                                 >
                                     <Icon icon="stop" color="danger" />
-                                    <span>Disable</span>
+                                    <span>{t("selectActions.disable")}</span>
                                 </Dropdown.Item>
                             </Dropdown.Menu>
                         </Dropdown>
@@ -83,14 +92,14 @@ export default function DocumentRevisionsSelectActions() {
                             onClick={() => dispatch(documentRevisionsActions.selectedConfigsDeleted())}
                             className="rounded-pill flex-grow-0"
                         >
-                            <Icon icon="trash" /> Delete
+                            <Icon icon="trash" /> {commonT("delete")}
                         </Button>
                     </ButtonGroup>
                     <Button
                         onClick={() => dispatch(documentRevisionsActions.allSelectedConfigNamesToggled())}
                         variant="link"
                     >
-                        Cancel
+                        {commonT("cancel")}
                     </Button>
                 </div>
             </SelectionActions>

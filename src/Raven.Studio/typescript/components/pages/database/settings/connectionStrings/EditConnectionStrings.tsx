@@ -30,6 +30,8 @@ import AiConnectionString from "components/pages/database/settings/connectionStr
 import Modal from "components/common/Modal";
 import { FormLabel } from "components/common/Form";
 import { ServerWideConnectionStringDto } from "components/pages/database/settings/connectionStrings/store/connectionStringsMapsFromDto";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTranslate } from "common/i18n/resources";
 
 export interface EditConnectionStringsProps {
     initialConnection?: Connection;
@@ -39,6 +41,8 @@ export interface EditConnectionStringsProps {
 
 export default function EditConnectionStrings(props: EditConnectionStringsProps) {
     const { initialConnection, afterSave, afterClose } = props;
+    const t = useStudioTranslation("connectionStrings");
+    const commonT = useStudioTranslation("common");
 
     const isForNewConnection = !initialConnection.name;
 
@@ -92,7 +96,7 @@ export default function EditConnectionStrings(props: EditConnectionStringsProps)
         });
     };
 
-    const availableConnectionStringsOptions = getAvailableConnectionStringsOptions(licenseFeatures);
+    const availableConnectionStringsOptions = getAvailableConnectionStringsOptions(licenseFeatures, t);
 
     const handleCancel = () => {
         dispatch(connectionStringsActions.editConnectionModalClosed());
@@ -105,12 +109,14 @@ export default function EditConnectionStrings(props: EditConnectionStringsProps)
                 <div className="text-center">
                     <Icon icon="manage-connection-strings" color="info" className="fs-1" margin="m-0" />
                 </div>
-                <div className="text-center lead">{isForNewConnection ? "Create a new" : "Edit"} connection string</div>
+                <div className="text-center lead">
+                    {t("edit.title", { context: isForNewConnection ? "new" : "edit" })}
+                </div>
             </Modal.Header>
             <Modal.Body className="pb-0 vstack gap-3">
                 {(viewContext === "connectionStrings" || viewContext === "serverWideConnectionStrings") && (
                     <div className="mb-2">
-                        <FormLabel>Type</FormLabel>
+                        <FormLabel>{t("edit.typeLabel")}</FormLabel>
                         <InputGroup className="gap-1 flex-wrap flex-column">
                             <Select
                                 options={availableConnectionStringsOptions}
@@ -118,7 +124,7 @@ export default function EditConnectionStrings(props: EditConnectionStringsProps)
                                 onChange={(x: SelectOptionWithIcon<StudioConnectionType>) =>
                                     setConnectionStringType(x.value)
                                 }
-                                placeholder="Select a connection string type"
+                                placeholder={t("edit.typePlaceholder")}
                                 isSearchable={false}
                                 isDisabled={!isForNewConnection}
                                 components={{
@@ -138,20 +144,26 @@ export default function EditConnectionStrings(props: EditConnectionStringsProps)
                 )}
             </Modal.Body>
             <Modal.Footer className="mt-2">
-                <Button type="button" variant="link" className="link-muted" onClick={handleCancel} title="Cancel">
-                    Cancel
+                <Button
+                    type="button"
+                    variant="link"
+                    className="link-muted"
+                    onClick={handleCancel}
+                    title={commonT("cancel")}
+                >
+                    {commonT("cancel")}
                 </Button>
                 {EditConnectionStringComponent && (
                     <ButtonWithSpinner
                         form="connection-string-form"
                         type="submit"
                         variant="success"
-                        title="Save credentials"
+                        title={t("edit.saveTitle")}
                         icon="save"
                         className="rounded-pill"
                         isSpinning={asyncSave.loading}
                     >
-                        Save connection string
+                        {t("edit.saveButton")}
                     </ButtonWithSpinner>
                 )}
             </Modal.Footer>
@@ -195,11 +207,14 @@ interface ConnectionStringOption extends SelectOptionWithIcon<StudioConnectionTy
     licenseRequired: LicenseBadgeText;
 }
 
-function getAvailableConnectionStringsOptions(features: ConnectionStringsLicenseFeatures): ConnectionStringOption[] {
+function getAvailableConnectionStringsOptions(
+    features: ConnectionStringsLicenseFeatures,
+    t: StudioTranslate<"connectionStrings">
+): ConnectionStringOption[] {
     return [
         {
             value: "Ai",
-            label: "AI",
+            label: t("edit.typeAi"),
             icon: "sparkles",
             licenseRequired: "Enterprise",
             isDisabled: false,
@@ -248,7 +263,7 @@ function getAvailableConnectionStringsOptions(features: ConnectionStringsLicense
         },
         {
             value: "AzureQueueStorage",
-            label: "Azure Queue Storage",
+            label: t("edit.typeAzureQueueStorage"),
             icon: "azure-queue-storage",
             licenseRequired: "Enterprise",
             isDisabled: !features.hasQueueEtl,
@@ -269,7 +284,7 @@ function getAvailableConnectionStringsOptions(features: ConnectionStringsLicense
         },
         {
             value: "AzureServiceBus",
-            label: "Azure Service Bus",
+            label: t("edit.typeAzureServiceBus"),
             icon: "azure-service-bus",
             licenseRequired: "Enterprise",
             isDisabled: !features.hasQueueEtl,

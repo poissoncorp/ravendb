@@ -43,6 +43,8 @@ import { ScriptSyntaxHelp } from "components/pages/database/settings/documentSch
 import { licenseSelectors } from "components/common/shell/licenseSlice";
 import FeatureNotAvailableInYourLicensePopoverBody from "components/common/FeatureNotAvailableInYourLicensePopoverBody";
 import { ConditionalPopover } from "components/common/ConditionalPopover";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function DocumentSchemaPlayground() {
     return (
@@ -60,6 +62,7 @@ export default function DocumentSchemaPlayground() {
 }
 
 function DocumentSchemaPlaygroundBody() {
+    const t = useStudioTranslation("documentSchema");
     const hasSchemaValidation = useAppSelector(licenseSelectors.statusValue("HasSchemaValidation"));
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const { appUrl } = useAppUrls();
@@ -110,14 +113,13 @@ function DocumentSchemaPlaygroundBody() {
         <form onSubmit={handleSubmit(handleOpenSheet)}>
             <AboutViewHeading
                 marginBottom={4}
-                title="Document Schema Playground"
+                title={t("playground.title")}
                 backUrl={appUrl.forDocumentSchema(databaseName)}
                 licenseBadgeText={hasSchemaValidation ? null : "Professional +"}
             />
             <div className={hasSchemaValidation ? "" : "item-disabled pe-none"}>
                 <span>
-                    Quickly create and test schemas against your documents without affecting saved schema definitions.
-                    <br /> The Schema Playground is a temporary workspace where you can safely try out schemas.
+                    <StudioTrans ns="documentSchema" i18nKey="playground.intro" components={{ br: <br /> }} />
                 </span>
 
                 <div className="mt-4 d-flex align-items-center">
@@ -129,7 +131,7 @@ function DocumentSchemaPlaygroundBody() {
                     >
                         <Button type="submit" className="rounded-pill" disabled={!hasSchemaValidation}>
                             <Icon icon="rocket" />
-                            Run test
+                            {t("playground.runTest")}
                         </Button>
                     </ConditionalPopover>
                 </div>
@@ -152,14 +154,14 @@ function DocumentSchemaPlaygroundBody() {
                                     disabled={!hasSchemaValidation}
                                 >
                                     <Icon icon="plus" />
-                                    Add new
+                                    {t("playground.addNew")}
                                 </Button>
                             </ConditionalPopover>
                         }
                     >
                         <Icon icon="documents" />
-                        <span>Sample document schemas per collection</span>
-                        <PopoverWithHoverWrapper message="Define sample schemas to test against existing documents">
+                        <span>{t("playground.heading")}</span>
+                        <PopoverWithHoverWrapper message={t("playground.headingInfo")}>
                             <Icon icon="info" color="info" margin="ms-1" />
                         </PopoverWithHoverWrapper>
                     </HrHeader>
@@ -188,6 +190,7 @@ type TestDocumentSchemaProps = FieldArrayWithId<DocumentSchemaFormData, "documen
 };
 
 function TestDocumentSchema({ index, remove, collectionOptions }: TestDocumentSchemaProps) {
+    const t = useStudioTranslation("documentSchema");
     const { value: isPanelCollapsed, toggle: togglePanelCollapse } = useBoolean(false);
     const { control, setValue } = useFormContext<DocumentSchemaFormData>();
     const aceRef = useRef<ReactAce>(null);
@@ -201,7 +204,9 @@ function TestDocumentSchema({ index, remove, collectionOptions }: TestDocumentSc
         <RichPanel>
             <RichPanelHeader>
                 <RichPanelInfo>
-                    <RichPanelName>{field?.collection || `Sample document schema ${index + 1}`}</RichPanelName>
+                    <RichPanelName>
+                        {field?.collection || t("playground.sampleName", { number: index + 1 })}
+                    </RichPanelName>
                 </RichPanelInfo>
                 <RichPanelActions>
                     <Button onClick={() => remove(index)} variant="danger">
@@ -218,17 +223,17 @@ function TestDocumentSchema({ index, remove, collectionOptions }: TestDocumentSc
                     <RichPanelDetails>
                         <FormGroup className="w-100 mt-2">
                             <FormGroup>
-                                <FormLabel>Collection</FormLabel>
+                                <FormLabel>{t("playground.collectionLabel")}</FormLabel>
                                 <FormSelect
                                     control={control}
                                     name={`documentSchemas.${index}.collection`}
-                                    placeholder="Select a collection"
+                                    placeholder={t("playground.collectionPlaceholder")}
                                     options={collectionOptions}
                                 />
                             </FormGroup>
                             <FormLabel>
-                                Document schema{" "}
-                                <PopoverWithHoverWrapper message="Enter a JSON schema to test against the selected collection. It will not be saved or modify existing schema definitions.">
+                                {t("playground.schemaLabel")}{" "}
+                                <PopoverWithHoverWrapper message={t("playground.schemaInfo")}>
                                     <Icon icon="info" color="info" margin="m-0" />
                                 </PopoverWithHoverWrapper>
                             </FormLabel>

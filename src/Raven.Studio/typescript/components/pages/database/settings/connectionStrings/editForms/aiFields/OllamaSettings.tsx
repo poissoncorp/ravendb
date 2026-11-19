@@ -18,10 +18,14 @@ import EmbeddingsMaxConcurrentBatches from "./EmbeddingsMaxConcurrentBatchesFiel
 import { SelectOption } from "components/common/select/Select";
 import { useAsyncDebounce } from "components/hooks/useAsyncDebounce";
 import TemperatureField from "./TemperatureField";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import type { StudioTranslate } from "common/i18n/resources";
 
 type FormData = ConnectionFormData<AiConnection>;
 
 export default function OllamaSettings({ isUsedByAnyTask }: { isUsedByAnyTask: boolean }) {
+    const t = useStudioTranslation("connectionStrings");
     const { control, trigger } = useFormContext<FormData>();
     const { tasksService } = useServices();
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
@@ -77,8 +81,8 @@ export default function OllamaSettings({ isUsedByAnyTask }: { isUsedByAnyTask: b
         <>
             <div className="mb-2">
                 <FormLabel>
-                    URI
-                    <PopoverWithHoverWrapper message="The Ollama API URI to use.">
+                    {t("ai.ollama.uriLabel")}
+                    <PopoverWithHoverWrapper message={t("ai.ollama.uriInfo")}>
                         <Icon icon="info" color="info" id="uri" margin="ms-1" />
                     </PopoverWithHoverWrapper>
                 </FormLabel>
@@ -86,8 +90,8 @@ export default function OllamaSettings({ isUsedByAnyTask }: { isUsedByAnyTask: b
             </div>
             <div className="mb-2">
                 <FormLabel>
-                    Model
-                    <PopoverWithHoverWrapper message="The Ollama model to use.">
+                    {t("ai.modelLabel")}
+                    <PopoverWithHoverWrapper message={t("ai.ollama.modelInfo")}>
                         <Icon icon="info" color="info" id="model" margin="ms-1" />
                     </PopoverWithHoverWrapper>
                 </FormLabel>
@@ -95,7 +99,7 @@ export default function OllamaSettings({ isUsedByAnyTask }: { isUsedByAnyTask: b
                     control={control}
                     name="ollamaSettings.model"
                     isDisabled={isUsedByAnyTask}
-                    placeholder="Select a model or enter a new one (provide URI to see available models)"
+                    placeholder={t("ai.ollama.modelPlaceholder")}
                     options={asyncGetModelOptions.result ?? []}
                     isLoading={asyncGetModelOptions.loading}
                 />
@@ -104,45 +108,42 @@ export default function OllamaSettings({ isUsedByAnyTask }: { isUsedByAnyTask: b
             {formValues.modelType === "Chat" && (
                 <div className="mb-2">
                     <FormLabel>
-                        Thinking mode
+                        {t("ai.ollama.thinkingModeLabel")}
                         <PopoverWithHoverWrapper
                             message={
                                 <>
-                                    Controls whether the model outputs its internal reasoning steps before returning the
-                                    final answer.
+                                    {t("ai.ollama.thinkingModeInfo")}
                                     <ul className="mb-1">
                                         <li className="mt-1">
-                                            <strong>When &#34;Enabled&#34;:</strong>
-                                            <br />
-                                            The model outputs a series of intermediate reasoning steps before the final
-                                            answer. This may improve output quality for complex tasks, but increases
-                                            response time and token usage.
+                                            <StudioTrans
+                                                ns="connectionStrings"
+                                                i18nKey="ai.ollama.thinkingModeEnabled"
+                                                components={{ strong: <strong />, br: <br /> }}
+                                            />
                                         </li>
                                         <li className="mt-1">
-                                            <strong>When &#34;Disabled&#34;:</strong>
-                                            <br />
-                                            The model returns only the final answer, without exposing intermediate
-                                            steps. This is typically faster and more cost-effective (uses fewer tokens),
-                                            but may reduce quality on complex reasoning.
+                                            <StudioTrans
+                                                ns="connectionStrings"
+                                                i18nKey="ai.ollama.thinkingModeDisabled"
+                                                components={{ strong: <strong />, br: <br /> }}
+                                            />
                                         </li>
                                         <li className="mt-1">
-                                            <strong> When setting to “Default”:</strong>
-                                            <br />
-                                            The model&apos;s built-in default will be used. This value may vary
-                                            depending on the selected model.
+                                            <StudioTrans
+                                                ns="connectionStrings"
+                                                i18nKey="ai.ollama.thinkingModeDefault"
+                                                components={{ strong: <strong />, br: <br /> }}
+                                            />
                                         </li>
                                     </ul>
-                                    <p>
-                                        Set this parameter based on the trade-off between task complexity and speed/cost
-                                        requirements.
-                                    </p>
+                                    <p>{t("ai.ollama.thinkingModeTradeOff")}</p>
                                 </>
                             }
                         >
                             <Icon icon="info" color="info" margin="ms-1" />
                         </PopoverWithHoverWrapper>
                     </FormLabel>
-                    <FormSelect control={control} name="ollamaSettings.think" options={thinkOptions} />
+                    <FormSelect control={control} name="ollamaSettings.think" options={getThinkOptions(t)} />
                 </div>
             )}
             <TemperatureField baseName="ollamaSettings" />
@@ -155,7 +156,7 @@ export default function OllamaSettings({ isUsedByAnyTask }: { isUsedByAnyTask: b
                     onClick={asyncTest.execute}
                     isSpinning={asyncTest.loading}
                 >
-                    Test connection
+                    {t("form.testConnection")}
                 </ButtonWithSpinner>
             </div>
             {asyncTest.result && <ConnectionTestResult testResult={asyncTest.result} />}
@@ -163,8 +164,10 @@ export default function OllamaSettings({ isUsedByAnyTask }: { isUsedByAnyTask: b
     );
 }
 
-const thinkOptions: SelectOption<boolean>[] = [
-    { label: "Default", value: null },
-    { label: "Enabled", value: true },
-    { label: "Disabled", value: false },
-];
+function getThinkOptions(t: StudioTranslate<"connectionStrings">): SelectOption<boolean>[] {
+    return [
+        { label: t("ai.ollama.thinkDefault"), value: null },
+        { label: t("ai.ollama.thinkEnabled"), value: true },
+        { label: t("ai.ollama.thinkDisabled"), value: false },
+    ];
+}

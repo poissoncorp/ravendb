@@ -1,4 +1,7 @@
 ﻿/// <reference path="../../../../typings/tsd.d.ts"/>
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("settingsModels");
 
 abstract class connectionStringModel {
 
@@ -27,7 +30,7 @@ abstract class connectionStringModel {
             validation: [
                 {
                     validator: (name: string) => validator(name),
-                    message: "Connection string name is already used"
+                    message: t("connectionString.nameAlreadyUsed")
                 }
             ]
         })

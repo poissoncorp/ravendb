@@ -3,6 +3,9 @@ import jsonUtil = require("common/jsonUtil");
 import getFolderPathOptionsCommand = require("commands/resources/getFolderPathOptionsCommand");
 import genUtils = require("common/generalUtils");
 import activeDatabaseTracker = require("common/shell/activeDatabaseTracker");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("settingsModels");
 
 export type configurationOrigin = "Default" | "Server" | "Database";
 
@@ -64,13 +67,13 @@ export abstract class settingsEntry<T extends Raven.Server.Config.ConfigurationE
             const rawDescription = data.Metadata.Description;
             return rawDescription ?
                 `<div>${genUtils.escapeHtml(rawDescription)}</div>` :
-                `<div class="text-muted">No description is available</div>`;
+                `<div class="text-muted">${t("databaseSettings.noDescription")}</div>`;
         });
 
         this.descriptionText = ko.pureComputed(() => {
             const description = data.Metadata.Description;
             return description ?
-                genUtils.escapeHtml(description) : "No description is available";
+                genUtils.escapeHtml(description) : t("databaseSettings.noDescription");
         });
 
         this.entryClassForSummaryMode = ko.pureComputed(() => {
@@ -213,7 +216,7 @@ export abstract class databaseEntry<T> extends settingsEntry<Raven.Server.Config
             }
 
             if (this.valueIsPendingDeletion()) {
-                return "<Database value deleted>";
+                return t("databaseSettings.databaseValueDeleted");
             }
 
             return this.effectiveValue();
@@ -347,7 +350,7 @@ export abstract class numberEntry extends databaseEntry<number | null> {
                 {
                     validator: (value: number) => (value >= this.minValue() ||
                         (this.isNullable() && !value && value !== 0)),
-                    message: "Please enter a value greater or equal to {0}",
+                    message: t("databaseSettings.minValue", { min: this.minValue() }),
                     params: this.minValue()
                 }
             ]

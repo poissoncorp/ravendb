@@ -13,6 +13,9 @@ import azureSettings = require("viewmodels/database/tasks/destinations/azureSett
 import googleCloudSettings = require("viewmodels/database/tasks/destinations/googleCloudSettings");
 import glacierSettings = require("viewmodels/database/tasks/destinations/glacierSettings");
 import ftpSettings = require("viewmodels/database/tasks/destinations/ftpSettings");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("settingsModels");
 
 class connectionStringOlapEtlModel extends connectionStringModel {
 
@@ -112,7 +115,7 @@ class connectionStringOlapEtlModel extends connectionStringModel {
             validation: [
                 {
                     validator: () => this.destinationsChecked(),
-                    message: "Please select at least one destination"
+                    message: t("olap.destinationRequired")
                 }
             ]
         });

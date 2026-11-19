@@ -10,8 +10,11 @@ import IntegrationsAlerts from "components/pages/database/settings/integrations/
 import FeatureNotAvailable from "components/common/FeatureNotAvailable";
 import IntegrationsAddNewButton from "components/pages/database/settings/integrations/IntegrationsAddNewButton";
 import { IntegrationsInfoHub } from "components/pages/database/settings/integrations/IntegrationsInfoHub";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function Integrations() {
+    const t = useStudioTranslation("integrations");
     const {
         isSharded,
         isLicenseUpgradeRequired,
@@ -26,8 +29,11 @@ export default function Integrations() {
         return (
             <FeatureNotAvailable>
                 <span>
-                    Integrations are not available for <Icon icon="sharding" color="shard" margin="m-0" /> sharded
-                    databases
+                    <StudioTrans
+                        ns="integrations"
+                        i18nKey="notAvailableSharded"
+                        components={{ icon: <Icon icon="sharding" color="shard" margin="m-0" /> }}
+                    />
                 </span>
             </FeatureNotAvailable>
         );
@@ -37,7 +43,7 @@ export default function Integrations() {
         <div className="content-margin">
             <Row className="gy-sm">
                 <Col>
-                    <AboutViewHeading title="Integrations" icon="integrations" />
+                    <AboutViewHeading title={t("title")} icon="integrations" />
                     <div className="mb-3">
                         <HrHeader
                             right={
@@ -47,7 +53,7 @@ export default function Integrations() {
                                 />
                             }
                         >
-                            PostgreSQL Protocol Credentials
+                            {t("postgreSqlHeading")}
                         </HrHeader>
                         <IntegrationsUserList
                             fetchState={asyncGetPostgreSqlUsers.status}

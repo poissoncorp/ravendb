@@ -20,10 +20,12 @@ import RichAlert from "components/common/RichAlert";
 import EmbeddingsMaxConcurrentBatches from "./EmbeddingsMaxConcurrentBatchesField";
 import PromptCacheField from "./PromptCacheField";
 import { useAsyncDebounce } from "components/hooks/useAsyncDebounce";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type FormData = ConnectionFormData<AiConnection>;
 
 export default function GoogleSettings({ isUsedByAnyTask }: { isUsedByAnyTask: boolean }) {
+    const t = useStudioTranslation("connectionStrings");
     const { control, trigger } = useFormContext<FormData>();
     const { tasksService } = useServices();
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
@@ -83,13 +85,11 @@ export default function GoogleSettings({ isUsedByAnyTask }: { isUsedByAnyTask: b
 
     return (
         <>
-            <RichAlert variant="info">
-                This configuration supports Google AI only. Not compatible with Vertex AI.
-            </RichAlert>
+            <RichAlert variant="info">{t("ai.google.compatibility")}</RichAlert>
             <div className="mb-2">
                 <FormLabel className="col-form-label">
-                    AI Version <OptionalLabel />
-                    <PopoverWithHoverWrapper message="The Google AI version to use.">
+                    {t("ai.aiVersionLabel")} <OptionalLabel />
+                    <PopoverWithHoverWrapper message={t("ai.google.aiVersionInfo")}>
                         <Icon icon="info" color="info" margin="ms-1" />
                     </PopoverWithHoverWrapper>
                 </FormLabel>
@@ -108,8 +108,8 @@ export default function GoogleSettings({ isUsedByAnyTask }: { isUsedByAnyTask: b
             </div>
             <div className="mb-2">
                 <FormLabel>
-                    API Key
-                    <PopoverWithHoverWrapper message="The API key used to authenticate requests to Google's AI services.">
+                    {t("ai.apiKeyLabel")}
+                    <PopoverWithHoverWrapper message={t("ai.google.apiKeyInfo")}>
                         <Icon icon="info" color="info" margin="ms-1" />
                     </PopoverWithHoverWrapper>
                 </FormLabel>
@@ -118,22 +118,22 @@ export default function GoogleSettings({ isUsedByAnyTask }: { isUsedByAnyTask: b
             </div>
             <div className="mb-2">
                 <FormLabel>
-                    Endpoint <OptionalLabel />
-                    <PopoverWithHoverWrapper message="The endpoint for generating responses using Google's AI services.">
+                    {t("ai.endpointLabel")} <OptionalLabel />
+                    <PopoverWithHoverWrapper message={t("ai.google.endpointInfo")}>
                         <Icon icon="info" color="info" id="endpoint" margin="ms-1" />
                     </PopoverWithHoverWrapper>
                 </FormLabel>
                 <FormSelectAutocomplete
                     control={control}
                     name="googleSettings.endpoint"
-                    placeholder="Select an endpoint (or enter new one)"
+                    placeholder={t("ai.endpointPlaceholder")}
                     options={endpointOptions}
                 />
             </div>
             <div className="mb-2">
                 <FormLabel>
-                    Model
-                    <PopoverWithHoverWrapper message="The Google AI text embedding model to use.">
+                    {t("ai.modelLabel")}
+                    <PopoverWithHoverWrapper message={t("ai.google.modelInfo")}>
                         <Icon icon="info" color="info" margin="ms-1" />
                     </PopoverWithHoverWrapper>
                 </FormLabel>
@@ -141,7 +141,7 @@ export default function GoogleSettings({ isUsedByAnyTask }: { isUsedByAnyTask: b
                     control={control}
                     name="googleSettings.model"
                     isDisabled={isUsedByAnyTask}
-                    placeholder="Select a model or enter a new one (provide API key to see available models)"
+                    placeholder={t("ai.modelPlaceholder")}
                     options={asyncGetModelOptions.result ?? []}
                     isLoading={asyncGetModelOptions.loading}
                 />
@@ -150,8 +150,8 @@ export default function GoogleSettings({ isUsedByAnyTask }: { isUsedByAnyTask: b
             {formValues.modelType === "TextEmbeddings" && (
                 <div className="mb-2">
                     <FormLabel>
-                        Dimensions <OptionalLabel />
-                        <PopoverWithHoverWrapper message="The number of dimensions for the output embeddings.">
+                        {t("ai.dimensionsLabel")} <OptionalLabel />
+                        <PopoverWithHoverWrapper message={t("ai.dimensionsInfo")}>
                             <Icon icon="info" color="info" id="dimensions" margin="ms-1" />
                         </PopoverWithHoverWrapper>
                     </FormLabel>
@@ -172,7 +172,7 @@ export default function GoogleSettings({ isUsedByAnyTask }: { isUsedByAnyTask: b
                     onClick={asyncTest.execute}
                     isSpinning={asyncTest.loading}
                 >
-                    Test connection
+                    {t("form.testConnection")}
                 </ButtonWithSpinner>
             </div>
             {asyncTest.result && <ConnectionTestResult testResult={asyncTest.result} />}

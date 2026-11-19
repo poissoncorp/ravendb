@@ -4,6 +4,7 @@ import { LoadingView } from "components/common/LoadingView";
 import React from "react";
 import { UseAsyncReturn } from "react-async-hook";
 import DatabaseCustomSortersServerWideListItem from "components/pages/database/settings/customSorters/DatabaseCustomSortersServerWideListItem";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface DatabaseCustomSortersServerWideListProps {
     asyncGetSorters: UseAsyncReturn<Raven.Client.Documents.Queries.Sorting.SorterDefinition[], any[]>;
@@ -12,16 +13,18 @@ interface DatabaseCustomSortersServerWideListProps {
 export default function DatabaseCustomSortersServerWideList({
     asyncGetSorters,
 }: DatabaseCustomSortersServerWideListProps) {
+    const t = useStudioTranslation("customSorters");
+
     if (asyncGetSorters.status === "loading") {
         return <LoadingView />;
     }
 
     if (asyncGetSorters.status === "error") {
-        return <LoadError error="Unable to load custom sorters" refresh={asyncGetSorters.execute} />;
+        return <LoadError error={t("loadError")} refresh={asyncGetSorters.execute} />;
     }
 
     if (asyncGetSorters.result.length === 0) {
-        return <EmptySet>No server-wide custom sorters have been defined</EmptySet>;
+        return <EmptySet>{t("serverWideEmpty")}</EmptySet>;
     }
 
     return (

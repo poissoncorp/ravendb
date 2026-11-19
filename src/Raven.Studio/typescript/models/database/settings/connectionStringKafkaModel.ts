@@ -5,6 +5,9 @@ import saveConnectionStringCommand_OLD = require("commands/database/settings/sav
 import testKafkaServerConnectionCommand = require("commands/database/cluster/testKafkaServerConnectionCommand");
 import accessManager = require("common/shell/accessManager");
 import jsonUtil = require("common/jsonUtil");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("settingsModels");
 
 class connectionOptionModel {
     
@@ -39,7 +42,7 @@ class connectionOptionModel {
            validation: [
                {
                    validator: () => this.key() && this.value(),
-                   message: "Both key and value are required"
+                   message: t("kafka.keyAndValueRequired")
                } 
            ] 
         });
@@ -113,11 +116,11 @@ class connectionStringKafkaModel extends connectionStringModel {
             validation: [
                 {
                     validator: () => this.validateNoProtocol(),
-                    message: "A bootstrap server cannot start with http/https"
+                    message: t("kafka.bootstrapServerNoProtocol")
                 },
                 {
                     validator: () => this.validateFormat(),
-                    message: "Format should be: 'hostA:portNumber,hostB:portNumber,...'"
+                    message: t("kafka.bootstrapServersFormat")
                 }
             ]
         });
@@ -217,14 +220,15 @@ class connectionStringKafkaModel extends connectionStringModel {
             .execute();
     }
 
-    static readonly usingServerCertificateInfo =
-        `<small><div class="margin-top-sm">The following <strong>configuration options</strong> will be set for you when using RavenDB server certificate:</div>
+    static get usingServerCertificateInfo(): string {
+        return `<small><div class="margin-top-sm">${t("kafka.serverCertificateInfo")}</div>
              <ul class="margin-top margin-top-xs no-padding-left margin-left-lg">
                  <li><code>security.protocol = SSL</code></li>
                  <li><code>ssl.key.pem = &lt;RavenDB Server Private Key&gt;</code></li>
                  <li><code>ssl.certificate.pem = &lt;RavenDB Server Public Key&gt;</code></li>
             </ul>
          </small>`;
+    }
 }
 
 export = connectionStringKafkaModel;

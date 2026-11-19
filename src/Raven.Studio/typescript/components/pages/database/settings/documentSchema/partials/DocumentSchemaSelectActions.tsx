@@ -32,6 +32,8 @@ import classNames from "classnames";
 import { licenseSelectors } from "components/common/shell/licenseSlice";
 import FeatureNotAvailableInYourLicensePopoverBody from "components/common/FeatureNotAvailableInYourLicensePopoverBody";
 import { ConditionalPopover } from "components/common/ConditionalPopover";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export interface OperationConfirm {
     type: DocumentSchemaOperationConfirmType;
@@ -40,6 +42,8 @@ export interface OperationConfirm {
 }
 
 export default function DocumentSchemaSelectActions() {
+    const t = useStudioTranslation("documentSchema");
+    const commonT = useStudioTranslation("common");
     const { forCurrentDatabase: urls } = useAppUrls();
     const dispatch = useDispatch();
     const { reportEvent } = useEventsCollector();
@@ -120,24 +124,19 @@ export default function DocumentSchemaSelectActions() {
 
     const handleGlobalStatusOperation = async (disabled: boolean) => {
         const isConfirmed = await confirm({
-            title: disabled
-                ? "Do you want to disable schema validation globally?"
-                : "Do you want to enable schema validation globally?",
-            message: disabled ? (
+            title: t("globalConfirm.title", { context: disabled ? "disable" : "enable" }),
+            message: (
                 <p>
-                    This will disable schema validation for all collections in the database. Documents will no longer be
-                    validated against their schemas.
-                </p>
-            ) : (
-                <p>
-                    This will <b>enable schema validation globally</b> for all collections in the database. Documents
-                    will be validated against their defined schemas. If a schema has validation{" "}
-                    <b>disabled individually</b>, you’ll need to <b>enable it manually</b>. The global setting does not
-                    override per-schema configurations.
+                    <StudioTrans
+                        ns="documentSchema"
+                        i18nKey="globalConfirm.message"
+                        components={{ b: <b /> }}
+                        options={{ context: disabled ? "disable" : "enable" }}
+                    />
                 </p>
             ),
             icon: disabled ? "stop" : "play",
-            confirmText: disabled ? "Disable" : "Enable",
+            confirmText: disabled ? t("actions.disable") : t("actions.enable"),
             actionColor: disabled ? "danger" : "success",
         });
 
@@ -177,45 +176,50 @@ export default function DocumentSchemaSelectActions() {
                             toggleSelection={toggleAll}
                             color="primary"
                             disabled={!hasSchemaValidation}
-                            title="Select all or none"
+                            title={t("selectActions.selectAllTitle")}
                             size="lg"
                         >
-                            <span className="small-label">Select All</span>
+                            <span className="small-label">{t("selectActions.selectAll")}</span>
                         </Checkbox>
                         <SelectionActions active={selectionState !== "Empty"}>
                             <div className="d-flex align-items-center justify-content-center flex-wrap gap-2">
                                 <div className="lead text-nowrap">
-                                    <strong className="text-emphasis me-1">{selectedCollectionNames.length}</strong>{" "}
-                                    selected
+                                    <StudioTrans
+                                        ns="documentSchema"
+                                        i18nKey="selectActions.selected"
+                                        components={{ strong: <strong className="text-emphasis me-1" /> }}
+                                        options={{ count: selectedCollectionNames.length }}
+                                    />
                                 </div>
                                 <ButtonGroup className="gap-2 flex-wrap justify-content-center">
                                     <Button onClick={handleOpenSheet} className="rounded-pill flex-grow-0">
                                         <Icon icon="rocket" />
-                                        Run test
+                                        {t("selectActions.runTest")}
                                     </Button>
                                     <Dropdown>
                                         <Dropdown.Toggle
                                             variant="secondary"
                                             disabled={selectionState === "Empty" || isTogglingStatus}
-                                            title="Set the status (enabled/disabled) of selected document schemas"
+                                            title={t("selectActions.setStateTitle")}
                                             className="rounded-pill"
                                         >
-                                            {isTogglingStatus ? <Spinner size="sm" /> : <Icon icon="play" />} Set state
+                                            {isTogglingStatus ? <Spinner size="sm" /> : <Icon icon="play" />}{" "}
+                                            {t("selectActions.setState")}
                                         </Dropdown.Toggle>
                                         <Dropdown.Menu>
                                             <Dropdown.Item
-                                                title="Enable"
+                                                title={t("actions.enable")}
                                                 onClick={() => handleStatusOperation("enable")}
                                             >
                                                 <Icon icon="play" color="success" />
-                                                <span>Enable</span>
+                                                <span>{t("actions.enable")}</span>
                                             </Dropdown.Item>
                                             <Dropdown.Item
-                                                title="Disable"
+                                                title={t("actions.disable")}
                                                 onClick={() => handleStatusOperation("disable")}
                                             >
                                                 <Icon icon="stop" color="danger" />
-                                                <span>Disable</span>
+                                                <span>{t("actions.disable")}</span>
                                             </Dropdown.Item>
                                         </Dropdown.Menu>
                                     </Dropdown>
@@ -225,14 +229,14 @@ export default function DocumentSchemaSelectActions() {
                                         onClick={toggleDeleteModal}
                                         className="rounded-pill flex-grow-0"
                                     >
-                                        <Icon icon="trash" /> Delete
+                                        <Icon icon="trash" /> {commonT("delete")}
                                     </Button>
                                 </ButtonGroup>
                                 <Button
                                     onClick={() => dispatch(documentSchemaActions.allSelectedCollectionNamesToggled())}
                                     variant="link"
                                 >
-                                    Cancel
+                                    {commonT("cancel")}
                                 </Button>
                             </div>
                         </SelectionActions>
@@ -250,10 +254,10 @@ export default function DocumentSchemaSelectActions() {
                                 disabled: !hasSchemaValidation,
                             })}
                             href={urls.documentSchemaPlayground()}
-                            title="Open the playground to test sample schemas against existing documents"
+                            title={t("selectActions.playgroundTitle")}
                         >
                             <Icon icon="rocket" />
-                            Schema Playground
+                            {t("selectActions.playground")}
                         </a>
                     </ConditionalPopover>
                     {allCollectionNames.length !== 0 && (
@@ -271,7 +275,7 @@ export default function DocumentSchemaSelectActions() {
                                 className="rounded-pill"
                             >
                                 <Icon icon={isGlobalDisabled ? "play" : "stop"} />
-                                {isGlobalDisabled ? "Enable" : "Disable"} Schema Validation
+                                {t("selectActions.globalToggle", { context: isGlobalDisabled ? "enable" : "disable" })}
                             </ButtonWithSpinner>
                         </ConditionalPopover>
                     )}

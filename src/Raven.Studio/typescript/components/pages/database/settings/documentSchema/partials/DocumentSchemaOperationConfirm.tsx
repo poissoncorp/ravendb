@@ -1,13 +1,15 @@
 import React, { ReactNode } from "react";
 import { DocumentSchemaValidatorConfig } from "components/pages/database/settings/documentSchema/store/documentSchemaSlice";
 import assertUnreachable from "components/utils/assertUnreachable";
-import { capitalize } from "lodash";
 import { Icon } from "components/common/Icon";
 import { ThemeColor } from "components/models/common";
 import Button from "react-bootstrap/Button";
 import Modal from "components/common/Modal";
 import classNames from "classnames";
 import IconName from "typings/server/icons";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import { StudioTranslate } from "common/i18n/resources";
 
 export type DocumentSchemaOperationConfirmType = "enable" | "disable";
 
@@ -38,7 +40,9 @@ export default function DocumentSchemaOperationConfirm({
     toggle,
     onConfirm,
 }: DocumentSchemaOperationConfirmProps) {
-    const schemaGroups = getSchemaGroups(type, validators).filter((x) => x.schemas.length > 0);
+    const t = useStudioTranslation("documentSchema");
+    const commonT = useStudioTranslation("common");
+    const schemaGroups = getSchemaGroups(type, validators, t).filter((x) => x.schemas.length > 0);
 
     const onSubmit = () => {
         onConfirm();
@@ -104,19 +108,26 @@ export default function DocumentSchemaOperationConfirm({
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="link" onClick={toggle} className="link-muted">
-                    Cancel
+                    {commonT("cancel")}
                 </Button>
                 <Button variant={getTypeColor(type)} onClick={onSubmit} className="rounded-pill">
                     <Icon icon={getTypeIcon(type)} />
-                    {getInfinitiveForType(type)}
+                    {getInfinitiveForType(type, t)}
                 </Button>
             </Modal.Footer>
         </Modal>
     );
 }
 
-function getInfinitiveForType(type: DocumentSchemaOperationConfirmType) {
-    return capitalize(type);
+function getInfinitiveForType(type: DocumentSchemaOperationConfirmType, t: StudioTranslate<"documentSchema">) {
+    switch (type) {
+        case "enable":
+            return t("actions.enable");
+        case "disable":
+            return t("actions.disable");
+        default:
+            assertUnreachable(type);
+    }
 }
 
 function getTypeColor(type: DocumentSchemaOperationConfirmType): ThemeColor {
@@ -151,7 +162,8 @@ function getStatusIcon(isDisabled: boolean): IconName {
 
 function getSchemaGroups(
     type: DocumentSchemaOperationConfirmType,
-    schemas: DocumentSchemaValidatorConfig[]
+    schemas: DocumentSchemaValidatorConfig[],
+    t: StudioTranslate<"documentSchema">
 ): SchemaGroup[] {
     switch (type) {
         case "enable": {
@@ -174,16 +186,17 @@ function getSchemaGroups(
             return [
                 {
                     title: (
-                        <>
-                            You&apos;re about to <strong className="text-success">enable</strong> the following document
-                            schemas
-                        </>
+                        <StudioTrans
+                            ns="documentSchema"
+                            i18nKey="operationConfirm.enableTitle"
+                            components={{ strong: <strong className="text-success" /> }}
+                        />
                     ),
                     schemas: affectedSchemaGrouped.enabling,
                     destinationStatus: "Enabled",
                 },
                 {
-                    title: "Skipping already enabled schemas",
+                    title: t("operationConfirm.enableSkipping"),
                     schemas: affectedSchemaGrouped.skipping,
                 },
             ];
@@ -208,16 +221,17 @@ function getSchemaGroups(
             return [
                 {
                     title: (
-                        <>
-                            You&apos;re about to <strong className="text-danger">disable</strong> the following document
-                            schemas
-                        </>
+                        <StudioTrans
+                            ns="documentSchema"
+                            i18nKey="operationConfirm.disableTitle"
+                            components={{ strong: <strong className="text-danger" /> }}
+                        />
                     ),
                     schemas: affectedSchemaGrouped.disabling,
                     destinationStatus: "Disabled",
                 },
                 {
-                    title: "Skipping already disabled schemas",
+                    title: t("operationConfirm.disableSkipping"),
                     schemas: affectedSchemaGrouped.skipping,
                 },
             ];

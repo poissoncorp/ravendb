@@ -20,6 +20,8 @@ import { Icon } from "components/common/Icon";
 import { mapAmazonSqsConnectionStringSettingsToDto } from "components/pages/database/settings/connectionStrings/store/connectionStringsMapsToDto";
 import { connectionStringSelectors } from "../store/connectionStringsSlice";
 import { ConnectionStringsNameContext, connectionStringsUtils } from "../connectionStringsUtils";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import type { StudioTranslate } from "common/i18n/resources";
 
 type FormData = ConnectionFormData<AmazonSqsConnection>;
 
@@ -32,6 +34,7 @@ export default function AmazonSqsConnectionString({
     isForNewConnection,
     onSave,
 }: AmazonSqsConnectionStringProps) {
+    const t = useStudioTranslation("connectionStrings");
     const usedNames = useAppSelector(connectionStringSelectors.connections)["AmazonSqs"].map((x) => x.name);
     const isServerWide = useAppSelector(connectionStringSelectors.isServerWide);
 
@@ -81,36 +84,36 @@ export default function AmazonSqsConnectionString({
     return (
         <Form id="connection-string-form" onSubmit={handleSubmit(handleSave)} className="vstack gap-3">
             <div className="mb-2">
-                <FormLabel>Name</FormLabel>
+                <FormLabel>{t("form.nameLabel")}</FormLabel>
                 <FormInput
                     control={control}
                     name="name"
                     type="text"
-                    placeholder="Enter a name for the connection string"
+                    placeholder={t("form.namePlaceholder")}
                     disabled={!isForNewConnection}
                     autoComplete="off"
                 />
             </div>
             <div className="mb-2">
                 <FormLabel className="d-flex align-items-center gap-1">
-                    Authentication{" "}
+                    {t("form.authenticationLabel")}{" "}
                     {asyncTest.result?.Success ? (
                         <Badge bg="success" pill>
                             <Icon icon="check" />
-                            Successfully connected
+                            {t("form.successfullyConnected")}
                         </Badge>
                     ) : asyncTest.result?.Error ? (
                         <Badge bg="danger" pill>
                             <Icon icon="warning" />
-                            Failed connection
+                            {t("form.failedConnection")}
                         </Badge>
                     ) : null}
                 </FormLabel>
                 <FormSelect
                     name="authType"
                     control={control}
-                    placeholder="Select an authentication option"
-                    options={authenticationOptions}
+                    placeholder={t("form.authenticationPlaceholder")}
+                    options={getAuthenticationOptions(t)}
                     isSearchable={false}
                 />
             </div>
@@ -120,13 +123,13 @@ export default function AmazonSqsConnectionString({
                 <ButtonWithSpinner
                     variant="secondary"
                     icon="rocket"
-                    title="Test connection"
+                    title={t("form.testConnection")}
                     className="mb-2"
                     onClick={asyncTest.execute}
                     isSpinning={asyncTest.loading}
                     disabled={asyncTest.loading}
                 >
-                    Test connection
+                    {t("form.testConnection")}
                 </ButtonWithSpinner>
             </div>
             {asyncTest.result?.Error && (
@@ -153,35 +156,37 @@ interface SelectedAuthFieldsProps {
 }
 
 function SelectedAuthFields({ control, authMethod }: SelectedAuthFieldsProps) {
+    const t = useStudioTranslation("connectionStrings");
+
     if (authMethod === "basic") {
         return (
             <div className="vstack gap-3">
                 <div className="mb-2">
-                    <FormLabel>Access Key</FormLabel>
+                    <FormLabel>{t("amazonSqs.accessKeyLabel")}</FormLabel>
                     <FormInput
                         control={control}
                         name="settings.basic.accessKey"
                         type="text"
-                        placeholder="Enter an Access Key"
+                        placeholder={t("amazonSqs.accessKeyPlaceholder")}
                     />
                 </div>
                 <div className="mb-2">
-                    <FormLabel>Secret Key</FormLabel>
+                    <FormLabel>{t("amazonSqs.secretKeyLabel")}</FormLabel>
                     <FormInput
                         control={control}
                         name="settings.basic.secretKey"
                         type="password"
-                        placeholder="Enter a Secret Key"
+                        placeholder={t("amazonSqs.secretKeyPlaceholder")}
                         passwordPreview
                     />
                 </div>
                 <div className="mb-2">
-                    <FormLabel>Region Name</FormLabel>
+                    <FormLabel>{t("amazonSqs.regionNameLabel")}</FormLabel>
                     <FormInput
                         control={control}
                         name="settings.basic.regionName"
                         type="text"
-                        placeholder="Enter a Region Name"
+                        placeholder={t("amazonSqs.regionNamePlaceholder")}
                     />
                 </div>
             </div>
@@ -191,16 +196,20 @@ function SelectedAuthFields({ control, authMethod }: SelectedAuthFieldsProps) {
     return null;
 }
 
-const authenticationOptions: SelectOption<AmazonSqsAuthenticationType>[] = [
-    {
-        value: "basic",
-        label: "Basic",
-    },
-    {
-        value: "passwordless",
-        label: "Passwordless",
-    },
-];
+function getAuthenticationOptions(
+    t: StudioTranslate<"connectionStrings">
+): SelectOption<AmazonSqsAuthenticationType>[] {
+    return [
+        {
+            value: "basic",
+            label: t("amazonSqs.authBasic"),
+        },
+        {
+            value: "passwordless",
+            label: t("amazonSqs.authPasswordless"),
+        },
+    ];
+}
 
 function getStringRequiredSchema(authType: AmazonSqsAuthenticationType) {
     return yup
