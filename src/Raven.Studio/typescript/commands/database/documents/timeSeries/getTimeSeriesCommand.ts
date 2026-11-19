@@ -3,7 +3,10 @@ import database = require("models/resources/database");
 import endpoints = require("endpoints");
 import timeSeriesEntryModel = require("models/database/timeSeries/timeSeriesEntryModel");
 import moment = require("moment");
+import i18nModule = require("common/i18n/i18n");
 
+
+const t = i18nModule.createTranslator("documentsCommands");
 
 class getTimeSeriesCommand extends commandBase {
     
@@ -29,7 +32,7 @@ class getTimeSeriesCommand extends commandBase {
         return this.query<Raven.Client.Documents.Operations.TimeSeries.TimeSeriesRangeResult>(url + this.urlEncodeArgs(args), null, this.db)
             .fail((result: JQueryXHR) => {
                 if (!this.suppressNotFound || result.status !== 404) {
-                    this.reportError("Failed to get time series", result.responseText, result.statusText)
+                    this.reportError(t("timeSeries.getFailed"), result.responseText, result.statusText)
                 }
             });
     }

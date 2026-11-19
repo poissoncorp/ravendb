@@ -10,13 +10,14 @@ import { databaseSelectors } from "components/common/shell/databaseSliceSelector
 import messagePublisher from "common/messagePublisher";
 import ButtonWithSpinner from "components/common/ButtonWithSpinner";
 import notificationCenter from "common/notifications/notificationCenter";
-import pluralizeHelpers from "common/helpers/text/pluralizeHelpers";
 import genUtils from "common/generalUtils";
 import studioSettings from "common/settings/studioSettings";
 import { Switch } from "components/common/Checkbox";
 import useBoolean from "hooks/useBoolean";
 import { useIsMounted } from "components/hooks/useIsMounted";
 import useDeleteConfirmation from "hooks/useDeleteConfirmation";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface DeleteDocumentsModalProps {
     close: () => void;
@@ -43,6 +44,8 @@ export default function DeleteDocumentsModal({
     onCollectionDeletionStarted,
     onCollectionDeletionFailed,
 }: DeleteDocumentsModalProps) {
+    const t = useStudioTranslation("documentsList");
+    const commonT = useStudioTranslation("common");
     // Note: wrapped in function to avoid type error (JQueryPromise<globalSettings>)
     const asyncGlobalSettings = useAsync(async () => await studioSettings.default.globalSettings(), []);
 
@@ -74,7 +77,7 @@ export default function DeleteDocumentsModal({
 
     const toggleIsRequireTypedConfirm = async () => {
         if (!asyncGlobalSettings.result) {
-            messagePublisher.reportError("Failed to load studio global settings");
+            messagePublisher.reportError(t("deleteModal.loadSettingsFailed"));
             return;
         }
 
@@ -88,7 +91,9 @@ export default function DeleteDocumentsModal({
                 <div className="text-center">
                     <Icon icon="trash" color="danger" className="fs-1" margin="m-0" />
                 </div>
-                <div className="text-center lead">Delete {isSelectedAll ? "all" : "selected"} documents?</div>
+                <div className="text-center lead">
+                    {t("deleteModal.title", { context: isSelectedAll ? "all" : "selected" })}
+                </div>
             </Modal.Header>
             <Modal.Body>
                 <CollectionsInfo
@@ -99,18 +104,18 @@ export default function DeleteDocumentsModal({
                 />
                 {isRequireTypedConfirm && (
                     <Form.Group>
-                        <Form.Label className="fw-bold">Type DELETE to confirm</Form.Label>
+                        <Form.Label className="fw-bold">{t("deleteModal.typeToConfirm")}</Form.Label>
                         <Form.Control placeholder="DELETE" value={confirmText} onChange={handleTextChange} />
                     </Form.Group>
                 )}
             </Modal.Body>
             <Modal.Footer className="hstack justify-content-between">
                 <Switch selected={isRequireTypedConfirm} toggleSelection={toggleIsRequireTypedConfirm} color="primary">
-                    Require typed confirmation
+                    {t("deleteModal.requireTypedConfirmation")}
                 </Switch>
                 <div className="hstack gap-2 flex-grow-1 justify-content-end">
                     <Button variant="link" onClick={close} className="link-muted">
-                        Cancel
+                        {commonT("cancel")}
                     </Button>
                     <ButtonWithSpinner
                         isSpinning={deleteCollection.loading}
@@ -119,7 +124,7 @@ export default function DeleteDocumentsModal({
                         className="rounded-pill"
                         disabled={!isConfirmed}
                     >
-                        Delete
+                        {commonT("delete")}
                     </ButtonWithSpinner>
                 </div>
             </Modal.Footer>
@@ -138,6 +143,7 @@ function useDeleteCollection({
     onCollectionDeletionStarted,
     onCollectionDeletionFailed,
 }: DeleteDocumentsModalProps) {
+    const t = useStudioTranslation("documentsList");
     const { databasesService } = useServices();
     const dbName = useAppSelector(databaseSelectors.activeDatabaseName);
     const { value: isLoading, setValue: setIsLoading } = useBoolean(false);
@@ -165,10 +171,14 @@ function useDeleteCollection({
                     .monitorOperation(dbName, operationId)
                     .done(() => {
                         if (excludedIds.length === 0) {
-                            messagePublisher.reportSuccess(`Deleted collection ${collectionName}`);
+                            messagePublisher.reportSuccess(t("deleteModal.collectionDeleted", { collectionName }));
                         } else {
                             messagePublisher.reportSuccess(
-                                `Deleted ${pluralizeHelpers.pluralize(documentCount, "document", "documents")} from ${collectionName}`
+                                t("deleteModal.documentsDeleted", {
+                                    count: documentCount,
+                                    formattedCount: documentCount.toLocaleString(),
+                                    collectionName,
+                                })
                             );
                         }
                     })
@@ -204,21 +214,22 @@ interface CollectionsInfoProps {
 }
 
 function CollectionsInfo({ collectionName, isAllDocuments, selectedCount, isSelectedAll }: CollectionsInfoProps) {
-    const collectionDisplayName = isAllDocuments ? "all" : collectionName;
+    const allCollectionsContext = isSelectedAll ? "allFromAllCollections" : "selectedFromAllCollections";
+    const collectionContext = isSelectedAll ? "allFromCollection" : "selectedFromCollection";
 
     return (
         <p>
-            {isSelectedAll ? "All" : "Selected"} documents from{" "}
-            {isAllDocuments ? (
-                <>
-                    <b className="text-uppercase">{collectionDisplayName}</b> collections
-                </>
-            ) : (
-                <>
-                    collection <b>{collectionDisplayName}</b>
-                </>
-            )}{" "}
-            will be deleted ({genUtils.formatNumberToStringFixed(selectedCount, 0)} documents).
+            <StudioTrans
+                ns="documentsList"
+                i18nKey="deleteModal.info"
+                components={{ b: isAllDocuments ? <b className="text-uppercase" /> : <b /> }}
+                options={{
+                    context: isAllDocuments ? allCollectionsContext : collectionContext,
+                    count: selectedCount,
+                    formattedCount: genUtils.formatNumberToStringFixed(selectedCount, 0),
+                    collectionName,
+                }}
+            />
         </p>
     );
 }

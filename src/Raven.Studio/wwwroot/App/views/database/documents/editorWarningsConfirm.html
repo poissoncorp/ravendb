@@ -4,25 +4,23 @@
             <button type="button" class="close" data-bind="click: cancel" aria-hidden="true">
                 <i class="icon-cancel"></i>
             </button>
-            <h4 class="modal-title"><span data-bind="text: textForTitle"></span><span> Warnings</span></h4>
+            <h4 class="modal-title" data-bind="i18n: { key: 'editorWarningsConfirm:title', options: { name: textForTitle } }"></h4>
         </div>
         <div class="modal-body">
-            <div class="margin-top">
-                The following detected warnings might affect the <span data-bind="text: textForTitle"></span> data:
-            </div>
+            <div class="margin-top" data-bind="i18n: { key: 'editorWarningsConfirm:intro', options: { name: textForTitle } }"></div>
             <div data-bind="foreach: warningsList">
                 <table class="table table-condensed table-striped table-bordered margin-top" data-bind="visible: warnings.length">
                     <thead>
                     <tr>
-                        <th>Location in <span data-bind="text: source"></span></th>
-                        <th>Description</th>
+                        <th data-bind="i18n: { key: 'editorWarningsConfirm:locationIn', options: { source: source } }"></th>
+                        <th data-bind="i18n: 'editorWarningsConfirm:description'"></th>
                     </tr>
                     </thead>
                     <tbody data-bind="foreach: warnings">
                     <tr>
                         <td nowrap="nowrap">
                             <a href="#" class="text-warning"
-                               data-bind="click: $root.goTo.bind($root, $data, $parent.source), attr: { 'title': 'Go to warning in ' + $parent.source + ' editor' }">
+                               data-bind="click: $root.goTo.bind($root, $data, $parent.source), i18nAttr: { title: { key: 'editorWarningsConfirm:goToWarningTitle', options: { source: $parent.source } } }">
                                 <i class="icon-warning text-warning"></i>
                                 <span data-bind="text: $root.warningLocation($data)"></span>
                             </a>
@@ -36,8 +34,8 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-bind="click: cancel">Cancel</button>
-            <button type="button" class="btn btn-primary" data-bind="click: confirm">Save anyway</button>
+            <button type="button" class="btn btn-default" data-bind="click: cancel, i18n: 'common:cancel'"></button>
+            <button type="button" class="btn btn-primary" data-bind="click: confirm, i18n: 'editorWarningsConfirm:saveAnyway'"></button>
         </div>
     </div>
 </div>

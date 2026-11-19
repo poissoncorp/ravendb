@@ -18,6 +18,7 @@ import DocumentsSelectionActions from "components/pages/database/documents/docum
 import { useAppSelector } from "components/store";
 import document from "models/database/documents/document";
 import { useRef, useState } from "react";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface DocumentsPageBodyProps {
     collectionName: string | null;
@@ -26,6 +27,7 @@ interface DocumentsPageBodyProps {
 const getDocumentId = (doc: document) => doc.getId();
 
 export default function DocumentsPageBody({ collectionName }: DocumentsPageBodyProps) {
+    const t = useStudioTranslation("documentsList");
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const isSharded = useAppSelector(databaseSelectors.activeDatabase)?.isSharded;
     const trackedCollectionName = collectionName ?? systemCollectionNames.allDocuments;
@@ -123,10 +125,8 @@ export default function DocumentsPageBody({ collectionName }: DocumentsPageBodyP
                 lazyRows={lazyRows}
                 isPaginated={isPaginated}
                 onIsPaginatedChange={setIsPaginated}
-                itemsName="documents"
-                emptyMessage={
-                    collectionName === null ? "There are no documents in the database" : "Collection is empty"
-                }
+                itemsName={t("itemsName")}
+                emptyMessage={t("emptyMessage", { context: collectionName === null ? "allDocuments" : "collection" })}
                 bottomOverlay={
                     <DocumentsSelectionActions
                         collectionName={collectionName}

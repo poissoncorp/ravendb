@@ -1,8 +1,12 @@
 import AboutViewFloating, { AccordionItemWrapper } from "components/common/AboutView";
 import { Icon } from "components/common/Icon";
 import { useRavenLink } from "components/hooks/useRavenLink";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function CompareExchangeInfoHub() {
+    const t = useStudioTranslation("compareExchange");
+    const commonT = useStudioTranslation("common");
     const docsLink = useRavenLink({ hash: "2BGJN2" });
 
     return (
@@ -11,47 +15,52 @@ export default function CompareExchangeInfoHub() {
                 targetId="about"
                 icon="about"
                 color="info"
-                heading="About this view"
-                description="Get additional info on this feature"
+                heading={t("about.heading")}
+                description={t("about.description")}
             >
                 <p>
-                    <strong>Compare exchange</strong> items are cluster-wide key/value pairs that provide atomic,
-                    interlocked compare-exchange operations across the database group.
+                    <StudioTrans ns="compareExchange" i18nKey="about.intro" components={{ strong: <strong /> }} />
                 </p>
-                <p className="mb-0">Their values are kept consistent database-wide via the Raft consensus algorithm.</p>
+                <p className="mb-0">{t("about.consistency")}</p>
                 <hr />
-                <p>This view displays all compare exchange items.</p>
+                <p>{t("about.inThisView")}</p>
                 <ul>
                     <li>
-                        <strong>&quot;Compare Exchange Key&quot;</strong> column:
-                        <br />
-                        The unique key of the item. Click the key to edit the item.
+                        <StudioTrans
+                            ns="compareExchange"
+                            i18nKey="about.keyColumn"
+                            components={{ strong: <strong />, br: <br /> }}
+                        />
                     </li>
                     <li>
-                        <strong>&quot;Value&quot;</strong> column:
-                        <br />
-                        The value stored for this key.
+                        <StudioTrans
+                            ns="compareExchange"
+                            i18nKey="about.valueColumn"
+                            components={{ strong: <strong />, br: <br /> }}
+                        />
                     </li>
                     <li>
-                        <strong>&quot;Metadata&quot;</strong> column:
-                        <br />
-                        Optional metadata associated with the item.
+                        <StudioTrans
+                            ns="compareExchange"
+                            i18nKey="about.metadataColumn"
+                            components={{ strong: <strong />, br: <br /> }}
+                        />
                     </li>
                     <li>
-                        <strong>&quot;Raft Index&quot;</strong> column:
-                        <br />
-                        The version of the item, as set by the cluster consensus. This is used for concurrency control.
+                        <StudioTrans
+                            ns="compareExchange"
+                            i18nKey="about.raftIndexColumn"
+                            components={{ strong: <strong />, br: <br /> }}
+                        />
                     </li>
                 </ul>
                 <p className="mb-0">
-                    You can add a new item, filter items by key prefix, and sort the loaded rows.
-                    <br />
-                    Select and delete items &ndash; selecting all will delete all items matching the current filter.
+                    <StudioTrans ns="compareExchange" i18nKey="about.actions" components={{ br: <br /> }} />
                 </p>
                 <hr />
-                <div className="small-label mb-2">useful links</div>
+                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                 <a href={docsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - Compare Exchange
+                    <Icon icon="newtab" /> {t("about.docsLink")}
                 </a>
             </AccordionItemWrapper>
         </AboutViewFloating>

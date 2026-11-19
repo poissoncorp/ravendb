@@ -11,6 +11,7 @@ import endpoints from "endpoints";
 import { useRef, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Dropdown from "react-bootstrap/Dropdown";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface ExportDocumentsDropdownProps {
     collectionName: string;
@@ -25,15 +26,11 @@ const FORMAT_ITEMS: InputItem<ExportFormat>[] = [
     { label: "JSON", value: "json" },
 ];
 
-const COLUMNS_ITEMS: InputItem<ExportColumns>[] = [
-    { label: "All", value: "all" },
-    { label: "Visible", value: "visible" },
-];
-
 export default function ExportDocumentsDropdown({
     collectionName,
     getVisibleColumnFields,
 }: ExportDocumentsDropdownProps) {
+    const t = useStudioTranslation("documentsList");
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const { reportEvent } = useEventsCollector();
 
@@ -42,6 +39,11 @@ export default function ExportDocumentsDropdown({
     const [isOpen, setIsOpen] = useState(false);
 
     const formRef = useRef<HTMLFormElement>(null);
+
+    const columnsItems: InputItem<ExportColumns>[] = [
+        { label: t("export.columns.all"), value: "all" },
+        { label: t("export.columns.visible"), value: "visible" },
+    ];
 
     const handleExport = () => {
         reportEvent("query", "export-csv");
@@ -63,27 +65,27 @@ export default function ExportDocumentsDropdown({
     return (
         <>
             <Dropdown show={isOpen} onToggle={setIsOpen} autoClose="outside">
-                <Dropdown.Toggle as={CustomDropdownToggle} variant="secondary" title="Export documents as CSV/JSON">
+                <Dropdown.Toggle as={CustomDropdownToggle} variant="secondary" title={t("export.title")}>
                     <Icon icon="csv-export" />
-                    Export to file
+                    {t("export.button")}
                 </Dropdown.Toggle>
                 <Dropdown.Menu align="end" className="p-3" style={{ minWidth: "170px" }}>
                     <div className="vstack gap-3">
                         <MultiRadioToggle<ExportFormat>
-                            label="Format"
+                            label={t("export.formatLabel")}
                             inputItems={FORMAT_ITEMS}
                             selectedItem={format}
                             setSelectedItem={setFormat}
                         />
                         <MultiRadioToggle<ExportColumns>
-                            label="Columns"
-                            inputItems={COLUMNS_ITEMS}
+                            label={t("export.columnsLabel")}
+                            inputItems={columnsItems}
                             selectedItem={columns}
                             setSelectedItem={setColumns}
                         />
                         <Button variant="primary" onClick={handleExport} className="align-self-start">
                             <Icon icon="download" />
-                            Export
+                            {t("export.exportButton")}
                         </Button>
                     </div>
                 </Dropdown.Menu>

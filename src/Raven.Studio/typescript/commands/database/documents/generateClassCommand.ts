@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("documentsCommands");
 
 class generateClassCommand extends commandBase {
     
@@ -15,7 +18,7 @@ class generateClassCommand extends commandBase {
             lang: this.lang
         };
         return this.query<string>(url, args, this.db, null, { dataType: "text" })
-            .fail((response: JQueryXHR) => this.reportError("Failed to create class code",
+            .fail((response: JQueryXHR) => this.reportError(t("generateClassFailed"),
                 response.responseText,
                 response.statusText));
     }

@@ -6,6 +6,7 @@ import { SelectOption } from "components/common/select/Select";
 import { useClickOutside } from "components/hooks/useClickOutside";
 import { useScrollActiveIntoView } from "components/hooks/useScrollActiveIntoView";
 import useBoolean from "components/hooks/useBoolean";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 const MONTH_NAMES = moment.months();
 
@@ -86,6 +87,7 @@ export default function RangeDatePickerHeader({
     prevMonthButtonDisabled,
     nextMonthButtonDisabled,
 }: DatePickerHeaderProps) {
+    const t = useStudioTranslation("editTimeSeries");
     const currentMonth = date.getMonth();
     const currentYear = date.getFullYear();
 
@@ -107,19 +109,19 @@ export default function RangeDatePickerHeader({
                 className="ts-dp-header__nav"
                 onClick={decreaseMonth}
                 disabled={prevMonthButtonDisabled}
-                aria-label="Previous month"
+                aria-label={t("datePicker.previousMonth")}
             >
                 <Icon icon="chevron-left" margin="m-0" />
             </button>
             <HeaderSelect
-                ariaLabel="Month"
+                ariaLabel={t("datePicker.month")}
                 className="ts-dp-header__select--month"
                 value={currentMonth}
                 options={monthOptions}
                 onChange={changeMonth}
             />
             <HeaderSelect
-                ariaLabel="Year"
+                ariaLabel={t("datePicker.year")}
                 className="ts-dp-header__select--year"
                 value={currentYear}
                 options={yearOptions}
@@ -130,7 +132,7 @@ export default function RangeDatePickerHeader({
                 className="ts-dp-header__nav"
                 onClick={increaseMonth}
                 disabled={nextMonthButtonDisabled}
-                aria-label="Next month"
+                aria-label={t("datePicker.nextMonth")}
             >
                 <Icon icon="chevron-right" margin="m-0" />
             </button>

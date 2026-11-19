@@ -1,5 +1,8 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("documentsCommands");
 
 export interface RevisionsPreviewResultItem {
     Id: string;
@@ -32,7 +35,7 @@ export default class getRevisionsPreviewCommand extends commandBase {
         const url = endpoints.databases.studioCollections.studioRevisionsPreview + this.urlEncodeArgs(this.getArgsToUse());
 
         return this.query(url, null, this.parameters.databaseName, this.resultsSelector).fail((response: JQueryXHR) => {
-            this.reportError("Failed to get revisions preview", response.responseText, response.statusText);
+            this.reportError(t("getRevisionsPreviewFailed"), response.responseText, response.statusText);
         });
     }
 

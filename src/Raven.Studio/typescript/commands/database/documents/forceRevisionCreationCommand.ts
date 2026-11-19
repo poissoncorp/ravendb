@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("documentsCommands");
 
 class forceRevisionCreationCommand extends commandBase {
 
@@ -24,13 +27,13 @@ class forceRevisionCreationCommand extends commandBase {
         if (this.reportSaveProgress) {
             saveTask.done((result: saveDocumentResponseDto) => {
                 if (result.Results[0].RevisionCreated) {
-                    this.reportSuccess("Created revision for document:" + result.Results[0]["@id"]);
+                    this.reportSuccess(t("revisionCreated", { id: result.Results[0]["@id"] }));
                 }
                 else {
-                    this.reportSuccess("No new revision created. A revision with the latest document content already exists");
+                    this.reportSuccess(t("revisionNotCreated"));
                 }
             });            
-            saveTask.fail((response: JQueryXHR) => this.reportError("Failed to create revision for document: " + this.id, response.responseText, response.statusText));
+            saveTask.fail((response: JQueryXHR) => this.reportError(t("createRevisionFailed", { id: this.id }), response.responseText, response.statusText));
         }
 
         return saveTask;

@@ -4,8 +4,10 @@ import { collectionsTrackerSelectors } from "components/common/shell/collections
 import { useAppSelector } from "components/store";
 import router from "plugins/router";
 import { useEffect, useRef } from "react";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export function useCollectionRemovalRedirect(databaseName: string, collectionName: string | null) {
+    const t = useStudioTranslation("documentsList");
     const collectionNames = useAppSelector(collectionsTrackerSelectors.collectionNames);
 
     const wasCollectionSeenRef = useRef(false);
@@ -22,11 +24,11 @@ export function useCollectionRemovalRedirect(databaseName: string, collectionNam
         }
 
         if (wasCollectionSeenRef.current && !isRemovalExpectedRef.current) {
-            messagePublisher.reportWarning(`${collectionName} was removed`);
+            messagePublisher.reportWarning(t("collectionRemoved", { collectionName }));
         }
 
         redirectToAllDocuments(databaseName);
-    }, [collectionName, collectionNames, databaseName]);
+    }, [collectionName, collectionNames, databaseName, t]);
 
     return {
         onCollectionDeletionStarted: () => {

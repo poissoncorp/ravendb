@@ -10,6 +10,9 @@ import { InputItem } from "components/models/common";
 import TimePicker, { TIME_FORMAT, TIME_PARSE_FORMATS } from "./TimePicker";
 import RangeDatePickerHeader from "./RangeDatePickerHeader";
 import { FilterTimezone, wallOf, zoneLabel, FULL_FORMAT } from "./timeSeriesRangeUtils";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import type { StudioTranslate, TranslationResources } from "common/i18n/resources";
 import "./TimeSeriesRangePicker.scss";
 
 export type { FilterTimezone } from "./timeSeriesRangeUtils";
@@ -29,54 +32,45 @@ interface TimeSeriesRangePickerProps {
     onChange: (state: TimeSeriesRangeState) => void;
 }
 
-const modeItems: InputItem<FilterMode>[] = [
-    { label: "Between", value: "between" },
-    { label: "Before", value: "before" },
-    { label: "After", value: "after" },
-];
+type PresetId = keyof TranslationResources["editTimeSeries"]["rangePicker"]["presets"];
 
 interface PresetDef {
-    label: string;
+    id: PresetId;
     range: (now: moment.Moment) => { start?: moment.Moment; end?: moment.Moment };
 }
 
 const presetsByMode: Record<FilterMode, PresetDef[]> = {
     between: [
-        { label: "Today", range: (now) => ({ start: now.clone().startOf("day"), end: now }) },
-        { label: "Last 3 days", range: (now) => ({ start: now.clone().subtract(3, "days"), end: now }) },
-        { label: "Last 7 days", range: (now) => ({ start: now.clone().subtract(7, "days"), end: now }) },
-        { label: "This week", range: (now) => ({ start: now.clone().startOf("week"), end: now }) },
-        { label: "This month", range: (now) => ({ start: now.clone().startOf("month"), end: now }) },
-        { label: "Last year", range: (now) => ({ start: now.clone().subtract(1, "year"), end: now }) },
+        { id: "today", range: (now) => ({ start: now.clone().startOf("day"), end: now }) },
+        { id: "last3Days", range: (now) => ({ start: now.clone().subtract(3, "days"), end: now }) },
+        { id: "last7Days", range: (now) => ({ start: now.clone().subtract(7, "days"), end: now }) },
+        { id: "thisWeek", range: (now) => ({ start: now.clone().startOf("week"), end: now }) },
+        { id: "thisMonth", range: (now) => ({ start: now.clone().startOf("month"), end: now }) },
+        { id: "lastYear", range: (now) => ({ start: now.clone().subtract(1, "year"), end: now }) },
     ],
     before: [
-        { label: "Until Today", range: (now) => ({ end: now }) },
-        { label: "Until 3 days ago", range: (now) => ({ end: now.clone().subtract(3, "days") }) },
-        { label: "Until 7 days ago", range: (now) => ({ end: now.clone().subtract(7, "days") }) },
-        { label: "Until 30 days ago", range: (now) => ({ end: now.clone().subtract(30, "days") }) },
-        { label: "Until start of week", range: (now) => ({ end: now.clone().startOf("week") }) },
-        { label: "Until start of month", range: (now) => ({ end: now.clone().startOf("month") }) },
-        { label: "Until start of year", range: (now) => ({ end: now.clone().startOf("year") }) },
+        { id: "untilToday", range: (now) => ({ end: now }) },
+        { id: "until3DaysAgo", range: (now) => ({ end: now.clone().subtract(3, "days") }) },
+        { id: "until7DaysAgo", range: (now) => ({ end: now.clone().subtract(7, "days") }) },
+        { id: "until30DaysAgo", range: (now) => ({ end: now.clone().subtract(30, "days") }) },
+        { id: "untilStartOfWeek", range: (now) => ({ end: now.clone().startOf("week") }) },
+        { id: "untilStartOfMonth", range: (now) => ({ end: now.clone().startOf("month") }) },
+        { id: "untilStartOfYear", range: (now) => ({ end: now.clone().startOf("year") }) },
     ],
     after: [
-        { label: "Since Today", range: (now) => ({ start: now.clone().startOf("day") }) },
-        { label: "Since 3 days ago", range: (now) => ({ start: now.clone().subtract(3, "days") }) },
-        { label: "Since 7 days ago", range: (now) => ({ start: now.clone().subtract(7, "days") }) },
-        { label: "Since 30 days ago", range: (now) => ({ start: now.clone().subtract(30, "days") }) },
-        { label: "Since start of week", range: (now) => ({ start: now.clone().startOf("week") }) },
-        { label: "Since start of month", range: (now) => ({ start: now.clone().startOf("month") }) },
-        { label: "Since start of year", range: (now) => ({ start: now.clone().startOf("year") }) },
+        { id: "sinceToday", range: (now) => ({ start: now.clone().startOf("day") }) },
+        { id: "since3DaysAgo", range: (now) => ({ start: now.clone().subtract(3, "days") }) },
+        { id: "since7DaysAgo", range: (now) => ({ start: now.clone().subtract(7, "days") }) },
+        { id: "since30DaysAgo", range: (now) => ({ start: now.clone().subtract(30, "days") }) },
+        { id: "sinceStartOfWeek", range: (now) => ({ start: now.clone().startOf("week") }) },
+        { id: "sinceStartOfMonth", range: (now) => ({ start: now.clone().startOf("month") }) },
+        { id: "sinceStartOfYear", range: (now) => ({ start: now.clone().startOf("year") }) },
     ],
 };
 
 function firstPresetFor(mode: FilterMode): PresetDef {
     return presetsByMode[mode][0];
 }
-
-const timezoneOptions: SelectOption<FilterTimezone>[] = [
-    { value: "local", label: "Local" },
-    { value: "utc", label: "UTC" },
-];
 
 function toPickerDate(instant: moment.Moment | null, tz: FilterTimezone): Date | null {
     if (!instant) {
@@ -116,42 +110,17 @@ function buildInstant(date: Date | null, time: string, tz: FilterTimezone): Buil
     return { value: tz === "utc" ? moment.utc(parts) : moment(parts), invalid: false };
 }
 
-function oppositeHelper(instant: moment.Moment | null, tz: FilterTimezone): string | null {
+function oppositeHelper(
+    instant: moment.Moment | null,
+    tz: FilterTimezone,
+    t: StudioTranslate<"editTimeSeries">
+): string | null {
     if (!instant) {
         return null;
     }
     return tz === "utc"
-        ? instant.clone().local().format(FULL_FORMAT) + " (Local)"
-        : instant.clone().utc().format(FULL_FORMAT) + "Z (UTC)";
-}
-
-interface SummarySegment {
-    text: string;
-    strong?: boolean;
-}
-
-function rangeSummary(
-    mode: FilterMode,
-    startValue: moment.Moment | null,
-    endValue: moment.Moment | null,
-    tz: FilterTimezone
-): SummarySegment[] | null {
-    const stamp = (m: moment.Moment): SummarySegment => ({ text: wallOf(m, tz).format(FULL_FORMAT), strong: true });
-    const zone: SummarySegment = { text: ` (${zoneLabel(tz)}).` };
-
-    if (mode === "between") {
-        if (!startValue || !endValue || endValue.isBefore(startValue)) {
-            return null;
-        }
-        return [{ text: "Includes all entries between " }, stamp(startValue), { text: " and " }, stamp(endValue), zone];
-    }
-    if (mode === "before") {
-        return endValue ? [{ text: "Includes all entries before " }, stamp(endValue), zone] : null;
-    }
-    if (mode === "after") {
-        return startValue ? [{ text: "Includes all entries after " }, stamp(startValue), zone] : null;
-    }
-    return null;
+        ? t("dateWithZone", { context: "local", date: instant.clone().local().format(FULL_FORMAT) })
+        : t("dateWithZone", { context: "utc", date: instant.clone().utc().format(FULL_FORMAT) });
 }
 
 function initialMode(startDate: moment.Moment | null, endDate: moment.Moment | null): FilterMode {
@@ -170,21 +139,22 @@ export default function TimeSeriesRangePicker({
     initialTimezone = "local",
     onChange,
 }: TimeSeriesRangePickerProps) {
+    const t = useStudioTranslation("editTimeSeries");
     const [defaultNow] = useState(() => moment());
 
     const initialFields = useMemo(() => {
         if (startDate || endDate) {
-            return { start: startDate ?? defaultNow, end: endDate ?? defaultNow, preset: null as string | null };
+            return { start: startDate ?? defaultNow, end: endDate ?? defaultNow, preset: null as PresetId | null };
         }
         const today = firstPresetFor(initialMode(startDate, endDate));
         const todayRange = today.range(wallOf(defaultNow, initialTimezone));
-        return { start: todayRange.start ?? defaultNow, end: todayRange.end ?? defaultNow, preset: today.label };
+        return { start: todayRange.start ?? defaultNow, end: todayRange.end ?? defaultNow, preset: today.id };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const [mode, setMode] = useState<FilterMode>(() => initialMode(startDate, endDate));
     const [tz, setTz] = useState<FilterTimezone>(initialTimezone);
-    const [selectedPreset, setSelectedPreset] = useState<string | null>(initialFields.preset);
+    const [selectedPreset, setSelectedPreset] = useState<PresetId | null>(initialFields.preset);
 
     const [startPickerDate, setStartPickerDate] = useState<Date | null>(() =>
         toPickerDate(initialFields.start, initialTimezone)
@@ -233,7 +203,7 @@ export default function TimeSeriesRangePicker({
             setEndField(end);
             setTouched((prev) => ({ ...prev, end: true }));
         }
-        setSelectedPreset(preset.label);
+        setSelectedPreset(preset.id);
     };
 
     const changeMode = (next: FilterMode) => {
@@ -247,7 +217,7 @@ export default function TimeSeriesRangePicker({
             setEndField(end);
         }
         const fullyDefaulted = (start === undefined || !touched.start) && (end === undefined || !touched.end);
-        setSelectedPreset(fullyDefaulted ? preset.label : null);
+        setSelectedPreset(fullyDefaulted ? preset.id : null);
     };
 
     const editStartDate = (d: Date | null) => {
@@ -291,6 +261,17 @@ export default function TimeSeriesRangePicker({
     const startMs = startOut ? startOut.valueOf() : null;
     const endMs = endOut ? endOut.valueOf() : null;
 
+    const modeItems: InputItem<FilterMode>[] = [
+        { label: t("rangePicker.mode.between"), value: "between" },
+        { label: t("rangePicker.mode.before"), value: "before" },
+        { label: t("rangePicker.mode.after"), value: "after" },
+    ];
+
+    const timezoneOptions: SelectOption<FilterTimezone>[] = [
+        { value: "local", label: zoneLabel("local", t) },
+        { value: "utc", label: zoneLabel("utc", t) },
+    ];
+
     // Emit only on real change; a ref-guard stops the effect looping on the fresh moments each render mints.
     const onChangeRef = useRef(onChange);
     onChangeRef.current = onChange;
@@ -309,10 +290,10 @@ export default function TimeSeriesRangePicker({
             <div className="ts-range-picker__sidebar vstack">
                 <div className="vstack mb-3">
                     {presetsByMode[mode].map((preset) => {
-                        const isActive = selectedPreset === preset.label;
+                        const isActive = selectedPreset === preset.id;
                         return (
                             <Button
-                                key={preset.label}
+                                key={preset.id}
                                 variant="link"
                                 size="sm"
                                 className={classNames(
@@ -321,13 +302,13 @@ export default function TimeSeriesRangePicker({
                                 )}
                                 onClick={() => applyPreset(preset)}
                             >
-                                <span>{preset.label}</span>
+                                <span>{t(`rangePicker.presets.${preset.id}`)}</span>
                             </Button>
                         );
                     })}
                 </div>
                 <div className="mt-auto">
-                    <label className="md-label d-block mb-1">Time zone</label>
+                    <label className="md-label d-block mb-1">{t("rangePicker.timezone")}</label>
                     <Select
                         options={timezoneOptions}
                         value={timezoneOptions.find((o) => o.value === tz)}
@@ -350,32 +331,30 @@ export default function TimeSeriesRangePicker({
                     (order:1 in the SCSS drops it to the bottom) so the modal height never changes. */}
                 <div className="vstack gap-2">
                     <DateTimeField
-                        label="Start date"
+                        label={t("rangePicker.startDate")}
                         hidden={!usesStart}
                         date={startPickerDate}
                         time={startTime}
                         timeInvalid={startBuild.invalid}
                         timezone={tz}
-                        helper={oppositeHelper(startBuild.value, tz)}
+                        helper={oppositeHelper(startBuild.value, tz, t)}
                         onDateChange={editStartDate}
                         onTimeChange={editStartTime}
                     />
                     <DateTimeField
-                        label="End date"
+                        label={t("rangePicker.endDate")}
                         hidden={!usesEnd}
                         date={endPickerDate}
                         time={endTime}
                         timeInvalid={endBuild.invalid}
                         timezone={tz}
-                        helper={oppositeHelper(endBuild.value, tz)}
+                        helper={oppositeHelper(endBuild.value, tz, t)}
                         onDateChange={editEndDate}
                         onTimeChange={editEndTime}
                     />
                 </div>
 
-                {rangeInvalid && (
-                    <div className="text-danger small">End date must be greater than (or equal to) start date.</div>
-                )}
+                {rangeInvalid && <div className="text-danger small">{t("rangePicker.endBeforeStart")}</div>}
 
                 <RangeSummary mode={mode} startValue={startBuild.value} endValue={endBuild.value} timezone={tz} />
             </div>
@@ -391,7 +370,39 @@ interface RangeSummaryProps {
 }
 
 function RangeSummary({ mode, startValue, endValue, timezone }: RangeSummaryProps) {
-    const summary = rangeSummary(mode, startValue, endValue, timezone);
+    const stamp = (m: moment.Moment) => wallOf(m, timezone).format(FULL_FORMAT);
+    const components = { strong: <strong /> };
+
+    let summary: React.ReactNode = null;
+    if (mode === "between" && startValue && endValue && !endValue.isBefore(startValue)) {
+        summary = (
+            <StudioTrans
+                ns="editTimeSeries"
+                i18nKey="rangePicker.summary.between"
+                components={components}
+                options={{ context: timezone, start: stamp(startValue), end: stamp(endValue) }}
+            />
+        );
+    } else if (mode === "before" && endValue) {
+        summary = (
+            <StudioTrans
+                ns="editTimeSeries"
+                i18nKey="rangePicker.summary.before"
+                components={components}
+                options={{ context: timezone, end: stamp(endValue) }}
+            />
+        );
+    } else if (mode === "after" && startValue) {
+        summary = (
+            <StudioTrans
+                ns="editTimeSeries"
+                i18nKey="rangePicker.summary.after"
+                components={components}
+                options={{ context: timezone, start: stamp(startValue) }}
+            />
+        );
+    }
+
     if (!summary) {
         return null;
     }
@@ -399,11 +410,7 @@ function RangeSummary({ mode, startValue, endValue, timezone }: RangeSummaryProp
         <div className="ts-range-picker__summary-slot">
             <div className="ts-range-picker__summary hstack gap-2 align-items-center">
                 <Icon icon="info" color="info" margin="m-0" />
-                <span>
-                    {summary.map((seg, i) =>
-                        seg.strong ? <strong key={i}>{seg.text}</strong> : <span key={i}>{seg.text}</span>
-                    )}
-                </span>
+                <span>{summary}</span>
             </div>
         </div>
     );
@@ -432,6 +439,7 @@ function DateTimeField({
     onDateChange,
     onTimeChange,
 }: DateTimeFieldProps) {
+    const t = useStudioTranslation("editTimeSeries");
     return (
         <div
             className={classNames({ "mt-1": !!label, "ts-range-picker__field--placeholder": hidden })}
@@ -440,7 +448,7 @@ function DateTimeField({
             {label && <div className="fw-bold mb-2">{label}</div>}
             <div className="d-flex gap-2">
                 <div className="flex-grow-1">
-                    <label className="md-label d-block mb-1">Date</label>
+                    <label className="md-label d-block mb-1">{t("rangePicker.date")}</label>
                     <div className="ts-range-picker__input-icon">
                         <Icon icon="calendar" margin="m-0" className="ts-range-picker__input-icon-glyph" />
                         <DatePicker
@@ -464,7 +472,7 @@ function DateTimeField({
                     </div>
                 </div>
                 <div className="flex-grow-1">
-                    <label className="md-label d-block mb-1">Time</label>
+                    <label className="md-label d-block mb-1">{t("rangePicker.time")}</label>
                     <TimePicker value={time} invalid={timeInvalid} timezone={timezone} onChange={onTimeChange} />
                 </div>
             </div>

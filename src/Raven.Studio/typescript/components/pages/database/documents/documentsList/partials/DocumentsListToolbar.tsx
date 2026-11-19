@@ -16,6 +16,7 @@ import queryCriteria from "models/database/query/queryCriteria";
 import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Dropdown from "react-bootstrap/Dropdown";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface DocumentsListToolbarProps {
     collectionName: string | null;
@@ -38,6 +39,8 @@ export default function DocumentsListToolbar({
     isDataChanged,
     onDataChangedRefresh,
 }: DocumentsListToolbarProps) {
+    const t = useStudioTranslation("documentsList");
+    const commonT = useStudioTranslation("common");
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const isSharded = useAppSelector(databaseSelectors.activeDatabase)?.isSharded;
     const hasDatabaseWriteAccess = useAppSelector(accessManagerSelectors.getHasDatabaseWriteAccess)();
@@ -49,7 +52,7 @@ export default function DocumentsListToolbar({
 
         const query = queryCriteria.empty();
         query.queryText("from " + queryUtil.wrapWithSingleQuotes(collectionNameForQuery));
-        query.name(`Recent query (${collectionNameForQuery})`);
+        query.name(t("toolbar.recentQueryName", { collectionName: collectionNameForQuery }));
         query.recentQuery(true);
 
         savedQueriesStorage.saveAndNavigate(databaseName, query.toStorageDto());
@@ -71,7 +74,7 @@ export default function DocumentsListToolbar({
                         disabled={!hasDatabaseWriteAccess}
                     >
                         <Icon icon="new-document" />
-                        New document
+                        {t("toolbar.newDocument")}
                     </Button>
                     {collectionName && (
                         <>
@@ -79,7 +82,7 @@ export default function DocumentsListToolbar({
                                 variant="primary"
                                 as={CustomDropdownToggle}
                                 disabled={!hasDatabaseWriteAccess}
-                                title="More options"
+                                title={t("toolbar.moreOptions")}
                             />
                             <Dropdown.Menu>
                                 <Dropdown.Item
@@ -87,7 +90,7 @@ export default function DocumentsListToolbar({
                                     onClick={() => reportEvent("document", "new-in-collection")}
                                 >
                                     <Icon icon="new-document" />
-                                    New document in current collection
+                                    {t("toolbar.newDocumentInCollection")}
                                 </Dropdown.Item>
                             </Dropdown.Menu>
                         </>
@@ -102,16 +105,16 @@ export default function DocumentsListToolbar({
                         childrenClassName="w-auto"
                         data-testid="data-changed-alert"
                     >
-                        The data has changed. Your results may contain duplicates or non-current entries.{" "}
+                        {t("toolbar.dataChanged")}{" "}
                         <Button variant="link" className="p-0 align-baseline" onClick={handleDataChangedRefresh}>
-                            Refresh
+                            {commonT("refresh")}
                         </Button>
                     </RichAlert>
                 )}
                 <div className="d-flex align-items-center gap-2 flex-wrap">
-                    <Button variant="secondary" onClick={navigateToQuery} title="Query current collection">
+                    <Button variant="secondary" onClick={navigateToQuery} title={t("toolbar.queryTitle")}>
                         <Icon icon="query" />
-                        Query
+                        {t("toolbar.query")}
                     </Button>
                     {collectionName && (
                         <ExportDocumentsDropdown
@@ -124,34 +127,32 @@ export default function DocumentsListToolbar({
                             as={CustomDropdownToggle}
                             variant="secondary"
                             active={isCustomLayout}
-                            title={isCustomLayout ? "Using custom columns and their order" : "Display settings"}
+                            title={t("toolbar.displayTitle", { context: isCustomLayout ? "custom" : undefined })}
                         >
                             <Icon icon="table" />
-                            Display
+                            {t("toolbar.display")}
                         </Dropdown.Toggle>
                         <Dropdown.Menu align="end">
                             <Dropdown.Item onClick={onOpenColumnSettings}>
                                 <Icon icon="table" />
-                                Column layout settings
+                                {t("toolbar.columnLayoutSettings")}
                             </Dropdown.Item>
                             <Dropdown.Divider />
                             <Dropdown.ItemText>
                                 <ConditionalPopover
                                     conditions={{
                                         isActive: isSharded,
-                                        message: "Pagination is not available in a sharded database",
+                                        message: t("toolbar.paginationNotAvailable"),
                                     }}
                                 >
                                     <Switch
                                         selected={isPaginated}
                                         toggleSelection={() => onIsPaginatedChange(!isPaginated)}
                                         color="primary"
-                                        title={
-                                            isSharded ? null : "Show the documents page by page instead of scrolling"
-                                        }
+                                        title={isSharded ? null : t("toolbar.paginationTitle")}
                                         disabled={isSharded}
                                     >
-                                        Pagination
+                                        {t("toolbar.pagination")}
                                     </Switch>
                                 </ConditionalPopover>
                             </Dropdown.ItemText>

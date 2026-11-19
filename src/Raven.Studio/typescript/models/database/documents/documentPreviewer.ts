@@ -5,6 +5,9 @@ import showDataDialog = require("viewmodels/common/showDataDialog");
 import database = require("models/resources/database");
 import viewHelpers = require("common/helpers/view/viewHelpers");
 import getDocumentWithMetadataCommand = require("commands/database/documents/getDocumentWithMetadataCommand");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("documentsModels");
 
 class documentPreviewer {
     static preview(documentId: KnockoutObservable<string>, db: KnockoutObservable<database>, validationGroup: KnockoutValidationGroup, spinner?: KnockoutObservable<boolean>){
@@ -21,7 +24,7 @@ class documentPreviewer {
                             const metaDto = docDto["@metadata"];
                             documentMetadata.filterMetadata(metaDto);
                             const text = JSON.stringify(docDto, null, 4);
-                            app.showBootstrapDialog(new showDataDialog("Document: " + doc.getId(), text, "javascript"));
+                            app.showBootstrapDialog(new showDataDialog(t("preview.title", { id: doc.getId() }), text, "javascript"));
                         })
                         .always(() => spinner(false));
                 } else {

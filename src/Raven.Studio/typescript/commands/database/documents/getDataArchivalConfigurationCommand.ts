@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("documentsCommands");
 
 class getDataArchivalConfigurationCommand extends commandBase {
 
@@ -22,7 +25,7 @@ class getDataArchivalConfigurationCommand extends commandBase {
                     deferred.resolve(null);
                 } else {
                     deferred.reject(xhr);
-                    this.reportError("Failed to get data archival configuration", xhr.responseText, xhr.statusText);
+                    this.reportError(t("getDataArchivalConfigurationFailed"), xhr.responseText, xhr.statusText);
                 }
             });
 

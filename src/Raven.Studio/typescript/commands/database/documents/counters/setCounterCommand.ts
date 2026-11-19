@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database")
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("documentsCommands");
 
 class setCounterCommand extends commandBase {
 
@@ -27,9 +30,9 @@ class setCounterCommand extends commandBase {
 
         return this.post<Raven.Client.Documents.Operations.Counters.CountersDetail>(url, JSON.stringify(payload), this.db, {dataType: undefined})
             .done(() => {
-                this.reportSuccess("Counter was set successfully: " + this.counterName);
+                this.reportSuccess(t("counters.set", { counterName: this.counterName }));
             })
-            .fail((response: JQueryXHR) => this.reportError("Failed to set counter", response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("counters.setFailed"), response.responseText, response.statusText));
     }
 }
 

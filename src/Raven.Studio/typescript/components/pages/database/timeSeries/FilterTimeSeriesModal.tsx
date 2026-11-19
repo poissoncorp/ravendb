@@ -5,6 +5,7 @@ import { Icon } from "components/common/Icon";
 import Button from "react-bootstrap/Button";
 import { ConditionalPopover } from "components/common/ConditionalPopover";
 import TimeSeriesRangePicker, { FilterTimezone, TimeSeriesRangeState } from "./TimeSeriesRangePicker";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 
 interface FilterTimeSeriesModalProps {
     startDate: moment.Moment | null;
@@ -23,6 +24,8 @@ export default function FilterTimeSeriesModal({
     onApply,
     close,
 }: FilterTimeSeriesModalProps) {
+    const t = useStudioTranslation("editTimeSeries");
+    const tCommon = useStudioTranslation("common");
     const [state, setState] = useState<TimeSeriesRangeState>(() => ({
         range: { startDate, endDate },
         canApply: true,
@@ -42,11 +45,9 @@ export default function FilterTimeSeriesModal({
             <Modal.Header onCloseClick={close} className="vstack gap-1 align-items-start">
                 <div className="hstack gap-2 align-items-center">
                     <Icon icon="calendar" color="primary" margin="m-0" className="fs-3" />
-                    <h3 className="mb-0">Filter time series</h3>
+                    <h3 className="mb-0">{t("filterModal.title")}</h3>
                 </div>
-                <div className="text-muted">
-                    Filter data points that occurred within the specified start and end timestamps.
-                </div>
+                <div className="text-muted">{t("filterModal.description")}</div>
             </Modal.Header>
             <Modal.Body>
                 <TimeSeriesRangePicker
@@ -58,11 +59,11 @@ export default function FilterTimeSeriesModal({
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="link" className="link-muted" onClick={close}>
-                    Cancel
+                    {tCommon("cancel")}
                 </Button>
-                <ConditionalPopover conditions={{ isActive: !state.canApply, message: "Complete the range to apply." }}>
+                <ConditionalPopover conditions={{ isActive: !state.canApply, message: t("filterModal.completeRange") }}>
                     <Button variant="primary" className="rounded-pill" disabled={!state.canApply} onClick={handleApply}>
-                        Apply filter
+                        {t("filterModal.apply")}
                     </Button>
                 </ConditionalPopover>
             </Modal.Footer>

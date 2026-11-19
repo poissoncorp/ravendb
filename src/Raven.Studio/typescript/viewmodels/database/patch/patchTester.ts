@@ -13,6 +13,9 @@ import documentPreviewer = require("models/database/documents/documentPreviewer"
 import queryUtil = require("common/queryUtil");
 import getIndexesDefinitionsCommand = require("commands/database/index/getIndexesDefinitionsCommand");
 import patchDebugActions = require("viewmodels/database/patch/patchDebugActions");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("patch");
 
 type testTabType = "preview" | "loaded" | "modified" | "deleted" | "output";
 
@@ -97,7 +100,7 @@ class patchTester extends viewModelBase {
 
         if (type === "index" && this.mapReduceIndexesCache.has(name.toLocaleLowerCase())) {
             // patch is not supported for map-reduce indexes
-            messagePublisher.reportWarning("Patch operation is not supported for Map-Reduce indexes");
+            messagePublisher.reportWarning(t("test.mapReduceNotSupported"));
             return;
         }
         
@@ -179,9 +182,9 @@ class patchTester extends viewModelBase {
             })
             .fail((xhr: JQueryXHR) => {
                 if (xhr.status === 404) {
-                    messagePublisher.reportWarning("Document doesn't exist.");
+                    messagePublisher.reportWarning(t("documentNotFound"));
                 } else {
-                    messagePublisher.reportError("Failed to load document.", xhr.responseText, xhr.statusText);
+                    messagePublisher.reportError(t("test.loadFailed"), xhr.responseText, xhr.statusText);
                 }
             })
             .always(() => this.spinners.loadingDocument(false));
@@ -219,7 +222,7 @@ class patchTester extends viewModelBase {
                         this.actions.fill(actions);
                         
                         if (result.Status === "Patched") {
-                            messagePublisher.reportSuccess("Test completed");
+                            messagePublisher.reportSuccess(t("test.completed"));
                         }
                     })
                     .always(() => this.spinners.testing(false));

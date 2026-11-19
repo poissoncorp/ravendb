@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("cmpXchgCommands");
 
 class deleteCompareExchangeItemCommand extends commandBase {
 
@@ -16,7 +19,7 @@ class deleteCompareExchangeItemCommand extends commandBase {
 
         const url = endpoints.databases.compareExchange.cmpxchg + this.urlEncodeArgs(args);
         return this.del<Raven.Client.Documents.Operations.CompareExchange.CompareExchangeResult<any>>(url, null, this.database)
-            .fail((response: JQueryXHR) => this.reportError("Failed to delete Compare Exchange item", response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("deleteFailed"), response.responseText, response.statusText));
     }
 }
 

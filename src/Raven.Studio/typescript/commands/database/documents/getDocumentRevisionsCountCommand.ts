@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("documentsCommands");
 
 class getDocumentRevisionsCountCommand extends commandBase {
 
@@ -16,7 +19,7 @@ class getDocumentRevisionsCountCommand extends commandBase {
         const url = endpoints.databases.revisions.revisionsCount + this.urlEncodeArgs(args);
 
         return this.query<Raven.Client.Documents.Session.Operations.GetRevisionsCountOperation.DocumentRevisionsCount>(url, null, this.db)
-            .fail((result: JQueryXHR) => this.reportError("Failed to get revisions count", result.responseText, result.statusText));
+            .fail((result: JQueryXHR) => this.reportError(t("getRevisionsCountFailed"), result.responseText, result.statusText));
     }
  }
 

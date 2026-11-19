@@ -26,7 +26,8 @@ import router from "plugins/router";
 import useConfirm from "components/common/ConfirmDialog";
 import { useAsyncCallback } from "react-async-hook";
 import { useAppSelector } from "components/store";
-import pluralizeHelpers from "common/helpers/text/pluralizeHelpers";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 import { AccessPopover } from "components/common/AccessPopover";
 import { columnCheckbox } from "components/common/virtualTable/utils/commonColumnDefs";
 
@@ -36,6 +37,8 @@ type CompareExchangeListItem =
 const requiredAccess: databaseAccessLevel = "DatabaseReadWrite";
 
 export default function CompareExchange() {
+    const t = useStudioTranslation("compareExchange");
+    const commonT = useStudioTranslation("common");
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const hasDatabaseWriteAccess = useAppSelector(accessManagerSelectors.getHasDatabaseWriteAccess)();
 
@@ -79,23 +82,26 @@ export default function CompareExchange() {
     const asyncHandleDelete = useAsyncCallback(async () => {
         const confirmed = isAllSelected
             ? await confirm({
-                  title: "Delete ALL compare exchange items?",
+                  title: t("deleteAllConfirm.title"),
                   message: (
                       <span>
-                          You&apos;re about to delete <strong>ALL</strong> compare exchange items
-                          {keyFilterRef.current ? " matching the current filter" : ""}.
+                          <StudioTrans
+                              ns="compareExchange"
+                              i18nKey="deleteAllConfirm.message"
+                              components={{ strong: <strong /> }}
+                              options={{ context: keyFilterRef.current ? "filtered" : undefined }}
+                          />
                       </span>
                   ),
                   icon: "trash",
                   actionColor: "danger",
-                  confirmText: "Delete All",
+                  confirmText: t("deleteAllConfirm.confirmButton"),
               })
             : await confirm({
-                  title: `Delete ${pluralizeHelpers.pluralize(
-                      selectedRows.length,
-                      "compare exchange item",
-                      "compare exchange items"
-                  )}?`,
+                  title: t("deleteConfirm.title", {
+                      count: selectedRows.length,
+                      formattedCount: selectedRows.length.toLocaleString(),
+                  }),
                   message: (
                       <ul className="overflow-auto" style={{ maxHeight: "300px" }}>
                           {selectedRows.map((x) => (
@@ -105,7 +111,7 @@ export default function CompareExchange() {
                   ),
                   icon: "trash",
                   actionColor: "danger",
-                  confirmText: "Delete",
+                  confirmText: commonT("delete"),
               });
 
         if (confirmed) {
@@ -125,7 +131,7 @@ export default function CompareExchange() {
                 <AccessPopover accessRequired={requiredAccess}>
                     <Button variant="primary" onClick={handleAddNewItem} disabled={!hasDatabaseWriteAccess}>
                         <Icon icon="plus" />
-                        Add new item
+                        {t("addNewItem")}
                     </Button>
                 </AccessPopover>
                 <AccessPopover accessRequired={requiredAccess}>
@@ -136,7 +142,10 @@ export default function CompareExchange() {
                         isSpinning={asyncDeleteSelected.loading}
                         disabled={!hasDatabaseWriteAccess || selectedRows.length === 0 || asyncHandleDelete.loading}
                     >
-                        Delete{selectedRows.length > 0 && ` (${isAllSelected ? "all" : selectedRows.length})`}
+                        {t("deleteButton", {
+                            context: selectedRows.length === 0 ? undefined : isAllSelected ? "all" : "selected",
+                            selectedCount: selectedRows.length,
+                        })}
                     </ButtonWithSpinner>
                 </AccessPopover>
             </div>
@@ -237,6 +246,7 @@ function useCompareExchangeColumns({
     isAllSelected,
     setIsAllSelected,
 }: UseCompareExchangeColumnsProps): ColumnDef<CompareExchangeListItem>[] {
+    const t = useStudioTranslation("compareExchange");
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const hasDatabaseWriteAccess = useAppSelector(accessManagerSelectors.getHasDatabaseWriteAccess)();
 
@@ -288,7 +298,7 @@ function useCompareExchangeColumns({
     columns.push(
         {
             accessorKey: "Key",
-            header: "Compare Exchange Key",
+            header: t("columns.key"),
             cell: ({ getValue }) => {
                 const value = getValue<string>();
 
@@ -303,11 +313,11 @@ function useCompareExchangeColumns({
             size: getSize(40),
             enableSorting: true,
             enableColumnFilter: true,
-            meta: { filterPlaceholder: "Key starts with..." },
+            meta: { filterPlaceholder: t("columns.keyFilterPlaceholder") },
         },
         {
             id: "Value",
-            header: "Value",
+            header: t("columns.value"),
             accessorFn: (row) => row.Value["Object"],
             cell: CellWithCopyWrapper,
             size: getSize(20),
@@ -317,7 +327,7 @@ function useCompareExchangeColumns({
         },
         {
             id: "Metadata",
-            header: "Metadata",
+            header: t("columns.metadata"),
             accessorFn: (row) => row.Value["@metadata"],
             cell: CellWithCopyWrapper,
             size: getSize(20),
@@ -327,7 +337,7 @@ function useCompareExchangeColumns({
         },
         {
             accessorKey: "Index",
-            header: "Raft Index",
+            header: t("columns.raftIndex"),
             cell: CellWithCopyWrapper,
             size: getSize(20),
             enableSorting: true,

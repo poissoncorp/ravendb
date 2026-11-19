@@ -2,6 +2,9 @@ import commandBase = require("commands/commandBase");
 import document = require("models/database/documents/document");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("documentsCommands");
 
 class saveDocumentCommand extends commandBase {
     constructor(
@@ -30,8 +33,8 @@ class saveDocumentCommand extends commandBase {
         const saveTask = this.post<saveDocumentResponseDto>(url, args, this.db);
 
         if (this.reportSaveProgress) {
-            saveTask.done((result: saveDocumentResponseDto) => this.reportSuccess("Saved document: " + result.Results[0]["@id"]));
-            saveTask.fail((response: JQueryXHR) => this.reportError("Failed to save document:" + this.id, response.responseText, response.statusText));
+            saveTask.done((result: saveDocumentResponseDto) => this.reportSuccess(t("documentSaved", { id: result.Results[0]["@id"] })));
+            saveTask.fail((response: JQueryXHR) => this.reportError(t("saveDocumentFailed", { id: this.id }), response.responseText, response.statusText));
         }
 
         return saveTask;

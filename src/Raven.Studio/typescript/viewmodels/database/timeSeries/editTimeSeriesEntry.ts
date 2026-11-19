@@ -7,6 +7,9 @@ import popoverUtils = require("common/popoverUtils");
 import moment = require("moment");
 import typeUtils = require("common/typeUtils");
 import generalUtils = require("common/generalUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("editTimeSeries");
 
 class editTimeSeriesEntry extends dialogViewModelBase {
     
@@ -17,13 +20,12 @@ class editTimeSeriesEntry extends dialogViewModelBase {
     static utcTimeFormat = generalUtils.timeSeriesFullDateFormat;
     static localTimeFormat = generalUtils.timeSeriesFullDateFormat;
 
-    static readonly incrementalTimeSeriesInfo =
-        `<ul class="margin-top margin-top-xs no-padding-left margin-left">
-            <li><small><strong>Incremental Time Series</strong> allows to increment/decrement values by some delta.<br>
-                               The value's total content is the merged content from all nodes.
-            </small></li>
-            <li><small><strong>Regular Time Series</strong> values that are modified override current value.</small></li>
+    static get incrementalTimeSeriesInfo(): string {
+        return `<ul class="margin-top margin-top-xs no-padding-left margin-left">
+            <li><small>${t("entry.incrementalInfo.incremental")}</small></li>
+            <li><small>${t("entry.incrementalInfo.regular")}</small></li>
          </ul>`;
+    }
     
     spinners = {
         save: ko.observable<boolean>(false)
@@ -66,9 +68,9 @@ class editTimeSeriesEntry extends dialogViewModelBase {
             if (model.timestamp()) {
                 const date = moment(model.timestamp());
                 if (!date.isValid()) {
-                    return "Invalid date";
+                    return t("entry.invalidDate");
                 }
-                return date.utc().format(editTimeSeriesEntry.utcTimeFormat) + "Z (UTC)";
+                return t("dateWithZone", { context: "utc", date: date.utc().format(editTimeSeriesEntry.utcTimeFormat) });
             } else {
                 return "";
             }
@@ -76,7 +78,7 @@ class editTimeSeriesEntry extends dialogViewModelBase {
         
         this.dateFormattedAsLocal = ko.pureComputed(() => {
             const date = moment(model.timestamp());
-            return date.local().format(editTimeSeriesEntry.localTimeFormat) + " (Local)"
+            return t("dateWithZone", { context: "local", date: date.local().format(editTimeSeriesEntry.localTimeFormat) });
         });
 
         if (this.timeSeriesName) {
@@ -109,7 +111,7 @@ class editTimeSeriesEntry extends dialogViewModelBase {
             } else {
                 // for a new timeseries
                 const possibleValuesCount = timeSeriesEntryModel.numberOfPossibleValues;
-                const possibleValuesNames = typeUtils.range(0, possibleValuesCount).map(idx => "Value #" + idx);
+                const possibleValuesNames = typeUtils.range(0, possibleValuesCount).map(idx => t("valueNumber", { index: idx }));
                 return possibleValuesNames[idx];
             }
         });

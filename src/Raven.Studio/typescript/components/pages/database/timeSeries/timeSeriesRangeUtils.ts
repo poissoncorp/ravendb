@@ -1,5 +1,6 @@
 import moment from "moment";
 import genUtils from "common/generalUtils";
+import type { StudioTranslate } from "common/i18n/resources";
 
 export type FilterTimezone = "local" | "utc";
 
@@ -9,6 +10,6 @@ export function wallOf(instant: moment.Moment, tz: FilterTimezone): moment.Momen
     return tz === "utc" ? instant.clone().utc() : instant.clone().local();
 }
 
-export function zoneLabel(tz: FilterTimezone): string {
-    return tz === "utc" ? "UTC" : "Local";
+export function zoneLabel(tz: FilterTimezone, t: StudioTranslate<"editTimeSeries">): string {
+    return t("zone", { context: tz });
 }

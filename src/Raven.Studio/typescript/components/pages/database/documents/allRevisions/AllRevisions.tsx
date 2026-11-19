@@ -30,10 +30,14 @@ import { FlexGrow } from "components/common/FlexGrow";
 import classNames from "classnames";
 import { Switch } from "components/common/Checkbox";
 import useBoolean from "components/hooks/useBoolean";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 type RevisionType = Raven.Server.Documents.Revisions.RevisionsStorage.RevisionType;
 
 export default function AllRevisions() {
+    const t = useStudioTranslation("allRevisions");
+    const commonT = useStudioTranslation("common");
     const { type, collection, reload: reloadOptions } = useAllRevisionsFilters();
     const [selectedRows, setSelectedRows] = useState<RevisionsPreviewResultItem[]>([]);
 
@@ -66,7 +70,7 @@ export default function AllRevisions() {
             });
         }
 
-        messagePublisher.reportSuccess(`Successfully removed ${selectedRows.length} revisions`);
+        messagePublisher.reportSuccess(t("removeSuccess", { count: selectedRows.length }));
         setSelectedRows([]);
         await reloadOptions();
 
@@ -81,16 +85,20 @@ export default function AllRevisions() {
         const isConfirmed = await confirm({
             title: (
                 <span>
-                    Delete selected <strong>({selectedRows.length})</strong> revisions?
+                    <StudioTrans
+                        ns="allRevisions"
+                        i18nKey="deleteConfirm.title"
+                        components={{ strong: <strong /> }}
+                        options={{ count: selectedRows.length }}
+                    />
                 </span>
             ),
             icon: "trash",
             actionColor: "danger",
-            confirmText: "Delete",
+            confirmText: commonT("delete"),
             message: (
                 <RichAlert variant="warning">
-                    Please be aware that this action is irreversible. <br />
-                    Revisions that are removed cannot be recovered.
+                    <StudioTrans ns="allRevisions" i18nKey="deleteConfirm.message" components={{ br: <br /> }} />
                 </RichAlert>
             ),
         });
@@ -114,18 +122,20 @@ export default function AllRevisions() {
                             icon="trash"
                             className="w-fit-content rounded-pill"
                         >
-                            Remove {selectedRows.length != 0 && selectedRows.length} revisions
+                            {selectedRows.length != 0
+                                ? t("removeSelectedButton", { count: selectedRows.length })
+                                : t("removeButton")}
                         </ButtonWithSpinner>
                         <AllRevisionsAboutView />
                     </HStack>
                 )}
                 <HStack gap={2} className={classNames("align-items-end", { "my-3": hasDatabaseAdminAccess })}>
                     <div>
-                        <FormLabel className="small-label">Filter by collection</FormLabel>
+                        <FormLabel className="small-label">{t("filters.collectionLabel")}</FormLabel>
                         <SelectCreatable
                             options={collection.options}
                             isLoading={collection.isLoading}
-                            placeholder="Select collection"
+                            placeholder={t("filters.collectionPlaceholder")}
                             value={collection.options.find((x) => x.value === collection.value)}
                             onChange={(x: SelectOptionWithCount<string>) => collection.setValue(x?.value ?? "")}
                             isClearable
@@ -134,7 +144,7 @@ export default function AllRevisions() {
                         />
                     </div>
                     <div>
-                        <FormLabel className="small-label">Filter by type</FormLabel>
+                        <FormLabel className="small-label">{t("filters.typeLabel")}</FormLabel>
                         <MultiRadioToggle<RevisionType>
                             inputItems={type.options}
                             selectedItem={type.value}
@@ -147,10 +157,10 @@ export default function AllRevisions() {
                             selected={isPaginated}
                             toggleSelection={toggleIsPaginated}
                             color="primary"
-                            title="Show the revisions page by page instead of scrolling"
+                            title={t("pagination.title")}
                             className="mb-1"
                         >
-                            Pagination
+                            {t("pagination.label")}
                         </Switch>
                     )}
                     {!hasDatabaseAdminAccess && <AllRevisionsAboutView />}
@@ -158,9 +168,7 @@ export default function AllRevisions() {
             </VStack>
             {isSmallSample && (
                 <RichAlert variant="warning">
-                    The table displays only part of the results. When both a collection and a type other than
-                    &quot;All&quot; are selected, only the first {allRevisionsUtils.smallSampleSize} results are
-                    visible.
+                    {t("smallSampleWarning", { count: allRevisionsUtils.smallSampleSize })}
                 </RichAlert>
             )}
             <SizeGetter

@@ -5,10 +5,12 @@ import document = require("models/database/documents/document");
 import viewHelpers = require("common/helpers/view/viewHelpers")
 import notificationCenter = require("common/notifications/notificationCenter");
 import attachmentUpload = require("common/notifications/models/attachmentUpload");
-import pluralizeHelpers = require("common/helpers/text/pluralizeHelpers");
+import i18nModule = require("common/i18n/i18n");
 import RemoteAttachmentParameters = Raven.Client.Documents.Operations.Attachments.RemoteAttachmentParameters;
 
 type progressCallback = (progress: attachmentUploadProgress) => void;
+
+const t = i18nModule.createTranslator("editDocumentUploader");
 
 class editDocumentUploader {
 
@@ -54,13 +56,13 @@ class editDocumentUploader {
     }
 
     private confirmOverwrite(conflicting: File[]): Promise<boolean> {
-        const title = `Overwrite existing ${pluralizeHelpers.pluralize(conflicting.length, "attachment", "attachments", true)}?`;
+        const title = t("overwrite.title", { count: conflicting.length });
         const names = conflicting.map(x => `'${x.name}'`).join(", ");
-        const message = `Document already has: ${names}. Overwriting replaces current content, skipping uploads only the new files.`;
+        const message = t("overwrite.message", { names });
 
         return new Promise<boolean>(resolve => {
             viewHelpers.confirmationMessage(title, message, {
-                buttons: ["No, skip existing", "Yes, overwrite"],
+                buttons: [t("overwrite.skip"), t("overwrite.confirm")],
                 forceRejectWithResolve: true
             })
                 .done(result => resolve(result.can))

@@ -9,7 +9,10 @@ import ButtonWithSpinner from "components/common/ButtonWithSpinner";
 import RichAlert from "components/common/RichAlert";
 import { ConditionalPopover } from "components/common/ConditionalPopover";
 import TimeSeriesRangePicker, { TimeSeriesRangeState } from "./TimeSeriesRangePicker";
-import { FilterTimezone, wallOf, zoneLabel, FULL_FORMAT } from "./timeSeriesRangeUtils";
+import { FilterTimezone, wallOf, FULL_FORMAT } from "./timeSeriesRangeUtils";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import type { StudioTranslate } from "common/i18n/resources";
 
 const COUNT_DEBOUNCE_MS = 300;
 
@@ -36,21 +39,20 @@ function rangeSignature(range: TimeSeriesRange): string {
     return `${stamp(range.startDate)}|${stamp(range.endDate)}`;
 }
 
-function describeRange(range: TimeSeriesRange, timezone: FilterTimezone): string {
+function describeRange(range: TimeSeriesRange, timezone: FilterTimezone, t: StudioTranslate<"editTimeSeries">): string {
     const fmt = (d: moment.Moment) => wallOf(d, timezone).format(FULL_FORMAT);
-    const zone = zoneLabel(timezone);
     const { startDate, endDate } = range;
 
     if (startDate && endDate) {
-        return `entries from ${fmt(startDate)} to ${fmt(endDate)} (${zone}), inclusive of both bounds`;
+        return t("deleteRangeModal.deleting.between", { context: timezone, start: fmt(startDate), end: fmt(endDate) });
     }
     if (endDate) {
-        return `all entries up to and including ${fmt(endDate)} (${zone})`;
+        return t("deleteRangeModal.deleting.upTo", { context: timezone, end: fmt(endDate) });
     }
     if (startDate) {
-        return `all entries from ${fmt(startDate)} (${zone}) onward`;
+        return t("deleteRangeModal.deleting.from", { context: timezone, start: fmt(startDate) });
     }
-    return "all entries";
+    return t("deleteRangeModal.deleting.all");
 }
 
 interface CountState {
@@ -62,6 +64,8 @@ interface CountState {
 
 export default function DeleteTimeSeriesRangeModal(props: DeleteTimeSeriesRangeModalProps) {
     const { timeSeriesName, startDate, endDate, timezone, resolveCount, onDelete, close } = props;
+    const t = useStudioTranslation("editTimeSeries");
+    const tCommon = useStudioTranslation("common");
 
     const [range, setRange] = useState<TimeSeriesRangeState>(() => ({
         range: { startDate, endDate },
@@ -107,9 +111,11 @@ export default function DeleteTimeSeriesRangeModal(props: DeleteTimeSeriesRangeM
     const count = result?.count ?? 0;
     const isEmptyRange = known && count === 0;
     const showExactCount = known && result.exact && count > 0;
-    const entryWord = count === 1 ? "entry" : "entries";
+    const formattedCount = count.toLocaleString();
 
-    const deleteLabel = showExactCount ? `Delete ${count.toLocaleString()} ${entryWord}` : "Delete range";
+    const deleteLabel = showExactCount
+        ? t("deleteRangeModal.deleteCount", { count, formattedCount })
+        : t("deleteRangeModal.deleteButton");
     const deleteDisabled = !range.canApply || loading || isEmptyRange;
 
     const asyncDelete = useAsyncCallback(async () => {
@@ -130,11 +136,15 @@ export default function DeleteTimeSeriesRangeModal(props: DeleteTimeSeriesRangeM
             <Modal.Header onCloseClick={close} className="vstack gap-1 align-items-start">
                 <div className="hstack gap-2 align-items-center">
                     <Icon icon="trash" color="danger" margin="m-0" className="fs-3" />
-                    <h3 className="mb-0">Delete range</h3>
+                    <h3 className="mb-0">{t("deleteRangeModal.title")}</h3>
                 </div>
                 <div className="text-muted">
-                    Permanently delete every data point inside the specified range from{" "}
-                    <strong>{timeSeriesName}</strong>. This can&apos;t be undone.
+                    <StudioTrans
+                        ns="editTimeSeries"
+                        i18nKey="deleteRangeModal.description"
+                        components={{ strong: <strong /> }}
+                        options={{ name: timeSeriesName }}
+                    />
                 </div>
             </Modal.Header>
             <Modal.Body>
@@ -148,20 +158,19 @@ export default function DeleteTimeSeriesRangeModal(props: DeleteTimeSeriesRangeM
                 {range.canApply && loading && (
                     <div className="text-muted mt-3 hstack gap-2 align-items-center">
                         <Spinner size="sm" />
-                        <span>Checking how many entries match this range…</span>
+                        <span>{t("deleteRangeModal.checkingCount")}</span>
                     </div>
                 )}
 
                 {range.canApply && countFailed && (
                     <RichAlert variant="warning" className="mt-3">
-                        Couldn&apos;t determine how many entries match this range. You can still delete, but the count
-                        is unknown.
+                        {t("deleteRangeModal.countFailed")}
                     </RichAlert>
                 )}
 
                 {range.canApply && !loading && isEmptyRange && (
                     <RichAlert variant="info" className="mt-3">
-                        No entries match this range, so there&apos;s nothing to delete.
+                        {t("deleteRangeModal.emptyRange")}
                     </RichAlert>
                 )}
 
@@ -169,32 +178,32 @@ export default function DeleteTimeSeriesRangeModal(props: DeleteTimeSeriesRangeM
                     <RichAlert variant="danger" className="mt-3">
                         <div>
                             {showExactCount ? (
-                                <>
-                                    <strong>
-                                        {count.toLocaleString()} {entryWord}
-                                    </strong>{" "}
-                                    will be deleted.
-                                </>
+                                <StudioTrans
+                                    ns="editTimeSeries"
+                                    i18nKey="deleteRangeModal.willBeDeleted"
+                                    components={{ strong: <strong /> }}
+                                    options={{ count, formattedCount }}
+                                />
                             ) : (
-                                "This range contains more entries than can be counted here."
+                                t("deleteRangeModal.tooManyToCount")
                             )}
                         </div>
                         <div>
-                            You&apos;re deleting {describeRange(range.range, range.timezone)}.{" "}
-                            {!showExactCount && "Narrow the range to see an exact count. "}
-                            This can&apos;t be undone.
+                            {describeRange(range.range, range.timezone, t)}{" "}
+                            {!showExactCount && <>{t("deleteRangeModal.narrowRange")} </>}
+                            {t("deleteRangeModal.cannotBeUndone")}
                         </div>
                     </RichAlert>
                 )}
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="link" className="link-muted" onClick={close} disabled={asyncDelete.loading}>
-                    Cancel
+                    {tCommon("cancel")}
                 </Button>
                 <ConditionalPopover
                     conditions={[
-                        { isActive: !range.canApply, message: "Complete the range to delete." },
-                        { isActive: range.canApply && isEmptyRange, message: "No entries match this range." },
+                        { isActive: !range.canApply, message: t("deleteRangeModal.completeRange") },
+                        { isActive: range.canApply && isEmptyRange, message: t("deleteRangeModal.noEntries") },
                     ]}
                 >
                     <ButtonWithSpinner
@@ -205,7 +214,7 @@ export default function DeleteTimeSeriesRangeModal(props: DeleteTimeSeriesRangeM
                         disabled={deleteDisabled}
                         onClick={handleDelete}
                     >
-                        {asyncDelete.loading ? "Deleting…" : deleteLabel}
+                        {asyncDelete.loading ? t("deleteRangeModal.deletingProgress") : deleteLabel}
                     </ButtonWithSpinner>
                 </ConditionalPopover>
             </Modal.Footer>

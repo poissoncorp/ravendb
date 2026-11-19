@@ -4,24 +4,24 @@
             <button type="button" class="close" data-bind="click: cancel" aria-hidden="true">
                 <i class="icon-cancel"></i>
             </button>
-            <h4 class="modal-title">Are you sure?</h4>
+            <h4 class="modal-title" data-bind="i18n: 'deleteCollection:title'"></h4>
         </div>
         <div class="modal-body">
             <div>
-                <span>Deleting </span>
+                <span data-bind="i18n: 'deleteCollection:deleting'"></span>
                 <strong data-bind="text: collectionName"></strong>
-                <strong data-bind="text: '(' + pluralize(itemsToDelete, 'document', 'documents') + ')'"></strong>.
+                <strong data-bind="i18n: { key: 'deleteCollection:documentsCount', options: { count: itemsToDelete, formattedCount: itemsToDelete.toLocaleString() } }"></strong>.
             </div>
             <div class="padding">
                 <div data-bind="visible: isAllDocuments && hasHiloDocuments" class="bg-warning padding">
-                    <small><i class="icon-warning"></i> Note: @hilo documents won't be deleted.<br />
-                        In order delete @hilo documents, go to the @hilo collection.</small>
+                    <small><i class="icon-warning"></i> <span data-bind="i18n: 'deleteCollection:hiloNote'"></span><br />
+                        <span data-bind="i18n: 'deleteCollection:hiloHint'"></span></small>
                 </div>
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-bind="click: cancel">Cancel</button>
-            <button type="button" class="btn btn-primary" data-bind="click: deleteCollection">Delete</button>
+            <button type="button" class="btn btn-default" data-bind="click: cancel, i18n: 'common:cancel'"></button>
+            <button type="button" class="btn btn-primary" data-bind="click: deleteCollection, i18n: 'common:delete'"></button>
         </div>
     </div>
 </div>

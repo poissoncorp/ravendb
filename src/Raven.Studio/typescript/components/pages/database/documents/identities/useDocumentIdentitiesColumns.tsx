@@ -8,21 +8,23 @@ import { useAppSelector } from "components/store";
 import { accessManagerSelectors } from "components/common/shell/accessManagerSliceSelectors";
 import useBoolean from "hooks/useBoolean";
 import { AddIdentitiesFormData } from "components/pages/database/documents/identities/DocumentIdentitiesValidation";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export function useDocumentIdentitiesColumns(availableWidth: number, reload: () => void) {
+    const t = useStudioTranslation("identities");
     const databaseAccessWrite = useAppSelector(accessManagerSelectors.getHasDatabaseWriteAccess)();
     const bodyWidth = virtualTableUtils.getTableBodyWidth(availableWidth);
     const getSize = virtualTableUtils.getCellSizeProvider(bodyWidth);
 
     const identitiesColumns: ColumnDef<AddIdentitiesFormData>[] = [
         {
-            header: "Document ID Prefix",
+            header: t("columns.prefix"),
             accessorKey: "prefix",
             cell: CellValuePrefixWrapper,
             size: getSize(databaseAccessWrite ? 46 : 50),
         },
         {
-            header: "Latest value",
+            header: t("columns.latestValue"),
             accessorKey: "value",
             cell: CellValueWrapper,
             size: getSize(databaseAccessWrite ? 46 : 50),
@@ -32,7 +34,7 @@ export function useDocumentIdentitiesColumns(availableWidth: number, reload: () 
     if (databaseAccessWrite) {
         identitiesColumns.push({
             id: "actions",
-            header: "Edit",
+            header: t("columns.edit"),
             cell: (props) => <CellValueButtonWrapper refetch={reload} {...props} />,
             size: getSize(8),
         });
@@ -61,6 +63,7 @@ function CellValuePrefixWrapper({ getValue }: CellValuePrefixWrapperProps) {
 type CellValueButtonWrapperProps = CellContext<AddIdentitiesFormData, unknown> & { refetch: () => void };
 
 function CellValueButtonWrapper(args: CellValueButtonWrapperProps) {
+    const t = useStudioTranslation("identities");
     const { value: isOpen, toggle: toggleIsOpen } = useBoolean(false);
 
     return (
@@ -69,7 +72,7 @@ function CellValueButtonWrapper(args: CellValueButtonWrapperProps) {
                 variant="secondary"
                 onClick={toggleIsOpen}
                 className="d-flex align-items-center h-100"
-                title="Edit identity settings"
+                title={t("columns.editTitle")}
             >
                 <Icon icon="edit" margin="me-0" />
             </Button>

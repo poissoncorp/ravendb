@@ -16,6 +16,10 @@ import popoverUtils = require("common/popoverUtils");
 import genUtils = require("common/generalUtils");
 import shardViewModelBase = require("viewmodels/shardViewModelBase");
 import database = require("models/resources/database");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("editCmpXchg");
+const commonT = i18nModule.createTranslator("common");
 
 type contentType = "Value" | "Metadata";
 
@@ -83,7 +87,7 @@ class editorInfo {
             const formatted = genUtils.stringify(tempValue);
             this.contentText(formatted);
         } catch (e) {
-            messagePublisher.reportError("Could not format json", undefined, undefined, false);
+            messagePublisher.reportError(t("editor.formatFailed"), undefined, undefined, false);
         }
     }
 
@@ -92,7 +96,7 @@ class editorInfo {
     }
 
     toClipboard() {
-        copyToClipboard.copy(this.contentText(), `${this.type} has been copied to clipboard`);
+        copyToClipboard.copy(this.contentText(), t("editor.copied", { context: this.type }));
     }
 
     toggleNewlineMode() {
@@ -143,7 +147,7 @@ class editorInfo {
             this.focusOnEditor();
             
             if (dto == undefined) {
-                throw(`${this.type} content is not a legal JSON expression`);
+                throw(t("editor.invalidJson", { context: this.type }));
             }
         }
         
@@ -179,6 +183,8 @@ class editCmpXchg extends shardViewModelBase {
     static readonly metadataEditorSelector = "#metadataEditor";
     
     hasMetadata = ko.observable<boolean>(false);
+
+    atomicGuardWarningHtml = t("atomicGuardWarning", { url: "https://ravendb.net/l/SDMR11" });
 
     constructor(db: database) {
         super(db);
@@ -241,11 +247,11 @@ class editCmpXchg extends shardViewModelBase {
             validation: [
                 {
                     validator: (val: string) => rg1.test(val),
-                    message: "Key Cannot contain a backslash"
+                    message: t("key.backslashNotAllowed")
                 },
                 {
                     validator: (val: string) => !val.startsWith("rvn-atomic/"),
-                    message: "The prefix 'rvn-atomic/' is reserved by RavenDB for Atomic Guards"
+                    message: t("key.atomicGuardPrefixReserved")
                 }]
         });
 
@@ -271,7 +277,7 @@ class editCmpXchg extends shardViewModelBase {
 
         popoverUtils.longWithHover($(".key-info"),
             {
-                content: `<small>A unique identifier in the database</small>`,
+                content: `<small>${t("key.info")}</small>`,
                 html: true,
                 placement: "bottom"
             });
@@ -280,10 +286,10 @@ class editCmpXchg extends shardViewModelBase {
             {
                 content: `<ul class="margin-top margin-top-xs margin-bottom-xs margin-right">
                               <li>
-                                  <small>A Value that is associated with the Key.</small>
+                                  <small>${t("value.info")}</small>
                               </li>
                               <li>
-                                  <small>Can be a number, string, array, or any valid JSON object.</small>
+                                  <small>${t("anyJsonInfo")}</small>
                               </li>
                           </ul>`,
                 html: true,
@@ -294,15 +300,15 @@ class editCmpXchg extends shardViewModelBase {
             {
                 content: `<ul class="margin-top margin-top-xs margin-bottom-xs margin-right">
                               <li>
-                                  <small>The Metadata is associated with the Key, similar to a document's metadata.</small>
+                                  <small>${t("metadata.info")}</small>
                               </li>
                               <li>
-                                  <small>Can be a number, string, array, or any valid JSON object.</small>
+                                  <small>${t("anyJsonInfo")}</small>
                               </li>
                               <li>
-                                  <small>Can be used to set the <strong>Compare-Exchange item expiration.</strong></small><br>
-                                  <small>Set the <i>@expires</i> field to schedule expiration.</small><br>
-                                  <small>e.g. <code>{ "@expires": "2021-02-26T13:09:37.4040256Z" }</code></small>
+                                  <small>${t("metadata.expirationInfo")}</small><br>
+                                  <small>${t("metadata.expiresFieldInfo")}</small><br>
+                                  <small>${t("metadata.expiresExample", { example: genUtils.escapeHtml(`{ "@expires": "2021-02-26T13:09:37.4040256Z" }`) })}</small>
                               </li>
                           </ul>`,
                 html: true,
@@ -345,8 +351,8 @@ class editCmpXchg extends shardViewModelBase {
         popoverUtils.longWithHover($(".raft-index-info"),
             {
                 content: `<ul class="margin-top margin-top-xs margin-bottom-xs margin-right">
-                              <li><small>The Raft Index indicates the <strong>Compare-Exchange item's version</strong>.</small></li>
-                              <li><small>Used for concurrency control.</small></li>
+                              <li><small>${t("raftIndex.versionInfo")}</small></li>
+                              <li><small>${t("raftIndex.concurrencyInfo")}</small></li>
                           </ul>`,
                 html: true,
                 placement: "bottom"
@@ -361,10 +367,12 @@ class editCmpXchg extends shardViewModelBase {
             .filter((x: AceAjax.Annotation) => x.type === "warning");
 
         if (valueWarnings.length || metadataWarnings.length) {
+            const valueSource = t("value.label");
+            const metadataSource = t("metadata.label");
             const viewModel = new editorWarningsConfirm("Compare Exchange",
-                [{ source: "Value", warnings: valueWarnings }, { source: "Metadata", warnings: metadataWarnings }],
+                [{ source: valueSource, warnings: valueWarnings }, { source: metadataSource, warnings: metadataWarnings }],
                 (warning, source) => {
-                    const editor = source === "Value" ? this.valueEditor() : this.metadataEditor();
+                    const editor = source === valueSource ? this.valueEditor() : this.metadataEditor();
                     // gotoLine is not zero based so we add 1
                     editor.contentEditor.gotoLine(warning.row + 1, warning.column, true);
                     editor.contentEditor.focus();
@@ -446,14 +454,13 @@ class editCmpXchg extends shardViewModelBase {
             this.isCreatingNewItem(false);
             this.initTooltipAfterSave();
 
-            messagePublisher.reportSuccess(`Compare exchange item with key: ${this.key()} was saved successfully`);
+            messagePublisher.reportSuccess(t("saveSucceeded", { key: this.key() }));
 
             router.navigate(appUrl.forCmpXchg(this.db));
         } else {
             this.displayExternalChange(true);
             this.spinners.save(false);
-            messagePublisher.reportError(`Failed to save compare exchange item. Save was called with index: ${this.loadedIndex()},
-                                          but key: ${this.key()} has index: ${saveResult.Index}.`);
+            messagePublisher.reportError(t("saveFailed", { index: this.loadedIndex(), key: this.key(), currentIndex: saveResult.Index }));
         }
     }
     
@@ -489,7 +496,7 @@ class editCmpXchg extends shardViewModelBase {
     
     refresh() {
         eventsCollector.default.reportEvent("cmpXchg", "refresh");
-        this.canContinueIfNotDirty("Refresh", "Reload compare exchange item?")
+        this.canContinueIfNotDirty(commonT("refresh"), t("reloadConfirm"))
             .done(() => {
                 const key = this.key();
                 this.key("");

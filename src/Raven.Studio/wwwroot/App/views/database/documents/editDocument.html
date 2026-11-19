@@ -6,12 +6,11 @@
                     <div class="documentId">
                         <div data-bind="if: isCreatingNewDocument() && !isFullScreenEditor()">
                             <div class="input-group" data-bind="validationElement: userSpecifiedId">
-                                <div class="input-group-addon">ID</div>
+                                <div class="input-group-addon" data-bind="i18n: 'editDocument:idLabel'"></div>
                                 <input class="form-control"
                                        name="documentId"
                                        id="documentIdInput"
-                                       placeholder="&lt;auto-generated&gt;"
-                                       data-bind="textInput: userSpecifiedId, disable: $root.isBusy, hasFocus: userIdHasFocus()">
+                                       data-bind="textInput: userSpecifiedId, disable: $root.isBusy, hasFocus: userIdHasFocus(), i18nAttr: { placeholder: 'editDocument:idPlaceholder' }">
                             </div>
                         </div>
                         <div class="flex-horizontal gap-2" data-bind="if: !isCreatingNewDocument()">
@@ -22,31 +21,31 @@
                             <span class="obj-name on-base-background" data-bind="text: userSpecifiedId, attr: { title: userSpecifiedId }"></span>
                             <span data-bind="visible: revisionText(), text: revisionText()" class="text-primary revision flex-shrink-0"></span>
                             <span data-bind="visible: archivedText(), text: archivedText()" class="text-primary archived flex-shrink-0"></span>
-                            <a href="#" class="inherit-position" title="Copy document Id" data-bind="click: copyDocumentIdToClipboard"><i class="icon-copy"></i></a>
+                            <a href="#" class="inherit-position" data-bind="click: copyDocumentIdToClipboard, i18nAttr: { title: 'editDocument:copyIdTitle' }"><i class="icon-copy"></i></a>
                         </div>
                     </div>
                 </div>
                 <div class="flex-horizontal flex-shrink-0 gap-2">
-                    <a target="_blank" href="#" title="Click to view the raw content of the document" class="flex-shrink-0"
-                       data-bind="attr: { href: rawJsonUrl }, visible: !isCreatingNewDocument() && !isDeleteRevision()"><i class="icon-json"></i>
+                    <a target="_blank" href="#" class="flex-shrink-0"
+                       data-bind="attr: { href: rawJsonUrl }, visible: !isCreatingNewDocument() && !isDeleteRevision(), i18nAttr: { title: 'editDocument:rawContentTitle' }"><i class="icon-json"></i>
                     </a>
                     <div class="flex-shrink-0" data-bind="visible: !inDiffMode()">
                         <p class="pull-right-md text-right-md padding padding-xs on-base-background" data-bind="if: displayLastModifiedDate()">
                             <i class="icon-recent"></i>
-                            <small>Last modified <span data-bind="text: $root.lastModifiedAsAgo"></span></small>
+                            <small data-bind="i18n: { key: 'editDocument:lastModified', options: { ago: $root.lastModifiedAsAgo } }"></small>
                         </p>
                         <p class="pull-right-md bg-warning padding padding-xs" data-bind="visible: displayDocumentChange() && !displayDocumentDeleted()">
                             <small>
                                 <i class="icon-warning"></i>
-                                <span>This document has been modified outside of Studio.</span>
-                                <a href="#" data-bind="click: refreshDocument">Click here to refresh.</a>
+                                <span data-bind="i18n: 'editDocument:modifiedOutside'"></span>
+                                <a href="#" data-bind="click: refreshDocument, i18n: 'editDocument:clickToRefresh'"></a>
                             </small>
                         </p>
                         <p class="pull-right-md bg-warning padding padding-xs" data-bind="visible: displayDocumentDeleted">
                             <small>
                                 <i class="icon-warning"></i>
-                                <span>This document has been deleted outside of Studio.</span>
-                                <a href="#" data-bind="click: navigateAfterExternalDelete">Go to recent document.</a>
+                                <span data-bind="i18n: 'editDocument:deletedOutside'"></span>
+                                <a href="#" data-bind="click: navigateAfterExternalDelete, i18n: 'editDocument:goToRecentDocument'"></a>
                             </small>
                         </p>
                     </div>
@@ -57,20 +56,20 @@
                     <div class="btn-group">
                         <button type="submit" class="btn btn-primary save-btn" 
                                 data-bind="enable: isSaveEnabled, css: { 'btn-spinner': isSaving }, visible: !inReadOnlyMode() && !inDiffMode(), 
-                                           attr: { 'title': isSaveEnabled ? 'Save your changes' : ''}, requiredAccess: 'DatabaseReadWrite'">
+                                           i18nAttr: { 'title': isSaveEnabled ? 'editDocument:toolbar.saveTitle' : null }, requiredAccess: 'DatabaseReadWrite'">
                             <i class="icon-save"></i>
-                            <span>Save</span>
+                            <span data-bind="i18n: 'common:save'"></span>
                         </button>
                         <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                 data-bind="visible: !inReadOnlyMode() && !inDiffMode(), enable: isSaveEnabled, requiredAccess: 'DatabaseReadWrite'">
                             <span class="caret"></span>
-                            <span class="sr-only">Toggle Dropdown</span>
+                            <span class="sr-only" data-bind="i18n: 'editDocument:toolbar.toggleDropdown'"></span>
                         </button>
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="#" data-bind="click: () => handleSaveDocument(true), enable: isSaveEnabled">
                                     <i class="icon-cluster"></i>
-                                    <span>Save document via cluster wide transaction</span>
+                                    <span data-bind="i18n: 'editDocument:toolbar.saveClusterWide'"></span>
                                 </a>
                             </li>
                         </ul>
@@ -78,76 +77,76 @@
                     <button type="button" class="clone-btn btn btn-default"
                             data-bind="click: tryCreateClone, enable: cloneEnabled, visible: !isDeleteRevision() && !inDiffMode() && !isClone(), requiredAccess: 'DatabaseReadWrite'">
                         <i class="icon-clone"></i>
-                        <span>Clone</span>
+                        <span data-bind="i18n: 'editDocument:toolbar.clone'"></span>
                     </button>
                     <div class="btn-group">
                         <button type="button" class="delete-btn btn btn-danger"
                                 data-bind="click: isRevision() ? deleteRevision : deleteDocument, enable: !isCreatingNewDocument(), visible: isRevision() && !inDiffMode() || !inReadOnlyMode() && !inDiffMode() && !isClone() && !isCreatingNewDocument(), requiredAccess: 'DatabaseReadWrite'">
                             <i class="icon-trash"></i>
-                            <span>Delete</span>
+                            <span data-bind="i18n: 'common:delete'"></span>
                         </button>
                         <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                 data-bind="visible: !isRevision() && !inReadOnlyMode() && !inDiffMode() && !isClone() && !isCreatingNewDocument(), enable: !isCreatingNewDocument(), requiredAccess: 'DatabaseReadWrite'">
                             <span class="caret"></span>
-                            <span class="sr-only">Toggle Dropdown</span>
+                            <span class="sr-only" data-bind="i18n: 'editDocument:toolbar.toggleDropdown'"></span>
                         </button>
                         <ul class="dropdown-menu">
                             <li>
                                 <a href="#" data-bind="click: () => handleDeleteDocument(true), enable: !isCreatingNewDocument()">
                                     <i class="icon-cluster"></i>
-                                    <span>Delete document via cluster wide transaction</span>
+                                    <span data-bind="i18n: 'editDocument:toolbar.deleteClusterWide'"></span>
                                 </a>
                             </li>
                         </ul>
                     </div>
                     <a data-bind="attr: { href: latestRevisionUrl }, visible: inReadOnlyMode() && !isDeleteRevision()" class="btn btn-default">
                         <i class="icon-latest"></i>
-                        <span>See the current document</span>
+                        <span data-bind="i18n: 'editDocument:toolbar.seeCurrentDocument'"></span>
                     </a>
-                    <button class="btn btn-default" title="Compare this version with previous one" data-bind="click: enterCompareModeAndCompareWithPrevious, visible: compareButtonVisible">
+                    <button class="btn btn-default" data-bind="click: enterCompareModeAndCompareWithPrevious, visible: compareButtonVisible, i18nAttr: { title: 'editDocument:toolbar.compareTitle' }">
                         <i class="icon-diff"></i>
-                        <span>Compare</span>
+                        <span data-bind="i18n: 'editDocument:toolbar.compare'"></span>
                     </button>
                     <button class="btn btn-default" data-bind="click: exitCompareMode, visible: inDiffMode()">
                         <i class="icon-cancel"></i>
-                        <span>Exit</span>
+                        <span data-bind="i18n: 'editDocument:toolbar.exitCompare'"></span>
                     </button>
                 </div>
                 <div class="pull-right-sm" data-bind="visible: !isDeleteRevision()">
                     <div class="btn-group" data-bind="visible: !inDiffMode()">
                         <a class="btn continue-ai-agent-conversation" data-bind="visible: aiAgentConversationUrl(), attr: { href: aiAgentConversationUrl() }" >
                             <i class="icon-ai-agents"></i>
-                            <span data-bind="text: isAiAgentHistory() ? 'See conversation' : 'Continue conversation'"></span>
+                            <span data-bind="i18n: isAiAgentHistory() ? 'editDocument:toolbar.seeConversation' : 'editDocument:toolbar.continueConversation'"></span>
                         </a>
 
                         <button type="button" class="btn btn-default"
                                 data-bind="click: validateDocumentSchema,
-                                           visible: canValidateDocument()"
-                                title="Validate document">
+                                           visible: canValidateDocument(),
+                                           i18nAttr: { title: 'editDocument:toolbar.validateDocument' }">
                             <i class="icon-start"></i>
-                            <span>Validate document</span>
+                            <span data-bind="i18n: 'editDocument:toolbar.validateDocument'"></span>
                         </button>
 
-                        <button type="button" class="btn btn-default" data-bind="click: copyDocumentBodyToClipboard, enable: !showHugeDocumentWarning()" title="Copy document content to clipboard">
+                        <button type="button" class="btn btn-default" data-bind="click: copyDocumentBodyToClipboard, enable: !showHugeDocumentWarning(), i18nAttr: { title: 'editDocument:toolbar.copyToClipboardTitle' }">
                             <i class="icon-copy-to-clipboard"></i>
-                            <span>Copy to Clipboard</span>
+                            <span data-bind="i18n: 'editDocument:toolbar.copyToClipboard'"></span>
                         </button>
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <span class="caret"></span>
-                            <span class="sr-only">Toggle Dropdown</span>
+                            <span class="sr-only" data-bind="i18n: 'editDocument:toolbar.toggleDropdown'"></span>
                         </button>
                         <ul class="dropdown-menu">
-                            <li data-bind="visible: !canViewCSharpClass()" class="disabled"><a class="disabled">View the C# Class</a></li>
-                            <li data-bind="visible: canViewCSharpClass()"><a data-bind="click: generateClass" href="#">View the C# Class</a></li>
+                            <li data-bind="visible: !canViewCSharpClass()" class="disabled"><a class="disabled" data-bind="i18n: 'editDocument:toolbar.viewCSharpClass'"></a></li>
+                            <li data-bind="visible: canViewCSharpClass()"><a data-bind="click: generateClass, i18n: 'editDocument:toolbar.viewCSharpClass'" href="#"></a></li>
                         </ul>
                     </div>
                 </div>
                 <div class="pull-right-sm" data-bind="visible: inDiffMode()">
                     <div class="radio-toggle d-flex justify-content-center">
                         <input type="radio" id="radio-toggle-left" name="CompressAllCollections" value="previous" data-bind="checked: diffMode">
-                        <label for="radio-toggle-left" title="Automatically change right version to match previous of left document">Previous commit</label>
+                        <label for="radio-toggle-left" data-bind="i18n: 'editDocument:diff.previous', i18nAttr: { title: 'editDocument:diff.previousTitle' }"></label>
                         <input type="radio" id="radio-toggle-right" name="CompressAllCollections" value="manual" data-bind="checked: diffMode">
-                        <label for="radio-toggle-right" title="Manually choose 2 arbitrary revisions to compare">Manual</label>
+                        <label for="radio-toggle-right" data-bind="i18n: 'editDocument:diff.manual', i18nAttr: { title: 'editDocument:diff.manualTitle' }"></label>
                         <div class="toggle-knob">
                             <i class="icon-diff m-0"></i><i class="icon-documents m-0"></i>
                         </div>
@@ -157,43 +156,43 @@
             <div class="row" data-bind="visible: inDiffMode()">
                 <div class="col-md-6 text-center d-flex">
                     <span data-bind="visible: currentDiff() && !currentDiff().identicalContent()">
-                        <span class="text-success" data-bind="visible: $root.leftRevisionIsNewer()">Newer revision:</span>
-                        <span class="text-warning" data-bind="visible: !$root.leftRevisionIsNewer()">Older revision:</span>
+                        <span class="text-success" data-bind="visible: $root.leftRevisionIsNewer(), i18n: 'editDocument:diff.newerRevision'"></span>
+                        <span class="text-warning" data-bind="visible: !$root.leftRevisionIsNewer(), i18n: 'editDocument:diff.olderRevision'"></span>
                     </span>
                     <div class="flex-grow"></div>
                     <div data-bind="if: comparingWith" class="margin-left margin-left-sm inline-block">
                         <div class="btn-group">
                             <div data-bind="visible: diffMode() !== 'manual'">
                                 <button
-                                  data-bind="click: () => copyRevisionTimestampToClipboard($root.comparingWith().__metadata.lastModified())"
-                                  title="Copy older revision timestamp to clipboard" class="btn btn-sm btn-default">
+                                  data-bind="click: () => copyRevisionTimestampToClipboard($root.comparingWith().__metadata.lastModified()), i18nAttr: { title: 'editDocument:diff.copyOlderTimestampTitle' }"
+                                  class="btn btn-sm btn-default">
                                     <i class="icon-copy"></i>
                                 </button>
                                 <span data-bind="text: $root.comparingWith().__metadata.lastModified()"></span>
-                                <i title="Conflicted revision" data-bind="visible: $root.comparingWith().__metadata.hasFlag('Conflicted')" class="icon-conflicts"></i>
-                                <i title="Resolved revision" data-bind="visible: $root.comparingWith().__metadata.hasFlag('Resolved')" class="icon-tick"></i>
+                                <i data-bind="visible: $root.comparingWith().__metadata.hasFlag('Conflicted'), i18nAttr: { title: 'editDocument:diff.conflictedRevisionTitle' }" class="icon-conflicts"></i>
+                                <i data-bind="visible: $root.comparingWith().__metadata.hasFlag('Resolved'), i18nAttr: { title: 'editDocument:diff.resolvedRevisionTitle' }" class="icon-tick"></i>
                             </div>
-                            <button class="btn btn-sm btn-default" title="Newer revision"
-                                    data-bind="click: _.partial(revisionNavigate, 'newer', 'left'), enable: canNavigateObservable('newer', 'left'), visible: diffMode() === 'manual'">
+                            <button class="btn btn-sm btn-default"
+                                    data-bind="click: _.partial(revisionNavigate, 'newer', 'left'), enable: canNavigateObservable('newer', 'left'), visible: diffMode() === 'manual', i18nAttr: { title: 'editDocument:diff.newerRevisionTitle' }">
                                 <i class="icon-arrow-up"></i>
                             </button>
-                            <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" title="Choose revision" data-bind="visible: diffMode() === 'manual'">
+                            <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" data-bind="visible: diffMode() === 'manual', i18nAttr: { title: 'editDocument:diff.chooseRevisionTitle' }">
                                 <span data-bind="text: $root.comparingWith().__metadata.lastModified()"></span>
-                                <i title="Conflicted revision" data-bind="visible: $root.comparingWith().__metadata.hasFlag('Conflicted')" class="icon-conflicts"></i>
-                                <i title="Resolved revision" data-bind="visible: $root.comparingWith().__metadata.hasFlag('Resolved')" class="icon-tick"></i>
+                                <i data-bind="visible: $root.comparingWith().__metadata.hasFlag('Conflicted'), i18nAttr: { title: 'editDocument:diff.conflictedRevisionTitle' }" class="icon-conflicts"></i>
+                                <i data-bind="visible: $root.comparingWith().__metadata.hasFlag('Resolved'), i18nAttr: { title: 'editDocument:diff.resolvedRevisionTitle' }" class="icon-tick"></i>
                                 <span class="caret margin-left margin-left-sm"></span>
                             </button>
                             <ul class="dropdown-menu" data-bind="foreach: revisionsToCompare">
                                 <li data-bind="css: { active: $data === $root.comparingWith() }">
                                     <a href="#" data-bind="click: _.partial($root.changeLeftRevision, $data)">
                                         <span data-bind="text: $data.__metadata.lastModified()"></span>
-                                        <i title="Conflicted revision" data-bind="visible: $data.__metadata.hasFlag('Conflicted')" class="icon-conflicts"></i>
-                                        <i title="Resolved revision" data-bind="visible: $data.__metadata.hasFlag('Resolved')" class="icon-tick"></i>
+                                        <i data-bind="visible: $data.__metadata.hasFlag('Conflicted'), i18nAttr: { title: 'editDocument:diff.conflictedRevisionTitle' }" class="icon-conflicts"></i>
+                                        <i data-bind="visible: $data.__metadata.hasFlag('Resolved'), i18nAttr: { title: 'editDocument:diff.resolvedRevisionTitle' }" class="icon-tick"></i>
                                     </a>
                                 </li>
                             </ul>
-                            <button class="btn btn-sm btn-default" title="Older revision"
-                                    data-bind="click: _.partial(revisionNavigate, 'older', 'left'), enable: canNavigateObservable('older', 'left'), visible: diffMode() === 'manual'">
+                            <button class="btn btn-sm btn-default"
+                                    data-bind="click: _.partial(revisionNavigate, 'older', 'left'), enable: canNavigateObservable('older', 'left'), visible: diffMode() === 'manual', i18nAttr: { title: 'editDocument:diff.olderRevisionTitle' }">
                                 <i class="icon-arrow-down"></i>
                             </button>
                         </div>
@@ -201,38 +200,38 @@
                 </div>
                 <div class="col-md-6 text-center d-flex">
                     <span data-bind="visible: currentDiff() && !currentDiff().identicalContent()">
-                        <span class="text-warning" data-bind="visible: $root.leftRevisionIsNewer()">Older revision:</span>
-                        <span class="text-success" data-bind="visible: !$root.leftRevisionIsNewer()">Newer revision:</span>
+                        <span class="text-warning" data-bind="visible: $root.leftRevisionIsNewer(), i18n: 'editDocument:diff.olderRevision'"></span>
+                        <span class="text-success" data-bind="visible: !$root.leftRevisionIsNewer(), i18n: 'editDocument:diff.newerRevision'"></span>
                     </span>
                     <div class="flex-grow"></div>
                     <div class="margin-left margin-left-sm inline-block">
-                        <button data-bind="click: () => copyRevisionTimestampToClipboard(document().__metadata.lastModified())"
-                                title="Copy newer revision timestamp to clipboard" class="btn btn-sm btn-default">
+                        <button data-bind="click: () => copyRevisionTimestampToClipboard(document().__metadata.lastModified()), i18nAttr: { title: 'editDocument:diff.copyNewerTimestampTitle' }"
+                                class="btn btn-sm btn-default">
                             <i class="icon-copy"></i>
                         </button>
                         <div class="btn-group">
-                            <button class="btn btn-sm btn-default" title="Newer revision"
-                                    data-bind="click: _.partial(revisionNavigate, 'newer', 'right'), enable: canNavigateObservable('newer', 'right')">
+                            <button class="btn btn-sm btn-default"
+                                    data-bind="click: _.partial(revisionNavigate, 'newer', 'right'), enable: canNavigateObservable('newer', 'right'), i18nAttr: { title: 'editDocument:diff.newerRevisionTitle' }">
                                 <i class="icon-arrow-up"></i>
                             </button>
                             <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown" 
-                                    data-bind="attr: { 'title': diffMode() === 'manual' ? 'Choose revision' : 'Choose revision (Switch to manual mode to choose revision to compare with)' }">
+                                    data-bind="i18nAttr: { 'title': diffMode() === 'manual' ? 'editDocument:diff.chooseRevisionTitle' : 'editDocument:diff.chooseRevisionInPreviousModeTitle' }">
                                 <span data-bind="text: document().__metadata.lastModified()"></span>
-                                <i title="Conflicted revision" data-bind="visible: document().__metadata.hasFlag('Conflicted')" class="icon-conflicts"></i>
-                                <i title="Resolved revision" data-bind="visible: document().__metadata.hasFlag('Resolved')" class="icon-tick"></i>
+                                <i data-bind="visible: document().__metadata.hasFlag('Conflicted'), i18nAttr: { title: 'editDocument:diff.conflictedRevisionTitle' }" class="icon-conflicts"></i>
+                                <i data-bind="visible: document().__metadata.hasFlag('Resolved'), i18nAttr: { title: 'editDocument:diff.resolvedRevisionTitle' }" class="icon-tick"></i>
                                 <span class="caret margin-left margin-left-sm"></span>
                             </button>
                             <ul class="dropdown-menu" data-bind="foreach: revisionsToCompare">
                                 <li data-bind="css: { active: $data.__metadata.changeVector() === $root.document().__metadata.changeVector() }, visible: $root.diffMode() === 'previous' ? $index() < $root.revisionsToCompare().length - 1 : true">
                                     <a href="#" data-bind="click: _.partial($root.changeRightRevision, $data)">
                                         <span data-bind="text: $data.__metadata.lastModified()"></span>
-                                        <i title="Conflicted revision" data-bind="visible: $data.__metadata.hasFlag('Conflicted')" class="icon-conflicts"></i>
-                                        <i title="Resolved revision" data-bind="visible: $data.__metadata.hasFlag('Resolved')" class="icon-tick"></i>
+                                        <i data-bind="visible: $data.__metadata.hasFlag('Conflicted'), i18nAttr: { title: 'editDocument:diff.conflictedRevisionTitle' }" class="icon-conflicts"></i>
+                                        <i data-bind="visible: $data.__metadata.hasFlag('Resolved'), i18nAttr: { title: 'editDocument:diff.resolvedRevisionTitle' }" class="icon-tick"></i>
                                     </a>
                                 </li>
                             </ul>
-                            <button class="btn btn-sm btn-default" title="Older revision"
-                                    data-bind="click: _.partial(revisionNavigate, 'older', 'right'), enable: canNavigateObservable('older', 'right')">
+                            <button class="btn btn-sm btn-default"
+                                    data-bind="click: _.partial(revisionNavigate, 'older', 'right'), enable: canNavigateObservable('older', 'right'), i18nAttr: { title: 'editDocument:diff.olderRevisionTitle' }">
                                 <i class="icon-arrow-down"></i>
                             </button>
                         </div>
@@ -242,17 +241,17 @@
             </div>
             <div class="clearfix" data-bind="visible: !isDeleteRevision() && !inDiffMode()">
                 <div class="btn-group btn-group-sm pull-right" role="group" data-bind="visible: !inDiffMode()">
-                    <button type="button" class="btn btn-default" title="Format document" 
-                            data-bind="enable: !isNewLineFriendlyMode(), click: formatDocument">
-                        <i class="icon-indent"></i><span>Format</span>
+                    <button type="button" class="btn btn-default"
+                            data-bind="enable: !isNewLineFriendlyMode(), click: formatDocument, i18nAttr: { title: 'editDocument:editor.formatTitle' }">
+                        <i class="icon-indent"></i><span data-bind="i18n: 'editDocument:editor.format'"></span>
                     </button>
                     <button class="btn btn-default" data-bind="click: toggleCollapse">
                         <i data-bind="attr: { class: isDocumentCollapsed() ? 'icon-unfold' : 'icon-fold'} "></i>
-                        <span data-bind="text: isDocumentCollapsed() ? 'Expand document' : 'Collapse document'"></span>
+                        <span data-bind="i18n: isDocumentCollapsed() ? 'editDocument:editor.expand' : 'editDocument:editor.collapse'"></span>
                     </button>
-                    <button type="button" class="btn btn-default" title="Switch to 'new lines' mode" data-toggle="button" 
-                            data-bind="click: toggleNewlineMode">
-                        <i class="icon-newline"></i><span>Toggle new lines</span>
+                    <button type="button" class="btn btn-default" data-toggle="button"
+                            data-bind="click: toggleNewlineMode, i18nAttr: { title: 'editDocument:editor.newLinesTitle' }">
+                        <i class="icon-newline"></i><span data-bind="i18n: 'editDocument:editor.toggleNewLines'"></span>
                     </button>
                 </div>
             </div>
@@ -270,39 +269,33 @@
                 <div class="absolute-fill" data-bind="visible: isDeleteRevision()">
                     <div class="absolute-center padding padding-lg bg-info text-center">
                         <i class="icon-trash icon-xl"></i>
-                        <div>This document was removed on <strong data-bind="text: metadata().lastModifiedFullDate"></strong>
-                        </div>
-                        <div>@metadata flags: <strong data-bind="text: metadata().flags"></strong>
-                        </div>
-                        <div class="margin-top">Go to <a href="#" class="text-revisions" data-bind="click: _.partial(connectedDocuments.activateRevisions, true)">REVISIONS</a> to see entire document history
+                        <div data-bind="html: deletedRevisionRemovedOnHtml"></div>
+                        <div data-bind="html: deletedRevisionFlagsHtml"></div>
+                        <div class="margin-top"><span data-bind="i18n: 'editDocument:deletedRevision.goTo'"></span> <a href="#" class="text-revisions" data-bind="click: _.partial(connectedDocuments.activateRevisions, true), i18n: 'editDocument:deletedRevision.revisionsLink'"></a> <span data-bind="i18n: 'editDocument:deletedRevision.seeHistory'"></span>
                         </div>
                     </div>
                 </div>
                 <div class="absolute-fill" data-bind="visible: showHugeDocumentWarning()">
                     <div class="absolute-center padding padding-lg bg-info">
-                        <div class="padding">
-                            <span data-bind="text: documentItemType"></span> size is <strong data-bind="text: computedDocumentSize"></strong>.<br /><br />
-                            Having huge documents impacts indexing, querying and other database tasks.<br />
-                            Your browser may not perform well if you open the <span data-bind="text: documentItemType"></span> in this view.
-                        </div>
+                        <div class="padding" data-bind="html: hugeDocumentWarningHtml"></div>
                         <div class="padding text-left">
-                            Select how to continue: <br />
+                            <span data-bind="i18n: 'editDocument:hugeDocument.selectHowToContinue'"></span> <br />
                         </div>
                         <div class="padding text-center">
                             <button class="btn btn-warning" 
-                                    data-bind="click: reLoadDocument, attr: { title: 'Click to open the ' + documentItemType().toLowerCase() + ' in this edit view' }, css: { 'btn-spinner': isBusy }">
+                                    data-bind="click: reLoadDocument, i18nAttr: { title: { key: 'editDocument:hugeDocument.openTitle', options: { context: inReadOnlyMode() ? 'revision' : 'document' } } }, css: { 'btn-spinner': isBusy }">
                                 <i class="icon-preview"></i>
-                                <span><span data-bind="text: isBusy() ? 'Loading... ' : 'Open '"></span><span data-bind="text: documentItemType().toLowerCase(), visible: !isBusy()"></span></span>
+                                <span data-bind="i18n: isBusy() ? 'editDocument:hugeDocument.loading' : { key: 'editDocument:hugeDocument.open', options: { context: inReadOnlyMode() ? 'revision' : 'document' } }"></span>
                             </button>
                             <button class="btn btn-success"
-                                    data-bind="click: viewRaw, attr: { title: 'Click to view the raw content for the ' + documentItemType().toLowerCase() }, disable: isBusy">
+                                    data-bind="click: viewRaw, i18nAttr: { title: { key: 'editDocument:hugeDocument.viewRawTitle', options: { context: inReadOnlyMode() ? 'revision' : 'document' } } }, disable: isBusy">
                                 <i class="icon-json"></i>
-                                <span>View raw content</span>
+                                <span data-bind="i18n: 'editDocument:hugeDocument.viewRaw'"></span>
                             </button>
                             <button class="btn btn-info"
-                                    data-bind="click: downloadDocument, attr: { title: 'Click to download the ' + documentItemType().toLowerCase() + ' in your browser' }, disable: isBusy">
+                                    data-bind="click: downloadDocument, i18nAttr: { title: { key: 'editDocument:hugeDocument.downloadTitle', options: { context: inReadOnlyMode() ? 'revision' : 'document' } } }, disable: isBusy">
                                 <i class="icon-export"></i>
-                                <span>Download <span data-bind="text: documentItemType().toLowerCase()"></span></span>
+                                <span data-bind="i18n: { key: 'editDocument:hugeDocument.download', options: { context: inReadOnlyMode() ? 'revision' : 'document' } }"></span>
                             </button>
                         </div>
                     </div>
@@ -315,39 +308,33 @@
         </div>
         <small data-bind="visible: inReadOnlyMode() && !isDeleteRevision() && !inDiffMode() && !isReadOnlyAccess()" class="text-warning bg-warning padding padding-sm">
             <i class="icon-warning"></i>
-            <span data-bind="text: 'File editing is not available in revisions'"></span>
+            <span data-bind="i18n: 'editDocument:readOnly.revisions'"></span>
         </small>
         <small data-bind="visible: isReadOnlyAccess" class="text-warning bg-warning padding padding-sm">
             <i class="icon-warning"></i>
-            <span data-bind="text: 'File editing is not available. Insufficient database access.'"></span>
+            <span data-bind="i18n: 'editDocument:readOnly.insufficientAccess'"></span>
         </small>
         <div class="differences_summary" data-bind="visible: currentDiff, with: currentDiff">
             <div class="padding padding-sm" data-bind="visible: identicalContent">
-                <small class="text-success">Contents are identical</small>
+                <small class="text-success" data-bind="i18n: 'editDocument:diff.identical'"></small>
             </div>
             <div class="padding padding-sm" data-bind="visible: !identicalContent()">
-                <small class="text-warning">
-                    Revisions are different:
-                    <strong class="text-success" data-bind="text: additions"></strong>
-                    <span data-bind="text: $root.pluralize(additions(), 'addition', 'additions', true)"></span>, 
-                    <strong class="text-danger" data-bind="text: deletions"></strong>
-                    <span data-bind="text: $root.pluralize(deletions(), 'deletion', 'deletions', true)"></span>
-                </small>
+                <small class="text-warning" data-bind="html: $root.diffSummaryHtml"></small>
             </div>
         </div>
     </div>
     <div id="right-options-panel" class="flex-window" data-bind="css: { collapse: !propertiesPanelVisible() }">
         <div class="collapse-options-panel-container">
-            <button class="collapse-options-panel btn btn-sm" title="Collapse properties panel" data-bind="click: togglePropertiesPanel"><i class="icon-arrow-right"></i></button>
-            <button class="show-options-panel btn btn-sm" title="Expand properties panel" data-bind="click: togglePropertiesPanel"><i class="icon-arrow-left"></i></button>
+            <button class="collapse-options-panel btn btn-sm" data-bind="click: togglePropertiesPanel, i18nAttr: { title: 'editDocument:properties.collapseTitle' }"><i class="icon-arrow-right"></i></button>
+            <button class="show-options-panel btn btn-sm" data-bind="click: togglePropertiesPanel, i18nAttr: { title: 'editDocument:properties.expandTitle' }"><i class="icon-arrow-left"></i></button>
         </div>
         <div class="panel document-properties flex-window-head copy-area">
             <div class="panel-body">
-                <h3 class="margin-none">Properties</h3>
+                <h3 class="margin-none" data-bind="i18n: 'editDocument:properties.title'"></h3>
                 <hr class="small" />
                 <dl class="dl-horizontal small" data-bind="with: metadata">
                     <div data-bind="visible: shardNumber != null">
-                        <dt>Shard:</dt>
+                        <dt data-bind="i18n: 'editDocument:properties.shard'"></dt>
                         <dd>
                             <span class="label label-default">
                                 # <span data-bind="text: shardNumber"></span>    
@@ -355,7 +342,7 @@
                         </dd>
                     </div>
                     <div data-bind="visible: !$root.isCreatingNewDocument()">
-                        <dt>Change Vector:</dt>
+                        <dt data-bind="i18n: 'editDocument:properties.changeVector'"></dt>
                         <dd>
                             <div class="flex-horizontal">
                                 <div data-placement="left" data-toggle="tooltip" data-html="true" data-animation="true" data-bind="tooltipText: $root.changeVectorHtml()">
@@ -364,61 +351,61 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <a href="#" class="copy-button-hidden" title="Copy change vector" data-bind="click: $root.copyChangeVectorToClipboard"><i class="icon-copy"></i></a>
+                                    <a href="#" class="copy-button-hidden" data-bind="click: $root.copyChangeVectorToClipboard, i18nAttr: { title: 'editDocument:properties.copyChangeVectorTitle' }"><i class="icon-copy"></i></a>
                                 </div>
                             </div>
                         </dd>
-                        <dt>Modified:</dt>
+                        <dt data-bind="i18n: 'editDocument:properties.modified'"></dt>
                         <dd>
                             <span data-placement="left" data-toggle="tooltip" data-html="true" data-animation="true"
-                                  data-bind="tooltipText: '<div><strong>Last Modified Time</strong></div>' + lastModifiedFullDate()">
+                                  data-bind="tooltipText: $root.lastModifiedTooltipHtml">
                                 <span data-bind="text: lastModifiedInterval"></span>
                             </span>
                         </dd>
                     </div>
                     <div data-bind="if: expirationDateInterval">
-                        <dt>Expires:</dt>
+                        <dt data-bind="i18n: 'editDocument:properties.expires'"></dt>
                         <dd>
                              <span data-placement="left" data-toggle="tooltip" data-html="true" data-animation="true"
-                                   data-bind="tooltipText: '<div><strong>Expiration Date</strong></div>' + expirationDateFullDate()">
+                                   data-bind="tooltipText: $root.expirationTooltipHtml">
                                 <span data-bind="text: expirationDateInterval"></span>
                             </span>
                             <span data-toggle="tooltip" data-animation="true" data-html="true" data-placement="bottom"
-                                  data-bind="visible: !$root.documentExpirationEnabled(), tooltipText: 'Document expiration is turned off. <Br />This document won\'t be deleted on specified point in time.'">
+                                  data-bind="visible: !$root.documentExpirationEnabled(), tooltipText: $root.expirationOffTooltipHtml">
                                 <i class="icon-danger text-warning"></i>
                             </span>
                         </dd>
                     </div>
                     <div data-bind="if: archiveAtDateInterval">
-                        <dt>Archive in:</dt>
+                        <dt data-bind="i18n: 'editDocument:properties.archiveIn'"></dt>
                         <dd>
                              <span data-placement="left" data-toggle="tooltip" data-html="true" data-animation="true"
-                                   data-bind="tooltipText: '<div><strong>Archival Date</strong></div>' + archiveAtDateFullDate()">
+                                   data-bind="tooltipText: $root.archivalTooltipHtml">
                                 <span data-bind="text: archiveAtDateInterval, visible: !archiveAtInPast() || $root.documentArchivalEnabled()"></span>
                                 <s data-bind="text: archiveAtDateInterval, visible: archiveAtInPast() && !$root.documentArchivalEnabled()"></s>
                             </span>
                             <br data-bind="visible: archiveAtInPast() && !$root.documentArchivalEnabled()" /> 
-                            <span class="text-warning" data-bind="visible: archiveAtInPast() && !$root.documentArchivalEnabled()">Document Archival  is turned off</span>
+                            <span class="text-warning" data-bind="visible: archiveAtInPast() && !$root.documentArchivalEnabled(), i18n: 'editDocument:properties.archivalOffWarning'"></span>
                             <span data-toggle="tooltip" data-animation="true" data-html="true" data-placement="bottom"
-                                  data-bind="visible: !$root.documentArchivalEnabled(), tooltipText: 'Document Archival is turned off. <Br />This document won\'t be archived on specified point in time.'">
+                                  data-bind="visible: !$root.documentArchivalEnabled(), tooltipText: $root.archivalOffTooltipHtml">
                                 <i class="icon-danger text-warning"></i>
                             </span>
                         </dd>
                     </div>
                     <div data-bind="if: refreshDateInterval">
-                        <dt>Refresh:</dt>
+                        <dt data-bind="i18n: 'editDocument:properties.refresh'"></dt>
                         <dd>
                              <span data-placement="left" data-toggle="tooltip" data-html="true" data-animation="true"
-                                   data-bind="tooltipText: '<div><strong>Refresh Date</strong></div>' + refreshDateFullDate()">
+                                   data-bind="tooltipText: $root.refreshTooltipHtml">
                                 <span data-bind="text: refreshDateInterval"></span>
                             </span>
                             <span data-toggle="tooltip" data-animation="true" data-html="true" data-placement="bottom"
-                                  data-bind="visible: !$root.documentRefreshEnabled(), tooltipText: 'Document refresh is turned off. <Br />This document won\'t be refreshed on specified point in time.'">
+                                  data-bind="visible: !$root.documentRefreshEnabled(), tooltipText: $root.refreshOffTooltipHtml">
                                 <i class="icon-danger text-warning"></i>
                             </span>
                         </dd>
                     </div>
-                    <dt>Size:</dt>
+                    <dt data-bind="i18n: 'editDocument:properties.size'"></dt>
                     <dd>
                         <span data-placement="left" data-toggle="tooltip" data-html="true" data-animation="true"
                              data-bind="tooltipText: $root.documentSizeHtml()">
@@ -431,9 +418,9 @@
                        <i class="icon-cmp-xchg"></i> 
                     </dt>
                     <dd data-bind="visible: $root.savedInClusterTransaction">
-                        Document was saved using Cluster Transaction.
+                        <span data-bind="i18n: 'editDocument:properties.clusterTransaction'"></span>
                         <br />
-                        <a data-bind="attr: { href: $root.atomicGuardUrl }">Go to atomic guard</a>
+                        <a data-bind="attr: { href: $root.atomicGuardUrl }, i18n: 'editDocument:properties.goToAtomicGuard'"></a>
                     </dd>
                 </dl>
             </div>
@@ -445,7 +432,7 @@
                         <button type="button" class="btn btn-xs btn-default doc-attachments"
                                 data-bind="css: { active: isAttachmentsActive() }, click: $root.activateAttachmentsTab, disable: !$root.canViewAttachments()">
                             <i class="icon-attachment"></i>
-                            Attachments
+                            <span data-bind="i18n: 'editDocument:tabs.attachments'"></span>
                             <div data-bind="text: $root.getBadgeText($root.crudActionsProvider().attachmentsCount),
                                             attr: { class: $root.getBadgeClasses($root.crudActionsProvider().attachmentsCount),
                                                     title: $root.getBadgeTitle($root.crudActionsProvider().attachmentsCount) }">
@@ -456,7 +443,7 @@
                         <button type="button" class="btn btn-xs btn-default doc-counters"
                                 data-bind="css: { active: isCountersActive() }, click: activateCounters, disable: !$root.canViewCounters()">
                             <i class="icon-new-counter"></i>
-                            Counters
+                            <span data-bind="i18n: 'editDocument:tabs.counters'"></span>
                             <div data-bind="text: $root.getBadgeText($root.crudActionsProvider().countersCount),
                                             attr: { class: $root.getBadgeClasses($root.crudActionsProvider().countersCount),
                                                     title: $root.getBadgeTitle($root.crudActionsProvider().countersCount) }">
@@ -467,7 +454,7 @@
                         <button type="button" class="btn btn-xs btn-default doc-time-series"
                                 data-bind="css: { active: isTimeSeriesActive() }, click: $root.activateTimeSeriesTab, disable: !$root.canViewTimeSeries()">
                             <i class="icon-new-time-series"></i>
-                            Time Series
+                            <span data-bind="i18n: 'editDocument:tabs.timeSeries'"></span>
                             <div data-bind="text: $root.getBadgeText($root.crudActionsProvider().timeSeriesCount),
                                             attr: { class: $root.getBadgeClasses($root.crudActionsProvider().timeSeriesCount),
                                                     title: $root.getBadgeTitle($root.crudActionsProvider().timeSeriesCount) }">
@@ -478,7 +465,7 @@
                         <button type="button" class="btn btn-xs btn-default doc-revisions"
                                 data-bind="css: { active: isRevisionsActive() }, click: _.partial(activateRevisions, false), disable: !$root.canViewRevisions()">
                             <i class="icon-revisions"></i>
-                            Revisions
+                            <span data-bind="i18n: 'editDocument:tabs.revisions'"></span>
                             <div data-bind="text: $root.getBadgeText($root.crudActionsProvider().revisionsCount),
                                             attr: { class: $root.getBadgeClasses($root.crudActionsProvider().revisionsCount),
                                                     title: $root.getBadgeTitle($root.crudActionsProvider().revisionsCount) }">
@@ -488,28 +475,28 @@
                     <div class="btn-group" role="group">
                         <button type="button" class="btn btn-xs btn-default doc-related" data-bind="css: { active: isRelatedActive() }, click: activateRelated, disable: !$root.canViewRelated()">
                             <i class="icon-link"></i>
-                            Related
+                            <span data-bind="i18n: 'editDocument:tabs.related'"></span>
                         </button>
                     </div>
                     <div class="btn-group" role="group">
                         <button type="button" class="btn btn-xs btn-default doc-recent" data-bind="css: { active: isRecentActive() }, click: activateRecent">
                             <i class="icon-recent"></i>
-                            Recent
+                            <span data-bind="i18n: 'editDocument:tabs.recent'"></span>
                         </button>
                     </div>
                 </div>
                 <div class="search-documents" data-bind="visible: searchInputVisible">
-                    <input type="search" class="form-control" data-bind="textInput: searchInput" placeholder="search" /><span class="icon-search"></span>
+                    <input type="search" class="form-control" data-bind="textInput: searchInput, i18nAttr: { placeholder: 'editDocument:tabs.searchPlaceholder' }" /><span class="icon-search"></span>
                 </div>
                 <div class="flex-window-head" data-bind="visible: isUploaderActive() && $root.canViewAttachments() && !$root.inReadOnlyMode(),
                                                          template: { name: 'uploader-template' }, requiredAccess: 'DatabaseReadWrite'">
                 </div>
                 <div data-bind="visible: isAttachmentsActive() && isClone()">
                     <div class="padding padding-xs margin-top margin-top-sm">
-                        <div class="input-group file-input has-disable-reason" data-original-title="Save clone before adding attachments" data-placement="bottom">
+                        <div class="input-group file-input has-disable-reason" data-bind="i18nAttr: { 'data-original-title': 'editDocument:attachments.saveCloneFirst' }" data-placement="bottom">
                             <label class="btn btn-sm btn-primary btn-block" disabled>
                                 <i class="icon-attachment"></i>
-                                <span>Add Attachment</span>
+                                <span data-bind="i18n: 'editDocument:attachments.add'"></span>
                             </label>
                         </div>
                     </div>
@@ -518,27 +505,27 @@
                     <div class="padding padding-xs margin-top margin-top-sm">
                         <button type="button" class="btn btn-sm btn-primary btn-block" data-bind="click: _.partial($root.crudActionsProvider().setCounter, null)">
                             <i class="icon-new-counter"></i>
-                            <span>Add Counter</span>
+                            <span data-bind="i18n: 'editDocument:counters.add'"></span>
                         </button>
                     </div>
                 </div>
                 <div class="flex-window-head" data-bind="visible: isTimeSeriesActive() && $root.canViewTimeSeries() && !$root.inReadOnlyMode(), requiredAccess: 'DatabaseReadWrite'">
-                    <div data-bind="attr: { class: 'padding padding-xs margin-top margin-top-sm' + (isClone() ? ' has-disable-reason' : ''),
-                                            'data-original-title': isClone() ? 'Save clone before adding time series' : '' }" data-placement="bottom">
+                    <div data-bind="attr: { class: 'padding padding-xs margin-top margin-top-sm' + (isClone() ? ' has-disable-reason' : '') },
+                                    i18nAttr: { 'data-original-title': isClone() ? 'editDocument:timeSeries.saveCloneFirst' : null }" data-placement="bottom">
                         <a data-bind="attr: { href: $root.createTimeSeriesUrl(), class: 'btn btn-sm btn-primary btn-block' + (isClone() ? ' disabled' : '') }">
                             <i class="icon-new-time-series"></i>
-                            <span>Add Time Series</span>
+                            <span data-bind="i18n: 'editDocument:timeSeries.add'"></span>
                         </a>
                     </div>
                 </div>
                 <div class="flex-window-head" data-bind="visible: isRevisionsActive() && $root.canViewRevisions() && !$root.inReadOnlyMode(),
-                     attr: { title: $root.dirtyFlag().isDirty() ? 'Save your changes before creating a revision' : 'A revision will be created even if Revisions are Not configured for the collection' },
+                     i18nAttr: { title: $root.dirtyFlag().isDirty() ? 'editDocument:revisions.saveChangesFirst' : 'editDocument:revisions.createHint' },
                      requiredAccess: 'DatabaseReadWrite'">
                     <div class="padding padding-xs margin-top margin-top-sm">
                         <button type="button" class="btn btn-sm btn-primary btn-block"
                                 data-bind="click: $root.forceCreateRevision, disable: $root.dirtyFlag().isDirty(), css: { 'btn-spinner': $root.isSaving }">
                             <i class="icon-revisions"></i>
-                            <span>Create Revision</span>
+                            <span data-bind="i18n: 'editDocument:revisions.create'"></span>
                         </button>
                     </div>
                 </div>
@@ -564,7 +551,7 @@
         <div class="btn-group w-100 d-flex">
             <button type="button" class="btn btn-sm btn-primary flex-grow"
                     data-bind="click: () => $root.connectedDocuments.isAddAttachmentModalVisible(true)">
-                <i class="icon-attachment"></i> <span>Add Attachment</span>
+                <i class="icon-attachment"></i> <span data-bind="i18n: 'editDocument:attachments.add'"></span>
             </button>
 
             <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown"
@@ -572,14 +559,14 @@
                     aria-expanded="false"
             >
                 <span class="caret"></span>
-                <span class="sr-only">Toggle Dropdown</span>
+                <span class="sr-only" data-bind="i18n: 'editDocument:toolbar.toggleDropdown'"></span>
             </button>
 
             <ul class="dropdown-menu uploader-template">
                 <li class="add-remote-attachment">
                     <a href="#" data-bind="click: () => $root.connectedDocuments.isAddAttachmentWithRemoteParametersModalVisible(!$root.remoteAttachmentDisabledReason()), css: { 'disabled': $root.remoteAttachmentDisabledReason() }">
                         <i class="icon-remote-attachment"></i>
-                        <span>Add attachment to remote storage</span>
+                        <span data-bind="i18n: 'editDocument:attachments.addRemote'"></span>
                     </a>
                 </li>
             </ul>

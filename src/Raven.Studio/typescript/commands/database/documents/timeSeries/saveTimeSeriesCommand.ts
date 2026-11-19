@@ -2,6 +2,9 @@ import database = require("models/resources/database");
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
 import timeSeriesEntryModel = require("models/database/timeSeries/timeSeriesEntryModel");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("documentsCommands");
 
 class saveTimeSeriesCommand extends commandBase {
     constructor(private documentId: string, private name: string,
@@ -27,7 +30,7 @@ class saveTimeSeriesCommand extends commandBase {
         };
         
         return this.post(url, JSON.stringify(payload), this.db, { dataType: undefined })
-            .fail((response: JQueryXHR) => this.reportError("Failed to save time series.", response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("timeSeries.saveFailed"), response.responseText, response.statusText));
     }
 }
 

@@ -18,6 +18,7 @@ import { databaseSelectors } from "components/common/shell/databaseSliceSelector
 import useBoolean from "hooks/useBoolean";
 import { LoadError } from "components/common/LoadError";
 import { AddIdentitiesFormData } from "components/pages/database/documents/identities/DocumentIdentitiesValidation";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export default function DocumentIdentities() {
     const { value: isOpen, toggle: toggleIsOpen } = useBoolean(false);
@@ -59,20 +60,16 @@ function DocumentIdentitiesWithSize({
     reload,
     status,
 }: DocumentIdentitiesWithSizeProps) {
+    const t = useStudioTranslation("identities");
     const hasDatabaseAccessWrite = useAppSelector(accessManagerSelectors.getHasDatabaseWriteAccess)();
 
     return (
         <div className="h-100 vstack">
-            <AboutViewHeading title="Identities" icon="identities" />
+            <AboutViewHeading title={t("title")} icon="identities" />
             <div className="d-flex mb-3">
-                <Button
-                    variant="primary"
-                    onClick={setIsOpen}
-                    disabled={!hasDatabaseAccessWrite}
-                    title="Add new identity"
-                >
+                <Button variant="primary" onClick={setIsOpen} disabled={!hasDatabaseAccessWrite} title={t("addButton")}>
                     <Icon icon="plus" />
-                    Add new identity
+                    {t("addButton")}
                 </Button>
             </div>
             <SizeGetter
@@ -107,6 +104,7 @@ function DocumentIdentitiesTable({
     height,
     isLoading,
 }: DocumentIdentitiesTableProps) {
+    const t = useStudioTranslation("identities");
     const { identitiesColumns } = useDocumentIdentitiesColumns(width, reload);
 
     const identitiesTable = useReactTable({
@@ -121,7 +119,7 @@ function DocumentIdentitiesTable({
     return (
         <>
             {status === "error" ? (
-                <LoadError error="Error during loading identites" refresh={() => reload()} />
+                <LoadError error={t("loadError")} refresh={() => reload()} />
             ) : (
                 <VirtualTable heightInPx={height} table={identitiesTable} isLoading={isLoading} />
             )}

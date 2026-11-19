@@ -12,6 +12,9 @@ import { virtualTableUtils } from "components/common/virtualTable/utils/virtualT
 import { useAppUrls } from "components/hooks/useAppUrls";
 import { useAppSelector } from "components/store";
 import { useMemo } from "react";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import type { StudioTranslate } from "common/i18n/resources";
 
 export function useAllRevisionsColumns(
     databaseName: string,
@@ -20,6 +23,7 @@ export function useAllRevisionsColumns(
     rowSelection: RevisionsPreviewResultItem[],
     setRowSelection: (rows: RevisionsPreviewResultItem[]) => void
 ): ColumnDef<RevisionsPreviewResultItem>[] {
+    const t = useStudioTranslation("allRevisions");
     const hasDatabaseAdminAccess = useAppSelector(accessManagerSelectors.getHasDatabaseAdminAccess)();
 
     // column defs must be stable between renders, otherwise flexRender remounts every cell on each render
@@ -31,9 +35,10 @@ export function useAllRevisionsColumns(
                 tableBodyWidth,
                 rowSelection,
                 setRowSelection,
-                hasDatabaseAdminAccess
+                hasDatabaseAdminAccess,
+                t
             ),
-        [databaseName, isSharded, tableBodyWidth, rowSelection, setRowSelection, hasDatabaseAdminAccess]
+        [databaseName, isSharded, tableBodyWidth, rowSelection, setRowSelection, hasDatabaseAdminAccess, t]
     );
 }
 
@@ -43,7 +48,8 @@ function createColumns(
     tableBodyWidth: number,
     rowSelection: RevisionsPreviewResultItem[],
     setRowSelection: (rows: RevisionsPreviewResultItem[]) => void,
-    hasDatabaseAdminAccess: boolean
+    hasDatabaseAdminAccess: boolean,
+    t: StudioTranslate<"allRevisions">
 ): ColumnDef<RevisionsPreviewResultItem>[] {
     const checkboxWidth = hasDatabaseAdminAccess ? columnCheckbox.size : 0;
 
@@ -73,6 +79,7 @@ function createColumns(
     columns.push(
         {
             accessorKey: "Id",
+            header: t("columns.id"),
             cell: ({ getValue, row }) => {
                 const id = getValue<string>();
                 const changeVector = row.getValue<string>("ChangeVector");
@@ -92,6 +99,7 @@ function createColumns(
         },
         {
             accessorKey: "Collection",
+            header: t("columns.collection"),
             cell: ({ getValue }) => {
                 const collection = getValue<string>();
 
@@ -107,6 +115,7 @@ function createColumns(
         },
         {
             accessorKey: "Etag",
+            header: t("columns.etag"),
             cell: CellWithCopyWrapper,
             size: sizeProvider(10),
         },
@@ -117,7 +126,7 @@ function createColumns(
             size: sizeProvider(isSharded ? 20 : 25),
         },
         {
-            header: "Last Modified",
+            header: t("columns.lastModified"),
             accessorKey: "LastModified",
             cell: CellWithCopyWrapper,
             size: sizeProvider(20),
@@ -127,7 +136,7 @@ function createColumns(
             header: () => (
                 <span>
                     <Icon icon="flag" />
-                    Flags
+                    {t("columns.flags")}
                 </span>
             ),
             accessorKey: "Flags",
@@ -170,7 +179,7 @@ function createColumns(
 
     if (isSharded) {
         columns.push({
-            header: () => <Icon icon="shard" margin="m-0" title="Shard number" />,
+            header: () => <Icon icon="shard" margin="m-0" title={t("columns.shardNumber")} />,
             accessorKey: "ShardNumber",
             cell: CellWithCopyWrapper,
             size: sizeProvider(5),
@@ -207,11 +216,14 @@ function CheckboxCell({ rowValue, rowSelection, setRowSelection }: CheckboxCellP
                 isActive: isDeleteRevision,
                 message: (
                     <div className="text-center">
-                        A &quot;Delete Revision&quot; can only be deleted from the
-                        <br />
-                        <a href={forCurrentDatabase.revisionsBin()} target="_blank">
-                            Revisions Bin view
-                        </a>
+                        <StudioTrans
+                            ns="allRevisions"
+                            i18nKey="columns.deleteRevisionPopover"
+                            components={{
+                                br: <br />,
+                                a: <a href={forCurrentDatabase.revisionsBin()} target="_blank" />,
+                            }}
+                        />
                     </div>
                 ),
             }}

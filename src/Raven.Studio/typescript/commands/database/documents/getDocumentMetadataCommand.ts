@@ -3,6 +3,9 @@ import database = require("models/resources/database");
 import document = require("models/database/documents/document");
 import endpoints = require("endpoints");
 import documentMetadata = require("models/database/documents/documentMetadata");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("documentsCommands");
 
 class getDocumentMetadataCommand extends commandBase {
 
@@ -32,7 +35,7 @@ class getDocumentMetadataCommand extends commandBase {
                 if (this.shouldResolveNotFoundAsNull) {
                     documentResult.resolve(null);
                 } else {
-                    documentResult.reject("Unable to find document with ID " + this.id);
+                    documentResult.reject(t("documentNotFound", { id: this.id }));
                 }
             } else {
                 const doc = new document(queryResult.Results[0]);

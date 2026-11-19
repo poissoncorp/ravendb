@@ -1,6 +1,9 @@
 import verifyDocumentsIDsCommand = require("commands/database/documents/verifyDocumentsIDsCommand");
 import database = require("models/resources/database");
 import generalUtils = require("common/generalUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("patch");
 
 class validationHelpers {
 
@@ -20,7 +23,7 @@ class validationHelpers {
         field.extend({
             required: true,
             validation: {
-                message: "Document doesn't exist.",
+                message: t("documentNotFound"),
                 async: true,
                 onlyIf: onlyIf,
                 validator: generalUtils.debounceAndFunnel(verifyDocuments)

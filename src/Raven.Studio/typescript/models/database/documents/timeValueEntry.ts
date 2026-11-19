@@ -1,7 +1,9 @@
 /// <reference path="../../../../typings/tsd.d.ts"/>
 
 import generalUtils = require("common/generalUtils");
-import pluralizeHelpers = require("common/helpers/text/pluralizeHelpers");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("documentsModels");
 
 class timeValueEntry {
     
@@ -262,27 +264,27 @@ class timeValueEntry {
     }
 
     static pluralizeSeconds(value: number) {
-        return pluralizeHelpers.pluralize(value, "second", "seconds");
+        return t("timeValue.seconds", { count: value, formattedCount: value.toLocaleString() });
     }
 
     static pluralizeMinutes(value: number) {
-        return pluralizeHelpers.pluralize(value, "minute", "minutes");
+        return t("timeValue.minutes", { count: value, formattedCount: value.toLocaleString() });
     }
 
     static pluralizeHours(value: number) {
-        return pluralizeHelpers.pluralize(value, "hour", "hours");
+        return t("timeValue.hours", { count: value, formattedCount: value.toLocaleString() });
     }
 
     static pluralizeDays(value: number) {
-        return pluralizeHelpers.pluralize(value, "day", "days");
+        return t("timeValue.days", { count: value, formattedCount: value.toLocaleString() });
     }
 
     static pluralizeMonths(value: number) {
-        return pluralizeHelpers.pluralize(value, "month", "months");
+        return t("timeValue.months", { count: value, formattedCount: value.toLocaleString() });
     }
 
     static pluralizeYears(value: number) {
-        return pluralizeHelpers.pluralize(value, "year", "years");
+        return t("timeValue.years", { count: value, formattedCount: value.toLocaleString() });
     }
 }
 

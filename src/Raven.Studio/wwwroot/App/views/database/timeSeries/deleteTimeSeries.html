@@ -5,25 +5,19 @@
                 <button type="button" class="close" data-bind="click: cancel" aria-hidden="true">
                     <i class="icon-cancel"></i>
                 </button>
-                <h4 class="modal-title">Delete Time Series Entries</h4>
+                <h4 class="modal-title" data-bind="i18n: 'editTimeSeries:deleteDialog.title'"></h4>
             </div>
             <div class="modal-body">
                 <div class="padding padding-sm">
-                    <div data-bind="visible: criteria.mode === 'all'">
-                        You're deleting <strong>all</strong> entries from <strong data-bind="text: timeSeriesName"></strong> time series.
-                    </div>
-                    <div data-bind="visible: criteria.mode === 'selection'">
-                        You're deleting <strong data-bind="text: criteria.selection.length.toLocaleString()"></strong>
-                        <span data-bind="text: pluralize(criteria.selection.length, 'entry', 'entries', true)"></span>
-                        from <strong data-bind="text: timeSeriesName"></strong> time series.
-                    </div>
+                    <div data-bind="visible: criteria.mode === 'all', html: deletingAllHtml"></div>
+                    <div data-bind="visible: criteria.mode === 'selection', html: deletingSelectionHtml"></div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-bind="click: cancel">Cancel</button>
+                <button type="button" class="btn btn-default" data-bind="click: cancel, i18n: 'common:cancel'"></button>
                 <button type="submit" class="btn btn-primary" data-bind="css: { 'btn-spinner': spinners.delete }, disable: spinners.delete">
                     <i class="icon-trash"></i>
-                    <span>Delete</span>
+                    <span data-bind="i18n: 'common:delete'"></span>
                 </button>
             </div>
         </div>

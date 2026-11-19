@@ -1,6 +1,9 @@
 import database = require("models/resources/database");
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("documentsCommands");
 
 class saveConflictSolverConfigurationCommand extends commandBase {
     private readonly databaseName: string;
@@ -19,8 +22,8 @@ class saveConflictSolverConfigurationCommand extends commandBase {
         const url = endpoints.global.adminDatabases.adminReplicationConflictsSolver + this.urlEncodeArgs(urlArgs);
         const args = ko.toJSON(this.configuration);
         return this.post<updateConflictSolverConfigurationResponse>(url, args)
-            .done(() => this.reportSuccess("Conflict solver configuration was saved"))
-            .fail((response: JQueryXHR) => this.reportError("Failed to save conflict solver configuration", response.responseText, response.statusText));
+            .done(() => this.reportSuccess(t("conflictSolverConfigurationSaved")))
+            .fail((response: JQueryXHR) => this.reportError(t("saveConflictSolverConfigurationFailed"), response.responseText, response.statusText));
 
     }
 }

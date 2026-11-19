@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("cmpXchgCommands");
 
 class getCompareExchangeItemCommand extends commandBase {
 
@@ -15,7 +18,7 @@ class getCompareExchangeItemCommand extends commandBase {
 
         const url = endpoints.databases.compareExchange.cmpxchg + this.urlEncodeArgs(args);
         return this.query(url, null, this.database, x => x.Results[0])
-            .fail((response: JQueryXHR) => this.reportError("Failed to get Compare Exchange item with Key: " + this.key, response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("getItemFailed", { key: this.key }), response.responseText, response.statusText));
     }
 }
 

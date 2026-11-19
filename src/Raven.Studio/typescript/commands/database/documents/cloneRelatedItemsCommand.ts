@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("documentsCommands");
 
 class cloneRelatedItemsCommand extends commandBase {
 
@@ -58,7 +61,7 @@ class cloneRelatedItemsCommand extends commandBase {
         const args = ko.toJSON({ Commands: commands });
         const url = endpoints.databases.batch.bulk_docs;
         return this.post<void>(url, args, this.db)
-            .fail((response: JQueryXHR) => this.reportError("Failed to save attachments/counters/timeseries for " + this.targetDocumentId, response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("cloneRelatedItemsFailed", { documentId: this.targetDocumentId }), response.responseText, response.statusText));
     }
 }
 

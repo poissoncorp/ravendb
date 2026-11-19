@@ -19,7 +19,9 @@ import RichAlert from "components/common/RichAlert";
 import { components, GroupBase, OptionProps } from "react-select";
 import { useAppSelector } from "components/store";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
-import pluralizeHelpers = require("common/helpers/text/pluralizeHelpers");
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+import type { StudioTranslate } from "common/i18n/resources";
 import RemoteAttachmentParameters = Raven.Client.Documents.Operations.Attachments.RemoteAttachmentParameters;
 
 type AddAttachmentWithRemoteParametersModalProps = {
@@ -33,6 +35,7 @@ export default function AddAttachmentWithRemoteParametersModal({
     onClose,
     onUploaded,
 }: AddAttachmentWithRemoteParametersModalProps) {
+    const t = useStudioTranslation("editDocument");
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const { databasesService } = useServices();
     const asyncGetRemoteAttachmentParametersConfig = useAsyncCallback(() =>
@@ -40,7 +43,7 @@ export default function AddAttachmentWithRemoteParametersModal({
     );
 
     const form = useForm({
-        resolver: yupResolver(schema),
+        resolver: yupResolver(getSchema(t)),
         defaultValues: async () => {
             const config = await asyncGetRemoteAttachmentParametersConfig.execute();
             return getDefaultValues(config);
@@ -70,8 +73,8 @@ export default function AddAttachmentWithRemoteParametersModal({
 
     const onFileDropzoneChange = (files: File[], field: ControllerRenderProps<FieldValues, "files">) => {
         if (files.some((file) => !file.name.trim())) {
-            messagePublisher.reportError("Failed to load file");
-            form.setError("files", { type: "manual", message: "Failed to load file" });
+            messagePublisher.reportError(t("attachmentUpload.loadFileFailed"));
+            form.setError("files", { type: "manual", message: t("attachmentUpload.loadFileFailed") });
             return;
         }
 
@@ -92,14 +95,14 @@ export default function AddAttachmentWithRemoteParametersModal({
         form.setValue("files", [], { shouldValidate: true, shouldDirty: true });
     };
 
-    const attachmentsLabel = pluralizeHelpers.pluralize(selectedFiles?.length || 1, "attachment", "attachments", true);
+    const attachmentsCount = selectedFiles?.length || 1;
 
     return (
         <Modal size="lg" show contentClassName="modal-border bulge-info">
             <Modal.Header className="pb-0" onCloseClick={onClose}>
                 <h3>
                     <Icon icon="remote-attachment" color="info" />
-                    Add {attachmentsLabel} to remote storage
+                    {t("addRemoteAttachment.title", { count: attachmentsCount })}
                 </h3>
             </Modal.Header>
             <FormProvider {...form}>
@@ -120,9 +123,9 @@ export default function AddAttachmentWithRemoteParametersModal({
                             ></Controller>
                         </FormGroup>
                         <FormGroup>
-                            <FormLabel>Remote destination identifier</FormLabel>
+                            <FormLabel>{t("addRemoteAttachment.destinationLabel")}</FormLabel>
                             <FormSelectAutocomplete
-                                placeholder="Select or enter a defined destination identifier"
+                                placeholder={t("addRemoteAttachment.destinationPlaceholder")}
                                 isLoading={asyncGetRemoteAttachmentParametersConfig.loading}
                                 options={getRemoteAttachmentsDestinationsOptions(
                                     asyncGetRemoteAttachmentParametersConfig.result
@@ -137,9 +140,9 @@ export default function AddAttachmentWithRemoteParametersModal({
                             />
                         </FormGroup>
                         <FormGroup>
-                            <FormLabel>Scheduled upload time</FormLabel>
+                            <FormLabel>{t("addRemoteAttachment.uploadTimeLabel")}</FormLabel>
                             <FormDatePicker
-                                placeholderText="e.g. 11/21/2025 10:57 AM"
+                                placeholderText={t("addRemoteAttachment.uploadTimePlaceholder")}
                                 showTimeSelect
                                 minDate={new Date()}
                                 minTime={getMinUploadTime(selectedUploadDate)}
@@ -152,7 +155,7 @@ export default function AddAttachmentWithRemoteParametersModal({
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="link" className="text-muted" onClick={onClose}>
-                        Close
+                        {t("close")}
                     </Button>
                     <ButtonWithSpinner
                         className="rounded-pill"
@@ -162,8 +165,11 @@ export default function AddAttachmentWithRemoteParametersModal({
                         disabled={!formState.isValid}
                     >
                         {batchProgress
-                            ? `Uploading ${batchProgress.position}/${batchProgress.count}`
-                            : `Save ${attachmentsLabel} with remote settings`}
+                            ? t("attachmentUpload.uploading", {
+                                  position: batchProgress.position,
+                                  total: batchProgress.count,
+                              })
+                            : t("addRemoteAttachment.save", { count: attachmentsCount })}
                     </ButtonWithSpinner>
                 </Modal.Footer>
             </FormProvider>
@@ -180,8 +186,11 @@ function RemoteAttachmentWarning({ config, selectedDestination }: RemoteAttachme
     if (config?.Disabled) {
         return (
             <RichAlert className="mt-2" icon="warning" variant="warning">
-                Remote attachments feature is currently <b>disabled</b>. You can add an attachment to the remote
-                storage, but it will be uploaded only after the feature is enabled.
+                <StudioTrans
+                    ns="editDocument"
+                    i18nKey="addRemoteAttachment.featureDisabled"
+                    components={{ b: <b /> }}
+                />
             </RichAlert>
         );
     }
@@ -189,8 +198,11 @@ function RemoteAttachmentWarning({ config, selectedDestination }: RemoteAttachme
     if (config?.Destinations[selectedDestination]?.Disabled) {
         return (
             <RichAlert className="mt-2" icon="warning" variant="warning">
-                Destination is currently <b>disabled</b>. You can add an attachment to the remote storage, but it will
-                be uploaded only after the destination is enabled.
+                <StudioTrans
+                    ns="editDocument"
+                    i18nKey="addRemoteAttachment.destinationDisabled"
+                    components={{ b: <b /> }}
+                />
             </RichAlert>
         );
     }
@@ -203,13 +215,19 @@ function getMinUploadTime(selectedDate: Date): Date {
     return isToday ? moment().subtract(29, "minutes").toDate() : moment().startOf("day").toDate();
 }
 
-const schema = yup.object({
-    files: yup.array().of(yup.mixed()).min(1, "File is required").required("File is required"),
-    identifier: yup.string().required("Identifier is required"),
-    uploadDate: yup.date().required("Upload date is required"),
-});
+function getSchema(t: StudioTranslate<"editDocument">) {
+    return yup.object({
+        files: yup
+            .array()
+            .of(yup.mixed())
+            .min(1, t("addRemoteAttachment.fileRequired"))
+            .required(t("addRemoteAttachment.fileRequired")),
+        identifier: yup.string().required(t("addRemoteAttachment.identifierRequired")),
+        uploadDate: yup.date().required(t("addRemoteAttachment.uploadDateRequired")),
+    });
+}
 
-type AttachmentWithRemoteParametersFormData = yup.InferType<typeof schema>;
+type AttachmentWithRemoteParametersFormData = yup.InferType<ReturnType<typeof getSchema>>;
 
 const mapToDto = (values: AttachmentWithRemoteParametersFormData): RemoteAttachmentParameters => {
     return {
@@ -261,12 +279,13 @@ type RemoteAttachmentDestinationOptionProps = OptionProps<
 >;
 
 function RemoteAttachmentDestinationOption(props: RemoteAttachmentDestinationOptionProps) {
+    const t = useStudioTranslation("editDocument");
     const { data, label } = props;
     return (
         <components.Option {...props}>
             {label}
             {data.disabled && (
-                <PopoverWithHoverWrapper message="Destination is disabled, so it will not be uploaded to the server. Destination must be enabled to do it.">
+                <PopoverWithHoverWrapper message={t("addRemoteAttachment.destinationDisabledPopover")}>
                     <Icon icon="warning" color="warning" margin="ms-1" />
                 </PopoverWithHoverWrapper>
             )}

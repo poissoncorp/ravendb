@@ -7,6 +7,7 @@ import { Icon } from "components/common/Icon";
 import { useClickOutside } from "components/hooks/useClickOutside";
 import { useScrollActiveIntoView } from "components/hooks/useScrollActiveIntoView";
 import useBoolean from "components/hooks/useBoolean";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
 import { FilterTimezone } from "./timeSeriesRangeUtils";
 
 export const TIME_FORMAT = "HH:mm:ss.SSS";
@@ -93,6 +94,7 @@ function TimeColumn({ label, values, current, onPick }: TimeColumnDef & { onPick
 // Free-form text input (the source of truth, so exact HH:mm:ss.SSS can always be typed) plus a
 // click-to-pick Hour/Minute/Second dropdown. 24-hour, no native <select> (see HeaderSelect).
 export default function TimePicker({ value, invalid, timezone, onChange }: TimePickerProps) {
+    const t = useStudioTranslation("editTimeSeries");
     const { value: open, setTrue: openMenu, setFalse: closeMenu } = useBoolean(false);
     const ref = useRef<HTMLDivElement>(null);
 
@@ -100,9 +102,9 @@ export default function TimePicker({ value, invalid, timezone, onChange }: TimeP
 
     const parts = parseTimeParts(value);
     const columns: TimeColumnDef[] = [
-        { label: "Hour", unit: "h", values: HOUR_VALUES, current: parts?.h ?? null },
-        { label: "Min", unit: "m", values: MINUTE_VALUES, current: parts?.m ?? null },
-        { label: "Sec", unit: "s", values: SECOND_VALUES, current: parts?.s ?? null },
+        { label: t("timePicker.hour"), unit: "h", values: HOUR_VALUES, current: parts?.h ?? null },
+        { label: t("timePicker.minute"), unit: "m", values: MINUTE_VALUES, current: parts?.m ?? null },
+        { label: t("timePicker.second"), unit: "s", values: SECOND_VALUES, current: parts?.s ?? null },
     ];
 
     const nowText = () => (timezone === "utc" ? moment.utc() : moment()).format(TIME_FORMAT);
@@ -138,10 +140,10 @@ export default function TimePicker({ value, invalid, timezone, onChange }: TimeP
                     </div>
                     <div className="ts-time-picker__footer">
                         <button type="button" className="ts-time-picker__action" onClick={() => onChange(nowText())}>
-                            Now
+                            {t("timePicker.now")}
                         </button>
                         <Button variant="primary" size="sm" onClick={closeMenu}>
-                            Apply
+                            {t("timePicker.apply")}
                         </Button>
                     </div>
                 </div>

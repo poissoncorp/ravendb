@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("documentsCommands");
 
 class deleteCounterCommand extends commandBase {
 
@@ -27,9 +30,9 @@ class deleteCounterCommand extends commandBase {
 
         return this.post<Raven.Client.Documents.Operations.Counters.CountersDetail>(url, JSON.stringify(payload), this.db)
             .done(() => {
-                this.reportSuccess("Counter deleted successfully: " + this.counterName);
+                this.reportSuccess(t("counters.deleted", { counterName: this.counterName }));
             })
-            .fail((response: JQueryXHR) => this.reportError("Failed to delete counter", response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("counters.deleteFailed"), response.responseText, response.statusText));
     }
 }
 

@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("patchCommands");
 
 interface patchCommandOptions {
     test?: boolean;
@@ -49,17 +52,17 @@ class patchCommand extends commandBase {
         return this.patch<operationIdDto>(url + this.urlEncodeArgs(args), JSON.stringify(payload), this.db)
             .done((response: operationIdDto) => {
                 if (!this.options.test) {
-                    this.reportSuccess("Patch was scheduled based on query");
+                    this.reportSuccess(t("scheduled"));
                 }
                 
                 return response;
             })
             .fail((response: JQueryXHR) => {
                 const responseText = response.responseText;
-                let errorTitle = `Failed to ${this.options.test ? "test" : "schedule" } patch`;
+                let errorTitle = t("failed", { context: this.options.test ? "test" : "schedule" });
                 
                 if (responseText.includes(patchCommand.missingUpdateClause)) {
-                    errorTitle = "Incorrect patch command syntax";
+                    errorTitle = t("incorrectSyntax");
                 }
                
                 this.reportError(errorTitle, responseText, response.statusText);

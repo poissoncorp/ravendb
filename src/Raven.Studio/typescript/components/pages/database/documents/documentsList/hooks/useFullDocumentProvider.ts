@@ -2,8 +2,10 @@ import getDocumentsPreviewCommand from "commands/database/documents/getDocuments
 import { useServices } from "components/hooks/useServices";
 import document from "models/database/documents/document";
 import { useCallback, useRef } from "react";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export function useFullDocumentProvider(databaseName: string) {
+    const t = useStudioTranslation("documentsList");
     const { databasesService } = useServices();
     const cacheRef = useRef(new Map<string, Promise<document>>());
 
@@ -19,7 +21,7 @@ export function useFullDocumentProvider(databaseName: string) {
                 if (!cacheRef.current.has(id)) {
                     const fetched = databasesService.getDocumentWithMetadata(id, databaseName, true).then((result) => {
                         if (!result) {
-                            throw new Error("The document no longer exists");
+                            throw new Error(t("columns.documentNoLongerExists"));
                         }
                         return result;
                     });
@@ -31,7 +33,7 @@ export function useFullDocumentProvider(databaseName: string) {
                 return fullDocument.getValue(property);
             };
         },
-        [databasesService, databaseName]
+        [databasesService, databaseName, t]
     );
 
     return { getPropertyPreviewResolver, clearCache: () => cacheRef.current.clear() };

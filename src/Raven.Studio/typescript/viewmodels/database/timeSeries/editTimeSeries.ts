@@ -28,6 +28,9 @@ import popoverUtils = require("common/popoverUtils");
 import moment = require("moment");
 import typeUtils = require("common/typeUtils");
 import timeSeriesRangeUtils = require("components/pages/database/timeSeries/timeSeriesRangeUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("editTimeSeries");
 
 class timeSeriesInfo {
     name = ko.observable<string>();
@@ -75,6 +78,8 @@ class editTimeSeries extends viewModelBase {
     deleteCriteria: KnockoutComputed<timeSeriesDeleteCriteria>;
     deleteButtonText: KnockoutComputed<string>;
     isRollupTimeSeries: KnockoutComputed<boolean>;
+    rollupDataHtml: KnockoutComputed<string>;
+    moreThanFiveValuesHtml: KnockoutComputed<string>;
     
     localStartDateInFilter = ko.observable<moment.Moment>();
     localEndDateInFilter = ko.observable<moment.Moment>();
@@ -152,12 +157,19 @@ class editTimeSeries extends viewModelBase {
         
         if (this.isRollupTimeSeries()) {
             const definedNamedValues = this.getDefinedNamedValues();
-            const aggregationColumnNames = timeSeriesEntryModel.aggregationColumns;
+            const aggregationColumnNames = [
+                t("aggregation.first"),
+                t("aggregation.last"),
+                t("aggregation.min"),
+                t("aggregation.max"),
+                t("aggregation.sum"),
+                t("aggregation.count"),
+            ];
             const aggregationsCount = aggregationColumnNames.length;
             
             if (definedNamedValues) {
                 const columnNames = typeUtils.range(0, columnsCount)
-                    .map(idx => aggregationColumnNames[idx % aggregationsCount] + " (Value #" + Math.floor(idx / aggregationsCount) + ")");
+                    .map(idx => t("grid.aggregatedValueNumber", { aggregation: aggregationColumnNames[idx % aggregationsCount], index: Math.floor(idx / aggregationsCount) }));
                 
                 for (let i = 0; i < Math.min(columnsCount, definedNamedValues.length * aggregationsCount); i++) {
                     columnNames[i] = aggregationColumnNames[i % aggregationsCount] + " (" + definedNamedValues[Math.floor(i / aggregationsCount)] + ")";
@@ -166,7 +178,7 @@ class editTimeSeries extends viewModelBase {
             } else {
                 if (columnsCount > aggregationsCount) {
                     return typeUtils.range(0, columnsCount)
-                        .map(idx => aggregationColumnNames[idx % aggregationsCount] + " (Value #" + Math.floor(idx / aggregationsCount) + ")");
+                        .map(idx => t("grid.aggregatedValueNumber", { aggregation: aggregationColumnNames[idx % aggregationsCount], index: Math.floor(idx / aggregationsCount) }));
                 } else {
                     return aggregationColumnNames;
                 }
@@ -179,7 +191,7 @@ class editTimeSeries extends viewModelBase {
     private getValuesNamesToUse(possibleValuesCount: number, timeSeriesName?: string): string[] {
         const definedNamedValues = this.getDefinedNamedValues(timeSeriesName);
             
-        const valuesNamesToUse = typeUtils.range(0, possibleValuesCount).map(idx => "Value #" + idx);
+        const valuesNamesToUse = typeUtils.range(0, possibleValuesCount).map(idx => t("valueNumber", { index: idx }));
 
         if (definedNamedValues) {
             for (let i = 0; i < Math.min(possibleValuesCount, definedNamedValues.length); i++) {
@@ -236,10 +248,11 @@ class editTimeSeries extends viewModelBase {
 
         const check = new checkedColumn(true);
 
+        const editHeader = t("grid.edit");
         const editColumn = new actionColumn<Raven.Client.Documents.Session.TimeSeries.TimeSeriesEntry>(
-            grid, item => this.editItem(item), "Edit", `<i class="icon-edit"></i>`, "70px",
+            grid, item => this.editItem(item), editHeader, `<i class="icon-edit"></i>`, "70px",
             {
-                title: () => 'Edit item'
+                title: () => t("grid.editTitle")
             });
 
         grid.init((s) => this.fetchSeries(s).done(result => this.checkColumns(result)), () => {
@@ -254,14 +267,14 @@ class editTimeSeries extends viewModelBase {
             const valueColumns = columnNames
                 .map((name, idx) =>
                     new textColumn<Raven.Client.Documents.Session.TimeSeries.TimeSeriesEntry>(
-                        grid, x => x.Values[idx] ?? "n/a", name, "130px"));
+                        grid, x => x.Values[idx] ?? t("grid.notAvailable"), name, "130px"));
 
             const columns = [ check, editColumn, timestampColumn ];
 
             columns.push(...valueColumns);
             
             if (hasTag && !timeSeriesEntryModel.isIncrementalName(this.timeSeriesName())) {
-                columns.push(new textColumn<Raven.Client.Documents.Session.TimeSeries.TimeSeriesEntry>(grid, x => x.Tag, "Tag", "20%"));
+                columns.push(new textColumn<Raven.Client.Documents.Session.TimeSeries.TimeSeriesEntry>(grid, x => x.Tag, t("grid.tag"), "20%"));
             }
             
             return columns;
@@ -271,7 +284,7 @@ class editTimeSeries extends viewModelBase {
             (item: Raven.Client.Documents.Session.TimeSeries.TimeSeriesEntry, column: textColumn<Raven.Client.Documents.Session.TimeSeries.TimeSeriesEntry>,
              e: JQuery.TriggeredEvent, onValue: (context: any, valueToCopy?: string) => void) => {
                 const value = column.getCellValue && column.getCellValue(item);
-                if (column.header === "Edit") {
+                if (column.header === editHeader) {
                     return null;
                 } else if (column.header === this.dateColumnHeader()) {
                     // Tooltip shows the same instant in the opposite zone for quick cross-reference.
@@ -321,7 +334,7 @@ class editTimeSeries extends viewModelBase {
                 .fail((response: JQueryXHR) => {
                     if (response.status === 404) {
                         // looks like all items were deleted - notify user and redirect to document view
-                        messagePublisher.reportWarning("Could not find time series: " + timeSeriesName);
+                        messagePublisher.reportWarning(t("notFound", { name: timeSeriesName }));
                         router.navigate(appUrl.forEditDoc(this.documentId(), db));
                     }
                 })
@@ -382,7 +395,7 @@ class editTimeSeries extends viewModelBase {
     }
 
     private dateColumnHeader(): string {
-        return this.displayTimezone() === "local" ? "Date (Local)" : "Date (UTC)";
+        return t("grid.date", { context: this.displayTimezone() });
     }
 
     setDisplayTimezone(timezone: timeSeriesRangeUtils.FilterTimezone) {
@@ -410,7 +423,7 @@ class editTimeSeries extends viewModelBase {
                     this.timeSeriesName(timeSeriesName);
                     return { can: true };
                 } else {
-                    messagePublisher.reportWarning("Unable to find time series with name: " + timeSeriesName);
+                    messagePublisher.reportWarning(t("unableToFind", { name: timeSeriesName }));
                     return {can: false };
                 }
             });
@@ -599,20 +612,19 @@ class editTimeSeries extends viewModelBase {
         this.deleteButtonText = ko.pureComputed(() => {
             const criteria = this.deleteCriteria();
             
-            switch (criteria.mode) {
-                case "all":
-                    return "Delete all";
-                case "range":
-                    return "Delete range";
-                case "selection":
-                    return "Delete selection";
-            }
+            return t("toolbar.deleteButton", { context: criteria.mode });
         });
         
         this.timeSeriesNameText = ko.pureComputed(() => {
             const tsInfo = this.getSeriesFromList(this.timeSeriesName());
-            return tsInfo ? tsInfo.nameAndNumberFormatted() : "<creating new>";
+            return tsInfo ? tsInfo.nameAndNumberFormatted() : t("toolbar.creatingNew");
         });
+
+        this.rollupDataHtml = ko.pureComputed(() =>
+            t("header.rollupData").replace("<a>", `<a href="${generalUtils.escapeHtml(this.urlForTimeSeriesPolicies())}">`));
+
+        this.moreThanFiveValuesHtml = ko.pureComputed(() =>
+            t("header.moreThanFiveValues").replace("<a>", `<a href="${generalUtils.escapeHtml(this.urlForTimeSeriesPolicies())}">`));
         
         this.filterBadgeView = ko.pureComputed(() => ({
             component: TimeSeriesFilterBadge.default,
@@ -629,7 +641,7 @@ class editTimeSeries extends viewModelBase {
         
         this.hasFilter = ko.pureComputed<boolean>(() => !!this.localStartDateInFilter() || !!this.localEndDateInFilter());
 
-        this.displayTimezoneLabel = ko.pureComputed(() => this.displayTimezone() === "local" ? "Local" : "UTC");
+        this.displayTimezoneLabel = ko.pureComputed(() => timeSeriesRangeUtils.zoneLabel(this.displayTimezone(), t));
     }
 
     plotTimeSeries() {
@@ -646,7 +658,7 @@ class editTimeSeries extends viewModelBase {
         const query = queryCriteria.empty();
 
         query.queryText(queryText);
-        query.name("Time Series: " + this.timeSeriesName() + " (document id: " + this.documentId() + ")");
+        query.name(t("toolbar.plotQueryName", { name: this.timeSeriesName(), documentId: this.documentId() }));
         query.recentQuery(true);
 
         const queryDto = query.toStorageDto();
@@ -664,10 +676,10 @@ class editTimeSeries extends viewModelBase {
             {
                 content: `<ul style="max-width: 600px;" class="margin-top margin-top-sm">
                               <li>
-                                  <small>Data below is <strong>Raw Time Series Data</strong>. Entries can be edited as needed.</small>
+                                  <small>${t("header.rawDataInfo.rawData")}</small>
                               </li>
                               <li>
-                                  <small> The raw data can be aggregated per time period that is configured in the <a href="${timeseriesSettingsUrl}">Time Series Settings</a> view.</small>
+                                  <small>${t("header.rawDataInfo.aggregation").replace("<a>", `<a href="${timeseriesSettingsUrl}">`)}</small>
                               </li>
                           </ul>`,
                 placement: "bottom",
@@ -679,11 +691,11 @@ class editTimeSeries extends viewModelBase {
             {
                 content: `<ul style="max-width: 700px;" class="margin-top margin-top-sm">
                               <li>
-                                  <small>Data below is not raw data.</small><br />
-                                  <small>Each entry is <strong>Rolled-Up Data</strong> that is aggregated for a <strong>specific time frame</strong> defined by a <a href="${timeseriesSettingsUrl}">Time Series Policy</a>.</small>
+                                  <small>${t("header.rollupInfo.notRawData")}</small><br />
+                                  <small>${t("header.rollupInfo.rolledUp").replace("<a>", `<a href="${timeseriesSettingsUrl}">`)}</small>
                               </li>
                               <li>
-                                  <small>The rolled-up data is only available when the aggregation time frame defined by the policy has ended.</small>
+                                  <small>${t("header.rollupInfo.availability")}</small>
                               </li>
                           </ul>`,
                 placement: "bottom",
@@ -773,7 +785,7 @@ class editTimeSeries extends viewModelBase {
             new deleteTimeSeriesCommand(this.documentId(), this.timeSeriesName(), dto, this.activeDatabase())
                 .execute()
                 .done(() => {
-                    messagePublisher.reportSuccess("Deleted time series values");
+                    messagePublisher.reportSuccess(t("deletedValues"));
                     this.refresh();
                     resolve();
                 })

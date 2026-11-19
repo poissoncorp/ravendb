@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
 type Parameters = Raven.Client.Documents.Operations.Revisions.DeleteRevisionsOperation.Parameters;
+
+const t = i18nModule.createTranslator("documentsCommands");
 
 class deleteRevisionsForDocumentsCommand extends commandBase {
 
@@ -17,7 +20,7 @@ class deleteRevisionsForDocumentsCommand extends commandBase {
         const url = endpoints.databases.adminRevisions.adminRevisions;
 
         return this.del<void>(url, JSON.stringify(this.parameters), this.databaseName, { dataType: undefined })
-            .fail((response: JQueryXHR) => this.reportError("Failed to delete document revisions", response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("deleteRevisionsFailed"), response.responseText, response.statusText));
     }
  }
 

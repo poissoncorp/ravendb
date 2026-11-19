@@ -1,9 +1,17 @@
 import React from "react";
 import { MethodGroup, SampleScript } from "components/common/samples/partials/samplesTypes";
+import { createTranslator } from "common/i18n/i18n";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
+
+const t = createTranslator("patch");
+
+const descriptionTags = { code: <code /> };
 
 export const scripts: SampleScript[] = [
     {
-        title: "Filter out an array item",
+        get title() {
+            return t("samples.filterArrayItem");
+        },
         description: "",
         script: `// Removes a specific line item (product ID 'products/1-A') from all order documents.
 from Orders
@@ -12,7 +20,9 @@ update {
 }`,
     },
     {
-        title: "Denormalize the company name",
+        get title() {
+            return t("samples.denormalizeCompanyName");
+        },
         description: "",
         script: `// Adds a CompanyName field to all orders, populated from a related document.
 from Orders as o
@@ -22,7 +32,9 @@ update {
 }`,
     },
     {
-        title: "Use JavaScript to patch",
+        get title() {
+            return t("samples.useJavaScript");
+        },
         description: "",
         script: `// Conditionally adds a new lowercase company name field to orders over 10,000.
 from index 'Orders/Totals' as i
@@ -33,7 +45,9 @@ update {
 }`,
     },
     {
-        title: "Access the metadata",
+        get title() {
+            return t("samples.accessMetadata");
+        },
         description: "",
         script: `// Adds the document ID and collection name as two new fields to every order.
 from Orders
@@ -43,7 +57,9 @@ update {
 }`,
     },
     {
-        title: "Add a time series entry",
+        get title() {
+            return t("samples.addTimeSeriesEntry");
+        },
         description: "",
         script: `// Appends a time series entry to a specific employee document.
 from Employees as e
@@ -54,7 +70,9 @@ update {
 }`,
     },
     {
-        title: "Update a field on a whole collection",
+        get title() {
+            return t("samples.updateCollectionField");
+        },
         description: "",
         script: `// Increases the Freight value by 10 on every order.
 from Orders as o
@@ -63,7 +81,9 @@ update {
 }`,
     },
     {
-        title: "Rename a field",
+        get title() {
+            return t("samples.renameField");
+        },
         description: "",
         script: `// Copies Freight into a new ShippingCost field, then removes the old field.
 from Orders as o
@@ -73,7 +93,9 @@ update {
 }`,
     },
     {
-        title: "Update each item in an array",
+        get title() {
+            return t("samples.updateArrayItems");
+        },
         description: "",
         script: `// Applies a 10% discount to every line item in all orders.
 from Orders as o
@@ -82,7 +104,9 @@ update {
 }`,
     },
     {
-        title: "Increment a counter",
+        get title() {
+            return t("samples.incrementCounter");
+        },
         description: "",
         script: `// Increments a 'Views' counter by 1 on every product.
 from Products as p
@@ -91,7 +115,9 @@ update {
 }`,
     },
     {
-        title: "Create a related document",
+        get title() {
+            return t("samples.createRelatedDocument");
+        },
         description: "",
         script: `// Writes a new audit document for each order, using a server-generated ID.
 from Orders as o
@@ -100,7 +126,9 @@ update {
 }`,
     },
     {
-        title: "Patch documents by ID",
+        get title() {
+            return t("samples.patchById");
+        },
         description: "",
         script: `// Sets a field on a specific set of documents selected by their IDs.
 from @all_docs as d
@@ -110,7 +138,9 @@ update {
 }`,
     },
     {
-        title: "Delete documents by query",
+        get title() {
+            return t("samples.deleteByQuery");
+        },
         description: "",
         script: `// Deletes all orders with freight over 200.
 from Orders as o
@@ -120,7 +150,9 @@ update {
 }`,
     },
     {
-        title: "Change the collection",
+        get title() {
+            return t("samples.changeCollection");
+        },
         description: "",
         script: `// Moves matching orders into a new collection by deleting and re-creating each document.
 from Orders as o
@@ -134,18 +166,14 @@ update {
 
 export const methodGroups: MethodGroup[] = [
     {
-        category: "Document operations",
+        get category() {
+            return t("methods.documents.category");
+        },
         methods: [
             {
                 signature: "id(document)",
                 returnType: "string",
-                description: (
-                    <>
-                        Returns the ID of a document object. Use <code>id(this)</code> for the document currently being
-                        patched. Use <code>id(documentVariable)</code> for any document variable available in the
-                        script, such as a query alias or a loaded related document.
-                    </>
-                ),
+                description: <StudioTrans ns="patch" i18nKey="methods.documents.id" components={descriptionTags} />,
                 sampleScript: `// Copy document IDs from the current document, query alias, and loaded related document.
 from Orders as o
 load o.Company as c
@@ -159,10 +187,7 @@ update {
                 signature: "getMetadata(document)",
                 returnType: "object",
                 description: (
-                    <>
-                        Returns the document&apos;s metadata, e.g. <code>@id</code>, <code>@collection</code>,{" "}
-                        <code>@last-modified</code>. Also available as <code>metadataFor(document)</code>.
-                    </>
+                    <StudioTrans ns="patch" i18nKey="methods.documents.getMetadata" components={descriptionTags} />
                 ),
                 sampleScript: `// Read the collection name from metadata into a field.
 from Orders as o
@@ -173,12 +198,9 @@ update {
             {
                 signature: "lastModified(document)",
                 returnType: "number",
-                description: (
-                    <>
-                        Returns the document&apos;s last modification time as JavaScript milliseconds since the Unix
-                        epoch (UTC).
-                    </>
-                ),
+                get description() {
+                    return t("methods.documents.lastModified");
+                },
                 sampleScript: `// Store each order's last-modified time (ms) in a field.
 from Orders as o
 update {
@@ -188,7 +210,9 @@ update {
             {
                 signature: "load(documentId)",
                 returnType: "object | object[] | undefined",
-                description: <>Returns document(s) with the given ID, or undefined if not found.</>,
+                get description() {
+                    return t("methods.documents.load");
+                },
                 sampleScript: `// Load the related company and copy its name.
 from Orders as o
 update {
@@ -199,10 +223,7 @@ update {
                 signature: "loadPath(document, pathString)",
                 returnType: "object | object[] | null",
                 description: (
-                    <>
-                        Returns the document(s) referenced by the IDs found at <code>pathString</code> within the given
-                        document (e.g. <code>Foo.Bar</code> or <code>Foo.Bars[].Buzz</code>), or null if not found.
-                    </>
+                    <StudioTrans ns="patch" i18nKey="methods.documents.loadPath" components={descriptionTags} />
                 ),
                 sampleScript: `// Load all product documents referenced by the order lines.
 from Orders as o
@@ -213,12 +234,7 @@ update {
             {
                 signature: "put(id, document[, changeVector])",
                 returnType: "string",
-                description: (
-                    <>
-                        Creates or updates a document and returns its ID. Use <code>null</code> or{" "}
-                        <code>undefined</code> to generate an ID.
-                    </>
-                ),
+                description: <StudioTrans ns="patch" i18nKey="methods.documents.put" components={descriptionTags} />,
                 sampleScript: `// Create a new audit-log document for each order.
 from Orders as o
 update {
@@ -228,12 +244,7 @@ update {
             {
                 signature: "del(documentId[, changeVector])",
                 returnType: "boolean",
-                description: (
-                    <>
-                        Deletes the document with the specified ID and returns <code>true</code> if it was deleted;
-                        otherwise, returns <code>false</code>.
-                    </>
-                ),
+                description: <StudioTrans ns="patch" i18nKey="methods.documents.del" components={descriptionTags} />,
                 sampleScript: `// Delete orders with freight over 200.
 from Orders as o
 where o.Freight > 200
@@ -244,7 +255,9 @@ update {
             {
                 signature: "archived.archiveAt(document, utcDateString)",
                 returnType: "void",
-                description: <>Schedules the document to be archived at the specified UTC time.</>,
+                get description() {
+                    return t("methods.documents.archiveAt");
+                },
                 sampleScript: `// Schedule each order to be archived at a future date.
 from Orders as o
 update {
@@ -254,7 +267,9 @@ update {
             {
                 signature: "archived.unarchive(document)",
                 returnType: "void",
-                description: <>Unarchives the specified document.</>,
+                get description() {
+                    return t("methods.documents.unarchive");
+                },
                 sampleScript: `// Unarchive all orders.
 from Orders as o
 update {
@@ -264,12 +279,16 @@ update {
         ],
     },
     {
-        category: "Counter operations",
+        get category() {
+            return t("methods.counters.category");
+        },
         methods: [
             {
                 signature: "counter(document/documentId, name)",
                 returnType: "number | null",
-                description: <>Get the counter value, or null if the counter does not exist.</>,
+                get description() {
+                    return t("methods.counters.counter");
+                },
                 sampleScript: `// Read the "Views" counter into a field.
 from Products as p
 update {
@@ -279,12 +298,9 @@ update {
             {
                 signature: "counterRaw(document/documentId, name)",
                 returnType: "object",
-                description: (
-                    <>
-                        Get the per-node counter values by document/document ID. The total value is the sum of all node
-                        values.
-                    </>
-                ),
+                get description() {
+                    return t("methods.counters.counterRaw");
+                },
                 sampleScript: `// Read the per-node "Views" counter values into a field.
 from Products as p
 update {
@@ -295,10 +311,7 @@ update {
                 signature: "incrementCounter(document/documentId, name, value = 1)",
                 returnType: "boolean",
                 description: (
-                    <>
-                        Increments a counter by document/document ID and returns <code>true</code>. Created implicitly
-                        if it does not exist; values may be negative.
-                    </>
+                    <StudioTrans ns="patch" i18nKey="methods.counters.incrementCounter" components={descriptionTags} />
                 ),
                 sampleScript: `// Increment the "Views" counter by 1 on every product.
 from Products as p
@@ -310,9 +323,7 @@ update {
                 signature: "deleteCounter(document/documentId, name)",
                 returnType: "boolean",
                 description: (
-                    <>
-                        Deletes a counter by document/document ID and returns <code>true</code>.
-                    </>
+                    <StudioTrans ns="patch" i18nKey="methods.counters.deleteCounter" components={descriptionTags} />
                 ),
                 sampleScript: `// Delete the "Views" counter from every product.
 from Products as p
@@ -323,12 +334,16 @@ update {
         ],
     },
     {
-        category: "Time series",
+        get category() {
+            return t("methods.timeSeries.category");
+        },
         methods: [
             {
                 signature: "timeseries(document/documentId, name).get() / .get(from, to)",
                 returnType: "object[]",
-                description: <>Get all entries, or a range of time series entries.</>,
+                get description() {
+                    return t("methods.timeSeries.getEntries");
+                },
                 sampleScript: `// Read all "HeartRates" time series entries into a field.
 from Employees as e
 update {
@@ -338,7 +353,9 @@ update {
             {
                 signature: "timeseries(document/documentId, name).append(timestamp, values, tag = null)",
                 returnType: "void",
-                description: <>Append a new entry to a time series.</>,
+                get description() {
+                    return t("methods.timeSeries.append");
+                },
                 sampleScript: `// Append a new entry to a specific employee's "HeartRates" time series.
 from Employees as e
 where id() = 'employees/1-A'
@@ -350,9 +367,7 @@ update {
                 signature: "timeseries(document/documentId, name).increment([timestamp,] values)",
                 returnType: "void",
                 description: (
-                    <>
-                        Increment an incremental time series entry. Omit <code>timestamp</code> to use the current time.
-                    </>
+                    <StudioTrans ns="patch" i18nKey="methods.timeSeries.increment" components={descriptionTags} />
                 ),
                 sampleScript: `// Increment today's value in the "DailyViews" time series.
 from Products as p
@@ -363,7 +378,9 @@ update {
             {
                 signature: "timeseries(document/documentId, name).delete() / .delete(from, to)",
                 returnType: "void",
-                description: <>Delete all entries, or delete entries from the specified time range.</>,
+                get description() {
+                    return t("methods.timeSeries.deleteEntries");
+                },
                 sampleScript: `// Delete all "HeartRates" time series entries.
 from Employees as e
 update {
@@ -374,10 +391,7 @@ update {
                 signature: "timeseries(document/documentId, name).getStats()",
                 returnType: "object",
                 description: (
-                    <>
-                        Returns the time series statistics: <code>Start</code>, <code>End</code>, and <code>Count</code>
-                        .
-                    </>
+                    <StudioTrans ns="patch" i18nKey="methods.timeSeries.getStats" components={descriptionTags} />
                 ),
                 sampleScript: `// Store "HeartRates" time series statistics in a field.
 from Employees as e
@@ -388,12 +402,16 @@ update {
         ],
     },
     {
-        category: "Attachment operations",
+        get category() {
+            return t("methods.attachments.category");
+        },
         methods: [
             {
                 signature: "attachments(document/documentId, name).delete()",
                 returnType: "void",
-                description: <>Deletes the specified attachment from the document.</>,
+                get description() {
+                    return t("methods.attachments.deleteAttachment");
+                },
                 sampleScript: `// Delete the "image.jpg" attachment from each category.
 from Categories as c
 update {
@@ -405,10 +423,7 @@ update {
                     "attachments(targetDocument/targetDocumentId, targetName).copyFrom(sourceDocument/sourceDocumentId, sourceName)",
                 returnType: "boolean",
                 description: (
-                    <>
-                        Copies an attachment from a source document to the target document. Returns <code>false</code>{" "}
-                        if the source attachment was not found.
-                    </>
+                    <StudioTrans ns="patch" i18nKey="methods.attachments.copyFrom" components={descriptionTags} />
                 ),
                 sampleScript: `// Copy an attachment from one category to another.
 from Categories as c
@@ -420,7 +435,9 @@ update {
             {
                 signature: "attachments(document/documentId, name).remote(identifier, at)",
                 returnType: "void",
-                description: <>Schedules the attachment for upload to remote storage at the specified UTC time.</>,
+                get description() {
+                    return t("methods.attachments.remote");
+                },
                 sampleScript: `// Schedule an attachment for upload to remote storage.
 from Categories as c
 update {
@@ -430,16 +447,15 @@ update {
         ],
     },
     {
-        category: "Compare-exchange",
+        get category() {
+            return t("methods.compareExchange.category");
+        },
         methods: [
             {
                 signature: "cmpxchg(compareExchangeKey)",
                 returnType: "any",
                 description: (
-                    <>
-                        Returns the value stored in the compare-exchange item for the given key, or <code>null</code> if
-                        it does not exist.
-                    </>
+                    <StudioTrans ns="patch" i18nKey="methods.compareExchange.cmpxchg" components={descriptionTags} />
                 ),
                 sampleScript: `// Look up the USD rate from a compare-exchange value.
 from Orders as o
@@ -450,16 +466,15 @@ update {
         ],
     },
     {
-        category: "String manipulation",
+        get category() {
+            return t("methods.strings.category");
+        },
         methods: [
             {
                 signature: "startsWith(inputString, prefix)",
                 returnType: "boolean",
                 description: (
-                    <>
-                        Returns <code>true</code> if <code>inputString</code> starts with the specified prefix. The
-                        comparison is case-insensitive.
-                    </>
+                    <StudioTrans ns="patch" i18nKey="methods.strings.startsWith" components={descriptionTags} />
                 ),
                 sampleScript: `// Flag companies whose name starts with "Alfreds".
 from Companies as c
@@ -470,12 +485,7 @@ update {
             {
                 signature: "endsWith(inputString, suffix)",
                 returnType: "boolean",
-                description: (
-                    <>
-                        Returns <code>true</code> if <code>inputString</code> ends with the specified suffix. The
-                        comparison is case-insensitive.
-                    </>
-                ),
+                description: <StudioTrans ns="patch" i18nKey="methods.strings.endsWith" components={descriptionTags} />,
                 sampleScript: `// Flag companies whose name ends with "Ltda".
 from Companies as c
 update {
@@ -485,11 +495,7 @@ update {
             {
                 signature: "regex(inputString, regex)",
                 returnType: "boolean",
-                description: (
-                    <>
-                        Returns <code>true</code> if <code>inputString</code> matches the specified regex pattern.
-                    </>
-                ),
+                description: <StudioTrans ns="patch" i18nKey="methods.strings.regex" components={descriptionTags} />,
                 sampleScript: `// Flag companies whose name contains a digit.
 from Companies as c
 update {
@@ -499,12 +505,7 @@ update {
             {
                 signature: "String.prototype.format(arg1, arg2, ...)",
                 returnType: "string",
-                description: (
-                    <>
-                        Formats the string, replacing each <code>{"{index}"}</code> with the corresponding zero-based
-                        argument.
-                    </>
-                ),
+                description: <StudioTrans ns="patch" i18nKey="methods.strings.format" components={descriptionTags} />,
                 sampleScript: `// Build a label string from the order ID and company.
 from Orders as o
 update {
@@ -514,17 +515,14 @@ update {
         ],
     },
     {
-        category: "Arrays & objects",
+        get category() {
+            return t("methods.arrays.category");
+        },
         methods: [
             {
                 signature: "Object.map(input, mapFunction, context)",
                 returnType: "any[]",
-                description: (
-                    <>
-                        Returns an array of <code>mapFunction(value, key)</code> applied to every property (or item) of{" "}
-                        <code>input</code>.
-                    </>
-                ),
+                description: <StudioTrans ns="patch" i18nKey="methods.arrays.map" components={descriptionTags} />,
                 sampleScript: `// Compute a line-total for each order line.
 from Orders as o
 update {
@@ -534,14 +532,16 @@ update {
         ],
     },
     {
-        category: "Mathematical operations",
+        get category() {
+            return t("methods.math.category");
+        },
         methods: [
             {
                 signature: "Raven_Min(value1, value2)",
                 returnType: "number | string | boolean",
-                description: (
-                    <>Returns the smaller value. Supports numbers, strings, booleans, and null/undefined values.</>
-                ),
+                get description() {
+                    return t("methods.math.min");
+                },
                 sampleScript: `// Cap each order's freight at 100.
 from Orders as o
 update {
@@ -551,9 +551,9 @@ update {
             {
                 signature: "Raven_Max(value1, value2)",
                 returnType: "number | string | boolean",
-                description: (
-                    <>Returns the larger value. Supports numbers, strings, booleans, and null/undefined values.</>
-                ),
+                get description() {
+                    return t("methods.math.max");
+                },
                 sampleScript: `// Apply a minimum charged freight of 10.
 from Orders as o
 update {
@@ -563,18 +563,14 @@ update {
         ],
     },
     {
-        category: "Spatial",
+        get category() {
+            return t("methods.spatial.category");
+        },
         methods: [
             {
                 signature: 'spatial.distance(lat1, lng1, lat2, lng2, units = "kilometers")',
                 returnType: "number",
-                description: (
-                    <>
-                        Returns the distance between two points. <code>units</code> may be{" "}
-                        <code>&apos;kilometers&apos;</code> (default), <code>&apos;miles&apos;</code>, or{" "}
-                        <code>&apos;cartesian&apos;</code>.
-                    </>
-                ),
+                description: <StudioTrans ns="patch" i18nKey="methods.spatial.distance" components={descriptionTags} />,
                 sampleScript: `// Compute each company's distance to London (km).
 from Companies as c
 update {
@@ -584,16 +580,19 @@ update {
         ],
     },
     {
-        category: "Conversion & dates",
+        get category() {
+            return t("methods.conversion.category");
+        },
         methods: [
             {
                 signature: "scalarToRawString(document, lambdaToField)",
                 returnType: "string | number | boolean | null",
                 description: (
-                    <>
-                        Returns the field value while preserving raw string and numeric values. Useful for numbers
-                        exceeding <code>double</code> range or large strings.
-                    </>
+                    <StudioTrans
+                        ns="patch"
+                        i18nKey="methods.conversion.scalarToRawString"
+                        components={descriptionTags}
+                    />
                 ),
                 sampleScript: `// Read the raw, immutable Freight value.
 from Orders as o
@@ -605,9 +604,11 @@ update {
                 signature: "convertJsTimeToTimeSpanString(milliseconds)",
                 returnType: "string",
                 description: (
-                    <>
-                        Returns the .NET <code>TimeSpan</code> string for the given JavaScript milliseconds value.
-                    </>
+                    <StudioTrans
+                        ns="patch"
+                        i18nKey="methods.conversion.convertJsTimeToTimeSpanString"
+                        components={descriptionTags}
+                    />
                 ),
                 sampleScript: `// Compute how long ago each order was modified.
 from Orders as o
@@ -620,9 +621,11 @@ update {
                     "convertToTimeSpanString(ticks | hours, minutes, seconds | days, hours, minutes, seconds[, milliseconds])",
                 returnType: "string",
                 description: (
-                    <>
-                        Returns a <code>TimeSpan</code> built from the supplied time components.
-                    </>
+                    <StudioTrans
+                        ns="patch"
+                        i18nKey="methods.conversion.convertToTimeSpanString"
+                        components={descriptionTags}
+                    />
                 ),
                 sampleScript: `// Store a fixed 1h30m processing time as a TimeSpan.
 from Orders as o
@@ -634,10 +637,7 @@ update {
                 signature: 'compareDates(date1, date2, operationType = "Subtract")',
                 returnType: "string | boolean",
                 description: (
-                    <>
-                        Subtracts or compares two dates. <code>operationType</code> is an <code>ExpressionType</code>{" "}
-                        such as <code>GreaterThan</code> or <code>Equal</code>.
-                    </>
+                    <StudioTrans ns="patch" i18nKey="methods.conversion.compareDates" components={descriptionTags} />
                 ),
                 sampleScript: `// Compute the time between order and shipping dates.
 from Orders as o
@@ -649,9 +649,9 @@ update {
             {
                 signature: "toStringWithFormat(object, format?, culture?)",
                 returnType: "string",
-                description: (
-                    <>Formats a date, number, boolean, or date-string using an optional .NET format and culture.</>
-                ),
+                get description() {
+                    return t("methods.conversion.toStringWithFormat");
+                },
                 sampleScript: `// Format Freight as a currency string.
 from Orders as o
 update {
@@ -661,12 +661,16 @@ update {
         ],
     },
     {
-        category: "Cryptographic methods",
+        get category() {
+            return t("methods.crypto.category");
+        },
         methods: [
             {
                 signature: "crypto.randomUUID()",
                 returnType: "string",
-                description: <>Generates a random v4 UUID.</>,
+                get description() {
+                    return t("methods.crypto.randomUUID");
+                },
                 sampleScript: `// Assign a random trace ID to each order.
 from Orders as o
 update {
@@ -677,10 +681,7 @@ update {
                 signature: "crypto.getRandomValues(typedArray)",
                 returnType: "TypedArray",
                 description: (
-                    <>
-                        Fills the provided typed array (<code>ArrayBufferView</code>) with cryptographically secure
-                        random values.
-                    </>
+                    <StudioTrans ns="patch" i18nKey="methods.crypto.getRandomValues" components={descriptionTags} />
                 ),
                 sampleScript: `// Generate a random 16-byte nonce.
 from Orders as o
@@ -693,10 +694,11 @@ update {
                 signature: "crypto.getRandomValuesBase64(lenInBytes)",
                 returnType: "string",
                 description: (
-                    <>
-                        Generates <code>lenInBytes</code> cryptographically secure random bytes and returns them
-                        Base64-encoded.
-                    </>
+                    <StudioTrans
+                        ns="patch"
+                        i18nKey="methods.crypto.getRandomValuesBase64"
+                        components={descriptionTags}
+                    />
                 ),
                 sampleScript: `// Generate a random Base64 token.
 from Orders as o
@@ -707,12 +709,7 @@ update {
             {
                 signature: "crypto.digest(algorithm, data)",
                 returnType: "string",
-                description: (
-                    <>
-                        Computes a Base64-encoded hash of <code>data</code> using <code>SHA-256</code>,{" "}
-                        <code>SHA-384</code>, or <code>SHA-512</code>.
-                    </>
-                ),
+                description: <StudioTrans ns="patch" i18nKey="methods.crypto.digest" components={descriptionTags} />,
                 sampleScript: `// Compute a SHA-256 hash of the order ID.
 from Orders as o
 update {
@@ -722,11 +719,7 @@ update {
             {
                 signature: "crypto.sign(hash, key, data)",
                 returnType: "string",
-                description: (
-                    <>
-                        Computes a Base64-encoded HMAC signature over <code>data</code>.
-                    </>
-                ),
+                description: <StudioTrans ns="patch" i18nKey="methods.crypto.sign" components={descriptionTags} />,
                 sampleScript: `// Compute an HMAC signature over the order ID.
 from Orders as o
 update {
@@ -736,11 +729,7 @@ update {
             {
                 signature: "crypto.verify(hash, key, signature, data)",
                 returnType: "boolean",
-                description: (
-                    <>
-                        Verifies an HMAC signature over <code>data</code>.
-                    </>
-                ),
+                description: <StudioTrans ns="patch" i18nKey="methods.crypto.verify" components={descriptionTags} />,
                 sampleScript: `// Verify an HMAC signature over the order ID.
 from Orders as o
 update {
@@ -752,9 +741,7 @@ update {
                 signature: "crypto.encryptAesGcm(iv, key, data)",
                 returnType: "string",
                 description: (
-                    <>
-                        Encrypts <code>data</code> with AES-GCM and returns it Base64-encoded.
-                    </>
+                    <StudioTrans ns="patch" i18nKey="methods.crypto.encryptAesGcm" components={descriptionTags} />
                 ),
                 sampleScript: `// Encrypt the company field with AES-GCM.
 from Orders as o
@@ -768,10 +755,7 @@ update {
                 signature: "crypto.decryptAesGcm(iv, key, data, outputType?)",
                 returnType: "string | ArrayBuffer",
                 description: (
-                    <>
-                        Decrypts AES-GCM <code>data</code>. <code>outputType</code>: <code>&apos;string&apos;</code>{" "}
-                        (default), <code>&apos;raw&apos;</code>, or <code>&apos;buffer&apos;</code>.
-                    </>
+                    <StudioTrans ns="patch" i18nKey="methods.crypto.decryptAesGcm" components={descriptionTags} />
                 ),
                 sampleScript: `// Decrypt an encrypted company field.
 from Orders as o
@@ -785,17 +769,14 @@ update {
         ],
     },
     {
-        category: "Debugging",
+        get category() {
+            return t("methods.debugging.category");
+        },
         methods: [
             {
                 signature: "output(message)",
                 returnType: "void",
-                description: (
-                    <>
-                        Prints a message to the debug output when testing. Also available as{" "}
-                        <code>console.log(message)</code>.
-                    </>
-                ),
+                description: <StudioTrans ns="patch" i18nKey="methods.debugging.output" components={descriptionTags} />,
                 sampleScript: `// Print a debug message for each order being patched.
 from Orders as o
 update {

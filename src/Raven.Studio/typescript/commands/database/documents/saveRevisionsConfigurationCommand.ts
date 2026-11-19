@@ -1,7 +1,10 @@
 import database = require("models/resources/database");
 import commandBase = require("commands/commandBase");
 import endpoint = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
 import RevisionsConfiguration = Raven.Client.Documents.Operations.Revisions.RevisionsConfiguration;
+
+const t = i18nModule.createTranslator("documentsCommands");
 
 class saveRevisionsConfigurationCommand extends commandBase {
     private readonly db: database | string;
@@ -18,7 +21,7 @@ class saveRevisionsConfigurationCommand extends commandBase {
         const url = endpoint.databases.adminRevisions.adminRevisionsConfig;
         const args = ko.toJSON(this.revisionsConfiguration);
         return this.post<updateDatabaseConfigurationsResult>(url, args, this.db)
-            .fail((response: JQueryXHR) => this.reportError("Failed to save revisions configuration", response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("saveRevisionsConfigurationFailed"), response.responseText, response.statusText));
 
     }
 }

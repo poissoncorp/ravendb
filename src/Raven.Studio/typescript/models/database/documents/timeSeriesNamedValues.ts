@@ -1,4 +1,7 @@
 /// <reference path="../../../../typings/tsd.d.ts"/>
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("documentsModels");
 
 class timeSeriesNamedItem {
     name = ko.observable<string>("");
@@ -68,7 +71,7 @@ class timeSeriesNamedValues {
             validation: [
                 {
                     validator: () => this.namedValues().length > 0,
-                    message: "At least one value is required"
+                    message: t("namedValues.valueRequired")
                 },
                 {
                     validator: () => {
@@ -78,7 +81,7 @@ class timeSeriesNamedValues {
                         
                         return nonEmptyItems.length === 0 || _.uniq(nonEmptyItems).length === nonEmptyItems.length;
                     },
-                    message: "Values names must be unique"
+                    message: t("namedValues.namesNotUnique")
                 }
             ]
         })

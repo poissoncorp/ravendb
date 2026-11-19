@@ -2,6 +2,9 @@
 import rawTimeSeriesPolicy = require("models/database/documents/rawTimeSeriesPolicy");
 import timeSeriesPolicy = require("models/database/documents/timeSeriesPolicy");
 import timeSeriesNamedValues = require("models/database/documents/timeSeriesNamedValues");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("documentsModels");
 
 class timeSeriesConfigurationEntry {
 
@@ -65,7 +68,7 @@ class timeSeriesConfigurationEntry {
             validation: [
                 {
                     validator: () => this.hasPoliciesOrRetentionConfig() || this.hasNamedValuesConfig(),
-                    message: "No rollup policy, retention time or named value are defined."
+                    message: t("timeSeriesConfiguration.nothingDefined")
                 }, {
                     validator: () => {
                         const nonEmptyNames = this.namedValues()
@@ -74,7 +77,7 @@ class timeSeriesConfigurationEntry {
                         
                         return nonEmptyNames.length === 0 || _.union(nonEmptyNames).length === nonEmptyNames.length;
                     },
-                    message: "Time Series names must be unique"
+                    message: t("timeSeriesConfiguration.namesNotUnique")
                 }
             ]
         });

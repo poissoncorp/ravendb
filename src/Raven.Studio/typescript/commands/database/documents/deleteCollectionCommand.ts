@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("documentsCommands");
 
 class deleteCollectionCommand extends commandBase {
     private displayCollectionName: string;
@@ -18,7 +21,7 @@ class deleteCollectionCommand extends commandBase {
 
         return this.del<operationIdDto>(url, JSON.stringify(payload), this.db)            
             .fail((response: JQueryXHR) => {
-                this.reportError(`Request to delete documents from collection: ${this.collectionName} failed`, response.responseText, response.statusText);
+                this.reportError(t("deleteCollectionFailed", { collectionName: this.collectionName }), response.responseText, response.statusText);
             });
     }
 }

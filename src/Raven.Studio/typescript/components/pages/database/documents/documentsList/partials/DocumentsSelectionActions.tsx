@@ -1,4 +1,3 @@
-import pluralizeHelpers from "common/helpers/text/pluralizeHelpers";
 import messagePublisher from "common/messagePublisher";
 import { AccessPopover } from "components/common/AccessPopover";
 import ButtonWithSpinner from "components/common/ButtonWithSpinner";
@@ -25,6 +24,8 @@ import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
 import Dropdown from "react-bootstrap/Dropdown";
 import DeleteDocumentsModal from "viewmodels/database/documents/DeleteDocumentsModal";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface DocumentsSelectionActionsProps {
     collectionName: string | null;
@@ -45,6 +46,8 @@ export default function DocumentsSelectionActions({
     collectionDeletionCallbacks,
     onSelectionDeleted,
 }: DocumentsSelectionActionsProps) {
+    const t = useStudioTranslation("documentsList");
+    const commonT = useStudioTranslation("common");
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const hasDatabaseWriteAccess = useAppSelector(accessManagerSelectors.getHasDatabaseWriteAccess)();
     const { databasesService } = useServices();
@@ -66,13 +69,23 @@ export default function DocumentsSelectionActions({
     }
 
     const asyncDeleteSelectedIds = useAsyncCallback(async (ids: string[]) => {
-        const description = ids.length === 1 ? ids[0] : `${ids.length} documents`;
+        const isSingle = ids.length === 1;
 
         try {
             await databasesService.deleteDocuments(ids, databaseName);
-            messagePublisher.reportSuccess(`Deleted ${description}`);
+            messagePublisher.reportSuccess(
+                isSingle
+                    ? t("selection.deleteSuccess.single", { id: ids[0] })
+                    : t("selection.deleteSuccess.many", { count: ids.length })
+            );
         } catch (response) {
-            messagePublisher.reportError(`Failed to delete ${description}`, response.responseText, response.statusText);
+            messagePublisher.reportError(
+                isSingle
+                    ? t("selection.deleteFailed.single", { id: ids[0] })
+                    : t("selection.deleteFailed.many", { count: ids.length }),
+                response.responseText,
+                response.statusText
+            );
         } finally {
             onSelectionDeleted();
         }
@@ -85,7 +98,10 @@ export default function DocumentsSelectionActions({
         }
 
         const isConfirmed = await confirm({
-            title: `Delete ${pluralizeHelpers.pluralize(state.selectedIds.length, "document", "documents")}?`,
+            title: t("selection.deleteConfirmTitle", {
+                count: state.selectedIds.length,
+                formattedCount: state.selectedIds.length.toLocaleString(),
+            }),
             message: (
                 <ul className="overflow-auto m-0" style={{ maxHeight: "300px" }}>
                     {state.selectedIds.map((id) => (
@@ -95,7 +111,7 @@ export default function DocumentsSelectionActions({
             ),
             icon: "trash",
             actionColor: "danger",
-            confirmText: "Delete",
+            confirmText: commonT("delete"),
         });
 
         if (isConfirmed) {
@@ -124,7 +140,7 @@ export default function DocumentsSelectionActions({
     };
 
     const reportCopyError = (response: JQueryXHR) => {
-        messagePublisher.reportError("Failed to copy the documents", response.responseText, response.statusText);
+        messagePublisher.reportError(t("selection.copyFailed"), response.responseText, response.statusText);
     };
 
     const showCopyModalIfSelectionUnchanged = (
@@ -147,7 +163,7 @@ export default function DocumentsSelectionActions({
 
             const missingIds = ids.filter((_, index) => !documents[index]);
             if (missingIds.length > 0) {
-                messagePublisher.reportWarning(`Documents no longer exist: ${missingIds.join(", ")}`);
+                messagePublisher.reportWarning(t("selection.documentsNoLongerExist", { ids: missingIds.join(", ") }));
             }
 
             const existingDocuments = documents.filter((x) => x);
@@ -156,7 +172,7 @@ export default function DocumentsSelectionActions({
             }
 
             showCopyModalIfSelectionUnchanged(requestedState, {
-                title: "Documents",
+                title: t("selection.copyDocumentsTitle"),
                 text: existingDocuments
                     .map((x) => x.getId() + "\r\n" + JSON.stringify(x.toDto(false), null, 4))
                     .join("\r\n\r\n"),
@@ -175,7 +191,7 @@ export default function DocumentsSelectionActions({
             const ids = await getSelectedIds();
 
             showCopyModalIfSelectionUnchanged(requestedState, {
-                title: "Document IDs",
+                title: t("selection.copyIdsTitle"),
                 text: ids.map((id) => `"${id}"`).join(", \r\n"),
             });
         } catch (response) {
@@ -191,13 +207,21 @@ export default function DocumentsSelectionActions({
             {selectedCount > 0 && (
                 <div className="floating-bar text-nowrap" data-testid="selection-actions">
                     <span className="px-1">
-                        <strong>{selectedCount.toLocaleString()}</strong> selected
+                        <StudioTrans
+                            ns="documentsList"
+                            i18nKey="selection.selectedCount"
+                            components={{ strong: <strong /> }}
+                            options={{ count: selectedCount, formattedCount: selectedCount.toLocaleString() }}
+                        />
                     </span>
                     {canSelectAllPages && (
                         <>
                             <div className="vr" />
                             <Button variant="text" onClick={selectAll}>
-                                Select all {totalCount.toLocaleString()}
+                                {t("selection.selectAll", {
+                                    count: totalCount,
+                                    formattedCount: totalCount.toLocaleString(),
+                                })}
                             </Button>
                         </>
                     )}
@@ -205,7 +229,7 @@ export default function DocumentsSelectionActions({
                     <ConditionalPopover
                         conditions={{
                             isActive: isCopyLimitExceeded,
-                            message: `You can only copy up to ${COPY_LIMIT} documents`,
+                            message: t("selection.copyLimit", { count: COPY_LIMIT }),
                         }}
                     >
                         <Dropdown as={ButtonGroup}>
@@ -216,17 +240,17 @@ export default function DocumentsSelectionActions({
                                 isSpinning={asyncCopyDocuments.loading}
                                 disabled={isCopyDisabled}
                             >
-                                Copy
+                                {t("selection.copy")}
                             </ButtonWithSpinner>
                             <div className="vr my-1" />
                             <Dropdown.Toggle
                                 variant="text"
                                 as={CustomDropdownToggle}
                                 disabled={isCopyDisabled}
-                                title="More copy options"
+                                title={t("selection.moreCopyOptions")}
                             />
                             <Dropdown.Menu>
-                                <Dropdown.Item onClick={asyncCopyIds.execute}>Copy IDs</Dropdown.Item>
+                                <Dropdown.Item onClick={asyncCopyIds.execute}>{t("selection.copyIds")}</Dropdown.Item>
                             </Dropdown.Menu>
                         </Dropdown>
                     </ConditionalPopover>
@@ -239,12 +263,12 @@ export default function DocumentsSelectionActions({
                             isSpinning={asyncDeleteSelectedIds.loading || isExclusiveDeleteRunning}
                             disabled={!hasDatabaseWriteAccess || isExclusiveDeleteRunning}
                         >
-                            Delete
+                            {commonT("delete")}
                         </ButtonWithSpinner>
                     </AccessPopover>
                     <div className="vr" />
                     <Button variant="text" onClick={clear}>
-                        Clear selection
+                        {t("selection.clearSelection")}
                     </Button>
                 </div>
             )}

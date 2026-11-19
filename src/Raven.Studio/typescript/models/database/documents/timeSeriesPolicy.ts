@@ -1,30 +1,47 @@
 /// <reference path="../../../../typings/tsd.d.ts"/>
 import timeValueEntry = require("models/database/documents/timeValueEntry");
 import generalUtils = require("common/generalUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("documentsModels");
 
 class timeSeriesPolicy {
 
     static allTimeUnits: Array<valueAndLabelItem<timeUnit | "custom", string>> = [
         {
-            label: "seconds",
+            get label() {
+                return t("policy.timeUnits.seconds");
+            },
             value: "second"
         }, {
-            label: "minutes",
+            get label() {
+                return t("policy.timeUnits.minutes");
+            },
             value: "minute",
         }, {
-            label: "hours",
+            get label() {
+                return t("policy.timeUnits.hours");
+            },
             value: "hour"
         }, {
-            label: "days",
+            get label() {
+                return t("policy.timeUnits.days");
+            },
             value: "day"
         }, {
-            label: "months",
+            get label() {
+                return t("policy.timeUnits.months");
+            },
             value: "month"
         }, {
-            label: "years",
+            get label() {
+                return t("policy.timeUnits.years");
+            },
             value: "year"
         }, {
-            label: "custom",
+            get label() {
+                return t("policy.timeUnits.custom");
+            },
             value: "custom"
         }
     ];
@@ -88,7 +105,7 @@ class timeSeriesPolicy {
                         const previousNames = this.getPreviousItems().map(x => x.name().toLocaleLowerCase());
                         return !_.includes(previousNames, val.toLocaleLowerCase());
                     },
-                    message: "Policy name must be unique."
+                    message: t("policy.nameNotUnique")
                 }]
         });
         
@@ -98,17 +115,17 @@ class timeSeriesPolicy {
                     validator: (time: timeValueEntry) => !this.hasAggregation ||
                                                          (this.aggregation().unit() !== 'second' && this.aggregation().unit() !== 'month') ||
                                                          time.amount() >= 1,
-                    message: "Minimum value for 'seconds' or 'months' time units is 1"
+                    message: t("policy.minimumValue")
                 }, 
                 {
                     validator: (time: timeValueEntry) => !this.hasAggregation || time.isPositive(),
-                    message: "Aggregation time must be greater than zero"
+                    message: t("policy.aggregationNotPositive")
                 },
                 {
                     validator: (time: timeValueEntry) => !this.hasAggregation ||
                                                          (this.aggregation().unit() !== 'second' && this.aggregation().unit() !== 'month') ||
                                                          time.amount() % 1 === 0,
-                    message: "Please use a whole number for 'seconds' or 'months' time units",
+                    message: t("policy.wholeNumber"),
                 },
                 {
                     validator: (time: timeValueEntry) => {
@@ -124,7 +141,7 @@ class timeSeriesPolicy {
                             return false;
                         }
                     },
-                    message: () => "Time frame must be greater than the preceding aggregation time (" + this.previous().aggregationFormatted() + ")"
+                    message: () => t("policy.aggregationNotGreaterThanPrevious", { time: this.previous().aggregationFormatted() })
                 },
                 {
                     validator: (time: timeValueEntry) => {
@@ -144,7 +161,7 @@ class timeSeriesPolicy {
                             return false;
                         }
                     },
-                    message: () => "Time frame must be less than the preceding retention time (" + this.previous().retentionFormatted() + ")"
+                    message: () => t("policy.aggregationNotLessThanPreviousRetention", { time: this.previous().retentionFormatted() })
                 },
                 {
                     validator: (time: timeValueEntry) => {
@@ -155,7 +172,7 @@ class timeSeriesPolicy {
 
                         return time.isMultipleOf(previous.aggregation());
                     },
-                    message: "Time value must be divided by the previous policy aggregation time without a remainder"
+                    message: t("policy.aggregationNotMultiple")
                 }
             ]
         });
@@ -166,17 +183,17 @@ class timeSeriesPolicy {
                     validator: (time: timeValueEntry) => !this.hasRetention ||
                                                          (this.retention().unit() !== 'second' && this.retention().unit() !== 'month') ||
                                                          time.amount() >= 1,
-                    message: "Minimum value for 'seconds' or 'months' time units is 1",
+                    message: t("policy.minimumValue"),
                 },
                 {
                     validator: (time: timeValueEntry) => !this.hasRetention() || time.isPositive(),
-                    message: "Retention time must be greater than zero"
+                    message: t("policy.retentionNotPositive")
                 },
                 {
                     validator: (time: timeValueEntry) => !this.hasRetention ||
                         (this.retention().unit() !== 'second' && this.retention().unit() !== 'month') ||
                         time.amount() % 1 === 0,
-                    message: "Please use a whole number for 'seconds' or 'months' time units",
+                    message: t("policy.wholeNumber"),
                 },
             ]
         })

@@ -1,6 +1,9 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("cmpXchgCommands");
 
 class saveCompareExchangeItemCommand extends commandBase {
 
@@ -26,7 +29,7 @@ class saveCompareExchangeItemCommand extends commandBase {
         const url = endpoints.databases.compareExchange.cmpxchg + this.urlEncodeArgs(args);
         
         return this.put<Raven.Client.Documents.Operations.CompareExchange.CompareExchangeResult<any>>(url, JSON.stringify(payload), this.database)
-            .fail((response: JQueryXHR) => this.reportError("Failed to save compare exchange item", response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("saveFailed"), response.responseText, response.statusText));
     }
 }
 

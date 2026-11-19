@@ -8,10 +8,12 @@ import { useAppSelector } from "components/store";
 import { exhaustiveStringTuple } from "components/utils/common";
 import { useAsyncDebounce } from "components/hooks/useAsyncDebounce";
 import { useState } from "react";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type RevisionType = Raven.Server.Documents.Revisions.RevisionsStorage.RevisionType;
 
 export default function useAllRevisionsFilters() {
+    const t = useStudioTranslation("allRevisions");
     const { databasesService } = useServices();
 
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
@@ -20,16 +22,22 @@ export default function useAllRevisionsFilters() {
     const [selectedType, setSelectedType] = useState<RevisionType>("All");
     const [selectedCollectionName, setSelectedCollectionName] = useState("");
 
+    const typeLabels: Record<RevisionType, string> = {
+        All: t("filters.types.all"),
+        Regular: t("filters.types.regular"),
+        Deleted: t("filters.types.deleted"),
+    };
+
     const tooltipTexts: Record<RevisionType, string> = {
-        All: "Display all revisions.",
-        Regular: "Display only revisions created by document creation or modification.",
-        Deleted: 'Display only "Delete Revisions" created by document deletion.',
+        All: t("filters.typePopovers.all"),
+        Regular: t("filters.typePopovers.regular"),
+        Deleted: t("filters.typePopovers.deleted"),
     };
 
     const [persistedTypeOptions, setPersistedTypeOptions] = useState<InputItem<RevisionType>[]>(
         allRevisionTypes.map((type) => ({
             value: type,
-            label: type,
+            label: typeLabels[type],
         }))
     );
 
@@ -40,7 +48,7 @@ export default function useAllRevisionsFilters() {
             for (const type of allRevisionTypes) {
                 const baseOption: InputItem<RevisionType> = {
                     value: type,
-                    label: type,
+                    label: typeLabels[type],
                     popover: tooltipTexts[type],
                 };
 

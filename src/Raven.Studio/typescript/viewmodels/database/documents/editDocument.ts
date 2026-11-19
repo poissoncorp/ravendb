@@ -58,6 +58,10 @@ import getRemoteAttachmentsDestinationsCommand
     = require("commands/database/settings/getRemoteAttachmentsDestinationsCommand");
 import CountersDetail = Raven.Client.Documents.Operations.Counters.CountersDetail;
 import SchemaValidationConfiguration = Raven.Client.Documents.Operations.SchemaValidation.SchemaValidationConfiguration;
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("editDocument");
+const commonT = i18nModule.createTranslator("common");
 
 class editDocument extends shardViewModelBase {
     view = require("views/database/documents/editDocument.html");
@@ -71,6 +75,16 @@ class editDocument extends shardViewModelBase {
     inReadOnlyMode = ko.observable<boolean>(false);
     inDiffMode = ko.observable<boolean>(false);
     currentDiff = ko.observable<aceDiff>();
+    diffSummaryHtml = ko.pureComputed(() => {
+        const diff = this.currentDiff();
+        if (!diff) {
+            return "";
+        }
+        return t("diff.different", {
+            additions: t("diff.additions", { count: diff.additions() }),
+            deletions: t("diff.deletions", { count: diff.deletions() }),
+        });
+    });
     diffMode = ko.observable<"previous" | "manual">("previous");
     revisionsToCompare = ko.observableArray<document>([]);
     comparingWith = ko.observable<document>();
@@ -80,7 +94,6 @@ class editDocument extends shardViewModelBase {
     revisionChangeVector = ko.observable<string>();
 
     document = ko.observable<document>();
-    documentItemType: KnockoutComputed<string>;
 
     documentText = ko.observable("");
     documentTextOrg = ko.observable(""); // stash for huge document
@@ -91,6 +104,17 @@ class editDocument extends shardViewModelBase {
     changeVector: KnockoutComputed<changeVectorItem[]>;
     changeVectorHtml: KnockoutComputed<string>;
     changeVectorFormatted: KnockoutComputed<string>;
+
+    lastModifiedTooltipHtml: KnockoutComputed<string>;
+    expirationTooltipHtml: KnockoutComputed<string>;
+    archivalTooltipHtml: KnockoutComputed<string>;
+    refreshTooltipHtml: KnockoutComputed<string>;
+    expirationOffTooltipHtml: string;
+    archivalOffTooltipHtml: string;
+    refreshOffTooltipHtml: string;
+
+    deletedRevisionRemovedOnHtml: KnockoutComputed<string>;
+    deletedRevisionFlagsHtml: KnockoutComputed<string>;
 
     savedInClusterTransaction: KnockoutComputed<boolean>;
     atomicGuardUrl: KnockoutComputed<string>;
@@ -181,6 +205,7 @@ class editDocument extends shardViewModelBase {
     isHugeDocument = ko.observable<boolean>(false);
     ignoreHugeDocument = ko.observable<boolean>(false);
     showHugeDocumentWarning: KnockoutComputed<boolean>;
+    hugeDocumentWarningHtml: KnockoutComputed<string>;
 
     sizeOnDiskActual = ko.observable<string>();
     sizeOnDiskAllocated = ko.observable<string>();
@@ -445,7 +470,7 @@ class editDocument extends shardViewModelBase {
                             return false;
                         }
                     },
-                    message: "Document must be valid JSON object",
+                    message: () => t("editor.invalidJson"),
                 },
             ],
         });
@@ -596,18 +621,18 @@ class editDocument extends shardViewModelBase {
             }
 
             if (this.isDeleteRevision()) {
-                return "| DELETE REVISION";
+                return t("revisionLabel", { context: "delete" });
             }
 
             if (this.isConflictRevision()) {
-                return "| CONFLICT REVISION";
+                return t("revisionLabel", { context: "conflict" });
             }
 
             if (this.isResolvedRevision()) {
-                return "| RESOLVED REVISION";
+                return t("revisionLabel", { context: "resolved" });
             }
 
-            return "| REVISION";
+            return t("revisionLabel", { context: "revision" });
         });
 
         this.isArchived = ko.pureComputed(() => {
@@ -621,7 +646,7 @@ class editDocument extends shardViewModelBase {
 
         this.archivedText = ko.pureComputed(() => {
             const archived = this.isArchived();
-            return archived ? "| ARCHIVED" : null;
+            return archived ? t("archivedLabel") : null;
         });
 
         this.document.subscribe((doc) => {
@@ -672,8 +697,48 @@ class editDocument extends shardViewModelBase {
         });
 
         this.changeVectorHtml = ko.pureComputed(() => {
-            return `<div><strong>Change Vector</strong></div>${this.changeVectorFormatted()}`;
+            return editDocument.titledTooltipHtml(t("properties.changeVectorTooltip"), this.changeVectorFormatted());
         });
+
+        this.lastModifiedTooltipHtml = ko.pureComputed(() =>
+            editDocument.titledTooltipHtml(
+                t("properties.lastModifiedTooltip"),
+                genUtils.escapeHtml(this.metadata()?.lastModifiedFullDate())
+            )
+        );
+
+        this.expirationTooltipHtml = ko.pureComputed(() =>
+            editDocument.titledTooltipHtml(
+                t("properties.expirationTooltip"),
+                genUtils.escapeHtml(this.metadata()?.expirationDateFullDate())
+            )
+        );
+
+        this.archivalTooltipHtml = ko.pureComputed(() =>
+            editDocument.titledTooltipHtml(
+                t("properties.archivalTooltip"),
+                genUtils.escapeHtml(this.metadata()?.archiveAtDateFullDate())
+            )
+        );
+
+        this.refreshTooltipHtml = ko.pureComputed(() =>
+            editDocument.titledTooltipHtml(
+                t("properties.refreshTooltip"),
+                genUtils.escapeHtml(this.metadata()?.refreshDateFullDate())
+            )
+        );
+
+        this.expirationOffTooltipHtml = t("properties.expirationOff");
+        this.archivalOffTooltipHtml = t("properties.archivalOff");
+        this.refreshOffTooltipHtml = t("properties.refreshOff");
+
+        this.deletedRevisionRemovedOnHtml = ko.pureComputed(() =>
+            t("deletedRevision.removedOn", { date: genUtils.escapeHtml(this.metadata()?.lastModifiedFullDate()) })
+        );
+
+        this.deletedRevisionFlagsHtml = ko.pureComputed(() =>
+            t("deletedRevision.flags", { flags: genUtils.escapeHtml(this.metadata()?.flags) })
+        );
 
         this.savedInClusterTransaction = ko.pureComputed(() => {
             const vectors = this.changeVector().find((x) => x.shortFormat.startsWith("TRXN:"));
@@ -707,25 +772,29 @@ class editDocument extends shardViewModelBase {
                 const metadataKey = genUtils.getSizeInBytesAsUTF8(", @metadata: ");
                 return genUtils.formatBytesToSize(textSize + metadataSize + metadataKey);
             } catch (e) {
-                return "cannot compute";
+                return t("properties.sizeUnknown");
             }
         });
 
         this.documentSizeHtml = ko.computed(() => {
             if (this.isClone() || this.isCreatingNewDocument()) {
-                return `Computed Size: ${this.computedDocumentSize()} KB`;
+                return t("properties.computedSize", { size: genUtils.escapeHtml(this.computedDocumentSize()) });
             }
 
-            const text = `<div class="margin-top-sm margin-bottom-sm"><strong>${this.inReadOnlyMode() ? "Revision" : "Document"} Size on Disk</strong></div> Actual Size: ${this.sizeOnDiskActual()} <br/> Allocated Size: ${this.sizeOnDiskAllocated()} <br/> Compressed: ${this.isCompressed() ? "Yes" : "No"}`;
+            const sizeOnDiskTitle = t("properties.sizeOnDisk", {
+                context: this.inReadOnlyMode() ? "revision" : "document",
+            });
+            const actualSize = t("properties.actualSize", { size: genUtils.escapeHtml(this.sizeOnDiskActual()) });
+            const allocatedSize = t("properties.allocatedSize", {
+                size: genUtils.escapeHtml(this.sizeOnDiskAllocated()),
+            });
+            const compressed = t("properties.compressed", { context: this.isCompressed() ? "yes" : "no" });
+            const text = `<div class="margin-top-sm margin-bottom-sm"><strong>${sizeOnDiskTitle}</strong></div> ${actualSize} <br/> ${allocatedSize} <br/> ${compressed}`;
             const hugeSizeText = this.isHugeDocument()
-                ? `<br /><div class="text-warning bg-warning margin-top margin-bottom">Document is huge</div>`
+                ? `<br /><div class="text-warning bg-warning margin-top margin-bottom">${t("properties.hugeDocument")}</div>`
                 : "";
 
             return text + hugeSizeText;
-        });
-
-        this.documentItemType = ko.pureComputed(() => {
-            return this.inReadOnlyMode() ? "Revision" : "Document";
         });
 
         this.metadata.subscribe((meta: documentMetadata) => {
@@ -817,6 +886,13 @@ class editDocument extends shardViewModelBase {
                 return this.isHugeDocument() && !this.ignoreHugeDocument();
             }
         });
+
+        this.hugeDocumentWarningHtml = ko.pureComputed(() =>
+            t("hugeDocument.warning", {
+                context: this.inReadOnlyMode() ? "revision" : "document",
+                size: genUtils.escapeHtml(this.computedDocumentSize()),
+            })
+        );
 
         this.aiAgentConversationUrl = ko.pureComputed(() => {
             if (this.isCreatingNewDocument()) {
@@ -985,7 +1061,7 @@ class editDocument extends shardViewModelBase {
     }
 
     copyDocumentBodyToClipboard() {
-        copyToClipboard.copy(this.documentText(), "Document has been copied to clipboard");
+        copyToClipboard.copy(this.documentText(), t("messages.documentCopied"));
     }
 
     validateDocumentSchema() {
@@ -998,7 +1074,7 @@ class editDocument extends shardViewModelBase {
     }
 
     copyDocumentIdToClipboard() {
-        copyToClipboard.copy(this.editedDocId(), "Document ID has been copied to clipboard");
+        copyToClipboard.copy(this.editedDocId(), t("messages.documentIdCopied"));
     }
 
     copyChangeVectorToClipboard() {
@@ -1006,12 +1082,12 @@ class editDocument extends shardViewModelBase {
             this.changeVector()
                 .map((vectorItem) => vectorItem.fullFormat)
                 .join(", "),
-            "Change Vector has been copied to clipboard"
+            t("messages.changeVectorCopied")
         );
     }
 
     copyRevisionTimestampToClipboard(revisionTimestamp: string) {
-        copyToClipboard.copy(revisionTimestamp, "Revision timestamp has been copied to clipboard");
+        copyToClipboard.copy(revisionTimestamp, t("messages.revisionTimestampCopied"));
     }
 
     togglePropertiesPanel() {
@@ -1021,12 +1097,12 @@ class editDocument extends shardViewModelBase {
     toggleNewlineMode() {
         eventsCollector.default.reportEvent("document", "toggle-newline-mode");
         if (this.isNewLineFriendlyMode() === false && parseInt(this.computedDocumentSize().replace(",", "")) > 1024) {
-            app.showBootstrapMessage(
-                "This operation might take long time with big documents, are you sure you want to continue?",
-                "Toggle newline mode",
-                ["Cancel", "Continue"]
-            ).then((dialogResult: string) => {
-                if (dialogResult === "Continue") {
+            const continueButton = t("editor.newLinesConfirmContinue");
+            app.showBootstrapMessage(t("editor.newLinesConfirm"), t("editor.newLinesConfirmTitle"), [
+                commonT("cancel"),
+                continueButton,
+            ]).then((dialogResult: string) => {
+                if (dialogResult === continueButton) {
                     this.isNewLineFriendlyMode.toggle();
                 }
             });
@@ -1072,8 +1148,8 @@ class editDocument extends shardViewModelBase {
 
     tryCreateClone() {
         if (this.isSaveEnabled()) {
-            this.confirmationMessage("Unsaved changes", "Document has unsaved changes. How do you want to proceed?", {
-                buttons: ["Cancel", "Clone with changes"],
+            this.confirmationMessage(t("messages.unsavedChangesTitle"), t("messages.unsavedChangesClone"), {
+                buttons: [commonT("cancel"), t("messages.cloneWithChanges")],
             }).done((result) => {
                 if (result.can) {
                     this.createClone(true);
@@ -1187,8 +1263,8 @@ class editDocument extends shardViewModelBase {
 
         if (documentWarnings.length) {
             const viewModel = new editorWarningsConfirm(
-                "Document",
-                [{ source: "Document", warnings: documentWarnings }],
+                t("messages.warningsSource"),
+                [{ source: t("messages.warningsSource"), warnings: documentWarnings }],
                 (warning) => {
                     // please note go to line is not zero based, so we add 1
                     this.docEditor.gotoLine(warning.row + 1, warning.column, true);
@@ -1213,7 +1289,7 @@ class editDocument extends shardViewModelBase {
             }
         } catch (e) {
             if (updatedDto == undefined) {
-                message = "The document data isn't a legal JSON expression!";
+                message = t("messages.illegalJson");
             }
             this.focusOnEditor();
         }
@@ -1357,7 +1433,7 @@ class editDocument extends shardViewModelBase {
         try {
             updatedDocDto = JSON.parse(documentHelpers.escapeNewlinesAndTabsInTextFields(this.documentText()));
         } catch (error) {
-            messagePublisher.reportError("Failed to parse document JSON", error.message);
+            messagePublisher.reportError(t("messages.parseFailed"), error.message);
             return;
         }
 
@@ -1368,16 +1444,16 @@ class editDocument extends shardViewModelBase {
             .done((result) => {
                 switch (result.Status) {
                     case "Valid":
-                        messagePublisher.reportSuccess("Document is valid");
+                        messagePublisher.reportSuccess(t("messages.valid"));
                         break;
                     case "Invalid":
-                        messagePublisher.reportError("Document validation failed", JSON.stringify({
+                        messagePublisher.reportError(t("messages.validationFailed"), JSON.stringify({
                             Message: result.ErrorMessages.join(" "),
                             Error: result.ErrorMessages.join("\n")
                         }));
                         break;
                     case "MissingSchema":
-                        messagePublisher.reportError("Document schema is missing");
+                        messagePublisher.reportError(t("messages.schemaMissing"));
                         break;
                     default:
                         assertUnreachable.default(result.Status);
@@ -1414,19 +1490,23 @@ class editDocument extends shardViewModelBase {
                                 if (doc) {
                                     loadTask.resolve(doc);
                                 } else {
-                                    messagePublisher.reportWarning("Could not find document: " + id);
+                                    messagePublisher.reportWarning(t("messages.documentNotFound", { id }));
                                     loadTask.reject();
                                 }
                             })
                             .fail(() => loadTask.reject());
                     } else {
                         this.dirtyFlag().reset();
-                        messagePublisher.reportWarning("Could not find document: " + id);
+                        messagePublisher.reportWarning(t("messages.documentNotFound", { id }));
                         loadTask.reject();
                     }
                 } else {
                     this.dirtyFlag().reset();
-                    messagePublisher.reportError("Could not load document: " + id, xhr.responseText, xhr.statusText);
+                    messagePublisher.reportError(
+                        t("messages.documentLoadFailed", { id }),
+                        xhr.responseText,
+                        xhr.statusText
+                    );
                     loadTask.reject();
                 }
             })
@@ -1438,12 +1518,12 @@ class editDocument extends shardViewModelBase {
     private loadRemoteAttachmentsConfiguration() {
         const hasRemoteAttachments = licenseModel.getStatusValue("HasRemoteAttachments");
         if (!hasRemoteAttachments) {
-            this.remoteAttachmentDisabledReason("Remote attachments are not available in your current license");
+            this.remoteAttachmentDisabledReason(t("remoteAttachments.noLicense"));
             return;
         }
 
         if (this.db.isSharded()) {
-            this.remoteAttachmentDisabledReason("Remote attachments are not supported in sharded databases");
+            this.remoteAttachmentDisabledReason(t("remoteAttachments.sharded"));
             return;
         }
 
@@ -1451,11 +1531,11 @@ class editDocument extends shardViewModelBase {
             .execute()
             .done((remoteAttachmentsConfiguration: RemoteAttachmentsStudioConfiguration) => {
                 if (remoteAttachmentsConfiguration == null || remoteAttachmentsConfiguration.Disabled) {
-                    this.remoteAttachmentDisabledReason("Remote attachments are currently disabled. To enable them, go to Settings -> Remote Attachments and update the configuration accordingly.");
+                    this.remoteAttachmentDisabledReason(t("remoteAttachments.disabled"));
                 }
             })
             .fail(() => {
-                this.remoteAttachmentDisabledReason("Remote attachments configuration could not be retrieved.");
+                this.remoteAttachmentDisabledReason(t("remoteAttachments.configurationFailed"));
             });
     }
 
@@ -1489,13 +1569,9 @@ class editDocument extends shardViewModelBase {
         if (currentChangeVectorItem) {
             const isLastItem = this.revisionsToCompare().at(-1).__metadata.changeVector() === currentChangeVectorItem.__metadata.changeVector();
             if (isLastItem) {
-                this.confirmationMessage(
-                    "Nothing to compare",
-                    "This is the oldest revision. Please choose another revision.",
-                    {
-                        buttons: ["Ok"],
-                    }
-                );
+                this.confirmationMessage(t("diff.nothingToCompareTitle"), t("diff.oldestRevision"), {
+                    buttons: [t("diff.ok")],
+                });
                 return;
             } else {
                 return this.changeRightRevision(currentChangeVectorItem);
@@ -1506,7 +1582,7 @@ class editDocument extends shardViewModelBase {
             return this.changeRightRevision(this.revisionsToCompare()[0]);
         }
 
-        messagePublisher.reportWarning("Could not find any revisions to compare with.");
+        messagePublisher.reportWarning(t("diff.noRevisionsToCompare"));
     }
 
     async revisionNavigate(direction: "older" | "newer", tab: "right" | "left"): Promise<void> {
@@ -1646,8 +1722,8 @@ class editDocument extends shardViewModelBase {
                 this.isCompressed(size.IsCompressed);
             })
             .fail(() => {
-                this.sizeOnDiskActual("Failed to get size");
-                this.sizeOnDiskAllocated("Failed to get size");
+                this.sizeOnDiskActual(t("properties.sizeFailed"));
+                this.sizeOnDiskAllocated(t("properties.sizeFailed"));
             });
     }
 
@@ -1663,7 +1739,7 @@ class editDocument extends shardViewModelBase {
             .fail(() => {
                 this.dirtyFlag().reset();
 
-                messagePublisher.reportError("Could not find revisions bin entry: " + id);
+                messagePublisher.reportError(t("messages.revisionsBinEntryNotFound", { id }));
                 router.navigate(appUrl.forDocuments(null, this.db));
             });
     }
@@ -1697,9 +1773,7 @@ class editDocument extends shardViewModelBase {
 
                 this.dirtyFlag().reset();
             })
-            .fail(() =>
-                messagePublisher.reportError("Could not find requested revision. Redirecting to latest version")
-            )
+            .fail(() => messagePublisher.reportError(t("messages.revisionNotFound")))
             .always(() => this.isBusy(false));
     }
 
@@ -1713,7 +1787,7 @@ class editDocument extends shardViewModelBase {
 
     refreshDocument() {
         eventsCollector.default.reportEvent("document", "refresh");
-        this.canContinueIfNotDirty("Refresh", "You have unsaved data. Are you sure you want to continue?").done(() => {
+        this.canContinueIfNotDirty(commonT("refresh"), t("messages.unsavedDataConfirm")).done(() => {
             const docId = this.editedDocId();
             this.userSpecifiedId("");
             this.loadDocument(docId).done(() => {
@@ -1743,12 +1817,14 @@ class editDocument extends shardViewModelBase {
             RemoveForceCreatedRevisions: true,
         };
 
-        this.confirmationMessage("Are you sure?", "Do you want to delete current revision?", {
-            buttons: ["Cancel", "Yes, delete"],
+        this.confirmationMessage(t("revisions.deleteTitle"), t("revisions.deleteConfirm"), {
+            buttons: [commonT("cancel"), t("revisions.deleteButton")],
         }).done((result) => {
             if (result.can) {
                 new deleteRevisionsForDocumentsCommand(this.db.name, parameters).execute().done(() => {
-                    messagePublisher.reportSuccess(`Deleted revision ${doc.__metadata.changeVector()}`);
+                    messagePublisher.reportSuccess(
+                        t("revisions.deleted", { changeVector: doc.__metadata.changeVector() })
+                    );
                     router.navigate(appUrl.forAllRevisions(this.db));
                 });
             }
@@ -1785,7 +1861,7 @@ class editDocument extends shardViewModelBase {
             const formatted = genUtils.stringify(tempDoc);
             this.documentText(formatted);
         } catch (e) {
-            messagePublisher.reportError("Could not format json", undefined, undefined, false);
+            messagePublisher.reportError(t("editor.formatFailed"), undefined, undefined, false);
         }
     }
 
@@ -1806,7 +1882,7 @@ class editDocument extends shardViewModelBase {
         const generate = new generateClassCommand(this.db, doc.getId(), "csharp");
         const deferred = generate.execute();
         deferred.done((code: string) =>
-            app.showBootstrapDialog(new showDataDialog("The Generated C# Class", code, "csharp", null))
+            app.showBootstrapDialog(new showDataDialog(t("messages.generatedClassTitle"), code, "csharp", null))
         );
     }
 
@@ -1861,6 +1937,10 @@ class editDocument extends shardViewModelBase {
             eventsCollector.default.reportEvent("document", "forceRevisionCreation");
             this.saveInternal(this.document().getId(), true);
         }
+    }
+
+    private static titledTooltipHtml(title: string, valueHtml: string): string {
+        return `<div><strong>${title}</strong></div>${valueHtml}`;
     }
 
     getBadgeText(number: KnockoutObservable<number>): KnockoutComputed<string> {
@@ -1986,7 +2066,7 @@ class normalCrudActions implements editDocumentCrudActions {
                     .execute()
                     .then((counters: Raven.Client.Documents.Operations.Counters.CountersDetail) => {
                         if (counters.Counters.find((x) => x.CounterName === counterName)) {
-                            const error = "Counter '" + counterName + "' already exists.";
+                            const error = t("counters.alreadyExists", { name: counterName });
                             onCounterNameError(error);
                             return $.Deferred<CountersDetail>().reject(error);
                         } else {
@@ -2007,8 +2087,8 @@ class normalCrudActions implements editDocumentCrudActions {
     deleteAttachment(file: attachmentItem) {
         eventsCollector.default.reportEvent("attachments", "delete");
         viewHelpers
-            .confirmationMessage("Delete attachment", `Are you sure you want to delete attachment: ${file.name}?`, {
-                buttons: ["Cancel", "Delete"],
+            .confirmationMessage(t("attachments.deleteTitle"), t("attachments.deleteConfirm", { name: file.name }), {
+                buttons: [commonT("cancel"), commonT("delete")],
             })
             .done((result) => {
                 if (result.can) {
@@ -2022,9 +2102,13 @@ class normalCrudActions implements editDocumentCrudActions {
     deleteCounter(counter: counterItem) {
         eventsCollector.default.reportEvent("counter", "delete");
         viewHelpers
-            .confirmationMessage("Delete counter", `Are you sure you want to delete counter ${counter.counterName}?`, {
-                buttons: ["Cancel", "Delete"],
-            })
+            .confirmationMessage(
+                t("counters.deleteTitle"),
+                t("counters.deleteConfirm", { name: counter.counterName }),
+                {
+                    buttons: [commonT("cancel"), commonT("delete")],
+                }
+            )
             .done((result) => {
                 if (result.can) {
                     new deleteCounterCommand(counter.counterName, counter.documentId, this.db)
@@ -2274,7 +2358,7 @@ class clonedDocumentCrudActions implements editDocumentCrudActions {
 
             if (newCounter) {
                 if (existing) {
-                    const error = "Counter '" + counterName + "' already exists.";
+                    const error = t("counters.alreadyExists", { name: counterName });
                     onCounterNameError(error);
                     task.reject(error);
                 } else {

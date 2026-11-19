@@ -24,6 +24,8 @@ import { documentsColumnLayoutStorage } from "components/pages/database/document
 import { sumBy, uniq } from "lodash";
 import document from "models/database/documents/document";
 import { useMemo, useState } from "react";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import type { StudioTranslate } from "common/i18n/resources";
 
 interface UseDocumentsColumnsProps {
     databaseName: string;
@@ -49,8 +51,6 @@ const METADATA_COLUMN_WIDTH_PERCENTAGES: Record<string, number> = {
     [COLLECTION_COLUMN_ID]: 25,
 };
 
-const selectionColumn = createLazySelectionColumn<document>("Select all documents", "Select document");
-
 const flagsColumn: ColumnDef<document> = { ...columnDocumentFlags, size: FLAGS_COLUMN_WIDTH };
 
 type AppUrl = ReturnType<typeof useAppUrls>["appUrl"];
@@ -61,6 +61,7 @@ export function useDocumentsColumns({
     tableBodyWidthInPx,
     getPropertyPreviewResolver,
 }: UseDocumentsColumnsProps) {
+    const t = useStudioTranslation("documentsList");
     const { appUrl } = useAppUrls();
     const isAllDocuments = collectionName === null;
     const propertyColumnsWidthInPx = tableBodyWidthInPx - columnCheckbox.size - FLAGS_COLUMN_WIDTH;
@@ -102,14 +103,19 @@ export function useDocumentsColumns({
         [customColumns, databaseName]
     );
 
+    const selectionColumn = useMemo(
+        () => createLazySelectionColumn<document>(t("columns.selectAll"), t("columns.selectDocument")),
+        [t]
+    );
+
     const metadataColumnDefs = useMemo(
-        () => (isAllDocuments ? createMetadataColumns(databaseName, appUrl) : []),
-        [isAllDocuments, databaseName, appUrl]
+        () => (isAllDocuments ? createMetadataColumns(databaseName, appUrl, t) : []),
+        [isAllDocuments, databaseName, appUrl, t]
     );
 
     const columnDefs = useMemo(
         () => [selectionColumn, ...metadataColumnDefs, ...propertyColumns.columnDefs, ...customColumnDefs, flagsColumn],
-        [metadataColumnDefs, propertyColumns.columnDefs, customColumnDefs]
+        [selectionColumn, metadataColumnDefs, propertyColumns.columnDefs, customColumnDefs]
     );
 
     const tableState = useMemo(
@@ -257,11 +263,15 @@ function createCustomColumn(column: CustomColumnDefinition, databaseName: string
     };
 }
 
-function createMetadataColumns(databaseName: string, appUrl: AppUrl): ColumnDef<document>[] {
+function createMetadataColumns(
+    databaseName: string,
+    appUrl: AppUrl,
+    t: StudioTranslate<"documentsList">
+): ColumnDef<document>[] {
     return [
         {
             id: ID_COLUMN_NAME,
-            header: "Id",
+            header: t("columns.id"),
             accessorFn: (doc) => doc.getId(),
             cell: ({ getValue, row }) => (
                 <CellDocumentId
@@ -291,14 +301,14 @@ function createMetadataColumns(databaseName: string, appUrl: AppUrl): ColumnDef<
         },
         {
             id: LAST_MODIFIED_COLUMN_ID,
-            header: "Last Modified",
+            header: t("columns.lastModified"),
             accessorFn: (doc) => doc.__metadata.lastModified(),
             cell: DateFormatterCell,
             size: LAST_MODIFIED_COLUMN_WIDTH,
         },
         {
             id: COLLECTION_COLUMN_ID,
-            header: "Collection",
+            header: t("columns.collection"),
             accessorFn: (doc) => doc.getCollection(),
             cell: ({ getValue }) => {
                 const collection = getValue<string>();

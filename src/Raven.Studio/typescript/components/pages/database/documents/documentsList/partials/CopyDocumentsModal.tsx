@@ -3,6 +3,7 @@ import Code from "components/common/Code";
 import { Icon } from "components/common/Icon";
 import Modal from "components/common/Modal";
 import Button from "react-bootstrap/Button";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 export interface CopyDocumentsModalData {
     title: string;
@@ -14,6 +15,8 @@ interface CopyDocumentsModalProps extends CopyDocumentsModalData {
 }
 
 export default function CopyDocumentsModal({ title, text, close }: CopyDocumentsModalProps) {
+    const t = useStudioTranslation("documentsList");
+
     return (
         <Modal show onHide={close} size="lg">
             <Modal.Header onCloseClick={close} className="pb-0">
@@ -30,11 +33,11 @@ export default function CopyDocumentsModal({ title, text, close }: CopyDocuments
             <Modal.Footer>
                 <Button variant="secondary" onClick={close}>
                     <Icon icon="close" />
-                    Close
+                    {t("copyModal.close")}
                 </Button>
-                <Button variant="primary" onClick={() => copyToClipboard.copy(text, "Copied to clipboard")}>
+                <Button variant="primary" onClick={() => copyToClipboard.copy(text, t("copyModal.copied"))}>
                     <Icon icon="copy" />
-                    Copy to Clipboard
+                    {t("copyModal.copyToClipboard")}
                 </Button>
             </Modal.Footer>
         </Modal>

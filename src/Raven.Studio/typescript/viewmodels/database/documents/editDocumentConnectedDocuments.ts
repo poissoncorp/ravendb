@@ -22,6 +22,10 @@ import genUtils = require("common/generalUtils");
 import _ = require("lodash")
 import AddAttachmentModal = require("viewmodels/database/documents/AddAttachmentModal");
 import AddAttachmentWithRemoteParametersModal = require("viewmodels/database/documents/AddAttachmentWithRemoteParametersModal");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("editDocument");
+const commonT = i18nModule.createTranslator("common");
 
 type connectedDocsTabs = "attachments" | "counters" | "revisions" | "related" | "recent" | "timeSeries";
 type connectedItemType = connectedDocumentItem | attachmentItem | counterItem | timeSeriesItem;
@@ -161,7 +165,7 @@ class connectedDocuments {
             new hyperlinkColumn<connectedDocumentItem>(this.gridController() as virtualGridController<any>, x => x.id, x => x.href, "", "100%")
         ];
 
-        const revisionColumn = new hyperlinkColumn<connectedRevisionDocumentItem>(this.gridController() as virtualGridController<any>, x => x.id, x => x.href, "Revision", "75%",
+        const revisionColumn = new hyperlinkColumn<connectedRevisionDocumentItem>(this.gridController() as virtualGridController<any>, x => x.id, x => x.href, t("grid.revision"), "75%",
             {
                 extraClass: item => item.deletedRevision ? "typed-revision deleted-revision" :
                     (item.conflictRevision ? "typed-revision conflict-revision" :
@@ -177,80 +181,80 @@ class connectedDocuments {
         this.revisionsColumns = [revisionColumn];
         
         this.attachmentsColumns = [
-            new textColumn<attachmentItem>(this.gridController() as virtualGridController<any>, x => x?.remoteParameters?.Flags ?? "", "Remote flags", "35px", {
+            new textColumn<attachmentItem>(this.gridController() as virtualGridController<any>, x => x?.remoteParameters?.Flags ?? "", t("grid.remoteFlags"), "35px", {
                 transformValue: (x: RemoteAttachmentFlags) => x === "Remote" ? `<i class="icon-remote-attachment text-info"></i>` : `<i class="icon-attachment text-primary"></i>`,
             }),
-            new actionColumn<attachmentItem>(this.gridController() as virtualGridController<any>, x => this.downloadAttachment(x), "Name", x => x.name, "160px",
+            new actionColumn<attachmentItem>(this.gridController() as virtualGridController<any>, x => this.downloadAttachment(x), t("grid.name"), x => x.name, "160px",
                 {
                     extraClass: (item) => this.remoteAttachmentDisabledReason() && item?.remoteParameters?.Flags === "Remote" ? 'btn-link disabled' : "btn-link",
-                    title: (item) => this.remoteAttachmentDisabledReason() && item?.remoteParameters?.Flags === "Remote" ? this.remoteAttachmentDisabledReason() : `Download file: ${item.name}`
+                    title: (item) => this.remoteAttachmentDisabledReason() && item?.remoteParameters?.Flags === "Remote" ? this.remoteAttachmentDisabledReason() : t("grid.downloadFileTitle", { name: item.name })
                 }),
-            new textColumn<attachmentItem>(this.gridController() as virtualGridController<any>, x => generalUtils.formatBytesToSize(x.size), "Size", "70px", { extraClass: () => 'filesize' }),
-            new textColumn<attachmentItem>(this.gridController() as virtualGridController<any>, x => x?.remoteParameters, "Remote parameters", "100px"),
+            new textColumn<attachmentItem>(this.gridController() as virtualGridController<any>, x => generalUtils.formatBytesToSize(x.size), t("grid.size"), "70px", { extraClass: () => 'filesize' }),
+            new textColumn<attachmentItem>(this.gridController() as virtualGridController<any>, x => x?.remoteParameters, t("grid.remoteParameters"), "100px"),
             new actionColumn<attachmentItem>(this.gridController() as virtualGridController<any>, x => this.crudActionsProvider().deleteAttachment(x),
-                "Delete",
+                commonT("delete"),
                 `<i class="icon-trash"></i>`,
                 "35px",
                 {
                     extraClass: () => 'file-trash',
-                    title: () => 'Delete attachment',
+                    title: () => t("attachments.deleteTitle"),
                     hide: () => this.isReadOnlyAccess()
                 })
         ];
 
         this.attachmentsInReadOnlyModeColumns = [
-            new textColumn<attachmentItem>(this.gridController() as virtualGridController<any>, x => x?.remoteParameters?.Flags ?? "", "Remote flags", "35px", {
+            new textColumn<attachmentItem>(this.gridController() as virtualGridController<any>, x => x?.remoteParameters?.Flags ?? "", t("grid.remoteFlags"), "35px", {
                 transformValue: (x: RemoteAttachmentFlags) => x === "Remote" ? `<i class="icon-remote-attachment text-info"></i>` : `<i class="icon-attachment text-primary"></i>`,
             }),
-            new actionColumn<attachmentItem>(this.gridController() as virtualGridController<any>, x => this.downloadAttachment(x), "Name", x => x.name, "160px",
+            new actionColumn<attachmentItem>(this.gridController() as virtualGridController<any>, x => this.downloadAttachment(x), t("grid.name"), x => x.name, "160px",
                 {
                     extraClass: (item) => this.remoteAttachmentDisabledReason() && item?.remoteParameters?.Flags === "Remote" ? 'btn-link disabled' : "btn-link",
-                    title: (item) => this.remoteAttachmentDisabledReason() && item?.remoteParameters?.Flags === "Remote" ? this.remoteAttachmentDisabledReason() : `Download file: ${item.name}`
+                    title: (item) => this.remoteAttachmentDisabledReason() && item?.remoteParameters?.Flags === "Remote" ? this.remoteAttachmentDisabledReason() : t("grid.downloadFileTitle", { name: item.name })
                 }),
-            new textColumn<attachmentItem>(this.gridController() as virtualGridController<any>, x => generalUtils.formatBytesToSize(x.size), "Size", "70px", { extraClass: () => 'filesize' }),
-            new textColumn<attachmentItem>(this.gridController() as virtualGridController<any>, x => x?.remoteParameters, "Remote parameters", "100px"),
+            new textColumn<attachmentItem>(this.gridController() as virtualGridController<any>, x => generalUtils.formatBytesToSize(x.size), t("grid.size"), "70px", { extraClass: () => 'filesize' }),
+            new textColumn<attachmentItem>(this.gridController() as virtualGridController<any>, x => x?.remoteParameters, t("grid.remoteParameters"), "100px"),
         ];
 
         this.countersColumns = [
-            new textColumn<counterItem>(this.gridController() as virtualGridController<any>, x => x.counterName, "Counter name", "160px"),
-            new textColumn<counterItem>(this.gridController() as virtualGridController<any>, x => generalUtils.formatAsCommaSeperatedString(x.totalCounterValue, 0), "Counter total value", "100px"),
+            new textColumn<counterItem>(this.gridController() as virtualGridController<any>, x => x.counterName, t("grid.counterName"), "160px"),
+            new textColumn<counterItem>(this.gridController() as virtualGridController<any>, x => generalUtils.formatAsCommaSeperatedString(x.totalCounterValue, 0), t("grid.counterTotalValue"), "100px"),
             new actionColumn<counterItem>(this.gridController() as virtualGridController<any>, 
                  x => this.crudActionsProvider().setCounter(x),
-                "Edit",
+                t("grid.edit"),
                 `<i class="icon-edit"></i>`,
                 "35px",
-                { title: () => 'Edit counter', hide: () => this.isReadOnlyAccess() }),
+                { title: () => t("counters.editTitle"), hide: () => this.isReadOnlyAccess() }),
             new actionColumn<counterItem>(this.gridController() as virtualGridController<any>,
                  x => this.crudActionsProvider().deleteCounter(x),
-                "Delete",
+                commonT("delete"),
                 `<i class="icon-trash"></i>`,
                 "35px",
-                { title: () => 'Delete counter', hide: () => this.isReadOnlyAccess() }),
+                { title: () => t("counters.deleteTitle"), hide: () => this.isReadOnlyAccess() }),
         ];
 
         this.countersInReadOnlyModeColumns = [
-            new textColumn<counterItem>(this.gridController() as virtualGridController<any>, x => x.counterName, "Counter name", "60%"),
-            new textColumn<counterItem>(this.gridController() as virtualGridController<any>, x => generalUtils.formatAsCommaSeperatedString(x.totalCounterValue, 0), "Counter total value", "40%")
+            new textColumn<counterItem>(this.gridController() as virtualGridController<any>, x => x.counterName, t("grid.counterName"), "60%"),
+            new textColumn<counterItem>(this.gridController() as virtualGridController<any>, x => generalUtils.formatAsCommaSeperatedString(x.totalCounterValue, 0), t("grid.counterTotalValue"), "40%")
         ];
         
         const dateFormatter = (date: string) => moment.utc(date).local().format("YYYY-MM-DD");
         
         this.timeSeriesColumns = [
-            new textColumn<timeSeriesItem>(this.gridController() as virtualGridController<any>, x => x.name, "Time series name", "145px"),
-            new textColumn<timeSeriesItem>(this.gridController() as virtualGridController<any>, x => x.numberOfEntries, "Timeseries items count", "60px"),
-            new textColumn<timeSeriesItem>(this.gridController() as virtualGridController<any>, x => dateFormatter(x.startDate) + " - " + dateFormatter(x.endDate), "Timeseries date range", "170px"),
+            new textColumn<timeSeriesItem>(this.gridController() as virtualGridController<any>, x => x.name, t("grid.timeSeriesName"), "145px"),
+            new textColumn<timeSeriesItem>(this.gridController() as virtualGridController<any>, x => x.numberOfEntries, t("grid.timeSeriesItemsCount"), "60px"),
+            new textColumn<timeSeriesItem>(this.gridController() as virtualGridController<any>, x => dateFormatter(x.startDate) + " - " + dateFormatter(x.endDate), t("grid.timeSeriesDateRange"), "170px"),
             new actionColumn<timeSeriesItem>(this.gridController() as virtualGridController<any>,
                 x => this.goToTimeSeriesEdit(x),
-                "Details",
+                t("grid.details"),
                 `<i class="icon-preview"></i>`,
                 "50px",
-                { title: () => this.isClone() ? 'Go to time series in source document' : 'Go to time series details' })
+                { title: () => this.isClone() ? t("grid.goToSourceTimeSeriesTitle") : t("grid.goToTimeSeriesTitle") })
         ]
         
         this.timeSeriesInReadOnlyModeColumns = [
-            new textColumn<timeSeriesItem>(this.gridController() as virtualGridController<any>, x => x.name, "Time series name", "145px"),
-            new textColumn<timeSeriesItem>(this.gridController() as virtualGridController<any>, x => x.numberOfEntries, "Time series items count", "60px"),
-            new textColumn<timeSeriesItem>(this.gridController() as virtualGridController<any>, x => dateFormatter(x.startDate) + " - " + dateFormatter(x.endDate), "Time series date range", "170px")
+            new textColumn<timeSeriesItem>(this.gridController() as virtualGridController<any>, x => x.name, t("grid.timeSeriesName"), "145px"),
+            new textColumn<timeSeriesItem>(this.gridController() as virtualGridController<any>, x => x.numberOfEntries, t("grid.timeSeriesItemsCountInRevision"), "60px"),
+            new textColumn<timeSeriesItem>(this.gridController() as virtualGridController<any>, x => dateFormatter(x.startDate) + " - " + dateFormatter(x.endDate), t("grid.timeSeriesDateRangeInRevision"), "170px")
         ];
     }
 
@@ -290,31 +294,33 @@ class connectedDocuments {
                 if (column instanceof textColumn) {
                     const value = column.getCellValue(item);
                     switch (column.header) {
-                        case "Revision": {
+                        case t("grid.revision"): {
                             onValue(moment.utc(value), value);
                             break;
                         }
-                        case "Timeseries date range":
+                        case t("grid.timeSeriesDateRange"):
                             onValue(timeSeriesItem.startDate + " - " + timeSeriesItem.endDate);
                             break;
-                        case "Timeseries items count":
+                        case t("grid.timeSeriesItemsCount"):
                             onValue(timeSeriesItem.numberOfEntries.toLocaleString());
                             break;
-                        case "Remote parameters": {
+                        case t("grid.remoteParameters"): {
                             const remoteParametersValue = value as RemoteAttachmentParameters;
                             if (remoteParametersValue == null) {
                                 return;
                             }
 
-                            const attachmentMetadataHtml = `<div><strong>Upload time:</strong> ${moment(remoteParametersValue.At).format(genUtils.dateFormat)}
-<strong>Destination ID:</strong> ${remoteParametersValue.Identifier}
-<strong>Flags:</strong> ${remoteParametersValue.Flags}</div>`
+                            const attachmentMetadataHtml = t("grid.remoteParametersPreview", {
+                                uploadTime: genUtils.escapeHtml(moment(remoteParametersValue.At).format(genUtils.dateFormat)),
+                                destinationId: genUtils.escapeHtml(remoteParametersValue.Identifier),
+                                flags: genUtils.escapeHtml(remoteParametersValue.Flags),
+                            });
                             onValue(attachmentMetadataHtml, value);
                             break;
                         }
-                        case "Remote flags": {
+                        case t("grid.remoteFlags"): {
                             const flag = value as RemoteAttachmentFlags;
-                            onValue(flag === "Remote" ? "Remote attachment" : "Local attachment");
+                            onValue(flag === "Remote" ? t("grid.remoteAttachment") : t("grid.localAttachment"));
                             break;
                         }
                         default: {

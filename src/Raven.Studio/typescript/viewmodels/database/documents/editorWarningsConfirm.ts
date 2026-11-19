@@ -1,5 +1,8 @@
 import dialog = require("plugins/dialog");
 import dialogViewModelBase = require("viewmodels/dialogViewModelBase");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("editorWarningsConfirm");
 
 class warningsData {
     source: string;
@@ -39,7 +42,7 @@ class editorWarningsConfirm extends dialogViewModelBase {
 
     warningLocation(warning: AceAjax.Annotation) {
         return ko.pureComputed(() => {
-            return `Line: ${warning.row + 1}, Column: ${warning.column}`;
+            return t("location", { line: warning.row + 1, column: warning.column });
         })
     }
 }

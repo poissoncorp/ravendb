@@ -2,6 +2,9 @@ import timeSeriesValue = require("models/database/timeSeries/timeSeriesValue");
 import generalUtils = require("common/generalUtils");
 import moment = require("moment");
 import typeUtils = require("common/typeUtils");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("timeSeriesModels");
 
 class rollupDataModel {
     first: timeSeriesValue;
@@ -82,6 +85,7 @@ class timeSeriesEntryModel {
     isIncrementalEntry: KnockoutComputed<boolean>;
 
     entryTitle = ko.observable<string>();
+    private isEditEntry = false;
     
     existingNumberOfValues = 0;
     maxNumberOfValuesReachedWarning: KnockoutComputed<string>;
@@ -139,11 +143,11 @@ class timeSeriesEntryModel {
     private initObservables(): void {
         this.maxNumberOfValuesReachedWarning = ko.pureComputed(() => {
             if (this.isRollupEntry && this.rollupValues().length === timeSeriesEntryModel.numberOfPossibleRollupValues) {
-                return `The maximum number of possible rollup values (${timeSeriesEntryModel.numberOfPossibleRollupValues}) has been reached.`;
+                return t("entry.maxRollupValuesReached", { limit: timeSeriesEntryModel.numberOfPossibleRollupValues });
             }
 
             if (!this.isRollupEntry() && this.values().length === timeSeriesEntryModel.numberOfPossibleValues) {
-                return `The maximum number of possible values (${timeSeriesEntryModel.numberOfPossibleValues}) has been reached.`;
+                return t("entry.maxValuesReached", { limit: timeSeriesEntryModel.numberOfPossibleValues });
             }
 
             return "";
@@ -152,11 +156,18 @@ class timeSeriesEntryModel {
         this.isIncrementalEntry  = ko.pureComputed(() => 
             !this.isCreatingNewTimeSeries() && timeSeriesEntryModel.isIncrementalName(this.name()));
 
-        const newEditPart = this.isCreatingNewTimeSeries() || !this.timestamp() ? "New" : "Edit";
-        const entryPart = " Time Series Entry";
-        const incPart = this.createIncrementalTimeSeries() || this.isIncrementalEntry() ? " - Incremental" : "";
-        const rollupPart = this.isRollupEntry() ? " - Rollup" : "";
-        this.entryTitle(newEditPart + entryPart + incPart + rollupPart);
+        this.isEditEntry = !(this.isCreatingNewTimeSeries() || !this.timestamp());
+        const kind = this.isEditEntry ? "edit" : "new";
+        const isIncremental = this.createIncrementalTimeSeries() || this.isIncrementalEntry();
+        const isRollup = this.isRollupEntry();
+        const context = isIncremental
+            ? isRollup
+                ? (`${kind}IncrementalRollup` as const)
+                : (`${kind}Incremental` as const)
+            : isRollup
+              ? (`${kind}Rollup` as const)
+              : kind;
+        this.entryTitle(t("entry.title", { context }));
     }
 
     addValue(): void {
@@ -188,19 +199,19 @@ class timeSeriesEntryModel {
                 {
                     validator: () => !this.isCreatingNewTimeSeries() ||
                                      !timeSeriesEntryModel.isRollupName(this.name()),
-                    message: "A Time Series name cannot contain '@'. This character is reserved for Time Series Rollups."
+                    message: t("validation.nameContainsAt")
                 },
                 {
                     validator: () => !this.isCreatingNewTimeSeries() ||
                                      !this.createIncrementalTimeSeries() ||
                                       timeSeriesEntryModel.isIncrementalName(this.name()),
-                    message: `An Incremental Time Series name must start with prefix: '${timeSeriesEntryModel.incrementalPrefix}'`
+                    message: t("validation.incrementalPrefixRequired", { prefix: timeSeriesEntryModel.incrementalPrefix })
                 },
                 {
                     validator: () => !this.isCreatingNewTimeSeries() ||
                                       this.createIncrementalTimeSeries() ||
                                      !timeSeriesEntryModel.isIncrementalName(this.name()),
-                    message: `A regular Time Series name cannot start with prefix: '${timeSeriesEntryModel.incrementalPrefix}'`
+                    message: t("validation.regularPrefixNotAllowed", { prefix: timeSeriesEntryModel.incrementalPrefix })
                 }
             ]
         });
@@ -210,7 +221,7 @@ class timeSeriesEntryModel {
             validation: [
                 {
                     validator: () => this.timestamp().isValid(),
-                    message: "Please enter a valid date"
+                    message: t("validation.invalidDate")
                 }
             ]
         });
@@ -223,7 +234,7 @@ class timeSeriesEntryModel {
             validation: [
                 {
                     validator: () => this.isRollupEntry() || this.values().length > 0,
-                    message: "At least one value is required"
+                    message: t("validation.valueRequired")
                 }
             ]
         });
@@ -232,7 +243,7 @@ class timeSeriesEntryModel {
             validation: [
                 {
                     validator: () => !this.isRollupEntry() || this.rollupValues().length > 0,
-                    message: "At least one rollup value is required"
+                    message: t("validation.rollupValueRequired")
                 }
             ]
         });
@@ -258,7 +269,7 @@ class timeSeriesEntryModel {
             Tag: this.tag(),
             Timestamp: this.timestamp().utc().format(generalUtils.utcFullDateFormat),
             Values: this.isRollupEntry() ? this.flattenRollupValues() :
-                this.values().map(x => this.isIncrementalEntry() && this.entryTitle().startsWith("Edit") ? x.delta() : x.value())
+                this.values().map(x => this.isIncrementalEntry() && this.isEditEntry ? x.delta() : x.value())
         }
     }
     

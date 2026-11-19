@@ -1,7 +1,10 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
 import RefreshConfiguration = Raven.Client.Documents.Operations.Refresh.RefreshConfiguration;
+
+const t = i18nModule.createTranslator("documentsCommands");
 
 class getRefreshConfigurationCommand extends commandBase {
 
@@ -23,7 +26,7 @@ class getRefreshConfigurationCommand extends commandBase {
                     deferred.resolve(null);
                 } else {
                     deferred.reject(xhr);
-                    this.reportError("Failed to get refresh information", xhr.responseText, xhr.statusText);
+                    this.reportError(t("getRefreshConfigurationFailed"), xhr.responseText, xhr.statusText);
                 }
             });
 

@@ -10,7 +10,7 @@ import messagePublisher from "common/messagePublisher";
 import document from "models/database/documents/document";
 import { useAppSelector } from "components/store";
 import { databaseSelectors } from "components/common/shell/databaseSliceSelectors";
-import pluralizeHelpers = require("common/helpers/text/pluralizeHelpers");
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 type AddAttachmentModalProps = {
     document: KnockoutObservable<document>;
@@ -19,6 +19,7 @@ type AddAttachmentModalProps = {
 };
 
 export default function AddAttachmentModal({ document, onUploaded, onClose }: AddAttachmentModalProps) {
+    const t = useStudioTranslation("editDocument");
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     const { uploadItems, batchProgress, upload, abortCurrent } = useAttachmentUpload(
@@ -35,7 +36,7 @@ export default function AddAttachmentModal({ document, onUploaded, onClose }: Ad
 
     const addFiles = (files: File[]) => {
         if (files.some((file) => !file.name.trim())) {
-            messagePublisher.reportError("Failed to load file");
+            messagePublisher.reportError(t("attachmentUpload.loadFileFailed"));
             return;
         }
 
@@ -47,14 +48,14 @@ export default function AddAttachmentModal({ document, onUploaded, onClose }: Ad
 
     const removeFile = (file: File) => setSelectedFiles((current) => current.filter((x) => x !== file));
 
-    const attachmentsLabel = pluralizeHelpers.pluralize(selectedFiles.length || 1, "attachment", "attachments", true);
+    const attachmentsCount = selectedFiles.length || 1;
 
     return (
         <Modal size="lg" show contentClassName="modal-border bulge-primary">
             <Modal.Header className="pb-0" onCloseClick={onClose}>
                 <h3>
                     <Icon icon="attachment" color="primary" />
-                    Add {attachmentsLabel}
+                    {t("addAttachment.title", { count: attachmentsCount })}
                 </h3>
             </Modal.Header>
             <Modal.Body>
@@ -68,7 +69,7 @@ export default function AddAttachmentModal({ document, onUploaded, onClose }: Ad
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="link" className="text-muted" onClick={onClose}>
-                    Close
+                    {t("close")}
                 </Button>
                 <ButtonWithSpinner
                     className="rounded-pill"
@@ -78,8 +79,11 @@ export default function AddAttachmentModal({ document, onUploaded, onClose }: Ad
                     disabled={selectedFiles.length === 0}
                 >
                     {batchProgress
-                        ? `Uploading ${batchProgress.position}/${batchProgress.count}`
-                        : `Upload ${attachmentsLabel}`}
+                        ? t("attachmentUpload.uploading", {
+                              position: batchProgress.position,
+                              total: batchProgress.count,
+                          })
+                        : t("addAttachment.upload", { count: attachmentsCount })}
                 </ButtonWithSpinner>
             </Modal.Footer>
         </Modal>

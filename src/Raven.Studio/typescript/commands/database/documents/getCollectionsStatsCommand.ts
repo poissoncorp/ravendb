@@ -2,6 +2,9 @@ import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import collectionsStats = require("models/database/documents/collectionsStats");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("documentsCommands");
 
 class getCollectionsStatsCommand extends commandBase {
 
@@ -24,7 +27,7 @@ class getCollectionsStatsCommand extends commandBase {
                 finalResult.resolve(stats);
             })
             .fail((response) => {
-                this.reportError("Can't fetch collection stats", response.responseText, response.statusText);
+                this.reportError(t("getCollectionsStatsFailed"), response.responseText, response.statusText);
                 finalResult.reject(response.responseText);
             });
 

@@ -1,6 +1,8 @@
 import React from "react";
 import moment from "moment";
-import { FilterTimezone, wallOf, zoneLabel } from "./timeSeriesRangeUtils";
+import { FilterTimezone, wallOf } from "./timeSeriesRangeUtils";
+import { useStudioTranslation } from "components/hooks/useStudioTranslation";
+import type { StudioTranslate } from "common/i18n/resources";
 import "./TimeSeriesFilterBadge.scss";
 
 // Deliberately compact (no seconds/ms) for a glanceable chip, but same ISO family as the grid.
@@ -19,19 +21,19 @@ interface TimeSeriesFilterBadgeProps {
 function formatFilter(
     startDate: moment.Moment | null,
     endDate: moment.Moment | null,
-    timezone: FilterTimezone
+    timezone: FilterTimezone,
+    t: StudioTranslate<"editTimeSeries">
 ): string | null {
     const fmt = (d: moment.Moment) => wallOf(d, timezone).format(BADGE_FORMAT);
-    const zone = zoneLabel(timezone);
 
     if (startDate && endDate) {
-        return `Between ${fmt(startDate)} - ${fmt(endDate)} (${zone})`;
+        return t("filterBadge.between", { context: timezone, start: fmt(startDate), end: fmt(endDate) });
     }
     if (endDate) {
-        return `Before ${fmt(endDate)} (${zone})`;
+        return t("filterBadge.before", { context: timezone, end: fmt(endDate) });
     }
     if (startDate) {
-        return `After ${fmt(startDate)} (${zone})`;
+        return t("filterBadge.after", { context: timezone, start: fmt(startDate) });
     }
     return null;
 }
@@ -43,7 +45,8 @@ export default function TimeSeriesFilterBadge({
     onEdit,
     onClear,
 }: TimeSeriesFilterBadgeProps) {
-    const text = formatFilter(startDate, endDate, timezone);
+    const t = useStudioTranslation("editTimeSeries");
+    const text = formatFilter(startDate, endDate, timezone, t);
 
     if (!text) {
         return null;
@@ -53,14 +56,14 @@ export default function TimeSeriesFilterBadge({
     // resolves): left segment opens the filter dialog, right segment clears it.
     return (
         <div className="btn-group time-series-filter-badge">
-            <button type="button" className="btn" title="Edit filter" onClick={onEdit}>
+            <button type="button" className="btn" title={t("filterBadge.editTitle")} onClick={onEdit}>
                 <i className="icon-calendar" />
                 <span className="margin-left margin-left-xs">{text}</span>
             </button>
             <button
                 type="button"
                 className="btn time-series-filter-badge__clear"
-                title="Clear filter"
+                title={t("filterBadge.clearTitle")}
                 onClick={onClear}
             >
                 <i className="icon-cancel" />

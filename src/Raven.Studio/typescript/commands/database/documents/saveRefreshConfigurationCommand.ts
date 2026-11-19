@@ -1,7 +1,10 @@
 import database = require("models/resources/database");
 import commandBase = require("commands/commandBase");
 import endpoint = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
 import RefreshConfiguration = Raven.Client.Documents.Operations.Refresh.RefreshConfiguration;
+
+const t = i18nModule.createTranslator("documentsCommands");
 
 class saveRefreshConfigurationCommand extends commandBase {
     
@@ -18,7 +21,7 @@ class saveRefreshConfigurationCommand extends commandBase {
         const url = endpoint.databases.refresh.adminRefreshConfig;
         const args = ko.toJSON(this.refreshConfiguration);
         return this.post<updateDatabaseConfigurationsResult>(url, args, this.db)
-            .fail((response: JQueryXHR) => this.reportError("Failed to save refresh configuration", response.responseText, response.statusText));
+            .fail((response: JQueryXHR) => this.reportError(t("saveRefreshConfigurationFailed"), response.responseText, response.statusText));
     }
 }
 

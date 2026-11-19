@@ -2,8 +2,12 @@ import { AboutViewFloating, AccordionItemWrapper } from "components/common/About
 import Code from "components/common/Code";
 import { Icon } from "components/common/Icon";
 import { useRavenLink } from "components/hooks/useRavenLink";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 export default function PatchSamplesAboutView() {
+    const t = useStudioTranslation("patch");
+    const commonT = useStudioTranslation("common");
     const patchViewDocsLink = useRavenLink({ hash: "VXSYQ7" });
     const setBasedPatchOperationsDocsLink = useRavenLink({ hash: "E928D4" });
 
@@ -13,69 +17,71 @@ export default function PatchSamplesAboutView() {
                 targetId="about"
                 icon="about"
                 color="info"
-                heading="About this view"
-                description="Get additional info on this feature"
+                heading={t("about.heading")}
+                description={t("about.description")}
             >
                 <p>
-                    <strong>Patching</strong> lets you modify existing documents by running a script directly on the
-                    server, without pulling the documents to the client. <strong>From this view</strong>, you can apply
-                    such updates to multiple documents in a single operation.
+                    <StudioTrans ns="patch" i18nKey="about.intro" components={{ strong: <strong /> }} />
                 </p>
                 <div>
-                    <strong>A patch script consists of two parts</strong>:
+                    <StudioTrans ns="patch" i18nKey="about.scriptParts" components={{ strong: <strong /> }} />
                     <ul className="mt-1">
                         <li>
-                            <strong>The QUERY</strong>:
-                            <br />
-                            An RQL query that defines the set of documents to update, using the same syntax you would
-                            use when querying the database or indexes for data retrieval.
+                            <StudioTrans
+                                ns="patch"
+                                i18nKey="about.queryPart"
+                                components={{ strong: <strong />, br: <br /> }}
+                            />
                         </li>
                         <li>
-                            <strong>The UPDATE</strong>:
-                            <br />A JavaScript block inside the <code>update</code> clause that defines the
-                            modifications to apply to the documents returned by the query.
+                            <StudioTrans
+                                ns="patch"
+                                i18nKey="about.updatePart"
+                                components={{ strong: <strong />, br: <br />, code: <code /> }}
+                            />
                         </li>
                     </ul>
                 </div>
                 <div>
-                    <strong>Basic structure</strong>:
+                    <StudioTrans ns="patch" i18nKey="about.basicStructure" components={{ strong: <strong /> }} />
                     <Code code={patchStructureExample} language="rql" className="mt-1 ms-2" isRunQueryHidden />
                 </div>
                 <div className="mt-3">
-                    <strong>Testing the patch script</strong>:
+                    <StudioTrans ns="patch" i18nKey="about.testingHeading" components={{ strong: <strong /> }} />
                     <ul className="mt-1">
                         <li>
-                            Before applying any changes, you can click <strong>Test</strong> to preview the update
-                            section&apos;s effect on a selected document. The original document remains unchanged.
+                            <StudioTrans
+                                ns="patch"
+                                i18nKey="about.testingPreview"
+                                components={{ strong: <strong /> }}
+                            />
                         </li>
                         <li>
-                            During testing, the query is ignored; only the <strong>update</strong> section is executed.
+                            <StudioTrans
+                                ns="patch"
+                                i18nKey="about.testingQueryIgnored"
+                                components={{ strong: <strong /> }}
+                            />
                         </li>
                     </ul>
                 </div>
                 <div>
-                    <strong>Running the patch script</strong>:
+                    <StudioTrans ns="patch" i18nKey="about.runningHeading" components={{ strong: <strong /> }} />
                     <ul className="mt-1">
+                        <li>{t("about.runningExecutes")}</li>
                         <li>
-                            When the patch runs, the server executes the query and applies the update clause to each
-                            document returned by the query.
-                        </li>
-                        <li>
-                            While the patch is running, a progress dialog lets you track the operation or abort it.
-                            Documents already modified before aborting are not reverted.
-                            <br />
-                            The operation stops processing further documents.
+                            <StudioTrans ns="patch" i18nKey="about.runningProgress" components={{ br: <br /> }} />
                         </li>
                     </ul>
                 </div>
                 <hr />
-                <div className="small-label mb-2">useful links</div>
+                <div className="small-label mb-2">{commonT("usefulLinks")}</div>
                 <a href={patchViewDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - Patch View
+                    <Icon icon="newtab" /> {t("about.docsPatchView")}
                 </a>
                 <br />
                 <a href={setBasedPatchOperationsDocsLink} target="_blank">
-                    <Icon icon="newtab" /> Docs - Set-based Patch Operations
+                    <Icon icon="newtab" /> {t("about.docsSetBasedPatchOperations")}
                 </a>
             </AccordionItemWrapper>
         </AboutViewFloating>

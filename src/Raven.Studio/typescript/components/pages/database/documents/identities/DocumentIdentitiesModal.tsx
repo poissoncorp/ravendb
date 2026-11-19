@@ -22,6 +22,8 @@ import { LazyLoad } from "components/common/LazyLoad";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEventsCollector } from "hooks/useEventsCollector";
 import Modal from "components/common/Modal";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
+import { StudioTrans } from "components/common/i18n/StudioTrans";
 
 interface DocumentIdentitiesModalProps {
     onHide: () => void;
@@ -38,6 +40,7 @@ export default function DocumentIdentitiesModal({
     onHide,
     ...props
 }: DocumentIdentitiesModalProps) {
+    const t = useStudioTranslation("identities");
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const { databasesService } = useServices();
     const isEditing = !!defaultValues;
@@ -77,7 +80,7 @@ export default function DocumentIdentitiesModal({
                     <div className="text-center">
                         <Icon icon="identities" color="primary" margin="me-0" className="fs-1" />
                     </div>
-                    <div className="text-center lead">{isEditing ? "Edit identity" : "Add new identity"}</div>
+                    <div className="text-center lead">{t("modal.title", { context: isEditing ? "edit" : "new" })}</div>
                 </Modal.Header>
                 <Modal.Body className="pb-0 vstack gap-3">
                     <DocumentIdentitiesModalForm isEditing={isEditing} control={control} />
@@ -85,7 +88,7 @@ export default function DocumentIdentitiesModal({
                 </Modal.Body>
                 <Modal.Footer className="mt-4">
                     <Button className="link-muted" variant="link" onClick={onHide} type="button">
-                        Close
+                        {t("modal.close")}
                     </Button>
                     <ButtonWithSpinner
                         className="rounded-pill"
@@ -93,9 +96,9 @@ export default function DocumentIdentitiesModal({
                         icon="save"
                         isSpinning={isSubmitting}
                         type="submit"
-                        title="Save identity"
+                        title={t("modal.saveButton")}
                     >
-                        Save identity
+                        {t("modal.saveButton")}
                     </ButtonWithSpinner>
                 </Modal.Footer>
             </form>
@@ -107,7 +110,9 @@ interface InformationBadgeProps extends AddIdentitiesFormData {
     isEditing: boolean;
 }
 
-function InformationBadge({ prefix = "<Prefix>", value, isEditing }: InformationBadgeProps) {
+function InformationBadge({ prefix: formPrefix, value, isEditing }: InformationBadgeProps) {
+    const t = useStudioTranslation("identities");
+    const prefix = formPrefix === undefined ? t("modal.prefixExample") : formPrefix;
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const { manageServerService } = useServices();
     const { result: identityPartsSeparator, loading } = useAsync(async () => {
@@ -138,21 +143,22 @@ function InformationBadge({ prefix = "<Prefix>", value, isEditing }: Information
         <RichAlert icon="info" variant="info">
             <div className="word-break">
                 <p className="mb-0">
-                    The effective identity separator in configuration is:{" "}
+                    {t("modal.separatorInfo")}{" "}
                     <code>
                         <LazyLoad active={loading}>{identityPartsSeparator}</LazyLoad>
                     </code>
                 </p>
                 <p className="mb-0">
-                    The next document that will be created with prefix &quot;
-                    <strong>{formattedPrefix}|</strong>
-                    &quot; will have ID: &quot;
-                    <code>
-                        {formattedPrefix}
-                        {identityPartsSeparator}
-                        {value ? value + 1 : `<Value + 1>`}
-                    </code>
-                    &quot;
+                    <StudioTrans
+                        ns="identities"
+                        i18nKey="modal.nextDocumentInfo"
+                        components={{ strong: <strong />, code: <code /> }}
+                        options={{
+                            prefix: formattedPrefix,
+                            separator: identityPartsSeparator ?? "",
+                            nextValue: value ? value + 1 : t("modal.nextValueExample"),
+                        }}
+                    />
                 </p>
             </div>
         </RichAlert>
@@ -165,21 +171,23 @@ interface DocumentIdentitiesModalFormProps {
 }
 
 function DocumentIdentitiesModalForm({ control, isEditing }: DocumentIdentitiesModalFormProps) {
+    const t = useStudioTranslation("identities");
+
     return (
         <Form className="vstack gap-3">
             <InputGroup className="vstack">
-                <FormLabel>Prefix</FormLabel>
+                <FormLabel>{t("modal.prefixLabel")}</FormLabel>
                 <FormInput
                     name="prefix"
                     type="text"
                     control={control}
-                    placeholder="Enter the document id prefix"
+                    placeholder={t("modal.prefixPlaceholder")}
                     disabled={isEditing}
                 />
             </InputGroup>
             <InputGroup className="vstack">
-                <FormLabel>Value</FormLabel>
-                <FormInput name="value" type="number" control={control} placeholder="Enter identity value" />
+                <FormLabel>{t("modal.valueLabel")}</FormLabel>
+                <FormInput name="value" type="number" control={control} placeholder={t("modal.valuePlaceholder")} />
             </InputGroup>
         </Form>
     );

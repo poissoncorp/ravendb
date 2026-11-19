@@ -7,6 +7,7 @@ import { databaseSelectors } from "components/common/shell/databaseSliceSelector
 import DocumentsPageBody from "components/pages/database/documents/documentsList/partials/DocumentsPageBody";
 import { useAppSelector } from "components/store";
 import { useEffect } from "react";
+import { useStudioTranslation } from "hooks/useStudioTranslation";
 
 interface DocumentsListQueryParams {
     collection?: string;
@@ -14,6 +15,7 @@ interface DocumentsListQueryParams {
 }
 
 export default function DocumentsPage({ queryParams }: ReactQueryParamsProps<DocumentsListQueryParams>) {
+    const t = useStudioTranslation("documentsList");
     const collectionName = queryParams.collection || null;
     const databaseName = useAppSelector(databaseSelectors.activeDatabaseName);
     const collectionsDatabaseName = useAppSelector(collectionsTrackerSelectors.databaseName);
@@ -32,10 +34,7 @@ export default function DocumentsPage({ queryParams }: ReactQueryParamsProps<Doc
             {isLoaded ? (
                 <DocumentsPageBody key={`${databaseName}/${collectionName}`} collectionName={collectionName} />
             ) : isLoadFailed ? (
-                <LoadError
-                    error="Unable to load the collections"
-                    refresh={() => collectionsTracker.default.reloadStats()}
-                />
+                <LoadError error={t("loadError")} refresh={() => collectionsTracker.default.reloadStats()} />
             ) : (
                 <DocumentsPageSkeleton />
             )}

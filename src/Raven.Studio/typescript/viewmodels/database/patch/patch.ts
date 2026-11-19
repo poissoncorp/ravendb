@@ -24,6 +24,10 @@ import clusterTopologyManager = require("common/shell/clusterTopologyManager");
 import shardViewModelBase = require("viewmodels/shardViewModelBase");
 import PatchAceEditor = require("viewmodels/database/patch/PatchAceEditor");
 import PatchSamplesAboutView = require("viewmodels/database/patch/PatchSamplesAboutView");
+import i18nModule = require("common/i18n/i18n");
+
+const t = i18nModule.createTranslator("patch");
+const commonT = i18nModule.createTranslator("common");
 
 class patchList {
 
@@ -141,7 +145,9 @@ class patch extends shardViewModelBase {
 
     localNodeTag = clusterTopologyManager.default.localNodeTag();
     
-    static readonly recentKeyword = 'Recent Patch';
+    static get recentKeyword() {
+        return t("savedPatches.recentName");
+    }
 
     static readonly $body = $("body");
     static readonly ContainerSelector = "#patchContainer";
@@ -315,8 +321,8 @@ class patch extends shardViewModelBase {
 
     removePatch(item: storedPatchDto) {
 
-        this.confirmationMessage("Patch", `Are you sure you want to delete patch '${generalUtils.escapeHtml(item.Name)}'?`, {
-            buttons: ["Cancel", "Delete"],
+        this.confirmationMessage(t("title"), t("savedPatches.deleteMessage", { name: generalUtils.escapeHtml(item.Name) }), {
+            buttons: [commonT("cancel"), commonT("delete")],
             html: true
         })
             .done(result => {
@@ -345,8 +351,8 @@ class patch extends shardViewModelBase {
 
                 // Verify if name already exists
                 if (savedPatchesStorage.getSavedPatches(this.db).find(x => x.Name.toUpperCase() === this.patchSaveName().toUpperCase())) { 
-                    this.confirmationMessage(`Patch ${generalUtils.escapeHtml(this.patchSaveName())} already exists`, `Overwrite existing patch ?`, {
-                        buttons: ["No", "Overwrite"],
+                    this.confirmationMessage(t("save.overwriteTitle", { name: generalUtils.escapeHtml(this.patchSaveName()) }), t("save.overwriteMessage"), {
+                        buttons: [t("save.overwriteNo"), t("save.overwriteConfirm")],
                         html: true
                     })
                         .done(result => {
@@ -380,7 +386,7 @@ class patch extends shardViewModelBase {
         this.savePatchInStorage(false);
         this.patchSaveName(null);
         this.saveValidationGroup.errors.showAllMessages(false);
-        messagePublisher.reportSuccess("Patch saved successfully");
+        messagePublisher.reportSuccess(t("save.success"));
     }
     
     private saveRecentPatch() {
@@ -405,7 +411,7 @@ class patch extends shardViewModelBase {
     
     private getRecentPatchName(): string {
         const [collectionIndexName, type] = queryUtil.getCollectionOrIndexName(this.patchDocument().query());
-        return type !== "unknown" ? patch.recentKeyword + " (" + collectionIndexName + ")" : patch.recentKeyword;
+        return type !== "unknown" ? t("savedPatches.recentNameWithSource", { source: collectionIndexName }) : patch.recentKeyword;
     }
 
     private getMatchingDocumentsNumber(): JQueryPromise<number> {
@@ -437,21 +443,21 @@ class patch extends shardViewModelBase {
     private executePatch(matchingDocuments: number): void {
         eventsCollector.default.reportEvent("patch", "run");
 
-        const patchQuestion = `<div>Are you sure you want to apply this patch to matching documents?</div>`;
+        const patchQuestion = `<div>${t("run.question")}</div>`;
         
         const warningMessage = 
             `<li>
-                 <small>Actual number of processed documents might be smaller if documents are filtered by the 'update' script</small>
+                 <small>${t("run.filteredWarning")}</small>
              </li>`;
         
         const timeoutMessage = this.staleIndexBehavior() === "timeoutDefined" ? `<li><small>
-                Timeout to wait for index to become non-stale: <strong class="margin-left margin-left-sm">${generalUtils.formatTimeSpan(this.staleTimeout() * 1000, true)}</strong>
+                ${t("run.staleTimeout")} <strong class="margin-left margin-left-sm">${generalUtils.formatTimeSpan(this.staleTimeout() * 1000, true)}</strong>
             </small></li>` : "";
-        const autoIndexCreation = this.disableAutoIndexCreation() ? "<li><small>Auto-Index won't be created</small></li>" : "";
-        const ignoreMaxSteps = this.ignoreMaxStepsForScript() ? "<li><small>Maximum number of steps for script will be ignored</small></li>" : "";
+        const autoIndexCreation = this.disableAutoIndexCreation() ? `<li><small>${t("run.noAutoIndex")}</small></li>` : "";
+        const ignoreMaxSteps = this.ignoreMaxStepsForScript() ? `<li><small>${t("run.maxStepsIgnored")}</small></li>` : "";
         const operationsLimit = this.defineMaxOperationsPerSecond() ? `
             <li>
-                <small>Number of operations limit: <strong class="margin-left margin-left-sm">${this.maxOperationsPerSecond().toLocaleString()}/s</strong></small>
+                <small>${t("run.operationsLimit")} <strong class="margin-left margin-left-sm">${this.maxOperationsPerSecond().toLocaleString()}/s</strong></small>
             </li>
         ` : "";
 
@@ -459,7 +465,7 @@ class patch extends shardViewModelBase {
              `<div class="margin-bottom margin-bottom-sm margin-top margin-top-sm text-info bg-info padding">
                  <ul class="no-margin">
                      <li>
-                         <small>Number of documents matching the Patch Query: <strong class="margin-left margin-left-sm">${matchingDocuments.toLocaleString()}</strong></small>
+                         <small>${t("run.matchingDocuments")} <strong class="margin-left margin-left-sm">${matchingDocuments.toLocaleString()}</strong></small>
                      </li>
                      ${matchingDocuments > 0 ? warningMessage : ''}
                      ${timeoutMessage}
@@ -470,8 +476,8 @@ class patch extends shardViewModelBase {
               </div>
               ${patchQuestion}` : `${patchQuestion}`;
 
-        this.confirmationMessage("Patch", patchMessage, {
-            buttons: ["Cancel", "Patch all"],
+        this.confirmationMessage(t("title"), patchMessage, {
+            buttons: [commonT("cancel"), t("run.patchAll")],
             html: true
         })
             .done(result => {

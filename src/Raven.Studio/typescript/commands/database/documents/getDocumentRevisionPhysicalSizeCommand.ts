@@ -1,11 +1,14 @@
 import commandBase = require("commands/commandBase");
 import database = require("models/resources/database");
 import endpoints = require("endpoints");
+import i18nModule = require("common/i18n/i18n");
 
 
 type DocumentRevisionPhysicalSizeCommandResult = Raven.Client.Documents.Commands.SizeDetails & {
     ChangeVector: string;
   };
+
+const t = i18nModule.createTranslator("documentsCommands");
 
 class getDocumentRevisionsPhysicalSizeCommand extends commandBase {
   
@@ -21,7 +24,7 @@ class getDocumentRevisionsPhysicalSizeCommand extends commandBase {
     const url = endpoints.databases.revisions.revisionsSize + this.urlEncodeArgs(args);
     
     return this.query<DocumentRevisionPhysicalSizeCommandResult>(url, null, this.db)
-      .fail((response: JQueryXHR) => this.reportError("Failed to get the revision physical size", response.responseText, response.statusText));
+      .fail((response: JQueryXHR) => this.reportError(t("getRevisionPhysicalSizeFailed"), response.responseText, response.statusText));
   }
 }
 
